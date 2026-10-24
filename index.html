@@ -54,7 +54,8 @@ body { height: 100%; overflow: hidden; overscroll-behavior: none; position: fixe
 main { max-width: 560px; margin: 0 auto; min-width: 0; }
 .page { display: flex; flex-direction: column; gap: 32px; min-width: 0; }
 button, input, textarea { font: inherit; color: inherit; }
-button { cursor: pointer; }
+button { cursor: pointer; touch-action: manipulation; -webkit-tap-highlight-color: transparent; user-select: none; }
+body { touch-action: manipulation; }
 :focus-visible { outline: 2px solid var(--brass); outline-offset: 2px; }
 ul { list-style: none; margin: 0; padding: 0; }
 .label-caps { font-family: var(--f-label); font-weight: 600; letter-spacing: .12em; text-transform: uppercase; }
@@ -774,6 +775,27 @@ details.targets[open] summary::after { content: "\2212"; }
   };
   var unsub = { checks: null, logs: null }, subscribed = { checks: null, logs: null };
   var writeChain = Promise.resolve();
+  // Today's record and log are saved by one coalescing writer: rapid taps collapse into the latest state, and
+  // snapshot echoes of our own in-flight writes never overwrite what is on screen (keepLocal).
+  var dayBusy = false, dayAgain = false, dayLogDirty = false, pendingWrites = 0;
+  function flushDay() {
+    if (dayBusy) { dayAgain = true; return; }
+    dayBusy = true; pendingWrites++;
+    (function run() {
+      dayAgain = false;
+      var uid = state.me, date = todayKey(), rec = recFor(date), log = logFor(date), saveLogToo = dayLogDirty; dayLogDirty = false;
+      var p = saveLogToo ? B.saveLog(uid, log) : Promise.resolve();
+      p.then(function () { return B.saveDay(rec); })
+        .catch(function (e) { if (e && e.code === "invalid_argument") { state.canWrite = false; drawAll(); } })
+        .then(function () { if (dayAgain) run(); else { dayBusy = false; pendingWrites--; } });
+    })();
+  }
+  function keepLocal(rows, local, match) {
+    if (!pendingWrites) return rows;
+    var mine = null; local.forEach(function (r) { if (match(r)) mine = r; });
+    if (!mine) return rows;
+    var out = rows.filter(function (r) { return !match(r); }); out.push(mine); return out;
+  }
 
   /* ---------- Helpers ---------- */
   function pad(n) { return n < 10 ? "0" + n : "" + n; }
@@ -847,10 +869,8 @@ details.targets[open] summary::after { content: "\2212"; }
     var li = -1; state.logs.forEach(function (l, i) { if (l.date === date) li = i; });
     if (li >= 0) state.logs[li] = log; else state.logs.push(log);
     drawAll();
-    if (B.db) writeChain = writeChain.then(function () {
-      var p = logChanged ? B.saveLog(uid, log) : Promise.resolve();
-      return p.then(function () { return B.saveDay(rec); });
-    }).catch(function (e) { if (e && e.code === "invalid_argument") state.canWrite = false; drawAll(); });
+    if (logChanged) dayLogDirty = true;
+    if (B.db) flushDay();
   }
   function toggle(key) { writeDay(function (r) { if (r.done[key]) delete r.done[key]; else r.done[key] = true; }); }
   function addWater(delta) { writeDay(function (r, l) { l.water = Math.max(0, l.water + delta); return true; }); }
@@ -1569,11 +1589,11 @@ details.targets[open] summary::after { content: "\2212"; }
     var low = lowKey();
     if (subscribed.checks !== low) {
       if (unsub.checks) unsub.checks(); subscribed.checks = low;
-      unsub.checks = B.watchChecks(low, function (rows) { state.checks = rows; drawAll(); loadProfiles(); });
+      unsub.checks = B.watchChecks(low, function (rows) { state.checks = keepLocal(rows, state.checks, function (c) { return c.uid === state.me && c.date === todayKey(); }); drawAll(); loadProfiles(); });
     }
     if (state.me && subscribed.logs !== low) {
       if (unsub.logs) unsub.logs(); subscribed.logs = low;
-      unsub.logs = B.watchLogs(state.me, low, function (rows) { state.logs = rows; drawAll(); });
+      unsub.logs = B.watchLogs(state.me, low, function (rows) { state.logs = keepLocal(rows, state.logs, function (l) { return l.date === todayKey(); }); drawAll(); });
     }
   }
 

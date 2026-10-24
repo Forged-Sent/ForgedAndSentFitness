@@ -1,4 +1,4 @@
-/* Local-only stand-in for the claude.ai runtime (window.claude). In-memory: data resets on reload.
+/* Local-only stand-in for the claude.ai runtime (window.claude). In-memory: data resets on reload. Set window.MOCK_LATENCY_MS before load to delay writes and snapshot echoes (to test stale updates).
    Provides just what index.html calls: db, user, assets. Uploaded media will not display (no /_blob/ server). */
 (function () {
   var docs = {}, subs = [], n = 0, ME = "u_dev_local";
@@ -21,6 +21,7 @@
       where: function (f, op, v) { return Query(path, wh.concat([[f, op, v]]), ord, lim); },
       orderBy: function (f, d) { return Query(path, wh, [f, d || "asc"], lim); },
       limit: function (k) { return Query(path, wh, ord, k); },
+      doc: function (id) { return Doc(path + "/" + id); },
       get: function () { return Promise.resolve(run()); },
       onSnapshot: function (cb) { var f = function () { cb(run()); }; subs.push(f); setTimeout(f, 0); return function () { subs = subs.filter(function (x) { return x !== f; }); }; },
       add: function (data) { var id = "d" + Date.now() + "_" + (n++); docs[path + "/" + id] = JSON.parse(JSON.stringify(data)); notify(); return Promise.resolve(Doc(path + "/" + id)); }
@@ -40,7 +41,7 @@
     return {
       id: id,
       get: function () { return Promise.resolve(snap(id, docs[path])); },
-      set: function (data) { docs[path] = JSON.parse(JSON.stringify(data)); notify(); return Promise.resolve(); },
+      set: function (data) { var c = JSON.parse(JSON.stringify(data)), L = window.MOCK_LATENCY_MS || 0; if (!L) { docs[path] = c; notify(); return Promise.resolve(); } return new Promise(function (res) { setTimeout(function () { docs[path] = c; notify(); res(); }, L); }); },
       delete: function () { delete docs[path]; notify(); return Promise.resolve(); },
       onSnapshot: function (cb) { var f = function () { cb(snap(id, docs[path])); }; subs.push(f); setTimeout(f, 0); return function () { subs = subs.filter(function (x) { return x !== f; }); }; },
       collection: function (name) { return Query(path + "/" + name, [], null, 0); }
