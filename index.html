@@ -691,11 +691,20 @@ details.targets[open] summary::after { content: "\2212"; }
      (accounts, database, media storage, push). The rest of the app calls only B. */
   var noop = function () {};
   var B = {
-    db: null, user: null, assets: null,
+    db: null, user: null, assets: null, sample: null,
     init: async function () {
       var c = window.claude; if (!c || !c.use) return false;
-      this.db = await c.use("db"); this.user = await c.use("user"); this.assets = await c.use("assets");
+      this.db = await c.use("db"); this.user = await c.use("user"); this.assets = await c.use("assets"); try { this.sample = await c.use("sample"); } catch (e) { this.sample = null; }
       return !!this.db;
+    },
+    /* Food lookup provider. Today: Claude estimate (artifact "sample" capability).
+       Later: replace with a call to your own backend that queries USDA FoodData Central / Open Food Facts. */
+    lookupFood: async function (text) {
+      if (!this.sample) throw new Error("unavailable");
+      var r = await this.sample.json("Estimate the nutrition for this food as typed by a user: \"" + text.replace(/["\\]/g, " ") + "\". If no amount is given, assume one typical serving. Reply with JSON only: {\"name\": short food name with the serving, \"kcal\": number, \"p\": protein grams, \"f\": fat grams, \"c\": carb grams}. Whole numbers.", { modelTier: "quick" });
+      var n = function (v, m) { v = parseFloat(v); return isFinite(v) && v >= 0 ? Math.min(m, Math.round(v)) : 0; };
+      if (!r || typeof r !== "object") throw new Error("bad");
+      return { name: String(r.name || text).slice(0, 60), kcal: n(r.kcal, 5000), p: n(r.p, 500), f: n(r.f, 500), c: n(r.c, 1000) };
     },
     identity: async function () {
       var r = { id: null, canWrite: true };
@@ -1634,7 +1643,21 @@ details.targets[open] summary::after { content: "\2212"; }
           i.addEventListener("input", function () { fd.d[key] = i.value; });
           l.appendChild(i); form.appendChild(l); return i;
         }
-        var ni = field("Food", "name", "text", "full", { maxlength: "60", placeholder: "e.g. Chicken and rice (optional)", id: "fd-name", autocomplete: "off" });
+        var ni = field("Food", "name", "text", "full", { maxlength: "60", placeholder: "e.g. 2 eggs and toast (optional)", id: "fd-name", autocomplete: "off" });
+        if (B.sample) {
+          var eb = el("button", "btn ghost full", fd.busy ? "Estimating\u2026" : "Estimate with Claude"); eb.type = "button"; eb.disabled = !!fd.busy;
+          eb.addEventListener("click", function () {
+            var q = (fd.d.name || "").trim();
+            if (!q) { fd.err = "Type the food and amount first, like \"2 eggs and toast\"."; drawMeals(true); return; }
+            fd.err = ""; fd.busy = true; drawMeals(true);
+            B.lookupFood(q).then(function (r) {
+              fd.busy = false; if (state.food !== fd) return;
+              fd.d = { name: r.name, kcal: String(r.kcal), p: String(r.p), f: String(r.f), c: String(r.c) }; fd.err = ""; fd.est = true; drawMeals(true);
+            }).catch(function () { fd.busy = false; if (state.food === fd) { fd.err = "Couldn\u2019t estimate that. Enter the numbers yourself."; drawMeals(true); } });
+          });
+          form.appendChild(eb);
+          if (fd.est) form.appendChild(el("p", "sub full", "Estimated by Claude. Check the numbers and adjust before adding."));
+        }
         field("Calories", "kcal", "number", null, { min: "0", max: "5000", inputmode: "numeric", placeholder: "Enter calories" });
         field("Protein (g)", "p", "number", null, { min: "0", max: "500", inputmode: "decimal" });
         field("Fat (g)", "f", "number", null, { min: "0", max: "500", inputmode: "decimal" });

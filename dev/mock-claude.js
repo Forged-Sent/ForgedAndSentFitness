@@ -56,5 +56,6 @@
     search: function () { return Promise.resolve([]); }
   };
   var assets = { upload: function (f) { var id = "blob" + (n++); (window.__uploads = window.__uploads || []).push({ size: f.size, type: f.type, name: f.name }); return Promise.resolve({ id: id, url: URL.createObjectURL(f), sizeBytes: f.size, contentType: f.type }); }, delete: function () { return Promise.resolve(); } };
-  window.claude = { use: function (name) { return Promise.resolve(name === "db" ? db : name === "user" ? user : name === "assets" ? assets : null); } };
+  var sample = { json: function (q) { return new Promise(function (res, rej) { setTimeout(function () { if (/FAIL/.test(q)) rej({ code: "rate_limited" }); else res({ name: "2 eggs and toast", kcal: "310", p: 19, f: 14, c: 26 }); }, 150); }); } };
+  window.claude = { use: function (name) { return Promise.resolve(name === "db" ? db : name === "user" ? user : name === "assets" ? assets : name === "sample" ? sample : null); } };
 })();
