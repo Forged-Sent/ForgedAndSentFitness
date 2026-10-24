@@ -548,7 +548,7 @@ details.targets[open] summary::after { content: "\2212"; }
         <div class="thumb-row"><span class="thumb wide" id="s-bn-thumb"></span>
           <label class="btn ghost" id="s-bn-label">Banner<input type="file" id="s-bn-file" accept="image/*" hidden></label>
           <button class="btn ghost" type="button" id="s-bn-rm">Remove</button></div>
-        <p class="note" id="s-photo-status" style="margin:0">Photos are visible to the group. Up to 5 MB each.</p>
+        <p class="note" id="s-photo-status" style="margin:0">Photos are visible to the group. Large photos are resized automatically.</p>
       </div>
     </section>
 
@@ -1596,14 +1596,46 @@ details.targets[open] summary::after { content: "\2212"; }
       r.appendChild(ub); bl.appendChild(r);
     });
   }
-  function uploadPhoto(file, field, statusId) {
+  // Resize and re-encode an image in the browser so any photo works. Returns a JPEG File under maxBytes when possible.
+  async function compressImage(file, maxDim, maxBytes) {
+    var bmp;
+    try { bmp = await createImageBitmap(file, { imageOrientation: "from-image" }); }
+    catch (e) {
+      bmp = await new Promise(function (res, rej) {
+        var url = URL.createObjectURL(file), im = new Image();
+        im.onload = function () { URL.revokeObjectURL(url); res(im); }; im.onerror = function () { URL.revokeObjectURL(url); rej(new Error("decode")); }; im.src = url;
+      });
+    }
+    var w0 = bmp.width || bmp.naturalWidth, h0 = bmp.height || bmp.naturalHeight;
+    if (!w0 || !h0) throw new Error("decode");
+    var scale = Math.min(1, maxDim / Math.max(w0, h0)), blob = null;
+    for (var round = 0; round < 4; round++) {
+      var w = Math.max(1, Math.round(w0 * scale)), h = Math.max(1, Math.round(h0 * scale));
+      var c = document.createElement("canvas"); c.width = w; c.height = h;
+      var ctx = c.getContext("2d"); ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, w, h); ctx.drawImage(bmp, 0, 0, w, h);
+      var qs = [0.86, 0.76, 0.66, 0.55];
+      for (var i = 0; i < qs.length; i++) {
+        blob = await new Promise(function (res) { c.toBlob(res, "image/jpeg", qs[i]); });
+        if (blob && blob.size <= maxBytes) break;
+      }
+      if (blob && blob.size <= maxBytes) break;
+      scale *= 0.8;
+    }
+    if (bmp.close) bmp.close();
+    if (!blob) throw new Error("encode");
+    return new File([blob], (file.name || "photo").replace(/\.[^.]+$/, "") + ".jpg", { type: "image/jpeg" });
+  }
+  async function uploadPhoto(file, field) {
     var st = $("s-photo-status");
     if (!file) return;
     if (file.type.indexOf("image/") !== 0) { st.textContent = "Choose an image file."; return; }
-    if (file.size > 5 * 1024 * 1024) { st.textContent = "That photo is over 5 MB. Choose a smaller one."; return; }
+    st.textContent = "Preparing photo…";
+    var small;
+    try { small = await compressImage(file, field === "bannerId" ? 1600 : 640, field === "bannerId" ? 900 * 1024 : 350 * 1024); }
+    catch (e) { st.textContent = "That photo could not be read. Try a JPG or PNG."; return; }
     st.textContent = "Uploading…";
     var old = (state.pubProfiles[state.me] || {})[field];
-    B.upload(file).then(function (up) {
+    B.upload(small).then(function (up) {
       var patch = {}; patch[field] = up.id; saveProfilePatch(patch);
       if (old) B.deleteAsset(old);
       st.textContent = "Saved.";
@@ -1741,14 +1773,19 @@ details.targets[open] summary::after { content: "\2212"; }
     $("composer").addEventListener("submit", submitPost);
     $("post-text").addEventListener("input", onComposerInput);
     $("post-text").addEventListener("blur", function () { setTimeout(hideMentions, 200); });
-    $("post-file").addEventListener("change", function (ev) {
-      postError("");
-      Array.prototype.forEach.call(ev.target.files, function (f) {
-        if (state.files.length >= 4) { postError("Up to 4 files per post."); return; }
-        if (f.size > 20 * 1024 * 1024) { postError(f.name + " is over 20 MB. Try a shorter clip or a smaller photo."); return; }
+    $("post-file").addEventListener("change", async function (ev) {
+      var list = Array.prototype.slice.call(ev.target.files); ev.target.value = ""; postError("");
+      for (var i = 0; i < list.length; i++) {
+        var f = list[i];
+        if (state.files.length >= 4) { postError("Up to 4 files per post."); break; }
+        if (f.type.indexOf("image/") === 0 && f.type !== "image/gif") {
+          postError("Preparing photo…");
+          try { f = await compressImage(f, 2048, 2 * 1024 * 1024); postError(""); }
+          catch (e) { if (f.size > 20 * 1024 * 1024) { postError("That photo could not be read. Try a JPG or PNG."); continue; } postError(""); }
+        } else if (f.size > 20 * 1024 * 1024) { postError(f.name + " is over 20 MB. Trim the clip or record it shorter."); continue; }
         state.files.push(f);
-      });
-      ev.target.value = ""; drawChips();
+      }
+      drawChips();
     });
     wireProfile();
     var h = (location.hash || "").replace("#", "");

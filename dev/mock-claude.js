@@ -55,6 +55,6 @@
     profiles: function (ids) { var o = {}; ids.forEach(function (i) { o[i] = { name: i === ME ? "Dev User" : "Brother " + i.slice(-3), avatarUrl: "", guest: false }; }); return Promise.resolve(o); },
     search: function () { return Promise.resolve([]); }
   };
-  var assets = { upload: function (f) { var id = "blob" + (n++); return Promise.resolve({ id: id, url: URL.createObjectURL(f), sizeBytes: f.size, contentType: f.type }); }, delete: function () { return Promise.resolve(); } };
+  var assets = { upload: function (f) { var id = "blob" + (n++); (window.__uploads = window.__uploads || []).push({ size: f.size, type: f.type, name: f.name }); return Promise.resolve({ id: id, url: URL.createObjectURL(f), sizeBytes: f.size, contentType: f.type }); }, delete: function () { return Promise.resolve(); } };
   window.claude = { use: function (name) { return Promise.resolve(name === "db" ? db : name === "user" ? user : name === "assets" ? assets : null); } };
 })();
