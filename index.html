@@ -83,6 +83,7 @@ h1.pg { font-size: 42px; }
 .item { display: flex; align-items: stretch; border-bottom: 1px solid var(--line); }
 .hit { flex: 1; min-width: 0; display: flex; align-items: center; gap: 16px; text-align: left; min-height: 68px; padding: 12px 4px; background: transparent; border: 0; }
 .hit:disabled { cursor: default; opacity: .65; }
+.hit.auto { cursor: default; }
 .box { flex: none; width: 32px; height: 32px; border: 2px solid var(--muted); background: transparent; display: grid; place-items: center; transition: background .12s, border-color .12s; }
 .box svg { width: 18px; height: 18px; stroke: var(--accent-ink); stroke-width: 3.2; fill: none; stroke-linecap: square; opacity: 0; }
 .hit[aria-checked="true"] .box { background: var(--accent); border-color: var(--accent); }
@@ -1032,9 +1033,10 @@ details.targets[open] summary::after { content: "\2212"; }
       var isDevo = tk.kind === "devo", page = AUTO_PAGE[tk.kind];
       var hAuto = (tk.kind === "steps" && healthHave("steps")) || (tk.kind === "weigh" && healthHave("weight"));
       b.setAttribute("role", "checkbox"); b.setAttribute("aria-checked", done[tk.id] ? "true" : "false");
-      if (page) b.setAttribute("aria-readonly", "true");
-      b.disabled = hAuto || (!isDevo && !page && (!state.me || !state.canWrite));
-      if (hAuto) b.setAttribute("aria-readonly", "true");
+      // Boxes owned by an area (Fuel, Train, Check-in, health data) are filled by the app. They are display-only here.
+      var auto = hAuto || !!page;
+      if (auto) { b.setAttribute("aria-readonly", "true"); b.classList.add("auto"); }
+      b.disabled = !isDevo && !auto && (!state.me || !state.canWrite);
       var box = el("span", "box"); box.innerHTML = CHECK_SVG; b.appendChild(box);
       var txt = el("span", "txt"), nm = el("span", "name", tk.title);
       txt.appendChild(nm);
@@ -1049,8 +1051,8 @@ details.targets[open] summary::after { content: "\2212"; }
       if (sub) txt.appendChild(el("span", "sub", sub));
       b.appendChild(txt);
       b.appendChild(el("span", "pts", "+" + tk.points + (tk.points === 1 ? " pt" : " pts")));
-      if (isDevo) b.appendChild(el("span", "chev", "›")); else if (page) b.appendChild(el("span", "chev dim", "›"));
-      b.addEventListener("click", function () { if (isDevo) openDevo(); else if (page) go(page); else toggle(tk.id); });
+      if (isDevo) b.appendChild(el("span", "chev", "›"));
+      b.addEventListener("click", function () { if (isDevo) openDevo(); else if (!auto) toggle(tk.id); });
       li.appendChild(b); list.appendChild(li);
     });
   }
