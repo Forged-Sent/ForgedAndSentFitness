@@ -284,9 +284,9 @@ details.targets[open] summary::after { content: "\2212"; }
 .devo-end .btn{width:100%;min-height:56px;font-size:18px}
 /* Tab bar */
 .tabbar { position: relative; flex: 0 0 auto; z-index: 10; background: var(--surface); border-top: 1px solid var(--line);
-  display: grid; grid-template-columns: repeat(5, minmax(0, 1fr));
+  display: grid; grid-template-columns: repeat(6, minmax(0, 1fr));
   padding-bottom: env(safe-area-inset-bottom, 0px); padding-left: max(8px, env(safe-area-inset-left, 0px)); padding-right: max(8px, env(safe-area-inset-right, 0px)); }
-.tabbar button { background: transparent; border: 0; border-top: 3px solid transparent; min-height: 60px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; color: var(--muted); font-family: var(--f-label); font-weight: 600; font-size: 12px; letter-spacing: .1em; text-transform: uppercase; }
+.tabbar button { background: transparent; border: 0; border-top: 3px solid transparent; min-height: 60px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; color: var(--muted); font-family: var(--f-label); font-weight: 600; font-size: 11px; letter-spacing: .05em; text-transform: uppercase; }
 .tabbar svg { width: 24px; height: 24px; stroke: currentColor; stroke-width: 2; fill: none; stroke-linecap: square; stroke-linejoin: miter; }
 .tabbar button[aria-current="page"] { color: var(--brass); border-top-color: var(--brass); }
 
@@ -304,7 +304,7 @@ details.targets[open] summary::after { content: "\2212"; }
 .sheet-actions .btn { flex: 1 1 200px; }
 
 @media (prefers-reduced-motion: reduce) { .meter > i, .box { transition: none; } .strip { scroll-behavior: auto; } }
-@media (max-width: 380px) { h1 { font-size: 42px; } h1.pg { font-size: 36px; } .name { font-size: 20px; } .row { gap: 10px; } .tabbar button { font-size: 11px; letter-spacing: .06em; } }
+@media (max-width: 380px) { h1 { font-size: 42px; } h1.pg { font-size: 36px; } .name { font-size: 20px; } .row { gap: 10px; } .tabbar button { font-size: 10.5px; letter-spacing: 0; padding-left: 0; padding-right: 0; } }
 </style>
 
 <div id="app"><div id="scroll">
@@ -662,6 +662,7 @@ details.targets[open] summary::after { content: "\2212"; }
   <button type="button" data-page="train"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 9v6M6 7v10M18 7v10M21 9v6M6 12h12"/></svg>Train</button>
   <button type="button" data-page="board"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 20V10M12 20V4M19 20v-7"/></svg>Board</button>
   <button type="button" data-page="checkin"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v11H9l-5 4z"/></svg>Check-in</button>
+  <button type="button" data-page="settings"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3.2"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5.3 5.3l2.1 2.1M16.6 16.6l2.1 2.1M5.3 18.7l2.1-2.1M16.6 7.4l2.1-2.1"/></svg>Settings</button>
 </nav>
 </div>
 
