@@ -287,7 +287,8 @@ details.targets[open] summary::after { content: "\2212"; }
 .meal-head{display:flex;align-items:center;gap:10px;margin-bottom:4px}
 .meal-toggle{width:100%;text-align:left;min-height:52px;background:transparent;border:0;padding:0}
 .meal-toggle .txt{flex:1;min-width:0;display:flex;flex-direction:column}
-.mt-chev{flex:none;width:18px;color:var(--brass,#b08d57);font-size:18px}
+.mt-chev{flex:none;width:44px;height:44px;display:flex;align-items:center;justify-content:center;border:2px solid var(--brass,#b08d57);color:var(--brass,#b08d57);font-size:30px;line-height:1}
+.mini.fx{min-width:48px;min-height:48px;font-size:26px;font-weight:700;letter-spacing:0;text-transform:none;line-height:1}
 .fentry{display:flex;align-items:center;gap:8px;border-top:1px dashed var(--line)}
 .fentry .fe-main{flex:1;min-width:0;display:flex;align-items:center;gap:12px;text-align:left;min-height:56px;padding:8px 2px;background:transparent;border:0}
 .fentry .nums{flex:none}
@@ -1622,7 +1623,7 @@ details.targets[open] summary::after { content: "\2212"; }
         tx.appendChild(el("span", "sub", "P " + fmtW(e.p) + " \u00B7 F " + fmtW(e.f) + " \u00B7 C " + fmtW(e.c)));
         main.appendChild(tx); main.appendChild(el("span", "nums", fmt(e.kcal)));
         main.addEventListener("click", function () { openFoodForm(m.k, e); });
-        var rm = el("button", "mini danger", "\u00D7"); rm.type = "button"; rm.disabled = off; rm.setAttribute("aria-label", "Remove " + e.name);
+        var rm = el("button", "mini danger fx", "X"); rm.type = "button"; rm.disabled = off; rm.setAttribute("aria-label", "Remove " + e.name);
         rm.addEventListener("click", function () { removeFood(m.k, e.id); });
         row.appendChild(main); row.appendChild(rm); sec.appendChild(row);
       });
