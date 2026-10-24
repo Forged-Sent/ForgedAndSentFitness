@@ -1759,6 +1759,53 @@ details.targets[open] summary::after { content: "\2212"; }
     });
   }
   // Resize and re-encode an image in the browser so any photo works. Returns a JPEG File under maxBytes when possible.
+  /* Re-encodes a video in the browser (plays it into a canvas and records it) so it fits the upload limit. */
+  var VIDEO_MAX = 20 * 1024 * 1024, VIDEO_SKIP = 10 * 1024 * 1024, VIDEO_MAX_SECONDS = 180;
+  function compressVideo(file, onProgress) {
+    return new Promise(function (resolve, reject) {
+      if (!window.MediaRecorder || !HTMLCanvasElement.prototype.captureStream) { reject(new Error("unsupported")); return; }
+      var types = ["video/mp4;codecs=avc1.42E01E,mp4a.40.2", "video/mp4", "video/webm;codecs=vp9,opus", "video/webm;codecs=vp8,opus", "video/webm"];
+      var mime = ""; for (var t = 0; t < types.length; t++) { if (MediaRecorder.isTypeSupported(types[t])) { mime = types[t]; break; } }
+      if (!mime) { reject(new Error("unsupported")); return; }
+      var url = URL.createObjectURL(file), v = document.createElement("video"), done = false, rec, ctx, timer;
+      v.preload = "auto"; v.playsInline = true; v.setAttribute("playsinline", ""); v.src = url;
+      function finish(err, blob) {
+        if (done) return; done = true; clearTimeout(timer);
+        try { v.pause(); } catch (e) {} try { if (ctx) ctx.close(); } catch (e) {} URL.revokeObjectURL(url);
+        if (err) reject(err); else resolve(blob);
+      }
+      v.onerror = function () { finish(new Error("decode")); };
+      v.onloadedmetadata = function () {
+        var dur = v.duration;
+        if (!isFinite(dur) || dur <= 0) { finish(new Error("decode")); return; }
+        if (dur > VIDEO_MAX_SECONDS) { var le = new Error("long"); le.code = "long"; finish(le); return; }
+        var scale = Math.min(1, 720 / Math.min(v.videoWidth, v.videoHeight)), w = Math.round(v.videoWidth * scale / 2) * 2, h = Math.round(v.videoHeight * scale / 2) * 2;
+        var cv = document.createElement("canvas"); cv.width = w; cv.height = h; var g = cv.getContext("2d");
+        var audioBps = 96000, vBps = Math.max(250000, Math.min(2500000, Math.floor(VIDEO_MAX * 8 * 0.8 / dur) - audioBps));
+        var stream = cv.captureStream(30);
+        try {
+          var AC = window.AudioContext || window.webkitAudioContext; ctx = new AC();
+          var src = ctx.createMediaElementSource(v), dest = ctx.createMediaStreamDestination(); src.connect(dest);
+          dest.stream.getAudioTracks().forEach(function (tr) { stream.addTrack(tr); });
+        } catch (e) { /* no audio track */ }
+        var chunks = [];
+        try { rec = new MediaRecorder(stream, { mimeType: mime, videoBitsPerSecond: vBps, audioBitsPerSecond: audioBps }); } catch (e) { finish(e); return; }
+        rec.ondataavailable = function (ev) { if (ev.data && ev.data.size) chunks.push(ev.data); };
+        rec.onstop = function () { finish(null, new Blob(chunks, { type: mime.split(";")[0] })); };
+        rec.onerror = function () { finish(new Error("record")); };
+        function draw() {
+          if (done) return;
+          g.drawImage(v, 0, 0, w, h); if (onProgress) onProgress(Math.min(99, Math.round(v.currentTime / dur * 100)));
+          if (v.ended) return;
+          if (v.requestVideoFrameCallback) v.requestVideoFrameCallback(draw); else requestAnimationFrame(draw);
+        }
+        v.onended = function () { setTimeout(function () { try { rec.stop(); } catch (e) { finish(new Error("record")); } }, 200); };
+        timer = setTimeout(function () { finish(new Error("timeout")); }, dur * 2000 + 15000);
+        rec.start(500);
+        var p = v.play(); if (p && p.then) p.then(draw).catch(function () { v.muted = true; v.play().then(draw).catch(function () { finish(new Error("play")); }); }); else draw();
+      };
+    });
+  }
   async function compressImage(file, maxDim, maxBytes) {
     var bmp;
     try { bmp = await createImageBitmap(file, { imageOrientation: "from-image" }); }
@@ -1942,7 +1989,19 @@ details.targets[open] summary::after { content: "\2212"; }
           postError("Preparing photo…");
           try { f = await compressImage(f, 2048, 2 * 1024 * 1024); postError(""); }
           catch (e) { if (f.size > 20 * 1024 * 1024) { postError("That photo could not be read. Try a JPG or PNG."); continue; } postError(""); }
-        } else if (f.size > 20 * 1024 * 1024) { postError(f.name + " is over 20 MB. Trim the clip or record it shorter."); continue; }
+        } else if (f.type.indexOf("video/") === 0 && f.size > VIDEO_SKIP) {
+          postError("Shrinking video… 0%");
+          try {
+            var vb = await compressVideo(f, function (pc) { postError("Shrinking video… " + pc + "%. Keep this screen open."); });
+            if (vb.size > VIDEO_MAX) { postError("That video is still too large after shrinking. Try a shorter clip."); continue; }
+            var ext = vb.type.indexOf("mp4") >= 0 ? ".mp4" : ".webm";
+            f = new File([vb], (f.name.replace(/\.[^.]+$/, "") || "video") + ext, { type: vb.type }); postError("");
+          } catch (e) {
+            if (e && e.code === "long") { postError("Videos can be up to 3 minutes. Trim the clip and try again."); continue; }
+            if (f.size > VIDEO_MAX) { postError("Couldn\u2019t shrink that video on this device. Trim the clip or record it shorter."); continue; }
+            postError("");
+          }
+        } else if (f.size > VIDEO_MAX) { postError(f.name + " is over 20 MB. Trim the clip or record it shorter."); continue; }
         state.files.push(f);
       }
       drawChips();
