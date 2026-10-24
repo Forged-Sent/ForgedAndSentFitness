@@ -1,0 +1,10 @@
+{
+  "t_devo":    {"title": "Daily Devotional", "sub": "", "points": 2, "kind": "devo", "mandatory": true, "createdAt": 1792877500000},
+  "t_motto":   {"title": "Morning Motto", "sub": "Say it today", "points": 1, "kind": "check", "createdAt": 1792877500001},
+  "t_weigh":   {"title": "Weigh-In", "sub": "Weigh in today", "points": 1, "kind": "check", "createdAt": 1792877500002},
+  "t_comms":   {"title": "Daily Check-In", "sub": "Post in the thread today", "points": 1, "kind": "checkin", "createdAt": 1792877500003},
+  "t_workout": {"title": "Workout", "sub": "Checks itself when you finish a workout", "points": 3, "kind": "workout", "createdAt": 1792877500004},
+  "t_water":   {"title": "Drink 3 Liters of Water", "sub": "3 L today", "points": 1, "kind": "water", "createdAt": 1792877500005},
+  "t_cal":     {"title": "Calories", "sub": "Hit your target. Meal log coming soon", "points": 1, "kind": "calories", "createdAt": 1792877500006},
+  "t_steps":   {"title": "Steps", "sub": "10,000 steps", "points": 1, "kind": "check", "createdAt": 1792877500007}
+}

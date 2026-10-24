@@ -1,0 +1,16 @@
+{
+  "capabilities": {
+    "db": {
+      "rules": [
+        {"path": "tasks", "read": "view", "write": "admin"},
+        {"path": "lifts", "read": "view", "write": "admin"},
+        {"path": "habits", "read": "view", "write": "owner"},
+        {"path": "habits/{self}", "write": "interact"},
+        {"path": "profiles", "read": "view", "write": "owner"},
+        {"path": "profiles/{self}", "write": "interact"}
+      ]
+    },
+    "user": {"scopes": ["profile"]},
+    "assets": {"upload": "interact"}
+  }
+}

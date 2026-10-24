@@ -1,0 +1,6 @@
+{
+  "l_squat": {"name": "Back Squat", "order": 1},
+  "l_bench": {"name": "Bench Press", "order": 2},
+  "l_dead":  {"name": "Deadlift", "order": 3},
+  "l_ohp":   {"name": "Overhead Press", "order": 4}
+}
