@@ -6,11 +6,12 @@
   seed("tasks", {
     t_devo: { title: "Daily Devotional", sub: "", points: 2, kind: "devo", mandatory: true, createdAt: 1 },
     t_motto: { title: "Morning Motto", sub: "Say it today", points: 1, kind: "check", createdAt: 2 },
-    t_weigh: { title: "Weigh-In", sub: "Weigh in today", points: 1, kind: "check", createdAt: 3 },
+    t_weigh: { title: "Weigh-In", sub: "Weigh in today", points: 1, kind: "weigh", createdAt: 3 },
     t_comms: { title: "Daily Check-In", sub: "Post in the thread today", points: 1, kind: "checkin", createdAt: 4 },
     t_workout: { title: "Workout", sub: "", points: 3, kind: "workout", createdAt: 5 },
     t_water: { title: "Drink 3 Liters of Water", sub: "3 L today", points: 1, kind: "water", createdAt: 6 },
-    t_cal: { title: "Calories", sub: "", points: 1, kind: "calories", createdAt: 7 }
+    t_cal: { title: "Calories", sub: "", points: 1, kind: "calories", createdAt: 7 },
+    t_steps: { title: "Steps", sub: "10,000 steps", points: 1, kind: "steps", createdAt: 8 }
   });
   seed("lifts", { l_squat: { name: "Back Squat", order: 1 }, l_bench: { name: "Bench Press", order: 2 }, l_dead: { name: "Deadlift", order: 3 }, l_ohp: { name: "Overhead Press", order: 4 } });
   function notify() { subs.slice().forEach(function (s) { s(); }); }

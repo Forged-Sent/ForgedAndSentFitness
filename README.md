@@ -9,10 +9,11 @@ A men's fitness and accountability app for the Forged in Faith men's group. Men 
 | Path | What it is |
 |---|---|
 | `index.html` | Current version. A single self-contained file: HTML, CSS and JS. |
-| `versions/app-v1.html` ... `app-v13.html` | Every earlier iteration, kept for rollback. A new version file is created for each iteration; never overwrite old ones. |
+| `versions/app-v1.html` ... `app-v14.html` | Every earlier iteration, kept for rollback. A new version file is created for each iteration; never overwrite old ones. |
 | `seed/` | Starting data: `tasks.json` (standard daily list), `lifts.json` (core lifts), `devotionals.json` (366 daily devotionals, one per calendar date, also embedded in `index.html`), `db-rules.json` (access rules and runtime capabilities the page declares). |
 | `dev/` | Local preview. `mock-claude.js` is an in-memory stand-in for `window.claude`; `make_preview.py` builds `dev/preview.html`. |
 | `docs/architecture-notes.md` | Architecture and store-readiness notes. |
+| `docs/health-integration.md` | Apple Health and Health Connect plan, bridge contract and store requirements. |
 
 ## Running it
 
@@ -64,6 +65,10 @@ Sources: [Apple App Review Guidelines](https://developer.apple.com/app-store/rev
 ## Devotionals
 
 The Daily Devotional box opens a full-screen devotional for today's date (Open in Prayer, Reading, Reflect, Act). The man must scroll to the bottom before "Mark as read" enables; marking it read checks the box and returns to Today. Scripture is the Berean Standard Bible (public domain per the source document); verify each verse against the official text at berean.bible before launch. Content source: `Daily Devotional: 365 Days for Men` (366 entries incl. Feb 29). Some verses may overlap with the Steel & Scripture book; compare lists if zero overlap is wanted.
+
+## Health data
+
+Steps, Weigh-In and Workout can be filled from Apple Health or Health Connect once the app is wrapped natively. The page reads a `window.ForgedHealth` bridge; see `docs/health-integration.md`.
 
 ## Open items
 
