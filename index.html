@@ -1006,7 +1006,6 @@ details.targets[open] summary::after { content: "\2212"; }
       b.disabled = !isDevo && !page && (!state.me || !state.canWrite);
       var box = el("span", "box"); box.innerHTML = CHECK_SVG; b.appendChild(box);
       var txt = el("span", "txt"), nm = el("span", "name", tk.title);
-      if (tk.mandatory) nm.appendChild(el("span", "tag", "Required"));
       txt.appendChild(nm);
       var sub = tk.sub || "";
       if (isDevo) { var dv = devoToday(); sub = done[tk.id] ? "Read today" : (dv ? dv.e.ref + ". Tap to open today's reading" : "Tap to open today's reading"); }
