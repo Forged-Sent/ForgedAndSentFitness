@@ -1565,10 +1565,10 @@ details.targets[open] summary::after { content: "\2212"; }
     var fd = state.food, d = fd.d, name = d.name.trim().slice(0, 60);
     function num(v, max) { var n = parseFloat(v); return isFinite(n) && n >= 0 ? Math.min(max, Math.round(n * 10) / 10) : 0; }
     var p = num(d.p, 500), f = num(d.f, 500), c = num(d.c, 1000), kcal = num(d.kcal, 5000);
-    if (!name) { fd.err = "Give the food a name."; drawMeals(true); return; }
-    if (!kcal) kcal = Math.round(p * 4 + f * 9 + c * 4);
+    if (!kcal)  kcal = Math.round(p * 4 + f * 9 + c * 4);
     if (!kcal && !p && !f && !c) { fd.err = "Enter calories or macros."; drawMeals(true); return; }
     kcal = Math.round(kcal);
+    if (!name) name = "Quick add";
     var meal = fd.meal, id = fd.id || ("f" + Date.now().toString(36) + Math.floor(Math.random() * 1296).toString(36));
     state.food = { meal: null, id: null, d: { name: "", kcal: "", p: "", f: "", c: "" }, err: "" };
     writeDay(function (r, l) {
@@ -1634,8 +1634,8 @@ details.targets[open] summary::after { content: "\2212"; }
           i.addEventListener("input", function () { fd.d[key] = i.value; });
           l.appendChild(i); form.appendChild(l); return i;
         }
-        var ni = field("Food", "name", "text", "full", { maxlength: "60", placeholder: "e.g. Chicken and rice", id: "fd-name", autocomplete: "off" });
-        field("Calories", "kcal", "number", null, { min: "0", max: "5000", inputmode: "numeric", placeholder: "auto" });
+        var ni = field("Food", "name", "text", "full", { maxlength: "60", placeholder: "e.g. Chicken and rice (optional)", id: "fd-name", autocomplete: "off" });
+        field("Calories", "kcal", "number", null, { min: "0", max: "5000", inputmode: "numeric", placeholder: "Enter calories" });
         field("Protein (g)", "p", "number", null, { min: "0", max: "500", inputmode: "decimal" });
         field("Fat (g)", "f", "number", null, { min: "0", max: "500", inputmode: "decimal" });
         field("Carbs (g)", "c", "number", null, { min: "0", max: "1000", inputmode: "decimal" });
