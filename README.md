@@ -9,7 +9,7 @@ A men's fitness and accountability app for the Forged in Faith men's group. Men 
 | Path | What it is |
 |---|---|
 | `index.html` | Current version. A single self-contained file: HTML, CSS and JS. |
-| `versions/app-v1.html` ... `app-v17.html` | Every earlier iteration, kept for rollback. A new version file is created for each iteration; never overwrite old ones. |
+| `versions/app-v1.html` ... `app-v18.html` | Every earlier iteration, kept for rollback. A new version file is created for each iteration; never overwrite old ones. |
 | `seed/` | Starting data: `tasks.json` (standard daily list), `lifts.json` (core lifts), `devotionals.json` (366 daily devotionals, one per calendar date, also embedded in `index.html`), `db-rules.json` (access rules and runtime capabilities the page declares). |
 | `dev/` | Local preview. `mock-claude.js` is an in-memory stand-in for `window.claude`; `make_preview.py` builds `dev/preview.html`. |
 | `docs/architecture-notes.md` | Architecture and store-readiness notes. |
@@ -40,7 +40,7 @@ The mock keeps data in memory only, shows one fake user, and cannot display uplo
   - `habits/{uid}` the man's three custom habits.
   - `profiles/{uid}` shared: `motto, avatarId, bannerId, prs {liftId: {w, reps, date}}`.
   - `posts/{id}`, `likes/{postId}_{uid}`, `reports/{id}` community thread.
-  - PRIVATE per user: `data/users/<id>/log/days/<date>` (water oz, calories, protein, fat, carbs) and `data/users/<id>/settings` (targets, body stats, reminder times, blocked users).
+  - PRIVATE per user: `data/users/<id>/log/days/<date>` (water oz, calories, protein, fat, carbs totals, plus `meals` {breakfast, lunch, dinner, snack: [{id, name, kcal, p, f, c}]}) and `data/users/<id>/settings` (targets, body stats, reminder times, blocked users).
 - **Access rules** (see `seed/db-rules.json`): standard list and lifts are admin-write; each man writes only his own habits and profile; personal health data lives in the private subtree. A real backend must enforce the same rules server-side.
 
 ## Scoring and behavior
@@ -72,7 +72,7 @@ Steps, Weigh-In and Workout can be filled from Apple Health or Health Connect on
 
 ## Open items
 
-- Food entry (breakfast, lunch, dinner, snacks; macros and micros) feeding the Fuel page.
+- Food log is in (breakfast, lunch, dinner, snack; manual entry of calories and macros, recent foods). Still to do: food search or barcode scan with a nutrition database, micronutrients.
 - AI-generated workouts on the Train calendar.
 - Final core lift list (placeholders seeded), profile photo cropping, public support email.
 - Name clearance: trademark, app store, domain and social handle checks for "Forged & Sent" ("Forged" is common in men's ministry names).

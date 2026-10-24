@@ -282,6 +282,18 @@ details.targets[open] summary::after { content: "\2212"; }
 .scripture{font-family:var(--f-scripture);font-style:italic;font-weight:400;line-height:1.55}
 .devo-end{margin-top:auto;display:flex;flex-direction:column;gap:10px;padding-top:24px;border-top:1px solid var(--line)}
 .devo-end .btn{width:100%;min-height:56px;font-size:18px}
+.meal{border-top:1px solid var(--line);padding:14px 0 4px}
+.meal-head{display:flex;justify-content:space-between;align-items:baseline;gap:12px;margin-bottom:4px}
+.fentry{display:flex;align-items:center;gap:8px;border-top:1px dashed var(--line)}
+.fentry .fe-main{flex:1;min-width:0;display:flex;align-items:center;gap:12px;text-align:left;min-height:56px;padding:8px 2px;background:transparent;border:0}
+.fentry .nums{flex:none}
+.fentry .name{font-size:18px}
+.tabbar button{white-space:nowrap}
+.fform{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;padding:12px 0;border-top:1px dashed var(--line)}
+.fform .full{grid-column:1/-1}
+.fform label{display:flex;flex-direction:column;gap:4px;font-family:var(--f-label);font-weight:600;font-size:13px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.rchips{display:flex;flex-wrap:wrap;gap:6px}
+.rchip{border:1px solid var(--line);background:transparent;padding:6px 10px;font-size:13px;min-height:36px}
 /* Tab bar */
 .tabbar { position: relative; flex: 0 0 auto; z-index: 10; background: var(--surface); border-top: 1px solid var(--line);
   display: grid; grid-template-columns: repeat(6, minmax(0, 1fr));
@@ -372,9 +384,9 @@ details.targets[open] summary::after { content: "\2212"; }
     </section>
 
     <section aria-labelledby="h-food">
-      <div class="section-head"><h2 class="label-caps" id="h-food">Food log</h2></div>
-      <div class="stub"><strong>Meals are coming.</strong> You will log breakfast, lunch, dinner and snacks here, and the app will total your calories, protein, fat and carbs for the day.</div>
-      <div class="tools"><button class="btn ghost" type="button" id="meal-preview">Preview: log a sample meal</button><button class="btn ghost" type="button" id="meal-clear">Preview: clear today's food</button></div>
+      <div class="section-head"><h2 class="label-caps" id="h-food">Food log</h2><span class="nums" id="food-total"></span></div>
+      <div id="meals"></div>
+      <p class="note">Foods you log here add up to your macros above. Only you can see them.</p>
     </section>
 
     <section aria-labelledby="h-targets">
@@ -708,7 +720,12 @@ details.targets[open] summary::after { content: "\2212"; }
     watchLogs: function (uid, low, cb) {
       return this.db.doc("data/users/" + uid + "/log").collection("days").where("date", ">=", low).onSnapshot(function (s) {
         cb(s.docs.map(function (d) { var x = d.data() || {};
-          return { date: x.date || d.id, water: Number(x.water) || 0, kcal: Number(x.kcal) || 0, p: Number(x.p) || 0, f: Number(x.f) || 0, c: Number(x.c) || 0 }; }));
+          var meals = emptyMeals();
+          ["breakfast", "lunch", "dinner", "snack"].forEach(function (k) {
+            meals[k] = (Array.isArray(x.meals && x.meals[k]) ? x.meals[k] : []).map(function (e) { e = e || {};
+              return { id: String(e.id || ""), name: String(e.name || "Food").slice(0, 60), kcal: Number(e.kcal) || 0, p: Number(e.p) || 0, f: Number(e.f) || 0, c: Number(e.c) || 0 }; });
+          });
+          return { date: x.date || d.id, water: Number(x.water) || 0, kcal: Number(x.kcal) || 0, p: Number(x.p) || 0, f: Number(x.f) || 0, c: Number(x.c) || 0, meals: meals }; }));
       }, noop);
     },
     saveLog: function (uid, l) { return this.db.doc("data/users/" + uid + "/log").collection("days").doc(l.date).set(l); },
@@ -862,9 +879,13 @@ details.targets[open] summary::after { content: "\2212"; }
     for (var i = 0; i < state.checks.length; i++) { var c = state.checks[i]; if (c.date === key && c.uid === state.me) return c; }
     return emptyRec(key);
   }
+  var MEALS = [{ k: "breakfast", label: "Breakfast" }, { k: "lunch", label: "Lunch" }, { k: "dinner", label: "Dinner" }, { k: "snack", label: "Snack" }];
+  function emptyMeals() { return { breakfast: [], lunch: [], dinner: [], snack: [] }; }
+  function cloneMeals(m) { var o = emptyMeals(); MEALS.forEach(function (x) { o[x.k] = ((m && m[x.k]) || []).map(function (e) { return { id: e.id, name: e.name, kcal: e.kcal, p: e.p, f: e.f, c: e.c }; }); }); return o; }
+  function mealTotals(m) { var t = { kcal: 0, p: 0, f: 0, c: 0 }; MEALS.forEach(function (x) { (m[x.k] || []).forEach(function (e) { t.kcal += e.kcal; t.p += e.p; t.f += e.f; t.c += e.c; }); }); return t; }
   function logFor(key) {
     for (var i = 0; i < state.logs.length; i++) if (state.logs[i].date === key) return state.logs[i];
-    return { date: key, water: 0, kcal: 0, p: 0, f: 0, c: 0 };
+    return { date: key, water: 0, kcal: 0, p: 0, f: 0, c: 0, meals: emptyMeals() };
   }
   function myDoc() { return recFor(todayKey()); }
   function customDone(done) { var n = 0; CUSTOM.forEach(function (k) { if (done && done[k]) n++; }); return n; }
@@ -908,7 +929,7 @@ details.targets[open] summary::after { content: "\2212"; }
     var cur = recFor(date), cl = logFor(date);
     var rec = { date: date, uid: uid, done: {}, prs: { w: cur.prs.w, v: cur.prs.v } };
     Object.keys(cur.done || {}).forEach(function (k) { rec.done[k] = true; });
-    var log = { date: date, water: cl.water, kcal: cl.kcal, p: cl.p, f: cl.f, c: cl.c };
+    var log = { date: date, water: cl.water, kcal: cl.kcal, p: cl.p, f: cl.f, c: cl.c, meals: cloneMeals(cl.meals) };
     var logChanged = !!fn(rec, log);
     derive(rec, log);
     var found = false;
@@ -922,8 +943,6 @@ details.targets[open] summary::after { content: "\2212"; }
   }
   function toggle(key) { writeDay(function (r) { if (r.done[key]) delete r.done[key]; else r.done[key] = true; }); }
   function addWater(delta) { writeDay(function (r, l) { l.water = Math.max(0, l.water + delta); return true; }); }
-  function sampleMeal() { writeDay(function (r, l) { l.kcal += 515; l.p += 35; l.f += 15; l.c += 60; return true; }); }
-  function clearFood() { writeDay(function (r, l) { l.kcal = 0; l.p = 0; l.f = 0; l.c = 0; return true; }); }
   function previewWorkout() { var wk = taskOfKind("workout"); if (wk) toggle(wk.id); }
   function togglePr(kind) { writeDay(function (r) { r.prs[kind] = r.prs[kind] ? 0 : 1; }); }
 
@@ -1142,7 +1161,7 @@ details.targets[open] summary::after { content: "\2212"; }
     for (var i = 0; i < WATER_SEGMENTS; i++) clip.appendChild(el("i", oz >= (i + 1) * WATER_STEP ? "on" : ""));
     var off = !state.me || !state.canWrite;
     $("water-add").disabled = off; $("water-sub-btn").disabled = off || oz <= 0;
-    $("meal-preview").disabled = off; $("meal-clear").disabled = off;
+    drawMeals(false);
 
     $("tgt-read").textContent = t && Number(t.kcal) ? fmt(Number(t.kcal)) + " kcal \u00B7 P " + fmt(Number(t.p) || 0) + " \u00B7 F " + fmt(Number(t.f) || 0) + " \u00B7 C " + fmt(Number(t.c) || 0) : "Not set yet";
 
@@ -1519,6 +1538,104 @@ details.targets[open] summary::after { content: "\2212"; }
     });
   }
 
+  /* ---------- Food log ---------- */
+  state.food = { meal: null, id: null, d: { name: "", kcal: "", p: "", f: "", c: "" }, err: "" };
+  function recentFoods() {
+    var seen = {}, out = [];
+    state.logs.slice().sort(function (a, b) { return a.date < b.date ? 1 : -1; }).forEach(function (l) {
+      MEALS.forEach(function (m) { (l.meals[m.k] || []).slice().reverse().forEach(function (e) {
+        var k = e.name.toLowerCase(); if (!seen[k] && out.length < 8) { seen[k] = 1; out.push(e); } }); });
+    });
+    return out;
+  }
+  function openFoodForm(meal, entry) {
+    state.food = { meal: meal, id: entry ? entry.id : null, err: "",
+      d: entry ? { name: entry.name, kcal: String(entry.kcal), p: String(entry.p), f: String(entry.f), c: String(entry.c) } : { name: "", kcal: "", p: "", f: "", c: "" } };
+    drawMeals(true); var i = $("fd-name"); if (i) i.focus();
+  }
+  function saveFood() {
+    var fd = state.food, d = fd.d, name = d.name.trim().slice(0, 60);
+    function num(v, max) { var n = parseFloat(v); return isFinite(n) && n >= 0 ? Math.min(max, Math.round(n * 10) / 10) : 0; }
+    var p = num(d.p, 500), f = num(d.f, 500), c = num(d.c, 1000), kcal = num(d.kcal, 5000);
+    if (!name) { fd.err = "Give the food a name."; drawMeals(true); return; }
+    if (!kcal) kcal = Math.round(p * 4 + f * 9 + c * 4);
+    if (!kcal && !p && !f && !c) { fd.err = "Enter calories or macros."; drawMeals(true); return; }
+    kcal = Math.round(kcal);
+    var meal = fd.meal, id = fd.id || ("f" + Date.now().toString(36) + Math.floor(Math.random() * 1296).toString(36));
+    state.food = { meal: null, id: null, d: { name: "", kcal: "", p: "", f: "", c: "" }, err: "" };
+    writeDay(function (r, l) {
+      var arr = l.meals[meal], e = { id: id, name: name, kcal: kcal, p: p, f: f, c: c }, at = -1;
+      arr.forEach(function (x, i) { if (x.id === id) at = i; });
+      if (at >= 0) arr[at] = e; else arr.push(e);
+      var t = mealTotals(l.meals); l.kcal = t.kcal; l.p = t.p; l.f = t.f; l.c = t.c; return true;
+    });
+    drawMeals(true);
+  }
+  function removeFood(meal, id) {
+    writeDay(function (r, l) {
+      l.meals[meal] = l.meals[meal].filter(function (x) { return x.id !== id; });
+      var t = mealTotals(l.meals); l.kcal = t.kcal; l.p = t.p; l.f = t.f; l.c = t.c; return true;
+    });
+    drawMeals(true);
+  }
+  function drawMeals(force) {
+    var box = $("meals"), a = document.activeElement;
+    if (!force && a && (a.tagName === "INPUT") && box.contains(a)) return;
+    box.textContent = "";
+    var log = logFor(todayKey()), off = !state.me || !state.canWrite;
+    $("food-total").textContent = fmt(log.kcal) + " kcal today";
+    MEALS.forEach(function (m) {
+      var entries = log.meals[m.k] || [], sec = el("div", "meal");
+      var sum = 0; entries.forEach(function (e) { sum += e.kcal; });
+      var head = el("div", "meal-head"); head.appendChild(el("span", "name", m.label)); head.appendChild(el("span", "nums", fmt(sum) + " kcal")); sec.appendChild(head);
+      entries.forEach(function (e) {
+        var row = el("div", "fentry"), main = el("button", "fe-main"); main.type = "button"; main.disabled = off;
+        main.setAttribute("aria-label", "Edit " + e.name);
+        var tx = el("span", "txt"); tx.appendChild(el("span", "name", e.name));
+        tx.appendChild(el("span", "sub", "P " + fmtW(e.p) + " \u00B7 F " + fmtW(e.f) + " \u00B7 C " + fmtW(e.c)));
+        main.appendChild(tx); main.appendChild(el("span", "nums", fmt(e.kcal)));
+        main.addEventListener("click", function () { openFoodForm(m.k, e); });
+        var rm = el("button", "mini danger", "\u00D7"); rm.type = "button"; rm.disabled = off; rm.setAttribute("aria-label", "Remove " + e.name);
+        rm.addEventListener("click", function () { removeFood(m.k, e.id); });
+        row.appendChild(main); row.appendChild(rm); sec.appendChild(row);
+      });
+      var fd = state.food;
+      if (fd.meal === m.k) {
+        var form = el("form", "fform");
+        var rec = recentFoods();
+        if (!fd.id && rec.length) {
+          var rw = el("div", "full"); rw.appendChild(el("div", "sub", "Recent foods")); var chips = el("div", "rchips");
+          rec.forEach(function (e) { var c = el("button", "rchip", e.name); c.type = "button";
+            c.addEventListener("click", function () { fd.d = { name: e.name, kcal: String(e.kcal), p: String(e.p), f: String(e.f), c: String(e.c) }; fd.err = ""; drawMeals(true); });
+            chips.appendChild(c); });
+          rw.appendChild(chips); form.appendChild(rw);
+        }
+        function field(label, key, type, cls, attrs) {
+          var l = el("label", cls || null, label), i = el("input", "field"); i.type = type; i.value = fd.d[key];
+          Object.keys(attrs || {}).forEach(function (k) { i.setAttribute(k, attrs[k]); });
+          i.addEventListener("input", function () { fd.d[key] = i.value; });
+          l.appendChild(i); form.appendChild(l); return i;
+        }
+        var ni = field("Food", "name", "text", "full", { maxlength: "60", placeholder: "e.g. Chicken and rice", id: "fd-name", autocomplete: "off" });
+        field("Calories", "kcal", "number", null, { min: "0", max: "5000", inputmode: "numeric", placeholder: "auto" });
+        field("Protein (g)", "p", "number", null, { min: "0", max: "500", inputmode: "decimal" });
+        field("Fat (g)", "f", "number", null, { min: "0", max: "500", inputmode: "decimal" });
+        field("Carbs (g)", "c", "number", null, { min: "0", max: "1000", inputmode: "decimal" });
+        if (fd.err) form.appendChild(el("p", "error full", fd.err));
+        var sv = el("button", "btn", fd.id ? "Save changes" : "Add to " + m.label.toLowerCase()); sv.type = "submit"; form.appendChild(sv);
+        var cn = el("button", "btn ghost", "Cancel"); cn.type = "button"; cn.addEventListener("click", function () { state.food.meal = null; drawMeals(true); }); form.appendChild(cn);
+        form.addEventListener("submit", function (ev) { ev.preventDefault(); saveFood(); });
+        sec.appendChild(form);
+      } else {
+        var add = el("button", "add-slot"); add.type = "button"; add.disabled = off;
+        add.appendChild(el("span", "box")); var tx2 = el("span", "txt"); tx2.appendChild(el("span", "name", "Add food")); add.appendChild(tx2);
+        add.addEventListener("click", function () { openFoodForm(m.k, null); });
+        sec.appendChild(add);
+      }
+      box.appendChild(sec);
+    });
+  }
+
   /* Settings: stats calculator (Mifflin-St Jeor) */
   function readBody() {
     return { age: +$("b-age").value || 0, ft: +$("b-ft").value || 0, inch: +$("b-in").value || 0, wt: +$("b-wt").value || 0,
@@ -1756,8 +1873,6 @@ details.targets[open] summary::after { content: "\2212"; }
     wireDevo();
     $("water-add").addEventListener("click", function () { addWater(WATER_STEP); });
     $("water-sub-btn").addEventListener("click", function () { addWater(-WATER_STEP); });
-    $("meal-preview").addEventListener("click", sampleMeal);
-    $("meal-clear").addEventListener("click", clearFood);
     ["t-kcal", "t-p", "t-f", "t-c"].forEach(function (id) { $(id).addEventListener("input", function () { $("targets-form").dataset.dirty = "1"; updateTargetMath(); }); });
     $("targets-form").addEventListener("submit", function (ev) {
       ev.preventDefault();
