@@ -195,6 +195,24 @@ details.targets[open] summary::after { content: "\2212"; }
 .wx .wr { font-weight: 600; color: var(--accent); }
 .wx .wc { font-size: 14px; color: var(--muted); }
 .wk-card .btn { width: 100%; margin-top: 14px; }
+#wkp-body .btn { width: 100%; margin-top: 18px; }
+.wk-open { width: 100%; margin-top: 12px; display: flex; align-items: center; justify-content: space-between; gap: 12px; text-align: left; min-height: 64px; padding: 10px 14px; background: var(--surface); border: 2px solid var(--accent); }
+.wk-open .txt { display: flex; flex-direction: column; min-width: 0; }
+.wk-open .wo-t { font-family: var(--f-label); font-weight: 600; font-size: 19px; letter-spacing: .03em; }
+.wk-open .wo-s { font-size: 14px; color: var(--muted); }
+.wk-open .wo-c { flex: none; font-size: 28px; color: var(--accent); line-height: 1; }
+.wrow { width: 100%; display: flex; align-items: center; gap: 12px; text-align: left; min-height: 60px; padding: 8px 4px; background: transparent; border: 0; border-top: 1px solid var(--line); }
+.wrow .wd { flex: none; width: 52px; display: flex; flex-direction: column; font-family: var(--f-label); font-weight: 600; letter-spacing: .08em; text-transform: uppercase; }
+.wrow .wd small { font-size: 12px; color: var(--muted); font-weight: 500; }
+.wrow .wd b { font-size: 20px; }
+.wrow .txt { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.wrow .wo-t { font-weight: 600; font-size: 16px; }
+.wrow .wo-s { font-size: 13px; color: var(--muted); }
+.wrow .wo-c { flex: none; color: var(--muted); font-size: 24px; }
+.wrow.is-today { background: var(--surface); border-left: 4px solid var(--accent); padding-left: 8px; }
+.wrow.is-sel .wd b { color: var(--accent); }
+.wrow.done .wo-c { color: var(--accent); }
+.wrow.dim .wo-t { color: var(--muted); font-weight: 500; }
 .pform { display: flex; flex-direction: column; gap: 12px; margin-top: 8px; }
 .pprog { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
 .pcard { text-align: left; padding: 12px; min-height: 72px; background: transparent; border: 2px solid var(--line); display: flex; flex-direction: column; gap: 2px; }
@@ -460,6 +478,11 @@ details.targets[open] summary::after { content: "\2212"; }
       </div>
     </section>
 
+    <section aria-labelledby="h-week" id="week-sec" hidden>
+      <div class="section-head"><h2 class="label-caps" id="h-week">Your week</h2></div>
+      <div id="week-list"></div>
+    </section>
+
     <section aria-labelledby="h-plan">
       <div class="section-head"><h2 class="label-caps" id="h-plan">Workout plan</h2></div>
       <div id="plan-summary"></div>
@@ -467,7 +490,7 @@ details.targets[open] summary::after { content: "\2212"; }
         <div class="label-caps">Choose your program</div>
         <div class="pprog" id="plan-programs" role="group" aria-label="Program"></div>
         <label class="flabel">Equipment<select class="field" id="plan-equip"></select></label>
-        <label class="flabel">Rest day<select class="field" id="plan-rest"></select></label>
+        <label class="flabel">Your Sabbath day<select class="field" id="plan-rest"></select></label>
         <label class="pcheck"><input type="checkbox" id="plan-fourth"><span>Add the optional 4th training day</span></label>
         <p class="note" id="plan-start"></p>
         <div class="tools"><button class="btn" type="submit" id="plan-save">Start plan</button><button class="btn ghost" type="button" id="plan-cancel">Cancel</button></div>
@@ -545,6 +568,15 @@ details.targets[open] summary::after { content: "\2212"; }
         <button class="btn" type="button" id="devo-read" disabled>Scroll to the bottom to mark read</button>
       </div>
     </article>
+  </div>
+
+  <!-- WORKOUT -->
+  <div class="page" id="page-workout" hidden>
+    <div class="pbar">
+      <button class="mini" type="button" id="wk-back">&lsaquo; Back</button>
+      <span class="date label-caps" id="wkp-date"></span>
+    </div>
+    <article id="wkp-body"></article>
   </div>
 
   <!-- PROFILE -->
@@ -1010,9 +1042,9 @@ details.targets[open] summary::after { content: "\2212"; }
   var stripBuilt = false, STRIP_BACK = 8, STRIP_FWD = 8;
   function go(p) {
     state.page = p;
-    ["today", "fuel", "train", "board", "checkin", "profile", "settings", "devo"].forEach(function (n) { $("page-" + n).hidden = n !== p; });
+    ["today", "fuel", "train", "board", "checkin", "profile", "settings", "devo", "workout"].forEach(function (n) { $("page-" + n).hidden = n !== p; });
     Array.prototype.forEach.call(document.querySelectorAll(".tabbar button"), function (b) {
-      if (b.dataset.page === p) b.setAttribute("aria-current", "page"); else b.removeAttribute("aria-current");
+      if (b.dataset.page === (p === "workout" ? "train" : p)) b.setAttribute("aria-current", "page"); else b.removeAttribute("aria-current");
     });
     $("scroll").scrollTop = 0;
     if (p === "train") ensureStrip();
@@ -1064,6 +1096,7 @@ details.targets[open] summary::after { content: "\2212"; }
     $("scroll").addEventListener("scroll", devoScroll, { passive: true });
     window.addEventListener("resize", function () { if (state.page === "devo") { sizeDevo(); devoScroll(); } });
     $("devo-back").addEventListener("click", function () { go("today"); });
+    $("wk-back").addEventListener("click", function () { go("train"); });
     $("devo-read").addEventListener("click", function () {
       var dt = devoTask(); if (!dt) return;
       var was = !!myDoc().done[dt.id];
@@ -1265,7 +1298,7 @@ details.targets[open] summary::after { content: "\2212"; }
       box.appendChild(b);
     });
     var restart = planRestarts();
-    $("plan-start").textContent = restart ? "Day 1 starts " + longDate(planStartFor(planDraft.rest)) + ". Your rest day is " + DAYN[planDraft.rest] + "." : "Changes keep your current start date.";
+    $("plan-start").textContent = restart ? "Day 1 starts " + longDate(planStartFor(planDraft.rest)) + ". Your Sabbath is " + DAYN[planDraft.rest] + ", and the plan builds around it." : "Changes keep your current start date.";
     $("plan-save").textContent = planCfg() ? "Save plan" : "Start plan";
     $("plan-save").disabled = !state.me || !state.canWrite;
   }
@@ -1283,7 +1316,7 @@ details.targets[open] summary::after { content: "\2212"; }
       var row = el("div", "psum");
       row.appendChild(el("span", "pn", p.program + " \u00B7 " + PLAN.META.programs[p.program]));
       var i = dayDiff(p.start, todayKey());
-      row.appendChild(el("span", "sub", p.equip + " \u00B7 Rest day " + DAYN[p.rest] + (p.fourth ? " \u00B7 4th day on" : "")));
+      row.appendChild(el("span", "sub", p.equip + " \u00B7 Sabbath " + DAYN[p.rest] + (p.fourth ? " \u00B7 4th day on" : "")));
       row.appendChild(el("span", "sub", i < 0 ? "Day 1 starts " + longDate(p.start) : i >= PLAN.W[p.program].length ? "Plan complete" : "Today is day " + (i + 1) + " of " + PLAN.W[p.program].length));
       var cb = el("button", "btn ghost", "Change plan"); cb.type = "button"; cb.addEventListener("click", openPlanEdit); row.appendChild(cb);
       box.appendChild(row);
@@ -1293,31 +1326,60 @@ details.targets[open] summary::after { content: "\2212"; }
     ev.preventDefault(); if (!state.me || !state.canWrite) return;
     var p = planCfg(), d = planDraft, restart = planRestarts();
     state.settings.plan = { program: d.program, equip: d.equip, rest: d.rest, fourth: !!d.fourth, start: restart ? planStartFor(d.rest) : p.start };
-    state.planEdit = false; saveSettings(); drawTrain();
+    state.planEdit = false; state.trainDay = state.settings.plan.start > todayKey() ? state.settings.plan.start : todayKey(); saveSettings(); ensureStrip();
   }
   function wkSection(box, label, text) { if (!text) return; var d = el("p", "wk-sec"); d.appendChild(el("b", null, label)); d.appendChild(document.createTextNode(text)); box.appendChild(d); }
+  function chevRow(cls, title, sub, chev) {
+    var b = el("button", cls); b.type = "button"; var tx = el("span", "txt"); tx.appendChild(el("span", "wo-t", title)); if (sub) tx.appendChild(el("span", "wo-s", sub));
+    b.appendChild(tx); b.appendChild(el("span", "wo-c", chev)); return b;
+  }
+  function rowLabel(wf, p) {
+    if (wf.kind === "before") return { t: "Plan starts " + longDate(p.start).split(",")[0], s: "", dim: true };
+    if (wf.kind === "over") return { t: "Plan complete", s: "", dim: true };
+    if (wf.kind === "rest") return { t: "Sabbath", s: "Rest, worship, family", dim: true };
+    if (wf.kind === "off") return { t: "Rest day", s: "Optional day is off", dim: true };
+    return { t: wf.w.title, s: wf.w.sessionType + (wf.w.minutes ? " · " + wf.w.minutes + " min" : ""), dim: false };
+  }
+  function openWorkout(key) { state.wkDay = key; go("workout"); }
   function drawDayWorkout(sel, done, isToday, off) {
     var box = $("day-workout"); box.textContent = ""; var wf = workoutFor(sel), p = planCfg();
     if (!wf) return;
-    var card = el("div", "wk-card");
-    if (wf.kind === "before") { card.appendChild(el("p", "wk-sec", "Your plan starts " + longDate(p.start) + ".")); box.appendChild(card); return; }
-    if (wf.kind === "over") { card.appendChild(el("p", "wk-sec", "You finished all 365 days. Pick a new plan below to keep going.")); box.appendChild(card); return; }
-    var w = wf.w;
-    card.appendChild(el("div", "wk-meta", "Week " + w.week + " \u00B7 Day " + w.day + (w.minutes ? " \u00B7 " + w.minutes + " min" : "")));
-    if (wf.kind === "rest") { card.appendChild(el("h4", "wk-title", "Rest day")); card.appendChild(el("p", "wk-sec", w.exercises[0][1])); box.appendChild(card); return; }
-    if (wf.kind === "off") { card.appendChild(el("h4", "wk-title", "Optional day is off")); card.appendChild(el("p", "wk-sec", "Turn on the 4th training day in your plan to see this workout. Treat today as a rest day.")); box.appendChild(card); return; }
-    card.appendChild(el("h4", "wk-title", w.title));
-    wkSection(card, "Warm-up", wf.th.warmup);
+    if (wf.kind === "train") {
+      var ob = chevRow("wk-open", wf.w.title, wf.w.sessionType + (wf.w.minutes ? " · " + wf.w.minutes + " min" : "") + " · Tap to open", "›");
+      ob.addEventListener("click", function () { openWorkout(sel); }); box.appendChild(ob); return;
+    }
+    var msg = wf.kind === "rest" ? "Sabbath. " + wf.w.exercises[0][1] : wf.kind === "off" ? "Rest day. Turn on the 4th training day in your plan to see an optional workout here." : wf.kind === "before" ? "Your plan starts " + longDate(p.start) + "." : "You finished all 365 days. Pick a new plan below to keep going.";
+    box.appendChild(el("p", "note", msg));
+  }
+  function drawWeek(sel) {
+    var sec = $("week-sec"), list = $("week-list"), p = planCfg(); list.textContent = ""; sec.hidden = !p; if (!p) return;
+    var wkTask = taskOfKind("workout"), mon = mondayKey(sel), today = todayKey();
+    for (var i = 0; i < 7; i++) (function (key, i) {
+      var wf = workoutFor(key), lb = rowLabel(wf, p), done = wkTask && recFor(key).done[wkTask.id];
+      var b = chevRow("wrow" + (key === today ? " is-today" : "") + (key === sel ? " is-sel" : "") + (done ? " done" : "") + (lb.dim ? " dim" : ""), lb.t, (key === today ? "Today · " : "") + lb.s, done ? "✓" : (wf.kind === "train" ? "›" : ""));
+      var wd = el("span", "wd"); wd.appendChild(el("small", null, DOW[i])); wd.appendChild(el("b", null, String(+key.slice(8)))); b.insertBefore(wd, b.firstChild);
+      b.setAttribute("aria-label", longDate(key) + ": " + lb.t);
+      b.addEventListener("click", function () { state.trainDay = key; if (wf.kind === "train") openWorkout(key); else drawTrain(); });
+      list.appendChild(b);
+    })(addDays(mon, i), i);
+  }
+  function drawWorkoutPage() {
+    var key = state.wkDay || todayKey(), wf = workoutFor(key), p = planCfg(), body = $("wkp-body"); body.textContent = "";
+    $("wkp-date").textContent = longDate(key);
+    if (!wf || wf.kind !== "train") { body.appendChild(el("p", "note", "No workout on this day.")); return; }
+    var w = wf.w, wkTask = taskOfKind("workout"), done = wkTask && recFor(key).done[wkTask.id], off = !state.me || !state.canWrite;
+    body.appendChild(el("div", "wk-meta", "Week " + w.week + " · Day " + w.day + (w.minutes ? " · " + w.minutes + " min" : "")));
+    body.appendChild(el("h1", "pg", w.title));
+    wkSection(body, "Warm-up", wf.th.warmup);
     w.exercises.forEach(function (e) {
       var r = el("div", "wx"); r.appendChild(el("span", "wn", moveName(e[0], p.equip))); r.appendChild(el("span", "wr", e[1]));
-      var c = moveCue(e[0]); if (c) r.appendChild(el("span", "wc", c)); card.appendChild(r);
+      var c = moveCue(e[0]); if (c) r.appendChild(el("span", "wc", c)); body.appendChild(r);
     });
-    wkSection(card, "Finisher", wf.th.finisher); wkSection(card, "Notes", wf.th.notes);
-    if (isToday) {
+    wkSection(body, "Finisher", wf.th.finisher); wkSection(body, "Notes", wf.th.notes);
+    if (key === todayKey()) {
       var fb = el("button", "btn" + (done ? " ghost" : ""), done ? "Undo finish" : "Finish workout"); fb.type = "button"; fb.disabled = off;
-      fb.addEventListener("click", previewWorkout); card.appendChild(fb);
-    }
-    box.appendChild(card);
+      fb.addEventListener("click", previewWorkout); body.appendChild(fb);
+    } else if (done) body.appendChild(el("p", "note", "Finished."));
   }
 
   /* ---------- Train ---------- */
@@ -1374,7 +1436,8 @@ details.targets[open] summary::after { content: "\2212"; }
     $("pv-vpr").textContent = pr.v ? "Preview: undo volume PR" : "Preview: volume PR";
     $("pv-wpr").disabled = off; $("pv-vpr").disabled = off;
     $("cal-today").hidden = isToday && stripWeekIndex() === STRIP_BACK;
-    drawDayWorkout(sel, !!done, isToday, off); drawPlan();
+    drawDayWorkout(sel, !!done, isToday, off); drawWeek(sel); drawPlan();
+    if (state.page === "workout") drawWorkoutPage();
   }
 
   /* ---------- Board ---------- */
