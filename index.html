@@ -185,6 +185,23 @@ details.targets[open] summary::after { content: "\2212"; }
 .aw-total span { font-family: var(--f-label); font-weight: 600; letter-spacing: .1em; text-transform: uppercase; font-size: 13px; }
 .aw-total b { font-family: var(--f-label); font-size: 28px; color: var(--accent); }
 .wk-hint { list-style: none; padding: 10px 2px 2px; font-size: 13px; color: var(--muted); }
+.pg-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin-top: 10px; }
+.pg-cell { display: flex; flex-direction: column; gap: 4px; align-items: stretch; min-width: 0; }
+.pg-slot { position: relative; display: grid; place-items: center; aspect-ratio: 3 / 4; max-width: 100%; border: 2px dashed var(--line); background: var(--surface); cursor: pointer; overflow: hidden; }
+.pg-slot.has { border-style: solid; border-color: var(--accent); }
+.pg-slot img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.pg-plus { font-family: var(--f-label); font-weight: 600; font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--ink); text-align: center; padding: 4px; }
+.pg-file { position: absolute; inset: 0; opacity: 0; width: 100%; height: 100%; cursor: pointer; font-size: 16px; }
+.pg-cap { font-size: 12px; text-align: center; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; }
+.pg-cmp { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-top: 10px; }
+.pg-col { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.pg-big { width: 100%; aspect-ratio: 3 / 4; max-width: 100%; object-fit: cover; background: var(--surface); border: 1px solid var(--line); display: block; }
+.pg-hist { padding: 10px 0; border-bottom: 1px solid var(--line); display: flex; flex-direction: column; gap: 8px; }
+.pg-hd { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.pg-thumbs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
+.pg-th { aspect-ratio: 3 / 4; max-width: 100%; background: var(--surface); border: 1px solid var(--line); display: grid; place-items: center; overflow: hidden; }
+.pg-th img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.pg-none { font-size: 11px; color: var(--muted); }
 .cdlg { position: fixed; inset: 0; z-index: 80; background: rgba(0,0,0,.55); display: flex; align-items: flex-start; justify-content: center; overflow-y: auto; padding: calc(56px + env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-right, 0px)) 16px max(16px, env(safe-area-inset-left, 0px)); }
 .cdlg-box { margin: 0 auto; width: 100%; max-width: 360px; background: var(--bg); border: 2px solid var(--danger); padding: 18px; display: flex; flex-direction: column; gap: 10px; }
 .cdlg-box h2 { margin: 0; font-family: var(--f-label); font-size: 17px; letter-spacing: .08em; text-transform: uppercase; }
@@ -776,6 +793,15 @@ details.targets[open] summary::after { content: "\2212"; }
       <div class="rows" id="lifts"></div>
       <p class="note" id="lifts-note"></p>
     </section>
+    <section aria-labelledby="h-prog" id="prog-sec" hidden>
+      <div class="section-head"><h2 class="label-caps" id="h-prog">Progress photos</h2><span class="tag">Private</span></div>
+      <p class="note" style="margin-top:0">Only you can see these. They are never shown to the group.</p>
+      <div id="prog-today"></div>
+      <div class="sub-head" style="margin-top:16px"><span class="label-caps">Compare</span></div>
+      <div id="prog-compare"></div>
+      <div class="sub-head" style="margin-top:16px"><span class="label-caps">All photos</span></div>
+      <div id="prog-list"></div>
+    </section>
   </div>
 
   <!-- SETTINGS -->
@@ -1022,6 +1048,9 @@ details.targets[open] summary::after { content: "\2212"; }
       }, noop);
     },
     listWorkouts: function (uid) { return this.db.doc("data/users/" + uid + "/log").collection("workouts").get().then(function (s) { return s.docs.map(function (d) { var x = d.data() || {}; if (!x.date) x.date = d.id; return x; }); }); },
+    watchProgress: function (uid, cb) { return this.db.doc("data/users/" + uid + "/log").collection("photos").onSnapshot(function (s) { cb(s.docs.map(function (d) { var x = d.data() || {}; if (!x.date) x.date = d.id; return x; })); }, noop); },
+    saveProgress: function (uid, x) { return this.db.doc("data/users/" + uid + "/log").collection("photos").doc(x.date).set({ date: x.date, front: x.front || "", side: x.side || "", rear: x.rear || "" }); },
+    deleteProgress: function (uid, date) { return this.db.doc("data/users/" + uid + "/log").collection("photos").doc(date).delete(); },
     getWorkoutLog: function (uid, date) { return this.db.doc("data/users/" + uid + "/log").collection("workouts").doc(date).get().then(function (s) { return s.exists ? s.data() : null; }); },
     saveWorkoutLog: function (uid, rec) { return this.db.doc("data/users/" + uid + "/log").collection("workouts").doc(rec.date).set(rec); },
     saveLog: function (uid, l) { return this.db.doc("data/users/" + uid + "/log").collection("days").doc(l.date).set(l); },
@@ -1069,6 +1098,8 @@ details.targets[open] summary::after { content: "\2212"; }
       await purge("posts", "uid"); await purge("likes", "uid"); await purge("reports", "by"); await purge("checkins", "uid");
       var logs = await db.doc("data/users/" + uid + "/log").collection("days").get();
       for (var i = 0; i < logs.docs.length; i++) await db.doc("data/users/" + uid + "/log/days/" + logs.docs[i].id).delete();
+      var plogs = await db.doc("data/users/" + uid + "/log").collection("photos").get();
+      for (var pi = 0; pi < plogs.docs.length; pi++) { var px = plogs.docs[pi].data() || {}; ["front", "side", "rear"].forEach(function (k) { if (px[k]) { try { B.deleteAsset(String(px[k])); } catch (e) {} } }); await db.doc("data/users/" + uid + "/log/photos/" + plogs.docs[pi].id).delete(); }
       var wlogs = await db.doc("data/users/" + uid + "/log").collection("workouts").get();
       for (var wi = 0; wi < wlogs.docs.length; wi++) await db.doc("data/users/" + uid + "/log/workouts/" + wlogs.docs[wi].id).delete();
       var pr = await db.doc("profiles/" + uid).get();
@@ -1171,7 +1202,7 @@ details.targets[open] summary::after { content: "\2212"; }
   // Weigh-in is weekly, on the man's Sabbath (his plan's rest day; Sunday if no plan yet).
   function sabbathDow() { var p = planCfg(); return p && p.rest != null ? Number(p.rest) : 0; }
   function isWeighDay(key) { return parseKey(key).getDay() === sabbathDow(); }
-  function dayTasks(key) { return state.tasks.filter(function (t) { return t.kind !== "weigh" || isWeighDay(key); }); }
+  function dayTasks(key) { return state.tasks.filter(function (t) { return (t.kind !== "weigh" && t.kind !== "photos") || isWeighDay(key); }); }
   function taskOfKind(kind) { for (var i = 0; i < state.tasks.length; i++) if (state.tasks[i].kind === kind) return state.tasks[i]; return null; }
   function devoTask() { return taskOfKind("devo"); }
   function filledSlots() { return CUSTOM.filter(function (k) { return state.habits[k]; }); }
@@ -1220,6 +1251,7 @@ details.targets[open] summary::after { content: "\2212"; }
     var wt = taskOfKind("water");
     if (wt) { if (log.water >= WATER_GOAL_OZ) rec.done[wt.id] = true; else delete rec.done[wt.id]; }
     var hs = taskOfKind("steps"); if (hs && healthHave("steps")) { if (state.healthToday.steps >= STEPS_GOAL) rec.done[hs.id] = true; else delete rec.done[hs.id]; }
+    var hp = taskOfKind("photos"); if (hp) { if (isWeighDay(rec.date) && progDone(rec.date)) rec.done[hp.id] = true; else delete rec.done[hp.id]; }
     var hw = taskOfKind("weigh"); if (hw && isWeighDay(rec.date) && healthHave("weight")) { if (state.healthToday.weightLb > 0) rec.done[hw.id] = true; else delete rec.done[hw.id]; }
     var hk = taskOfKind("workout"); if (hk && healthHave("workouts") && state.healthToday.workouts > 0) rec.done[hk.id] = true;
     var ct = taskOfKind("calories"), t = targets(), tk = t ? Number(t.kcal) || 0 : 0;
@@ -1372,7 +1404,7 @@ details.targets[open] summary::after { content: "\2212"; }
       var hAuto = (tk.kind === "steps" && healthHave("steps")) || (tk.kind === "weigh" && healthHave("weight"));
       b.setAttribute("role", "checkbox"); b.setAttribute("aria-checked", done[tk.id] ? "true" : "false");
       // Boxes owned by an area (Fuel, Train, Check-in, health data) are filled by the app. They are display-only here.
-      var auto = hAuto || !!page;
+      var auto = hAuto || !!page || tk.kind === "photos";
       if (auto) { b.setAttribute("aria-readonly", "true"); b.classList.add("auto"); }
       b.disabled = !isDevo && !auto && (!state.me || !state.canWrite);
       var box = el("span", "box"); box.innerHTML = CHECK_SVG; b.appendChild(box);
@@ -1384,6 +1416,7 @@ details.targets[open] summary::after { content: "\2212"; }
       else if (tk.kind === "calories") sub = t && Number(t.kcal) ? fmt(log.kcal) + " of " + fmt(Number(t.kcal)) + " kcal. Log it in Fuel" : "Set your targets in Fuel";
       else if (tk.kind === "workout") sub = done[tk.id] ? "Finished in Train" : "Checks itself when you finish a workout";
       else if (tk.kind === "checkin") sub = done[tk.id] ? "Posted today" : "Post in the check-in thread";
+      else if (tk.kind === "photos") { var pc = normProg(progFor(todayKey()) || {}), nd = POSES.filter(function (p) { return pc[p[0]]; }).length; sub = done[tk.id] ? "Front, side and rear saved" : nd ? nd + " of 3 taken. Tap to finish" : "Front, side and rear. Tap to take them"; }
       else if (tk.kind === "weigh") sub = done[tk.id] ? "Weighed in this week" : "Your weekly weigh-in, every Sabbath. Step on the scale and tap to check.";
       if (hAuto) sub = tk.kind === "steps" ? fmt(state.healthToday.steps) + " of " + fmt(STEPS_GOAL) + " steps, from your health data" : "Weigh-in found in your health data";
       if (tk.id === "t_motto") { var mm = (state.pubProfiles[state.me] || {}).motto; sub = mm ? "\u201C" + mm + "\u201D" : "Set your motto in Settings"; }
@@ -1391,13 +1424,14 @@ details.targets[open] summary::after { content: "\2212"; }
       b.appendChild(txt);
       b.appendChild(el("span", "pts", "+" + tk.points + (tk.points === 1 ? " pt" : " pts")));
       if (isDevo) b.appendChild(el("span", "chev", "›"));
-      b.addEventListener("click", function () { if (isDevo) openDevo(); else if (!auto) toggle(tk.id); });
+      if (tk.kind === "photos") b.appendChild(el("span", "chev", "\u203A"));
+      b.addEventListener("click", function () { if (isDevo) openDevo(); else if (tk.kind === "photos") openProgress(); else if (!auto) toggle(tk.id); });
       li.appendChild(b); list.appendChild(li);
     });
     var wt = taskOfKind("weigh");
     if (wt && !isWeighDay(todayKey())) {
       var nx = 0; while (nx < 7 && !isWeighDay(addDays(todayKey(), nx))) nx++;
-      list.appendChild(el("li", "wk-hint", "Weekly weigh-in is on your Sabbath, " + DAYN[sabbathDow()] + (nx === 1 ? " (tomorrow)." : " (in " + nx + " days).")));
+      list.appendChild(el("li", "wk-hint", "Weekly weigh-in" + (taskOfKind("photos") ? " and progress photos are" : " is") + " on your Sabbath, " + DAYN[sabbathDow()] + (nx === 1 ? " (tomorrow)." : " (in " + nx + " days).")));
     }
   }
   function drawYours() {
@@ -2458,6 +2492,107 @@ details.targets[open] summary::after { content: "\2212"; }
   function fmtW(n) { return (Math.round(n * 10) / 10).toString(); }
   function shortDate(k) { return k ? parseKey(k).toLocaleDateString(undefined, { month: "short", day: "numeric" }) : ""; }
 
+  /* ---------- Progress photos (private): front, side and rear, weekly on the Sabbath ---------- */
+  var POSES = [["front", "Front"], ["side", "Side"], ["rear", "Rear"]];
+  state.progress = []; state.prog = { pose: "front", a: "", b: "", busy: {}, msg: "" };
+  function normProg(x) { x = x || {}; var o = { date: String(x.date || "").slice(0, 10) }; POSES.forEach(function (p) { o[p[0]] = safeId(x[p[0]]); }); return o; }
+  function progFor(key) { return state.progress.filter(function (x) { return x.date === key; })[0] || null; }
+  function progDone(key) { var x = progFor(key); return !!(x && x.front && x.side && x.rear); }
+  function blobUrl(id) { return id ? "/_blob/" + id : ""; }
+  function openProgress() {
+    openProfile(null);
+    setTimeout(function () { var s = $("prog-sec"); if (s && s.scrollIntoView) s.scrollIntoView({ block: "start", behavior: "smooth" }); }, 80);
+  }
+  async function addProgPhoto(pose, file) {
+    var P = state.prog, key = todayKey();
+    if (!file || !state.me || !B.canUpload()) return;
+    if (file.type && file.type.indexOf("image/") !== 0) { P.msg = "Choose a photo file."; drawProgress(); return; }
+    P.busy[pose] = true; P.msg = ""; drawProgress();
+    var small;
+    try { small = await compressImage(file, 1400, 700 * 1024); }
+    catch (e) { P.busy[pose] = false; P.msg = "That photo could not be read. Try a JPG or PNG."; drawProgress(); return; }
+    try {
+      var up = await B.upload(small), cur = normProg(progFor(key) || { date: key }), old = cur[pose];
+      cur.date = key; cur[pose] = safeId(up.id);
+      state.progress = state.progress.filter(function (x) { return x.date !== key; }).concat([cur]);
+      await B.saveProgress(state.me, cur);
+      if (old && old !== cur[pose]) B.deleteAsset(old);
+      P.busy[pose] = false; P.b = key; writeDay(function () { return false; });
+    } catch (e) { P.busy[pose] = false; P.msg = "Upload failed. Check your connection and try again."; }
+    drawProgress(); drawToday();
+  }
+  function deleteProgSet(key) {
+    confirmDelete({ title: "Delete these photos?", message: "Your progress photos from " + longDate(key) + " will be permanently deleted." }, function () {
+      var x = progFor(key); state.progress = state.progress.filter(function (y) { return y.date !== key; });
+      if (x) POSES.forEach(function (p) { if (x[p[0]]) B.deleteAsset(x[p[0]]); });
+      if (state.me && B.db) B.deleteProgress(state.me, key).catch(noop);
+      if (state.prog.a === key) state.prog.a = ""; if (state.prog.b === key) state.prog.b = "";
+      if (key === todayKey()) writeDay(function () { return false; });
+      drawProgress(); drawToday();
+    });
+  }
+  function drawProgress() {
+    var sec = $("prog-sec"); if (!sec) return;
+    var uid = state.viewUid || state.me, own = !!uid && uid === state.me;
+    sec.hidden = !own || !state.me; if (sec.hidden) return;
+    var P = state.prog, key = todayKey(), cur = normProg(progFor(key) || { date: key }), off = !state.canWrite || !B.canUpload();
+    // This week's photos
+    var tb = $("prog-today"); tb.textContent = "";
+    var sab = isWeighDay(key), nx = 0; while (nx < 7 && !isWeighDay(addDays(key, nx))) nx++;
+    tb.appendChild(el("p", "note", sab ? "Today is your Sabbath. Take your front, side and rear photos. Same spot, same light, same time of day makes the comparison honest." : "Your next photos are due " + DAYN[sabbathDow()] + (nx === 1 ? " (tomorrow)" : " (in " + nx + " days)") + ". You can add a set any day; the box only counts on your Sabbath."));
+    var grid = el("div", "pg-grid");
+    POSES.forEach(function (p) {
+      var cell = el("div", "pg-cell"), id = cur[p[0]];
+      var lab = el("label", "pg-slot" + (id ? " has" : "")); lab.setAttribute("aria-label", (id ? "Retake " : "Add ") + p[1].toLowerCase() + " photo");
+      if (id) { var im = el("img"); im.src = blobUrl(id); im.alt = p[1] + " progress photo, today"; lab.appendChild(im); }
+      else lab.appendChild(el("span", "pg-plus", P.busy[p[0]] ? "Uploading…" : "+ " + p[1]));
+      if (!off) {
+        var inp = el("input"); inp.type = "file"; inp.accept = "image/*"; inp.className = "pg-file";
+        inp.addEventListener("change", function () { var f = inp.files && inp.files[0]; inp.value = ""; addProgPhoto(p[0], f); });
+        lab.appendChild(inp);
+      }
+      cell.appendChild(lab); cell.appendChild(el("span", "pg-cap", p[1] + (id ? " ✓" : ""))); grid.appendChild(cell);
+    });
+    tb.appendChild(grid);
+    if (off && state.me) tb.appendChild(el("p", "note", "Photo uploads aren't available here."));
+    if (P.msg) tb.appendChild(el("p", "error", P.msg));
+    // Compare
+    var cb = $("prog-compare"); cb.textContent = "";
+    var sets = state.progress.slice().sort(function (a, b) { return a.date < b.date ? -1 : 1; });
+    var withPose = sets.filter(function (x) { return x[P.pose]; });
+    var tabs = el("div", "af-tabs"); tabs.setAttribute("role", "group"); tabs.setAttribute("aria-label", "Pose to compare");
+    POSES.forEach(function (p) { var b = el("button", null, p[1]); b.type = "button"; b.setAttribute("aria-pressed", String(P.pose === p[0])); b.addEventListener("click", function () { P.pose = p[0]; drawProgress(); }); tabs.appendChild(b); });
+    cb.appendChild(tabs);
+    if (withPose.length < 2) { cb.appendChild(el("p", "note", withPose.length ? "Take another set next Sabbath to compare side by side." : "Your photos will show here once you take them.")); }
+    else {
+      var dates = withPose.map(function (x) { return x.date; });
+      if (dates.indexOf(P.a) < 0) P.a = dates[0];
+      if (dates.indexOf(P.b) < 0) P.b = dates[dates.length - 1];
+      var row = el("div", "pg-cmp");
+      [["a", "Before"], ["b", "After"]].forEach(function (side) {
+        var col = el("div", "pg-col"), l = el("label", "flabel", side[1]), sel = el("select", "field");
+        sel.setAttribute("aria-label", side[1] + " photo date");
+        dates.forEach(function (d) { var o = el("option", null, parseKey(d).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" })); o.value = d; if (d === P[side[0]]) o.selected = true; sel.appendChild(o); });
+        sel.addEventListener("change", function () { P[side[0]] = sel.value; drawProgress(); });
+        l.appendChild(sel); col.appendChild(l);
+        var x = progFor(P[side[0]]), img = el("img", "pg-big"); img.src = blobUrl(x && x[P.pose]); img.alt = side[1] + ": " + P.pose + " photo from " + longDate(P[side[0]]);
+        col.appendChild(img); row.appendChild(col);
+      });
+      cb.appendChild(row);
+      var days = Math.round((parseKey(P.b) - parseKey(P.a)) / 86400000);
+      if (days) cb.appendChild(el("p", "note", Math.abs(days) + " days apart" + (Math.abs(days) >= 7 ? " (" + Math.round(Math.abs(days) / 7) + (Math.round(Math.abs(days) / 7) === 1 ? " week)." : " weeks).") : ".")));
+    }
+    // History
+    var hb = $("prog-list"); hb.textContent = "";
+    sets.slice().reverse().forEach(function (x) {
+      var r = el("div", "pg-hist"), t = el("div", "pg-hd"); t.appendChild(el("b", null, longDate(x.date)));
+      var del = el("button", "mini danger", "Delete"); del.type = "button"; del.disabled = !state.canWrite; del.setAttribute("aria-label", "Delete photos from " + longDate(x.date));
+      del.addEventListener("click", function () { deleteProgSet(x.date); }); t.appendChild(del); r.appendChild(t);
+      var th = el("div", "pg-thumbs");
+      POSES.forEach(function (p) { var c = el("div", "pg-th"); if (x[p[0]]) { var im = el("img"); im.src = blobUrl(x[p[0]]); im.alt = p[1] + " photo, " + longDate(x.date); c.appendChild(im); } else c.appendChild(el("span", "pg-none", "No " + p[1].toLowerCase())); th.appendChild(c); });
+      r.appendChild(th); hb.appendChild(r);
+    });
+  }
   function drawProfile() {
     if (state.page !== "profile") return;
     var uid = state.viewUid || state.me, own = !!uid && uid === state.me, pp = state.pubProfiles[uid] || {};
@@ -2469,6 +2604,7 @@ details.targets[open] summary::after { content: "\2212"; }
     var m = $("p-motto");
     if (pp.motto) { m.textContent = pp.motto; m.className = "motto"; }
     else { m.textContent = own ? "No motto yet. Set it in Settings." : "No motto yet."; m.className = "motto none"; }
+    drawProgress();
     $("st-streak").textContent = uid ? streak(uid) : 0;
     $("st-week").textContent = uid ? weekPtsOf(uid) : 0;
     $("st-today").textContent = uid ? boxesOf(recOf(uid, todayKey())) : 0;
@@ -3449,6 +3585,7 @@ details.targets[open] summary::after { content: "\2212"; }
         var clean = {}; CUSTOM.forEach(function (k) { if (typeof slots[k] === "string" && slots[k]) clean[k] = slots[k]; });
         state.habits = clean; drawAll();
       });
+      B.watchProgress(state.me, function (rows) { state.progress = rows.map(normProg).filter(function (x) { return /^\d{4}-\d{2}-\d{2}$/.test(x.date); }); drawProgress(); drawToday(); });
       B.watchSettings(state.me, function (st) {
         state.settings = { blocked: (st && st.blocked) || {}, targets: (st && st.targets) || null, body: (st && st.body) || null, reminders: (st && st.reminders) || null, health: (st && st.health) || null, plan: (st && st.plan) || null, theme: (st && st.theme) || null, autofill: (st && st.autofill) || null, favs: (st && Array.isArray(st.favs)) ? st.favs.slice(0, 60) : [], myMeals: (st && Array.isArray(st.myMeals)) ? st.myMeals.slice(0, 30) : [], preps: (st && Array.isArray(st.preps)) ? st.preps.slice(0, 40) : [] }; if (state.settings.theme) applyTheme(state.settings.theme, false); drawAll(); drawFeed(); refreshHealth();
       });

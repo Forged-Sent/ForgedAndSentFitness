@@ -7,6 +7,7 @@
     t_devo: { title: "Daily Devotional", sub: "", points: 2, kind: "devo", mandatory: true, createdAt: 1 },
     t_motto: { title: "Morning Motto", sub: "Say it today", points: 1, kind: "check", createdAt: 2 },
     t_weigh: { title: "Weigh-In", sub: "Weigh in today", points: 1, kind: "weigh", createdAt: 3 },
+    t_photos: { title: "Progress Photos", sub: "Front, side and rear", points: 1, kind: "photos", createdAt: 3.5 },
     t_comms: { title: "Daily Check-In", sub: "Post in the thread today", points: 1, kind: "checkin", createdAt: 4 },
     t_workout: { title: "Workout", sub: "", points: 3, kind: "workout", createdAt: 5 },
     t_water: { title: "Drink 3 Liters of Water", sub: "3 L today", points: 1, kind: "water", createdAt: 6 },
