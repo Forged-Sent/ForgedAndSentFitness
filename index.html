@@ -192,6 +192,13 @@ details.targets[open] summary::after { content: "\2212"; }
 .wk-clock span { font-size: 12px; color: var(--muted); letter-spacing: .12em; }
 .wk-clock b { font-family: var(--f-label); font-size: 26px; line-height: 1.1; font-variant-numeric: tabular-nums; }
 .wk-clock.fin { border-left-color: var(--brass, #b08d57); }
+.sw-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 52px; border-bottom: 1px solid var(--line); font-size: 15px; cursor: pointer; }
+.switch { appearance: none; -webkit-appearance: none; flex: none; position: relative; width: 52px; height: 32px; margin: 0; border-radius: 16px; background: var(--line); border: 0; cursor: pointer; transition: background .2s; }
+.switch::after { content: ""; position: absolute; top: 3px; left: 3px; width: 26px; height: 26px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.35); transition: transform .2s; }
+.switch:checked { background: var(--accent); }
+.switch:checked::after { transform: translateX(20px); }
+.switch:disabled { opacity: .5; }
+@media (prefers-reduced-motion: reduce) { .switch, .switch::after { transition: none; } }
 .sec-toggle { display: inline-flex; align-items: center; gap: 10px; min-height: 48px; padding: 0; margin: 0; border: 0; background: transparent; color: inherit; font: inherit; letter-spacing: inherit; text-transform: inherit; cursor: pointer; text-align: left; }
 .section-head h2:has(.sec-toggle)::before { content: none; }
 .sec-toggle > span:last-child::before { content: "// "; }
@@ -699,8 +706,9 @@ details.targets[open] summary::after { content: "\2212"; }
 
     <section aria-labelledby="h-s-wk">
       <div class="section-head"><h2 class="label-caps" id="h-s-wk">Workouts</h2></div>
-      <label class="pcheck"><input type="checkbox" id="s-autofill"><span>Auto-fill weight and reps</span></label>
-      <p class="note">When on, the weight and reps you enter for a set fill in the empty sets below it for that exercise. You can still change any set.</p>
+      <label class="sw-row"><span>Auto-fill weight</span><input type="checkbox" role="switch" class="switch" id="s-af-w"></label>
+      <label class="sw-row"><span>Auto-fill reps</span><input type="checkbox" role="switch" class="switch" id="s-af-r"></label>
+      <p class="note">When on, what you enter for a set fills in the empty sets below it for that exercise. Warm-up sets are skipped, and you can still change any set.</p>
     </section>
 
     <section aria-labelledby="h-s-prof">
@@ -987,7 +995,7 @@ details.targets[open] summary::after { content: "\2212"; }
     "Be faithful in the small things: water, steps, prayer, reps."
   ];
   var state = {
-    page: "today", healthToday: null, healthMsg: "", tasks: [], checks: [], logs: [], habits: {}, settings: { blocked: {}, targets: null, body: null, reminders: null, health: null, plan: null, theme: null, autofill: false }, planEdit: false, pubProfiles: {}, lifts: [], viewUid: null, prevPage: "today", liftEdit: null, liftMsg: null, dirty: {}, posts: [], likes: [],
+    page: "today", healthToday: null, healthMsg: "", tasks: [], checks: [], logs: [], habits: {}, settings: { blocked: {}, targets: null, body: null, reminders: null, health: null, plan: null, theme: null, autofill: null }, planEdit: false, pubProfiles: {}, lifts: [], viewUid: null, prevPage: "today", liftEdit: null, liftMsg: null, dirty: {}, posts: [], likes: [],
     range: "week", me: null, canWrite: true, profs: {}, editSlot: null, draft: "", lastFocus: null,
     trainDay: null, confirm: null, reported: {}, files: [], mentions: [], posting: false
   };
@@ -1115,7 +1123,7 @@ details.targets[open] summary::after { content: "\2212"; }
   }
   function saveSettings() {
     if (!B.db || !state.me) return;
-    var st = { blocked: state.settings.blocked || {}, targets: state.settings.targets || null, body: state.settings.body || null, reminders: state.settings.reminders || null, health: state.settings.health || null, plan: state.settings.plan || null, theme: state.settings.theme || null, autofill: !!state.settings.autofill };
+    var st = { blocked: state.settings.blocked || {}, targets: state.settings.targets || null, body: state.settings.body || null, reminders: state.settings.reminders || null, health: state.settings.health || null, plan: state.settings.plan || null, theme: state.settings.theme || null, autofill: state.settings.autofill || null };
     writeChain = writeChain.then(function () { return B.saveSettings(state.me, st); }).catch(noop);
   }
 
@@ -1712,9 +1720,9 @@ details.targets[open] summary::after { content: "\2212"; }
             ex.appendChild(row);
           });
           // Optional (Settings > Workouts): a value entered on a work set fills the empty work sets after it.
-          if (state.settings.autofill) afRows.forEach(function (src, j) {
+          var afOn = afPrefs(); if (afOn.w || afOn.r) afRows.forEach(function (src, j) {
             if (src.s.k === "w") return;
-            ["w", "r"].forEach(function (f) {
+            ["w", "r"].filter(function (f) { return afOn[f]; }).forEach(function (f) {
               src[f].addEventListener("change", function () {
                 if (src.s[f] === "") return;
                 for (var k = j + 1; k < afRows.length; k++) { var t = afRows[k]; if (t.s.k === "w" || t.s[f] !== "") continue; t.s[f] = src.s[f]; t[f].value = String(src.s[f]); }
@@ -2266,8 +2274,9 @@ details.targets[open] summary::after { content: "\2212"; }
     if (persist !== false && state.me && state.canWrite && state.settings.theme !== mode) { state.settings.theme = mode; saveSettings(); }
     Array.prototype.forEach.call(document.querySelectorAll("#theme-tabs button"), function (b) { b.setAttribute("aria-pressed", String(b.dataset.themeMode === mode)); });
   }
+  function afPrefs() { var a = state.settings.autofill; if (a === true) return { w: true, r: true }; return { w: !!(a && a.w), r: !!(a && a.r) }; }
   function drawSettings() {
-    var afc = $("s-autofill"); if (afc) { afc.checked = !!state.settings.autofill; afc.disabled = !state.me || !state.canWrite; }
+    var afp = afPrefs(); [["s-af-w", "w"], ["s-af-r", "r"]].forEach(function (c) { var x = $(c[0]); if (x) { x.checked = afp[c[1]]; x.disabled = !state.me || !state.canWrite; } });
     if (state.page !== "settings") return;
     var pp = state.pubProfiles[state.me] || {}, st = state.settings, canUp = B.canUpload();
     $("acct-name").textContent = state.me ? "Signed in as " + nameOf(state.me) + "." : "Not signed in.";
@@ -2434,7 +2443,9 @@ details.targets[open] summary::after { content: "\2212"; }
       var t = ev.target; if (t === ae || (t.closest && t.closest("input, textarea, select, label"))) return;
       ae.blur();
     }, true);
-    $("s-autofill").addEventListener("change", function () { state.settings.autofill = this.checked; if (state.me && state.canWrite) saveSettings(); });
+    [["s-af-w", "w"], ["s-af-r", "r"]].forEach(function (c) {
+      $(c[0]).addEventListener("change", function () { var a = afPrefs(); a[c[1]] = this.checked; state.settings.autofill = a; if (state.me && state.canWrite) saveSettings(); });
+    });
     Array.prototype.forEach.call(document.querySelectorAll("[data-open]"), function (b) {
       b.addEventListener("click", function () { if (b.dataset.open === "settings") { state.viewUid = state.me; go("settings"); } else openProfile(null); });
     });
@@ -2479,7 +2490,7 @@ details.targets[open] summary::after { content: "\2212"; }
         await writeChain; await B.deleteMyData(state.me);
         var me = state.me;
         state.checks = state.checks.filter(function (c) { return c.uid !== me; }); state.logs = []; state.habits = {};
-        state.settings = { blocked: {}, targets: null, body: null, reminders: null, health: null, plan: null, theme: null, autofill: false }; delete state.pubProfiles[me];
+        state.settings = { blocked: {}, targets: null, body: null, reminders: null, health: null, plan: null, theme: null, autofill: null }; delete state.pubProfiles[me];
         ds.textContent = "All your data was deleted."; var bx = $("del-box"); bx.hidden = true; bx.style.display = "none";
         drawAll();
       } catch (e) { ds.textContent = "Could not finish deleting. Try again."; }
@@ -2587,7 +2598,7 @@ details.targets[open] summary::after { content: "\2212"; }
         state.habits = clean; drawAll();
       });
       B.watchSettings(state.me, function (st) {
-        state.settings = { blocked: (st && st.blocked) || {}, targets: (st && st.targets) || null, body: (st && st.body) || null, reminders: (st && st.reminders) || null, health: (st && st.health) || null, plan: (st && st.plan) || null, theme: (st && st.theme) || null, autofill: !!(st && st.autofill) }; if (state.settings.theme) applyTheme(state.settings.theme, false); drawAll(); drawFeed(); refreshHealth();
+        state.settings = { blocked: (st && st.blocked) || {}, targets: (st && st.targets) || null, body: (st && st.body) || null, reminders: (st && st.reminders) || null, health: (st && st.health) || null, plan: (st && st.plan) || null, theme: (st && st.theme) || null, autofill: (st && st.autofill) || null }; if (state.settings.theme) applyTheme(state.settings.theme, false); drawAll(); drawFeed(); refreshHealth();
       });
     }
     B.watchPosts(function (rows) { state.posts = rows; drawFeed(); loadProfiles(); });
