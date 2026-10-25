@@ -958,8 +958,9 @@ details.targets[open] summary::after { content: "\2212"; }
             <option value="1">Standard: about 1 lb a week</option>
             <option value="1.5">Aggressive: about 1.5 lb a week</option>
           </select></label>
-        <label class="flabel">Protein per lb
-          <select class="field" id="b-prot"><option value="0.7">0.7 g</option><option value="0.8">0.8 g</option><option value="0.9">0.9 g</option><option value="1">1.0 g</option></select></label>
+        <label class="flabel full">Goal weight (lb)<input class="field" type="number" id="b-gwt" min="80" max="600" step="any" inputmode="decimal" placeholder="Leave blank to use your current weight"></label>
+        <label class="flabel">Protein per lb of goal weight
+          <select class="field" id="b-prot"><option value="1">1.0 g (standard)</option><option value="0.9">0.9 g</option><option value="0.8">0.8 g</option><option value="0.7">0.7 g</option></select></label>
         <label class="flabel">Fat (% of calories)<input class="field" type="number" id="b-fat" min="15" max="40" inputmode="numeric"></label>
       </div>
       <p class="note">Your suggested calories and macros are shown in Daily calorie and macro targets below.</p>
@@ -3811,8 +3812,8 @@ details.targets[open] summary::after { content: "\2212"; }
 
   /* Settings: stats calculator (Mifflin-St Jeor) */
   function readBody() {
-    return { age: +$("b-age").value || 0, ft: +$("b-ft").value || 0, inch: +$("b-in").value || 0, wt: +$("b-wt").value || 0,
-      act: +$("b-act").value || 1.375, goal: $("b-goal").value, pace: +$("b-pace").value || 1, prot: +$("b-prot").value || 0.8, fat: +$("b-fat").value || 25, bmr: +$("b-bmr").value || 0 };
+    return { age: +$("b-age").value || 0, ft: +$("b-ft").value || 0, inch: +$("b-in").value || 0, wt: +$("b-wt").value || 0, gwt: +$("b-gwt").value || 0,
+      act: +$("b-act").value || 1.375, goal: $("b-goal").value, pace: +$("b-pace").value || 1, prot: +$("b-prot").value || 1, fat: +$("b-fat").value || 25, bmr: +$("b-bmr").value || 0 };
   }
   function calcPlan(b) {
     var inches = b.ft * 12 + b.inch, own = b.bmr >= 800 && b.bmr <= 5000;
@@ -3823,8 +3824,8 @@ details.targets[open] summary::after { content: "\2212"; }
     if (kcal < 1500) { kcal = 1500; note = "Raised to a 1,500 kcal floor. Talk to your doctor before eating lower."; }
     kcal = Math.round(kcal / 10) * 10;
     var fp = Math.min(40, Math.max(15, b.fat || 25));
-    var p = Math.round(b.prot * b.wt), f = Math.round(kcal * fp / 100 / 9), c = Math.max(0, Math.round((kcal - p * 4 - f * 9) / 4));
-    return { bmr: Math.round(bmr), est: Math.round(est), own: own, tdee: Math.round(tdee), kcal: kcal, p: p, f: f, c: c, note: note };
+    var pw = b.gwt >= 80 && b.gwt <= 600 ? b.gwt : b.wt, p = Math.round(b.prot * pw), f = Math.round(kcal * fp / 100 / 9), c = Math.max(0, Math.round((kcal - p * 4 - f * 9) / 4));
+    return { bmr: Math.round(bmr), est: Math.round(est), own: own, tdee: Math.round(tdee), kcal: kcal, p: p, f: f, c: c, note: note, pw: pw, pg: pw !== b.wt };
   }
   function renderCalc() {
     var b = readBody(), plan = calcPlan(b), out = $("calc-out"); out.textContent = "";
@@ -3834,6 +3835,7 @@ details.targets[open] summary::after { content: "\2212"; }
     out.appendChild(el("span", "label-caps", "Suggested daily intake"));
     out.appendChild(el("div", "big2", fmt(plan.kcal) + " kcal"));
     out.appendChild(el("div", "nums", "Protein " + plan.p + " g · Carbs " + plan.c + " g · Fat " + plan.f + " g"));
+    out.appendChild(el("span", "sub", "Protein is " + fmtW(b.prot) + " g per lb of " + (plan.pg ? "your goal weight (" + fmtW(plan.pw) + " lb)." : "your current weight (" + fmtW(plan.pw) + " lb). Add a goal weight to base it on where you're headed.")));
     out.appendChild(el("span", "sub", plan.own ? "Using your BMR of " + fmt(plan.bmr) + " kcal" + (plan.est ? " (the calculation estimated " + fmt(plan.est) + ")" : "") + ". Maintenance about " + fmt(plan.tdee) + " kcal." : "Resting burn (BMR) about " + fmt(plan.bmr) + " kcal, calculated. Maintenance about " + fmt(plan.tdee) + " kcal."));
     if (plan.note) out.appendChild(el("span", "error", plan.note));
   }
@@ -3866,7 +3868,7 @@ details.targets[open] summary::after { content: "\2212"; }
       var b = st.body || {};
       $("b-age").value = b.age || ""; $("b-wt").value = b.wt || ""; $("b-ft").value = b.ft || ""; $("b-in").value = b.inch != null ? b.inch : "";
       $("b-act").value = String(b.act || 1.375); $("b-goal").value = b.goal || "lose"; $("b-pace").value = String(b.pace || 1);
-      $("b-prot").value = String(b.prot || 0.8); $("b-fat").value = b.fat || 25; $("b-bmr").value = b.bmr ? b.bmr : "";
+      $("b-gwt").value = b.gwt ? b.gwt : ""; $("b-prot").value = String(b.prot || 1); $("b-fat").value = b.fat || 25; $("b-bmr").value = b.bmr ? b.bmr : "";
     });
     fillForm("targets", function () {
       var t = st.targets;
