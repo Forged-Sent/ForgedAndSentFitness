@@ -175,6 +175,15 @@ details.targets[open] summary::after { content: "\2212"; }
 .wx-addbar .label-caps { font-size: 11px; color: var(--brass, #b08d57); }
 .wk-addex { width: 100%; margin: 4px 0 10px; }
 #adj-targets { min-height: 36px; padding: 0 12px; font-size: 11.5px; }
+.aw-list { display: flex; flex-direction: column; }
+.aw-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--line); }
+.aw-row .txt { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.aw-row .txt b { font-size: 15px; }
+.aw-row .txt span { font-size: 13px; color: var(--muted); }
+.aw-pts { flex: none; font-family: var(--f-label); font-weight: 700; font-size: 20px; color: var(--accent); font-variant-numeric: tabular-nums; }
+.aw-total { display: flex; justify-content: space-between; align-items: baseline; margin: 4px 0 0; }
+.aw-total span { font-family: var(--f-label); font-weight: 600; letter-spacing: .1em; text-transform: uppercase; font-size: 13px; }
+.aw-total b { font-family: var(--f-label); font-size: 28px; color: var(--accent); }
 .cdlg { position: fixed; inset: 0; z-index: 80; background: rgba(0,0,0,.55); display: flex; align-items: flex-start; justify-content: center; overflow-y: auto; padding: calc(56px + env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-right, 0px)) 16px max(16px, env(safe-area-inset-left, 0px)); }
 .cdlg-box { margin: 0 auto; width: 100%; max-width: 360px; background: var(--bg); border: 2px solid var(--danger); padding: 18px; display: flex; flex-direction: column; gap: 10px; }
 .cdlg-box h2 { margin: 0; font-family: var(--f-label); font-size: 17px; letter-spacing: .08em; text-transform: uppercase; }
@@ -989,7 +998,7 @@ details.targets[open] summary::after { content: "\2212"; }
     watchChecks: function (low, cb) {
       return this.db.collection("checkins").where("date", ">=", low).onSnapshot(function (s) {
         cb(s.docs.map(function (d) { var x = d.data() || {}; var p = x.prs || {};
-          return { date: x.date, uid: x.uid, done: x.done || {}, prs: { w: Number(p.w) || 0, v: Number(p.v) || 0 } }; }));
+          return { date: x.date, uid: x.uid, done: x.done || {}, prs: normPrs(p) }; }));
       }, noop);
     },
     saveDay: function (rec) { return this.db.doc("checkins/" + rec.date + "_" + rec.uid).set({ date: rec.date, uid: rec.uid, done: rec.done, prs: rec.prs }); },
@@ -1003,6 +1012,7 @@ details.targets[open] summary::after { content: "\2212"; }
           return { date: x.date || d.id, water: Number(x.water) || 0, kcal: Number(x.kcal) || 0, p: Number(x.p) || 0, f: Number(x.f) || 0, c: Number(x.c) || 0, meals: meals }; }));
       }, noop);
     },
+    listWorkouts: function (uid) { return this.db.doc("data/users/" + uid + "/log").collection("workouts").get().then(function (s) { return s.docs.map(function (d) { var x = d.data() || {}; if (!x.date) x.date = d.id; return x; }); }); },
     getWorkoutLog: function (uid, date) { return this.db.doc("data/users/" + uid + "/log").collection("workouts").doc(date).get().then(function (s) { return s.exists ? s.data() : null; }); },
     saveWorkoutLog: function (uid, rec) { return this.db.doc("data/users/" + uid + "/log").collection("workouts").doc(rec.date).set(rec); },
     saveLog: function (uid, l) { return this.db.doc("data/users/" + uid + "/log").collection("days").doc(l.date).set(l); },
@@ -1079,7 +1089,8 @@ details.targets[open] summary::after { content: "\2212"; }
   /* ---------- Constants and state ---------- */
   var CUSTOM = ["c1", "c2", "c3"];
   var WATER_GOAL_OZ = 101.4, WATER_STEP = 8, WATER_SEGMENTS = 13; // 3 L = 101.4 oz; 13 x 8 oz clears it
-  var PR_W = 2, PR_V = 1; // bonus points per weight PR / volume PR
+  var PR_PTS = 25; // points per lift with a weight or volume PR (once per lift per day)
+  function normPrs(p) { p = p || {}; var list = (Array.isArray(p.list) ? p.list : []).slice(0, 20).map(function (x) { x = x || {}; return { l: String(x.l || "Lift").slice(0, 60), w: !!x.w, v: !!x.v }; }); return { n: Math.max(0, Math.min(20, Math.floor(Number(p.n) || 0))), list: list }; }
   var MACROS = [
     { k: "kcal", label: "Calories", unit: "kcal" },
     { k: "p", label: "Protein", unit: "g" },
@@ -1153,7 +1164,7 @@ details.targets[open] summary::after { content: "\2212"; }
   function filledSlots() { return CUSTOM.filter(function (k) { return state.habits[k]; }); }
   function targets() { var t = state.settings.targets; return t || null; }
 
-  function emptyRec(date) { return { date: date, uid: state.me, done: {}, prs: { w: 0, v: 0 } }; }
+  function emptyRec(date) { return { date: date, uid: state.me, done: {}, prs: { n: 0, list: [] } }; }
   function recFor(key) {
     for (var i = 0; i < state.checks.length; i++) { var c = state.checks[i]; if (c.date === key && c.uid === state.me) return c; }
     return emptyRec(key);
@@ -1169,7 +1180,7 @@ details.targets[open] summary::after { content: "\2212"; }
   function myDoc() { return recFor(todayKey()); }
   function customDone(done) { var n = 0; CUSTOM.forEach(function (k) { if (done && done[k]) n++; }); return n; }
   function stdDone(done) { var n = 0; state.tasks.forEach(function (t) { if (done && done[t.id]) n++; }); return n; }
-  function bonusOf(rec) { var p = rec.prs || {}; return (p.w || 0) * PR_W + (p.v || 0) * PR_V; }
+  function bonusOf(rec) { var p = rec.prs || {}; return (Number(p.n) || 0) * PR_PTS; }
   function pointsOf(rec) {
     var done = rec.done || {}; var p = customDone(done) + bonusOf(rec);
     state.tasks.forEach(function (t) { if (done[t.id]) p += t.points; });
@@ -1206,7 +1217,7 @@ details.targets[open] summary::after { content: "\2212"; }
     if (!state.me || !state.canWrite) return;
     var date = todayKey(), uid = state.me;
     var cur = recFor(date), cl = logFor(date);
-    var rec = { date: date, uid: uid, done: {}, prs: { w: cur.prs.w, v: cur.prs.v } };
+    var cp = normPrs(cur.prs), rec = { date: date, uid: uid, done: {}, prs: cp };
     Object.keys(cur.done || {}).forEach(function (k) { rec.done[k] = true; });
     var log = { date: date, water: cl.water, kcal: cl.kcal, p: cl.p, f: cl.f, c: cl.c, meals: cloneMeals(cl.meals) };
     var logChanged = !!fn(rec, log);
@@ -1223,7 +1234,6 @@ details.targets[open] summary::after { content: "\2212"; }
   function toggle(key) { writeDay(function (r) { if (r.done[key]) delete r.done[key]; else r.done[key] = true; }); }
   function addWater(delta) { writeDay(function (r, l) { l.water = Math.max(0, l.water + delta); return true; }); }
   function previewWorkout() { var wk = taskOfKind("workout"); if (wk) toggle(wk.id); }
-  function togglePr(kind) { writeDay(function (r) { r.prs[kind] = r.prs[kind] ? 0 : 1; }); }
 
   function saveHabits(slots) {
     if (!B.db || !state.me) return;
@@ -1490,6 +1500,69 @@ details.targets[open] summary::after { content: "\2212"; }
     if (!$("t-warn").hidden) showTargetWarn();
   }
   var TGT_TOL = 50;
+  /* ---------- PR scoring: a weight or volume PR on a lift earns PR_PTS (once per lift per day) ---------- */
+  function liftStatsOf(root, key) {
+    var out = {}, wf = workoutFor(key);
+    function add(exs, exMap) {
+      exs.forEach(function (e, idx) {
+        var arr = exMap && exMap[idx]; if (!Array.isArray(arr)) return;
+        var ps = parseSets(e[1]); if (ps && ps.time) return;
+        var mx = 0, vol = 0;
+        arr.forEach(function (s) { if (!s || s.k === "w") return; var w = parseFloat(s.w), r = parseFloat(s.r); if (w > 0 && r > 0) { if (w > mx) mx = w; vol += w * r; } });
+        if (!mx) return;
+        var k = String(e[0]).trim().toLowerCase(), o = out[k] || (out[k] = { g: e[0], maxW: 0, vol: 0 });
+        o.maxW = Math.max(o.maxW, mx); o.vol += vol;
+      });
+    }
+    var planned = wf && wf.kind === "train" && wf.w ? wf.w.exercises : [];
+    add(planned.concat(normExtra(root.extra).map(function (x) { return [x.g, x.rx]; })), root.ex);
+    (root.sessions || []).forEach(function (x) { add(normExtra(x.extra).map(function (y) { return [y.g, y.rx]; }), x.ex); });
+    return out;
+  }
+  function awardPRs(key, root, boxPts) {
+    var p = planCfg() || {};
+    function finish(prev) {
+      var best = {};
+      prev.forEach(function (d) {
+        if (!d || !d.date || d.date >= key) return;
+        var st = liftStatsOf(normWk(d, d.date), d.date);
+        Object.keys(st).forEach(function (k) { var b = best[k] || (best[k] = { maxW: 0, vol: 0 }); b.maxW = Math.max(b.maxW, st[k].maxW); b.vol = Math.max(b.vol, st[k].vol); });
+      });
+      var today = liftStatsOf(root, key), list = [];
+      Object.keys(today).forEach(function (k) {
+        var t = today[k], b = best[k]; if (!b) return;
+        var w = t.maxW > b.maxW, v = Math.round(t.vol) > Math.round(b.vol);
+        if (w || v) list.push({ l: moveName(t.g, p.equip).slice(0, 60), w: w, v: v, tw: t.maxW, bw: b.maxW, tv: Math.round(t.vol), bv: Math.round(b.vol) });
+      });
+      if (key === todayKey()) writeDay(function (r) { r.prs = { n: list.length, list: list.map(function (x) { return { l: x.l, w: x.w, v: x.v }; }) }; });
+      showAwards(list, boxPts, prev !== null);
+    }
+    if (!state.me || !B.db || !B.listWorkouts) { finish([]); return; }
+    B.listWorkouts(state.me).then(finish).catch(function () { showAwards([], boxPts, false); });
+  }
+  function showAwards(list, boxPts, checked) {
+    var old = $("cdlg"); if (old) old.remove();
+    var back = el("div", "cdlg"); back.id = "cdlg";
+    var box = el("div", "cdlg-box nw-box aw-box"); box.setAttribute("role", "dialog"); box.setAttribute("aria-modal", "true"); box.setAttribute("aria-labelledby", "aw-t");
+    var t = el("h2", null, "Workout complete"); t.id = "aw-t"; box.appendChild(t);
+    var total = (boxPts || 0) + list.length * PR_PTS, rows = el("div", "aw-list");
+    if (boxPts) { var r0 = el("div", "aw-row"); var tx0 = el("div", "txt"); tx0.appendChild(el("b", null, "Workout box")); tx0.appendChild(el("span", null, "You finished today’s planned workout.")); r0.appendChild(tx0); r0.appendChild(el("span", "aw-pts", "+" + boxPts)); rows.appendChild(r0); }
+    list.forEach(function (x) {
+      var r = el("div", "aw-row"), tx = el("div", "txt"); tx.appendChild(el("b", null, x.l));
+      if (x.w) tx.appendChild(el("span", null, "Weight PR: " + fmtW(x.tw) + " lb (was " + fmtW(x.bw) + " lb)"));
+      if (x.v) tx.appendChild(el("span", null, "Volume PR: " + fmt(x.tv) + " lb (was " + fmt(x.bv) + " lb)"));
+      r.appendChild(tx); r.appendChild(el("span", "aw-pts", "+" + PR_PTS)); rows.appendChild(r);
+    });
+    if (rows.childNodes.length) box.appendChild(rows);
+    if (!list.length) box.appendChild(el("p", null, checked ? "No new PRs this time. Every rep still counts. Keep showing up." : "Couldn’t check your PRs right now. They’ll be checked the next time you finish."));
+    if (total) { var tt = el("p", "aw-total"); tt.appendChild(el("span", null, "Points earned")); tt.appendChild(el("b", null, "+" + total)); box.appendChild(tt); }
+    if (list.length > 1) box.appendChild(el("p", "fnote", "Each lift earns " + PR_PTS + " points for a weight or volume PR, once per day."));
+    var ok = el("button", "btn", "Done"); ok.type = "button"; box.appendChild(ok); back.appendChild(box);
+    function close() { back.remove(); }
+    ok.addEventListener("click", close); back.addEventListener("click", function (ev) { if (ev.target === back) close(); });
+    back.addEventListener("keydown", function (ev) { if (ev.key === "Escape") close(); });
+    document.body.appendChild(back); ok.focus();
+  }
   function showTargetWarn() {
     var v = targetVals(), m = Math.round(v.p * 4 + v.f * 9 + v.c * 4), w = $("t-warn");
     if (!v.k || !m || Math.abs(m - v.k) <= TGT_TOL) { w.hidden = true; return false; }
@@ -2077,7 +2150,10 @@ details.targets[open] summary::after { content: "\2212"; }
     wkSection(body, "Finisher", th.finisher); wkSection(body, "Notes", th.notes);
     if (isToday && (live || done)) {
       var fb = el("button", "btn" + (done ? " ghost" : ""), done ? "Undo finish" : "Finish workout"); fb.type = "button"; fb.disabled = off;
-      fb.addEventListener("click", function () { if (wk && wk.rec) wk.rec.finishedAt = done ? 0 : Date.now(); saveWkNow(); if (!S) previewWorkout(); drawWorkoutPage(true); }); body.appendChild(fb);
+      fb.addEventListener("click", function () {
+        if (wk && wk.rec) wk.rec.finishedAt = done ? 0 : Date.now(); saveWkNow(); if (!S) previewWorkout(); drawWorkoutPage(true);
+        if (!done && wk && wk.root) awardPRs(key, wk.root, !S && wkTask ? wkTask.points : 0);
+      }); body.appendChild(fb);
     } else if (!isToday && done) body.appendChild(el("p", "note", "Finished."));
     if (S && wk.loaded && !off) {
       var dlb = el("button", "btn ghost wk-del", "Delete this workout"); dlb.type = "button";
@@ -2136,8 +2212,8 @@ details.targets[open] summary::after { content: "\2212"; }
     var wfs = workoutFor(sel), restDay = wfs && (wfs.kind === "rest" || wfs.kind === "off");
     st.textContent = done ? "Workout complete" : restDay ? "Rest day" : past ? "No workout logged" : isToday ? (wfs && wfs.kind === "train" ? "Ready to train" : "Nothing finished yet today") : (wfs && wfs.kind === "train" ? "Planned" : "Nothing planned yet");
     st.className = "status" + (done ? " ok" : "");
-    var pr = r.prs || { w: 0, v: 0 };
-    $("day-note").textContent = (pr.w || pr.v) ? "PR bonus: +" + bonusOf(r) + " pts (" + (pr.w ? "weight PR" : "") + (pr.w && pr.v ? ", " : "") + (pr.v ? "volume PR" : "") + ")" : (planCfg() ? "" : "Pick a workout plan below and your workouts will show up here.");
+    var pr = normPrs(r.prs);
+    $("day-note").textContent = pr.n ? "PR bonus: +" + bonusOf(r) + " pts (" + pr.list.map(function (x) { return x.l + (x.w && x.v ? " weight and volume" : x.w ? " weight" : " volume"); }).join(", ") + ")" : (planCfg() ? "" : "Pick a workout plan below and your workouts will show up here.");
     var off = !state.me || !state.canWrite;
     $("cal-today").hidden = isToday && stripWeekIndex() === STRIP_BACK;
     drawDayWorkout(sel, !!done, isToday, off); drawWeek(sel); drawVolume(sel); drawPlan();
@@ -2379,7 +2455,7 @@ details.targets[open] summary::after { content: "\2212"; }
     if (!force && a && a.tagName === "INPUT" && box.contains(a)) return;
     var uid = state.viewUid || state.me, own = !!uid && uid === state.me, pp = state.pubProfiles[uid] || {}, prs = pp.prs || {};
     box.textContent = "";
-    $("lifts-note").textContent = state.lifts.length ? (own ? "Log a new best and it shows here. Beat your weight record and you earn +" + PR_W + " points." : "") : "";
+    $("lifts-note").textContent = state.lifts.length ? (own ? "Your best lifts, shown to the group. PR points come from beating your weight or volume on a lift in a logged workout." : "") : "";
     if (!state.lifts.length) {
       var e = el("div", "empty"); e.appendChild(el("strong", null, "Core lifts are not set yet"));
       e.appendChild(document.createTextNode("Your leader will set the lifts the group tracks.")); box.appendChild(e); return;
@@ -2427,11 +2503,9 @@ details.targets[open] summary::after { content: "\2212"; }
           }
           var np = {}; Object.keys(cur).forEach(function (k) { np[k] = cur[k]; });
           np[lift.id] = { w: w, reps: reps, date: todayKey() };
-          var bonus = !!prev && w > prev.w;
           state.liftEdit = null;
-          state.liftMsg = { id: lift.id, text: bonus ? "New weight PR! +" + PR_W + " points added to today." : "PR saved." };
+          state.liftMsg = { id: lift.id, text: "PR saved." };
           saveProfilePatch({ prs: np });
-          if (bonus) writeDay(function (r) { r.prs.w = (r.prs.w || 0) + 1; });
           drawLifts(true);
         });
         wrap.appendChild(f);
