@@ -155,6 +155,20 @@ details.targets[open] summary::after { content: "\2212"; }
 .tform { padding: 0 14px 14px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
 .tform label { display: flex; flex-direction: column; gap: 4px; font-family: var(--f-label); font-weight: 600; font-size: 12.5px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
 .tform .full { grid-column: 1 / -1; }
+.rng-row { display: flex; flex-direction: column; gap: 6px; }
+.rng-top { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
+.rng-l { font-family: var(--f-label); font-weight: 600; font-size: 12.5px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+.rng-v { font-size: 13px; font-variant-numeric: tabular-nums; color: var(--ink); }
+.rng { -webkit-appearance: none; appearance: none; width: 100%; height: 36px; margin: 0; background: transparent; --pct: 0%; }
+.rng::-webkit-slider-runnable-track { height: 8px; border-radius: 4px; background: linear-gradient(to right, var(--accent) 0 var(--pct), var(--line) var(--pct) 100%); }
+.rng::-moz-range-track { height: 8px; border-radius: 4px; background: var(--line); }
+.rng::-moz-range-progress { height: 8px; border-radius: 4px; background: var(--accent); }
+.rng::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 28px; height: 28px; margin-top: -10px; border-radius: 50%; background: #fff; border: 2px solid var(--accent); box-shadow: 0 1px 3px rgba(0,0,0,.35); }
+.rng::-moz-range-thumb { width: 26px; height: 26px; border-radius: 50%; background: #fff; border: 2px solid var(--accent); }
+.t-warn { border: 2px solid var(--hot, #a9490f); padding: 12px; display: flex; flex-direction: column; gap: 8px; }
+.t-warn b { font-family: var(--f-label); letter-spacing: .08em; text-transform: uppercase; color: var(--hot, #a9490f); font-size: 13px; }
+.t-warn p { margin: 0; font-size: 14px; line-height: 1.45; }
+.t-warn-btns { display: grid; grid-template-columns: 1fr; gap: 8px; }
 .seven { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px; align-items: end; margin-top: 10px; }
 .d7 { display: flex; flex-direction: column; align-items: center; gap: 4px; min-width: 0; }
 .d7 .col { position: relative; width: 100%; height: 84px; background: var(--surface-2); border: 1px solid var(--line); }
@@ -832,17 +846,25 @@ details.targets[open] summary::after { content: "\2212"; }
     </section>
 
     <section aria-labelledby="h-s-tg">
-      <div class="section-head"><h2 class="label-caps" id="h-s-tg" data-sub="The calories, protein, fat and carbs you track against on the Fuel tab.">Daily calorie and macro targets</h2></div>
+      <div class="section-head"><h2 class="label-caps" id="h-s-tg" data-sub="The calories, protein, carbs and fat you track against on the Fuel tab.">Daily calorie and macro targets</h2></div>
       <form class="tform" id="targets-form" data-form="targets" style="padding:0">
-        <label>Calories<input class="field" type="number" id="t-kcal" min="0" max="10000" inputmode="numeric"></label>
-        <label>Protein (g)<input class="field" type="number" id="t-p" min="0" max="1000" inputmode="numeric"></label>
-        <label>Fat (g)<input class="field" type="number" id="t-f" min="0" max="1000" inputmode="numeric"></label>
-        <label>Carbs (g)<input class="field" type="number" id="t-c" min="0" max="2000" inputmode="numeric"></label>
+        <label class="full">Calorie goal<input class="field" type="number" id="t-kcal" min="0" max="10000" step="any" inputmode="numeric"></label>
+        <div class="rng-row full"><div class="rng-top"><span class="rng-l">Protein</span><span class="rng-v" id="t-p-v"></span></div>
+          <input class="rng" type="range" id="t-p" min="0" max="400" step="5" aria-label="Protein grams"></div>
+        <div class="rng-row full"><div class="rng-top"><span class="rng-l">Carbs</span><span class="rng-v" id="t-c-v"></span></div>
+          <input class="rng" type="range" id="t-c" min="0" max="700" step="5" aria-label="Carb grams"></div>
+        <div class="rng-row full"><div class="rng-top"><span class="rng-l">Fat</span><span class="rng-v" id="t-f-v"></span></div>
+          <input class="rng" type="range" id="t-f" min="0" max="250" step="1" aria-label="Fat grams"></div>
         <p class="note full" id="t-math" style="margin:0"></p>
-        <button class="btn full" type="submit">Save targets</button>
+        <div class="t-warn full" id="t-warn" role="alert" hidden>
+          <b>Your calorie goal will change</b>
+          <p id="t-warn-txt"></p>
+          <div class="t-warn-btns"><button class="btn" type="button" id="t-warn-use"></button><button class="btn ghost" type="button" id="t-warn-keep"></button></div>
+        </div>
+        <button class="btn full" type="submit" id="t-save">Save targets</button>
         <p class="note full" id="t-status" style="margin:0"></p>
       </form>
-      <p class="note">Private to you. Set them by hand here, or let the calculator above fill them in.</p>
+      <p class="note">Private to you. Slide to adjust, or let Your goal and calorie plan fill them in. Protein and carbs are 4 kcal per gram, fat is 9.</p>
     </section>
 
     <section aria-labelledby="h-s-rem">
@@ -1055,8 +1077,8 @@ details.targets[open] summary::after { content: "\2212"; }
   var MACROS = [
     { k: "kcal", label: "Calories", unit: "kcal" },
     { k: "p", label: "Protein", unit: "g" },
-    { k: "f", label: "Fat", unit: "g" },
-    { k: "c", label: "Carbs", unit: "g" }
+    { k: "c", label: "Carbs", unit: "g" },
+    { k: "f", label: "Fat", unit: "g" }
   ];
   var DOW = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
   var AUTO_PAGE = { water: "fuel", calories: "fuel", workout: "train", checkin: "checkin" };
@@ -1447,10 +1469,33 @@ details.targets[open] summary::after { content: "\2212"; }
       seven.appendChild(c);
     }
   }
+  function targetVals() { return { p: Number($("t-p").value) || 0, c: Number($("t-c").value) || 0, f: Number($("t-f").value) || 0, k: Number($("t-kcal").value) || 0 }; }
   function updateTargetMath() {
-    var p = Number($("t-p").value) || 0, f = Number($("t-f").value) || 0, c = Number($("t-c").value) || 0, k = Number($("t-kcal").value) || 0;
-    var m = p * 4 + f * 9 + c * 4;
-    $("t-math").textContent = m ? "Your protein, fat and carbs add up to " + fmt(m) + " kcal" + (k ? " (" + (m > k ? fmt(m - k) + " over" : fmt(k - m) + " under") + " your calorie target)." : ".") : "Protein and carbs are 4 kcal per gram, fat is 9.";
+    var v = targetVals(), m = v.p * 4 + v.f * 9 + v.c * 4;
+    [["p", 4], ["c", 4], ["f", 9]].forEach(function (x) {
+      var g = v[x[0]], kc = g * x[1], r = $("t-" + x[0]);
+      $("t-" + x[0] + "-v").textContent = g + " g \u00B7 " + fmt(kc) + " kcal" + (m ? " \u00B7 " + Math.round(kc / m * 100) + "%" : "");
+      r.style.setProperty("--pct", (g / Number(r.max) * 100) + "%");
+    });
+    $("t-math").textContent = m ? "Your macros add up to " + fmt(m) + " kcal" + (v.k ? (Math.abs(m - v.k) <= TGT_TOL ? ", matching your calorie goal." : " (" + (m > v.k ? fmt(m - v.k) + " over" : fmt(v.k - m) + " under") + " your " + fmt(v.k) + " kcal goal).") : ".") : "Slide to set your daily protein, carbs and fat.";
+    if (!$("t-warn").hidden) showTargetWarn();
+  }
+  var TGT_TOL = 50;
+  function showTargetWarn() {
+    var v = targetVals(), m = Math.round(v.p * 4 + v.f * 9 + v.c * 4), w = $("t-warn");
+    if (!v.k || !m || Math.abs(m - v.k) <= TGT_TOL) { w.hidden = true; return false; }
+    $("t-warn-txt").textContent = "These macros add up to " + fmt(m) + " kcal, which is " + (m > v.k ? fmt(m - v.k) + " more" : fmt(v.k - m) + " less") + " than your " + fmt(v.k) + " kcal goal. Saving them will change your calorie goal to " + fmt(m) + " kcal.";
+    $("t-warn-use").textContent = "Change goal to " + fmt(m) + " kcal";
+    $("t-warn-keep").textContent = "Keep " + fmt(v.k) + " kcal and fit macros";
+    w.hidden = false; return true;
+  }
+  // Scale carbs and fat so the macros match the calorie goal (protein stays where it is).
+  function fitMacrosToGoal() {
+    var v = targetVals(), rest = v.k - v.p * 4, cf = v.c * 4 + v.f * 9;
+    if (rest <= 0) { $("t-c").value = 0; $("t-f").value = 0; }
+    else if (cf > 0) { var s = rest / cf; $("t-c").value = Math.round(v.c * s / 5) * 5; $("t-f").value = Math.round(v.f * s); }
+    else { $("t-c").value = Math.round(rest * 0.6 / 4 / 5) * 5; $("t-f").value = Math.round(rest * 0.4 / 9); }
+    $("t-warn").hidden = true; $("targets-form").dataset.dirty = "1"; state.dirty.targets = true; updateTargetMath();
   }
 
   /* ---------- Workout plans ----------
@@ -2429,7 +2474,7 @@ details.targets[open] summary::after { content: "\2212"; }
     function paint() {
       var sv = pk.s[pk.si] || pk.s[0], k = n();
       kc.textContent = fmt(sv.kcal * k); mac.textContent = "";
-      [["Protein", sv.p], ["Fat", sv.f], ["Carbs", sv.c]].forEach(function (x) { var c = el("div"); c.appendChild(el("b", null, fmtW(x[1] * k) + " g")); c.appendChild(el("span", null, x[0])); mac.appendChild(c); });
+      [["Protein", sv.p], ["Carbs", sv.c], ["Fat", sv.f]].forEach(function (x) { var c = el("div"); c.appendChild(el("b", null, fmtW(x[1] * k) + " g")); c.appendChild(el("span", null, x[0])); mac.appendChild(c); });
       ad.disabled = off || !k;
     }
     sel.addEventListener("change", function () { pk.si = +sel.value; paint(); });
@@ -2452,8 +2497,8 @@ details.targets[open] summary::after { content: "\2212"; }
     field("Food name (optional)", "name", "text", "full", { maxlength: "60", placeholder: "e.g. Protein bar", autocomplete: "off" });
     field("Calories", "kcal", "number", null, { min: "0", max: "5000", inputmode: "numeric", step: "any", placeholder: "Enter calories" });
     field("Protein (g)", "p", "number", null, { min: "0", max: "500", inputmode: "decimal", step: "any" });
-    field("Fat (g)", "f", "number", null, { min: "0", max: "500", inputmode: "decimal", step: "any" });
     field("Carbs (g)", "c", "number", null, { min: "0", max: "1000", inputmode: "decimal", step: "any" });
+    field("Fat (g)", "f", "number", null, { min: "0", max: "500", inputmode: "decimal", step: "any" });
     if (a.err) form.appendChild(el("p", "error full", a.err));
     var sv = el("button", "btn", a.editId ? "Save changes" : "Add to " + m.label.toLowerCase()); sv.type = "submit"; sv.disabled = off; form.appendChild(sv);
     var cn = el("button", "btn ghost", a.editId ? "Remove" : "Back"); cn.type = "button";
@@ -2531,8 +2576,8 @@ details.targets[open] summary::after { content: "\2212"; }
     field("Serving", "l", "text", "full", { maxlength: "40", placeholder: "e.g. 1 container" });
     field("Calories", "kcal", "number", null, { min: "0", max: "5000", inputmode: "numeric", step: "any", placeholder: "Per serving" });
     field("Protein (g)", "p", "number", null, { min: "0", max: "500", inputmode: "decimal", step: "any" });
-    field("Fat (g)", "f", "number", null, { min: "0", max: "500", inputmode: "decimal", step: "any" });
     field("Carbs (g)", "c", "number", null, { min: "0", max: "1000", inputmode: "decimal", step: "any" });
+    field("Fat (g)", "f", "number", null, { min: "0", max: "500", inputmode: "decimal", step: "any" });
     if (a.err) form.appendChild(el("p", "error full", a.err));
     var sv = el("button", "btn full", "Save meal prep"); sv.type = "submit"; sv.disabled = off; form.appendChild(sv);
     var sa = el("button", "btn ghost full", "Save and add to " + m.label.toLowerCase()); sa.type = "button"; sa.disabled = off; form.appendChild(sa);
@@ -2641,7 +2686,7 @@ details.targets[open] summary::after { content: "\2212"; }
         main.setAttribute("aria-label", "Edit " + e.name);
         var tx = el("span", "txt"); tx.appendChild(el("span", "name", e.name));
         var sl = servLabel(e);
-        tx.appendChild(el("span", "sub", (sl ? sl + " · " : "") + "P " + fmtW(e.p) + " · F " + fmtW(e.f) + " · C " + fmtW(e.c)));
+        tx.appendChild(el("span", "sub", (sl ? sl + " · " : "") + "P " + fmtW(e.p) + " · C " + fmtW(e.c) + " · F " + fmtW(e.f)));
         main.appendChild(tx); main.appendChild(el("span", "nums", fmt(e.kcal)));
         main.addEventListener("click", function () { editEntry(m.k, e); });
         var rm = el("button", "mini danger fx", "X"); rm.type = "button"; rm.disabled = off; rm.setAttribute("aria-label", "Remove " + e.name);
@@ -2702,7 +2747,7 @@ details.targets[open] summary::after { content: "\2212"; }
     if (!plan) { out.appendChild(el("span", "sub", "Enter your age, height and weight to see a starting plan.")); return; }
     out.appendChild(el("span", "label-caps", "Suggested daily intake"));
     out.appendChild(el("div", "big2", fmt(plan.kcal) + " kcal"));
-    out.appendChild(el("div", "nums", "Protein " + plan.p + " g · Fat " + plan.f + " g · Carbs " + plan.c + " g"));
+    out.appendChild(el("div", "nums", "Protein " + plan.p + " g · Carbs " + plan.c + " g · Fat " + plan.f + " g"));
     out.appendChild(el("span", "sub", "Resting burn about " + fmt(plan.bmr) + " kcal. Maintenance about " + fmt(plan.tdee) + " kcal."));
     if (plan.note) out.appendChild(el("span", "error", plan.note));
   }
@@ -2738,7 +2783,7 @@ details.targets[open] summary::after { content: "\2212"; }
     });
     fillForm("targets", function () {
       var t = st.targets;
-      $("t-kcal").value = t && t.kcal ? t.kcal : ""; $("t-p").value = t && t.p ? t.p : ""; $("t-f").value = t && t.f ? t.f : ""; $("t-c").value = t && t.c ? t.c : "";
+      $("t-kcal").value = t && t.kcal ? t.kcal : ""; $("t-p").value = t && t.p ? t.p : 0; $("t-f").value = t && t.f ? t.f : 0; $("t-c").value = t && t.c ? t.c : 0; updateTargetMath();
       updateTargetMath();
     });
     fillForm("rem", function () { var r = st.reminders || {}; $("r-devo").value = r.devo || "06:00"; $("r-checkin").value = r.checkin || "20:00"; });
@@ -2987,8 +3032,19 @@ details.targets[open] summary::after { content: "\2212"; }
     $("water-add").addEventListener("click", function () { addWater(WATER_STEP); });
     $("water-sub-btn").addEventListener("click", function () { addWater(-WATER_STEP); });
     ["t-kcal", "t-p", "t-f", "t-c"].forEach(function (id) { $(id).addEventListener("input", function () { $("targets-form").dataset.dirty = "1"; updateTargetMath(); }); });
+    ["t-p", "t-f", "t-c"].forEach(function (id) { $(id).addEventListener("change", function () { showTargetWarn(); }); });
+    function saveTargets() {
+      var t = { kcal: Math.max(0, Number($("t-kcal").value) || 0), p: Math.max(0, Number($("t-p").value) || 0), f: Math.max(0, Number($("t-f").value) || 0), c: Math.max(0, Number($("t-c").value) || 0) };
+      state.settings.targets = t; state.dirty.targets = false; saveSettings();
+      writeDay(function () { return false; });
+      $("t-warn").hidden = true; $("t-status").textContent = "Targets saved."; updateTargetMath();
+    }
+    $("t-warn-use").addEventListener("click", function () { var v = targetVals(); $("t-kcal").value = Math.round(v.p * 4 + v.f * 9 + v.c * 4); saveTargets(); });
+    $("t-warn-keep").addEventListener("click", fitMacrosToGoal);
     $("targets-form").addEventListener("submit", function (ev) {
       ev.preventDefault();
+      if (showTargetWarn()) { $("t-status").textContent = "Choose an option above to save."; return; }
+      saveTargets(); return;
       var t = { kcal: Math.max(0, Number($("t-kcal").value) || 0), p: Math.max(0, Number($("t-p").value) || 0), f: Math.max(0, Number($("t-f").value) || 0), c: Math.max(0, Number($("t-c").value) || 0) };
       state.settings.targets = t; state.dirty.targets = false; saveSettings();
       writeDay(function () { return false; });
