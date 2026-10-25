@@ -262,6 +262,8 @@ details.targets[open] summary::after { content: "\2212"; }
 .tabs { display: inline-flex; border: 2px solid var(--line); }
 .tabs button { background: transparent; border: 0; padding: 6px 14px; font-family: var(--f-label); font-weight: 600; font-size: 14px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
 .tabs button[aria-pressed="true"] { background: var(--ink); color: var(--bg); }
+.tabs.big { display: flex; width: 100%; }
+.tabs.big button { flex: 1; min-height: 52px; font-size: 16px; }
 .board { border-top: 1px solid var(--line); }
 .row { display: grid; grid-template-columns: 30px 38px minmax(0, 1fr) auto; align-items: center; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--line); }
 .rank { font-family: var(--f-display); font-weight: 700; font-size: 26px; line-height: 1; text-align: center; color: var(--muted); }
@@ -646,6 +648,16 @@ details.targets[open] summary::after { content: "\2212"; }
       <h1 class="pg">Settings</h1>
     </header>
 
+    <section aria-labelledby="h-s-app">
+      <div class="section-head"><h2 class="label-caps" id="h-s-app">Appearance</h2></div>
+      <div class="tabs big" id="theme-tabs" role="group" aria-label="Theme">
+        <button type="button" data-theme-mode="dark" aria-pressed="false">Dark</button>
+        <button type="button" data-theme-mode="light" aria-pressed="false">Light</button>
+        <button type="button" data-theme-mode="auto" aria-pressed="true">Auto</button>
+      </div>
+      <p class="note">Auto follows your phone. Your choice is saved to your account.</p>
+    </section>
+
     <section aria-labelledby="h-s-prof">
       <div class="section-head"><h2 class="label-caps" id="h-s-prof">Your profile</h2></div>
       <form class="setgrp" id="motto-form" data-form="motto">
@@ -729,15 +741,6 @@ details.targets[open] summary::after { content: "\2212"; }
       <div class="section-head"><h2 class="label-caps" id="h-s-health">Health data</h2></div>
       <p class="note" id="health-note" style="margin-top:0"></p>
       <div id="health-list" class="setgrp"></div>
-    </section>
-
-    <section aria-labelledby="h-s-app">
-      <div class="section-head"><h2 class="label-caps" id="h-s-app">Appearance</h2></div>
-      <div class="tabs" id="theme-tabs" role="group" aria-label="Theme">
-        <button type="button" data-theme-mode="auto" aria-pressed="true">Auto</button>
-        <button type="button" data-theme-mode="dark" aria-pressed="false">Dark</button>
-        <button type="button" data-theme-mode="light" aria-pressed="false">Light</button>
-      </div>
     </section>
 
     <section aria-labelledby="h-s-safe">
@@ -939,7 +942,7 @@ details.targets[open] summary::after { content: "\2212"; }
     "Be faithful in the small things: water, steps, prayer, reps."
   ];
   var state = {
-    page: "today", healthToday: null, healthMsg: "", tasks: [], checks: [], logs: [], habits: {}, settings: { blocked: {}, targets: null, body: null, reminders: null, health: null, plan: null }, planEdit: false, pubProfiles: {}, lifts: [], viewUid: null, prevPage: "today", liftEdit: null, liftMsg: null, dirty: {}, posts: [], likes: [],
+    page: "today", healthToday: null, healthMsg: "", tasks: [], checks: [], logs: [], habits: {}, settings: { blocked: {}, targets: null, body: null, reminders: null, health: null, plan: null, theme: null }, planEdit: false, pubProfiles: {}, lifts: [], viewUid: null, prevPage: "today", liftEdit: null, liftMsg: null, dirty: {}, posts: [], likes: [],
     range: "week", me: null, canWrite: true, profs: {}, editSlot: null, draft: "", lastFocus: null,
     trainDay: null, confirm: null, reported: {}, files: [], mentions: [], posting: false
   };
@@ -1067,7 +1070,7 @@ details.targets[open] summary::after { content: "\2212"; }
   }
   function saveSettings() {
     if (!B.db || !state.me) return;
-    var st = { blocked: state.settings.blocked || {}, targets: state.settings.targets || null, body: state.settings.body || null, reminders: state.settings.reminders || null, health: state.settings.health || null, plan: state.settings.plan || null };
+    var st = { blocked: state.settings.blocked || {}, targets: state.settings.targets || null, body: state.settings.body || null, reminders: state.settings.reminders || null, health: state.settings.health || null, plan: state.settings.plan || null, theme: state.settings.theme || null };
     writeChain = writeChain.then(function () { return B.saveSettings(state.me, st); }).catch(noop);
   }
 
@@ -1080,7 +1083,7 @@ details.targets[open] summary::after { content: "\2212"; }
       if (b.dataset.page === (p === "workout" ? "train" : p)) b.setAttribute("aria-current", "page"); else b.removeAttribute("aria-current");
     });
     $("scroll").scrollTop = 0;
-    if (p === "workout") startWkTick(); else { if (wkTick) saveWkNow(); stopWkTick(); }
+    if (p === "workout") startWkTick(); else { if (wkTick) saveWkNow(); stopWkTick(); cancelAllTones(); }
     if (p === "train") ensureStrip();
     drawAll();
     if (p === "workout") drawWorkoutPage(true);
@@ -1466,9 +1469,30 @@ details.targets[open] summary::after { content: "\2212"; }
     B.getWorkoutLog(state.me, key).then(ready).catch(function () { ready(null); });
   }
   function mmss(s) { s = Math.max(0, s); return Math.floor(s / 60) + ":" + pad(s % 60); }
-  function beep() {
-    try { if (navigator.vibrate) navigator.vibrate([200, 100, 200]); } catch (e) {}
-    try { var AC = window.AudioContext || window.webkitAudioContext, c = new AC(), o = c.createOscillator(), g = c.createGain(); o.connect(g); g.connect(c.destination); o.frequency.value = 880; g.gain.value = 0.15; o.start(); o.stop(c.currentTime + 0.35); setTimeout(function () { try { c.close(); } catch (e) {} }, 600); } catch (e) {}
+  var audioCtx = null;
+  function unlockAudio() {
+    try { var AC = window.AudioContext || window.webkitAudioContext; if (!AC) return; if (!audioCtx) audioCtx = new AC(); if (audioCtx.state === "suspended") audioCtx.resume(); } catch (e) {}
+  }
+  function playTones(t, delaySec) {
+    if (!audioCtx) return false;
+    try {
+      var t0 = audioCtx.currentTime + Math.max(0, delaySec);
+      for (var i = 0; i < 3; i++) {
+        var o = audioCtx.createOscillator(), g = audioCtx.createGain(), a = t0 + i * 0.4;
+        o.type = "sine"; o.frequency.value = i === 2 ? 1175 : 880; o.connect(g); g.connect(audioCtx.destination);
+        g.gain.setValueAtTime(0.0001, a); g.gain.exponentialRampToValueAtTime(0.6, a + 0.02); g.gain.exponentialRampToValueAtTime(0.0001, a + 0.32);
+        o.start(a); o.stop(a + 0.34); if (t) t.tones.push(o);
+      }
+      return true;
+    } catch (e) { return false; }
+  }
+  function cancelTone(t) { (t.tones || []).forEach(function (o) { try { o.stop(); } catch (e) {} }); t.tones = []; t.sched = false; }
+  function cancelAllTones() { if (wk) Object.keys(wk.timers).forEach(function (k) { cancelTone(wk.timers[k]); }); }
+  // The tone is scheduled on the audio clock when the timer starts, so it still sounds if the phone throttles the page's timers.
+  function scheduleTone(t) { cancelTone(t); if (!t.running) return; t.sched = playTones(t, (t.endAt - Date.now()) / 1000); }
+  function beep(t) {
+    try { if (navigator.vibrate) navigator.vibrate([250, 120, 250, 120, 400]); } catch (e) {}
+    if (!t.sched) playTones(null, 0);
   }
   function paintTimer(t) {
     if (!t.timeEl) return;
@@ -1480,17 +1504,17 @@ details.targets[open] summary::after { content: "\2212"; }
     Object.keys(wk.timers).forEach(function (k) {
       var t = wk.timers[k]; if (!t.running) return;
       t.left = Math.ceil((t.endAt - now) / 1000);
-      if (t.left <= 0) { t.left = 0; t.running = false; t.done = true; beep(); }
+      if (t.left <= 0) { t.left = 0; t.running = false; t.done = true; beep(t); t.sched = false; }
       paintTimer(t);
     });
   }
   function startWkTick() { if (!wkTick) wkTick = setInterval(tickTimers, 250); }
   function stopWkTick() { if (wkTick) { clearInterval(wkTick); wkTick = null; } }
-  function timerFor(idx) { return wk.timers[idx] || (wk.timers[idx] = { base: WK_BASE, left: WK_BASE, running: false, done: false, endAt: 0 }); }
-  function timerStart(t) { if (t.left <= 0 || t.done) t.left = t.base; t.done = false; t.endAt = Date.now() + t.left * 1000; t.running = true; startWkTick(); paintTimer(t); }
+  function timerFor(idx) { return wk.timers[idx] || (wk.timers[idx] = { base: WK_BASE, left: WK_BASE, running: false, done: false, endAt: 0, tones: [], sched: false }); }
+  function timerStart(t) { if (t.left <= 0 || t.done) t.left = t.base; t.done = false; t.endAt = Date.now() + t.left * 1000; t.running = true; unlockAudio(); scheduleTone(t); startWkTick(); paintTimer(t); }
   function timerAdj(t, d) {
     t.base = Math.max(15, Math.min(600, t.base + d));
-    if (t.running) { t.endAt += d * 1000; t.left = Math.ceil((t.endAt - Date.now()) / 1000); if (t.left <= 0) { t.running = false; t.left = 0; t.done = true; } }
+    if (t.running) { t.endAt += d * 1000; t.left = Math.ceil((t.endAt - Date.now()) / 1000); if (t.left <= 0) { t.running = false; t.left = 0; t.done = true; cancelTone(t); } else scheduleTone(t); }
     else { t.left = t.base; t.done = false; }
     paintTimer(t);
   }
@@ -1499,12 +1523,12 @@ details.targets[open] summary::after { content: "\2212"; }
     bar.appendChild(el("span", "rt-label", "Rest"));
     t.timeEl = el("span", "rt-time"); bar.appendChild(t.timeEl);
     function mini(txt, label, fn) { var b = el("button", "mini", txt); b.type = "button"; b.setAttribute("aria-label", label); b.addEventListener("click", fn); bar.appendChild(b); return b; }
-    mini("\u221215", "Subtract 15 seconds", function () { timerAdj(t, -15); });
-    mini("+15", "Add 15 seconds", function () { timerAdj(t, 15); });
+    mini("\u221215", "Subtract 15 seconds", function () { unlockAudio(); timerAdj(t, -15); });
+    mini("+15", "Add 15 seconds", function () { unlockAudio(); timerAdj(t, 15); });
     t.goEl = mini("Start", "Start or pause the rest timer", function () {
-      if (t.running) { t.left = Math.max(0, Math.ceil((t.endAt - Date.now()) / 1000)); t.running = false; paintTimer(t); } else timerStart(t);
+      if (t.running) { t.left = Math.max(0, Math.ceil((t.endAt - Date.now()) / 1000)); t.running = false; cancelTone(t); paintTimer(t); } else timerStart(t);
     });
-    mini("Reset", "Reset the rest timer", function () { t.running = false; t.done = false; t.left = t.base; paintTimer(t); });
+    mini("Reset", "Reset the rest timer", function () { t.running = false; t.done = false; t.left = t.base; cancelTone(t); paintTimer(t); });
     paintTimer(t); return bar;
   }
   function numField(cls, label, ph, val, max, onVal) {
@@ -2086,10 +2110,11 @@ details.targets[open] summary::after { content: "\2212"; }
     if (state.dirty[key] || (f && f.contains(document.activeElement))) return;
     fn();
   }
-  function applyTheme(mode) {
+  function applyTheme(mode, persist) {
     var r = document.documentElement;
     if (mode === "dark" || mode === "light") r.setAttribute("data-theme", mode); else { r.removeAttribute("data-theme"); mode = "auto"; }
     try { localStorage.setItem("fmh-theme", mode); } catch (e) {}
+    if (persist !== false && state.me && state.canWrite && state.settings.theme !== mode) { state.settings.theme = mode; saveSettings(); }
     Array.prototype.forEach.call(document.querySelectorAll("#theme-tabs button"), function (b) { b.setAttribute("aria-pressed", String(b.dataset.themeMode === mode)); });
   }
   function drawSettings() {
@@ -2251,7 +2276,7 @@ details.targets[open] summary::after { content: "\2212"; }
   }
   function wireProfile() {
     var t0 = "auto"; try { t0 = localStorage.getItem("fmh-theme") || "auto"; } catch (e) {}
-    applyTheme(t0);
+    applyTheme(t0, false);
     Array.prototype.forEach.call(document.querySelectorAll("#theme-tabs button"), function (b) { b.addEventListener("click", function () { applyTheme(b.dataset.themeMode); }); });
     Array.prototype.forEach.call(document.querySelectorAll("[data-open]"), function (b) {
       b.addEventListener("click", function () { if (b.dataset.open === "settings") { state.viewUid = state.me; go("settings"); } else openProfile(null); });
@@ -2297,7 +2322,7 @@ details.targets[open] summary::after { content: "\2212"; }
         await writeChain; await B.deleteMyData(state.me);
         var me = state.me;
         state.checks = state.checks.filter(function (c) { return c.uid !== me; }); state.logs = []; state.habits = {};
-        state.settings = { blocked: {}, targets: null, body: null, reminders: null, health: null, plan: null }; delete state.pubProfiles[me];
+        state.settings = { blocked: {}, targets: null, body: null, reminders: null, health: null, plan: null, theme: null }; delete state.pubProfiles[me];
         ds.textContent = "All your data was deleted."; var bx = $("del-box"); bx.hidden = true; bx.style.display = "none";
         drawAll();
       } catch (e) { ds.textContent = "Could not finish deleting. Try again."; }
@@ -2405,7 +2430,7 @@ details.targets[open] summary::after { content: "\2212"; }
         state.habits = clean; drawAll();
       });
       B.watchSettings(state.me, function (st) {
-        state.settings = { blocked: (st && st.blocked) || {}, targets: (st && st.targets) || null, body: (st && st.body) || null, reminders: (st && st.reminders) || null, health: (st && st.health) || null, plan: (st && st.plan) || null }; drawAll(); drawFeed(); refreshHealth();
+        state.settings = { blocked: (st && st.blocked) || {}, targets: (st && st.targets) || null, body: (st && st.body) || null, reminders: (st && st.reminders) || null, health: (st && st.health) || null, plan: (st && st.plan) || null, theme: (st && st.theme) || null }; if (state.settings.theme) applyTheme(state.settings.theme, false); drawAll(); drawFeed(); refreshHealth();
       });
     }
     B.watchPosts(function (rows) { state.posts = rows; drawFeed(); loadProfiles(); });
