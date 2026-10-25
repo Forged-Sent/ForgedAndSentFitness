@@ -1,26 +1,27 @@
 {
   "Forged": {
-    "tagline": "Heavy, simple and repeatable. Three barbell lifts anchor your week.",
+    "tagline": "Heavy, simple and repeatable. Three full-body days, each led by a big barbell lift.",
     "forWho": "Men who want to get stronger on the big lifts and are willing to be patient with the weight on the bar.",
     "youGet": [
-      "Three lifting days a week built around the squat, deadlift and bench press, with six exercises each",
-      "Two easy recovery days (Zone 2 cardio and mobility) so you can train hard on lifting days",
+      "Three full-body lifting days a week, led by the squat, deadlift and bench press, with six exercises each",
+      "Two easy recovery days (an incline walk or stair climb plus mobility) so you can train hard on lifting days",
       "Main sets held 1 to 2 reps short of failure, with 2 to 3 minutes of rest",
       "Lift variations that rotate through the year, such as pause squat, trap bar deadlift and pause bench",
+      "An optional fourth full-body volume day",
       "A lighter deload week at the end of every four-week block"
     ],
-    "intensity": "Moderate to hard. Most work sets sit at RPE 7 to 8, so you stop with 1 to 2 reps in the tank."
+    "intensity": "Moderate to hard. Most work sets end with 1 to 2 good reps still in the tank."
   },
   "Built": {
-    "tagline": "Upper, lower and full body. Controlled volume built for muscle size.",
+    "tagline": "Three full-body days with controlled volume, built for muscle size.",
     "forWho": "Men who want more muscle and a thicker, stronger build, and who like steady progress through reps and load.",
     "youGet": [
-      "Three lifting days: upper body, lower body and full body, with six exercises each",
+      "Three full-body lifting days led by the bench press, overhead press and incline bench, with six exercises each",
       "Rep ranges with a simple rule: add load once you hit the top of the range on every set",
       "Controlled lowering and 60 to 90 seconds of rest between sets",
       "Sets that stop 1 to 3 reps short of failure",
-      "Two recovery days of Zone 2 cardio between lifting days",
-      "An optional fourth day for arms and shoulders",
+      "Two easy recovery days (an incline walk or stair climb plus mobility) between lifting days",
+      "An optional fourth full-body pump day",
       "A lighter deload week at the end of every four-week block"
     ],
     "intensity": "Moderate to hard. Sets stop 1 to 3 reps short of failure, so you finish working but not wrecked."
@@ -42,13 +43,13 @@
     "tagline": "Power, mobility and combat conditioning for an athletic build.",
     "forWho": "Men who want to move, carry and strike like an athlete: explosive, mobile and conditioned.",
     "youGet": [
-      "Lower-body and upper-body power-and-strength days that pair jumps, throws and plyometrics with heavy lifts",
+      "Two full-body power-and-strength days that pair jumps, swings and plyometrics with heavy lifts",
       "A combat circuit day",
       "A mobility and movement day (with Turkish get-ups) and an active recovery day",
       "An optional fourth day of combat conditioning with shadow boxing rounds",
       "Fast, crisp reps: stop a power set when your speed drops",
       "A lighter deload week at the end of every four-week block"
     ],
-    "intensity": "Moderate to hard. Power sets are done fast with full rest, and strength sets run around RPE 7 to 9."
+    "intensity": "Moderate to hard. Power sets are done fast with full rest, and strength sets stay 1 to 3 good reps short of failure."
   }
 }

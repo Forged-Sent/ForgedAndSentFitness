@@ -1,8 +1,8 @@
 {
  "Forged|1": {
-  "theme": "Squat Day",
+  "theme": "Full Body A",
   "sessionType": "Core",
-  "warmup": "5 min easy cardio, then 2 rounds of 8 bodyweight squats, 8 hip hinges, and 8 glute bridges. Build to the first work set in 3 steps.",
+  "warmup": "5 min easy cardio, then 2 rounds of 8 bodyweight squats, 8 hip hinges, 8 push-ups, and 8 band pull-aparts. Build to the first work set in 3 steps.",
   "finisher": "3 min easy walk, then stretch the muscles trained for 2 minutes.",
   "notes": "Rest 2 to 3 minutes between main sets. Stop each main set with 1 to 2 reps in reserve. Week 4 of every block is a deload."
  },
@@ -14,9 +14,9 @@
   "notes": "Easy effort only. Finish feeling better than you started."
  },
  "Forged|3": {
-  "theme": "Deadlift Day",
+  "theme": "Full Body B",
   "sessionType": "Core",
-  "warmup": "5 min easy cardio, then 2 rounds of 8 bodyweight squats, 8 hip hinges, and 8 glute bridges. Build to the first work set in 3 steps.",
+  "warmup": "5 min easy cardio, then 2 rounds of 8 bodyweight squats, 8 hip hinges, 8 push-ups, and 8 band pull-aparts. Build to the first work set in 3 steps.",
   "finisher": "3 min easy walk, then stretch the muscles trained for 2 minutes.",
   "notes": "Reset between reps and keep the back flat. Rest 2 to 3 minutes between main sets. Week 4 of every block is a deload."
  },
@@ -28,16 +28,16 @@
   "notes": "Easy effort only. Finish feeling better than you started."
  },
  "Forged|5": {
-  "theme": "Bench Day",
+  "theme": "Full Body C",
   "sessionType": "Core",
-  "warmup": "5 min easy cardio, then 2 rounds of 10 arm circles each way, 10 wall slides, and 10 incline push-ups. Build to the first work set in 3 steps.",
+  "warmup": "5 min easy cardio, then 2 rounds of 8 bodyweight squats, 8 hip hinges, 8 push-ups, and 8 band pull-aparts. Build to the first work set in 3 steps.",
   "finisher": "3 min easy walk, then stretch the muscles trained for 2 minutes.",
   "notes": "Rest 2 to 3 minutes between main sets. Stop each main set with 1 to 2 reps in reserve. Week 4 of every block is a deload."
  },
  "Forged|6": {
-  "theme": "Optional: Pull and Press Volume",
+  "theme": "Optional: Full Body Volume",
   "sessionType": "Optional",
-  "warmup": "5 min easy cardio, then 2 rounds of 10 cat-cows, 10 scapular pulls, and 8 hip hinges. Build to the first work set in 3 steps.",
+  "warmup": "5 min easy cardio, then 2 rounds of 8 bodyweight squats, 8 hip hinges, 8 push-ups, and 8 band pull-aparts. Build to the first work set in 3 steps.",
   "finisher": "3 min easy walk, then stretch the muscles trained for 2 minutes.",
   "notes": "Optional fourth session. Skip it if you are sore, short on time, or sleeping poorly. Moderate effort, never to failure."
  },
@@ -49,9 +49,9 @@
   "notes": "Full rest. Sleep, water and protein matter most today. An easy walk or stretch is fine if you want it."
  },
  "Built|1": {
-  "theme": "Upper Body",
+  "theme": "Full Body A",
   "sessionType": "Core",
-  "warmup": "5 min easy cardio, then 2 rounds of 10 arm circles each way, 10 wall slides, and 10 incline push-ups. Build to the first work set in 3 steps.",
+  "warmup": "5 min easy cardio, then 2 rounds of 8 bodyweight squats, 8 hip hinges, 8 push-ups, and 8 band pull-aparts. Build to the first work set in 3 steps.",
   "finisher": "3 min easy walk, then stretch the muscles trained for 2 minutes.",
   "notes": "Control the lowering phase and rest 60 to 90 seconds between sets. Add load once you reach the top of the rep range on every set."
  },
@@ -63,9 +63,9 @@
   "notes": "Easy effort only. Finish feeling better than you started."
  },
  "Built|3": {
-  "theme": "Lower Body",
+  "theme": "Full Body B",
   "sessionType": "Core",
-  "warmup": "5 min easy cardio, then 2 rounds of 8 bodyweight squats, 8 hip hinges, and 8 glute bridges. Build to the first work set in 3 steps.",
+  "warmup": "5 min easy cardio, then 2 rounds of 8 bodyweight squats, 8 hip hinges, 8 push-ups, and 8 band pull-aparts. Build to the first work set in 3 steps.",
   "finisher": "3 min easy walk, then stretch the muscles trained for 2 minutes.",
   "notes": "Control the lowering phase and rest 60 to 90 seconds between sets. Add load once you reach the top of the rep range on every set."
  },
@@ -77,16 +77,16 @@
   "notes": "Easy effort only. Finish feeling better than you started."
  },
  "Built|5": {
-  "theme": "Full Body",
+  "theme": "Full Body C",
   "sessionType": "Core",
-  "warmup": "5 min easy cardio, then 2 rounds of 8 bodyweight squats, 8 hip hinges, and 8 glute bridges. Build to the first work set in 3 steps.",
+  "warmup": "5 min easy cardio, then 2 rounds of 8 bodyweight squats, 8 hip hinges, 8 push-ups, and 8 band pull-aparts. Build to the first work set in 3 steps.",
   "finisher": "3 min easy walk, then stretch the muscles trained for 2 minutes.",
   "notes": "Control the lowering phase and rest 60 to 90 seconds between sets. Add load once you reach the top of the rep range on every set."
  },
  "Built|6": {
-  "theme": "Optional: Arms and Shoulders",
+  "theme": "Optional: Full Body Pump",
   "sessionType": "Optional",
-  "warmup": "5 min easy cardio, then 2 rounds of 10 arm circles each way, 10 wall slides, and 10 incline push-ups. Build to the first work set in 3 steps.",
+  "warmup": "5 min easy cardio, then 2 rounds of 8 bodyweight squats, 8 hip hinges, 8 push-ups, and 8 band pull-aparts. Build to the first work set in 3 steps.",
   "finisher": "3 min easy walk, then stretch the muscles trained for 2 minutes.",
   "notes": "Optional fourth session. Skip it if you are sore, short on time, or sleeping poorly. Keep two reps in reserve on every set."
  },
@@ -147,7 +147,7 @@
   "notes": "Full rest. Sleep, water and protein matter most today. An easy walk or stretch is fine if you want it."
  },
  "Warrior|1": {
-  "theme": "Lower Power and Strength",
+  "theme": "Full Body Power A",
   "sessionType": "Core",
   "warmup": "5 min easy cardio, then 2 rounds of 8 squats, 8 lunges, 6 pogo hops, and 5 easy jumps. Build intensity before the first power set.",
   "finisher": "3 min easy walk, then stretch the muscles trained for 2 minutes.",
@@ -161,7 +161,7 @@
   "notes": "Move smoothly and never force a stretch."
  },
  "Warrior|3": {
-  "theme": "Upper Power and Strength",
+  "theme": "Full Body Power B",
   "sessionType": "Core",
   "warmup": "5 min easy cardio, then 2 rounds of 8 squats, 8 lunges, 6 pogo hops, and 5 easy jumps. Build intensity before the first power set.",
   "finisher": "3 min easy walk, then stretch the muscles trained for 2 minutes.",
