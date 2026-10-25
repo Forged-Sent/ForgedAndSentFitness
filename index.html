@@ -230,6 +230,19 @@ details.targets[open] summary::after { content: "\2212"; }
 .sw-type { font-size: 12px; color: var(--muted); margin-top: 4px; }
 .sw-always { margin-top: 4px; font-size: 14px; }
 .sw-disc { font-style: italic; }
+.wcard { margin-top: 8px; border: 1px solid var(--line); border-left: 3px solid var(--accent); border-radius: var(--radius, 4px); padding: 10px 12px; background: var(--surface); display: flex; flex-direction: column; gap: 4px; }
+.wcard.big { border-left-width: 1px; }
+.wc-t { font-family: var(--f-label); font-weight: 700; text-transform: uppercase; letter-spacing: .03em; font-size: 16px; }
+.wc-stats { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 12.5px; color: var(--muted); }
+.wc-stats b { color: var(--ink); font-family: var(--f-label); font-size: 15px; font-weight: 700; }
+.wc-pr { font-size: 13px; } .wc-pr i { font-style: normal; font-family: var(--f-label); font-weight: 700; color: var(--brass, #b08d57); }
+.sh-box textarea { min-height: 76px; resize: vertical; }
+.sh-prev { position: relative; }
+.sh-prev img, .sh-prev video { width: 100%; max-height: 240px; object-fit: cover; display: block; border: 1px solid var(--line); border-radius: var(--radius, 4px); }
+.sh-x { position: absolute; top: 6px; right: 6px; width: 32px; height: 32px; border-radius: 50%; border: 0; background: rgba(0,0,0,.65); color: #fff; font-size: 14px; }
+.sh-two { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.sh-two .btn { display: flex; align-items: center; justify-content: center; gap: 8px; padding: 0 8px; }
+.sh-two svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 2; flex: none; }
 .cdlg { position: fixed; inset: 0; z-index: 80; background: rgba(0,0,0,.55); display: flex; align-items: flex-start; justify-content: center; overflow-y: auto; padding: calc(56px + env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-right, 0px)) 16px max(16px, env(safe-area-inset-left, 0px)); }
 .cdlg-box { margin: 0 auto; width: 100%; max-width: 360px; background: var(--bg); border: 2px solid var(--danger); padding: 18px; display: flex; flex-direction: column; gap: 10px; }
 .cdlg-box h2 { margin: 0; font-family: var(--f-label); font-size: 17px; letter-spacing: .08em; text-transform: uppercase; }
@@ -1098,7 +1111,7 @@ details.targets[open] summary::after { content: "\2212"; }
     watchPosts: function (cb) {
       return this.db.collection("posts").orderBy("createdAt", "desc").limit(50).onSnapshot(function (s) {
         cb(s.docs.map(function (d) { var x = d.data() || {};
-          return { id: d.id, uid: x.uid, text: String(x.text || ""), media: Array.isArray(x.media) ? x.media : [], mentions: Array.isArray(x.mentions) ? x.mentions : [], createdAt: Number(x.createdAt) || 0 }; }));
+          return { id: d.id, uid: x.uid, text: String(x.text || ""), media: Array.isArray(x.media) ? x.media : [], mentions: Array.isArray(x.mentions) ? x.mentions : [], card: normCard(x.card), createdAt: Number(x.createdAt) || 0 }; }));
       }, noop);
     },
     addPost: function (p) { return this.db.collection("posts").add(p); },
@@ -1617,7 +1630,120 @@ details.targets[open] summary::after { content: "\2212"; }
     (root.sessions || []).forEach(function (x) { add(normExtra(x.extra).map(function (y) { return [y.g, y.rx]; }), x.ex); });
     return out;
   }
-  function awardPRs(key, root, boxPts) {
+  /* ---------- Share a finished workout to Rally ---------- */
+  function workoutShareInfo(key, root, sess, w) {
+    var src = sess || root, p = planCfg() || {}, keys = {}, exCount = 0, vol = sess ? volOf(sess, key, true) : volOf(root, key);
+    var list = sess ? normExtra(sess.extra).map(function (x) { return [x.g, x.rx]; })
+      : ((w && w.exercises) || []).map(function (e, i) { return [effMove(root, i, e[0]), e[1]]; }).concat(normExtra(root.extra).map(function (x) { return [x.g, x.rx]; }));
+    list.forEach(function (e, i) {
+      var arr = src.ex && src.ex[i]; keys[String(e[0]).trim().toLowerCase()] = true;
+      if (Array.isArray(arr) && arr.some(function (s) { return s && (s.d || Number(s.r) > 0); })) exCount++;
+    });
+    var ms = src.finishedAt && src.startedAt ? src.finishedAt - src.startedAt : 0;
+    return { title: String(sess ? sess.name : (w && w.title) || "Workout").slice(0, 60), time: ms >= 60000 ? fmtElapsed(ms) : "", vol: vol, ex: exCount || list.length, keys: keys };
+  }
+  function normCard(c) {
+    if (!c || typeof c !== "object") return null;
+    var prs = (Array.isArray(c.prs) ? c.prs : []).slice(0, 10).map(function (x) { x = x || {}; return { l: String(x.l || "").slice(0, 60), w: !!x.w, v: !!x.v, tw: Number(x.tw) || 0, tv: Number(x.tv) || 0 }; }).filter(function (x) { return x.l; });
+    return { t: String(c.t || "Workout").slice(0, 60), time: String(c.time || "").slice(0, 12), vol: Math.max(0, Math.round(Number(c.vol) || 0)), ex: Math.max(0, Math.min(40, Math.floor(Number(c.ex) || 0))), prs: prs };
+  }
+  function prLine(x) { return x.l + ": " + (x.w ? fmtW(x.tw) + " lb" : "") + (x.w && x.v ? ", " : "") + (x.v ? "volume " + fmt(x.tv) + " lb" : ""); }
+  function workoutCardEl(c, compact) {
+    var box = el("div", compact ? "wcard" : "wcard big");
+    box.appendChild(el("div", "wc-t", c.t));
+    var st = el("div", "wc-stats");
+    function stat(v, l) { var s = el("span"); s.appendChild(el("b", null, v)); s.appendChild(document.createTextNode(" " + l)); st.appendChild(s); }
+    if (c.time) stat(c.time, "time");
+    if (c.vol) stat(fmt(c.vol), "lb volume");
+    if (compact && c.prs.length) stat(String(c.prs.length), c.prs.length === 1 ? "PR" : "PRs"); else if (c.ex) stat(String(c.ex), c.ex === 1 ? "exercise" : "exercises");
+    box.appendChild(st);
+    c.prs.forEach(function (x) { var r = el("div", "wc-pr"); r.appendChild(el("i", null, "PR")); r.appendChild(document.createTextNode(" " + prLine(x))); box.appendChild(r); });
+    return box;
+  }
+  async function prepShareFile(f, say) {
+    if (f.type.indexOf("image/") === 0 && f.type !== "image/gif") {
+      say("Preparing photo…");
+      try { f = await compressImage(f, 2048, 2 * 1024 * 1024); say(""); } catch (e) { if (f.size > 20 * 1024 * 1024) { say("That photo could not be read. Try a JPG or PNG."); return null; } say(""); }
+      return f;
+    }
+    if (f.type.indexOf("video/") === 0 && f.size > VIDEO_SKIP) {
+      say("Shrinking video… 0%");
+      try {
+        var vb = await compressVideo(f, function (pc) { say("Shrinking video… " + pc + "%. Keep this screen open."); });
+        if (vb.size > VIDEO_MAX) { say("That video is still too large after shrinking. Try a shorter clip."); return null; }
+        var ext = vb.type.indexOf("mp4") >= 0 ? ".mp4" : ".webm"; say("");
+        return new File([vb], (f.name.replace(/\.[^.]+$/, "") || "video") + ext, { type: vb.type });
+      } catch (e) {
+        if (e && e.code === "long") { say("Videos can be up to 3 minutes. Trim the clip and try again."); return null; }
+        if (f.size > VIDEO_MAX) { say("Couldn’t shrink that video on this device. Trim the clip or record it shorter."); return null; }
+        say(""); return f;
+      }
+    }
+    if (f.size > VIDEO_MAX) { say(f.name + " is over 20 MB. Trim the clip or record it shorter."); return null; }
+    return f;
+  }
+  function openShare(info, prs) {
+    if (!state.me || !state.canWrite || !B.db) return;
+    var old = $("cdlg"); if (old) old.remove();
+    var card = normCard({ t: info.title, time: info.time, vol: info.vol, ex: info.ex, prs: prs });
+    var file = null, url = "", busy = false;
+    var back = el("div", "cdlg"); back.id = "cdlg";
+    var box = el("form", "cdlg-box nw-box sh-box"); box.noValidate = true; box.setAttribute("role", "dialog"); box.setAttribute("aria-modal", "true"); box.setAttribute("aria-labelledby", "sh-t");
+    var t = el("h2", null, "Share with the brothers"); t.id = "sh-t"; box.appendChild(t);
+    box.appendChild(workoutCardEl(card, false));
+    var l = el("label", "flabel", "Message"), ta = el("textarea", "field"); ta.id = "sh-text"; ta.maxLength = 1000; ta.rows = 3;
+    ta.value = "Finished " + card.t + "." + (card.prs.length ? " New PR" + (card.prs.length > 1 ? "s" : "") + " on " + card.prs.map(function (x) { return x.l; }).join(" and ") + "." : "") + " Iron sharpens iron.";
+    l.appendChild(ta); box.appendChild(l);
+    var prev = el("div", "sh-prev"); prev.hidden = true; box.appendChild(prev);
+    var msg = el("p", "fnote"); box.appendChild(msg);
+    function say(x) { msg.textContent = x || ""; }
+    function showPrev() {
+      prev.textContent = ""; prev.hidden = !file; if (!file) return;
+      var isV = (file.type || "").indexOf("video") === 0, m = el(isV ? "video" : "img"); m.src = url; if (isV) { m.muted = true; m.playsInline = true; m.controls = true; } else m.alt = "Your photo";
+      prev.appendChild(m);
+      var x = el("button", "sh-x", "✕"); x.type = "button"; x.setAttribute("aria-label", "Remove photo or video");
+      x.addEventListener("click", function () { if (url) try { URL.revokeObjectURL(url); } catch (e) {} file = null; url = ""; showPrev(); }); prev.appendChild(x);
+    }
+    function pick(accept, capture) {
+      var inp = document.createElement("input"); inp.type = "file"; inp.accept = accept; if (capture) inp.setAttribute("capture", capture);
+      inp.addEventListener("change", async function () {
+        var f = inp.files && inp.files[0]; if (!f) return;
+        var ready = await prepShareFile(f, say); if (!ready) return;
+        if (url) try { URL.revokeObjectURL(url); } catch (e) {}
+        file = ready; try { url = URL.createObjectURL(file); } catch (e) { url = ""; } showPrev();
+      });
+      inp.click();
+    }
+    var two = el("div", "sh-two"), sb = el("button", "btn ghost"), pb = el("button", "btn ghost"); sb.type = "button"; pb.type = "button";
+    sb.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 8h4l2-3h6l2 3h4v12H3z"/><circle cx="12" cy="13.5" r="3.5"/></svg>'; sb.appendChild(document.createTextNode("Take selfie"));
+    pb.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="1"/><path d="m3 16 5-5 4 4 3-3 6 6"/></svg>'; pb.appendChild(document.createTextNode("Photo/video"));
+    var canUp = B.canUpload(); sb.disabled = !canUp; pb.disabled = !canUp;
+    sb.addEventListener("click", function () { pick("image/*", "user"); });
+    pb.addEventListener("click", function () { pick("image/*,video/*", ""); });
+    two.appendChild(sb); two.appendChild(pb); box.appendChild(two);
+    var post = el("button", "btn", "Post to Rally"); post.type = "submit"; box.appendChild(post);
+    var no = el("button", "btn ghost", "Not now"); no.type = "button"; box.appendChild(no);
+    function close() { if (url) try { URL.revokeObjectURL(url); } catch (e) {} back.remove(); }
+    no.addEventListener("click", close);
+    back.addEventListener("keydown", function (ev) { if (ev.key === "Escape" && !busy) close(); });
+    async function send() {
+      if (busy) return; busy = true; post.disabled = true; post.textContent = file ? "Uploading…" : "Posting…"; say("");
+      try {
+        var media = [];
+        if (file) { var up = await B.upload(file); media.push({ id: up.id, type: (file.type || "").indexOf("video") === 0 ? "video" : "image" }); }
+        await B.addPost({ uid: state.me, text: ta.value.trim().slice(0, 1000), media: media, mentions: [], card: card, createdAt: Date.now(), date: todayKey() });
+        var ct = taskOfKind("checkin"); if (ct && !myDoc().done[ct.id]) toggle(ct.id);
+        close(); go("checkin");
+      } catch (e) {
+        busy = false; post.disabled = false; post.textContent = "Post to Rally";
+        say(e && e.code === "quota_exceeded" ? "Storage is full. Try a smaller file." : "Could not post. Check your connection and try again.");
+      }
+    }
+    post.addEventListener("click", function (ev) { ev.preventDefault(); send(); });
+    box.addEventListener("submit", function (ev) { ev.preventDefault(); send(); });
+    back.appendChild(box); document.body.appendChild(back); post.focus();
+  }
+  function awardPRs(key, root, boxPts, after) {
     var p = planCfg() || {};
     function finish(prev) {
       var best = {};
@@ -1630,15 +1756,15 @@ details.targets[open] summary::after { content: "\2212"; }
       Object.keys(today).forEach(function (k) {
         var t = today[k], b = best[k]; if (!b) return;
         var w = t.maxW > b.maxW, v = Math.round(t.vol) > Math.round(b.vol);
-        if (w || v) list.push({ l: moveName(t.g, p.equip).slice(0, 60), w: w, v: v, tw: t.maxW, bw: b.maxW, tv: Math.round(t.vol), bv: Math.round(b.vol) });
+        if (w || v) list.push({ k: k, l: moveName(t.g, p.equip).slice(0, 60), w: w, v: v, tw: t.maxW, bw: b.maxW, tv: Math.round(t.vol), bv: Math.round(b.vol) });
       });
       if (key === todayKey()) writeDay(function (r) { r.prs = { n: list.length, list: list.map(function (x) { return { l: x.l, w: x.w, v: x.v }; }) }; });
-      showAwards(list, boxPts, prev !== null);
+      showAwards(list, boxPts, prev !== null, after ? function () { after(list); } : null);
     }
     if (!state.me || !B.db || !B.listWorkouts) { finish([]); return; }
-    B.listWorkouts(state.me).then(finish).catch(function () { showAwards([], boxPts, false); });
+    B.listWorkouts(state.me).then(finish).catch(function () { showAwards([], boxPts, false, after ? function () { after([]); } : null); });
   }
-  function showAwards(list, boxPts, checked) {
+  function showAwards(list, boxPts, checked, onDone) {
     var old = $("cdlg"); if (old) old.remove();
     var back = el("div", "cdlg"); back.id = "cdlg";
     var box = el("div", "cdlg-box nw-box aw-box"); box.setAttribute("role", "dialog"); box.setAttribute("aria-modal", "true"); box.setAttribute("aria-labelledby", "aw-t");
@@ -1656,7 +1782,7 @@ details.targets[open] summary::after { content: "\2212"; }
     if (total) { var tt = el("p", "aw-total"); tt.appendChild(el("span", null, "Points earned")); tt.appendChild(el("b", null, "+" + total)); box.appendChild(tt); }
     if (list.length > 1) box.appendChild(el("p", "fnote", "Each lift earns " + PR_PTS + " points for a weight or volume PR, once per day."));
     var ok = el("button", "btn", "Done"); ok.type = "button"; box.appendChild(ok); back.appendChild(box);
-    function close() { back.remove(); }
+    function close() { back.remove(); if (onDone) { var f = onDone; onDone = null; setTimeout(f, 0); } }
     ok.addEventListener("click", close); back.addEventListener("click", function (ev) { if (ev.target === back) close(); });
     back.addEventListener("keydown", function (ev) { if (ev.key === "Escape") close(); });
     document.body.appendChild(back); ok.focus();
@@ -2452,7 +2578,10 @@ details.targets[open] summary::after { content: "\2212"; }
       var fb = el("button", "btn" + (done ? " ghost" : ""), done ? "Undo finish" : "Finish workout"); fb.type = "button"; fb.disabled = off;
       fb.addEventListener("click", function () {
         if (wk && wk.rec) wk.rec.finishedAt = done ? 0 : Date.now(); saveWkNow(); if (!S) previewWorkout(); drawWorkoutPage(true);
-        if (!done && wk && wk.root) awardPRs(key, wk.root, 0);
+        if (!done && wk && wk.root) {
+          var info = workoutShareInfo(key, wk.root, S ? wk.rec : null, w);
+          awardPRs(key, wk.root, 0, function (list) { openShare(info, list.filter(function (x) { return info.keys[x.k]; })); });
+        }
       }); body.appendChild(fb);
     } else if (!isToday && done) body.appendChild(el("p", "note", "Finished."));
     if (S && wk.loaded && !off) {
@@ -2590,6 +2719,7 @@ details.targets[open] summary::after { content: "\2212"; }
       var body = el("div"), head = el("div", "pname"), pn = el("span", null, nameOf(p.uid));
       head.appendChild(pn); makeLink(pn, p.uid); head.appendChild(el("span", "ptime", timeLabel(p.createdAt))); body.appendChild(head);
       if (p.text) { var tx = el("p", "ptext"); appendWithMentions(tx, p.text, p.mentions); body.appendChild(tx); }
+      if (p.card) body.appendChild(workoutCardEl(p.card, true));
       if (p.media.length) {
         var md = el("div", "media");
         p.media.forEach(function (m) {
