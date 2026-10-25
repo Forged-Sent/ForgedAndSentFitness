@@ -188,6 +188,13 @@ details.targets[open] summary::after { content: "\2212"; }
 .wk-card { margin-top: 14px; border: 1px solid var(--line); padding: 14px; background: var(--surface); }
 .wk-meta { font-family: var(--f-label); font-weight: 600; font-size: 13px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
 .wk-title { margin: 4px 0 10px; font-family: var(--f-display); font-weight: 700; font-size: 24px; line-height: 1.15; text-transform: uppercase; }
+.we { font-size: 14px; color: var(--muted); line-height: 1.4; }
+.effort { margin: 12px 0 0; border: 1px solid var(--line); padding: 0 12px; }
+.effort summary { min-height: 44px; display: flex; align-items: center; cursor: pointer; font-family: var(--f-label); font-weight: 600; font-size: 13px; letter-spacing: .12em; text-transform: uppercase; color: var(--brass, #b08d57); }
+.effort p { margin: 0 0 10px; font-size: 15px; line-height: 1.5; }
+.effort table { border-collapse: collapse; width: 100%; margin: 0 0 12px; font-size: 14px; }
+.effort td { padding: 5px 0; border-top: 1px solid var(--line); vertical-align: top; }
+.effort td:first-child { white-space: nowrap; padding-right: 12px; font-weight: 600; }
 .wk-sec { margin: 12px 0 0; font-size: 15px; line-height: 1.5; }
 .wk-sec b { display: block; font-family: var(--f-label); font-weight: 600; font-size: 13px; letter-spacing: .12em; text-transform: uppercase; color: var(--brass, #b08d57); margin-bottom: 2px; }
 .wx { display: flex; flex-direction: column; gap: 2px; padding: 10px 0; border-top: 1px dashed var(--line); }
@@ -1568,6 +1575,20 @@ details.targets[open] summary::after { content: "\2212"; }
     if (m.cue) { var c = el("p", "wk-sec"); c.appendChild(el("b", null, "Coaching cue")); c.appendChild(document.createTextNode(m.cue)); body.appendChild(c); }
   }
   function redrawKeepScroll() { var sc = $("scroll"), t = sc.scrollTop; drawWorkoutPage(true); sc.scrollTop = t; }
+  function effortNote(t) {
+    var m = /\b(RPE|RIR)\s*(\d+)/.exec(t || ""); if (!m) return "";
+    var n = +m[2], left = m[1] === "RPE" ? 10 - n : n;
+    var how = left <= 0 ? "all-out, no good reps left" : left >= 4 ? "easy, 4 or more reps left" : "stop with about " + left + (left === 1 ? " rep" : " reps") + " left";
+    return m[1] + " " + n + " means " + how + ".";
+  }
+  function effortGuide() {
+    var d = el("details", "effort"); d.appendChild(el("summary", null, "What do RPE and RIR mean?"));
+    d.appendChild(el("p", null, "Both tell you how hard to push a set. RIR (reps in reserve) is how many good reps you could still do when you stop. RPE (rate of perceived exertion) is a 1 to 10 effort score. RPE = 10 minus RIR."));
+    var t = el("table"); [["RPE 10 / RIR 0", "Max effort. No good reps left."], ["RPE 9 / RIR 1", "Could do 1 more rep."], ["RPE 8 / RIR 2", "Could do 2 more reps."], ["RPE 7 / RIR 3", "Could do 3 more reps. Moving fast."], ["RPE 6 / RIR 4", "Light. 4 or more reps left."]].forEach(function (r) { var tr = el("tr"); tr.appendChild(el("td", null, r[0])); tr.appendChild(el("td", null, r[1])); t.appendChild(tr); });
+    d.appendChild(t);
+    d.appendChild(el("p", null, "Pick a weight where the last rep of each set matches the number. Stop the set there, even if you feel you could do more. Good form always counts. If you are new, you will probably guess too easy at first. That gets more accurate with practice."));
+    return d;
+  }
   function drawWorkoutPage(force) {
     var body = $("wkp-body"), key = state.wkDay || todayKey(), wf = workoutFor(key), p = planCfg();
     if (!force && document.activeElement && document.activeElement.tagName === "INPUT" && body.contains(document.activeElement)) return;
@@ -1581,6 +1602,7 @@ details.targets[open] summary::after { content: "\2212"; }
     if (isToday && !started && !done) { var sb = el("button", "btn wk-start", "Start workout"); sb.type = "button"; sb.disabled = off || !wk.loaded; sb.addEventListener("click", function () { wk.rec = wk.rec || emptyWk(key); wk.rec.startedAt = Date.now(); saveWkNow(); drawWorkoutPage(true); }); body.appendChild(sb); }
     if (live) body.appendChild(el("p", "note", "Started " + new Date(rec.startedAt).toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" }) + ". Log each set, then rest."));
     wkSection(body, "Warm-up", wf.th.warmup);
+    if (w.exercises.some(function (e) { return /\b(RPE|RIR)\b/.test(e[1]); })) body.appendChild(effortGuide());
     w.exercises.forEach(function (e, idx) {
       var ex = el("div", "wx"), ps = parseSets(e[1]);
       var shownName = moveName(e[0], p.equip);
@@ -1590,6 +1612,7 @@ details.targets[open] summary::after { content: "\2212"; }
         nb.addEventListener("click", function () { saveWkNow(); openVideo(e[0], shownName); }); ex.appendChild(nb);
       } else ex.appendChild(el("span", "wn", shownName));
       ex.appendChild(el("span", "wr", e[1]));
+      var en = effortNote(e[1]); if (en) ex.appendChild(el("span", "we", en));
       var c = moveCue(e[0]); if (c) ex.appendChild(el("span", "wc", c));
       if (live) {
         var a = setsOf(idx, ps);
