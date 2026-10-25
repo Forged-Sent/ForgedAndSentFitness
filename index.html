@@ -1518,7 +1518,9 @@ details.targets[open] summary::after { content: "\2212"; }
       var bar = el("div", "mbar");
       if (tgt) {
         if (m.k === "kcal") { var band = el("i", "band"); band.style.left = (90 / 120 * 100) + "%"; band.style.width = (20 / 120 * 100) + "%"; bar.appendChild(band); }
-        var fill = el("b", val > tgt * 1.1 ? "over" : ""); fill.style.width = (Math.min(120, 100 * val / tgt) / 120 * 100) + "%"; bar.appendChild(fill);
+        var pct = Math.min(120, 100 * val / tgt), fill = el("b"); fill.style.width = (Math.min(100, pct) / 120 * 100) + "%"; bar.appendChild(fill);
+        // Only the part past the goal turns orange.
+        if (pct > 100) { var ov = el("b", "over"); ov.style.left = (100 / 120 * 100) + "%"; ov.style.width = ((pct - 100) / 120 * 100) + "%"; bar.appendChild(ov); }
         var tick = el("i", "tick"); tick.style.left = (100 / 120 * 100) + "%"; bar.appendChild(tick);
       }
       row.appendChild(bar); wrap.appendChild(row);
