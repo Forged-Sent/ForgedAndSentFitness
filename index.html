@@ -1974,7 +1974,7 @@ details.targets[open] summary::after { content: "\2212"; }
   // so the timer tone still sounds (at the phone's media volume). It must be unlocked by a tap first.
   var beepEl = null, beepReady = false;
   function beepWavUrl() {
-    var rate = 22050, tones = [[880, .32], [0, .08], [880, .32], [0, .08], [1175, .45]], n = 0;
+    var rate = 22050, F = 1000, tones = [[F, .16], [0, .84], [F, .16], [0, .84], [F, .16], [0, .84], [F, .7]], n = 0;
     tones.forEach(function (t) { n += Math.round(t[1] * rate); });
     var buf = new ArrayBuffer(44 + n * 2), v = new DataView(buf), o = 0;
     function str(x) { for (var i = 0; i < x.length; i++) v.setUint8(o++, x.charCodeAt(i)); }
@@ -2001,30 +2001,33 @@ details.targets[open] summary::after { content: "\2212"; }
       }
     } catch (e) {}
   }
-  function playBeepEl() {
+  function playBeepEl(offset) {
     if (!beepEl || !beepReady) return false;
-    try { beepEl.currentTime = 0; beepEl.muted = false; var pr = beepEl.play(); if (pr && pr.catch) pr.catch(function () { playTones(null, 0); }); return true; } catch (e) { return false; }
+    try { beepEl.currentTime = Math.max(0, Math.min(3, offset || 0)); beepEl.muted = false; var pr = beepEl.play(); if (pr && pr.catch) pr.catch(function () { playTones(null, 0); }); return true; } catch (e) { return false; }
   }
   function playTones(t, delaySec) {
     if (!audioCtx) return false;
     try {
-      var t0 = audioCtx.currentTime + Math.max(0, delaySec);
-      for (var i = 0; i < 3; i++) {
-        var o = audioCtx.createOscillator(), g = audioCtx.createGain(), a = t0 + i * 0.4;
-        o.type = "sine"; o.frequency.value = i === 2 ? 1175 : 880; o.connect(g); g.connect(audioCtx.destination);
-        g.gain.setValueAtTime(0.0001, a); g.gain.exponentialRampToValueAtTime(0.6, a + 0.02); g.gain.exponentialRampToValueAtTime(0.0001, a + 0.32);
-        o.start(a); o.stop(a + 0.34); if (t) t.tones.push(o);
+      // Race start: beep, beep, beep (3, 2, 1) then one long beep at zero. delaySec is when zero lands.
+      var now = audioCtx.currentTime, zero = now + Math.max(0, delaySec), first = Math.max(now, zero - 3);
+      for (var i = 0; i < 4; i++) {
+        var a = zero - 3 + i; if (a < first - 0.01) continue;
+        var o = audioCtx.createOscillator(), g = audioCtx.createGain(), len = i === 3 ? 0.7 : 0.16;
+        o.type = "sine"; o.frequency.value = 1000; o.connect(g); g.connect(audioCtx.destination);
+        g.gain.setValueAtTime(0.0001, a); g.gain.exponentialRampToValueAtTime(0.6, a + 0.015); g.gain.setValueAtTime(0.6, a + len - 0.03); g.gain.exponentialRampToValueAtTime(0.0001, a + len);
+        o.start(a); o.stop(a + len + 0.02); if (t) t.tones.push(o);
       }
       return true;
     } catch (e) { return false; }
   }
-  function cancelTone(t) { (t.tones || []).forEach(function (o) { try { o.stop(); } catch (e) {} }); t.tones = []; t.sched = false; }
+  function cancelTone(t) { (t.tones || []).forEach(function (o) { try { o.stop(); } catch (e) {} }); t.tones = []; t.sched = false; if (t.cd && beepEl) { try { beepEl.pause(); } catch (e) {} } t.cd = false; }
   function cancelAllTones() { if (wk) Object.keys(wk.timers).forEach(function (k) { cancelTone(wk.timers[k]); }); }
   // The tone is scheduled on the audio clock when the timer starts, so it still sounds if the phone throttles the page's timers.
   function scheduleTone(t) { cancelTone(t); if (!t.running || beepReady) return; t.sched = playTones(t, (t.endAt - Date.now()) / 1000); }
   function beep(t) {
     try { if (navigator.vibrate) navigator.vibrate([250, 120, 250, 120, 400]); } catch (e) {}
-    if (playBeepEl()) { cancelTone(t); return; }
+    if (t.cd) { t.cd = false; return; }
+    if (playBeepEl(3)) { cancelTone(t); return; }
     if (!t.sched) playTones(null, 0);
   }
   function paintTimer(t) {
@@ -2049,6 +2052,7 @@ details.targets[open] summary::after { content: "\2212"; }
     Object.keys(wk.timers).forEach(function (k) {
       var t = wk.timers[k]; if (!t.running) return;
       t.left = Math.ceil((t.endAt - now) / 1000);
+      if (!t.cd && t.left <= 3 && t.left > 0 && t.base > 3 && beepReady) { t.cd = true; playBeepEl(3 - (t.endAt - now) / 1000); }
       if (t.left <= 0) { t.left = 0; t.running = false; t.done = true; beep(t); t.sched = false; if (t.onDone) t.onDone(); }
       paintTimer(t);
     });
@@ -3675,7 +3679,7 @@ details.targets[open] summary::after { content: "\2212"; }
     $("test-go").addEventListener("click", function () { var v = $("test-date").value; if (!/^\d{4}-\d{2}-\d{2}$/.test(v)) return; try { localStorage.setItem("fs-test-date", v === dkey(new Date()) ? "" : v); } catch (e) {} location.reload(); });
     $("test-off").addEventListener("click", function () { try { localStorage.removeItem("fs-test-date"); } catch (e) {} location.reload(); });
     if (TEST_DATE) { var tb = el("button", "test-banner", "Test mode: " + longDate(TEST_DATE) + ". Tap to go back to the real date."); tb.type = "button"; tb.addEventListener("click", function () { try { localStorage.removeItem("fs-test-date"); } catch (e) {} location.reload(); }); document.body.appendChild(tb); }
-    $("test-sound").addEventListener("click", function () { unlockAudio(); setTimeout(function () { if (!playBeepEl()) playTones(null, 0); }, 250); });
+    $("test-sound").addEventListener("click", function () { unlockAudio(); setTimeout(function () { if (!playBeepEl(0)) playTones(null, 3); }, 250); });
     [["s-af-w", "w"], ["s-af-r", "r"]].forEach(function (c) {
       $(c[0]).addEventListener("change", function () { var a = afPrefs(); a[c[1]] = this.checked; state.settings.autofill = a; if (state.me && state.canWrite) saveSettings(); });
     });
