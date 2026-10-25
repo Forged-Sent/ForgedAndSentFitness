@@ -420,6 +420,11 @@ details.targets[open] summary::after { content: "\2212"; }
 .favrow{display:flex;align-items:center;gap:8px;border-bottom:1px dashed var(--line)}
 .favrow .fe-main{flex:1;min-width:0;display:flex;align-items:center;justify-content:space-between;gap:12px;text-align:left;min-height:52px;padding:6px 2px;background:transparent;border:0;color:var(--ink)}
 .mini.fx.star{color:var(--brass,#b08d57)}
+.fsheet{position:fixed;inset:0;z-index:50;background:var(--bg);display:flex;flex-direction:column;padding-top:env(safe-area-inset-top,0px)}
+.fsheet-head{flex:none;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px max(16px,env(safe-area-inset-right,0px)) 10px max(16px,env(safe-area-inset-left,0px));border-bottom:1px solid var(--line)}
+.fsheet-head h2{margin:0;font-family:var(--f-label);font-size:16px;letter-spacing:.1em;text-transform:uppercase}
+.fsheet-body{flex:1 1 auto;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:4px max(16px,env(safe-area-inset-right,0px)) calc(24px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
+.fsheet-body .fform{border-top:0}
 .rchips{display:flex;flex-wrap:wrap;gap:6px}
 .rchip{border:1px solid var(--line);background:transparent;padding:6px 10px;font-size:13px;min-height:36px}
 /* Tab bar */
@@ -1149,6 +1154,7 @@ details.targets[open] summary::after { content: "\2212"; }
   var stripBuilt = false, STRIP_BACK = 8, STRIP_FWD = 8;
   function go(p) {
     state.page = p;
+    if (p !== "fuel") { var fsh = document.getElementById("fsheet"); if (fsh) fsh.remove(); }
     ["today", "fuel", "train", "board", "checkin", "profile", "settings", "devo", "workout", "video"].forEach(function (n) { $("page-" + n).hidden = n !== p; });
     Array.prototype.forEach.call(document.querySelectorAll(".tabbar button"), function (b) {
       if (b.dataset.page === (p === "workout" || p === "video" ? "train" : p)) b.setAttribute("aria-current", "page"); else b.removeAttribute("aria-current");
@@ -2222,8 +2228,9 @@ details.targets[open] summary::after { content: "\2212"; }
     drawMeals(true);
   }
   function drawMeals(force) {
-    var box = $("meals"), a = document.activeElement;
-    if (!force && a && (a.tagName === "INPUT") && box.contains(a)) return;
+    var box = $("meals"), a = document.activeElement, sh = $("fsheet");
+    if (!force && a && (a.tagName === "INPUT") && (box.contains(a) || (sh && sh.contains(a)))) return;
+    var sheetForm = null, sheetTitle = "";
     box.textContent = "";
     var log = logFor(todayKey()), off = !state.me || !state.canWrite;
     $("food-total").textContent = fmt(log.kcal) + " kcal today";
@@ -2319,12 +2326,29 @@ details.targets[open] summary::after { content: "\2212"; }
         field("Carbs (g)", "c", "number", null, { min: "0", max: "1000", inputmode: "decimal" });
         if (fd.err) form.appendChild(el("p", "error full", fd.err));
         var sv = el("button", "btn", fd.id ? "Save changes" : "Add to " + m.label.toLowerCase()); sv.type = "submit"; form.appendChild(sv);
-        var cn = el("button", "btn ghost", "Cancel"); cn.type = "button"; cn.addEventListener("click", function () { state.food.meal = null; drawMeals(true); }); form.appendChild(cn);
+        var cn = el("button", "btn ghost", "Cancel"); cn.type = "button"; cn.addEventListener("click", closeFoodSheet); form.appendChild(cn);
         form.addEventListener("submit", function (ev) { ev.preventDefault(); saveFood(); });
-        sec.appendChild(form);
+        sheetForm = form; sheetTitle = (fd.id ? "Edit food \u00B7 " : (fd.mode === "voice" ? "Voice \u00B7 " : fd.mode === "photo" ? "Photo \u00B7 " : "Search \u00B7 ")) + m.label;
       }
       box.appendChild(sec);
     });
+    drawFoodSheet(sheetForm, sheetTitle);
+  }
+  function closeFoodSheet() { if (state.food.photo) try { URL.revokeObjectURL(state.food.photo); } catch (e) {} state.food = { meal: null, id: null, d: { name: "", kcal: "", p: "", f: "", c: "" }, err: "" }; drawMeals(true); }
+  function drawFoodSheet(form, title) {
+    var sh = $("fsheet");
+    if (!form || state.page !== "fuel") { if (sh) sh.remove(); return; }
+    var fresh = !sh;
+    if (fresh) {
+      sh = el("div", "fsheet"); sh.id = "fsheet"; sh.setAttribute("role", "dialog"); sh.setAttribute("aria-modal", "true"); sh.setAttribute("aria-labelledby", "fsheet-t");
+      var hd = el("div", "fsheet-head"), h = el("h2"); h.id = "fsheet-t"; hd.appendChild(h);
+      var x = el("button", "mini", "Close"); x.type = "button"; x.addEventListener("click", closeFoodSheet); hd.appendChild(x);
+      var bd = el("div", "fsheet-body"); bd.id = "fsheet-b";
+      sh.appendChild(hd); sh.appendChild(bd); document.body.appendChild(sh);
+      sh.addEventListener("keydown", function (ev) { if (ev.key === "Escape") closeFoodSheet(); });
+    }
+    $("fsheet-t").textContent = title;
+    var b = $("fsheet-b"), top = b.scrollTop; b.textContent = ""; b.appendChild(form); b.scrollTop = top;
   }
 
   /* Settings: stats calculator (Mifflin-St Jeor) */
