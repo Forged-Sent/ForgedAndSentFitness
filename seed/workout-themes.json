@@ -2,7 +2,7 @@
  "Forged|1": {
   "theme": "Full Body A",
   "sessionType": "Core",
-  "warmup": "5 min easy cardio, then 2 rounds of 8 bodyweight squats, 8 hip hinges, 8 push-ups, and 8 band pull-aparts. Build to the first work set in 3 steps.",
+  "warmup": "Work through the warm-up movements in order, then build to your first work set.",
   "finisher": "3 min easy walk, then stretch the muscles trained for 2 minutes.",
   "notes": "Rest 2 to 3 minutes between main sets. Stop each main set with 1 to 2 reps in reserve. Week 4 of every block is a deload."
  },
@@ -16,7 +16,7 @@
  "Forged|3": {
   "theme": "Full Body B",
   "sessionType": "Core",
-  "warmup": "5 min easy cardio, then 2 rounds of 8 bodyweight squats, 8 hip hinges, 8 push-ups, and 8 band pull-aparts. Build to the first work set in 3 steps.",
+  "warmup": "Work through the warm-up movements in order, then build to your first work set.",
   "finisher": "3 min easy walk, then stretch the muscles trained for 2 minutes.",
   "notes": "Reset between reps and keep the back flat. Rest 2 to 3 minutes between main sets. Week 4 of every block is a deload."
  },
@@ -30,14 +30,14 @@
  "Forged|5": {
   "theme": "Full Body C",
   "sessionType": "Core",
-  "warmup": "5 min easy cardio, then 2 rounds of 8 bodyweight squats, 8 hip hinges, 8 push-ups, and 8 band pull-aparts. Build to the first work set in 3 steps.",
+  "warmup": "Work through the warm-up movements in order, then build to your first work set.",
   "finisher": "3 min easy walk, then stretch the muscles trained for 2 minutes.",
   "notes": "Rest 2 to 3 minutes between main sets. Stop each main set with 1 to 2 reps in reserve. Week 4 of every block is a deload."
  },
  "Forged|6": {
   "theme": "Optional: Full Body Volume",
   "sessionType": "Optional",
-  "warmup": "5 min easy cardio, then 2 rounds of 8 bodyweight squats, 8 hip hinges, 8 push-ups, and 8 band pull-aparts. Build to the first work set in 3 steps.",
+  "warmup": "Work through the warm-up movements in order, then build to your first work set.",
   "finisher": "3 min easy walk, then stretch the muscles trained for 2 minutes.",
   "notes": "Optional fourth session. Skip it if you are sore, short on time, or sleeping poorly. Moderate effort, never to failure."
  },
@@ -51,7 +51,7 @@
  "Built|1": {
   "theme": "Full Body A",
   "sessionType": "Core",
-  "warmup": "5 min easy cardio, then 2 rounds of 8 bodyweight squats, 8 hip hinges, 8 push-ups, and 8 band pull-aparts. Build to the first work set in 3 steps.",
+  "warmup": "Work through the warm-up movements in order, then build to your first work set.",
   "finisher": "3 min easy walk, then stretch the muscles trained for 2 minutes.",
   "notes": "Control the lowering phase and rest 60 to 90 seconds between sets. Add load once you reach the top of the rep range on every set."
  },
@@ -65,7 +65,7 @@
  "Built|3": {
   "theme": "Full Body B",
   "sessionType": "Core",
-  "warmup": "5 min easy cardio, then 2 rounds of 8 bodyweight squats, 8 hip hinges, 8 push-ups, and 8 band pull-aparts. Build to the first work set in 3 steps.",
+  "warmup": "Work through the warm-up movements in order, then build to your first work set.",
   "finisher": "3 min easy walk, then stretch the muscles trained for 2 minutes.",
   "notes": "Control the lowering phase and rest 60 to 90 seconds between sets. Add load once you reach the top of the rep range on every set."
  },
@@ -79,14 +79,14 @@
  "Built|5": {
   "theme": "Full Body C",
   "sessionType": "Core",
-  "warmup": "5 min easy cardio, then 2 rounds of 8 bodyweight squats, 8 hip hinges, 8 push-ups, and 8 band pull-aparts. Build to the first work set in 3 steps.",
+  "warmup": "Work through the warm-up movements in order, then build to your first work set.",
   "finisher": "3 min easy walk, then stretch the muscles trained for 2 minutes.",
   "notes": "Control the lowering phase and rest 60 to 90 seconds between sets. Add load once you reach the top of the rep range on every set."
  },
  "Built|6": {
   "theme": "Optional: Full Body Pump",
   "sessionType": "Optional",
-  "warmup": "5 min easy cardio, then 2 rounds of 8 bodyweight squats, 8 hip hinges, 8 push-ups, and 8 band pull-aparts. Build to the first work set in 3 steps.",
+  "warmup": "Work through the warm-up movements in order, then build to your first work set.",
   "finisher": "3 min easy walk, then stretch the muscles trained for 2 minutes.",
   "notes": "Optional fourth session. Skip it if you are sore, short on time, or sleeping poorly. Keep two reps in reserve on every set."
  },
@@ -100,7 +100,7 @@
  "Engine|1": {
   "theme": "Intervals",
   "sessionType": "Core",
-  "warmup": "5 min easy cardio, then 2 rounds of 10 squats, 10 mountain climbers, and 10 arm swings. Raise the pace over the last minute.",
+  "warmup": "Work through the warm-up movements in order, then build to your first work set.",
   "finisher": "3 min easy walk and slow nasal breathing.",
   "notes": "Hard means about 8 out of 10 effort. Easy means moving gently until breathing settles."
  },
@@ -114,7 +114,7 @@
  "Engine|3": {
   "theme": "Strength Circuit",
   "sessionType": "Core",
-  "warmup": "5 min easy cardio, then 2 rounds of 10 squats, 10 mountain climbers, and 10 arm swings. Raise the pace over the last minute.",
+  "warmup": "Work through the warm-up movements in order, then build to your first work set.",
   "finisher": "3 min easy walk and slow nasal breathing.",
   "notes": "Move through the circuit in order and rest only as listed."
  },
@@ -128,14 +128,14 @@
  "Engine|5": {
   "theme": "Metabolic Complex",
   "sessionType": "Core",
-  "warmup": "5 min easy cardio, then 2 rounds of 10 squats, 10 mountain climbers, and 10 arm swings. Raise the pace over the last minute.",
+  "warmup": "Work through the warm-up movements in order, then build to your first work set.",
   "finisher": "3 min easy walk and slow nasal breathing.",
   "notes": "Keep every rep crisp. Cut the round short if form breaks down."
  },
  "Engine|6": {
   "theme": "Optional: Loaded Carries",
   "sessionType": "Optional",
-  "warmup": "5 min easy cardio, then 2 rounds of 10 squats, 10 mountain climbers, and 10 arm swings. Raise the pace over the last minute.",
+  "warmup": "Work through the warm-up movements in order, then build to your first work set.",
   "finisher": "3 min easy walk and slow nasal breathing.",
   "notes": "Optional fourth session. Skip it if you are sore, short on time, or sleeping poorly. Walk tall and keep the weight close."
  },
@@ -149,7 +149,7 @@
  "Warrior|1": {
   "theme": "Full Body Power A",
   "sessionType": "Core",
-  "warmup": "5 min easy cardio, then 2 rounds of 8 squats, 8 lunges, 6 pogo hops, and 5 easy jumps. Build intensity before the first power set.",
+  "warmup": "Work through the warm-up movements in order, then build to your first work set.",
   "finisher": "3 min easy walk, then stretch the muscles trained for 2 minutes.",
   "notes": "Move fast on power work and stop the set when speed drops. Take full rest between power sets."
  },
@@ -163,7 +163,7 @@
  "Warrior|3": {
   "theme": "Full Body Power B",
   "sessionType": "Core",
-  "warmup": "5 min easy cardio, then 2 rounds of 8 squats, 8 lunges, 6 pogo hops, and 5 easy jumps. Build intensity before the first power set.",
+  "warmup": "Work through the warm-up movements in order, then build to your first work set.",
   "finisher": "3 min easy walk, then stretch the muscles trained for 2 minutes.",
   "notes": "Move fast on power work and stop the set when speed drops. Take full rest between power sets."
  },
@@ -177,14 +177,14 @@
  "Warrior|5": {
   "theme": "Combat Circuit",
   "sessionType": "Core",
-  "warmup": "5 min easy cardio, then 2 rounds of 10 squats, 10 mountain climbers, and 10 arm swings. Raise the pace over the last minute.",
+  "warmup": "Work through the warm-up movements in order, then build to your first work set.",
   "finisher": "3 min easy walk and slow nasal breathing.",
   "notes": "Move through the circuit in order and rest only as listed."
  },
  "Warrior|6": {
   "theme": "Optional: Combat Conditioning",
   "sessionType": "Optional",
-  "warmup": "5 min easy cardio, then 2 rounds of 10 squats, 10 mountain climbers, and 10 arm swings. Raise the pace over the last minute.",
+  "warmup": "Work through the warm-up movements in order, then build to your first work set.",
   "finisher": "3 min easy walk and slow nasal breathing.",
   "notes": "Optional fourth session. Skip it if you are sore, short on time, or sleeping poorly. Stay relaxed in the shoulders and keep the hands up."
  },
