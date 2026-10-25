@@ -275,7 +275,8 @@ details.targets[open] summary::after { content: "\2212"; }
 .lk-btn { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; margin-top: 10px; }
 .lk-edit { display: flex; align-items: center; justify-content: space-between; gap: 10px; border: 1px solid var(--hot); border-radius: var(--radius, 4px); padding: 10px 12px; font-size: 13px; margin-bottom: 4px; }
 .lk-edit b { display: block; color: var(--hot); font-family: var(--f-label); letter-spacing: .08em; text-transform: uppercase; }
-.lk-edit .btn { min-height: 38px; padding: 0 14px; flex: none; }
+.lk-edit > span { flex: 1 1 auto; min-width: 0; line-height: 1.4; }
+#wkp-body .lk-edit .btn { width: auto; min-width: 96px; margin-top: 0; min-height: 40px; padding: 0 18px; flex: none; }
 .im-prev { width: 100%; aspect-ratio: 4 / 5; max-width: 100%; object-fit: contain; background: #1b1f17; border: 1px solid var(--line); border-radius: var(--radius, 4px); display: block; -webkit-touch-callout: default; }
 .wp-box { max-height: calc(var(--app-h, 100dvh) - 48px); overflow-y: auto; }
 .wp-k { color: var(--brass, var(--accent)); }
