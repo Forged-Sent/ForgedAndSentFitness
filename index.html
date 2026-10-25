@@ -280,6 +280,17 @@ details.targets[open] summary::after { content: "\2212"; }
 .im-prev { width: 100%; aspect-ratio: 4 / 5; max-width: 100%; object-fit: contain; background: #1b1f17; border: 1px solid var(--line); border-radius: var(--radius, 4px); display: block; -webkit-touch-callout: default; }
 .wp-box { max-height: calc(var(--app-h, 100dvh) - 48px); overflow-y: auto; }
 .cdlg-box .mo-text { margin: 6px 0 2px; font-family: var(--f-label); font-weight: 700; font-size: 26px; line-height: 1.2; text-transform: uppercase; letter-spacing: .02em; border-left: 3px solid var(--accent); padding-left: 14px; }
+.help-btn { flex: none; width: 30px; height: 30px; min-height: 0; padding: 0; border-radius: 50%; border: 1.5px solid var(--muted); background: transparent; color: var(--muted); font: italic 700 16px/1 Georgia, "Times New Roman", serif; display: inline-grid; place-items: center; cursor: pointer; align-self: center; }
+.help-btn:hover, .help-btn:focus-visible { border-color: var(--accent); color: var(--accent); }
+.topline.has-help { flex-wrap: nowrap; align-items: center; }
+.topline.has-help > .date { flex: 1 1 auto; min-width: 0; }
+.topline .right { display: inline-flex; align-items: center; gap: 10px; }
+.help-right { display: inline-flex; align-items: center; gap: 10px; margin-left: auto; flex: none; }
+.help-right .me-btn, .topline .right .me-btn { margin: 0; }
+.cdlg-box .help-why { margin: 2px 0 6px; font-size: 15px; line-height: 1.5; }
+.help-list { list-style: disc; margin: 0 0 8px; padding-left: 20px; display: grid; gap: 8px; font-size: 14px; line-height: 1.45; }
+.help-list li { display: list-item; }
+.help-list li::marker { color: var(--accent); }
 .wp-k { color: var(--brass, var(--accent)); }
 .wp-text { border-left: 3px solid var(--accent); padding: 2px 0 2px 14px; margin: 4px 0 6px; }
 .cdlg-box .wp-text p { margin: 0 0 12px; font-size: 15.5px; line-height: 1.55; }
@@ -3452,6 +3463,94 @@ details.targets[open] summary::after { content: "\2212"; }
     try { if (screen.orientation) screen.orientation.addEventListener("change", applyPortraitLock); } catch (e) {}
   }
   initPortraitLock();
+  /* ---------- Page help: the (i) bubble at the top right of every page ---------- */
+  var HELP = {
+    today: { t: "Today", why: "Your daily mission. Each box is a habit that earns points for you on the Board.", how: [
+      "Tap a box when you've done it. Boxes with an arrow open something first, like the devotional, your motto or your steps.",
+      "Some boxes check themselves: calories and water from Fuel, the workout from Train, and the check-in when you post in Rally.",
+      "Steps: tap to log them. The goal is 10,000 (7,000 on your Sabbath). Past 10,000 you earn 1 bonus point per 1,000 up to 15,000, then half a point per 1,000.",
+      "Weigh-in and progress photos only show on your Sabbath.",
+      "Your three: add up to three personal habits of your own. Each is worth 1 point.",
+      "Your streak counts days in a row with every daily box checked."] },
+    fuel: { t: "Fuel", why: "Track what you eat and drink against your daily calorie and macro targets.", how: [
+      "The bars at the top show calories, protein, carbs and fat for today. Adjust targets takes you to your plan in Settings.",
+      "Tap the water buttons as you drink. Hitting the goal checks your water box.",
+      "Under each meal, use Search, Photo, Voice or Favorites to log food. Quick add is for when you only know the numbers.",
+      "Meal prep saves a meal you make often so you can log it in one tap.",
+      "Copy a previous day or a single meal when you eat the same thing.",
+      "Your calories box checks itself when you land within 10% of your goal."] },
+    train: { t: "Train", why: "Your training plan, today's workout and your progress over time.", how: [
+      "Pick your program, equipment and Sabbath day in Workout plan.",
+      "Tap a day on the calendar to see its workout, then open it to start.",
+      "Use + to add your own separate workout to any day.",
+      "Your week and Training volume show what you've lifted, day by day and in total."] },
+    workout: { t: "Workout", why: "Log a workout set by set while you train.", how: [
+      "Tap Start workout. Pray the workout prayer, then tap Amen to start the clock.",
+      "Warm-ups go round by round. Enter reps, and weight where the lift needs it.",
+      "A set's check lights up once you've entered it. Rest timers count down and beep at the end.",
+      "Tap an exercise name to see how to do it. Tap Alternate to swap it if you lack the equipment or have an injury.",
+      "Use + Add exercise for anything extra.",
+      "Finish workout locks it and awards 25 points for each lift with a weight or volume PR. Then you can share it to Rally or save it as an image to text a buddy.",
+      "Need to fix something? Tap Unlock to edit, then Lock when you're done."] },
+    board: { t: "Board", why: "See where the brothers stand, today and for the week.", how: [
+      "Switch between Today and This week. The week runs Monday to Sunday.",
+      "Points come from your boxes, your three habits, step bonuses and PRs.",
+      "Tap a man to see his profile and lift PRs.",
+      "Use it to push each other, and to find the man who needs encouraging."] },
+    checkin: { t: "Rally", why: "The group thread. Show up, share wins and encourage a brother.", how: [
+      "Write a post and add a photo or video if you want. Type @ to tag someone.",
+      "Posting here checks your Daily Check-In box.",
+      "Workouts you share after finishing show up here with your PRs.",
+      "What's shared here stays here. No judgment, no gossip."] },
+    devo: { t: "Devotional", why: "Today's reading: open in prayer, read the Scripture, reflect, then act on it.", how: [
+      "Read all the way to the bottom. The button unlocks once you get there.",
+      "Tap Mark read to check your devotional box.",
+      "Each month has a theme. The reading changes every day of the year."] },
+    video: { t: "How to do it", why: "A quick guide for one movement.", how: [
+      "Tap Watch on YouTube to see the video. Come back to the app when you're done.",
+      "Read the coaching cue before your first set."] },
+    profile: { t: "Profile", why: "A man's motto, stats and core lift PRs.", how: [
+      "Stats show the full-day streak, points this week and boxes checked today.",
+      "On your own profile you can update your lift PRs. The group can see them.",
+      "Progress photos are private to you. Compare any two dates side by side.",
+      "The gear opens Settings."] },
+    settings: { t: "Settings", why: "Set up your profile, body stats, goals and app preferences.", how: [
+      "Tap a section to open it.",
+      "Your profile: photo, banner and morning motto.",
+      "Body stats and Your goal build your calorie plan. Protein is 1 g per lb of your goal weight by default.",
+      "Daily targets: fine-tune calories and macros with the sliders.",
+      "Appearance switches between dark, light or auto."] }
+  };
+  function openHelp(page) {
+    var h = HELP[page]; if (!h) return;
+    var old = $("cdlg"); if (old) old.remove();
+    var back = el("div", "cdlg"); back.id = "cdlg";
+    var box = el("div", "cdlg-box nw-box wp-box help-box"); box.setAttribute("role", "dialog"); box.setAttribute("aria-modal", "true"); box.setAttribute("aria-labelledby", "hp-t");
+    box.appendChild(el("span", "label-caps wp-k", "How this page works"));
+    var t = el("h2", null, h.t); t.id = "hp-t"; box.appendChild(t);
+    box.appendChild(el("p", "help-why", h.why));
+    var ul = el("ul", "help-list"); h.how.forEach(function (x) { ul.appendChild(el("li", null, x)); }); box.appendChild(ul);
+    var ok = el("button", "btn", "Got it"); ok.type = "button"; box.appendChild(ok);
+    var prev = document.activeElement;
+    function close() { back.remove(); try { if (prev && prev.focus && document.body.contains(prev)) prev.focus({ preventScroll: true }); } catch (e) {} }
+    ok.addEventListener("click", close);
+    back.addEventListener("click", function (ev) { if (ev.target === back) close(); });
+    back.addEventListener("keydown", function (ev) { if (ev.key === "Escape") { ev.stopPropagation(); close(); } });
+    back.appendChild(box); document.body.appendChild(back); ok.focus({ preventScroll: true });
+  }
+  function addHelpButtons() {
+    Object.keys(HELP).forEach(function (page) {
+      var pg = $("page-" + page); if (!pg || pg.querySelector(".help-btn")) return;
+      var b = el("button", "help-btn"); b.type = "button"; b.setAttribute("aria-label", "How the " + HELP[page].t + " page works"); b.textContent = "i";
+      b.addEventListener("click", function () { openHelp(page); });
+      var me = pg.querySelector(".topline .me-btn"), bar = pg.querySelector(".pbar"), top = pg.querySelector(".topline");
+      if (me && me.parentNode.classList.contains("right")) me.parentNode.insertBefore(b, me);
+      else if (me) { me.parentNode.classList.add("has-help"); var wr = el("span", "help-right"); me.parentNode.insertBefore(wr, me); wr.appendChild(b); wr.appendChild(me); }
+      else if (bar) { var wrap = el("span", "help-right"), last = bar.lastElementChild; if (last && last !== bar.firstElementChild) wrap.appendChild(last); wrap.appendChild(b); bar.appendChild(wrap); }
+      else if (top) { top.appendChild(b); }
+    });
+  }
+  addHelpButtons();
   function confirmDelete(o, onYes) {
     var old = $("cdlg"); if (old) old.remove();
     var back = el("div", "cdlg"); back.id = "cdlg";
