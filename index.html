@@ -1687,7 +1687,7 @@ details.targets[open] summary::after { content: "\2212"; }
       var shownName = moveName(e[0], p.equip);
       if (moveVideo(e[0])) {
         var nb = el("button", "wn wlink"); nb.type = "button"; nb.setAttribute("aria-label", "Watch how to do " + shownName);
-        nb.appendChild(el("span", "pl", "\u25B6")); nb.appendChild(el("span", null, shownName));
+        nb.appendChild(el("span", "pl", "\u25B6\uFE0E")); nb.appendChild(el("span", null, shownName));
         nb.addEventListener("click", function () { saveWkNow(); openVideo(e[0], shownName); }); ex.appendChild(nb);
       } else ex.appendChild(el("span", "wn", shownName));
       ex.appendChild(el("span", "wr", e[1]));
@@ -2428,6 +2428,12 @@ details.targets[open] summary::after { content: "\2212"; }
     var t0 = "auto"; try { t0 = localStorage.getItem("fmh-theme") || "auto"; } catch (e) {}
     applyTheme(t0, false);
     Array.prototype.forEach.call(document.querySelectorAll("#theme-tabs button"), function (b) { b.addEventListener("click", function () { applyTheme(b.dataset.themeMode); }); });
+    // Tapping anywhere outside a text box closes it (iPhone keeps the box focused otherwise).
+    document.addEventListener("pointerdown", function (ev) {
+      var ae = document.activeElement; if (!ae || !/^(INPUT|TEXTAREA|SELECT)$/.test(ae.tagName)) return;
+      var t = ev.target; if (t === ae || (t.closest && t.closest("input, textarea, select, label"))) return;
+      ae.blur();
+    }, true);
     $("s-autofill").addEventListener("change", function () { state.settings.autofill = this.checked; if (state.me && state.canWrite) saveSettings(); });
     Array.prototype.forEach.call(document.querySelectorAll("[data-open]"), function (b) {
       b.addEventListener("click", function () { if (b.dataset.open === "settings") { state.viewUid = state.me; go("settings"); } else openProfile(null); });
