@@ -453,8 +453,10 @@ details.targets[open] summary::after { content: "\2212"; }
 .af-mac div{display:flex;flex-direction:column;gap:2px}
 .af-mac b{font-size:17px;font-variant-numeric:tabular-nums}
 .af-mac span{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+#copy-day{width:100%;margin:8px 0 4px}
 .mealacts{display:flex;gap:8px;flex-wrap:wrap;padding-bottom:12px}
 .rchips{display:flex;flex-wrap:wrap;gap:6px}
+.rchip.on{border-color:var(--brass,#b08d57);color:var(--brass,#b08d57)}
 .rchip{border:1px solid var(--line);background:transparent;padding:6px 10px;font-size:13px;min-height:36px}
 /* Tab bar */
 .tabbar { position: relative; flex: 0 0 auto; z-index: 10; background: var(--surface); border-top: 1px solid var(--line);
@@ -547,6 +549,7 @@ details.targets[open] summary::after { content: "\2212"; }
 
     <section aria-labelledby="h-food">
       <div class="section-head"><h2 class="label-caps" id="h-food">Food log</h2><span class="nums" id="food-total"></span></div>
+      <button class="btn ghost" type="button" id="copy-day">Copy a previous day</button>
       <div id="meals"></div>
       <p class="note">Foods you log here add up to your macros above. Only you can see them.</p>
     </section>
@@ -2272,7 +2275,7 @@ details.targets[open] summary::after { content: "\2212"; }
   state.add = null;
   function openAdd(meal, o) {
     o = o || {};
-    state.add = { meal: meal, view: o.view || "list", tab: o.tab || "recent", q: "", results: null, busy: false, err: "", pick: null, editId: null, photo: o.photo || null, vmsg: "", listening: false, qd: { name: "", kcal: "", p: "", f: "", c: "" }, mealName: "" };
+    state.add = { whole: !!o.whole, meal: meal, view: o.view || "list", tab: o.tab || "recent", q: "", results: null, busy: false, err: "", pick: null, editId: null, photo: o.photo || null, vmsg: "", listening: false, qd: { name: "", kcal: "", p: "", f: "", c: "" }, mealName: "" };
     state.mealOpen[meal] = true; persistOpen(); drawMeals(true);
     if (o.focus) { var q = $("af-q"); if (q) try { q.focus({ preventScroll: true }); } catch (e) {} }
   }
@@ -2339,7 +2342,7 @@ details.targets[open] summary::after { content: "\2212"; }
     var a = state.add, wrap = el("div", "af");
     if (a.view === "serving") return [drawServing(m, off), a.editId ? "Edit food" : "Add to " + m.label];
     if (a.view === "quick") return [drawQuick(m, off), a.editId ? "Edit food" : "Quick add · " + m.label];
-    if (a.view === "copy") return [drawCopy(m, off), "Copy to " + m.label];
+    if (a.view === "copy") return [drawCopy(m, off), a.whole ? "Copy a previous day" : "Copy to " + m.label];
     if (a.view === "preps") return [drawPreps(m, off), "Meal prep \u00B7 " + m.label];
     if (a.view === "prepform") return [drawPrepForm(m, off), a.prepEdit != null ? "Edit meal prep" : "New meal prep"];
     // search bar
@@ -2552,30 +2555,39 @@ details.targets[open] summary::after { content: "\2212"; }
       .sort(function (a, b) { return a.date < b.date ? 1 : -1; }).slice(0, 14);
   }
   function drawCopy(m, off) {
-    var a = state.add, days = copyDays(), w = el("div", "af");
-    if (!days.length) { w.appendChild(el("p", "fnote", "No earlier days with food logged yet.")); return w; }
-    if (!a.copyDate || !days.some(function (d) { return d.date === a.copyDate; })) a.copyDate = days[0].date;
-    var l = el("label", "flabel", "Copy from"), sel = el("select", "field"); sel.id = "af-cd";
-    var yk = addDays(todayKey(), -1);
-    days.forEach(function (d) { var o = el("option", null, (d.date === yk ? "Yesterday \u00B7 " : "") + longDate(d.date)); o.value = d.date; if (d.date === a.copyDate) o.selected = true; sel.appendChild(o); });
-    sel.addEventListener("change", function () { a.copyDate = sel.value; drawMeals(true); });
-    l.appendChild(sel); w.appendChild(l);
-    var day = days.filter(function (d) { return d.date === a.copyDate; })[0], list = el("div", "af-list");
+    var a = state.add, days = copyDays(), w = el("div", "af"), yk = addDays(todayKey(), -1), low = lowKey();
+    if (!a.copyDate) a.copyDate = days.length ? days[0].date : yk;
+    var l = el("label", "flabel", "Pick a day"), di = el("input", "field"); di.type = "date"; di.id = "af-cd"; di.min = low; di.max = yk; di.value = a.copyDate;
+    di.addEventListener("change", function () { if (di.value && di.value >= low && di.value <= yk) { a.copyDate = di.value; drawMeals(true); } });
+    l.appendChild(di); w.appendChild(l);
+    if (days.length) {
+      var ch = el("div", "rchips");
+      days.slice(0, 7).forEach(function (d) {
+        var c = el("button", "rchip" + (d.date === a.copyDate ? " on" : ""), d.date === yk ? "Yesterday" : parseKey(d.date).toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric" }));
+        c.type = "button"; c.setAttribute("aria-pressed", String(d.date === a.copyDate)); c.addEventListener("click", function () { a.copyDate = d.date; drawMeals(true); }); ch.appendChild(c);
+      });
+      w.appendChild(el("span", "label-caps", "Recent days with food")); w.appendChild(ch);
+    }
+    var day = logFor(a.copyDate), all = [];
+    MEALS.forEach(function (x) { all = all.concat(day.meals[x.k] || []); });
+    w.appendChild(el("h3", "af-name", longDate(a.copyDate)));
+    if (!all.length) { w.appendChild(el("p", "fnote", "Nothing was logged on that day. Pick another day.")); return w; }
+    var list = el("div", "af-list");
     function row(title, items, tap, label) {
       var t = mealSum(items), b = el("button", "af-row"); b.type = "button"; b.disabled = off; b.setAttribute("aria-label", label);
       var tx = el("span", "txt"); tx.appendChild(el("span", "name", title)); tx.appendChild(el("span", "sub", items.length + (items.length === 1 ? " food" : " foods") + " \u00B7 " + items.map(function (e) { return e.name; }).join(", ")));
       b.appendChild(tx); b.appendChild(el("span", "nums", fmt(t.kcal) + " cal")); b.addEventListener("click", tap); return b;
     }
-    var all = []; MEALS.forEach(function (x) { all = all.concat(day.meals[x.k] || []); });
     list.appendChild(row("Entire day", all, function () {
       MEALS.forEach(function (x) { var it = day.meals[x.k] || []; if (it.length) putEntries(x.k, copyItems(it)); }); closeAdd();
-    }, "Copy the entire day into today's meals"));
+    }, "Copy the entire day into today"));
     MEALS.forEach(function (x) {
       var it = day.meals[x.k] || []; if (!it.length) return;
-      list.appendChild(row(x.label, it, function () { putEntries(m.k, copyItems(it)); closeAdd(); }, "Copy " + x.label + " into today's " + m.label.toLowerCase()));
+      var to = a.whole ? x : m;
+      list.appendChild(row(x.label + (to.k !== x.k ? " \u2192 today\u2019s " + to.label.toLowerCase() : ""), it, function () { putEntries(to.k, copyItems(it)); closeAdd(); }, "Copy " + x.label + " into today's " + to.label.toLowerCase()));
     });
     w.appendChild(list);
-    w.appendChild(el("p", "fnote", "Entire day copies each meal into the same meal today. Picking one meal copies it into " + m.label.toLowerCase() + "."));
+    w.appendChild(el("p", "fnote", a.whole ? "Entire day copies every meal into the same meal today. Tap one meal to copy just that meal." : "Entire day copies every meal into the same meal today. Tap one meal to copy it into today\u2019s " + m.label.toLowerCase() + "."));
     return w;
   }
   function drawSaveMeal(m, off) {
@@ -2600,6 +2612,8 @@ details.targets[open] summary::after { content: "\2212"; }
     box.textContent = "";
     var log = logFor(todayKey()), off = !state.me || !state.canWrite, sheet = null;
     $("food-total").textContent = fmt(log.kcal) + " kcal today";
+    var cdb = $("copy-day"); cdb.disabled = off;
+    if (!cdb.dataset.wired) { cdb.dataset.wired = "1"; cdb.addEventListener("click", function () { openAdd("breakfast", { view: "copy", whole: true }); }); }
     MEALS.forEach(function (m) {
       var entries = log.meals[m.k] || [], sec = el("div", "meal");
       var sum = 0; entries.forEach(function (e) { sum += e.kcal; });
@@ -2632,7 +2646,7 @@ details.targets[open] summary::after { content: "\2212"; }
       });
       sec.appendChild(bar);
       var acts = el("div", "mealacts");
-      if (copyDays().length) { var cpb = el("button", "mini", "Copy from a previous day"); cpb.type = "button"; cpb.disabled = off; cpb.addEventListener("click", function () { openAdd(m.k, { view: "copy" }); }); acts.appendChild(cpb); }
+      var cpb = el("button", "mini", "Copy a meal from another day"); cpb.type = "button"; cpb.disabled = off; cpb.addEventListener("click", function () { openAdd(m.k, { view: "copy" }); }); acts.appendChild(cpb);
       if (acts.childNodes.length) sec.appendChild(acts);
       box.appendChild(sec);
     });
