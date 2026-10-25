@@ -165,6 +165,12 @@ details.targets[open] summary::after { content: "\2212"; }
 .rng::-moz-range-progress { height: 8px; border-radius: 4px; background: var(--accent); }
 .rng::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 28px; height: 28px; margin-top: -10px; border-radius: 50%; background: #fff; border: 2px solid var(--accent); box-shadow: 0 1px 3px rgba(0,0,0,.35); }
 .rng::-moz-range-thumb { width: 26px; height: 26px; border-radius: 50%; background: #fff; border: 2px solid var(--accent); }
+.cdlg { position: fixed; inset: 0; z-index: 80; background: rgba(0,0,0,.55); display: flex; align-items: center; justify-content: center; padding: 16px max(16px, env(safe-area-inset-right, 0px)) 16px max(16px, env(safe-area-inset-left, 0px)); }
+.cdlg-box { width: 100%; max-width: 360px; background: var(--bg); border: 2px solid var(--danger); padding: 18px; display: flex; flex-direction: column; gap: 10px; }
+.cdlg-box h2 { margin: 0; font-family: var(--f-label); font-size: 17px; letter-spacing: .08em; text-transform: uppercase; }
+.cdlg-box p { margin: 0; font-size: 14.5px; line-height: 1.45; }
+.cdlg-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 6px; }
+.cdlg-yes { background: var(--danger); border-color: var(--danger); color: #fff; }
 .t-warn { border: 2px solid var(--hot, #a9490f); padding: 12px; display: flex; flex-direction: column; gap: 8px; }
 .t-warn b { font-family: var(--f-label); letter-spacing: .08em; text-transform: uppercase; color: var(--hot, #a9490f); font-size: 13px; }
 .t-warn p { margin: 0; font-size: 14px; line-height: 1.45; }
@@ -1386,8 +1392,10 @@ details.targets[open] summary::after { content: "\2212"; }
         if (title) {
           var rm = el("button", "btn ghost", "Remove"); rm.type = "button"; rm.style.color = "var(--danger)";
           rm.addEventListener("click", function () {
-            var s = {}; Object.keys(state.habits).forEach(function (x) { if (x !== k) s[x] = state.habits[x]; });
-            state.editSlot = null; saveHabits(s);
+            confirmDelete({ title: "Remove this habit?", message: "\u201C" + title + "\u201D will be removed from your daily boxes.", yes: "Remove" }, function () {
+              var s = {}; Object.keys(state.habits).forEach(function (x) { if (x !== k) s[x] = state.habits[x]; });
+              state.editSlot = null; saveHabits(s);
+            });
           });
           form.appendChild(rm);
         }
@@ -1843,7 +1851,7 @@ details.targets[open] summary::after { content: "\2212"; }
             row.appendChild(ck);
             if (isW || isX) {
               var rm = el("button", "setx", "\u00D7"); rm.type = "button"; rm.setAttribute("aria-label", "Remove " + lab);
-              rm.addEventListener("click", function () { a.splice(j, 1); saveWkNow(); redrawKeepScroll(); }); row.appendChild(rm);
+              rm.addEventListener("click", function () { confirmDelete({ title: "Remove " + (isW ? "this warm-up set" : "this set") + "?", message: lab + " and anything you entered for it will be removed.", yes: "Remove" }, function () { a.splice(j, 1); saveWkNow(); redrawKeepScroll(); }); }); row.appendChild(rm);
             } else row.appendChild(el("span"));
             ex.appendChild(row);
           });
@@ -2207,8 +2215,10 @@ details.targets[open] summary::after { content: "\2212"; }
         if (pr) {
           var cl = el("button", "btn ghost", "Clear"); cl.type = "button"; cl.style.color = "var(--danger)";
           cl.addEventListener("click", function () {
-            var cur = (state.pubProfiles[state.me] || {}).prs || {}, np = {}; Object.keys(cur).forEach(function (k) { if (k !== lift.id) np[k] = cur[k]; });
-            state.liftEdit = null; state.liftMsg = { id: lift.id, text: "PR cleared." }; saveProfilePatch({ prs: np }); drawLifts(true);
+            confirmDelete({ title: "Clear this PR?", message: "Your " + (lift.name || "lift") + " PR will be deleted. The group will no longer see it.", yes: "Clear PR" }, function () {
+              var cur = (state.pubProfiles[state.me] || {}).prs || {}, np = {}; Object.keys(cur).forEach(function (k) { if (k !== lift.id) np[k] = cur[k]; });
+              state.liftEdit = null; state.liftMsg = { id: lift.id, text: "PR cleared." }; saveProfilePatch({ prs: np }); drawLifts(true);
+            });
           });
           f.appendChild(cl);
         }
@@ -2285,7 +2295,31 @@ details.targets[open] summary::after { content: "\2212"; }
       var t = mealTotals(l.meals); l.kcal = t.kcal; l.p = r1(t.p); l.f = r1(t.f); l.c = r1(t.c); return true;
     });
   }
+  /* ---------- Confirm before deleting ---------- */
+  function confirmDelete(o, onYes) {
+    var old = $("cdlg"); if (old) old.remove();
+    var back = el("div", "cdlg"); back.id = "cdlg";
+    var box = el("div", "cdlg-box"); box.setAttribute("role", "alertdialog"); box.setAttribute("aria-modal", "true"); box.setAttribute("aria-labelledby", "cdlg-t"); box.setAttribute("aria-describedby", "cdlg-m");
+    var t = el("h2", null, o.title || "Delete this?"); t.id = "cdlg-t"; box.appendChild(t);
+    var m = el("p", null, o.message || "This can\u2019t be undone."); m.id = "cdlg-m"; box.appendChild(m);
+    var row = el("div", "cdlg-btns"), no = el("button", "btn ghost", "Cancel"), yes = el("button", "btn cdlg-yes", o.yes || "Delete");
+    no.type = "button"; yes.type = "button"; row.appendChild(no); row.appendChild(yes); box.appendChild(row); back.appendChild(box);
+    var prev = document.activeElement;
+    function close() { back.remove(); try { if (prev && prev.focus && document.body.contains(prev)) prev.focus({ preventScroll: true }); } catch (e) {} }
+    no.addEventListener("click", close);
+    yes.addEventListener("click", function () { close(); onYes(); });
+    back.addEventListener("click", function (ev) { if (ev.target === back) close(); });
+    back.addEventListener("keydown", function (ev) { if (ev.key === "Escape") { ev.stopPropagation(); close(); } });
+    document.body.appendChild(back); no.focus();
+  }
   function removeFood(meal, id) {
+    var e = (logFor(todayKey()).meals[meal] || []).filter(function (x) { return x.id === id; })[0], lab = (MEALS.filter(function (x) { return x.k === meal; })[0] || {}).label || "this meal";
+    confirmDelete({ title: "Remove this food?", message: (e ? e.name + " (" + fmt(e.kcal) + " kcal)" : "This food") + " will be removed from " + lab.toLowerCase() + "." , yes: "Remove" }, function () {
+      if (state.add && state.add.editId === id) state.add = null;
+      removeFoodNow(meal, id);
+    });
+  }
+  function removeFoodNow(meal, id) {
     writeDay(function (r, l) {
       l.meals[meal] = l.meals[meal].filter(function (x) { return x.id !== id; });
       var t = mealTotals(l.meals); l.kcal = t.kcal; l.p = r1(t.p); l.f = r1(t.f); l.c = r1(t.c); return true;
@@ -2434,7 +2468,7 @@ details.targets[open] summary::after { content: "\2212"; }
           b.appendChild(tx); b.appendChild(el("span", "nums", fmt(t.kcal) + " cal"));
           b.addEventListener("click", function () { putEntries(m.k, copyItems(x.items)); closeAdd(); });
           var rx = el("button", "mini danger fx", "X"); rx.type = "button"; rx.disabled = off; rx.setAttribute("aria-label", "Delete saved meal " + x.name);
-          rx.addEventListener("click", function () { state.settings.myMeals = myMeals().filter(function (y) { return y !== x; }); saveSettings(); drawMeals(true); });
+          rx.addEventListener("click", function () { confirmDelete({ title: "Delete this saved meal?", message: "\u201C" + x.name + "\u201D will be deleted." }, function () { state.settings.myMeals = myMeals().filter(function (y) { return y !== x; }); saveSettings(); drawMeals(true); }); });
           row.appendChild(b); row.appendChild(rx); list.appendChild(row);
         });
       } else {
@@ -2457,7 +2491,10 @@ details.targets[open] summary::after { content: "\2212"; }
     top.appendChild(bk);
     var fv = isFav(pk.name), st = el("button", "mini fx" + (fv ? " star" : ""), fv ? "★" : "☆"); st.type = "button"; st.disabled = off;
     st.setAttribute("aria-pressed", String(fv)); st.setAttribute("aria-label", fv ? "Remove from favorites" : "Save as a favorite");
-    st.addEventListener("click", function () { toggleFav({ name: pk.name, d: pk.d, s: pk.s, si: pk.si, n: parseFloat(pk.nStr) > 0 ? parseFloat(pk.nStr) : 1 }); drawMeals(true); });
+    st.addEventListener("click", function () {
+      var go2 = function () { toggleFav({ name: pk.name, d: pk.d, s: pk.s, si: pk.si, n: parseFloat(pk.nStr) > 0 ? parseFloat(pk.nStr) : 1 }); drawMeals(true); };
+      if (fv) confirmDelete({ title: "Remove from favorites?", message: pk.name + " will be removed from your favorites.", yes: "Remove" }, go2); else go2();
+    });
     top.appendChild(st); w.appendChild(top);
     w.appendChild(el("h3", "af-name", pk.name)); if (pk.d) w.appendChild(el("p", "fnote", pk.d));
     var l1 = el("label", "flabel", "Serving size"), sel = el("select", "field"); sel.id = "af-si";
@@ -2484,7 +2521,7 @@ details.targets[open] summary::after { content: "\2212"; }
     var ad = el("button", "btn", a.editId ? "Save changes" : "Add to " + m.label.toLowerCase()); ad.type = "button";
     ad.addEventListener("click", function () { var k = n(); if (!k) return; putEntries(a.meal, [entryFrom(pk, pk.si, k, a.editId || newId())], a.editId); closeAdd(); });
     w.appendChild(ad);
-    if (a.editId) { var rm = el("button", "btn ghost", "Remove from " + m.label.toLowerCase()); rm.type = "button"; rm.disabled = off; rm.addEventListener("click", function () { var id = a.editId; state.add = null; removeFood(m.k, id); }); w.appendChild(rm); }
+    if (a.editId) { var rm = el("button", "btn ghost", "Remove from " + m.label.toLowerCase()); rm.type = "button"; rm.disabled = off; rm.addEventListener("click", function () { var id = a.editId; removeFood(m.k, id); }); w.appendChild(rm); }
     paint(); return w;
   }
   function drawQuick(m, off) {
@@ -2502,7 +2539,7 @@ details.targets[open] summary::after { content: "\2212"; }
     if (a.err) form.appendChild(el("p", "error full", a.err));
     var sv = el("button", "btn", a.editId ? "Save changes" : "Add to " + m.label.toLowerCase()); sv.type = "submit"; sv.disabled = off; form.appendChild(sv);
     var cn = el("button", "btn ghost", a.editId ? "Remove" : "Back"); cn.type = "button";
-    cn.addEventListener("click", function () { if (a.editId) { var id = a.editId; state.add = null; removeFood(m.k, id); } else { a.view = "list"; a.err = ""; drawMeals(true); } });
+    cn.addEventListener("click", function () { if (a.editId) { var id = a.editId; removeFood(m.k, id); } else { a.view = "list"; a.err = ""; drawMeals(true); } });
     form.appendChild(cn);
     form.addEventListener("submit", function (ev) {
       ev.preventDefault();
@@ -2584,7 +2621,7 @@ details.targets[open] summary::after { content: "\2212"; }
     var bk = el("button", "btn ghost", "Back"); bk.type = "button"; bk.addEventListener("click", function () { a.view = "preps"; a.err = ""; drawMeals(true); }); form.appendChild(bk);
     if (a.prepEdit != null) {
       var dl = el("button", "btn ghost", "Delete"); dl.type = "button"; dl.disabled = off;
-      dl.addEventListener("click", function () { var arr = (state.settings.preps || []).slice(); arr.splice(a.prepEdit, 1); state.settings.preps = arr; saveSettings(); a.view = "preps"; a.prepEdit = null; drawMeals(true); });
+      dl.addEventListener("click", function () { confirmDelete({ title: "Delete this meal prep?", message: "\u201C" + (d.name || "This meal prep") + "\u201D will be deleted. Foods you already logged stay in your log." }, function () { var arr = (state.settings.preps || []).slice(); arr.splice(a.prepEdit, 1); state.settings.preps = arr; saveSettings(); a.view = "preps"; a.prepEdit = null; drawMeals(true); }); });
       form.appendChild(dl);
     } else form.appendChild(el("span"));
     function save(andAdd) {
