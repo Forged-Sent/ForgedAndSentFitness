@@ -697,6 +697,12 @@ details.targets[open] summary::after { content: "\2212"; }
       <p class="note">Auto follows your phone. Your choice is saved to your account.</p>
     </section>
 
+    <section aria-labelledby="h-s-wk">
+      <div class="section-head"><h2 class="label-caps" id="h-s-wk">Workouts</h2></div>
+      <label class="pcheck"><input type="checkbox" id="s-autofill"><span>Auto-fill weight and reps</span></label>
+      <p class="note">When on, the weight and reps you enter for a set fill in the empty sets below it for that exercise. You can still change any set.</p>
+    </section>
+
     <section aria-labelledby="h-s-prof">
       <div class="section-head"><h2 class="label-caps" id="h-s-prof">Your profile</h2></div>
       <form class="setgrp" id="motto-form" data-form="motto">
@@ -981,7 +987,7 @@ details.targets[open] summary::after { content: "\2212"; }
     "Be faithful in the small things: water, steps, prayer, reps."
   ];
   var state = {
-    page: "today", healthToday: null, healthMsg: "", tasks: [], checks: [], logs: [], habits: {}, settings: { blocked: {}, targets: null, body: null, reminders: null, health: null, plan: null, theme: null }, planEdit: false, pubProfiles: {}, lifts: [], viewUid: null, prevPage: "today", liftEdit: null, liftMsg: null, dirty: {}, posts: [], likes: [],
+    page: "today", healthToday: null, healthMsg: "", tasks: [], checks: [], logs: [], habits: {}, settings: { blocked: {}, targets: null, body: null, reminders: null, health: null, plan: null, theme: null, autofill: false }, planEdit: false, pubProfiles: {}, lifts: [], viewUid: null, prevPage: "today", liftEdit: null, liftMsg: null, dirty: {}, posts: [], likes: [],
     range: "week", me: null, canWrite: true, profs: {}, editSlot: null, draft: "", lastFocus: null,
     trainDay: null, confirm: null, reported: {}, files: [], mentions: [], posting: false
   };
@@ -1109,7 +1115,7 @@ details.targets[open] summary::after { content: "\2212"; }
   }
   function saveSettings() {
     if (!B.db || !state.me) return;
-    var st = { blocked: state.settings.blocked || {}, targets: state.settings.targets || null, body: state.settings.body || null, reminders: state.settings.reminders || null, health: state.settings.health || null, plan: state.settings.plan || null, theme: state.settings.theme || null };
+    var st = { blocked: state.settings.blocked || {}, targets: state.settings.targets || null, body: state.settings.body || null, reminders: state.settings.reminders || null, health: state.settings.health || null, plan: state.settings.plan || null, theme: state.settings.theme || null, autofill: !!state.settings.autofill };
     writeChain = writeChain.then(function () { return B.saveSettings(state.me, st); }).catch(noop);
   }
 
@@ -1689,12 +1695,13 @@ details.targets[open] summary::after { content: "\2212"; }
       if (live) {
         var a = setsOf(idx, ps);
         if (ps) {
-          var setNo = 0, wNo = 0;
+          var setNo = 0, wNo = 0, afRows = [];
           a.forEach(function (s, j) {
             var isW = s.k === "w", isX = s.k === "x", row = el("div", "setrow" + (s.d ? " ok" : "")), lab = isW ? "W" + (++wNo) : "Set " + (++setNo);
             row.appendChild(el("span", "sn", lab));
-            row.appendChild(numField("sw", (isW ? "Warm-up " + wNo : lab) + " weight in pounds", j > 0 && a[j - 1].w !== "" ? String(a[j - 1].w) : "lb", s.w, 2000, function (v) { s.w = v; }));
-            row.appendChild(numField("sr", (isW ? "Warm-up " + wNo : lab) + (ps.time ? " seconds" : " reps"), isW ? (ps.time ? "sec" : "reps") : (ps.target.length <= 8 ? ps.target : (ps.time ? "sec" : "reps")), s.r, 999, function (v) { s.r = v; }));
+            row.appendChild(numField("sw", (isW ? "Warm-up " + wNo : lab) + " weight in pounds", "lb", s.w, 2000, function (v) { s.w = v; }));
+            row.appendChild(numField("sr", (isW ? "Warm-up " + wNo : lab) + (ps.time ? " seconds" : " reps"), ps.time ? "sec" : "reps", s.r, 999, function (v) { s.r = v; }));
+            afRows.push({ s: s, w: row.querySelector(".sw"), r: row.querySelector(".sr") });
             var ck = el("button", "setck", "\u2713"); ck.type = "button"; ck.setAttribute("aria-label", "Mark " + lab + " done"); ck.setAttribute("aria-pressed", String(!!s.d));
             ck.addEventListener("click", function () { s.d = !s.d; row.className = "setrow" + (s.d ? " ok" : ""); ck.setAttribute("aria-pressed", String(!!s.d)); saveWkSoon(); });
             row.appendChild(ck);
@@ -1703,6 +1710,17 @@ details.targets[open] summary::after { content: "\2212"; }
               rm.addEventListener("click", function () { a.splice(j, 1); saveWkNow(); redrawKeepScroll(); }); row.appendChild(rm);
             } else row.appendChild(el("span"));
             ex.appendChild(row);
+          });
+          // Optional (Settings > Workouts): a value entered on a work set fills the empty work sets after it.
+          if (state.settings.autofill) afRows.forEach(function (src, j) {
+            if (src.s.k === "w") return;
+            ["w", "r"].forEach(function (f) {
+              src[f].addEventListener("change", function () {
+                if (src.s[f] === "") return;
+                for (var k = j + 1; k < afRows.length; k++) { var t = afRows[k]; if (t.s.k === "w" || t.s[f] !== "") continue; t.s[f] = src.s[f]; t[f].value = String(src.s[f]); }
+                saveWkSoon();
+              });
+            });
           });
           var ab = el("div", "addset");
           var bw = el("button", "mini", "+ Warm-up set"); bw.type = "button";
@@ -2249,6 +2267,7 @@ details.targets[open] summary::after { content: "\2212"; }
     Array.prototype.forEach.call(document.querySelectorAll("#theme-tabs button"), function (b) { b.setAttribute("aria-pressed", String(b.dataset.themeMode === mode)); });
   }
   function drawSettings() {
+    var afc = $("s-autofill"); if (afc) { afc.checked = !!state.settings.autofill; afc.disabled = !state.me || !state.canWrite; }
     if (state.page !== "settings") return;
     var pp = state.pubProfiles[state.me] || {}, st = state.settings, canUp = B.canUpload();
     $("acct-name").textContent = state.me ? "Signed in as " + nameOf(state.me) + "." : "Not signed in.";
@@ -2409,6 +2428,7 @@ details.targets[open] summary::after { content: "\2212"; }
     var t0 = "auto"; try { t0 = localStorage.getItem("fmh-theme") || "auto"; } catch (e) {}
     applyTheme(t0, false);
     Array.prototype.forEach.call(document.querySelectorAll("#theme-tabs button"), function (b) { b.addEventListener("click", function () { applyTheme(b.dataset.themeMode); }); });
+    $("s-autofill").addEventListener("change", function () { state.settings.autofill = this.checked; if (state.me && state.canWrite) saveSettings(); });
     Array.prototype.forEach.call(document.querySelectorAll("[data-open]"), function (b) {
       b.addEventListener("click", function () { if (b.dataset.open === "settings") { state.viewUid = state.me; go("settings"); } else openProfile(null); });
     });
@@ -2453,7 +2473,7 @@ details.targets[open] summary::after { content: "\2212"; }
         await writeChain; await B.deleteMyData(state.me);
         var me = state.me;
         state.checks = state.checks.filter(function (c) { return c.uid !== me; }); state.logs = []; state.habits = {};
-        state.settings = { blocked: {}, targets: null, body: null, reminders: null, health: null, plan: null, theme: null }; delete state.pubProfiles[me];
+        state.settings = { blocked: {}, targets: null, body: null, reminders: null, health: null, plan: null, theme: null, autofill: false }; delete state.pubProfiles[me];
         ds.textContent = "All your data was deleted."; var bx = $("del-box"); bx.hidden = true; bx.style.display = "none";
         drawAll();
       } catch (e) { ds.textContent = "Could not finish deleting. Try again."; }
@@ -2561,7 +2581,7 @@ details.targets[open] summary::after { content: "\2212"; }
         state.habits = clean; drawAll();
       });
       B.watchSettings(state.me, function (st) {
-        state.settings = { blocked: (st && st.blocked) || {}, targets: (st && st.targets) || null, body: (st && st.body) || null, reminders: (st && st.reminders) || null, health: (st && st.health) || null, plan: (st && st.plan) || null, theme: (st && st.theme) || null }; if (state.settings.theme) applyTheme(state.settings.theme, false); drawAll(); drawFeed(); refreshHealth();
+        state.settings = { blocked: (st && st.blocked) || {}, targets: (st && st.targets) || null, body: (st && st.body) || null, reminders: (st && st.reminders) || null, health: (st && st.health) || null, plan: (st && st.plan) || null, theme: (st && st.theme) || null, autofill: !!(st && st.autofill) }; if (state.settings.theme) applyTheme(state.settings.theme, false); drawAll(); drawFeed(); refreshHealth();
       });
     }
     B.watchPosts(function (rows) { state.posts = rows; drawFeed(); loadProfiles(); });
