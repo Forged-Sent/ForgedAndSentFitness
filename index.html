@@ -3146,6 +3146,12 @@ details.targets[open] summary::after { content: "\2212"; }
   }
   function chalMyRow(c) { return chalStandings(c).filter(function (r) { return r.uid === state.me; })[0] || null; }
   function chalMaxPts(c) { return c.scoredBy === "completion" ? CHAL.scoring.family.completionPoints : CHAL.scoring.standard.maxPoints; }
+  function chalProofTip(c) {
+    if (c.scoredBy === "completion") return "A photo of what you did, like the family at the table or the note you wrote.";
+    if (/^(mi|yd|km)$/.test(c.unit) || c.scoredBy === "greatest_distance") return "A photo or screenshot from your watch, phone app or machine showing the distance and time.";
+    if (c.scoredBy === "longest_hold") return "A video of the hold, or a photo of the timer at the end.";
+    return "A video of the effort, or a photo or screenshot of your timer and count.";
+  }
   function drawChallengeButtons() {
     var box = $("chal-btns"); if (!box) return; box.textContent = "";
     var cw = chalWeekFor(todayKey()), w = cw.w, ss = chalSeason(w.season);
@@ -3286,13 +3292,16 @@ details.targets[open] summary::after { content: "\2212"; }
         inp("Distance (miles)", "v", "e.g. 2.4");
         if (chalByMode(c) && F.mode === "standard") { var ml = el("label", "flabel", "Mode"), msel = el("select", "field"); CH_MODES.forEach(function (m) { var o = el("option", null, m); o.value = m; msel.appendChild(o); }); msel.value = F.m; msel.addEventListener("change", function () { F.m = msel.value; }); ml.appendChild(msel); form.appendChild(ml); }
       } else inp("Total score", "v", "e.g. 120", "numeric");
-    } else form.appendChild(el("p", "fnote", c.scoredBy === "completion" ? "Mark it complete. Add a short note or photo if you want." : (F.mode === "alternate" ? "Alternate" : "Scaled") + " earns a flat " + CHAL.scoring.scaled.completionPoints + " points, so no score is needed."));
+    } else form.appendChild(el("p", "fnote", c.scoredBy === "completion" ? "Mark it complete. Add a photo as proof and a short note if you want." : (F.mode === "alternate" ? "Alternate" : "Scaled") + " earns a flat " + CHAL.scoring.scaled.completionPoints + " points, so no score is needed."));
     var nl = el("label", "flabel", "Note (optional)"), ni = el("textarea", "field"); ni.maxLength = 300; ni.rows = 2; ni.value = F.note; ni.placeholder = c.scoredBy === "completion" ? "What did you do? How did it go?" : "Anything worth sharing";
     ni.addEventListener("input", function () { F.note = ni.value; }); nl.appendChild(ni); form.appendChild(nl);
     // Proof
     var canUp = B.canUpload();
     if (canUp) {
-      var pr = el("div", "ch-proof"), lab = el("label", "btn ghost", F.files.length ? "Add another photo or video" : "Add photo or video");
+      var pr = el("div", "ch-proof");
+      pr.appendChild(el("span", "flabel", "Proof (required)"));
+      pr.appendChild(el("p", "fnote ch-proof-tip", chalProofTip(c)));
+      var lab = el("label", "btn ghost", F.files.length ? "Add another photo or video" : "Add photo or video");
       var fi = el("input"); fi.type = "file"; fi.accept = "image/*,video/*"; fi.hidden = true; lab.appendChild(fi);
       fi.addEventListener("change", async function () {
         var file = fi.files && fi.files[0]; fi.value = ""; if (!file || F.files.length >= 3) return;
@@ -3305,11 +3314,13 @@ details.targets[open] summary::after { content: "\2212"; }
       F.files.forEach(function (fl, k) { var ch = el("span", "chip", (fl.type.indexOf("video") === 0 ? "Video: " : "Photo: ") + (fl.name || "file")); var x = el("button", "mini", "✕"); x.type = "button"; x.setAttribute("aria-label", "Remove " + (fl.name || "file")); x.addEventListener("click", function () { F.files.splice(k, 1); drawChallengePage(); }); ch.appendChild(x); chips.appendChild(ch); });
       pr.appendChild(chips); form.appendChild(pr);
     }
+    if (!canUp) form.appendChild(el("p", "error", "Photo and video uploads aren\u2019t available here, and proof is required to submit. Try again from your phone."));
     var msg = el("p", "fnote", F.msg); msg.id = "ch-msg"; msg.setAttribute("aria-live", "polite"); form.appendChild(msg);
-    var go2 = el("button", "btn", F.busy ? "Working…" : c.scoredBy === "completion" ? "Mark complete" : "Submit result"); go2.type = "submit"; go2.disabled = F.busy; form.appendChild(go2);
+    var go2 = el("button", "btn", F.busy ? "Working…" : c.scoredBy === "completion" ? "Mark complete" : "Submit result"); go2.type = "submit"; go2.disabled = F.busy || !canUp; form.appendChild(go2);
     form.addEventListener("submit", async function (ev) {
       ev.preventDefault(); if (F.busy) return;
       if (!chalIsOpen(w.week)) { F.msg = "Submissions closed " + chalDeadlineText(w.week) + "."; drawChallengePage(); return; }
+      if (!F.files.length) { F.msg = "Add a photo or video as proof. A screenshot from your watch or app works."; drawChallengePage(); return; }
       var a = { mode: F.mode, at: nowDate().getTime(), note: F.note.trim().slice(0, 300) };
       if (needsScore) {
         var v = c.scoredBy === "fastest_time" || c.scoredBy === "longest_hold" ? parseClock(F.v) : Number(String(F.v).replace(/,/g, ""));
@@ -4025,7 +4036,7 @@ details.targets[open] summary::after { content: "\2212"; }
       "Family is about leading your home in faith. Complete it for 50 points.",
       "Iron builds strength and Endure builds your engine. Do the Standard version and you're scored 0 to 100 against the best result in your age bracket. The leader gets 100.",
       "Alternate (for injuries) and Scaled earn a flat 50 points and aren't ranked.",
-      "Enter your score, add a note, and add a photo or video if you want. You can submit more than once. Your best attempt counts.",
+      "Enter your score and add a photo or video as proof. Proof is required, like a screenshot of your mile run showing distance and time. You can submit more than once. Your best attempt counts.",
       "Add your birthday in Settings \u2192 Your body stats so you're ranked with men your age: under 30, 30s, 40s, 50s or 60+. Your age is counted on the first day of each season.",
       "Submit by Sunday at 8:00 AM Arizona time. After that, submissions close and results are final. The most you can earn in a week is 250 points."] },
     video: { t: "How to do it", why: "A quick guide for one movement.", how: [
