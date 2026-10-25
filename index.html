@@ -3347,6 +3347,7 @@ details.targets[open] summary::after { content: "\2212"; }
     if (pp.motto) { m.textContent = pp.motto; m.className = "motto"; }
     else { m.textContent = own ? "No motto yet. Set it in Settings." : "No motto yet."; m.className = "motto none"; }
     drawProgress();
+    var lsub = document.querySelector('[aria-controls="h-lifts-body"] small'); if (lsub) lsub.textContent = own ? "Your best squat, bench, deadlift and more. The group can see these." : "His best squat, bench, deadlift and more.";
     $("st-streak").textContent = uid ? streak(uid) : 0;
     $("st-week").textContent = uid ? weekPtsOf(uid) : 0;
     $("st-today").textContent = uid ? boxesOf(recOf(uid, todayKey())) : 0;
@@ -3609,7 +3610,8 @@ details.targets[open] summary::after { content: "\2212"; }
     profile: { t: "Profile", why: "A man's motto, stats and core lift PRs.", how: [
       "Stats show the full-day streak, points this week and boxes checked today.",
       "On your own profile you can update your lift PRs. The group can see them.",
-      "Progress photos are private to you. Compare any two dates side by side.",
+      "Progress photos only show on your own profile. Other men never see them. Share one in Rally if you choose to.",
+      "Compare any two dates of your photos side by side.",
       "The gear opens Settings."] },
     settings: { t: "Settings", why: "Set up your profile, body stats, goals and app preferences.", how: [
       "Tap a section to open it.",
