@@ -196,6 +196,20 @@ details.targets[open] summary::after { content: "\2212"; }
 .wx .wc { font-size: 14px; color: var(--muted); }
 .wk-card .btn { width: 100%; margin-top: 14px; }
 #wkp-body .btn { width: 100%; margin-top: 18px; }
+#wkp-body .wk-start { min-height: 60px; font-size: 20px; }
+.setrow { display: grid; grid-template-columns: 54px minmax(0, 1fr) minmax(0, 1fr) 48px; gap: 8px; align-items: center; margin-top: 8px; }
+.setrow.one { grid-template-columns: 54px 48px; }
+.setrow .sn { font-family: var(--f-label); font-weight: 600; font-size: 14px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+.setrow .field { padding: 8px 10px; min-height: 48px; text-align: center; }
+.setck { min-height: 48px; min-width: 48px; background: transparent; border: 2px solid var(--line); color: var(--muted); font-size: 22px; font-weight: 700; }
+.setck[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--bg); }
+.rest { display: flex; align-items: center; gap: 8px; margin-top: 12px; padding-top: 10px; border-top: 1px dashed var(--line); }
+.rest .rt-label { font-family: var(--f-label); font-weight: 600; font-size: 13px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+.rest .rt-time { flex: 1; font-family: var(--f-display); font-weight: 700; font-size: 30px; min-width: 62px; }
+.rest .rt-time.run { color: var(--accent); }
+.rest .rt-time.fin { color: var(--danger); }
+.rest .mini { min-width: 48px; min-height: 48px; padding: 0 8px; }
+.wlog { font-size: 14px; color: var(--ink); }
 .wk-open { width: 100%; margin-top: 12px; display: flex; align-items: center; justify-content: space-between; gap: 12px; text-align: left; min-height: 64px; padding: 10px 14px; background: var(--surface); border: 2px solid var(--accent); }
 .wk-open .txt { display: flex; flex-direction: column; min-width: 0; }
 .wk-open .wo-t { font-family: var(--f-label); font-weight: 600; font-size: 19px; letter-spacing: .03em; }
@@ -737,7 +751,7 @@ details.targets[open] summary::after { content: "\2212"; }
       <p class="note" id="acct-name" style="margin-top:0"></p>
       <div class="dz">
         <strong class="label-caps" style="color:var(--danger)">Delete my data</strong>
-        <span class="sub">Permanently removes your checkins, habits, food and water logs, targets, profile, posts, likes and uploaded photos from this app. It cannot be undone.</span>
+        <span class="sub">Permanently removes your checkins, habits, food, water and workout logs, targets, profile, posts, likes and uploaded photos from this app. It cannot be undone.</span>
         <button class="btn ghost" type="button" id="del-open" style="border-color:var(--danger);color:var(--danger)">Delete my data</button>
         <div id="del-box" hidden style="display:none;flex-direction:column;gap:8px">
           <label class="flabel">Type DELETE to confirm<input class="field" type="text" id="del-input" autocomplete="off"></label>
@@ -820,6 +834,8 @@ details.targets[open] summary::after { content: "\2212"; }
           return { date: x.date || d.id, water: Number(x.water) || 0, kcal: Number(x.kcal) || 0, p: Number(x.p) || 0, f: Number(x.f) || 0, c: Number(x.c) || 0, meals: meals }; }));
       }, noop);
     },
+    getWorkoutLog: function (uid, date) { return this.db.doc("data/users/" + uid + "/log").collection("workouts").doc(date).get().then(function (s) { return s.exists ? s.data() : null; }); },
+    saveWorkoutLog: function (uid, rec) { return this.db.doc("data/users/" + uid + "/log").collection("workouts").doc(rec.date).set(rec); },
     saveLog: function (uid, l) { return this.db.doc("data/users/" + uid + "/log").collection("days").doc(l.date).set(l); },
     watchHabits: function (uid, cb) { return this.db.doc("habits/" + uid).onSnapshot(function (s) { var d = s.exists ? s.data() : null; cb((d && d.slots) || {}); }, noop); },
     saveHabits: function (uid, slots) { return this.db.doc("habits/" + uid).set({ slots: slots }); },
@@ -865,6 +881,8 @@ details.targets[open] summary::after { content: "\2212"; }
       await purge("posts", "uid"); await purge("likes", "uid"); await purge("reports", "by"); await purge("checkins", "uid");
       var logs = await db.doc("data/users/" + uid + "/log").collection("days").get();
       for (var i = 0; i < logs.docs.length; i++) await db.doc("data/users/" + uid + "/log/days/" + logs.docs[i].id).delete();
+      var wlogs = await db.doc("data/users/" + uid + "/log").collection("workouts").get();
+      for (var wi = 0; wi < wlogs.docs.length; wi++) await db.doc("data/users/" + uid + "/log/workouts/" + wlogs.docs[wi].id).delete();
       var pr = await db.doc("profiles/" + uid).get();
       if (pr.exists) { var px = pr.data() || {}; if (px.avatarId) assetIds.push(px.avatarId); if (px.bannerId) assetIds.push(px.bannerId); }
       await db.doc("data/users/" + uid + "/settings").delete(); await db.doc("habits/" + uid).delete(); await db.doc("profiles/" + uid).delete();
@@ -1059,8 +1077,10 @@ details.targets[open] summary::after { content: "\2212"; }
       if (b.dataset.page === (p === "workout" ? "train" : p)) b.setAttribute("aria-current", "page"); else b.removeAttribute("aria-current");
     });
     $("scroll").scrollTop = 0;
+    if (p === "workout") startWkTick(); else { if (wkTick) saveWkNow(); stopWkTick(); }
     if (p === "train") ensureStrip();
     drawAll();
+    if (p === "workout") drawWorkoutPage(true);
     if (p === "checkin") drawFeed();
     if (p === "devo") { sizeDevo(); $("scroll").scrollTop = 0; devoScroll(); }
   }
@@ -1379,7 +1399,7 @@ details.targets[open] summary::after { content: "\2212"; }
     if (wf.kind === "off") return { t: "Rest day", s: "Optional day is off", dim: true };
     return { t: wf.w.title, s: wf.w.sessionType + (wf.w.minutes ? " · " + wf.w.minutes + " min" : ""), dim: false };
   }
-  function openWorkout(key) { state.wkDay = key; go("workout"); }
+  function openWorkout(key) { state.wkDay = key; wk = { key: key, rec: null, loaded: false, timers: {} }; go("workout"); loadWk(key); }
   function drawDayWorkout(sel, done, isToday, off) {
     var box = $("day-workout"); box.textContent = ""; var wf = workoutFor(sel), p = planCfg();
     if (!wf) return;
@@ -1402,23 +1422,131 @@ details.targets[open] summary::after { content: "\2212"; }
       list.appendChild(b);
     })(addDays(mon, i), i);
   }
-  function drawWorkoutPage() {
-    var key = state.wkDay || todayKey(), wf = workoutFor(key), p = planCfg(), body = $("wkp-body"); body.textContent = "";
-    $("wkp-date").textContent = longDate(key);
+  /* ---------- Workout logging: sets, reps, weight, rest timer ---------- */
+  var wk = null, wkTick = null, saveT = null, WK_BASE = 90;
+  function emptyWk(key) { return { date: key, startedAt: 0, ex: {} }; }
+  function normWk(r, key) { var o = emptyWk(key); if (r && typeof r === "object") { o.startedAt = Number(r.startedAt) || 0; o.ex = r.ex && typeof r.ex === "object" ? r.ex : {}; } return o; }
+  function parseSets(rx) {
+    var m = /^\s*(\d+)\s*x\s*([^(]+?)\s*(?:\(.*)?$/i.exec(String(rx));
+    if (!m) return null; var n = +m[1]; if (n < 1 || n > 12) return null;
+    return { n: n, target: m[2].trim(), time: /\b(sec|min)\b/i.test(m[2]) };
+  }
+  function setsOf(idx, ps) {
+    var a = wk.rec.ex[idx]; if (!Array.isArray(a)) a = wk.rec.ex[idx] = [];
+    var n = ps ? ps.n : 1; while (a.length < n) a.push({ w: "", r: "", d: false }); return a;
+  }
+  function fmtSetLine(a, time) {
+    return a.filter(function (s) { return s && (s.r !== "" || s.w !== "" || s.d); }).map(function (s) {
+      return (s.w !== "" ? s.w + " lb \u00D7 " : "") + (s.r !== "" ? s.r + (time ? " sec" : "") : "done");
+    }).join("  \u00B7  ");
+  }
+  function saveWkNow() {
+    clearTimeout(saveT); saveT = null;
+    if (!wk || !wk.rec || !state.me || !state.canWrite || !B.db) return;
+    B.saveWorkoutLog(state.me, wk.rec).catch(noop);
+  }
+  function saveWkSoon() { clearTimeout(saveT); saveT = setTimeout(saveWkNow, 700); }
+  function loadWk(key) {
+    var w = wk;
+    function ready(r) { if (wk !== w) return; w.rec = normWk(r, key); w.loaded = true; drawWorkoutPage(true); }
+    if (!B.db || !state.me) { ready(null); return; }
+    B.getWorkoutLog(state.me, key).then(ready).catch(function () { ready(null); });
+  }
+  function mmss(s) { s = Math.max(0, s); return Math.floor(s / 60) + ":" + pad(s % 60); }
+  function beep() {
+    try { if (navigator.vibrate) navigator.vibrate([200, 100, 200]); } catch (e) {}
+    try { var AC = window.AudioContext || window.webkitAudioContext, c = new AC(), o = c.createOscillator(), g = c.createGain(); o.connect(g); g.connect(c.destination); o.frequency.value = 880; g.gain.value = 0.15; o.start(); o.stop(c.currentTime + 0.35); setTimeout(function () { try { c.close(); } catch (e) {} }, 600); } catch (e) {}
+  }
+  function paintTimer(t) {
+    if (!t.timeEl) return;
+    t.timeEl.textContent = t.done ? "GO" : mmss(t.left); t.timeEl.className = "rt-time" + (t.running ? " run" : "") + (t.done ? " fin" : "");
+    if (t.goEl) t.goEl.textContent = t.running ? "Pause" : t.left < t.base && !t.done ? "Resume" : "Start";
+  }
+  function tickTimers() {
+    if (!wk) return; var now = Date.now();
+    Object.keys(wk.timers).forEach(function (k) {
+      var t = wk.timers[k]; if (!t.running) return;
+      t.left = Math.ceil((t.endAt - now) / 1000);
+      if (t.left <= 0) { t.left = 0; t.running = false; t.done = true; beep(); }
+      paintTimer(t);
+    });
+  }
+  function startWkTick() { if (!wkTick) wkTick = setInterval(tickTimers, 250); }
+  function stopWkTick() { if (wkTick) { clearInterval(wkTick); wkTick = null; } }
+  function timerFor(idx) { return wk.timers[idx] || (wk.timers[idx] = { base: WK_BASE, left: WK_BASE, running: false, done: false, endAt: 0 }); }
+  function timerStart(t) { if (t.left <= 0 || t.done) t.left = t.base; t.done = false; t.endAt = Date.now() + t.left * 1000; t.running = true; startWkTick(); paintTimer(t); }
+  function timerAdj(t, d) {
+    t.base = Math.max(15, Math.min(600, t.base + d));
+    if (t.running) { t.endAt += d * 1000; t.left = Math.ceil((t.endAt - Date.now()) / 1000); if (t.left <= 0) { t.running = false; t.left = 0; t.done = true; } }
+    else { t.left = t.base; t.done = false; }
+    paintTimer(t);
+  }
+  function restBar(idx) {
+    var t = timerFor(idx), bar = el("div", "rest");
+    bar.appendChild(el("span", "rt-label", "Rest"));
+    t.timeEl = el("span", "rt-time"); bar.appendChild(t.timeEl);
+    function mini(txt, label, fn) { var b = el("button", "mini", txt); b.type = "button"; b.setAttribute("aria-label", label); b.addEventListener("click", fn); bar.appendChild(b); return b; }
+    mini("\u221215", "Subtract 15 seconds", function () { timerAdj(t, -15); });
+    mini("+15", "Add 15 seconds", function () { timerAdj(t, 15); });
+    t.goEl = mini("Start", "Start or pause the rest timer", function () {
+      if (t.running) { t.left = Math.max(0, Math.ceil((t.endAt - Date.now()) / 1000)); t.running = false; paintTimer(t); } else timerStart(t);
+    });
+    mini("Reset", "Reset the rest timer", function () { t.running = false; t.done = false; t.left = t.base; paintTimer(t); });
+    paintTimer(t); return bar;
+  }
+  function numField(cls, label, ph, val, max, onVal) {
+    var i = el("input", "field " + cls); i.type = "number"; i.min = "0"; i.max = String(max); i.inputMode = "decimal"; i.placeholder = ph; i.setAttribute("aria-label", label);
+    i.value = val === "" || val == null ? "" : String(val);
+    i.addEventListener("input", function () { var n = parseFloat(i.value); onVal(isFinite(n) && n >= 0 ? Math.min(max, Math.round(n * 10) / 10) : ""); saveWkSoon(); });
+    i.addEventListener("blur", saveWkNow); return i;
+  }
+  function drawWorkoutPage(force) {
+    var body = $("wkp-body"), key = state.wkDay || todayKey(), wf = workoutFor(key), p = planCfg();
+    if (!force && document.activeElement && document.activeElement.tagName === "INPUT" && body.contains(document.activeElement)) return;
+    if (!wk || wk.key !== key) { wk = { key: key, rec: null, loaded: false, timers: {} }; loadWk(key); }
+    body.textContent = ""; $("wkp-date").textContent = longDate(key);
     if (!wf || wf.kind !== "train") { body.appendChild(el("p", "note", "No workout on this day.")); return; }
     var w = wf.w, wkTask = taskOfKind("workout"), done = wkTask && recFor(key).done[wkTask.id], off = !state.me || !state.canWrite;
-    body.appendChild(el("div", "wk-meta", "Week " + w.week + " · Day " + w.day + (w.minutes ? " · " + w.minutes + " min" : "")));
+    var isToday = key === todayKey(), rec = wk.rec || emptyWk(key), started = !!rec.startedAt, live = isToday && started;
+    body.appendChild(el("div", "wk-meta", "Week " + w.week + " \u00B7 Day " + w.day + (w.minutes ? " \u00B7 " + w.minutes + " min" : "")));
     body.appendChild(el("h1", "pg", w.title));
+    if (isToday && !started && !done) { var sb = el("button", "btn wk-start", "Start workout"); sb.type = "button"; sb.disabled = off || !wk.loaded; sb.addEventListener("click", function () { wk.rec = wk.rec || emptyWk(key); wk.rec.startedAt = Date.now(); saveWkNow(); drawWorkoutPage(true); }); body.appendChild(sb); }
+    if (live) body.appendChild(el("p", "note", "Started " + new Date(rec.startedAt).toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" }) + ". Log each set, then rest."));
     wkSection(body, "Warm-up", wf.th.warmup);
-    w.exercises.forEach(function (e) {
-      var r = el("div", "wx"); r.appendChild(el("span", "wn", moveName(e[0], p.equip))); r.appendChild(el("span", "wr", e[1]));
-      var c = moveCue(e[0]); if (c) r.appendChild(el("span", "wc", c)); body.appendChild(r);
+    w.exercises.forEach(function (e, idx) {
+      var ex = el("div", "wx"), ps = parseSets(e[1]);
+      ex.appendChild(el("span", "wn", moveName(e[0], p.equip))); ex.appendChild(el("span", "wr", e[1]));
+      var c = moveCue(e[0]); if (c) ex.appendChild(el("span", "wc", c));
+      if (live) {
+        var a = setsOf(idx, ps);
+        if (ps) {
+          for (var si = 0; si < ps.n; si++) (function (si) {
+            var s = a[si], row = el("div", "setrow" + (s.d ? " ok" : ""));
+            row.appendChild(el("span", "sn", "Set " + (si + 1)));
+            row.appendChild(numField("sw", "Set " + (si + 1) + " weight in pounds", si > 0 && a[si - 1].w !== "" ? String(a[si - 1].w) : "lb", s.w, 2000, function (v) { s.w = v; }));
+            row.appendChild(numField("sr", "Set " + (si + 1) + (ps.time ? " seconds" : " reps"), ps.target.length <= 8 ? ps.target : (ps.time ? "sec" : "reps"), s.r, 999, function (v) { s.r = v; }));
+            var ck = el("button", "setck", "\u2713"); ck.type = "button"; ck.setAttribute("aria-label", "Mark set " + (si + 1) + " done"); ck.setAttribute("aria-pressed", String(!!s.d));
+            ck.addEventListener("click", function () { s.d = !s.d; row.className = "setrow" + (s.d ? " ok" : ""); ck.setAttribute("aria-pressed", String(!!s.d)); if (s.d) timerStart(timerFor(idx)); saveWkSoon(); });
+            row.appendChild(ck); ex.appendChild(row);
+          })(si);
+          ex.appendChild(el("span", "wc", "Target: " + ps.target + (ps.time ? "" : " reps") + " per set"));
+        } else {
+          var d0 = a[0], r0 = el("div", "setrow one" + (d0.d ? " ok" : "")); r0.appendChild(el("span", "sn", "Done?"));
+          var ck0 = el("button", "setck", "\u2713"); ck0.type = "button"; ck0.setAttribute("aria-pressed", String(!!d0.d)); ck0.setAttribute("aria-label", "Mark done");
+          ck0.addEventListener("click", function () { d0.d = !d0.d; r0.className = "setrow one" + (d0.d ? " ok" : ""); ck0.setAttribute("aria-pressed", String(!!d0.d)); saveWkSoon(); });
+          r0.appendChild(ck0); ex.appendChild(r0);
+        }
+        ex.appendChild(restBar(idx));
+      } else if (Array.isArray(rec.ex[idx])) {
+        var line = fmtSetLine(rec.ex[idx], ps && ps.time); if (line) ex.appendChild(el("span", "wlog", "Logged: " + line));
+      }
+      body.appendChild(ex);
     });
     wkSection(body, "Finisher", wf.th.finisher); wkSection(body, "Notes", wf.th.notes);
-    if (key === todayKey()) {
+    if (isToday && (live || done)) {
       var fb = el("button", "btn" + (done ? " ghost" : ""), done ? "Undo finish" : "Finish workout"); fb.type = "button"; fb.disabled = off;
-      fb.addEventListener("click", previewWorkout); body.appendChild(fb);
-    } else if (done) body.appendChild(el("p", "note", "Finished."));
+      fb.addEventListener("click", function () { saveWkNow(); previewWorkout(); drawWorkoutPage(true); }); body.appendChild(fb);
+    } else if (!isToday && done) body.appendChild(el("p", "note", "Finished."));
   }
 
   /* ---------- Train ---------- */
@@ -1476,7 +1604,6 @@ details.targets[open] summary::after { content: "\2212"; }
     $("pv-wpr").disabled = off; $("pv-vpr").disabled = off;
     $("cal-today").hidden = isToday && stripWeekIndex() === STRIP_BACK;
     drawDayWorkout(sel, !!done, isToday, off); drawWeek(sel); drawPlan();
-    if (state.page === "workout") drawWorkoutPage();
   }
 
   /* ---------- Board ---------- */
