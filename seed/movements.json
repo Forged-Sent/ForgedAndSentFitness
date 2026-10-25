@@ -3401,5 +3401,85 @@
    "channel": "Nottingham Physio",
    "views": 652
   }
+ },
+ "Terminal Knee Extension": {
+  "pattern": "Single leg",
+  "muscles": "Quads",
+  "byEquipment": {
+   "Full Gym": "Cable Terminal Knee Extension",
+   "Home Gym (Barbell + Dumbbells)": "Band Terminal Knee Extension",
+   "Dumbbells Only": "Band Terminal Knee Extension",
+   "Bodyweight Only": "Quad Set (towel under the knee)"
+  },
+  "cue": "Soft knee, straighten fully against the resistance and squeeze the quad.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=ZY09wd68TFI",
+   "channel": "Seriously Strong Training",
+   "views": null
+  }
+ },
+ "Clamshell": {
+  "pattern": "Single leg",
+  "muscles": "Glute medius",
+  "byEquipment": {
+   "Full Gym": "Banded Clamshell",
+   "Home Gym (Barbell + Dumbbells)": "Banded Clamshell",
+   "Dumbbells Only": "Banded Clamshell",
+   "Bodyweight Only": "Clamshell (bodyweight)"
+  },
+  "cue": "Hips stacked, feet together, lift the top knee without rolling back.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=aQVApsdOLSI",
+   "channel": "PostureFlow",
+   "views": null
+  }
+ },
+ "Curl-Up": {
+  "pattern": "Core",
+  "muscles": "Abs",
+  "byEquipment": {
+   "Full Gym": "Curl-Up (hands under the low back)",
+   "Home Gym (Barbell + Dumbbells)": "Curl-Up (hands under the low back)",
+   "Dumbbells Only": "Curl-Up (hands under the low back)",
+   "Bodyweight Only": "Curl-Up (hands under the low back)"
+  },
+  "cue": "Lift only the head and shoulders, hold briefly, and keep the low back still.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=I_drRVYlHbc",
+   "channel": "Prime Health Co.",
+   "views": 201048
+  }
+ },
+ "Fist Push-Up": {
+  "pattern": "Horizontal push",
+  "muscles": "Chest, triceps",
+  "byEquipment": {
+   "Full Gym": "Push-Up on Handles",
+   "Home Gym (Barbell + Dumbbells)": "Push-Up on Handles",
+   "Dumbbells Only": "Push-Up on Handles",
+   "Bodyweight Only": "Fist Push-Up"
+  },
+  "cue": "Keep the wrists straight and lower the chest between the hands.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=WH3I9ct5p5g",
+   "channel": "GKCgoju",
+   "views": null
+  }
+ },
+ "Elliptical Trainer": {
+  "pattern": "Conditioning",
+  "muscles": "Full body",
+  "byEquipment": {
+   "Full Gym": "Elliptical Trainer",
+   "Home Gym (Barbell + Dumbbells)": "Brisk Walk",
+   "Dumbbells Only": "Brisk Walk",
+   "Bodyweight Only": "Brisk Walk"
+  },
+  "cue": "Stand tall and keep smooth, even strides.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=RakIFxUmSpA",
+   "channel": "Live Lean TV Daily Exercises",
+   "views": null
+  }
  }
 }
