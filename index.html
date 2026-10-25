@@ -197,8 +197,11 @@ details.targets[open] summary::after { content: "\2212"; }
 .wk-card .btn { width: 100%; margin-top: 14px; }
 #wkp-body .btn { width: 100%; margin-top: 18px; }
 #wkp-body .wk-start { min-height: 60px; font-size: 20px; }
-.setrow { display: grid; grid-template-columns: 54px minmax(0, 1fr) minmax(0, 1fr) 48px; gap: 8px; align-items: center; margin-top: 8px; }
+.setrow { display: grid; grid-template-columns: 46px minmax(0, 1fr) minmax(0, 1fr) 48px 36px; gap: 6px; align-items: center; margin-top: 8px; }
 .setrow.one { grid-template-columns: 54px 48px; }
+.setx { min-height: 48px; min-width: 36px; padding: 0; background: transparent; border: 0; color: var(--danger); font-size: 24px; font-weight: 700; }
+.addset { display: flex; gap: 8px; margin-top: 10px; }
+.addset .mini { flex: 1; min-height: 44px; }
 .setrow .sn { font-family: var(--f-label); font-weight: 600; font-size: 14px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
 .setrow .field { padding: 8px 10px; min-height: 48px; text-align: center; }
 .setck { min-height: 48px; min-width: 48px; background: transparent; border: 2px solid var(--line); color: var(--muted); font-size: 22px; font-weight: 700; }
@@ -1433,11 +1436,12 @@ details.targets[open] summary::after { content: "\2212"; }
   }
   function setsOf(idx, ps) {
     var a = wk.rec.ex[idx]; if (!Array.isArray(a)) a = wk.rec.ex[idx] = [];
-    var n = ps ? ps.n : 1; while (a.length < n) a.push({ w: "", r: "", d: false }); return a;
+    var n = ps ? ps.n : 1, have = a.filter(function (x) { return x.k !== "w"; }).length;
+    while (have < n) { a.push({ w: "", r: "", d: false }); have++; } return a;
   }
   function fmtSetLine(a, time) {
     return a.filter(function (s) { return s && (s.r !== "" || s.w !== "" || s.d); }).map(function (s) {
-      return (s.w !== "" ? s.w + " lb \u00D7 " : "") + (s.r !== "" ? s.r + (time ? " sec" : "") : "done");
+      return (s.k === "w" ? "warm-up " : "") + (s.w !== "" ? s.w + " lb \u00D7 " : "") + (s.r !== "" ? s.r + (time ? " sec" : "") : "done");
     }).join("  \u00B7  ");
   }
   function saveWkNow() {
@@ -1500,6 +1504,7 @@ details.targets[open] summary::after { content: "\2212"; }
     i.addEventListener("input", function () { var n = parseFloat(i.value); onVal(isFinite(n) && n >= 0 ? Math.min(max, Math.round(n * 10) / 10) : ""); saveWkSoon(); });
     i.addEventListener("blur", saveWkNow); return i;
   }
+  function redrawKeepScroll() { var sc = $("scroll"), t = sc.scrollTop; drawWorkoutPage(true); sc.scrollTop = t; }
   function drawWorkoutPage(force) {
     var body = $("wkp-body"), key = state.wkDay || todayKey(), wf = workoutFor(key), p = planCfg();
     if (!force && document.activeElement && document.activeElement.tagName === "INPUT" && body.contains(document.activeElement)) return;
@@ -1520,15 +1525,27 @@ details.targets[open] summary::after { content: "\2212"; }
       if (live) {
         var a = setsOf(idx, ps);
         if (ps) {
-          for (var si = 0; si < ps.n; si++) (function (si) {
-            var s = a[si], row = el("div", "setrow" + (s.d ? " ok" : ""));
-            row.appendChild(el("span", "sn", "Set " + (si + 1)));
-            row.appendChild(numField("sw", "Set " + (si + 1) + " weight in pounds", si > 0 && a[si - 1].w !== "" ? String(a[si - 1].w) : "lb", s.w, 2000, function (v) { s.w = v; }));
-            row.appendChild(numField("sr", "Set " + (si + 1) + (ps.time ? " seconds" : " reps"), ps.target.length <= 8 ? ps.target : (ps.time ? "sec" : "reps"), s.r, 999, function (v) { s.r = v; }));
-            var ck = el("button", "setck", "\u2713"); ck.type = "button"; ck.setAttribute("aria-label", "Mark set " + (si + 1) + " done"); ck.setAttribute("aria-pressed", String(!!s.d));
+          var setNo = 0, wNo = 0;
+          a.forEach(function (s, j) {
+            var isW = s.k === "w", isX = s.k === "x", row = el("div", "setrow" + (s.d ? " ok" : "")), lab = isW ? "W" + (++wNo) : "Set " + (++setNo);
+            row.appendChild(el("span", "sn", lab));
+            row.appendChild(numField("sw", (isW ? "Warm-up " + wNo : lab) + " weight in pounds", j > 0 && a[j - 1].w !== "" ? String(a[j - 1].w) : "lb", s.w, 2000, function (v) { s.w = v; }));
+            row.appendChild(numField("sr", (isW ? "Warm-up " + wNo : lab) + (ps.time ? " seconds" : " reps"), isW ? (ps.time ? "sec" : "reps") : (ps.target.length <= 8 ? ps.target : (ps.time ? "sec" : "reps")), s.r, 999, function (v) { s.r = v; }));
+            var ck = el("button", "setck", "\u2713"); ck.type = "button"; ck.setAttribute("aria-label", "Mark " + lab + " done"); ck.setAttribute("aria-pressed", String(!!s.d));
             ck.addEventListener("click", function () { s.d = !s.d; row.className = "setrow" + (s.d ? " ok" : ""); ck.setAttribute("aria-pressed", String(!!s.d)); saveWkSoon(); });
-            row.appendChild(ck); ex.appendChild(row);
-          })(si);
+            row.appendChild(ck);
+            if (isW || isX) {
+              var rm = el("button", "setx", "\u00D7"); rm.type = "button"; rm.setAttribute("aria-label", "Remove " + lab);
+              rm.addEventListener("click", function () { a.splice(j, 1); saveWkNow(); redrawKeepScroll(); }); row.appendChild(rm);
+            } else row.appendChild(el("span"));
+            ex.appendChild(row);
+          });
+          var ab = el("div", "addset");
+          var bw = el("button", "mini", "+ Warm-up set"); bw.type = "button";
+          bw.addEventListener("click", function () { var at = a.filter(function (x) { return x.k === "w"; }).length; a.splice(at, 0, { w: "", r: "", d: false, k: "w" }); saveWkNow(); redrawKeepScroll(); });
+          var bx = el("button", "mini", "+ Add set"); bx.type = "button";
+          bx.addEventListener("click", function () { a.push({ w: "", r: "", d: false, k: "x" }); saveWkNow(); redrawKeepScroll(); });
+          ab.appendChild(bw); ab.appendChild(bx); ex.appendChild(ab);
           ex.appendChild(el("span", "wc", "Target: " + ps.target + (ps.time ? "" : " reps") + " per set"));
         } else {
           var d0 = a[0], r0 = el("div", "setrow one" + (d0.d ? " ok" : "")); r0.appendChild(el("span", "sn", "Done?"));
