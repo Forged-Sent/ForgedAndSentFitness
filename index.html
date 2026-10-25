@@ -272,6 +272,7 @@ details.targets[open] summary::after { content: "\2212"; }
 .lk-edit { display: flex; align-items: center; justify-content: space-between; gap: 10px; border: 1px solid var(--hot); border-radius: var(--radius, 4px); padding: 10px 12px; font-size: 13px; margin-bottom: 4px; }
 .lk-edit b { display: block; color: var(--hot); font-family: var(--f-label); letter-spacing: .08em; text-transform: uppercase; }
 .lk-edit .btn { min-height: 38px; padding: 0 14px; flex: none; }
+.im-prev { width: 100%; aspect-ratio: 4 / 5; max-width: 100%; object-fit: contain; background: #1b1f17; border: 1px solid var(--line); border-radius: var(--radius, 4px); display: block; -webkit-touch-callout: default; }
 .cdlg { position: fixed; inset: 0; z-index: 80; background: rgba(0,0,0,.55); display: flex; align-items: flex-start; justify-content: center; overflow-y: auto; padding: calc(56px + env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-right, 0px)) 16px max(16px, env(safe-area-inset-left, 0px)); }
 .cdlg-box { margin: 0 auto; width: 100%; max-width: 360px; background: var(--bg); border: 2px solid var(--danger); padding: 18px; display: flex; flex-direction: column; gap: 10px; }
 .cdlg-box h2 { margin: 0; font-family: var(--f-label); font-size: 17px; letter-spacing: .08em; text-transform: uppercase; }
@@ -1063,6 +1064,7 @@ details.targets[open] summary::after { content: "\2212"; }
     init: async function () {
       var c = window.claude; if (!c || !c.use) return false;
       this.db = await c.use("db"); this.user = await c.use("user"); this.assets = await c.use("assets"); try { this.sample = await c.use("sample"); } catch (e) { this.sample = null; }
+      try { this.downloads = await c.use("downloads"); } catch (e) { this.downloads = null; }
       try { var lim = this.sample && this.sample.limits ? await this.sample.limits() : null; this.sampleImages = lim && lim.images ? lim.images : null; } catch (e) { this.sampleImages = null; }
       return !!this.db;
     },
@@ -2584,11 +2586,123 @@ details.targets[open] summary::after { content: "\2212"; }
       computePRs(key, wk.root || rec, function (list) { openShare(info, list.filter(function (x) { return info.keys[x.k]; })); });
     });
     body.appendChild(share);
+    var ib = el("button", "btn ghost lk-btn"); ib.type = "button"; ib.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="1"/><path d="m3 16 5-5 4 4 3-3 6 6"/></svg>'; ib.appendChild(document.createTextNode("Save as image"));
+    ib.addEventListener("click", function () { openWorkoutImage(workoutImageData(key, rec, w, S)); });
+    body.appendChild(ib);
     var un = el("button", "btn ghost lk-btn"); un.type = "button"; un.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="1"/><path d="M8 11V7a4 4 0 0 1 7.5-2"/></svg>'; un.appendChild(document.createTextNode("Unlock to edit"));
     un.addEventListener("click", function () {
       confirmDelete({ title: "Unlock this workout?", message: "You can change your sets, then lock it again. PRs and points are re-checked when you lock it.", yes: "Unlock", neutral: true }, function () { wk.editing = true; drawWorkoutPage(true); });
     });
     body.appendChild(un);
+  }
+  /* ---------- Workout image: one 1080 x 1350 picture to save or text to a buddy ---------- */
+  function workoutImageData(key, rec, w, S) {
+    var p = planCfg() || {}, prs = normPrs(recFor(key).prs).list, prNames = {}; prs.forEach(function (x) { prNames[x.l] = x; });
+    var exList = (S ? [] : w.exercises.map(function (e, i) { return [effMove(rec, i, e[0]), e[1]]; })).concat(normExtra(rec.extra).map(function (x) { return [x.g, x.rx]; }));
+    var out = [], workSets = 0, prList = [];
+    exList.forEach(function (e, i) {
+      var g = e[0], shown = moveName(g, p.equip), ps = parseSets(e[1]), bw = !needsWeight(g, p.equip), a = (rec.ex && rec.ex[i]) || [], sets = [];
+      a.forEach(function (s) {
+        if (!s || s.k === "w" || !(Number(s.r) > 0)) return; workSets++;
+        sets.push(ps && ps.time ? s.r + "s" : ps && !bw && s.w !== "" && s.w != null ? s.r + " × " + fmtW(Number(s.w)) : s.r + (bw ? " reps" : ""));
+      });
+      if (!sets.length) return;
+      if (prNames[shown]) prList.push(prNames[shown]);
+      out.push({ name: shown, sets: sets, pr: !!prNames[shown], unit: ps && !ps.time && !bw ? "lb" : "" });
+    });
+    var ms = rec.finishedAt && rec.startedAt ? rec.finishedAt - rec.startedAt : 0;
+    return { title: S ? rec.name : w.title, date: parseKey(key).toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric", year: "numeric" }), time: ms >= 60000 ? fmtElapsed(ms) : "", vol: S ? volOf(rec, key, true) : volOf(rec, key), sets: workSets, prs: prList, ex: out, who: state.me ? nameOf(state.me) : "" };
+  }
+  async function workoutImageBlob(d) {
+    try { await Promise.all(["700 40px 'Saira Condensed'", "600 30px 'Saira Condensed'", "400 30px 'IBM Plex Sans'", "500 30px 'IBM Plex Sans'", "400 40px 'Saira Stencil One'"].map(function (f) { return document.fonts && document.fonts.load ? document.fonts.load(f) : null; })); } catch (e) {}
+    var W = 1080, H = 1350, c = document.createElement("canvas"); c.width = W; c.height = H; var x = c.getContext("2d");
+    var C = { bg: "#1b1f17", panel: "#252a1f", line: "#3c4232", ink: "#e9e3cf", muted: "#a29c84", tan: "#c9b27a", brass: "#e0c46c" };
+    var HEAD = "'Saira Condensed', 'Arial Narrow', sans-serif", BODY = "'IBM Plex Sans', system-ui, sans-serif", STEN = "'Saira Stencil One', 'Saira Condensed', sans-serif";
+    x.fillStyle = C.bg; x.fillRect(0, 0, W, H);
+    x.fillStyle = C.tan; x.fillRect(0, 0, W, 14);
+    var M = 64, y = 96;
+    x.textBaseline = "alphabetic"; x.fillStyle = C.muted; x.font = "600 30px " + HEAD; x.fillText(d.date.toUpperCase(), M, y);
+    // Title, shrunk to fit on two lines at most
+    function wrap(text, font, maxW) { x.font = font; var words = text.split(/\s+/), lines = [], cur = ""; words.forEach(function (wd) { var t = cur ? cur + " " + wd : wd; if (x.measureText(t).width > maxW && cur) { lines.push(cur); cur = wd; } else cur = t; }); if (cur) lines.push(cur); return lines; }
+    var ts = 84, tl; do { tl = wrap(d.title.toUpperCase(), "800 " + ts + "px " + HEAD, W - 2 * M); if (tl.length <= 2) break; ts -= 6; } while (ts > 44);
+    x.fillStyle = C.ink; x.font = "800 " + ts + "px " + HEAD; y += ts + 10; tl.slice(0, 2).forEach(function (l, i) { x.fillText(l, M, y + i * (ts * 0.95)); }); y += (Math.min(2, tl.length) - 1) * ts * 0.95 + 30;
+    // Stats strip
+    var stats = [[d.time || "—", "TIME"], [fmt(d.vol), "LB VOLUME"], [String(d.sets), "WORK SETS"], [String(d.prs.length), d.prs.length === 1 ? "PR" : "PRS"]];
+    var sw = (W - 2 * M) / 4, sh = 120; x.strokeStyle = C.line; x.lineWidth = 2; x.strokeRect(M, y, W - 2 * M, sh);
+    stats.forEach(function (s, i) {
+      var cx = M + sw * i + sw / 2; if (i) { x.beginPath(); x.moveTo(M + sw * i, y); x.lineTo(M + sw * i, y + sh); x.stroke(); }
+      x.textAlign = "center"; x.fillStyle = i === 3 && d.prs.length ? C.brass : C.ink; x.font = "700 52px " + HEAD; x.fillText(s[0], cx, y + 66);
+      x.fillStyle = C.muted; x.font = "600 22px " + HEAD; x.fillText(s[1], cx, y + 100);
+    });
+    x.textAlign = "left"; y += sh + 40;
+    // Exercises: pick font size and 1 or 2 columns so everything fits in one picture
+    var footer = 150, avail = H - footer - y, ex = d.ex;
+    function nameLines(e, fs, colW) {
+      var f = "700 " + (fs * 1.1) + "px " + HEAD, l = wrap(e.name.toUpperCase(), f, colW - (e.pr ? fs * 2 : 0));
+      if (l.length > 2) { l = l.slice(0, 2); x.font = f; while (x.measureText(l[1] + "\u2026").width > colW - (e.pr ? fs * 2 : 0) && l[1].length > 2) l[1] = l[1].slice(0, -1); l[1] = l[1].trim() + "\u2026"; }
+      return l;
+    }
+    function cellW(fs) { x.font = "500 " + fs + "px " + BODY; var mw = fs * 3; ex.forEach(function (e) { e.sets.forEach(function (v) { mw = Math.max(mw, x.measureText(v + (e.unit ? " " + e.unit : "")).width); }); }); return mw + fs * 1.3; }
+    function measure(fs, cols) {
+      var colW = (W - 2 * M - (cols - 1) * 40) / cols, per = Math.max(1, Math.floor((colW + 10) / (cellW(fs) + 10))), rowH = fs * 2.35;
+      var heights = ex.map(function (e) { e._nl = nameLines(e, fs, colW); return fs * 1.3 + (e._nl.length - 1) * fs * 1.15 + Math.ceil(e.sets.length / per) * (rowH + 8) + fs * 0.8; });
+      var colH = []; for (var k = 0; k < cols; k++) colH.push(0); var place = [];
+      heights.forEach(function (h) { var k = colH.indexOf(Math.min.apply(null, colH)); place.push([k, colH[k]]); colH[k] += h; });
+      return { fs: fs, cols: cols, colW: colW, per: per, rowH: rowH, place: place, h: Math.max.apply(null, colH.concat([0])) };
+    }
+    var lay = null;
+    for (var fs = 32; fs >= 16 && !lay; fs -= 2) for (var cols = 1; cols <= 2 && !lay; cols++) { var m = measure(fs, cols); if (m.h <= avail) lay = m; }
+    if (!lay) lay = measure(16, 2);
+    if (!ex.length) { x.fillStyle = C.muted; x.font = "400 30px " + BODY; x.fillText("Workout complete.", M, y + 40); }
+    ex.forEach(function (e, i) {
+      var pl = lay.place[i], X = M + pl[0] * (lay.colW + 40), Y = y + pl[1] + lay.fs * 1.05, fsN = lay.fs * 1.1, f = lay.fs;
+      x.fillStyle = C.ink; x.font = "700 " + fsN + "px " + HEAD; var nl = e._nl || [e.name.toUpperCase()];
+      nl.forEach(function (l, k) { x.fillText(l, X, Y + k * f * 1.15); }); Y += (nl.length - 1) * f * 1.15; var nm = nl[nl.length - 1];
+      if (e.pr) { var tw = x.measureText(nm).width + 12, bh = fsN * 0.8; x.fillStyle = C.brass; x.fillRect(X + tw, Y - bh + 2, fsN * 1.5, bh); x.fillStyle = C.bg; x.font = "700 " + (fsN * 0.55) + "px " + HEAD; x.textAlign = "center"; x.fillText("PR", X + tw + fsN * 0.75, Y - bh * 0.25); x.textAlign = "left"; }
+      var cw = (lay.colW - (lay.per - 1) * 10) / lay.per, top = Y + f * 0.5;
+      e.sets.forEach(function (v, j) {
+        var cx = X + (j % lay.per) * (cw + 10), cy = top + Math.floor(j / lay.per) * (lay.rowH + 8);
+        x.fillStyle = C.panel; x.fillRect(cx, cy, cw, lay.rowH); x.fillStyle = C.tan; x.fillRect(cx, cy, 4, lay.rowH);
+        x.fillStyle = C.muted; x.font = "600 " + (f * 0.62) + "px " + HEAD; x.fillText("SET " + (j + 1), cx + f * 0.55, cy + f * 0.85);
+        x.fillStyle = C.ink; x.font = "500 " + f + "px " + BODY; var tv = v + (e.unit ? " " + e.unit : "");
+        while (x.measureText(tv).width > cw - f * 0.9 && tv.length > 3) tv = tv.slice(0, -1);
+        x.fillText(tv, cx + f * 0.55, cy + f * 1.95);
+      });
+    });
+    // Footer
+    x.strokeStyle = C.line; x.beginPath(); x.moveTo(M, H - footer + 20); x.lineTo(W - M, H - footer + 20); x.stroke();
+    x.fillStyle = C.tan; x.font = "400 46px " + STEN; x.fillText("FORGED & SENT", M, H - 62);
+    x.textAlign = "right"; x.fillStyle = C.muted; x.font = "600 24px " + HEAD;
+    if (d.who) x.fillText(d.who.toUpperCase(), W - M, H - 92);
+    x.font = "400 22px " + BODY; x.fillText("Be watchful, stand firm, act like men. 1 Cor 16:13", W - M, H - 60);
+    x.textAlign = "left";
+    return await new Promise(function (res) { c.toBlob(function (b) { res(b); }, "image/png"); });
+  }
+  async function openWorkoutImage(d) {
+    var old = $("cdlg"); if (old) old.remove();
+    var back = el("div", "cdlg"); back.id = "cdlg";
+    var box = el("div", "cdlg-box nw-box im-box"); box.setAttribute("role", "dialog"); box.setAttribute("aria-modal", "true"); box.setAttribute("aria-labelledby", "im-t");
+    var t = el("h2", null, "Workout image"); t.id = "im-t"; box.appendChild(t);
+    var note = el("p", "fnote", "Making your image…"); box.appendChild(note);
+    var img = el("img", "im-prev"); img.alt = "Image of your workout: " + d.title; box.appendChild(img);
+    var save = el("button", "btn", "Save image"); save.type = "button"; save.disabled = true; box.appendChild(save);
+    var cl = el("button", "btn ghost", "Close"); cl.type = "button"; box.appendChild(cl);
+    var url = "", blob = null;
+    function close() { if (url) try { URL.revokeObjectURL(url); } catch (e) {} back.remove(); }
+    cl.addEventListener("click", close); back.addEventListener("click", function (ev) { if (ev.target === back) close(); });
+    back.addEventListener("keydown", function (ev) { if (ev.key === "Escape") close(); });
+    back.appendChild(box); document.body.appendChild(back); cl.focus();
+    try { blob = await workoutImageBlob(d); url = URL.createObjectURL(blob); img.src = url; }
+    catch (e) { note.textContent = "Couldn’t make the image on this device."; return; }
+    var canSave = !!B.downloads;
+    note.textContent = canSave ? "Save it to your phone, then text it to a buddy." : "Press and hold the image to save it to your photos, then text it to a buddy.";
+    save.hidden = !canSave; save.disabled = !canSave;
+    save.addEventListener("click", function () {
+      var fn = "Forged-and-Sent-" + d.title.replace(/[^A-Za-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 60) + ".png";
+      save.disabled = true;
+      B.downloads.save({ filename: fn, data: blob }).then(function () { note.textContent = "Saved. Text it to a buddy from your photos or files."; save.disabled = false; })
+        .catch(function (e) { save.disabled = false; var c = e && e.code; note.textContent = c === "declined" ? "Not saved." : c === "rate_limited" ? "One moment, then try again." : "Saving isn’t available here. Press and hold the image to save it instead."; });
+    });
   }
   function lockWorkout(key) {
     if (!wk) return; wk.editing = false;
