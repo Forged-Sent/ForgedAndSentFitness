@@ -788,6 +788,7 @@ details.targets[open] summary::after { content: "\2212"; }
         <div class="tabs" role="group" aria-label="Standings range">
           <button type="button" id="tab-today" aria-pressed="false">Today</button>
           <button type="button" id="tab-week" aria-pressed="true">This week</button>
+          <button type="button" id="tab-all" aria-pressed="false">All time</button>
         </div>
       </div>
       <div class="board" id="board"></div>
@@ -2961,31 +2962,39 @@ details.targets[open] summary::after { content: "\2212"; }
     group("Step bonus", [["Steps box goal", fmt(STEPS_GOAL) + " (" + fmt(STEPS_GOAL_SABBATH) + " on Sabbath)"], ["Each 1,000 steps from 10,000 to 15,000", "+1 pt"], ["Each 1,000 steps after 15,000", "+0.5 pt"]],
       "Example: 18,000 steps earns the Steps box, plus 5 bonus points for 10k to 15k and 1.5 for 15k to 18k.");
     group("Personal records", [["Weight PR or volume PR on a lift", "+" + PR_PTS + " pts"]], "Awarded when you finish a workout. Each lift earns it once a day, even if you hit both a weight and a volume PR.");
-    b.appendChild(el("p", "fnote", "Today shows points earned today. This week adds up Monday through Sunday, then resets."));
+    b.appendChild(el("p", "fnote", "Today shows points earned today. This week adds up Monday through Sunday, then resets. All time adds up every point since a man joined."));
   }
   function drawBoard() {
     var board = $("board"); board.textContent = "";
-    var today = todayKey(), ws = weekStartKey(), people = {};
-    if (state.me) people[state.me] = { id: state.me, todayBoxes: 0, todayPts: 0, weekPts: 0 };
+    var today = todayKey(), ws = weekStartKey(), people = {}, range = state.range || "week", isAll = range === "all", isWeek = range === "week";
+    if (isAll) watchAllChecks();
+    function person(uid) { return people[uid] || (people[uid] = { id: uid, todayBoxes: 0, todayPts: 0, weekPts: 0, allPts: 0, days: {} }); }
+    if (state.me) person(state.me);
     state.checks.forEach(function (c) {
       if (c.date < ws) return;
-      var p = people[c.uid] || (people[c.uid] = { id: c.uid, todayBoxes: 0, todayPts: 0, weekPts: 0 });
-      p.weekPts += pointsOf(c);
+      var p = person(c.uid); p.weekPts += pointsOf(c);
       if (c.date === today) { p.todayBoxes = boxesOf(c); p.todayPts = pointsOf(c); }
     });
+    if (isAll) {
+      // Use the full history, plus anything newer this device holds (like a box just checked).
+      var seen = {}, rows = [];
+      state.checks.forEach(function (c) { seen[c.date + "_" + c.uid] = true; rows.push(c); });
+      (state.allChecks || []).forEach(function (c) { if (!seen[c.date + "_" + c.uid]) rows.push(c); });
+      rows.forEach(function (c) { if (c.date > today) return; var p = person(c.uid), v = pointsOf(c); p.allPts += v; if (v > 0) p.days[c.date] = true; });
+    }
+    function scoreOf(p) { return isAll ? p.allPts : isWeek ? p.weekPts : p.todayPts; }
     var arr = Object.keys(people).map(function (k) { return people[k]; });
-    var isWeek = state.range === "week";
-    arr.sort(function (a, b) { var d = isWeek ? b.weekPts - a.weekPts : b.todayPts - a.todayPts; return d || (isWeek ? b.todayPts - a.todayPts : b.weekPts - a.weekPts); });
-    $("tab-today").setAttribute("aria-pressed", String(!isWeek)); $("tab-week").setAttribute("aria-pressed", String(isWeek));
-    $("board-note").textContent = isWeek ? "Week runs Monday to Sunday. Points come from boxes, your habits, step bonuses and PR bonuses. Push each other, and carry the man who is behind." : "Resets at midnight. Encourage the man next to you.";
+    arr.sort(function (a, b) { return (scoreOf(b) - scoreOf(a)) || (b.weekPts - a.weekPts) || (b.todayPts - a.todayPts); });
+    $("tab-today").setAttribute("aria-pressed", String(range === "today")); $("tab-week").setAttribute("aria-pressed", String(isWeek)); $("tab-all").setAttribute("aria-pressed", String(isAll));
+    $("board-note").textContent = isAll ? (state.allChecks ? "Every point since each man joined. Faithfulness over time." : "Loading all-time points\u2026") : isWeek ? "Week runs Monday to Sunday. Points come from boxes, your habits, step bonuses and PR bonuses. Push each other, and carry the man who is behind." : "Resets at midnight. Encourage the man next to you.";
     if (!arr.length || !state.tasks.length) {
       var e = el("div", "empty"); e.appendChild(el("strong", null, "No standings yet"));
       e.appendChild(document.createTextNode("Standings appear once there are tasks and someone checks one off.")); board.appendChild(e); return;
     }
-    var max = 0; arr.forEach(function (p) { var v = isWeek ? p.weekPts : p.todayPts; if (v > max) max = v; });
+    var max = 0; arr.forEach(function (p) { var v = scoreOf(p); if (v > max) max = v; });
     var prev = null, rank = 0;
     arr.forEach(function (p, i) {
-      var score = isWeek ? p.weekPts : p.todayPts;
+      var score = scoreOf(p);
       if (score !== prev) { rank = i + 1; prev = score; }
       var prof = state.profs[p.id] || {}, row = el("div", "row" + (rank === 1 && score > 0 ? " lead" : ""));
       row.appendChild(el("div", "rank", String(rank)));
@@ -2995,8 +3004,9 @@ details.targets[open] summary::after { content: "\2212"; }
       makeLink(nm, p.id); who.appendChild(nm);
       var bar = el("div", "bar"), fill = el("i"); fill.style.width = max ? Math.round(100 * score / max) + "%" : "0%"; bar.appendChild(fill);
       who.appendChild(bar); row.appendChild(who);
-      var sc = el("div", "score"); sc.appendChild(el("b", null, String(score)));
-      sc.appendChild(el("span", null, isWeek ? "pts" : p.todayBoxes + (p.todayBoxes === 1 ? " box" : " boxes")));
+      var sc = el("div", "score"); sc.appendChild(el("b", null, (Math.round(score * 10) / 10).toLocaleString()));
+      var nd = Object.keys(p.days).length;
+      sc.appendChild(el("span", null, isAll ? nd + (nd === 1 ? " day" : " days") : isWeek ? "pts" : p.todayBoxes + (p.todayBoxes === 1 ? " box" : " boxes")));
       row.appendChild(sc); board.appendChild(row);
     });
   }
@@ -3533,7 +3543,7 @@ details.targets[open] summary::after { content: "\2212"; }
       "Finish workout locks it and awards 25 points for each lift with a weight or volume PR. Then you can share it to Rally or save it as an image to text a buddy.",
       "Need to fix something? Tap Unlock to edit, then Lock when you're done."] },
     board: { t: "Board", why: "See where the brothers stand, today and for the week.", how: [
-      "Switch between Today and This week. The week runs Monday to Sunday.",
+      "Switch between Today, This week and All time. The week runs Monday to Sunday. All time adds up every point since a man joined.",
       "Points come from your boxes, your three habits, step bonuses and PRs. Tap How points work next to Standings for the full breakdown.",
       "Tap a man to see his profile and lift PRs.",
       "Use it to push each other, and to find the man who needs encouraging."] },
@@ -4370,6 +4380,11 @@ details.targets[open] summary::after { content: "\2212"; }
     var list = Object.keys(ids); if (!list.length || !B.user) return;
     try { state.profs = (await B.profiles(list)) || {}; drawAll(); drawFeed(); } catch (e) {}
   }
+  var allChecksSub = null;
+  function watchAllChecks() {
+    if (allChecksSub || !B.db) return;
+    allChecksSub = B.watchChecks("2000-01-01", function (rows) { state.allChecks = rows; if (state.range === "all") drawBoard(); });
+  }
   function subscribeWindows() {
     var low = lowKey();
     if (subscribed.checks !== low) {
@@ -4386,6 +4401,7 @@ details.targets[open] summary::after { content: "\2212"; }
     Array.prototype.forEach.call(document.querySelectorAll(".tabbar button"), function (b) { b.addEventListener("click", function () { go(b.dataset.page); }); });
     $("tab-today").addEventListener("click", function () { state.range = "today"; drawBoard(); });
     $("tab-week").addEventListener("click", function () { state.range = "week"; drawBoard(); });
+    $("tab-all").addEventListener("click", function () { state.range = "all"; drawBoard(); });
     wireDevo();
     $("water-add").addEventListener("click", function () { addWater(WATER_STEP); });
     $("water-sub-btn").addEventListener("click", function () { addWater(-WATER_STEP); });
