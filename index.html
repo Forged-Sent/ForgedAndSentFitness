@@ -194,6 +194,8 @@ details.targets[open] summary::after { content: "\2212"; }
 .wk-clock.fin { border-left-color: var(--brass, #b08d57); }
 .set-card + .set-card { margin-top: -22px; }
 .set-card > .set-open { width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 56px; padding: 0 14px; background: var(--surface); border: 1px solid var(--line); color: var(--ink); font-family: var(--f-label); font-weight: 600; font-size: 14px; letter-spacing: .1em; text-transform: uppercase; text-align: left; cursor: pointer; }
+.set-card > .set-open .sc-txt { display: flex; flex-direction: column; gap: 3px; min-width: 0; padding: 10px 0; }
+.set-card > .set-open .sc-txt small { font-family: var(--f-body); font-weight: 400; font-size: 12.5px; letter-spacing: 0; text-transform: none; color: var(--muted); line-height: 1.35; }
 .set-card > .set-open .sc-chev { font-size: 22px; line-height: 1; color: var(--brass, #b08d57); transition: transform .2s; }
 .set-card > .set-open[aria-expanded="true"] { border-color: var(--brass, #b08d57); }
 .set-card > .set-open[aria-expanded="true"] .sc-chev { transform: rotate(90deg); }
@@ -780,14 +782,14 @@ details.targets[open] summary::after { content: "\2212"; }
     </section>
 
     <section aria-labelledby="h-s-wk">
-      <div class="section-head"><h2 class="label-caps" id="h-s-wk">Workouts</h2></div>
+      <div class="section-head"><h2 class="label-caps" id="h-s-wk" data-sub="Auto-fill weight and reps while you log sets.">Workout logging</h2></div>
       <label class="sw-row"><span>Auto-fill weight</span><input type="checkbox" role="switch" class="switch" id="s-af-w"></label>
       <label class="sw-row"><span>Auto-fill reps</span><input type="checkbox" role="switch" class="switch" id="s-af-r"></label>
       <p class="note">When on, what you enter for a set fills in the empty sets below it for that exercise. Warm-up sets are skipped, and you can still change any set.</p>
     </section>
 
     <section aria-labelledby="h-s-body">
-      <div class="section-head"><h2 class="label-caps" id="h-s-body">Body and goal</h2></div>
+      <div class="section-head"><h2 class="label-caps" id="h-s-body" data-sub="Age, weight, height and activity. Used to estimate the calories you burn.">Your body stats</h2></div>
       <div class="fgrid" id="body-form" data-form="body">
         <label class="flabel">Age<input class="field" type="number" id="b-age" min="14" max="99" inputmode="numeric"></label>
         <label class="flabel">Weight (lb)<input class="field" type="number" id="b-wt" min="80" max="600" inputmode="decimal"></label>
@@ -801,6 +803,13 @@ details.targets[open] summary::after { content: "\2212"; }
             <option value="1.725">Hard: 6 to 7 workouts a week</option>
             <option value="1.9">Very hard: physical job plus training</option>
           </select></label>
+      </div>
+      <p class="note">Update your weight here as it changes so your calorie plan stays accurate.</p>
+    </section>
+
+    <section aria-labelledby="h-s-goal">
+      <div class="section-head"><h2 class="label-caps" id="h-s-goal" data-sub="Lose fat, maintain or build muscle. Builds your daily calorie and macro plan.">Your goal and calorie plan</h2></div>
+      <div class="fgrid" id="goal-form" data-form="body">
         <label class="flabel full">Goal
           <select class="field" id="b-goal">
             <option value="lose">Lose body fat</option>
@@ -823,7 +832,7 @@ details.targets[open] summary::after { content: "\2212"; }
     </section>
 
     <section aria-labelledby="h-s-tg">
-      <div class="section-head"><h2 class="label-caps" id="h-s-tg">Daily targets</h2></div>
+      <div class="section-head"><h2 class="label-caps" id="h-s-tg" data-sub="The calories, protein, fat and carbs you track against on the Fuel tab.">Daily calorie and macro targets</h2></div>
       <form class="tform" id="targets-form" data-form="targets" style="padding:0">
         <label>Calories<input class="field" type="number" id="t-kcal" min="0" max="10000" inputmode="numeric"></label>
         <label>Protein (g)<input class="field" type="number" id="t-p" min="0" max="1000" inputmode="numeric"></label>
@@ -837,7 +846,7 @@ details.targets[open] summary::after { content: "\2212"; }
     </section>
 
     <section aria-labelledby="h-s-rem">
-      <div class="section-head"><h2 class="label-caps" id="h-s-rem">Daily reminders</h2></div>
+      <div class="section-head"><h2 class="label-caps" id="h-s-rem" data-sub="Set times for your morning devotional and evening check-in.">Daily reminders</h2></div>
       <form class="setgrp" id="rem-form" data-form="rem">
         <label class="flabel">Morning devotional<input class="field" type="time" id="r-devo"></label>
         <label class="flabel">Evening check-in<input class="field" type="time" id="r-checkin"></label>
@@ -847,13 +856,13 @@ details.targets[open] summary::after { content: "\2212"; }
     </section>
 
     <section aria-labelledby="h-s-health">
-      <div class="section-head"><h2 class="label-caps" id="h-s-health">Health data</h2></div>
+      <div class="section-head"><h2 class="label-caps" id="h-s-health" data-sub="Connect your phone's health data for steps, weight and workouts.">Health data</h2></div>
       <p class="note" id="health-note" style="margin-top:0"></p>
       <div id="health-list" class="setgrp"></div>
     </section>
 
     <section aria-labelledby="h-s-safe">
-      <div class="section-head"><h2 class="label-caps" id="h-s-safe">Privacy and safety</h2></div>
+      <div class="section-head"><h2 class="label-caps" id="h-s-safe" data-sub="What the group sees, and who you have blocked.">Privacy and safety</h2></div>
       <p class="note" style="margin-top:0">Keep it real. No judgment, no gossip. What is shared here stays here. Your food, water, targets and body stats are private. The group sees your checked boxes, points, PRs, motto and posts.</p>
       <div class="sub-head"><span class="label-caps">Blocked</span></div>
       <div id="blocked-list"></div>
@@ -862,7 +871,7 @@ details.targets[open] summary::after { content: "\2212"; }
     </section>
 
     <section aria-labelledby="h-s-acct">
-      <div class="section-head"><h2 class="label-caps" id="h-s-acct">Your data</h2></div>
+      <div class="section-head"><h2 class="label-caps" id="h-s-acct" data-sub="Permanently delete everything you have saved in the app.">Delete your data</h2></div>
       <p class="note" id="acct-name" style="margin-top:0"></p>
       <div class="dz">
         <strong class="label-caps" style="color:var(--danger)">Delete my data</strong>
@@ -2698,8 +2707,9 @@ details.targets[open] summary::after { content: "\2212"; }
     if (plan.note) out.appendChild(el("span", "error", plan.note));
   }
   function fillForm(key, fn) {
-    var f = document.querySelector('[data-form="' + key + '"]');
-    if (state.dirty[key] || (f && f.contains(document.activeElement))) return;
+    var fs = document.querySelectorAll('[data-form="' + key + '"]'), inside = false;
+    Array.prototype.forEach.call(fs, function (f) { if (f.contains(document.activeElement)) inside = true; });
+    if (state.dirty[key] || inside) return;
     fn();
   }
   function applyTheme(mode, persist) {
@@ -2879,12 +2889,13 @@ details.targets[open] summary::after { content: "\2212"; }
       ae.blur();
     }, true);
     // Settings below the profile photos: each section is a button that opens its form.
-    ["h-s-wk", "h-s-body", "h-s-tg", "h-s-rem", "h-s-health", "h-s-safe", "h-s-acct"].forEach(function (hid) {
+    ["h-s-wk", "h-s-body", "h-s-goal", "h-s-tg", "h-s-rem", "h-s-health", "h-s-safe", "h-s-acct"].forEach(function (hid) {
       var h = $(hid); if (!h) return; var sec = h.closest("section"), head = h.closest(".section-head"); if (!sec || !head) return;
       var body = el("div", "set-body"); body.id = hid + "-body"; body.hidden = true;
       while (head.nextSibling) body.appendChild(head.nextSibling);
       var btn = el("button", "set-open"); btn.type = "button"; btn.setAttribute("aria-expanded", "false"); btn.setAttribute("aria-controls", body.id);
-      btn.appendChild(el("span", null, h.textContent)); btn.appendChild(el("span", "sc-chev", "\u203A"));
+      var bt = el("span", "sc-txt"); bt.appendChild(el("span", null, h.textContent)); if (h.dataset.sub) bt.appendChild(el("small", null, h.dataset.sub));
+      btn.appendChild(bt); btn.appendChild(el("span", "sc-chev", "\u203A"));
       btn.addEventListener("click", function () { var open = body.hidden; body.hidden = !open; btn.setAttribute("aria-expanded", String(open)); });
       head.hidden = true; sec.classList.add("set-card"); sec.appendChild(btn); sec.appendChild(body);
     });
