@@ -192,6 +192,13 @@ details.targets[open] summary::after { content: "\2212"; }
 .wk-clock span { font-size: 12px; color: var(--muted); letter-spacing: .12em; }
 .wk-clock b { font-family: var(--f-label); font-size: 26px; line-height: 1.1; font-variant-numeric: tabular-nums; }
 .wk-clock.fin { border-left-color: var(--brass, #b08d57); }
+.set-card + .set-card { margin-top: -22px; }
+.set-card > .set-open { width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 56px; padding: 0 14px; background: var(--surface); border: 1px solid var(--line); color: var(--ink); font-family: var(--f-label); font-weight: 600; font-size: 14px; letter-spacing: .1em; text-transform: uppercase; text-align: left; cursor: pointer; }
+.set-card > .set-open .sc-chev { font-size: 22px; line-height: 1; color: var(--brass, #b08d57); transition: transform .2s; }
+.set-card > .set-open[aria-expanded="true"] { border-color: var(--brass, #b08d57); }
+.set-card > .set-open[aria-expanded="true"] .sc-chev { transform: rotate(90deg); }
+.set-card > .set-body { padding: 12px 2px 4px; }
+@media (prefers-reduced-motion: reduce) { .set-card > .set-open .sc-chev { transition: none; } }
 .sw-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 52px; border-bottom: 1px solid var(--line); font-size: 15px; cursor: pointer; }
 .switch { appearance: none; -webkit-appearance: none; flex: none; position: relative; width: 52px; height: 32px; margin: 0; border-radius: 16px; background: var(--line); border: 0; cursor: pointer; transition: background .2s; }
 .switch::after { content: ""; position: absolute; top: 3px; left: 3px; width: 26px; height: 26px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.35); transition: transform .2s; }
@@ -2443,6 +2450,16 @@ details.targets[open] summary::after { content: "\2212"; }
       var t = ev.target; if (t === ae || (t.closest && t.closest("input, textarea, select, label"))) return;
       ae.blur();
     }, true);
+    // Settings below the profile photos: each section is a button that opens its form.
+    ["h-s-body", "h-s-tg", "h-s-rem", "h-s-health", "h-s-safe", "h-s-acct"].forEach(function (hid) {
+      var h = $(hid); if (!h) return; var sec = h.closest("section"), head = h.closest(".section-head"); if (!sec || !head) return;
+      var body = el("div", "set-body"); body.id = hid + "-body"; body.hidden = true;
+      while (head.nextSibling) body.appendChild(head.nextSibling);
+      var btn = el("button", "set-open"); btn.type = "button"; btn.setAttribute("aria-expanded", "false"); btn.setAttribute("aria-controls", body.id);
+      btn.appendChild(el("span", null, h.textContent)); btn.appendChild(el("span", "sc-chev", "\u203A"));
+      btn.addEventListener("click", function () { var open = body.hidden; body.hidden = !open; btn.setAttribute("aria-expanded", String(open)); });
+      head.hidden = true; sec.classList.add("set-card"); sec.appendChild(btn); sec.appendChild(body);
+    });
     [["s-af-w", "w"], ["s-af-r", "r"]].forEach(function (c) {
       $(c[0]).addEventListener("change", function () { var a = afPrefs(); a[c[1]] = this.checked; state.settings.autofill = a; if (state.me && state.canWrite) saveSettings(); });
     });
