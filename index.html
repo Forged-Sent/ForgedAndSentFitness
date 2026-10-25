@@ -409,6 +409,17 @@ details.targets[open] summary::after { content: "\2212"; }
 .fform{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;padding:12px 0;border-top:1px dashed var(--line)}
 .fform .full{grid-column:1/-1}
 .fform label{display:flex;flex-direction:column;gap:4px;font-family:var(--f-label);font-weight:600;font-size:13px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.ftools{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;padding:12px 0;border-top:1px dashed var(--line)}
+.ftool{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;min-height:64px;padding:8px 2px;background:transparent;border:1px solid var(--line);color:var(--ink);font-family:var(--f-label);font-weight:600;font-size:11px;letter-spacing:.08em;text-transform:uppercase}
+.ftool svg{width:22px;height:22px;stroke:currentColor;stroke-width:2;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.ftool.on{border-color:var(--brass,#b08d57);color:var(--brass,#b08d57)}
+.ftool:disabled{opacity:.5}
+.fnote{margin:0;font-size:13px;color:var(--muted)}
+.fphoto{width:100%;max-height:220px;object-fit:cover;border:1px solid var(--line);display:block}
+.favlist{display:flex;flex-direction:column}
+.favrow{display:flex;align-items:center;gap:8px;border-bottom:1px dashed var(--line)}
+.favrow .fe-main{flex:1;min-width:0;display:flex;align-items:center;justify-content:space-between;gap:12px;text-align:left;min-height:52px;padding:6px 2px;background:transparent;border:0;color:var(--ink)}
+.mini.fx.star{color:var(--brass,#b08d57)}
 .rchips{display:flex;flex-wrap:wrap;gap:6px}
 .rchip{border:1px solid var(--line);background:transparent;padding:6px 10px;font-size:13px;min-height:36px}
 /* Tab bar */
@@ -1002,7 +1013,7 @@ details.targets[open] summary::after { content: "\2212"; }
     "Be faithful in the small things: water, steps, prayer, reps."
   ];
   var state = {
-    page: "today", healthToday: null, healthMsg: "", tasks: [], checks: [], logs: [], habits: {}, settings: { blocked: {}, targets: null, body: null, reminders: null, health: null, plan: null, theme: null, autofill: null }, planEdit: false, pubProfiles: {}, lifts: [], viewUid: null, prevPage: "today", liftEdit: null, liftMsg: null, dirty: {}, posts: [], likes: [],
+    page: "today", healthToday: null, healthMsg: "", tasks: [], checks: [], logs: [], habits: {}, settings: { blocked: {}, targets: null, body: null, reminders: null, health: null, plan: null, theme: null, autofill: null, favs: [] }, planEdit: false, pubProfiles: {}, lifts: [], viewUid: null, prevPage: "today", liftEdit: null, liftMsg: null, dirty: {}, posts: [], likes: [],
     range: "week", me: null, canWrite: true, profs: {}, editSlot: null, draft: "", lastFocus: null,
     trainDay: null, confirm: null, reported: {}, files: [], mentions: [], posting: false
   };
@@ -1130,7 +1141,7 @@ details.targets[open] summary::after { content: "\2212"; }
   }
   function saveSettings() {
     if (!B.db || !state.me) return;
-    var st = { blocked: state.settings.blocked || {}, targets: state.settings.targets || null, body: state.settings.body || null, reminders: state.settings.reminders || null, health: state.settings.health || null, plan: state.settings.plan || null, theme: state.settings.theme || null, autofill: state.settings.autofill || null };
+    var st = { blocked: state.settings.blocked || {}, targets: state.settings.targets || null, body: state.settings.body || null, reminders: state.settings.reminders || null, health: state.settings.health || null, plan: state.settings.plan || null, theme: state.settings.theme || null, autofill: state.settings.autofill || null, favs: state.settings.favs || [] };
     writeChain = writeChain.then(function () { return B.saveSettings(state.me, st); }).catch(noop);
   }
 
@@ -2129,10 +2140,61 @@ details.targets[open] summary::after { content: "\2212"; }
   try { mealOpenSt = JSON.parse(localStorage.getItem(MEAL_OPEN_KEY) || "{}") || {}; } catch (e) { mealOpenSt = {}; }
   state.mealOpen = mealOpenSt;
   function persistOpen() { try { localStorage.setItem(MEAL_OPEN_KEY, JSON.stringify(state.mealOpen)); } catch (e) {} }
-  function openFoodForm(meal, entry) {
-    state.food = { meal: meal, id: entry ? entry.id : null, err: "",
+  function openFoodForm(meal, entry, mode) {
+    state.food = { meal: meal, id: entry ? entry.id : null, err: "", mode: entry ? "search" : (mode || "search"),
       d: entry ? { name: entry.name, kcal: String(entry.kcal), p: String(entry.p), f: String(entry.f), c: String(entry.c) } : { name: "", kcal: "", p: "", f: "", c: "" } };
     state.mealOpen[meal] = true; persistOpen(); drawMeals(true); var i = $("fd-name"); if (i) { try { i.focus({ preventScroll: true }); } catch (e) { i.focus(); } }
+  }
+  var FT_ICONS = {
+    search: '<circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5 21 21"/>',
+    photo: '<path d="M3 8h4l2-3h6l2 3h4v12H3z"/><circle cx="12" cy="13.5" r="3.5"/>',
+    voice: '<rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/>',
+    fav: '<path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2L12 17.3l-5.6 2.9 1.1-6.2L3 9.6l6.2-.9z"/>'
+  };
+  function favKey(n) { return String(n || "").trim().toLowerCase(); }
+  function favList() { return Array.isArray(state.settings.favs) ? state.settings.favs : []; }
+  function isFav(name) { var k = favKey(name); return favList().some(function (x) { return favKey(x.name) === k; }); }
+  function toggleFav(e) {
+    if (!state.me || !state.canWrite) return;
+    var k = favKey(e.name), list = favList().filter(function (x) { return favKey(x.name) !== k; });
+    if (list.length === favList().length) list.unshift({ name: e.name, kcal: e.kcal, p: e.p, f: e.f, c: e.c });
+    state.settings.favs = list.slice(0, 60); saveSettings(); drawMeals(true);
+  }
+  function foodTool(meal, mode, btn) {
+    var fd = state.food;
+    if (fd.meal === meal && fd.mode === mode && !fd.id) { state.food = { meal: null, id: null, d: { name: "", kcal: "", p: "", f: "", c: "" }, err: "" }; drawMeals(true); return; }
+    if (mode === "photo") {
+      var inp = document.createElement("input"); inp.type = "file"; inp.accept = "image/*"; inp.setAttribute("capture", "environment");
+      inp.addEventListener("change", function () {
+        var f = inp.files && inp.files[0]; if (!f) return;
+        openFoodForm(meal, null, "photo"); try { state.food.photo = URL.createObjectURL(f); } catch (e) {} drawMeals(true);
+      });
+      inp.click(); return;
+    }
+    if (mode === "fav") { state.food = { meal: meal, id: null, mode: "fav", err: "", d: { name: "", kcal: "", p: "", f: "", c: "" } }; state.mealOpen[meal] = true; persistOpen(); drawMeals(true); return; }
+    openFoodForm(meal, null, mode);
+    if (mode === "voice") startVoice();
+  }
+  function startVoice() {
+    var fd = state.food, SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    function fallback() {
+      if (state.food !== fd) return; fd.listening = false;
+      fd.vmsg = "Tap the microphone on your keyboard and say what you ate, like \u201C2 eggs and toast.\u201D"; drawMeals(true);
+      var i = $("fd-name"); if (i) try { i.focus({ preventScroll: true }); } catch (e) {}
+    }
+    if (!SR) { fallback(); return; }
+    try {
+      var r = new SR(); r.lang = navigator.language || "en-US"; r.interimResults = false; r.maxAlternatives = 1;
+      fd.listening = true; fd.vmsg = "Listening\u2026 say what you ate."; drawMeals(true);
+      r.onresult = function (ev) {
+        if (state.food !== fd) return; var t = String(ev.results[0][0].transcript || "").trim();
+        fd.listening = false; fd.d.name = t.slice(0, 60); fd.vmsg = t ? "Heard: \u201C" + t + "\u201D" : ""; drawMeals(true);
+        var eb = $("fd-est"); if (t && eb && !eb.disabled) eb.click();
+      };
+      r.onerror = fallback; r.onend = function () { if (fd.listening) fallback(); };
+      r.start();
+      setTimeout(function () { if (fd.listening) { try { r.abort(); } catch (e) {} fallback(); } }, 8000);
+    } catch (e) { fallback(); }
   }
   function saveFood() {
     var fd = state.food, d = fd.d, name = d.name.trim().slice(0, 60);
@@ -2188,13 +2250,42 @@ details.targets[open] summary::after { content: "\2212"; }
         main.addEventListener("click", function () { openFoodForm(m.k, e); });
         var rm = el("button", "mini danger fx", "X"); rm.type = "button"; rm.disabled = off; rm.setAttribute("aria-label", "Remove " + e.name);
         rm.addEventListener("click", function () { removeFood(m.k, e.id); });
-        row.appendChild(main); row.appendChild(rm); sec.appendChild(row);
+        var fv = isFav(e.name), st = el("button", "mini fx" + (fv ? " star" : ""), fv ? "\u2605" : "\u2606"); st.type = "button"; st.disabled = off;
+        st.setAttribute("aria-pressed", String(fv)); st.setAttribute("aria-label", (fv ? "Remove " : "Save ") + e.name + (fv ? " from favorites" : " as a favorite"));
+        st.addEventListener("click", function () { toggleFav(e); });
+        row.appendChild(main); row.appendChild(st); row.appendChild(rm); sec.appendChild(row);
       });
-      var fd = state.food;
-      if (fd.meal === m.k) {
+      var fd = state.food, curMode = fd.meal === m.k && !fd.id ? fd.mode : null;
+      var bar = el("div", "ftools");
+      [["search", "Search"], ["photo", "Photo"], ["voice", "Voice"], ["fav", "Favorites"]].forEach(function (t) {
+        var b = el("button", "ftool" + (curMode === t[0] ? " on" : "")); b.type = "button"; b.disabled = off; b.setAttribute("aria-pressed", String(curMode === t[0]));
+        b.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true">' + FT_ICONS[t[0]] + '</svg>'; b.appendChild(el("span", null, t[1]));
+        b.addEventListener("click", function () { foodTool(m.k, t[0]); }); bar.appendChild(b);
+      });
+      sec.appendChild(bar);
+      if (fd.meal === m.k && fd.mode === "fav") {
+        var fl = el("div", "favlist"), favs = favList();
+        if (!favs.length) fl.appendChild(el("p", "fnote", "No favorites yet. Tap the \u2606 next to any food you\u2019ve logged to save it here."));
+        favs.forEach(function (x) {
+          var r = el("div", "favrow"), b = el("button", "fe-main"); b.type = "button"; b.disabled = off; b.setAttribute("aria-label", "Add " + x.name + " to " + m.label.toLowerCase());
+          var tx = el("span", "txt"); tx.appendChild(el("span", "name", x.name)); tx.appendChild(el("span", "sub", "P " + fmtW(x.p) + " \u00B7 F " + fmtW(x.f) + " \u00B7 C " + fmtW(x.c)));
+          b.appendChild(tx); b.appendChild(el("span", "nums", fmt(x.kcal) + " +"));
+          b.addEventListener("click", function () { state.food = { meal: m.k, id: null, mode: "fav", err: "", d: { name: x.name, kcal: String(x.kcal), p: String(x.p), f: String(x.f), c: String(x.c) } }; saveFood(); });
+          var rx = el("button", "mini danger fx", "X"); rx.type = "button"; rx.disabled = off; rx.setAttribute("aria-label", "Remove " + x.name + " from favorites");
+          rx.addEventListener("click", function () { toggleFav(x); });
+          r.appendChild(b); r.appendChild(rx); fl.appendChild(r);
+        });
+        if (favs.length) fl.appendChild(el("p", "fnote", "Tap a favorite to add it to " + m.label.toLowerCase() + "."));
+        sec.appendChild(fl);
+      } else if (fd.meal === m.k) {
         var form = el("form", "fform");
+        if (fd.mode === "photo") {
+          if (fd.photo) { var im = el("img", "fphoto full"); im.src = fd.photo; im.alt = "Your meal photo"; form.appendChild(im); }
+          form.appendChild(el("p", "fnote full", "Reading meals from photos is coming soon. For now, type what\u2019s on the plate below."));
+        }
+        if (fd.mode === "voice" && fd.vmsg) form.appendChild(el("p", "fnote full", fd.vmsg));
         var rec = recentFoods();
-        if (!fd.id && rec.length) {
+        if (!fd.id && fd.mode === "search" && rec.length) {
           var rw = el("div", "full"); rw.appendChild(el("div", "sub", "Recent foods")); var chips = el("div", "rchips");
           rec.forEach(function (e) { var c = el("button", "rchip", e.name); c.type = "button";
             c.addEventListener("click", function () { fd.d = { name: e.name, kcal: String(e.kcal), p: String(e.p), f: String(e.f), c: String(e.c) }; fd.err = ""; drawMeals(true); });
@@ -2209,7 +2300,7 @@ details.targets[open] summary::after { content: "\2212"; }
         }
         var ni = field("Food", "name", "text", "full", { maxlength: "60", placeholder: "e.g. 2 eggs and toast (optional)", id: "fd-name", autocomplete: "off" });
         if (B.sample) {
-          var eb = el("button", "btn ghost full", fd.busy ? "Estimating\u2026" : "Estimate with Claude"); eb.type = "button"; eb.disabled = !!fd.busy;
+          var eb = el("button", "btn ghost full", fd.busy ? "Estimating\u2026" : "Estimate with Claude"); eb.type = "button"; eb.id = "fd-est"; eb.disabled = !!fd.busy;
           eb.addEventListener("click", function () {
             var q = (fd.d.name || "").trim();
             if (!q) { fd.err = "Type the food and amount first, like \"2 eggs and toast\"."; drawMeals(true); return; }
@@ -2231,11 +2322,6 @@ details.targets[open] summary::after { content: "\2212"; }
         var cn = el("button", "btn ghost", "Cancel"); cn.type = "button"; cn.addEventListener("click", function () { state.food.meal = null; drawMeals(true); }); form.appendChild(cn);
         form.addEventListener("submit", function (ev) { ev.preventDefault(); saveFood(); });
         sec.appendChild(form);
-      } else {
-        var add = el("button", "add-slot"); add.type = "button"; add.disabled = off;
-        add.appendChild(el("span", "box")); var tx2 = el("span", "txt"); tx2.appendChild(el("span", "name", "Add food")); add.appendChild(tx2);
-        add.addEventListener("click", function () { openFoodForm(m.k, null); });
-        sec.appendChild(add);
       }
       box.appendChild(sec);
     });
@@ -2507,7 +2593,7 @@ details.targets[open] summary::after { content: "\2212"; }
         await writeChain; await B.deleteMyData(state.me);
         var me = state.me;
         state.checks = state.checks.filter(function (c) { return c.uid !== me; }); state.logs = []; state.habits = {};
-        state.settings = { blocked: {}, targets: null, body: null, reminders: null, health: null, plan: null, theme: null, autofill: null }; delete state.pubProfiles[me];
+        state.settings = { blocked: {}, targets: null, body: null, reminders: null, health: null, plan: null, theme: null, autofill: null, favs: [] }; delete state.pubProfiles[me];
         ds.textContent = "All your data was deleted."; var bx = $("del-box"); bx.hidden = true; bx.style.display = "none";
         drawAll();
       } catch (e) { ds.textContent = "Could not finish deleting. Try again."; }
@@ -2615,7 +2701,7 @@ details.targets[open] summary::after { content: "\2212"; }
         state.habits = clean; drawAll();
       });
       B.watchSettings(state.me, function (st) {
-        state.settings = { blocked: (st && st.blocked) || {}, targets: (st && st.targets) || null, body: (st && st.body) || null, reminders: (st && st.reminders) || null, health: (st && st.health) || null, plan: (st && st.plan) || null, theme: (st && st.theme) || null, autofill: (st && st.autofill) || null }; if (state.settings.theme) applyTheme(state.settings.theme, false); drawAll(); drawFeed(); refreshHealth();
+        state.settings = { blocked: (st && st.blocked) || {}, targets: (st && st.targets) || null, body: (st && st.body) || null, reminders: (st && st.reminders) || null, health: (st && st.health) || null, plan: (st && st.plan) || null, theme: (st && st.theme) || null, autofill: (st && st.autofill) || null, favs: (st && Array.isArray(st.favs)) ? st.favs.slice(0, 60) : [] }; if (state.settings.theme) applyTheme(state.settings.theme, false); drawAll(); drawFeed(); refreshHealth();
       });
     }
     B.watchPosts(function (rows) { state.posts = rows; drawFeed(); loadProfiles(); });
