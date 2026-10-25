@@ -26,5 +26,6 @@
  "notes": "day = plan day 1-365. templateDay = ((day-1) mod 7)+1. Day 365 is templateDay 1 of week 53. exercises are [generic movement, prescription]; resolve the movement through movements.json byEquipment[setup]. theme details (warmup, finisher, notes) are in workout-themes.json keyed 'Program|templateDay'.",
  "sessionDesign": "Core days (templateDay 1, 3, 5) are full-body sessions in Forged and Built, and full-body power sessions in Warrior (days 1 and 3). Engine and Warrior day 5 stay conditioning circuits. Optional day 6 is a lighter full-body or conditioning session.",
  "movementCount": 213,
- "movementsNote": "movements.json is the full exercise library for custom plans. Some movements are not used in any scheduled day and exist only as custom-plan options. Each has a 'video' object {url, channel, views}, except Rest Day."
+ "movementsNote": "movements.json is the full exercise library for custom plans. Some movements are not used in any scheduled day and exist only as custom-plan options. Each has a 'video' object {url, channel, views}, except Rest Day.",
+ "warmupDesign": "Each Core and Optional day has a 'warmup' list of [movement, prescription] pairs (cardio primer, mobility, activation, ramp-up of the day's first exercise), resolved through movements.json like exercises. Recovery and Rest days have an empty list and use the theme warmup text. For Core/Optional days the theme 'warmup' text is only a generic fallback line."
 }
