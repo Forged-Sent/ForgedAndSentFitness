@@ -574,7 +574,18 @@ details.targets[open] summary::after { content: "\2212"; }
 .media { display: flex; flex-direction: column; gap: 8px; margin-top: 10px; }
 .media img, .media video { width: 100%; max-height: 420px; object-fit: cover; background: var(--surface-2); border: 1px solid var(--line); display: block; }
 .pactions { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; align-items: center; }
-.pactions .mini { min-height: 36px; }
+.pactions .mini { min-height: 34px; padding: 0 9px; font-size: 12px; letter-spacing: .06em; }
+.replies { margin-top: 10px; padding-left: 12px; border-left: 2px solid var(--line); display: flex; flex-direction: column; gap: 10px; }
+.reply { display: grid; grid-template-columns: 28px minmax(0, 1fr); gap: 8px; }
+.reply .avatar.sm { width: 28px; height: 28px; }
+.rp-head { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+.rp-name { font-weight: 600; font-size: 14px; }
+.rp-text { margin: 2px 0 0; font-size: 14.5px; line-height: 1.45; white-space: pre-wrap; overflow-wrap: anywhere; }
+.rp-del { margin-left: auto; background: none; border: 0; padding: 4px 0; color: var(--muted); font-size: 12.5px; text-decoration: underline; cursor: pointer; min-height: 0; }
+.rp-more { align-self: flex-start; }
+.rp-form { display: flex; flex-direction: column; gap: 8px; }
+.rp-btns { display: flex; justify-content: flex-end; gap: 8px; }
+.rp-btns .btn { min-height: 40px; padding: 0 18px; }
 
 .right{display:flex;align-items:center;gap:12px}
 .me-btn{flex:none;width:40px;height:40px;border-radius:50%;border:2px solid var(--brass);padding:0;overflow:hidden;background:var(--surface-2);display:grid;place-items:center;font-family:var(--f-label);font-weight:700;font-size:14px;color:var(--ink)}
@@ -1295,6 +1306,9 @@ details.targets[open] summary::after { content: "\2212"; }
     deletePost: function (id) { return this.db.doc("posts/" + id).delete(); },
     watchLikes: function (cb) { return this.db.collection("likes").onSnapshot(function (s) { cb(s.docs.map(function (d) { var x = d.data() || {}; return { id: d.id, postId: x.postId, uid: x.uid }; })); }, noop); },
     setLike: function (postId, uid, on) { var r = this.db.doc("likes/" + postId + "_" + uid); return on ? r.set({ postId: postId, uid: uid }) : r.delete(); },
+    watchReplies: function (cb) { return this.db.collection("replies").orderBy("createdAt", "asc").limit(500).onSnapshot(function (s) { cb(s.docs.map(function (d) { var x = d.data() || {}; return { id: d.id, postId: String(x.postId || ""), uid: String(x.uid || ""), text: String(x.text || "").slice(0, 500), createdAt: Number(x.createdAt) || 0 }; })); }, noop); },
+    addReply: function (r) { return this.db.collection("replies").add(r); },
+    deleteReply: function (id) { return this.db.doc("replies/" + id).delete(); },
     report: function (postId, by, authorUid) { return this.db.collection("reports").add({ postId: postId, by: by, author: authorUid, createdAt: Date.now() }); },
     watchProfiles: function (cb) {
       return this.db.collection("profiles").onSnapshot(function (s) {
@@ -1322,7 +1336,7 @@ details.targets[open] summary::after { content: "\2212"; }
           await db.doc(coll + "/" + d.id).delete();
         }
       }
-      await purge("posts", "uid"); await purge("likes", "uid"); await purge("reports", "by"); await purge("checkins", "uid");
+      await purge("posts", "uid"); await purge("likes", "uid"); await purge("replies", "uid"); await purge("reports", "by"); await purge("checkins", "uid");
       var logs = await db.doc("data/users/" + uid + "/log").collection("days").get();
       for (var i = 0; i < logs.docs.length; i++) await db.doc("data/users/" + uid + "/log/days/" + logs.docs[i].id).delete();
       var plogs = await db.doc("data/users/" + uid + "/log").collection("photos").get();
@@ -3500,7 +3514,12 @@ details.targets[open] summary::after { content: "\2212"; }
     return dkey(d) === todayKey() ? "Today " + t : d.toLocaleDateString(undefined, { month: "short", day: "numeric" }) + " " + t;
   }
   function drawFeed() {
-    var feed = $("feed"); feed.textContent = "";
+    var sc = $("scroll"), keepTop = sc ? sc.scrollTop : 0, feed = $("feed");
+    // Hold the height while rebuilding so the page doesn't jump to the top.
+    feed.style.minHeight = feed.offsetHeight + "px"; feed.textContent = "";
+    try { drawFeedInner(feed); } finally { feed.style.minHeight = ""; if (sc && state.page === "checkin") sc.scrollTop = keepTop; }
+  }
+  function drawFeedInner(feed) {
     var blocked = state.settings.blocked || {};
     var posts = state.posts.filter(function (p) { return p.uid === state.me || !blocked[p.uid]; });
     var likeCount = {}, mine = {};
@@ -3528,8 +3547,17 @@ details.targets[open] summary::after { content: "\2212"; }
       var acts = el("div", "pactions");
       var lk = el("button", "mini" + (mine[p.id] ? " on" : ""), "Strong" + (likeCount[p.id] ? " " + likeCount[p.id] : "")); lk.type = "button";
       lk.setAttribute("aria-pressed", mine[p.id] ? "true" : "false"); lk.disabled = !state.me || !state.canWrite;
-      lk.addEventListener("click", function () { if (B.db) B.setLike(p.id, state.me, !mine[p.id]).catch(noop); });
+      lk.addEventListener("click", function (ev) {
+        ev.preventDefault(); var on = !mine[p.id]; mine[p.id] = on; likeCount[p.id] = Math.max(0, (likeCount[p.id] || 0) + (on ? 1 : -1));
+        lk.textContent = "Strong" + (likeCount[p.id] ? " " + likeCount[p.id] : ""); lk.classList.toggle("on", on); lk.setAttribute("aria-pressed", String(on));
+        if (B.db) B.setLike(p.id, state.me, on).catch(noop);
+      });
       acts.appendChild(lk);
+      var reps = (state.replies || []).filter(function (r) { return r.postId === p.id && (r.uid === state.me || !blocked[r.uid]); });
+      var rb = el("button", "mini", "Reply" + (reps.length ? " " + reps.length : "")); rb.type = "button"; rb.disabled = !state.me || !state.canWrite;
+      rb.setAttribute("aria-expanded", String(state.replyOpen === p.id));
+      rb.addEventListener("click", function () { state.replyOpen = state.replyOpen === p.id ? null : p.id; drawFeed(); if (state.replyOpen) setTimeout(function () { var t = $("reply-in"); if (t) try { t.focus({ preventScroll: true }); } catch (e) {} }, 0); });
+      acts.appendChild(rb);
       var cf = state.confirm && state.confirm.id === p.id ? state.confirm.type : null;
       if (cf) {
         var q = el("span", "sub", cf === "delete" ? "Delete this post?" : cf === "block" ? "Block this man?" : "Report this post?"); acts.appendChild(q);
@@ -3556,7 +3584,33 @@ details.targets[open] summary::after { content: "\2212"; }
         var bl = el("button", "mini", "Block"); bl.type = "button"; bl.disabled = !state.me;
         bl.addEventListener("click", function () { state.confirm = { type: "block", id: p.id }; drawFeed(); }); acts.appendChild(bl);
       }
-      body.appendChild(acts); art.appendChild(body); feed.appendChild(art);
+      body.appendChild(acts);
+      // Replies
+      if (reps.length || state.replyOpen === p.id) {
+        var rl = el("div", "replies"), showAll = state.repliesAll && state.repliesAll[p.id], start = showAll ? 0 : Math.max(0, reps.length - 3);
+        if (start > 0) { var more = el("button", "mini rp-more", "View all " + reps.length + " replies"); more.type = "button"; more.addEventListener("click", function () { state.repliesAll = state.repliesAll || {}; state.repliesAll[p.id] = true; drawFeed(); }); rl.appendChild(more); }
+        reps.slice(start).forEach(function (r) {
+          var row = el("div", "reply"), ra = el("img", "avatar sm"); ra.alt = ""; if (avatarSrc(r.uid)) ra.src = avatarSrc(r.uid); makeLink(ra, r.uid); row.appendChild(ra);
+          var rbx = el("div", "rp-body"), rh = el("div", "rp-head"), rn = el("span", "rp-name", nameOf(r.uid)); makeLink(rn, r.uid); rh.appendChild(rn); rh.appendChild(el("span", "ptime", timeLabel(r.createdAt)));
+          if (r.uid === state.me) { var rd = el("button", "rp-del", "Delete"); rd.type = "button"; rd.setAttribute("aria-label", "Delete your reply"); rd.addEventListener("click", function () { confirmDelete({ title: "Delete this reply?", message: "Your reply will be removed from the thread.", yes: "Delete" }, function () { state.replies = state.replies.filter(function (x) { return x.id !== r.id; }); drawFeed(); if (B.db) B.deleteReply(r.id).catch(noop); }); }); rh.appendChild(rd); }
+          rbx.appendChild(rh); rbx.appendChild(el("p", "rp-text", r.text)); row.appendChild(rbx); rl.appendChild(row);
+        });
+        if (state.replyOpen === p.id) {
+          var rf = el("form", "rp-form"), ta = el("textarea", "field"); ta.id = "reply-in"; ta.rows = 2; ta.maxLength = 500; ta.placeholder = "Reply to " + nameOf(p.uid) + "\u2026"; ta.setAttribute("aria-label", "Your reply"); ta.value = state.replyDraft || "";
+          ta.addEventListener("input", function () { state.replyDraft = ta.value; });
+          var rr = el("div", "rp-btns"), cn = el("button", "mini", "Cancel"), go = el("button", "btn", "Reply"); cn.type = "button"; go.type = "submit";
+          cn.addEventListener("click", function () { state.replyOpen = null; state.replyDraft = ""; drawFeed(); });
+          rf.addEventListener("submit", function (ev) {
+            ev.preventDefault(); var t = (state.replyDraft || "").trim().slice(0, 500); if (!t || !state.me) return;
+            var r = { postId: p.id, uid: state.me, text: t, createdAt: Date.now() };
+            state.replies = (state.replies || []).concat([Object.assign({ id: "local_" + r.createdAt }, r)]); state.replyOpen = null; state.replyDraft = ""; drawFeed();
+            if (B.db) B.addReply(r).catch(function () { state.replies = state.replies.filter(function (x) { return x.id !== "local_" + r.createdAt; }); drawFeed(); });
+          });
+          rr.appendChild(cn); rr.appendChild(go); rf.appendChild(ta); rf.appendChild(rr); rl.appendChild(rf);
+        }
+        body.appendChild(rl);
+      }
+      art.appendChild(body); feed.appendChild(art);
     });
   }
   function drawChips() {
@@ -4026,6 +4080,7 @@ details.targets[open] summary::after { content: "\2212"; }
     checkin: { t: "Rally", why: "The group thread. Show up, share wins and encourage a brother.", how: [
       "Write a post and add a photo or video if you want. Type @ to tag someone.",
       "Posting here checks your Daily Check-In box.",
+      "Tap Strong to back a brother's post, or Reply to answer him. You can delete your own replies.",
       "Workouts you share after finishing show up here with your PRs.",
       "What's shared here stays here. No judgment, no gossip."] },
     devo: { t: "Devotional", why: "Today's reading: open in prayer, read the Scripture, reflect, then act on it.", how: [
@@ -4871,7 +4926,7 @@ details.targets[open] summary::after { content: "\2212"; }
     drawDevo();
   }
   async function loadProfiles() {
-    var ids = {}; state.checks.forEach(function (c) { ids[c.uid] = true; }); state.posts.forEach(function (p) { ids[p.uid] = true; });
+    var ids = {}; state.checks.forEach(function (c) { ids[c.uid] = true; }); state.posts.forEach(function (p) { ids[p.uid] = true; }); (state.replies || []).forEach(function (r) { ids[r.uid] = true; });
     if (state.me) ids[state.me] = true;
     Object.keys(state.pubProfiles).forEach(function (k) { ids[k] = true; });
     Object.keys(state.chalAll || {}).forEach(function (k) { ids[k] = true; });
@@ -4993,6 +5048,7 @@ details.targets[open] summary::after { content: "\2212"; }
     }
     B.watchPosts(function (rows) { state.posts = rows; drawFeed(); loadProfiles(); });
     B.watchLikes(function (rows) { state.likes = rows; drawFeed(); });
+    B.watchReplies(function (rows) { state.replies = rows; drawFeed(); loadProfiles(); });
     subscribeWindows(); drawAll(); loadProfiles();
     setInterval(function () { subscribeWindows(); drawAll(); }, 60000);
     refreshHealth(); setInterval(refreshHealth, 300000);
