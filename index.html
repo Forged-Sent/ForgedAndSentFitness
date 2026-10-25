@@ -166,6 +166,11 @@ details.targets[open] summary::after { content: "\2212"; }
 .rng::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 28px; height: 28px; margin-top: -10px; border-radius: 50%; background: #fff; border: 2px solid var(--accent); box-shadow: 0 1px 3px rgba(0,0,0,.35); }
 .rng::-moz-range-thumb { width: 26px; height: 26px; border-radius: 50%; background: #fff; border: 2px solid var(--accent); }
 .af-own .name { color: var(--brass, #b08d57); }
+.wk-addown { width: 100%; margin-top: 10px; }
+.wk-own { margin-top: 8px; }
+.wk-del { width: 100%; margin-top: 12px; border-color: var(--danger); color: var(--danger); }
+.nw-box { border-color: var(--brass, #b08d57); }
+.nw-box .rchips { margin-top: -2px; }
 .wx-addbar { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
 .wx-addbar .label-caps { font-size: 11px; color: var(--brass, #b08d57); }
 .wk-addex { width: 100%; margin: 4px 0 10px; }
@@ -609,10 +614,6 @@ details.targets[open] summary::after { content: "\2212"; }
         <div class="status" id="day-status"></div>
         <p class="note" id="day-note"></p>
         <div id="day-workout"></div>
-        <div class="tools" id="day-tools" hidden>
-          <button class="btn ghost" type="button" id="pv-wpr">Preview: weight PR</button>
-          <button class="btn ghost" type="button" id="pv-vpr">Preview: volume PR</button>
-        </div>
         <button class="btn ghost" type="button" id="cal-today" style="margin-top:10px">Back to today</button>
       </div>
     </section>
@@ -1605,22 +1606,85 @@ details.targets[open] summary::after { content: "\2212"; }
     if (wf.kind === "off") return { t: "Rest day", s: "Optional day is off", dim: true };
     return { t: wf.w.title, s: wf.w.sessionType + (wf.w.minutes ? " · " + wf.w.minutes + " min" : ""), dim: false };
   }
-  function openWorkout(key) { state.wkDay = key; wk = { key: key, rec: null, loaded: false, timers: {} }; go("workout"); loadWk(key); }
+  function openWorkout(key) { state.wkDay = key; state.wkSid = null; wk = { key: key, sid: null, root: null, rec: null, loaded: false, timers: {} }; go("workout"); loadWk(key); }
+  function openSession(key, sid) { state.wkDay = key; state.wkSid = sid; wk = { key: key, sid: sid, root: null, rec: null, loaded: false, timers: {} }; go("workout"); loadWk(key); }
   function drawDayWorkout(sel, done, isToday, off) {
     var box = $("day-workout"); box.textContent = ""; var wf = workoutFor(sel), p = planCfg();
-    if (!wf) return;
-    if (wf.kind === "train") {
-      var ob = chevRow("wk-open", wf.w.title, wf.w.sessionType + (wf.w.minutes ? " · " + wf.w.minutes + " min" : "") + " · Tap to open", "›");
-      ob.addEventListener("click", function () { openWorkout(sel); }); box.appendChild(ob); return;
+    if (wf) {
+      if (wf.kind === "train") {
+        var ob = chevRow("wk-open", wf.w.title, wf.w.sessionType + (wf.w.minutes ? " \u00B7 " + wf.w.minutes + " min" : "") + " \u00B7 Tap to open", "\u203A");
+        ob.addEventListener("click", function () { openWorkout(sel); }); box.appendChild(ob);
+      } else {
+        var msg0 = wf.kind === "rest" ? "Sabbath. " + wf.w.exercises[0][1] : wf.kind === "off" ? "Rest day. Turn on the 4th training day in your plan to see an optional workout here." : wf.kind === "before" ? "Your plan starts " + longDate(p.start) + "." : "You finished all 365 days. Pick a new plan below to keep going.";
+        box.appendChild(el("p", "note", msg0));
+      }
     }
+    drawOwnWorkouts(box, sel, isToday, off);
+  }
+  function drawOwnWorkouts(box, sel, isToday, off) {
+    var doc = wkDocCache[sel];
+    if (!doc && !wkDocAsked[sel] && state.me && B.db && sel <= todayKey()) {
+      wkDocAsked[sel] = true;
+      B.getWorkoutLog(state.me, sel).then(function (r) { wkDocCache[sel] = normWk(r, sel); if (!$("page-train").hidden) drawTrain(); }).catch(function () { delete wkDocAsked[sel]; });
+    }
+    ((doc && doc.sessions) || []).forEach(function (x) {
+      var n = x.extra.length, st = x.finishedAt ? "Finished" : x.startedAt ? "In progress" : "Not started";
+      var rb = chevRow("wk-open wk-own", x.name, "Your workout \u00B7 " + n + (n === 1 ? " exercise" : " exercises") + " \u00B7 " + st, x.finishedAt ? "\u2713" : "\u203A");
+      rb.addEventListener("click", function () { openSession(sel, x.id); }); box.appendChild(rb);
+    });
+    if (isToday && !off) {
+      var ab = el("button", "btn ghost wk-addown", "+ Add your own workout"); ab.type = "button";
+      ab.addEventListener("click", function () { newOwnWorkout(sel); }); box.appendChild(ab);
+    }
+  }
+  function newOwnWorkout(key) {
+    var old = $("cdlg"); if (old) old.remove();
+    var back = el("div", "cdlg"); back.id = "cdlg";
+    var box = el("form", "cdlg-box nw-box"); box.setAttribute("role", "dialog"); box.setAttribute("aria-modal", "true"); box.setAttribute("aria-labelledby", "nw-t"); box.noValidate = true;
+    var t = el("h2", null, "Add your own workout"); t.id = "nw-t"; box.appendChild(t);
+    box.appendChild(el("p", null, "This is separate from your planned workout. Give it a name, then add exercises from the library or enter your own."));
+    var l = el("label", "flabel", "Workout name"), inp = el("input", "field"); inp.type = "text"; inp.maxLength = 40; inp.id = "nw-name"; inp.placeholder = "e.g. Evening ruck"; inp.autocomplete = "off";
+    l.appendChild(inp); box.appendChild(l);
+    var ch = el("div", "rchips"); ["Run", "Ruck", "Basketball", "Upper body", "Lower body", "Conditioning", "Mobility"].forEach(function (n) { var c = el("button", "rchip", n); c.type = "button"; c.addEventListener("click", function () { inp.value = n; inp.focus(); err.hidden = true; }); ch.appendChild(c); });
+    box.appendChild(ch);
+    var err = el("p", "error", "Give the workout a name."); err.hidden = true; box.appendChild(err);
+    var row = el("div", "cdlg-btns"), no = el("button", "btn ghost", "Cancel"), yes = el("button", "btn", "Create workout"); no.type = "button"; yes.type = "submit";
+    row.appendChild(no); row.appendChild(yes); box.appendChild(row); back.appendChild(box);
+    function close() { back.remove(); }
+    no.addEventListener("click", close);
+    back.addEventListener("click", function (ev) { if (ev.target === back) close(); });
+    back.addEventListener("keydown", function (ev) { if (ev.key === "Escape") close(); });
+    inp.addEventListener("input", function () { err.hidden = true; });
+    box.addEventListener("submit", function (ev) {
+      ev.preventDefault(); var name = inp.value.trim().slice(0, 40);
+      if (!name) { err.hidden = false; inp.focus(); return; }
+      yes.disabled = true;
+      var make = function (root) {
+        var id = "s" + Date.now().toString(36);
+        root.sessions = (root.sessions || []).concat([normSession({ id: id, name: name })]);
+        wkDocCache[key] = root; if (wk && wk.key === key && wk.root && wk.root !== root) wk.root = root;
+        var done2 = function () { close(); openSession(key, id); };
+        if (state.me && B.db) B.saveWorkoutLog(state.me, root).then(done2).catch(function () { yes.disabled = false; err.textContent = "Couldn\u2019t save. Try again."; err.hidden = false; }); else done2();
+      };
+      if (wk && wk.key === key && wk.root) make(wk.root);
+      else if (state.me && B.db) B.getWorkoutLog(state.me, key).then(function (r) { make(normWk(r, key)); }).catch(function () { make(emptyWk(key)); });
+      else make(emptyWk(key));
+    });
+    document.body.appendChild(back); inp.focus();
+  }
+  function drawDayWorkoutOld(sel, done, isToday, off) {
+    var box = $("day-workout"); box.textContent = ""; var wf = workoutFor(sel), p = planCfg();
+    if (!wf) return;
     var msg = wf.kind === "rest" ? "Sabbath. " + wf.w.exercises[0][1] : wf.kind === "off" ? "Rest day. Turn on the 4th training day in your plan to see an optional workout here." : wf.kind === "before" ? "Your plan starts " + longDate(p.start) + "." : "You finished all 365 days. Pick a new plan below to keep going.";
     box.appendChild(el("p", "note", msg));
   }
   /* ---------- Weekly volume chart ---------- */
-  var volCache = {}, volAsked = {}, SVGNS = "http://www.w3.org/2000/svg";
-  function volOf(rec, key) {
+  var wkDocCache = {}, wkDocAsked = {}, volCache = {}, volAsked = {}, SVGNS = "http://www.w3.org/2000/svg";
+  function volTotal(root, key) { var t = volOf(root, key); ((root && root.sessions) || []).forEach(function (x) { t += volOf(x, key, true); }); return t; }
+  function volOf(rec, key, own) {
     if (!rec || !rec.ex) return 0;
-    var wf = workoutFor(key), exs = wf && wf.kind === "train" && wf.w ? wf.w.exercises.concat(normExtra(rec.extra).map(function (x) { return [x.g, x.rx]; })) : null, tot = 0;
+    var wf = workoutFor(key), xs = normExtra(rec.extra).map(function (x) { return [x.g, x.rx]; });
+    var exs = own ? xs : wf && wf.kind === "train" && wf.w ? wf.w.exercises.concat(xs) : null, tot = 0;
     Object.keys(rec.ex).forEach(function (k) {
       var arr = rec.ex[k]; if (!Array.isArray(arr)) return;
       var ps = exs && exs[+k] ? parseSets(exs[+k][1]) : null; if (ps && ps.time) return;
@@ -1637,7 +1701,7 @@ details.targets[open] summary::after { content: "\2212"; }
     var need = keys.concat(pkeys).filter(function (k) { return volCache[k] === undefined && !volAsked[k] && k <= today; });
     if (need.length && state.me && B.db) {
       need.forEach(function (k) { volAsked[k] = true; });
-      Promise.all(need.map(function (k) { return B.getWorkoutLog(state.me, k).then(function (r) { volCache[k] = volOf(normWk(r, k), k); }).catch(function () { delete volAsked[k]; }); })).then(function () { if (!$("page-train").hidden) drawVolume(state.trainDay || todayKey()); });
+      Promise.all(need.map(function (k) { return B.getWorkoutLog(state.me, k).then(function (r) { var nr = normWk(r, k); wkDocCache[k] = nr; volCache[k] = volTotal(nr, k); }).catch(function () { delete volAsked[k]; }); })).then(function () { if (!$("page-train").hidden) drawVolume(state.trainDay || todayKey()); });
     }
     var v = keys.map(function (k) { return volCache[k] || 0; }), total = v.reduce(function (a, b) { return a + b; }, 0);
     var lastTotal = pkeys.reduce(function (a, k) { return a + (volCache[k] || 0); }, 0), selV = volCache[sel] || 0;
@@ -1677,7 +1741,13 @@ details.targets[open] summary::after { content: "\2212"; }
   }
   /* ---------- Workout logging: sets, reps, weight, rest timer ---------- */
   var wk = null, wkTick = null, saveT = null, WK_BASE = 90;
-  function emptyWk(key) { return { date: key, startedAt: 0, finishedAt: 0, ex: {}, extra: [] }; }
+  function emptyWk(key) { return { date: key, startedAt: 0, finishedAt: 0, ex: {}, extra: [], sessions: [] }; }
+  function normSession(x) {
+    x = x || {}; var o = { id: String(x.id || "").slice(0, 20), name: String(x.name || "Your workout").slice(0, 40), startedAt: Number(x.startedAt) || 0, finishedAt: Number(x.finishedAt) || 0, ex: {}, extra: normExtra(x.extra) };
+    try { var ex = JSON.parse(JSON.stringify(x.ex || {})); if (ex && typeof ex === "object" && !Array.isArray(ex)) o.ex = ex; } catch (e) {}
+    Object.keys(o.ex).forEach(function (k) { if (!Array.isArray(o.ex[k])) delete o.ex[k]; });
+    return o;
+  }
   function normWk(r, key) {
     var o = emptyWk(key);
     if (r && typeof r === "object") {
@@ -1686,6 +1756,7 @@ details.targets[open] summary::after { content: "\2212"; }
       try { var ex = JSON.parse(JSON.stringify(r.ex || {})); o.ex = ex && typeof ex === "object" && !Array.isArray(ex) ? ex : {}; } catch (e) { o.ex = {}; }
       Object.keys(o.ex).forEach(function (k) { if (!Array.isArray(o.ex[k])) delete o.ex[k]; });
       o.extra = normExtra(r.extra);
+      o.sessions = (Array.isArray(r.sessions) ? r.sessions : []).slice(0, 10).map(normSession).filter(function (x) { return x.id; });
     }
     return o;
   }
@@ -1706,14 +1777,17 @@ details.targets[open] summary::after { content: "\2212"; }
   }
   function saveWkNow() {
     clearTimeout(saveT); saveT = null;
-    if (!wk || !wk.rec || !state.me || !state.canWrite || !B.db) return;
-    volCache[wk.rec.date] = volOf(wk.rec, wk.rec.date); volAsked[wk.rec.date] = true;
-    B.saveWorkoutLog(state.me, wk.rec).catch(noop);
+    if (!wk || !wk.root || !state.me || !state.canWrite || !B.db) return;
+    var root = wk.root; volCache[root.date] = volTotal(root, root.date); volAsked[root.date] = true; wkDocCache[root.date] = root;
+    B.saveWorkoutLog(state.me, root).catch(noop);
   }
   function saveWkSoon() { clearTimeout(saveT); saveT = setTimeout(saveWkNow, 700); }
   function loadWk(key) {
     var w = wk;
-    function ready(r) { if (wk !== w) return; w.rec = normWk(r, key); w.loaded = true; drawWorkoutPage(true); }
+    function ready(r) {
+      if (wk !== w) return; var root = normWk(r, key); w.root = root; wkDocCache[key] = root;
+      w.rec = w.sid ? (root.sessions.filter(function (x) { return x.id === w.sid; })[0] || null) : root; w.loaded = true; drawWorkoutPage(true);
+    }
     if (!B.db || !state.me) { ready(null); return; }
     B.getWorkoutLog(state.me, key).then(ready).catch(function () { ready(null); });
   }
@@ -1751,7 +1825,7 @@ details.targets[open] summary::after { content: "\2212"; }
   function fmtElapsed(ms) { var t = Math.max(0, Math.floor(ms / 1000)), h = Math.floor(t / 3600), m = Math.floor(t / 60) % 60, x = t % 60; return h ? h + ":" + pad(m) + ":" + pad(x) : m + ":" + pad(x); }
   function paintClock() {
     var box = $("wk-clock"), r = wk && wk.rec, key = wk && wk.key;
-    var show = !!(r && r.startedAt && key === todayKey() && wf_isTrain(key));
+    var show = !!(r && r.startedAt && key === todayKey() && (wk.sid || wf_isTrain(key)));
     if (r && r.startedAt && r.finishedAt) show = true;
     box.hidden = !show; if (!show) return;
     var fin = !!r.finishedAt; box.classList.toggle("fin", fin);
@@ -1917,17 +1991,21 @@ details.targets[open] summary::after { content: "\2212"; }
   function drawWorkoutPage(force) {
     var body = $("wkp-body"), key = state.wkDay || todayKey(), wf = workoutFor(key), p = planCfg();
     if (!force && document.activeElement && document.activeElement.tagName === "INPUT" && body.contains(document.activeElement)) return;
-    if (!wk || wk.key !== key) { wk = { key: key, rec: null, loaded: false, timers: {} }; loadWk(key); }
+    var sid = state.wkSid || null, S = !!sid;
+    if (!wk || wk.key !== key || (wk.sid || null) !== sid) { wk = { key: key, sid: sid, root: null, rec: null, loaded: false, timers: {} }; loadWk(key); }
     body.textContent = ""; $("wkp-date").textContent = longDate(key); paintClock();
-    if (!wf || wf.kind !== "train") { body.appendChild(el("p", "note", "No workout on this day.")); return; }
-    var w = wf.w, wkTask = taskOfKind("workout"), done = wkTask && recFor(key).done[wkTask.id], off = !state.me || !state.canWrite;
-    var isToday = key === todayKey(), rec = wk.rec || emptyWk(key), started = !!rec.startedAt, live = isToday && started;
-    body.appendChild(el("div", "wk-meta", "Week " + w.week + " \u00B7 Day " + w.day + (w.minutes ? " \u00B7 " + w.minutes + " min" : "")));
+    if (S && wk.loaded && !wk.rec) { body.appendChild(el("p", "note", "This workout was deleted.")); return; }
+    if (!S && (!wf || wf.kind !== "train")) { body.appendChild(el("p", "note", "No workout on this day.")); return; }
+    var off = !state.me || !state.canWrite, isToday = key === todayKey(), rec = wk.rec || (S ? normSession({ id: sid }) : emptyWk(key));
+    var w = S ? { title: rec.name, exercises: [] } : wf.w, th = S ? {} : wf.th, wkTask = taskOfKind("workout");
+    var done = S ? !!rec.finishedAt : wkTask && recFor(key).done[wkTask.id], started = !!rec.startedAt, live = isToday && started;
+    body.appendChild(el("div", "wk-meta", S ? "Your own workout" : "Week " + w.week + " \u00B7 Day " + w.day + (w.minutes ? " \u00B7 " + w.minutes + " min" : "")));
     body.appendChild(el("h1", "pg", w.title));
-    if (isToday && !started && !done) { var sb = el("button", "btn wk-start", "Start workout"); sb.type = "button"; sb.disabled = off || !wk.loaded; sb.addEventListener("click", function () { wk.rec = wk.rec || emptyWk(key); wk.rec.startedAt = Date.now(); saveWkNow(); drawWorkoutPage(true); }); body.appendChild(sb); }
+    if (isToday && !started && !done) { var sb = el("button", "btn wk-start", "Start workout"); sb.type = "button"; sb.disabled = off || !wk.loaded; sb.addEventListener("click", function () { if (!wk.root) wk.root = emptyWk(key); if (!wk.rec) wk.rec = wk.root; wk.rec.startedAt = Date.now(); saveWkNow(); drawWorkoutPage(true); }); body.appendChild(sb); }
     if (live) body.appendChild(el("p", "note", "Started " + new Date(rec.startedAt).toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" }) + ". Log each set, then rest."));
-    if (live && !off) { var axb = el("button", "btn ghost wk-addex", "+ Add exercise"); axb.type = "button"; axb.addEventListener("click", function () { saveWkNow(); openExPicker(); }); body.appendChild(axb); }
-    wkSection(body, "Warm-up", wf.th.warmup);
+    if (S && !normExtra(rec.extra).length) body.appendChild(el("p", "note", isToday ? "Add your first exercise from the library or enter your own." : "No exercises were logged."));
+    if ((S ? isToday && wk.loaded : live) && !off) { var axb = el("button", "btn ghost wk-addex", "+ Add exercise"); axb.type = "button"; axb.addEventListener("click", function () { saveWkNow(); openExPicker(); }); body.appendChild(axb); }
+    wkSection(body, "Warm-up", th.warmup);
     var exBase = w.exercises.length, exList = w.exercises.concat(normExtra(rec.extra).map(function (x) { return [x.g, x.rx, true, x.rest]; }));
     exList.forEach(function (e, idx) {
       var ex = el("div", "wx" + (e[2] ? " wx-add" : "")), ps = parseSets(e[1]);
@@ -1988,16 +2066,25 @@ details.targets[open] summary::after { content: "\2212"; }
       }
       if (e[2]) {
         var xr = el("div", "wx-addbar"); xr.appendChild(el("span", "label-caps", "Added by you"));
-        if (live && !off) { var xb = el("button", "mini danger", "Remove exercise"); xb.type = "button"; xb.addEventListener("click", function () { saveWkNow(); removeExtraExercise(exBase, idx - exBase, shownName); }); xr.appendChild(xb); }
+        if ((S ? isToday : live) && !off) { var xb = el("button", "mini danger", "Remove exercise"); xb.type = "button"; xb.addEventListener("click", function () { saveWkNow(); removeExtraExercise(exBase, idx - exBase, shownName); }); xr.appendChild(xb); }
         ex.insertBefore(xr, ex.firstChild);
       }
       body.appendChild(ex);
     });
-    wkSection(body, "Finisher", wf.th.finisher); wkSection(body, "Notes", wf.th.notes);
+    wkSection(body, "Finisher", th.finisher); wkSection(body, "Notes", th.notes);
     if (isToday && (live || done)) {
       var fb = el("button", "btn" + (done ? " ghost" : ""), done ? "Undo finish" : "Finish workout"); fb.type = "button"; fb.disabled = off;
-      fb.addEventListener("click", function () { if (wk && wk.rec) wk.rec.finishedAt = done ? 0 : Date.now(); saveWkNow(); previewWorkout(); drawWorkoutPage(true); }); body.appendChild(fb);
+      fb.addEventListener("click", function () { if (wk && wk.rec) wk.rec.finishedAt = done ? 0 : Date.now(); saveWkNow(); if (!S) previewWorkout(); drawWorkoutPage(true); }); body.appendChild(fb);
     } else if (!isToday && done) body.appendChild(el("p", "note", "Finished."));
+    if (S && wk.loaded && !off) {
+      var dlb = el("button", "btn ghost wk-del", "Delete this workout"); dlb.type = "button";
+      dlb.addEventListener("click", function () {
+        confirmDelete({ title: "Delete this workout?", message: "\u201C" + rec.name + "\u201D and everything you logged in it will be deleted." }, function () {
+          if (!wk || !wk.root) return; wk.root.sessions = wk.root.sessions.filter(function (x) { return x.id !== sid; }); saveWkNow(); state.wkSid = null; go("train");
+        });
+      });
+      body.appendChild(dlb);
+    }
   }
 
   /* ---------- Train ---------- */
@@ -2048,11 +2135,7 @@ details.targets[open] summary::after { content: "\2212"; }
     st.className = "status" + (done ? " ok" : "");
     var pr = r.prs || { w: 0, v: 0 };
     $("day-note").textContent = (pr.w || pr.v) ? "PR bonus: +" + bonusOf(r) + " pts (" + (pr.w ? "weight PR" : "") + (pr.w && pr.v ? ", " : "") + (pr.v ? "volume PR" : "") + ")" : (planCfg() ? "" : "Pick a workout plan below and your workouts will show up here.");
-    $("day-tools").hidden = !isToday;
     var off = !state.me || !state.canWrite;
-    $("pv-wpr").textContent = pr.w ? "Preview: undo weight PR" : "Preview: weight PR";
-    $("pv-vpr").textContent = pr.v ? "Preview: undo volume PR" : "Preview: volume PR";
-    $("pv-wpr").disabled = off; $("pv-vpr").disabled = off;
     $("cal-today").hidden = isToday && stripWeekIndex() === STRIP_BACK;
     drawDayWorkout(sel, !!done, isToday, off); drawWeek(sel); drawVolume(sel); drawPlan();
   }
@@ -3213,8 +3296,6 @@ details.targets[open] summary::after { content: "\2212"; }
     $("plan-fourth").addEventListener("change", function () { planDraft.fourth = $("plan-fourth").checked; });
     $("plan-cancel").addEventListener("click", function () { state.planEdit = false; drawPlan(); });
     $("plan-form").addEventListener("submit", submitPlan);
-    $("pv-wpr").addEventListener("click", function () { togglePr("w"); });
-    $("pv-vpr").addEventListener("click", function () { togglePr("v"); });
     $("composer").addEventListener("submit", submitPost);
     $("post-text").addEventListener("input", onComposerInput);
     $("post-text").addEventListener("blur", function () { setTimeout(hideMentions, 200); });
