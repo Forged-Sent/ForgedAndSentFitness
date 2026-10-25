@@ -273,6 +273,11 @@ details.targets[open] summary::after { content: "\2212"; }
 .lk-edit b { display: block; color: var(--hot); font-family: var(--f-label); letter-spacing: .08em; text-transform: uppercase; }
 .lk-edit .btn { min-height: 38px; padding: 0 14px; flex: none; }
 .im-prev { width: 100%; aspect-ratio: 4 / 5; max-width: 100%; object-fit: contain; background: #1b1f17; border: 1px solid var(--line); border-radius: var(--radius, 4px); display: block; -webkit-touch-callout: default; }
+.wp-box { max-height: calc(100dvh - 48px); overflow-y: auto; }
+.wp-k { color: var(--brass, var(--accent)); }
+.wp-text { border-left: 3px solid var(--accent); padding: 2px 0 2px 14px; margin: 4px 0 6px; }
+.cdlg-box .wp-text p { margin: 0 0 12px; font-size: 15.5px; line-height: 1.55; }
+.cdlg-box .wp-text .wp-amen { margin: 0; font-family: var(--f-label); font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
 .cdlg { position: fixed; inset: 0; z-index: 80; background: rgba(0,0,0,.55); display: flex; align-items: flex-start; justify-content: center; overflow-y: auto; padding: calc(56px + env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-right, 0px)) 16px max(16px, env(safe-area-inset-left, 0px)); }
 .cdlg-box { margin: 0 auto; width: 100%; max-width: 360px; background: var(--bg); border: 2px solid var(--danger); padding: 18px; display: flex; flex-direction: column; gap: 10px; }
 .cdlg-box h2 { margin: 0; font-family: var(--f-label); font-size: 17px; letter-spacing: .08em; text-transform: uppercase; }
@@ -2740,7 +2745,7 @@ details.targets[open] summary::after { content: "\2212"; }
       var lb = el("button", "btn", "Lock"); lb.type = "button"; lb.addEventListener("click", function () { lockWorkout(key); });
       eb.appendChild(et); eb.appendChild(lb); body.insertBefore(eb, body.firstChild);
     }
-    if (isToday && !started && !done) { var sb = el("button", "btn wk-start", "Start workout"); sb.type = "button"; sb.disabled = off || !wk.loaded; sb.addEventListener("click", function () { if (!wk.root) wk.root = emptyWk(key); if (!wk.rec) wk.rec = wk.root; wk.rec.startedAt = Date.now(); saveWkNow(); drawWorkoutPage(true); }); body.appendChild(sb); }
+    if (isToday && !started && !done) { var sb = el("button", "btn wk-start", "Start workout"); sb.type = "button"; sb.disabled = off || !wk.loaded; sb.addEventListener("click", function () { openWorkoutPrayer(function () { if (!wk.root) wk.root = emptyWk(key); if (!wk.rec) wk.rec = wk.root; if (!wk.rec.startedAt) wk.rec.startedAt = Date.now(); saveWkNow(); drawWorkoutPage(true); }); }); body.appendChild(sb); }
     if (live && !editing) body.appendChild(el("p", "note", "Started " + new Date(rec.startedAt).toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" }) + ". Log each set, then rest."));
     if (S && !normExtra(rec.extra).length) body.appendChild(el("p", "note", isToday ? "Add your first exercise from the library or enter your own." : "No exercises were logged."));
     if ((S ? isToday && wk.loaded : live) && !off) { var axb = el("button", "btn ghost wk-addex", "+ Add exercise"); axb.type = "button"; axb.addEventListener("click", function () { saveWkNow(); openExPicker(); }); body.appendChild(axb); }
@@ -3375,6 +3380,29 @@ details.targets[open] summary::after { content: "\2212"; }
     box.addEventListener("submit", function (ev) { ev.preventDefault(); var n = normSteps(inp.value); close();
       writeDay(function (r) { r.steps = n; var hs = taskOfKind("steps"); if (hs && !n) delete r.done[hs.id]; }); });
     document.body.appendChild(back); setTimeout(function () { try { inp.focus(); } catch (e) {} }, 0);
+  }
+  var WORKOUT_PRAYER = [
+    "Jesus, You bought me with Your blood. This body is Yours.",
+    "I give it to You as a living sacrifice, not for vanity, but because You\u2019ve charged me to steward it.",
+    "Strengthen me to serve my family and my brothers. Burn away excuses and pride. When I want to quit, remind me what You endured for me.",
+    "Keep me alert, firm in the faith, courageous, strong, and acting in love.",
+    "Forge me today, and send me out for Your glory.",
+    "Amen."];
+  // Shown when a man taps Start workout. The workout clock starts when he marks the prayer read.
+  function openWorkoutPrayer(onRead) {
+    var old = $("cdlg"); if (old) old.remove();
+    var back = el("div", "cdlg"); back.id = "cdlg";
+    var box = el("div", "cdlg-box nw-box wp-box"); box.setAttribute("role", "dialog"); box.setAttribute("aria-modal", "true"); box.setAttribute("aria-labelledby", "wp-t");
+    box.appendChild(el("span", "label-caps wp-k", "Before you train"));
+    var t = el("h2", null, "Workout prayer"); t.id = "wp-t"; box.appendChild(t);
+    var tx = el("div", "wp-text"); WORKOUT_PRAYER.forEach(function (l, i) { tx.appendChild(el("p", i === WORKOUT_PRAYER.length - 1 ? "wp-amen" : null, l)); }); box.appendChild(tx);
+    var yes = el("button", "btn", "Mark as read"), no = el("button", "btn ghost", "Not yet"); yes.type = "button"; no.type = "button";
+    box.appendChild(yes); box.appendChild(no); back.appendChild(box);
+    function close() { back.remove(); }
+    yes.addEventListener("click", function () { close(); onRead(); });
+    no.addEventListener("click", close);
+    back.addEventListener("keydown", function (ev) { if (ev.key === "Escape") { ev.stopPropagation(); close(); } });
+    document.body.appendChild(back); yes.focus({ preventScroll: true });
   }
   function confirmDelete(o, onYes) {
     var old = $("cdlg"); if (old) old.remove();
