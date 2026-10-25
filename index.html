@@ -288,6 +288,7 @@ details.targets[open] summary::after { content: "\2212"; }
 .help-right { display: inline-flex; align-items: center; gap: 10px; margin-left: auto; flex: none; }
 .help-right .me-btn, .topline .right .me-btn { margin: 0; }
 .cdlg-box .help-why { margin: 2px 0 6px; font-size: 15px; line-height: 1.5; }
+.cdlg-box .help-tip { margin: 0 0 8px; padding: 10px 12px; border-left: 3px solid var(--brass, var(--accent)); background: var(--surface); font-size: 14.5px; font-weight: 600; line-height: 1.45; }
 .help-list { list-style: disc; margin: 0 0 8px; padding-left: 20px; display: grid; gap: 8px; font-size: 14px; line-height: 1.45; }
 .help-list li { display: list-item; }
 .help-list li::marker { color: var(--accent); }
@@ -3581,10 +3582,10 @@ details.targets[open] summary::after { content: "\2212"; }
       "Use + Add exercise for anything extra.",
       "Finish workout locks it and awards 25 points for each lift with a weight or volume PR. Then you can share it to Rally or save it as an image to text a buddy.",
       "Need to fix something? Tap Unlock to edit, then Lock when you're done."] },
-    board: { t: "Board", why: "See where the brothers stand. Use the menu at the top to switch between the Kingdom Warrior board and the top lift PRs.", how: [
+    board: { t: "Board", why: "See where the brothers stand. Use the menu at the top to switch between the Kingdom Warrior board and the top lift PRs.", tip: "To understand how everything is scored, tap How points work next to Standings.", how: [
       "Kingdom Warrior is the main board. It isn't about who lifts the most. It rewards the man who shows up faithfully every day in spirit, body and brotherhood: the devotional and motto, training, steps and fuel, and checking in on his brothers.",
       "The Board always opens on Kingdom Warrior. Switch between Today, This week and All time. The week runs Monday to Sunday. All time adds up every point since a man joined.",
-      "Points come from your boxes, your three habits, step bonuses and PRs. Tap How points work next to Standings for the full breakdown.",
+      "Points come from your boxes, your three habits, step bonuses and PRs.",
       "Pick a lift from the menu to see who holds the heaviest PR on it, with reps and the date. Men at the same weight share a rank. Pick Kingdom Warrior to come back to the points.",
       "Lift PRs come from what each man logs on his profile.",
       "Tap a man to see his profile. Use the Board to push each other, and to find the man who needs encouraging."] },
@@ -3620,6 +3621,7 @@ details.targets[open] summary::after { content: "\2212"; }
     box.appendChild(el("span", "label-caps wp-k", "How this page works"));
     var t = el("h2", null, h.t); t.id = "hp-t"; box.appendChild(t);
     box.appendChild(el("p", "help-why", h.why));
+    if (h.tip) box.appendChild(el("p", "help-tip", h.tip));
     var ul = el("ul", "help-list"); h.how.forEach(function (x) { ul.appendChild(el("li", null, x)); }); box.appendChild(ul);
     var ok = el("button", "btn", "Got it"); ok.type = "button"; box.appendChild(ok);
     var prev = document.activeElement;
