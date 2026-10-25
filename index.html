@@ -279,6 +279,7 @@ details.targets[open] summary::after { content: "\2212"; }
 #wkp-body .lk-edit .btn { width: auto; min-width: 96px; margin-top: 0; min-height: 40px; padding: 0 18px; flex: none; }
 .im-prev { width: 100%; aspect-ratio: 4 / 5; max-width: 100%; object-fit: contain; background: #1b1f17; border: 1px solid var(--line); border-radius: var(--radius, 4px); display: block; -webkit-touch-callout: default; }
 .wp-box { max-height: calc(var(--app-h, 100dvh) - 48px); overflow-y: auto; }
+.cdlg-box .mo-text { margin: 6px 0 2px; font-family: var(--f-label); font-weight: 700; font-size: 26px; line-height: 1.2; text-transform: uppercase; letter-spacing: .02em; border-left: 3px solid var(--accent); padding-left: 14px; }
 .wp-k { color: var(--brass, var(--accent)); }
 .wp-text { border-left: 3px solid var(--accent); padding: 2px 0 2px 14px; margin: 4px 0 6px; }
 .cdlg-box .wp-text p { margin: 0 0 12px; font-size: 15.5px; line-height: 1.55; }
@@ -1525,14 +1526,14 @@ details.targets[open] summary::after { content: "\2212"; }
       if (tk.kind === "steps") { var rs = recFor(todayKey()), sn = normSteps(rs.steps), sb = stepBonus(sn), sg = stepGoal(todayKey());
         sub = sn ? fmt(sn) + " of " + fmt(sg) + " steps" + (sb ? ", +" + fmtW(sb) + " bonus" : "") + (hAuto ? ", from your health data" : ". Tap to update") : "Goal " + fmt(sg) + " steps today. Tap to log your steps"; }
       else if (hAuto) sub = "Weigh-in found in your health data";
-      if (tk.id === "t_motto") { var mm = (state.pubProfiles[state.me] || {}).motto; sub = mm ? "\u201C" + mm + "\u201D" : "Set your motto in Settings"; }
+      if (tk.id === "t_motto") { var mm = (state.pubProfiles[state.me] || {}).motto; sub = done[tk.id] ? "Read today" : mm ? "Tap to read your motto" : "Set your motto in Settings"; }
       if (sub) txt.appendChild(el("span", "sub", sub));
       b.appendChild(txt);
       b.appendChild(el("span", "pts", "+" + tk.points + (tk.points === 1 ? " pt" : " pts")));
-      if (isDevo) b.appendChild(el("span", "chev", "›"));
+      if (isDevo || tk.id === "t_motto") b.appendChild(el("span", "chev", "›"));
       if (tk.kind === "photos" || (tk.kind === "steps" && !hAuto)) b.appendChild(el("span", "chev", "\u203A"));
       if (tk.kind === "steps" && !hAuto) { b.removeAttribute("aria-readonly"); b.classList.remove("auto"); b.disabled = !state.me || !state.canWrite; }
-      b.addEventListener("click", function () { if (isDevo) openDevo(); else if (tk.kind === "photos") openProgress(); else if (tk.kind === "steps") { if (!hAuto) openSteps(); } else if (!auto) toggle(tk.id); });
+      b.addEventListener("click", function () { if (isDevo) openDevo(); else if (tk.kind === "photos") openProgress(); else if (tk.kind === "steps") { if (!hAuto) openSteps(); } else if (tk.id === "t_motto") openMotto(tk.id); else if (!auto) toggle(tk.id); });
       li.appendChild(b); list.appendChild(li);
     });
     var wt = taskOfKind("weigh");
@@ -3364,6 +3365,30 @@ details.targets[open] summary::after { content: "\2212"; }
     var body = $(hid + "-body"), sec = body && body.closest("section"), btn = sec && sec.querySelector(".set-open");
     if (body && body.hidden && btn) btn.click();
     setTimeout(function () { if (sec && sec.scrollIntoView) sec.scrollIntoView({ block: "start", behavior: "smooth" }); }, 60);
+  }
+  function openMotto(id) {
+    var old = $("cdlg"); if (old) old.remove();
+    var mm = String((state.pubProfiles[state.me] || {}).motto || "").trim(), isDone = !!myDoc().done[id];
+    var back = el("div", "cdlg"); back.id = "cdlg";
+    var box = el("div", "cdlg-box nw-box wp-box"); box.setAttribute("role", "dialog"); box.setAttribute("aria-modal", "true"); box.setAttribute("aria-labelledby", "mo-t");
+    box.appendChild(el("span", "label-caps wp-k", "Start the day"));
+    var t = el("h2", null, "Morning motto"); t.id = "mo-t"; box.appendChild(t);
+    function close() { back.remove(); }
+    if (mm) {
+      box.appendChild(el("p", "mo-text", "\u201C" + mm + "\u201D"));
+      box.appendChild(el("p", "fnote", "Say it out loud. Then go live it."));
+      var yes = el("button", "btn", isDone ? "Done" : "Mark complete"); yes.type = "button"; box.appendChild(yes);
+      yes.addEventListener("click", function () { close(); if (!isDone) writeDay(function (r) { r.done[id] = true; }); });
+      if (isDone) { var un = el("button", "btn ghost", "Mark not done"); un.type = "button"; box.appendChild(un); un.addEventListener("click", function () { close(); writeDay(function (r) { delete r.done[id]; }); }); }
+    } else {
+      box.appendChild(el("p", null, "You haven\u2019t set a morning motto yet. Write one in your profile and it will show here every morning."));
+      var go2 = el("button", "btn", "Set my motto"); go2.type = "button"; box.appendChild(go2);
+      go2.addEventListener("click", function () { close(); openSettingsSection("h-s-prof"); setTimeout(function () { var f = $("s-motto"); if (f) try { f.focus({ preventScroll: true }); } catch (e) {} }, 400); });
+      var cl = el("button", "btn ghost", "Close"); cl.type = "button"; box.appendChild(cl); cl.addEventListener("click", close);
+    }
+    back.addEventListener("click", function (ev) { if (ev.target === back) close(); });
+    back.addEventListener("keydown", function (ev) { if (ev.key === "Escape") { ev.stopPropagation(); close(); } });
+    back.appendChild(box); document.body.appendChild(back); box.querySelector(".btn").focus({ preventScroll: true });
   }
   function openSteps() {
     var old = $("cdlg"); if (old) old.remove();
