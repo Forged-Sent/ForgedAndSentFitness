@@ -165,9 +165,10 @@ details.targets[open] summary::after { content: "\2212"; }
 .rng::-moz-range-progress { height: 8px; border-radius: 4px; background: var(--accent); }
 .rng::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 28px; height: 28px; margin-top: -10px; border-radius: 50%; background: #fff; border: 2px solid var(--accent); box-shadow: 0 1px 3px rgba(0,0,0,.35); }
 .rng::-moz-range-thumb { width: 26px; height: 26px; border-radius: 50%; background: #fff; border: 2px solid var(--accent); }
+.af-own .name { color: var(--brass, #b08d57); }
 .wx-addbar { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
 .wx-addbar .label-caps { font-size: 11px; color: var(--brass, #b08d57); }
-.wk-addex { width: 100%; margin: 14px 0 4px; }
+.wk-addex { width: 100%; margin: 4px 0 10px; }
 #adj-targets { min-height: 36px; padding: 0 12px; font-size: 11.5px; }
 .cdlg { position: fixed; inset: 0; z-index: 80; background: rgba(0,0,0,.55); display: flex; align-items: center; justify-content: center; padding: 16px max(16px, env(safe-area-inset-right, 0px)) 16px max(16px, env(safe-area-inset-left, 0px)); }
 .cdlg-box { width: 100%; max-width: 360px; background: var(--bg); border: 2px solid var(--danger); padding: 18px; display: flex; flex-direction: column; gap: 10px; }
@@ -1770,7 +1771,7 @@ details.targets[open] summary::after { content: "\2212"; }
   }
   function startWkTick() { if (!wkTick) wkTick = setInterval(tickTimers, 250); }
   function stopWkTick() { if (wkTick) { clearInterval(wkTick); wkTick = null; } }
-  function timerFor(idx) { return wk.timers[idx] || (wk.timers[idx] = { base: WK_BASE, left: WK_BASE, running: false, done: false, endAt: 0, tones: [], sched: false }); }
+  function timerFor(idx, base) { base = Number(base) > 0 ? Number(base) : WK_BASE; return wk.timers[idx] || (wk.timers[idx] = { base: base, left: base, running: false, done: false, endAt: 0, tones: [], sched: false }); }
   function timerStart(t) { if (t.left <= 0 || t.done) t.left = t.base; t.done = false; t.endAt = Date.now() + t.left * 1000; t.running = true; unlockAudio(); scheduleTone(t); startWkTick(); paintTimer(t); }
   function timerAdj(t, d) {
     t.base = Math.max(15, Math.min(600, t.base + d));
@@ -1778,8 +1779,8 @@ details.targets[open] summary::after { content: "\2212"; }
     else { t.left = t.base; t.done = false; }
     paintTimer(t);
   }
-  function restBar(idx) {
-    var t = timerFor(idx), bar = el("div", "rest");
+  function restBar(idx, base) {
+    var t = timerFor(idx, base), bar = el("div", "rest");
     bar.appendChild(el("span", "rt-label", "Rest"));
     t.timeEl = el("span", "rt-time"); bar.appendChild(t.timeEl);
     function mini(txt, label, fn) { var b = el("button", "mini", txt); b.type = "button"; b.setAttribute("aria-label", label); b.addEventListener("click", fn); bar.appendChild(b); return b; }
@@ -1815,14 +1816,14 @@ details.targets[open] summary::after { content: "\2212"; }
   /* ---------- Add an exercise to today's workout ---------- */
   var xp = null;
   function normExtra(a) {
-    return (Array.isArray(a) ? a : []).slice(0, 20).map(function (x) { x = x || {}; return { g: String(x.g || "").slice(0, 60), rx: String(x.rx || "3 x 10").slice(0, 40) }; })
+    return (Array.isArray(a) ? a : []).slice(0, 20).map(function (x) { x = x || {}; var rs = Math.round(Number(x.rest) || 0); return { g: String(x.g || "").slice(0, 60), rx: String(x.rx || "3 x 10").slice(0, 40), rest: rs >= 15 && rs <= 600 ? rs : WK_BASE }; })
       .filter(function (x) { return x.g; });
   }
   function closeExPicker() { xp = null; var s = $("xsheet"); if (s) s.remove(); }
-  function openExPicker() { xp = { q: "", pick: null, sets: "3", reps: "10" }; drawExPicker(true); }
-  function addExtraExercise(g, rx) {
+  function openExPicker() { xp = { q: "", pick: null, sets: "3", reps: "10", kind: "reps", rest: "90", name: "", err: "" }; drawExPicker(true); }
+  function addExtraExercise(g, rx, rest) {
     if (!wk || !wk.rec) return;
-    wk.rec.extra = normExtra(wk.rec.extra); wk.rec.extra.push({ g: g, rx: rx });
+    wk.rec.extra = normExtra(wk.rec.extra); wk.rec.extra.push({ g: g, rx: rx, rest: rest });
     saveWkNow(); closeExPicker(); drawWorkoutPage(true);
     setTimeout(function () { var all = document.querySelectorAll("#wkp-body .wx"); var last = all[all.length - 1]; if (last && last.scrollIntoView) last.scrollIntoView({ block: "center" }); }, 50);
   }
@@ -1846,22 +1847,43 @@ details.targets[open] summary::after { content: "\2212"; }
     }
     var b = $("xsheet-b"); b.textContent = ""; var w = el("div", "af"), p = planCfg() || {};
     if (xp.pick) {
-      var pk = xp.pick, top = el("div", "af-hd"), bk = el("button", "mini", "‹ Back"); bk.type = "button";
-      bk.addEventListener("click", function () { xp.pick = null; drawExPicker(); }); top.appendChild(bk); w.appendChild(top);
-      w.appendChild(el("h3", "af-name", pk.shown)); if (pk.sub) w.appendChild(el("p", "fnote", pk.sub));
-      var l1 = el("label", "flabel", "Sets"), row = el("div", "af-qty"), minus = el("button", "mini", "−"), si = el("input", "field"), plus = el("button", "mini", "+");
+      var pk = xp.pick, top = el("div", "af-hd"), bk = el("button", "mini", "\u2039 Back"); bk.type = "button";
+      bk.addEventListener("click", function () { xp.pick = null; xp.err = ""; drawExPicker(); }); top.appendChild(bk); w.appendChild(top);
+      if (pk.custom) {
+        var ln = el("label", "flabel", "Exercise name"), ni = el("input", "field"); ni.type = "text"; ni.maxLength = 60; ni.id = "xp-name"; ni.value = xp.name; ni.placeholder = "e.g. Sled drag"; ni.autocomplete = "off"; ni.required = true;
+        ni.addEventListener("input", function () { xp.name = ni.value; if (xp.err) { xp.err = ""; var er = document.querySelector("#xsheet .error"); if (er) er.remove(); } }); ln.appendChild(ni); w.appendChild(ln);
+      } else { w.appendChild(el("h3", "af-name", pk.shown)); if (pk.sub) w.appendChild(el("p", "fnote", pk.sub)); }
+      var l1 = el("label", "flabel", "Sets"), row = el("div", "af-qty"), minus = el("button", "mini", "\u2212"), si = el("input", "field"), plus = el("button", "mini", "+");
       minus.type = "button"; plus.type = "button"; minus.setAttribute("aria-label", "Fewer sets"); plus.setAttribute("aria-label", "More sets");
       si.type = "number"; si.min = "1"; si.max = "10"; si.step = "1"; si.inputMode = "numeric"; si.value = xp.sets; si.id = "xp-sets";
       si.addEventListener("input", function () { xp.sets = si.value; });
       function st(d) { var v = Math.max(1, Math.min(10, (parseInt(xp.sets, 10) || 0) + d)); xp.sets = String(v); si.value = xp.sets; }
       minus.addEventListener("click", function () { st(-1); }); plus.addEventListener("click", function () { st(1); });
       row.appendChild(minus); row.appendChild(si); row.appendChild(plus); l1.appendChild(row); w.appendChild(l1);
-      var l2 = el("label", "flabel", "Reps per set"), ri = el("input", "field"); ri.type = "text"; ri.maxLength = 20; ri.value = xp.reps; ri.id = "xp-reps"; ri.placeholder = "e.g. 10, 8-12 or 30 sec"; ri.autocomplete = "off";
+      var kl = el("div", "flabel"); kl.appendChild(el("span", null, "Each set is measured in"));
+      var kt = el("div", "af-tabs"); kt.setAttribute("role", "group"); kt.setAttribute("aria-label", "Measure each set in");
+      [["reps", "Reps"], ["sec", "Seconds"], ["min", "Minutes"]].forEach(function (k) {
+        var b2 = el("button", null, k[1]); b2.type = "button"; b2.setAttribute("aria-pressed", String(xp.kind === k[0]));
+        b2.addEventListener("click", function () { if (xp.kind !== k[0]) { xp.kind = k[0]; xp.reps = k[0] === "reps" ? "10" : k[0] === "sec" ? "30" : "10"; } drawExPicker(); }); kt.appendChild(b2);
+      });
+      kl.appendChild(kt); w.appendChild(kl);
+      var l2 = el("label", "flabel", xp.kind === "reps" ? "Reps per set" : xp.kind === "sec" ? "Seconds per set" : "Minutes per set"), ri = el("input", "field");
+      ri.type = xp.kind === "reps" ? "text" : "number"; if (xp.kind !== "reps") { ri.min = "1"; ri.max = xp.kind === "sec" ? "600" : "180"; ri.step = "any"; ri.inputMode = "decimal"; }
+      ri.maxLength = 20; ri.value = xp.reps; ri.id = "xp-reps"; ri.placeholder = xp.kind === "reps" ? "e.g. 10 or 8-12" : xp.kind === "sec" ? "e.g. 30" : "e.g. 20"; ri.autocomplete = "off";
       ri.addEventListener("input", function () { xp.reps = ri.value; }); l2.appendChild(ri); w.appendChild(l2);
+      var l3 = el("label", "flabel", "Rest timer between sets"), rs = el("select", "field"); rs.id = "xp-rest";
+      [30, 45, 60, 75, 90, 120, 150, 180, 240, 300].forEach(function (v) { var o = el("option", null, mmss(v) + (v === 90 ? " (standard)" : "")); o.value = String(v); if (String(v) === xp.rest) o.selected = true; rs.appendChild(o); });
+      rs.addEventListener("change", function () { xp.rest = rs.value; }); l3.appendChild(rs); w.appendChild(l3);
+      w.appendChild(el("p", "fnote", "You can still add or remove 15 seconds on the timer during your workout, the same as planned exercises."));
+      if (xp.err) w.appendChild(el("p", "error", xp.err));
       var ad = el("button", "btn", "Add to workout"); ad.type = "button";
       ad.addEventListener("click", function () {
-        var n = Math.max(1, Math.min(10, parseInt(xp.sets, 10) || 3)), r = (xp.reps || "").trim().slice(0, 20) || "10";
-        addExtraExercise(pk.g, n + " x " + r);
+        var name = pk.custom ? (xp.name || "").trim().slice(0, 60) : pk.g;
+        if (!name) { xp.err = "Give the exercise a name."; drawExPicker(); var nf = $("xp-name"); if (nf) nf.focus(); return; }
+        var n = Math.max(1, Math.min(10, parseInt(xp.sets, 10) || 3)), r = (xp.reps || "").trim().slice(0, 20);
+        if (xp.kind !== "reps") { var v = parseFloat(r); if (!(v > 0)) { xp.err = "Enter how long each set lasts."; drawExPicker(); return; } r = (Math.round(v * 10) / 10) + (xp.kind === "sec" ? " sec" : " min"); }
+        if (!r) r = "10";
+        addExtraExercise(name, n + " x " + r, Number(xp.rest) || WK_BASE);
       });
       w.appendChild(ad);
     } else {
@@ -1875,15 +1897,13 @@ details.targets[open] summary::after { content: "\2212"; }
         var keys = Object.keys(PLAN.M).filter(function (g) { return g !== "Rest Day"; }).map(function (g) { var m = PLAN.M[g] || {}; return { g: g, shown: moveName(g, p.equip), sub: [m.pattern, m.muscles].filter(Boolean).join(" · ") }; })
           .filter(function (x) { return !q || (x.g + " " + x.shown + " " + x.sub).toLowerCase().indexOf(q) >= 0; })
           .sort(function (a, b) { return a.shown < b.shown ? -1 : 1; });
-        if (q && !keys.some(function (x) { return x.shown.toLowerCase() === q || x.g.toLowerCase() === q; })) {
-          var cn = xp.q.trim().slice(0, 60), cb = el("button", "af-row"); cb.type = "button";
-          var tx = el("span", "txt"); tx.appendChild(el("span", "name", "Add “" + cn + "”")); tx.appendChild(el("span", "sub", "Custom exercise")); cb.appendChild(tx); cb.appendChild(el("span", "nums", "+"));
-          cb.addEventListener("click", function () { xp.pick = { g: cn, shown: cn, sub: "Custom exercise" }; drawExPicker(); }); list.appendChild(cb);
-        }
+        var cb = el("button", "af-row af-own"); cb.type = "button";
+        var tx0 = el("span", "txt"); tx0.appendChild(el("span", "name", "+ Enter your own exercise")); tx0.appendChild(el("span", "sub", q ? "Name it \u201C" + xp.q.trim().slice(0, 60) + "\u201D or anything you like" : "Name it and set the sets, reps or time")); cb.appendChild(tx0); cb.appendChild(el("span", "nums", "\u203A"));
+        cb.addEventListener("click", function () { xp.pick = { custom: true }; xp.name = xp.q.trim().slice(0, 60); xp.err = ""; drawExPicker(); var nf = $("xp-name"); if (nf) try { nf.focus({ preventScroll: true }); } catch (e) {} }); list.appendChild(cb);
         keys.slice(0, 60).forEach(function (x) {
           var r = el("button", "af-row"); r.type = "button"; r.setAttribute("aria-label", "Choose " + x.shown);
           var tx = el("span", "txt"); tx.appendChild(el("span", "name", x.shown)); if (x.sub) tx.appendChild(el("span", "sub", x.sub)); r.appendChild(tx); r.appendChild(el("span", "nums", "›"));
-          r.addEventListener("click", function () { xp.pick = x; drawExPicker(); }); list.appendChild(r); shown++;
+          r.addEventListener("click", function () { xp.pick = x; xp.err = ""; xp.kind = /sec|hold|plank|carry/i.test(x.g) ? "sec" : "reps"; xp.reps = xp.kind === "sec" ? "30" : "10"; drawExPicker(); }); list.appendChild(r); shown++;
         });
         if (!shown && !q) list.appendChild(el("p", "fnote", "No exercises found."));
       };
@@ -1906,8 +1926,9 @@ details.targets[open] summary::after { content: "\2212"; }
     body.appendChild(el("h1", "pg", w.title));
     if (isToday && !started && !done) { var sb = el("button", "btn wk-start", "Start workout"); sb.type = "button"; sb.disabled = off || !wk.loaded; sb.addEventListener("click", function () { wk.rec = wk.rec || emptyWk(key); wk.rec.startedAt = Date.now(); saveWkNow(); drawWorkoutPage(true); }); body.appendChild(sb); }
     if (live) body.appendChild(el("p", "note", "Started " + new Date(rec.startedAt).toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" }) + ". Log each set, then rest."));
+    if (live && !off) { var axb = el("button", "btn ghost wk-addex", "+ Add exercise"); axb.type = "button"; axb.addEventListener("click", function () { saveWkNow(); openExPicker(); }); body.appendChild(axb); }
     wkSection(body, "Warm-up", wf.th.warmup);
-    var exBase = w.exercises.length, exList = w.exercises.concat(normExtra(rec.extra).map(function (x) { return [x.g, x.rx, true]; }));
+    var exBase = w.exercises.length, exList = w.exercises.concat(normExtra(rec.extra).map(function (x) { return [x.g, x.rx, true, x.rest]; }));
     exList.forEach(function (e, idx) {
       var ex = el("div", "wx" + (e[2] ? " wx-add" : "")), ps = parseSets(e[1]);
       var shownName = moveName(e[0], p.equip);
@@ -1961,7 +1982,7 @@ details.targets[open] summary::after { content: "\2212"; }
           ck0.addEventListener("click", function () { d0.d = !d0.d; r0.className = "setrow one" + (d0.d ? " ok" : ""); ck0.setAttribute("aria-pressed", String(!!d0.d)); saveWkSoon(); });
           r0.appendChild(ck0); ex.appendChild(r0);
         }
-        ex.appendChild(restBar(idx));
+        ex.appendChild(restBar(idx, e[3]));
       } else if (Array.isArray(rec.ex[idx])) {
         var line = fmtSetLine(rec.ex[idx], ps && ps.time); if (line) ex.appendChild(el("span", "wlog", "Logged: " + line));
       }
@@ -1972,7 +1993,6 @@ details.targets[open] summary::after { content: "\2212"; }
       }
       body.appendChild(ex);
     });
-    if (live && !off) { var axb = el("button", "btn ghost wk-addex", "+ Add exercise"); axb.type = "button"; axb.addEventListener("click", function () { saveWkNow(); openExPicker(); }); body.appendChild(axb); }
     wkSection(body, "Finisher", wf.th.finisher); wkSection(body, "Notes", wf.th.notes);
     if (isToday && (live || done)) {
       var fb = el("button", "btn" + (done ? " ghost" : ""), done ? "Undo finish" : "Finish workout"); fb.type = "button"; fb.disabled = off;
