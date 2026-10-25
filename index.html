@@ -1115,10 +1115,10 @@ details.targets[open] summary::after { content: "\2212"; }
     watchChecks: function (low, cb) {
       return this.db.collection("checkins").where("date", ">=", low).onSnapshot(function (s) {
         cb(s.docs.map(function (d) { var x = d.data() || {}; var p = x.prs || {};
-          return { date: x.date, uid: x.uid, done: x.done || {}, prs: normPrs(p) }; }));
+          return { date: x.date, uid: x.uid, done: x.done || {}, prs: normPrs(p), steps: normSteps(x.steps) }; }));
       }, noop);
     },
-    saveDay: function (rec) { return this.db.doc("checkins/" + rec.date + "_" + rec.uid).set({ date: rec.date, uid: rec.uid, done: rec.done, prs: rec.prs }); },
+    saveDay: function (rec) { return this.db.doc("checkins/" + rec.date + "_" + rec.uid).set({ date: rec.date, uid: rec.uid, done: rec.done, prs: rec.prs, steps: normSteps(rec.steps) }); },
     watchLogs: function (uid, low, cb) {
       return this.db.doc("data/users/" + uid + "/log").collection("days").where("date", ">=", low).onSnapshot(function (s) {
         cb(s.docs.map(function (d) { var x = d.data() || {};
@@ -1201,9 +1201,13 @@ details.targets[open] summary::after { content: "\2212"; }
        readToday()           -> Promise<{steps: number|null, weightLb: number|null, workouts: number}>
      (weightLb is null unless a weigh-in was recorded today.) Without it, health features stay off and boxes are manual. */
   var HL = window.ForgedHealth || null;
-  var STEPS_GOAL = 10000;
+  var STEPS_GOAL = 10000, STEPS_GOAL_SABBATH = 7000;
+  function stepGoal(key) { return isWeighDay(key) ? STEPS_GOAL_SABBATH : STEPS_GOAL; }
+  function normSteps(n) { n = Math.floor(Number(n)); return n > 0 && n <= 200000 ? n : 0; }
+  // Step bonus: 1 point per full 1,000 steps from 10,000 up to 15,000, then 0.5 point per full 1,000 after that.
+  function stepBonus(n) { var k = Math.floor((normSteps(n) - 10000) / 1000); if (!(k > 0)) return 0; return Math.min(k, 5) + Math.max(0, k - 5) * 0.5; }
   var HEALTH_TYPES = [
-    { k: "steps", label: "Steps", sub: "Checks your Steps box at 10,000 steps" },
+    { k: "steps", label: "Steps", sub: "Checks your Steps box at 10,000 steps (7,000 on your Sabbath)" },
     { k: "weight", label: "Weight", sub: "Checks your Weigh-In box when a weigh-in is recorded today" },
     { k: "workouts", label: "Workouts", sub: "Checks your Workout box when a workout is recorded" }
   ];
@@ -1294,7 +1298,7 @@ details.targets[open] summary::after { content: "\2212"; }
   function filledSlots() { return CUSTOM.filter(function (k) { return state.habits[k]; }); }
   function targets() { var t = state.settings.targets; return t || null; }
 
-  function emptyRec(date) { return { date: date, uid: state.me, done: {}, prs: { n: 0, list: [] } }; }
+  function emptyRec(date) { return { date: date, uid: state.me, done: {}, prs: { n: 0, list: [] }, steps: 0 }; }
   function recFor(key) {
     for (var i = 0; i < state.checks.length; i++) { var c = state.checks[i]; if (c.date === key && c.uid === state.me) return c; }
     return emptyRec(key);
@@ -1310,7 +1314,7 @@ details.targets[open] summary::after { content: "\2212"; }
   function myDoc() { return recFor(todayKey()); }
   function customDone(done) { var n = 0; CUSTOM.forEach(function (k) { if (done && done[k]) n++; }); return n; }
   function stdDone(done) { var n = 0; state.tasks.forEach(function (t) { if (done && done[t.id]) n++; }); return n; }
-  function bonusOf(rec) { var p = rec.prs || {}; return (Number(p.n) || 0) * PR_PTS; }
+  function bonusOf(rec) { var p = rec.prs || {}; return (Number(p.n) || 0) * PR_PTS + stepBonus(rec.steps); }
   function pointsOf(rec) {
     var done = rec.done || {}; var p = customDone(done) + bonusOf(rec);
     state.tasks.forEach(function (t) { if (done[t.id]) p += t.points; });
@@ -1338,7 +1342,9 @@ details.targets[open] summary::after { content: "\2212"; }
   function derive(rec, log) {
     var wt = taskOfKind("water");
     if (wt) { if (log.water >= WATER_GOAL_OZ) rec.done[wt.id] = true; else delete rec.done[wt.id]; }
-    var hs = taskOfKind("steps"); if (hs && healthHave("steps")) { if (state.healthToday.steps >= STEPS_GOAL) rec.done[hs.id] = true; else delete rec.done[hs.id]; }
+    var hs = taskOfKind("steps");
+    if (healthHave("steps")) rec.steps = Math.max(normSteps(rec.steps), normSteps(state.healthToday.steps));
+    if (hs && (healthHave("steps") || rec.steps)) { if (rec.steps >= stepGoal(rec.date)) rec.done[hs.id] = true; else delete rec.done[hs.id]; }
     var hp = taskOfKind("photos"); if (hp) { if (isWeighDay(rec.date) && progDone(rec.date)) rec.done[hp.id] = true; else delete rec.done[hp.id]; }
     var hw = taskOfKind("weigh"); if (hw && isWeighDay(rec.date) && healthHave("weight")) { if (state.healthToday.weightLb > 0) rec.done[hw.id] = true; else delete rec.done[hw.id]; }
     var hk = taskOfKind("workout"); if (hk && healthHave("workouts") && state.healthToday.workouts > 0) rec.done[hk.id] = true;
@@ -1350,7 +1356,7 @@ details.targets[open] summary::after { content: "\2212"; }
     if (!state.me || !state.canWrite) return;
     var date = todayKey(), uid = state.me;
     var cur = recFor(date), cl = logFor(date);
-    var cp = normPrs(cur.prs), rec = { date: date, uid: uid, done: {}, prs: cp };
+    var cp = normPrs(cur.prs), rec = { date: date, uid: uid, done: {}, prs: cp, steps: normSteps(cur.steps) };
     Object.keys(cur.done || {}).forEach(function (k) { rec.done[k] = true; });
     var log = { date: date, water: cl.water, kcal: cl.kcal, p: cl.p, f: cl.f, c: cl.c, meals: cloneMeals(cl.meals) };
     var logChanged = !!fn(rec, log);
@@ -1492,7 +1498,7 @@ details.targets[open] summary::after { content: "\2212"; }
       var hAuto = (tk.kind === "steps" && healthHave("steps")) || (tk.kind === "weigh" && healthHave("weight"));
       b.setAttribute("role", "checkbox"); b.setAttribute("aria-checked", done[tk.id] ? "true" : "false");
       // Boxes owned by an area (Fuel, Train, Check-in, health data) are filled by the app. They are display-only here.
-      var auto = hAuto || !!page || tk.kind === "photos";
+      var auto = hAuto || !!page || tk.kind === "photos" || tk.kind === "steps";
       if (auto) { b.setAttribute("aria-readonly", "true"); b.classList.add("auto"); }
       b.disabled = !isDevo && !auto && (!state.me || !state.canWrite);
       var box = el("span", "box"); box.innerHTML = CHECK_SVG; b.appendChild(box);
@@ -1506,14 +1512,17 @@ details.targets[open] summary::after { content: "\2212"; }
       else if (tk.kind === "checkin") sub = done[tk.id] ? "Posted today" : "Post in the check-in thread";
       else if (tk.kind === "photos") { var pc = normProg(progFor(todayKey()) || {}), nd = POSES.filter(function (p) { return pc[p[0]]; }).length; sub = done[tk.id] ? "Front, side and rear saved" : nd ? nd + " of 3 taken. Tap to finish" : "Front, side and rear. Tap to take them"; }
       else if (tk.kind === "weigh") sub = done[tk.id] ? "Weighed in this week" : "Your weekly weigh-in, every Sabbath. Step on the scale and tap to check.";
-      if (hAuto) sub = tk.kind === "steps" ? fmt(state.healthToday.steps) + " of " + fmt(STEPS_GOAL) + " steps, from your health data" : "Weigh-in found in your health data";
+      if (tk.kind === "steps") { var rs = recFor(todayKey()), sn = normSteps(rs.steps), sb = stepBonus(sn), sg = stepGoal(todayKey());
+        sub = sn ? fmt(sn) + " of " + fmt(sg) + " steps" + (sb ? ", +" + fmtW(sb) + " bonus" : "") + (hAuto ? ", from your health data" : ". Tap to update") : "Goal " + fmt(sg) + " steps today. Tap to log your steps"; }
+      else if (hAuto) sub = "Weigh-in found in your health data";
       if (tk.id === "t_motto") { var mm = (state.pubProfiles[state.me] || {}).motto; sub = mm ? "\u201C" + mm + "\u201D" : "Set your motto in Settings"; }
       if (sub) txt.appendChild(el("span", "sub", sub));
       b.appendChild(txt);
       b.appendChild(el("span", "pts", "+" + tk.points + (tk.points === 1 ? " pt" : " pts")));
       if (isDevo) b.appendChild(el("span", "chev", "›"));
-      if (tk.kind === "photos") b.appendChild(el("span", "chev", "\u203A"));
-      b.addEventListener("click", function () { if (isDevo) openDevo(); else if (tk.kind === "photos") openProgress(); else if (!auto) toggle(tk.id); });
+      if (tk.kind === "photos" || (tk.kind === "steps" && !hAuto)) b.appendChild(el("span", "chev", "\u203A"));
+      if (tk.kind === "steps" && !hAuto) { b.removeAttribute("aria-readonly"); b.classList.remove("auto"); b.disabled = !state.me || !state.canWrite; }
+      b.addEventListener("click", function () { if (isDevo) openDevo(); else if (tk.kind === "photos") openProgress(); else if (tk.kind === "steps") { if (!hAuto) openSteps(); } else if (!auto) toggle(tk.id); });
       li.appendChild(b); list.appendChild(li);
     });
     var wt = taskOfKind("weigh");
@@ -2906,7 +2915,7 @@ details.targets[open] summary::after { content: "\2212"; }
     var isWeek = state.range === "week";
     arr.sort(function (a, b) { var d = isWeek ? b.weekPts - a.weekPts : b.todayPts - a.todayPts; return d || (isWeek ? b.todayPts - a.todayPts : b.weekPts - a.weekPts); });
     $("tab-today").setAttribute("aria-pressed", String(!isWeek)); $("tab-week").setAttribute("aria-pressed", String(isWeek));
-    $("board-note").textContent = isWeek ? "Week runs Monday to Sunday. Points come from boxes, your habits and PR bonuses. Push each other, and carry the man who is behind." : "Resets at midnight. Encourage the man next to you.";
+    $("board-note").textContent = isWeek ? "Week runs Monday to Sunday. Points come from boxes, your habits, step bonuses and PR bonuses. Push each other, and carry the man who is behind." : "Resets at midnight. Encourage the man next to you.";
     if (!arr.length || !state.tasks.length) {
       var e = el("div", "empty"); e.appendChild(el("strong", null, "No standings yet"));
       e.appendChild(document.createTextNode("Standings appear once there are tasks and someone checks one off.")); board.appendChild(e); return;
@@ -3345,6 +3354,27 @@ details.targets[open] summary::after { content: "\2212"; }
     var body = $(hid + "-body"), sec = body && body.closest("section"), btn = sec && sec.querySelector(".set-open");
     if (body && body.hidden && btn) btn.click();
     setTimeout(function () { if (sec && sec.scrollIntoView) sec.scrollIntoView({ block: "start", behavior: "smooth" }); }, 60);
+  }
+  function openSteps() {
+    var old = $("cdlg"); if (old) old.remove();
+    var key = todayKey(), cur = normSteps(recFor(key).steps), goal = stepGoal(key);
+    var back = el("div", "cdlg"); back.id = "cdlg";
+    var box = el("form", "cdlg-box nw-box"); box.setAttribute("role", "dialog"); box.setAttribute("aria-modal", "true"); box.setAttribute("aria-labelledby", "st-t"); box.noValidate = true;
+    var t = el("h2", null, "Today\u2019s steps"); t.id = "st-t"; box.appendChild(t);
+    box.appendChild(el("p", null, "Goal today: " + fmt(goal) + " steps" + (goal === STEPS_GOAL_SABBATH ? " (Sabbath)" : "") + ". Bonus: 1 point for each 1,000 steps from 10,000 to 15,000, then half a point for each 1,000 after."));
+    var lb = el("label", "flabel", "Steps from your phone or watch"), inp = el("input", "field"); inp.type = "number"; inp.min = "0"; inp.max = "200000"; inp.step = "1"; inp.inputMode = "numeric"; inp.id = "st-n"; inp.value = cur ? String(cur) : ""; inp.placeholder = "e.g. 11,500";
+    lb.appendChild(inp); box.appendChild(lb);
+    var pv = el("p", "fnote"); pv.setAttribute("aria-live", "polite"); box.appendChild(pv);
+    function paint() { var n = normSteps(inp.value), bn = stepBonus(n); pv.textContent = !n ? "" : (n >= goal ? "Steps box checked (+1)" : fmt(goal - n) + " to go for your Steps box") + (bn ? ". Bonus +" + fmtW(bn) + "." : "."); }
+    inp.addEventListener("input", paint); paint();
+    var row = el("div", "cdlg-btns"), no = el("button", "btn ghost", "Cancel"), yes = el("button", "btn", "Save steps"); no.type = "button"; yes.type = "submit";
+    row.appendChild(no); row.appendChild(yes); box.appendChild(row); back.appendChild(box);
+    function close() { back.remove(); }
+    no.addEventListener("click", close); back.addEventListener("click", function (ev) { if (ev.target === back) close(); });
+    back.addEventListener("keydown", function (ev) { if (ev.key === "Escape") { ev.stopPropagation(); close(); } });
+    box.addEventListener("submit", function (ev) { ev.preventDefault(); var n = normSteps(inp.value); close();
+      writeDay(function (r) { r.steps = n; var hs = taskOfKind("steps"); if (hs && !n) delete r.done[hs.id]; }); });
+    document.body.appendChild(back); setTimeout(function () { try { inp.focus(); } catch (e) {} }, 0);
   }
   function confirmDelete(o, onYes) {
     var old = $("cdlg"); if (old) old.remove();
