@@ -865,6 +865,8 @@ details.targets[open] summary::after { content: "\2212"; }
       <label class="sw-row"><span>Auto-fill weight</span><input type="checkbox" role="switch" class="switch" id="s-af-w"></label>
       <label class="sw-row"><span>Auto-fill reps</span><input type="checkbox" role="switch" class="switch" id="s-af-r"></label>
       <p class="note">When on, what you enter for a set fills in the empty sets below it for that exercise. Warm-up sets are skipped, and you can still change any set.</p>
+      <button class="btn ghost" type="button" id="test-sound" style="width:100%;margin-top:12px">Play timer sound</button>
+      <p class="note">If you don't hear it, turn up your phone's media volume. The sound can't play while your screen is locked.</p>
     </section>
 
     <section aria-labelledby="h-s-body">
@@ -1958,8 +1960,40 @@ details.targets[open] summary::after { content: "\2212"; }
   }
   function mmss(s) { s = Math.max(0, s); return Math.floor(s / 60) + ":" + pad(s % 60); }
   var audioCtx = null;
+  // iPhones mute Web Audio when the ring/silent switch is on silent. A media element plays on the media channel,
+  // so the timer tone still sounds (at the phone's media volume). It must be unlocked by a tap first.
+  var beepEl = null, beepReady = false;
+  function beepWavUrl() {
+    var rate = 22050, tones = [[880, .32], [0, .08], [880, .32], [0, .08], [1175, .45]], n = 0;
+    tones.forEach(function (t) { n += Math.round(t[1] * rate); });
+    var buf = new ArrayBuffer(44 + n * 2), v = new DataView(buf), o = 0;
+    function str(x) { for (var i = 0; i < x.length; i++) v.setUint8(o++, x.charCodeAt(i)); }
+    str("RIFF"); v.setUint32(o, 36 + n * 2, true); o += 4; str("WAVEfmt "); v.setUint32(o, 16, true); o += 4; v.setUint16(o, 1, true); o += 2; v.setUint16(o, 1, true); o += 2;
+    v.setUint32(o, rate, true); o += 4; v.setUint32(o, rate * 2, true); o += 4; v.setUint16(o, 2, true); o += 2; v.setUint16(o, 16, true); o += 2; str("data"); v.setUint32(o, n * 2, true); o += 4;
+    tones.forEach(function (t) {
+      var len = Math.round(t[1] * rate);
+      for (var i = 0; i < len; i++) {
+        var env = Math.min(1, i / 200, (len - i) / 400), val = t[0] ? Math.sin(2 * Math.PI * t[0] * i / rate) * 0.8 * env : 0;
+        v.setInt16(o, Math.max(-1, Math.min(1, val)) * 32767, true); o += 2;
+      }
+    });
+    return URL.createObjectURL(new Blob([buf], { type: "audio/wav" }));
+  }
   function unlockAudio() {
-    try { var AC = window.AudioContext || window.webkitAudioContext; if (!AC) return; if (!audioCtx) audioCtx = new AC(); if (audioCtx.state === "suspended") audioCtx.resume(); } catch (e) {}
+    try { if (navigator.audioSession && navigator.audioSession.type !== "playback") navigator.audioSession.type = "playback"; } catch (e) {}
+    try { var AC = window.AudioContext || window.webkitAudioContext; if (AC) { if (!audioCtx) audioCtx = new AC(); if (audioCtx.state === "suspended") audioCtx.resume(); } } catch (e) {}
+    try {
+      if (!beepEl) { beepEl = new Audio(beepWavUrl()); beepEl.preload = "auto"; beepEl.setAttribute("playsinline", ""); }
+      if (!beepReady) {
+        beepEl.muted = true;
+        var pr = beepEl.play();
+        if (pr && pr.then) pr.then(function () { beepEl.pause(); beepEl.currentTime = 0; beepEl.muted = false; beepReady = true; }).catch(function () { beepEl.muted = false; });
+      }
+    } catch (e) {}
+  }
+  function playBeepEl() {
+    if (!beepEl || !beepReady) return false;
+    try { beepEl.currentTime = 0; beepEl.muted = false; var pr = beepEl.play(); if (pr && pr.catch) pr.catch(function () { playTones(null, 0); }); return true; } catch (e) { return false; }
   }
   function playTones(t, delaySec) {
     if (!audioCtx) return false;
@@ -1977,9 +2011,10 @@ details.targets[open] summary::after { content: "\2212"; }
   function cancelTone(t) { (t.tones || []).forEach(function (o) { try { o.stop(); } catch (e) {} }); t.tones = []; t.sched = false; }
   function cancelAllTones() { if (wk) Object.keys(wk.timers).forEach(function (k) { cancelTone(wk.timers[k]); }); }
   // The tone is scheduled on the audio clock when the timer starts, so it still sounds if the phone throttles the page's timers.
-  function scheduleTone(t) { cancelTone(t); if (!t.running) return; t.sched = playTones(t, (t.endAt - Date.now()) / 1000); }
+  function scheduleTone(t) { cancelTone(t); if (!t.running || beepReady) return; t.sched = playTones(t, (t.endAt - Date.now()) / 1000); }
   function beep(t) {
     try { if (navigator.vibrate) navigator.vibrate([250, 120, 250, 120, 400]); } catch (e) {}
+    if (playBeepEl()) { cancelTone(t); return; }
     if (!t.sched) playTones(null, 0);
   }
   function paintTimer(t) {
@@ -3548,6 +3583,7 @@ details.targets[open] summary::after { content: "\2212"; }
     $("test-go").addEventListener("click", function () { var v = $("test-date").value; if (!/^\d{4}-\d{2}-\d{2}$/.test(v)) return; try { localStorage.setItem("fs-test-date", v === dkey(new Date()) ? "" : v); } catch (e) {} location.reload(); });
     $("test-off").addEventListener("click", function () { try { localStorage.removeItem("fs-test-date"); } catch (e) {} location.reload(); });
     if (TEST_DATE) { var tb = el("button", "test-banner", "Test mode: " + longDate(TEST_DATE) + ". Tap to go back to the real date."); tb.type = "button"; tb.addEventListener("click", function () { try { localStorage.removeItem("fs-test-date"); } catch (e) {} location.reload(); }); document.body.appendChild(tb); }
+    $("test-sound").addEventListener("click", function () { unlockAudio(); setTimeout(function () { if (!playBeepEl()) playTones(null, 0); }, 250); });
     [["s-af-w", "w"], ["s-af-r", "r"]].forEach(function (c) {
       $(c[0]).addEventListener("change", function () { var a = afPrefs(); a[c[1]] = this.checked; state.settings.autofill = a; if (state.me && state.canWrite) saveSettings(); });
     });
