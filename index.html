@@ -2152,7 +2152,7 @@ details.targets[open] summary::after { content: "\2212"; }
       var fb = el("button", "btn" + (done ? " ghost" : ""), done ? "Undo finish" : "Finish workout"); fb.type = "button"; fb.disabled = off;
       fb.addEventListener("click", function () {
         if (wk && wk.rec) wk.rec.finishedAt = done ? 0 : Date.now(); saveWkNow(); if (!S) previewWorkout(); drawWorkoutPage(true);
-        if (!done && wk && wk.root) awardPRs(key, wk.root, !S && wkTask ? wkTask.points : 0);
+        if (!done && wk && wk.root) awardPRs(key, wk.root, 0);
       }); body.appendChild(fb);
     } else if (!isToday && done) body.appendChild(el("p", "note", "Finished."));
     if (S && wk.loaded && !off) {
