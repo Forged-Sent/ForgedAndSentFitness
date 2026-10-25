@@ -409,8 +409,8 @@ details.targets[open] summary::after { content: "\2212"; }
 .fform{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;padding:12px 0;border-top:1px dashed var(--line)}
 .fform .full{grid-column:1/-1}
 .fform label{display:flex;flex-direction:column;gap:4px;font-family:var(--f-label);font-weight:600;font-size:13px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
-.ftools{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;padding:12px 0;border-top:1px dashed var(--line)}
-.ftool{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;min-height:64px;padding:8px 2px;background:transparent;border:1px solid var(--line);color:var(--ink);font-family:var(--f-label);font-weight:600;font-size:11px;letter-spacing:.08em;text-transform:uppercase}
+.ftools{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px;padding:12px 0;border-top:1px dashed var(--line)}
+.ftool{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;min-height:64px;padding:8px 1px;min-width:0;text-align:center;line-height:1.15;background:transparent;border:1px solid var(--line);color:var(--ink);font-family:var(--f-label);font-weight:600;font-size:10px;letter-spacing:.04em;text-transform:uppercase}
 .ftool svg{width:22px;height:22px;stroke:currentColor;stroke-width:2;fill:none;stroke-linecap:round;stroke-linejoin:round}
 .ftool.on{border-color:var(--brass,#b08d57);color:var(--brass,#b08d57)}
 .ftool:disabled{opacity:.5}
@@ -1054,7 +1054,7 @@ details.targets[open] summary::after { content: "\2212"; }
     "Be faithful in the small things: water, steps, prayer, reps."
   ];
   var state = {
-    page: "today", healthToday: null, healthMsg: "", tasks: [], checks: [], logs: [], habits: {}, settings: { blocked: {}, targets: null, body: null, reminders: null, health: null, plan: null, theme: null, autofill: null, favs: [], myMeals: [] }, planEdit: false, pubProfiles: {}, lifts: [], viewUid: null, prevPage: "today", liftEdit: null, liftMsg: null, dirty: {}, posts: [], likes: [],
+    page: "today", healthToday: null, healthMsg: "", tasks: [], checks: [], logs: [], habits: {}, settings: { blocked: {}, targets: null, body: null, reminders: null, health: null, plan: null, theme: null, autofill: null, favs: [], myMeals: [], preps: [] }, planEdit: false, pubProfiles: {}, lifts: [], viewUid: null, prevPage: "today", liftEdit: null, liftMsg: null, dirty: {}, posts: [], likes: [],
     range: "week", me: null, canWrite: true, profs: {}, editSlot: null, draft: "", lastFocus: null,
     trainDay: null, confirm: null, reported: {}, files: [], mentions: [], posting: false
   };
@@ -1182,7 +1182,7 @@ details.targets[open] summary::after { content: "\2212"; }
   }
   function saveSettings() {
     if (!B.db || !state.me) return;
-    var st = { blocked: state.settings.blocked || {}, targets: state.settings.targets || null, body: state.settings.body || null, reminders: state.settings.reminders || null, health: state.settings.health || null, plan: state.settings.plan || null, theme: state.settings.theme || null, autofill: state.settings.autofill || null, favs: state.settings.favs || [], myMeals: state.settings.myMeals || [] };
+    var st = { blocked: state.settings.blocked || {}, targets: state.settings.targets || null, body: state.settings.body || null, reminders: state.settings.reminders || null, health: state.settings.health || null, plan: state.settings.plan || null, theme: state.settings.theme || null, autofill: state.settings.autofill || null, favs: state.settings.favs || [], myMeals: state.settings.myMeals || [], preps: state.settings.preps || [] };
     writeChain = writeChain.then(function () { return B.saveSettings(state.me, st); }).catch(noop);
   }
 
@@ -2179,6 +2179,7 @@ details.targets[open] summary::after { content: "\2212"; }
     search: '<circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5 21 21"/>',
     photo: '<path d="M3 8h4l2-3h6l2 3h4v12H3z"/><circle cx="12" cy="13.5" r="3.5"/>',
     voice: '<rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/>',
+    prep: '<rect x="3" y="10" width="18" height="10" rx="2"/><path d="M2 10h20M7 6h10l1.5 4h-13z"/>',
     fav: '<path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2L12 17.3l-5.6 2.9 1.1-6.2L3 9.6l6.2-.9z"/>'
   };
   function r1(n) { return Math.round((Number(n) || 0) * 10) / 10; }
@@ -2281,6 +2282,7 @@ details.targets[open] summary::after { content: "\2212"; }
       inp.click(); return;
     }
     if (mode === "fav") { openAdd(meal, { tab: "fav" }); return; }
+    if (mode === "prep") { openAdd(meal, { view: "preps" }); return; }
     openAdd(meal, { focus: mode === "search" });
     if (mode === "voice") startVoice();
   }
@@ -2313,7 +2315,7 @@ details.targets[open] summary::after { content: "\2212"; }
       if (state.add !== a) return; a.busy = false; a.results = res; if (!res.length) a.err = "No matches. Try different words, or use Quick add."; drawMeals(true);
     }).catch(function () { if (state.add !== a) return; a.busy = false; a.err = "Search didn’t work just now. Try again, or use Quick add."; drawMeals(true); });
   }
-  function pickFood(food) { var a = state.add; a.pick = { name: food.name, d: food.d || "", s: food.s, si: food.si || 0, nStr: String(food.n || 1) }; a.view = "serving"; drawMeals(true); var b = $("fsheet-b"); if (b) b.scrollTop = 0; }
+  function pickFood(food) { var a = state.add; a.from = a.view === "preps" ? "preps" : "list"; a.pick = { name: food.name, d: food.d || "", s: food.s, si: food.si || 0, nStr: String(food.n || 1) }; a.view = "serving"; drawMeals(true); var b = $("fsheet-b"); if (b) b.scrollTop = 0; }
 
   function afRow(food, right, onTap, label) {
     var b = el("button", "af-row"); b.type = "button"; b.setAttribute("aria-label", label || ("Choose " + food.name));
@@ -2328,6 +2330,8 @@ details.targets[open] summary::after { content: "\2212"; }
     if (a.view === "serving") return [drawServing(m, off), a.editId ? "Edit food" : "Add to " + m.label];
     if (a.view === "quick") return [drawQuick(m, off), a.editId ? "Edit food" : "Quick add · " + m.label];
     if (a.view === "savemeal") return [drawSaveMeal(m, off), "Save meal"];
+    if (a.view === "preps") return [drawPreps(m, off), "Meal prep \u00B7 " + m.label];
+    if (a.view === "prepform") return [drawPrepForm(m, off), a.prepEdit != null ? "Edit meal prep" : "New meal prep"];
     // search bar
     var f = el("form", "af-search"); f.setAttribute("role", "search");
     var qi = el("input", "field"); qi.type = "search"; qi.id = "af-q"; qi.placeholder = "Search for a food"; qi.value = a.q; qi.setAttribute("aria-label", "Search for a food"); qi.setAttribute("autocomplete", "off"); qi.maxLength = 80; qi.setAttribute("enterkeyhint", "search");
@@ -2381,7 +2385,7 @@ details.targets[open] summary::after { content: "\2212"; }
     var a = state.add, pk = a.pick, w = el("div", "af af-serv");
     var top = el("div", "af-hd");
     var bk = el("button", "mini", a.editId ? "Close" : "‹ Back"); bk.type = "button";
-    bk.addEventListener("click", function () { if (a.editId) closeAdd(); else { a.view = "list"; a.pick = null; drawMeals(true); } });
+    bk.addEventListener("click", function () { if (a.editId) closeAdd(); else { a.view = a.from || "list"; a.pick = null; drawMeals(true); } });
     top.appendChild(bk);
     var fv = isFav(pk.name), st = el("button", "mini fx" + (fv ? " star" : ""), fv ? "★" : "☆"); st.type = "button"; st.disabled = off;
     st.setAttribute("aria-pressed", String(fv)); st.setAttribute("aria-label", fv ? "Remove from favorites" : "Save as a favorite");
@@ -2442,6 +2446,65 @@ details.targets[open] summary::after { content: "\2212"; }
     });
     return form;
   }
+  function prepList() {
+    return (Array.isArray(state.settings.preps) ? state.settings.preps : []).map(function (x) { x = x || {}; return { name: String(x.name || "").slice(0, 60), d: "Meal prep", s: normServ(x.s), si: 0, n: 1 }; })
+      .filter(function (x) { return x.name && x.s.length; });
+  }
+  function drawPreps(m, off) {
+    var a = state.add, w = el("div", "af"), list = el("div", "af-list"), preps = prepList();
+    var nb = el("button", "btn", "+ Create meal prep"); nb.type = "button"; nb.disabled = off;
+    nb.addEventListener("click", function () { a.view = "prepform"; a.prepEdit = null; a.pd = { name: "", l: "1 container", kcal: "", p: "", f: "", c: "" }; a.err = ""; drawMeals(true); });
+    w.appendChild(nb);
+    if (!preps.length) list.appendChild(el("p", "fnote", "No meal preps yet. Create one with its name, calories and macros per container, then add it to any meal in one tap."));
+    preps.forEach(function (food, i) {
+      var row = el("div", "af-rowwrap"), b = afRow(food, null, function () { pickFood(food); }, "Add " + food.name);
+      var ed = el("button", "mini", "Edit"); ed.type = "button"; ed.disabled = off; ed.setAttribute("aria-label", "Edit meal prep " + food.name);
+      ed.addEventListener("click", function () { var sv = food.s[0]; a.view = "prepform"; a.prepEdit = i; a.pd = { name: food.name, l: sv.l, kcal: String(sv.kcal), p: String(sv.p), f: String(sv.f), c: String(sv.c) }; a.err = ""; drawMeals(true); });
+      row.appendChild(b); row.appendChild(ed); list.appendChild(row);
+    });
+    w.appendChild(list);
+    if (preps.length) w.appendChild(el("p", "fnote", "Tap a meal prep to choose how many servings and add it to " + m.label.toLowerCase() + "."));
+    return w;
+  }
+  function drawPrepForm(m, off) {
+    var a = state.add, d = a.pd, form = el("form", "fform");
+    function field(label, key, type, cls, attrs) {
+      var l = el("label", cls || null, label), i = el("input", "field"); i.type = type; i.value = d[key];
+      Object.keys(attrs || {}).forEach(function (k) { i.setAttribute(k, attrs[k]); });
+      i.addEventListener("input", function () { d[key] = i.value; }); l.appendChild(i); form.appendChild(l); return i;
+    }
+    field("Meal prep name", "name", "text", "full", { maxlength: "60", placeholder: "e.g. Chicken, rice and broccoli", autocomplete: "off", id: "af-pn" });
+    field("Serving", "l", "text", "full", { maxlength: "40", placeholder: "e.g. 1 container" });
+    field("Calories", "kcal", "number", null, { min: "0", max: "5000", inputmode: "numeric", placeholder: "Per serving" });
+    field("Protein (g)", "p", "number", null, { min: "0", max: "500", inputmode: "decimal" });
+    field("Fat (g)", "f", "number", null, { min: "0", max: "500", inputmode: "decimal" });
+    field("Carbs (g)", "c", "number", null, { min: "0", max: "1000", inputmode: "decimal" });
+    if (a.err) form.appendChild(el("p", "error full", a.err));
+    var sv = el("button", "btn full", "Save meal prep"); sv.type = "submit"; sv.disabled = off; form.appendChild(sv);
+    var sa = el("button", "btn ghost full", "Save and add to " + m.label.toLowerCase()); sa.type = "button"; sa.disabled = off; form.appendChild(sa);
+    var bk = el("button", "btn ghost", "Back"); bk.type = "button"; bk.addEventListener("click", function () { a.view = "preps"; a.err = ""; drawMeals(true); }); form.appendChild(bk);
+    if (a.prepEdit != null) {
+      var dl = el("button", "btn ghost", "Delete"); dl.type = "button"; dl.disabled = off;
+      dl.addEventListener("click", function () { var arr = (state.settings.preps || []).slice(); arr.splice(a.prepEdit, 1); state.settings.preps = arr; saveSettings(); a.view = "preps"; a.prepEdit = null; drawMeals(true); });
+      form.appendChild(dl);
+    } else form.appendChild(el("span"));
+    function save(andAdd) {
+      function num(v, max) { var x = parseFloat(v); return isFinite(x) && x >= 0 ? Math.min(max, r1(x)) : 0; }
+      var name = (d.name || "").trim().slice(0, 60), p = num(d.p, 500), f = num(d.f, 500), c = num(d.c, 1000), kcal = num(d.kcal, 5000);
+      if (!name) { a.err = "Give the meal prep a name."; drawMeals(true); return; }
+      if (!kcal) kcal = Math.round(p * 4 + f * 9 + c * 4);
+      if (!kcal && !p && !f && !c) { a.err = "Enter calories or macros."; drawMeals(true); return; }
+      var item = { name: name, s: [{ l: (d.l || "").trim().slice(0, 40) || "1 serving", kcal: Math.round(kcal), p: p, f: f, c: c }] };
+      var arr = (Array.isArray(state.settings.preps) ? state.settings.preps : []).slice();
+      if (a.prepEdit != null) arr[a.prepEdit] = item; else arr = arr.filter(function (x) { return favKey(x && x.name) !== favKey(name); }), arr.unshift(item);
+      state.settings.preps = arr.slice(0, 40); saveSettings();
+      if (andAdd) { putEntries(a.meal, [entryFrom({ name: name, d: "Meal prep", s: item.s }, 0, 1, newId())]); closeAdd(); }
+      else { a.view = "preps"; a.prepEdit = null; a.err = ""; drawMeals(true); }
+    }
+    form.addEventListener("submit", function (ev) { ev.preventDefault(); save(false); });
+    sa.addEventListener("click", function () { save(true); });
+    return form;
+  }
   function drawSaveMeal(m, off) {
     var a = state.add, items = logFor(todayKey()).meals[a.meal] || [], w = el("form", "af");
     var l = el("label", "flabel", "Meal name"), i = el("input", "field"); i.type = "text"; i.maxLength = 40; i.value = a.mealName; i.placeholder = "e.g. Usual breakfast"; i.id = "af-mn";
@@ -2490,7 +2553,7 @@ details.targets[open] summary::after { content: "\2212"; }
         row.appendChild(main); row.appendChild(rm); sec.appendChild(row);
       });
       var bar = el("div", "ftools");
-      [["search", "Search"], ["photo", "Photo"], ["voice", "Voice"], ["fav", "Favorites"]].forEach(function (t) {
+      [["search", "Search"], ["photo", "Photo"], ["voice", "Voice"], ["fav", "Favorites"], ["prep", "Meal prep"]].forEach(function (t) {
         var b = el("button", "ftool"); b.type = "button"; b.disabled = off;
         b.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true">' + FT_ICONS[t[0]] + '</svg>'; b.appendChild(el("span", null, t[1]));
         b.addEventListener("click", function () { mealTool(m.k, t[0]); }); bar.appendChild(b);
@@ -2786,7 +2849,7 @@ details.targets[open] summary::after { content: "\2212"; }
         await writeChain; await B.deleteMyData(state.me);
         var me = state.me;
         state.checks = state.checks.filter(function (c) { return c.uid !== me; }); state.logs = []; state.habits = {};
-        state.settings = { blocked: {}, targets: null, body: null, reminders: null, health: null, plan: null, theme: null, autofill: null, favs: [], myMeals: [] }; delete state.pubProfiles[me];
+        state.settings = { blocked: {}, targets: null, body: null, reminders: null, health: null, plan: null, theme: null, autofill: null, favs: [], myMeals: [], preps: [] }; delete state.pubProfiles[me];
         ds.textContent = "All your data was deleted."; var bx = $("del-box"); bx.hidden = true; bx.style.display = "none";
         drawAll();
       } catch (e) { ds.textContent = "Could not finish deleting. Try again."; }
@@ -2894,7 +2957,7 @@ details.targets[open] summary::after { content: "\2212"; }
         state.habits = clean; drawAll();
       });
       B.watchSettings(state.me, function (st) {
-        state.settings = { blocked: (st && st.blocked) || {}, targets: (st && st.targets) || null, body: (st && st.body) || null, reminders: (st && st.reminders) || null, health: (st && st.health) || null, plan: (st && st.plan) || null, theme: (st && st.theme) || null, autofill: (st && st.autofill) || null, favs: (st && Array.isArray(st.favs)) ? st.favs.slice(0, 60) : [], myMeals: (st && Array.isArray(st.myMeals)) ? st.myMeals.slice(0, 30) : [] }; if (state.settings.theme) applyTheme(state.settings.theme, false); drawAll(); drawFeed(); refreshHealth();
+        state.settings = { blocked: (st && st.blocked) || {}, targets: (st && st.targets) || null, body: (st && st.body) || null, reminders: (st && st.reminders) || null, health: (st && st.health) || null, plan: (st && st.plan) || null, theme: (st && st.theme) || null, autofill: (st && st.autofill) || null, favs: (st && Array.isArray(st.favs)) ? st.favs.slice(0, 60) : [], myMeals: (st && Array.isArray(st.myMeals)) ? st.myMeals.slice(0, 30) : [], preps: (st && Array.isArray(st.preps)) ? st.preps.slice(0, 40) : [] }; if (state.settings.theme) applyTheme(state.settings.theme, false); drawAll(); drawFeed(); refreshHealth();
       });
     }
     B.watchPosts(function (rows) { state.posts = rows; drawFeed(); loadProfiles(); });
