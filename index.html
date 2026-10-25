@@ -344,8 +344,6 @@ details.targets[open] summary::after { content: "\2212"; }
 .blk{display:flex;align-items:center;justify-content:space-between;gap:12px;border-bottom:1px solid var(--line);padding:8px 0}
 .dz{border:2px solid var(--danger);padding:14px;display:flex;flex-direction:column;gap:10px}
 .clk{cursor:pointer}
-.rprog{position:sticky;top:0;z-index:5;height:6px;background:var(--surface-2);border:1px solid var(--line)}
-.rprog i{display:block;height:100%;width:0;background:var(--brass)}
 .devo{display:flex;flex-direction:column;gap:28px}
 .devo-head{display:flex;flex-direction:column;gap:6px;border-bottom:3px solid var(--brass);padding-bottom:16px}
 .d-sec{display:flex;flex-direction:column;gap:8px}
@@ -580,7 +578,6 @@ details.targets[open] summary::after { content: "\2212"; }
 
   <!-- DEVOTIONAL -->
   <div class="page" id="page-devo" hidden>
-    <div class="rprog" aria-hidden="true"><i id="rprog-fill"></i></div>
     <div class="pbar">
       <button class="mini" type="button" id="devo-back">&lsaquo; Back</button>
       <span class="date label-caps" id="devo-dayname"></span>
@@ -1104,7 +1101,6 @@ details.targets[open] summary::after { content: "\2212"; }
   function devoScroll() {
     if (state.page !== "devo") return;
     var sc = $("scroll"), max = sc.scrollHeight - sc.clientHeight;
-    $("rprog-fill").style.width = Math.round((max > 0 ? Math.min(1, sc.scrollTop / max) : 1) * 100) + "%";
     if (max <= 0 || sc.scrollTop >= max - 12) devoReached = true;
     updateDevoBtn();
   }
