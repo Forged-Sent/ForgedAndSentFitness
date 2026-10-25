@@ -15,7 +15,7 @@
   });
   seed("lifts", { l_squat: { name: "Back Squat", order: 1 }, l_bench: { name: "Bench Press", order: 2 }, l_dead: { name: "Deadlift", order: 3 }, l_ohp: { name: "Overhead Press", order: 4 } });
   function notify() { subs.slice().forEach(function (s) { s(); }); }
-  function snap(id, data) { return { id: id, exists: data !== undefined, data: function () { return data === undefined ? undefined : JSON.parse(JSON.stringify(data)); } }; }
+  function snap(id, data) { return { id: id, exists: data !== undefined, data: function () { if (data === undefined) return undefined; var c = JSON.parse(JSON.stringify(data)); if (window.MOCK_FREEZE) { (function f(o) { if (o && typeof o === "object") { Object.keys(o).forEach(function (k) { f(o[k]); }); Object.freeze(o); } })(c); } return c; } }; }
   function cmp(a, op, b) { return op === "==" ? a === b : op === "!=" ? a !== b : op === ">=" ? a >= b : op === "<=" ? a <= b : op === ">" ? a > b : op === "<" ? a < b : false; }
   function Query(path, wh, ord, lim) {
     var q = {

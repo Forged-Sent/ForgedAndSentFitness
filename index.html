@@ -1428,7 +1428,16 @@ details.targets[open] summary::after { content: "\2212"; }
   /* ---------- Workout logging: sets, reps, weight, rest timer ---------- */
   var wk = null, wkTick = null, saveT = null, WK_BASE = 90;
   function emptyWk(key) { return { date: key, startedAt: 0, ex: {} }; }
-  function normWk(r, key) { var o = emptyWk(key); if (r && typeof r === "object") { o.startedAt = Number(r.startedAt) || 0; o.ex = r.ex && typeof r.ex === "object" ? r.ex : {}; } return o; }
+  function normWk(r, key) {
+    var o = emptyWk(key);
+    if (r && typeof r === "object") {
+      o.startedAt = Number(r.startedAt) || 0;
+      // Deep copy: data handed back by the database can be read-only, and sets must be editable.
+      try { var ex = JSON.parse(JSON.stringify(r.ex || {})); o.ex = ex && typeof ex === "object" && !Array.isArray(ex) ? ex : {}; } catch (e) { o.ex = {}; }
+      Object.keys(o.ex).forEach(function (k) { if (!Array.isArray(o.ex[k])) delete o.ex[k]; });
+    }
+    return o;
+  }
   function parseSets(rx) {
     var m = /^\s*(\d+)\s*x\s*([^(]+?)\s*(?:\(.*)?$/i.exec(String(rx));
     if (!m) return null; var n = +m[1]; if (n < 1 || n > 12) return null;
