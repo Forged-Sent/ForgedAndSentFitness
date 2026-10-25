@@ -8,7 +8,12 @@
    "Dumbbells Only": "Dumbbell Goblet Squat",
    "Bodyweight Only": "Tempo Bodyweight Squat (3 sec down)"
   },
-  "cue": "Brace, sit between the hips, drive the floor away."
+  "cue": "Brace, sit between the hips, drive the floor away.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=irA7MTz96ho",
+   "channel": "Kelly Matthews",
+   "views": 430781
+  }
  },
  "Front Squat": {
   "pattern": "Squat",
@@ -19,7 +24,12 @@
    "Dumbbells Only": "Dumbbell Front-Rack Squat",
    "Bodyweight Only": "Pause Bodyweight Squat (2 sec at bottom)"
   },
-  "cue": "Elbows high and torso upright."
+  "cue": "Elbows high and torso upright.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=v-mQm_droHg",
+   "channel": "Jeff Nippard",
+   "views": null
+  }
  },
  "Pause Squat": {
   "pattern": "Squat",
@@ -30,7 +40,12 @@
    "Dumbbells Only": "Dumbbell Goblet Pause Squat",
    "Bodyweight Only": "Bodyweight Pause Squat (3 sec at bottom)"
   },
-  "cue": "Hold the bottom for 2 seconds, stay tight, then stand."
+  "cue": "Hold the bottom for 2 seconds, stay tight, then stand.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=JkwJ3LlFE7M",
+   "channel": "Juggernaut Training Systems",
+   "views": 9562
+  }
  },
  "Box Squat": {
   "pattern": "Squat",
@@ -41,7 +56,12 @@
    "Dumbbells Only": "Dumbbell Box Squat",
    "Bodyweight Only": "Bodyweight Box Squat"
   },
-  "cue": "Sit back to the box, stay tight, stand without rocking."
+  "cue": "Sit back to the box, stay tight, stand without rocking.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=4ShOT0idPR8",
+   "channel": "Barbell Logic",
+   "views": null
+  }
  },
  "Tempo Squat": {
   "pattern": "Squat",
@@ -52,7 +72,12 @@
    "Dumbbells Only": "Dumbbell Goblet Tempo Squat (3 sec down)",
    "Bodyweight Only": "Bodyweight Tempo Squat (4 sec down)"
   },
-  "cue": "Lower slowly, drive up at normal speed."
+  "cue": "Lower slowly, drive up at normal speed.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=dC3G_CFrPVg",
+   "channel": "Barbell Logic",
+   "views": null
+  }
  },
  "Goblet Squat": {
   "pattern": "Squat",
@@ -63,7 +88,12 @@
    "Dumbbells Only": "Dumbbell Goblet Squat",
    "Bodyweight Only": "Bodyweight Squat"
   },
-  "cue": "Hold the weight at the chest with elbows inside the knees."
+  "cue": "Hold the weight at the chest with elbows inside the knees.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=JO7D6GJ98wY",
+   "channel": "Jack Hanrahan Fitness",
+   "views": 126339
+  }
  },
  "Leg Press": {
   "pattern": "Squat",
@@ -74,7 +104,12 @@
    "Dumbbells Only": "Dumbbell Heel-Elevated Goblet Squat",
    "Bodyweight Only": "Wall Sit"
   },
-  "cue": "Use full range and keep the hips down."
+  "cue": "Use full range and keep the hips down.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=cDGOn-yfKJA",
+   "channel": "NASM",
+   "views": null
+  }
  },
  "Hack Squat": {
   "pattern": "Squat",
@@ -85,7 +120,12 @@
    "Dumbbells Only": "Dumbbell Heel-Elevated Goblet Squat",
    "Bodyweight Only": "Heels-Elevated Bodyweight Squat"
   },
-  "cue": "Control the lowering and keep the front foot flat."
+  "cue": "Control the lowering and keep the front foot flat.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=-lAnEGH2blE",
+   "channel": "Physio Plus Fitness",
+   "views": 41752
+  }
  },
  "Split Squat": {
   "pattern": "Single leg",
@@ -96,7 +136,12 @@
    "Dumbbells Only": "Dumbbell Split Squat",
    "Bodyweight Only": "Bodyweight Split Squat"
   },
-  "cue": "Stay tall and drop the back knee straight down."
+  "cue": "Stay tall and drop the back knee straight down.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=4aqrcebiFZo",
+   "channel": "Born Fitness",
+   "views": null
+  }
  },
  "Bulgarian Split Squat": {
   "pattern": "Single leg",
@@ -107,7 +152,12 @@
    "Dumbbells Only": "Dumbbell Bulgarian Split Squat",
    "Bodyweight Only": "Bodyweight Bulgarian Split Squat"
   },
-  "cue": "Rear foot on a bench, lean slightly forward, drive through the front heel."
+  "cue": "Rear foot on a bench, lean slightly forward, drive through the front heel.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=hiLF_pF3EJM",
+   "channel": "ATHLEAN-X",
+   "views": null
+  }
  },
  "Walking Lunge": {
   "pattern": "Single leg",
@@ -118,7 +168,12 @@
    "Dumbbells Only": "Dumbbell Walking Lunge",
    "Bodyweight Only": "Bodyweight Walking Lunge"
   },
-  "cue": "Long steps, torso upright, no bouncing off the knee."
+  "cue": "Long steps, torso upright, no bouncing off the knee.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=qLyj6xo3j5c",
+   "channel": "Quadzilla Hikes",
+   "views": null
+  }
  },
  "Reverse Lunge": {
   "pattern": "Single leg",
@@ -129,7 +184,12 @@
    "Dumbbells Only": "Dumbbell Reverse Lunge",
    "Bodyweight Only": "Bodyweight Reverse Lunge"
   },
-  "cue": "Step back softly and push through the front foot."
+  "cue": "Step back softly and push through the front foot.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=GcYirgCLhnI",
+   "channel": "Idris",
+   "views": 6794
+  }
  },
  "Step-Up": {
   "pattern": "Single leg",
@@ -140,7 +200,12 @@
    "Dumbbells Only": "Dumbbell Step-Up",
    "Bodyweight Only": "Bodyweight Step-Up (high box)"
   },
-  "cue": "Use a box that puts the knee near hip height and avoid pushing off the back foot."
+  "cue": "Use a box that puts the knee near hip height and avoid pushing off the back foot.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=vs87hPGdnCc",
+   "channel": "Fit Father Project",
+   "views": null
+  }
  },
  "Lateral Lunge": {
   "pattern": "Single leg",
@@ -151,7 +216,12 @@
    "Dumbbells Only": "Dumbbell Lateral Lunge",
    "Bodyweight Only": "Bodyweight Lateral Lunge"
   },
-  "cue": "Sit back into one hip and keep the other leg straight."
+  "cue": "Sit back into one hip and keep the other leg straight.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=Vx6mQXEj8kw",
+   "channel": "Born Fitness",
+   "views": null
+  }
  },
  "Deadlift": {
   "pattern": "Hinge",
@@ -162,7 +232,12 @@
    "Dumbbells Only": "Dumbbell Deadlift",
    "Bodyweight Only": "Single-Leg Hip Hinge (bodyweight)"
   },
-  "cue": "Bar over mid-foot, flat back, push the floor away."
+  "cue": "Bar over mid-foot, flat back, push the floor away.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=VL5Ab0T07e4",
+   "channel": "Jeff Nippard",
+   "views": 3115759
+  }
  },
  "Trap Bar Deadlift": {
   "pattern": "Hinge",
@@ -173,7 +248,12 @@
    "Dumbbells Only": "Dumbbell Deadlift",
    "Bodyweight Only": "Tempo Bodyweight Hip Hinge (3 sec down)"
   },
-  "cue": "Stand tall at the top and keep the weight close."
+  "cue": "Stand tall at the top and keep the weight close.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=5BpuTmfQjro",
+   "channel": "Colossus Fitness",
+   "views": null
+  }
  },
  "Deficit Deadlift": {
   "pattern": "Hinge",
@@ -184,7 +264,12 @@
    "Dumbbells Only": "Dumbbell Deficit Deadlift",
    "Bodyweight Only": "Single-Leg Hip Hinge (bodyweight)"
   },
-  "cue": "Stand on a 1 to 2 inch plate and keep the back flat at the start."
+  "cue": "Stand on a 1 to 2 inch plate and keep the back flat at the start.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=hnuPZZfeRzs",
+   "channel": "Misfit Athletics",
+   "views": 69106
+  }
  },
  "Pause Deadlift": {
   "pattern": "Hinge",
@@ -195,7 +280,12 @@
    "Dumbbells Only": "Dumbbell Pause Deadlift",
    "Bodyweight Only": "Bodyweight Good Morning (3 sec pause)"
   },
-  "cue": "Pause for 2 seconds just below the knee, then finish the pull."
+  "cue": "Pause for 2 seconds just below the knee, then finish the pull.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=cjT5Fx4qv-4",
+   "channel": "Testify Strength & Conditioning",
+   "views": 8240
+  }
  },
  "Sumo Deadlift": {
   "pattern": "Hinge",
@@ -206,7 +296,12 @@
    "Dumbbells Only": "Dumbbell Sumo Deadlift",
    "Bodyweight Only": "Bodyweight Sumo Squat Pulse"
   },
-  "cue": "Wide stance, knees out, chest tall."
+  "cue": "Wide stance, knees out, chest tall.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=JbY72Him34Q",
+   "channel": "PureGym",
+   "views": null
+  }
  },
  "Romanian Deadlift": {
   "pattern": "Hinge",
@@ -217,7 +312,12 @@
    "Dumbbells Only": "Dumbbell Romanian Deadlift",
    "Bodyweight Only": "Single-Leg Romanian Deadlift (bodyweight)"
   },
-  "cue": "Push the hips back, soft knees, feel the hamstrings stretch."
+  "cue": "Push the hips back, soft knees, feel the hamstrings stretch.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=5bJEigM5iVg",
+   "channel": "Squat University",
+   "views": null
+  }
  },
  "Good Morning": {
   "pattern": "Hinge",
@@ -228,7 +328,12 @@
    "Dumbbells Only": "Dumbbell Good Morning",
    "Bodyweight Only": "Bodyweight Good Morning"
   },
-  "cue": "Hands on the shoulders or behind the head, hinge with a flat back."
+  "cue": "Hands on the shoulders or behind the head, hinge with a flat back.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=VkNcc0BQrpA",
+   "channel": "Nick Tumminello",
+   "views": 452106
+  }
  },
  "Hip Thrust": {
   "pattern": "Hinge",
@@ -239,7 +344,12 @@
    "Dumbbells Only": "Dumbbell Hip Thrust",
    "Bodyweight Only": "Single-Leg Glute Bridge"
   },
-  "cue": "Chin tucked, ribs down, squeeze the glutes at the top."
+  "cue": "Chin tucked, ribs down, squeeze the glutes at the top.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=UmY5lVwpycE",
+   "channel": "Dr. Carl Baird",
+   "views": null
+  }
  },
  "Back Extension": {
   "pattern": "Hinge",
@@ -250,7 +360,12 @@
    "Dumbbells Only": "Prone Back Extension with Dumbbell",
    "Bodyweight Only": "Prone Superman Hold"
   },
-  "cue": "Lift to a straight line and avoid over-arching."
+  "cue": "Lift to a straight line and avoid over-arching.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=gLT-WLH84B4",
+   "channel": "Steev",
+   "views": null
+  }
  },
  "Single-Leg Romanian Deadlift": {
   "pattern": "Hinge",
@@ -261,7 +376,12 @@
    "Dumbbells Only": "Dumbbell Single-Leg Romanian Deadlift",
    "Bodyweight Only": "Single-Leg Romanian Deadlift (bodyweight)"
   },
-  "cue": "Hips square, reach long, slight bend in the standing knee."
+  "cue": "Hips square, reach long, slight bend in the standing knee.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=Zfr6wizR8rs",
+   "channel": "Squat University",
+   "views": null
+  }
  },
  "Kettlebell Swing": {
   "pattern": "Hinge",
@@ -272,7 +392,12 @@
    "Dumbbells Only": "Dumbbell Swing",
    "Bodyweight Only": "Hip Hinge Snap (bodyweight)"
   },
-  "cue": "Snap the hips and let the arms float."
+  "cue": "Snap the hips and let the arms float.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=bDCeXbMJVNs",
+   "channel": "Zack Henderson",
+   "views": null
+  }
  },
  "Leg Curl": {
   "pattern": "Hinge",
@@ -283,7 +408,12 @@
    "Dumbbells Only": "Slow Dumbbell Romanian Deadlift (3 sec down)",
    "Bodyweight Only": "Nordic Hamstring Curl (assisted)"
   },
-  "cue": "Control the lowering phase."
+  "cue": "Control the lowering phase.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=S367qaHeYWU",
+   "channel": "Fitness 19",
+   "views": 2286
+  }
  },
  "Calf Raise": {
   "pattern": "Calves",
@@ -294,7 +424,12 @@
    "Dumbbells Only": "Dumbbell Single-Leg Calf Raise",
    "Bodyweight Only": "Bodyweight Single-Leg Calf Raise"
   },
-  "cue": "Pause at the top and stretch at the bottom."
+  "cue": "Pause at the top and stretch at the bottom.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=KRJIKsY02nE",
+   "channel": "Strength, Verified",
+   "views": 2061
+  }
  },
  "Bench Press": {
   "pattern": "Horizontal push",
@@ -305,7 +440,12 @@
    "Dumbbells Only": "Dumbbell Bench Press (neutral grip)",
    "Bodyweight Only": "Push-Up (feet elevated)"
   },
-  "cue": "Shoulder blades pinched, feet planted, bar to the lower chest."
+  "cue": "Shoulder blades pinched, feet planted, bar to the lower chest.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=4Y2ZdHCOXok",
+   "channel": "Jeremy Ethier",
+   "views": 5945152
+  }
  },
  "Pause Bench Press": {
   "pattern": "Horizontal push",
@@ -316,7 +456,12 @@
    "Dumbbells Only": "Dumbbell Pause Bench Press",
    "Bodyweight Only": "Pause Push-Up (2 sec at bottom)"
   },
-  "cue": "Pause on the chest for 1 to 2 seconds, then press."
+  "cue": "Pause on the chest for 1 to 2 seconds, then press.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=RZRZNsZPpHw",
+   "channel": "Kev-D Fitness",
+   "views": 6083
+  }
  },
  "Incline Bench Press": {
   "pattern": "Horizontal push",
@@ -327,7 +472,12 @@
    "Dumbbells Only": "Incline Dumbbell Press (neutral grip)",
    "Bodyweight Only": "Feet-Elevated Push-Up"
   },
-  "cue": "Bench angle around 30 degrees."
+  "cue": "Bench angle around 30 degrees.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=11gY7Q5D5wo",
+   "channel": "LIVESTRONG",
+   "views": 463399
+  }
  },
  "Close-Grip Bench Press": {
   "pattern": "Horizontal push",
@@ -338,7 +488,12 @@
    "Dumbbells Only": "Dumbbell Close-Grip Press (palms facing)",
    "Bodyweight Only": "Close-Grip Push-Up"
   },
-  "cue": "Hands just inside shoulder width, elbows tucked."
+  "cue": "Hands just inside shoulder width, elbows tucked.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=UYJsFzqdgK4",
+   "channel": "ScottHermanFitness",
+   "views": null
+  }
  },
  "Floor Press": {
   "pattern": "Horizontal push",
@@ -349,7 +504,12 @@
    "Dumbbells Only": "Dumbbell Floor Press",
    "Bodyweight Only": "Push-Up"
   },
-  "cue": "Pause the triceps on the floor, then press."
+  "cue": "Pause the triceps on the floor, then press.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=gacJl2rHwtg",
+   "channel": "SET FOR SET",
+   "views": null
+  }
  },
  "Dumbbell Bench Press": {
   "pattern": "Horizontal push",
@@ -360,7 +520,12 @@
    "Dumbbells Only": "Dumbbell Bench Press",
    "Bodyweight Only": "Tempo Push-Up (3 sec down)"
   },
-  "cue": "Lower until the elbows are slightly below the bench."
+  "cue": "Lower until the elbows are slightly below the bench.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=5Y3VZsLb1Ys",
+   "channel": "Jack Hanrahan Fitness",
+   "views": 1133133
+  }
  },
  "Incline Dumbbell Press": {
   "pattern": "Horizontal push",
@@ -371,7 +536,12 @@
    "Dumbbells Only": "Incline Dumbbell Press",
    "Bodyweight Only": "Archer Push-Up"
   },
-  "cue": "Press up and slightly together."
+  "cue": "Press up and slightly together.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=OC7Qs_SAO2E",
+   "channel": "Jack Hanrahan Fitness",
+   "views": 137227
+  }
  },
  "Push-Up": {
   "pattern": "Horizontal push",
@@ -382,7 +552,12 @@
    "Dumbbells Only": "Push-Up",
    "Bodyweight Only": "Push-Up"
   },
-  "cue": "Body in one line, chest to the floor."
+  "cue": "Body in one line, chest to the floor.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=WDIpL0pjun0",
+   "channel": "NASM",
+   "views": null
+  }
  },
  "Dips": {
   "pattern": "Horizontal push",
@@ -393,7 +568,12 @@
    "Dumbbells Only": "Bench Dip",
    "Bodyweight Only": "Bench Dip"
   },
-  "cue": "Shoulders down, lean slightly forward for chest."
+  "cue": "Shoulders down, lean slightly forward for chest.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=BNi3UmLyV8Q",
+   "channel": "SaturnoMovement",
+   "views": null
+  }
  },
  "Chest Fly": {
   "pattern": "Horizontal push",
@@ -404,7 +584,12 @@
    "Dumbbells Only": "Dumbbell Chest Fly",
    "Bodyweight Only": "Wide Push-Up"
   },
-  "cue": "Soft elbows, stretch wide, hug the weight in."
+  "cue": "Soft elbows, stretch wide, hug the weight in.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=LofDAe2Dr30",
+   "channel": "Mind Pump TV",
+   "views": null
+  }
  },
  "Overhead Press": {
   "pattern": "Vertical push",
@@ -415,7 +600,12 @@
    "Dumbbells Only": "Dumbbell Overhead Press",
    "Bodyweight Only": "Pike Push-Up"
   },
-  "cue": "Squeeze the glutes and press the bar in a straight line."
+  "cue": "Squeeze the glutes and press the bar in a straight line.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=nNMR9fRGRjQ",
+   "channel": "Barbell Logic",
+   "views": null
+  }
  },
  "Push Press": {
   "pattern": "Vertical push",
@@ -426,7 +616,12 @@
    "Dumbbells Only": "Dumbbell Push Press",
    "Bodyweight Only": "Pike Push-Up (explosive)"
   },
-  "cue": "Dip and drive with the legs, then finish with the arms."
+  "cue": "Dip and drive with the legs, then finish with the arms.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=a8HQo8z20Uo",
+   "channel": "MSP Fitness",
+   "views": null
+  }
  },
  "Seated Dumbbell Press": {
   "pattern": "Vertical push",
@@ -437,7 +632,12 @@
    "Dumbbells Only": "Seated Dumbbell Shoulder Press",
    "Bodyweight Only": "Pike Push-Up"
   },
-  "cue": "Keep the ribs down and press slightly in."
+  "cue": "Keep the ribs down and press slightly in.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=JvOJ3IW5JoA",
+   "channel": "Josh Hauptman",
+   "views": null
+  }
  },
  "Landmine Press": {
   "pattern": "Vertical push",
@@ -448,7 +648,12 @@
    "Dumbbells Only": "Single-Arm Dumbbell Press",
    "Bodyweight Only": "Pike Push-Up"
   },
-  "cue": "Press up and forward and keep the ribs down."
+  "cue": "Press up and forward and keep the ribs down.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=PY9HorHANhc",
+   "channel": "Colossus Fitness",
+   "views": null
+  }
  },
  "Arnold Press": {
   "pattern": "Vertical push",
@@ -459,7 +664,12 @@
    "Dumbbells Only": "Dumbbell Arnold Press",
    "Bodyweight Only": "Pike Push-Up"
   },
-  "cue": "Rotate smoothly and avoid shrugging."
+  "cue": "Rotate smoothly and avoid shrugging.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=ris9tKqMwgU",
+   "channel": "ATHLEAN-X",
+   "views": 1337979
+  }
  },
  "Lateral Raise": {
   "pattern": "Vertical push",
@@ -470,7 +680,12 @@
    "Dumbbells Only": "Dumbbell Lateral Raise",
    "Bodyweight Only": "Wall Isometric Lateral Raise"
   },
-  "cue": "Lead with the elbows to shoulder height."
+  "cue": "Lead with the elbows to shoulder height.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=Y29xKcze8Ik",
+   "channel": "Physique Development",
+   "views": null
+  }
  },
  "Barbell Row": {
   "pattern": "Horizontal pull",
@@ -481,7 +696,12 @@
    "Dumbbells Only": "Two-Arm Dumbbell Bent-Over Row",
    "Bodyweight Only": "Inverted Row (table or bar)"
   },
-  "cue": "Hinge to about 45 degrees and pull to the lower ribs."
+  "cue": "Hinge to about 45 degrees and pull to the lower ribs.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=kBWAon7ItDw",
+   "channel": "Jeremy Ethier",
+   "views": null
+  }
  },
  "Pendlay Row": {
   "pattern": "Horizontal pull",
@@ -492,7 +712,12 @@
    "Dumbbells Only": "Dumbbell Row (from floor)",
    "Bodyweight Only": "Pause Inverted Row (table or bar)"
   },
-  "cue": "Reset on the floor each rep and keep the back flat."
+  "cue": "Reset on the floor each rep and keep the back flat.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=axoeDmW0oAY",
+   "channel": "Jeff Nippard",
+   "views": null
+  }
  },
  "Dumbbell Row": {
   "pattern": "Horizontal pull",
@@ -503,7 +728,12 @@
    "Dumbbells Only": "Single-Arm Dumbbell Row",
    "Bodyweight Only": "One-Arm Biased Inverted Row (table or bar)"
   },
-  "cue": "Pull the elbow to the hip without twisting."
+  "cue": "Pull the elbow to the hip without twisting.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=gfUg6qWohTk",
+   "channel": "ATHLEAN-X",
+   "views": null
+  }
  },
  "Chest-Supported Row": {
   "pattern": "Horizontal pull",
@@ -514,7 +744,12 @@
    "Dumbbells Only": "Chest-Supported Dumbbell Row (incline bench)",
    "Bodyweight Only": "Wide-Grip Inverted Row (table or bar)"
   },
-  "cue": "Squeeze the shoulder blades together at the top."
+  "cue": "Squeeze the shoulder blades together at the top.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=ro2vfHfD0DQ",
+   "channel": "Jack Hanrahan Fitness",
+   "views": null
+  }
  },
  "Seated Cable Row": {
   "pattern": "Horizontal pull",
@@ -525,7 +760,12 @@
    "Dumbbells Only": "Dumbbell Gorilla Row",
    "Bodyweight Only": "Feet-Elevated Inverted Row (table or bar)"
   },
-  "cue": "Chest tall and pull to the belly button."
+  "cue": "Chest tall and pull to the belly button.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=oFtfkSElE0s",
+   "channel": "Hammer Fitness",
+   "views": null
+  }
  },
  "Face Pull": {
   "pattern": "Horizontal pull",
@@ -536,7 +776,12 @@
    "Dumbbells Only": "Dumbbell High Pull (elbows flared)",
    "Bodyweight Only": "Prone W Raise"
   },
-  "cue": "Pull to the face with elbows high and thumbs back."
+  "cue": "Pull to the face with elbows high and thumbs back.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=ljgqer1ZpXg",
+   "channel": "ATHLEAN-X",
+   "views": null
+  }
  },
  "Rear Delt Fly": {
   "pattern": "Horizontal pull",
@@ -547,7 +792,12 @@
    "Dumbbells Only": "Dumbbell Rear-Delt Fly",
    "Bodyweight Only": "Prone Y-T Raise"
   },
-  "cue": "Small arc, lead with the elbows."
+  "cue": "Small arc, lead with the elbows.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=NeNdcvHFpWE",
+   "channel": "PowerFlow Fitness",
+   "views": 1917
+  }
  },
  "Pull-Up": {
   "pattern": "Vertical pull",
@@ -558,7 +808,12 @@
    "Dumbbells Only": "Dumbbell Pullover",
    "Bodyweight Only": "Underhand Inverted Row (table or bar)"
   },
-  "cue": "Start from a dead hang and pull the chest to the bar. Use a pull-up bar when one is available."
+  "cue": "Start from a dead hang and pull the chest to the bar. Use a pull-up bar when one is available.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=sIvJTfGxdFo",
+   "channel": "ATHLEAN-X",
+   "views": null
+  }
  },
  "Chin-Up": {
   "pattern": "Vertical pull",
@@ -569,7 +824,12 @@
    "Dumbbells Only": "Dumbbell Underhand Row",
    "Bodyweight Only": "Underhand Inverted Row (table or bar)"
   },
-  "cue": "Palms facing you, chin over the bar. Use a pull-up bar when one is available."
+  "cue": "Palms facing you, chin over the bar. Use a pull-up bar when one is available.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=qV7vOUcUfD4",
+   "channel": "Barbell Logic",
+   "views": null
+  }
  },
  "Lat Pulldown": {
   "pattern": "Vertical pull",
@@ -580,7 +840,12 @@
    "Dumbbells Only": "Dumbbell Pullover",
    "Bodyweight Only": "Underhand Inverted Row"
   },
-  "cue": "Pull the elbows to the ribs."
+  "cue": "Pull the elbows to the ribs.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=AOpi-p0cJkc",
+   "channel": "SilverSneakers",
+   "views": 1717493
+  }
  },
  "Straight-Arm Pulldown": {
   "pattern": "Vertical pull",
@@ -591,7 +856,12 @@
    "Dumbbells Only": "Hinged Dumbbell Straight-Arm Pulldown",
    "Bodyweight Only": "Prone Snow Angel"
   },
-  "cue": "Keep the arms long and sweep down."
+  "cue": "Keep the arms long and sweep down.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=WDOV2PDpkiU",
+   "channel": "Colossus Fitness",
+   "views": null
+  }
  },
  "Barbell Curl": {
   "pattern": "Arms",
@@ -602,7 +872,12 @@
    "Dumbbells Only": "Dumbbell Curl",
    "Bodyweight Only": "Underhand Inverted Row (biceps focus)"
   },
-  "cue": "Elbows at the sides and no swinging."
+  "cue": "Elbows at the sides and no swinging.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=bV54Vl--I50",
+   "channel": "J2FIT Strength & Conditioning",
+   "views": null
+  }
  },
  "Hammer Curl": {
   "pattern": "Arms",
@@ -613,7 +888,12 @@
    "Dumbbells Only": "Dumbbell Hammer Curl",
    "Bodyweight Only": "Neutral-Grip Inverted Row"
   },
-  "cue": "Thumbs up and control the lowering."
+  "cue": "Thumbs up and control the lowering.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=5FAuyZuvJFg",
+   "channel": "Fit Father Project",
+   "views": 136220
+  }
  },
  "Incline Curl": {
   "pattern": "Arms",
@@ -624,7 +904,12 @@
    "Dumbbells Only": "Incline Dumbbell Curl",
    "Bodyweight Only": "Underhand Inverted Row (biceps focus)"
   },
-  "cue": "Arms hang straight down and stretch the biceps."
+  "cue": "Arms hang straight down and stretch the biceps.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=DCe8f6vMe9A",
+   "channel": "ATHLEAN-X",
+   "views": null
+  }
  },
  "Cable Curl": {
   "pattern": "Arms",
@@ -635,7 +920,12 @@
    "Dumbbells Only": "Dumbbell Curl",
    "Bodyweight Only": "Underhand Inverted Row (biceps focus)"
   },
-  "cue": "Constant tension and a slow lowering phase."
+  "cue": "Constant tension and a slow lowering phase.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=2MUEL4nL6hA",
+   "channel": "Colossus Fitness",
+   "views": null
+  }
  },
  "Triceps Pushdown": {
   "pattern": "Arms",
@@ -646,7 +936,12 @@
    "Dumbbells Only": "Dumbbell Overhead Triceps Extension",
    "Bodyweight Only": "Bench Dip"
   },
-  "cue": "Elbows pinned and full lockout."
+  "cue": "Elbows pinned and full lockout.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=w_viR9hVi4A",
+   "channel": "MuscleWiki",
+   "views": 2407
+  }
  },
  "Skull Crusher": {
   "pattern": "Arms",
@@ -657,7 +952,12 @@
    "Dumbbells Only": "Dumbbell Skull Crusher",
    "Bodyweight Only": "Diamond Push-Up"
   },
-  "cue": "Lower to the forehead and keep the elbows still."
+  "cue": "Lower to the forehead and keep the elbows still.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=OQ4TWXkZjTc",
+   "channel": "Renaissance Periodization",
+   "views": null
+  }
  },
  "Overhead Triceps Extension": {
   "pattern": "Arms",
@@ -668,7 +968,12 @@
    "Dumbbells Only": "Dumbbell Overhead Triceps Extension",
    "Bodyweight Only": "Bodyweight Triceps Extension (bar or table)"
   },
-  "cue": "Elbows close to the ears and a deep stretch."
+  "cue": "Elbows close to the ears and a deep stretch.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=fYqswDVbJDg",
+   "channel": "ScottHermanFitness",
+   "views": null
+  }
  },
  "Plank": {
   "pattern": "Core",
@@ -679,7 +984,12 @@
    "Dumbbells Only": "Plank",
    "Bodyweight Only": "Plank"
   },
-  "cue": "Ribs down and squeeze the glutes."
+  "cue": "Ribs down and squeeze the glutes.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=6LqqeBtFn9M",
+   "channel": "Get Exercise Confident",
+   "views": 777991
+  }
  },
  "Ab Wheel": {
   "pattern": "Core",
@@ -690,7 +1000,12 @@
    "Dumbbells Only": "Dumbbell Plank Pull-Through",
    "Bodyweight Only": "Body Saw Plank"
   },
-  "cue": "Roll out only as far as you can keep the lower back flat."
+  "cue": "Roll out only as far as you can keep the lower back flat.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=qeqofno2lSM",
+   "channel": "Fit Father Project",
+   "views": 27214
+  }
  },
  "Pallof Press": {
   "pattern": "Core",
@@ -701,7 +1016,12 @@
    "Dumbbells Only": "Side Plank",
    "Bodyweight Only": "Side Plank"
   },
-  "cue": "Resist rotation and keep the hips square."
+  "cue": "Resist rotation and keep the hips square.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=5_8d8vHgZvU",
+   "channel": "Girls Gone Strong",
+   "views": 917865
+  }
  },
  "Hanging Knee Raise": {
   "pattern": "Core",
@@ -712,7 +1032,12 @@
    "Dumbbells Only": "Lying Leg Raise",
    "Bodyweight Only": "Lying Leg Raise"
   },
-  "cue": "Curl the pelvis up and avoid swinging."
+  "cue": "Curl the pelvis up and avoid swinging.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=G6a5267YpHM",
+   "channel": "FIT.nl",
+   "views": 3075
+  }
  },
  "Dead Bug": {
   "pattern": "Core",
@@ -723,7 +1048,12 @@
    "Dumbbells Only": "Dead Bug",
    "Bodyweight Only": "Dead Bug"
   },
-  "cue": "Press the lower back into the floor."
+  "cue": "Press the lower back into the floor.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=bxn9FBrt4-A",
+   "channel": "NASM",
+   "views": null
+  }
  },
  "Bird Dog": {
   "pattern": "Core",
@@ -734,7 +1064,12 @@
    "Dumbbells Only": "Bird Dog",
    "Bodyweight Only": "Bird Dog"
   },
-  "cue": "Reach long and keep the hips level."
+  "cue": "Reach long and keep the hips level.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=k2azbhhuKuM",
+   "channel": "National Training Center - Clermont, FL",
+   "views": 2143766
+  }
  },
  "Hollow Hold": {
   "pattern": "Core",
@@ -745,7 +1080,12 @@
    "Dumbbells Only": "Hollow Hold",
    "Bodyweight Only": "Hollow Hold"
   },
-  "cue": "Lower back stays on the floor."
+  "cue": "Lower back stays on the floor.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=0yPin8hSc8o",
+   "channel": "FIT.nl",
+   "views": null
+  }
  },
  "Russian Twist": {
   "pattern": "Core",
@@ -756,7 +1096,12 @@
    "Dumbbells Only": "Dumbbell Russian Twist",
    "Bodyweight Only": "Bodyweight Russian Twist"
   },
-  "cue": "Rotate through the ribs, not just the arms."
+  "cue": "Rotate through the ribs, not just the arms.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=wkD8rjkodUI",
+   "channel": "Howcast",
+   "views": 11688405
+  }
  },
  "Cable Crunch": {
   "pattern": "Core",
@@ -767,7 +1112,12 @@
    "Dumbbells Only": "Dumbbell Weighted Crunch",
    "Bodyweight Only": "Bicycle Crunch"
   },
-  "cue": "Curl the ribs to the hips."
+  "cue": "Curl the ribs to the hips.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=cEuIsW4xZKM",
+   "channel": "Eric Bach",
+   "views": null
+  }
  },
  "Side Plank": {
   "pattern": "Core",
@@ -778,7 +1128,12 @@
    "Dumbbells Only": "Side Plank",
    "Bodyweight Only": "Side Plank"
   },
-  "cue": "Stack the feet and lift the hips."
+  "cue": "Stack the feet and lift the hips.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=0M-erHBl48U",
+   "channel": "Heal Fit Physio",
+   "views": null
+  }
  },
  "Farmer Carry": {
   "pattern": "Carry",
@@ -789,7 +1144,12 @@
    "Dumbbells Only": "Dumbbell Farmer Carry",
    "Bodyweight Only": "Loaded Backpack Carry"
   },
-  "cue": "Walk tall with short quick steps."
+  "cue": "Walk tall with short quick steps.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=z7E_YU9P1jU",
+   "channel": "Dr. Carl Baird",
+   "views": null
+  }
  },
  "Suitcase Carry": {
   "pattern": "Carry",
@@ -800,7 +1160,12 @@
    "Dumbbells Only": "Dumbbell Suitcase Carry",
    "Bodyweight Only": "Single-Arm Loaded Backpack Carry"
   },
-  "cue": "Stay upright and do not lean into the weight."
+  "cue": "Stay upright and do not lean into the weight.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=y-hn_Ha1-RE",
+   "channel": "Dr. Carl Baird",
+   "views": null
+  }
  },
  "Overhead Carry": {
   "pattern": "Carry",
@@ -811,7 +1176,12 @@
    "Dumbbells Only": "Dumbbell Overhead Carry (single arm)",
    "Bodyweight Only": "Plank Shoulder Taps"
   },
-  "cue": "Biceps by the ear and ribs down."
+  "cue": "Biceps by the ear and ribs down.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=54POVWkWjEs",
+   "channel": "[P]rehab",
+   "views": 57413
+  }
  },
  "Sled Push": {
   "pattern": "Carry",
@@ -822,7 +1192,12 @@
    "Dumbbells Only": "Dumbbell Front-Rack Carry",
    "Bodyweight Only": "Bear Crawl"
   },
-  "cue": "Low hips, drive with long steps."
+  "cue": "Low hips, drive with long steps.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=9XRRXaUpnLk",
+   "channel": "Mind Pump TV",
+   "views": null
+  }
  },
  "Bear Crawl": {
   "pattern": "Carry",
@@ -833,7 +1208,12 @@
    "Dumbbells Only": "Bear Crawl",
    "Bodyweight Only": "Bear Crawl"
   },
-  "cue": "Knees hover one inch off the floor."
+  "cue": "Knees hover one inch off the floor.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=Gb2e9edK8a4",
+   "channel": "Get Healthy U - with Chris Freytag",
+   "views": null
+  }
  },
  "Air Bike Sprint": {
   "pattern": "Conditioning",
@@ -844,7 +1224,12 @@
    "Dumbbells Only": "Shuttle Run (20 m)",
    "Bodyweight Only": "Shuttle Run (20 m)"
   },
-  "cue": "Drive with legs and arms together."
+  "cue": "Drive with legs and arms together.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=PHReR7tC_tw",
+   "channel": "Live Lean TV Daily Exercises",
+   "views": 7016
+  }
  },
  "Rowing Machine": {
   "pattern": "Conditioning",
@@ -855,7 +1240,12 @@
    "Dumbbells Only": "Dumbbell Squat to Row",
    "Bodyweight Only": "Jump Rope (or High Knees)"
   },
-  "cue": "Legs, then back, then arms."
+  "cue": "Legs, then back, then arms.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=4zWu1yuJ0_g",
+   "channel": "Concept2",
+   "views": null
+  }
  },
  "SkiErg": {
   "pattern": "Conditioning",
@@ -866,7 +1256,12 @@
    "Dumbbells Only": "Dumbbell Thruster",
    "Bodyweight Only": "Squat Jump"
   },
-  "cue": "Hinge and pull the handles down with the lats."
+  "cue": "Hinge and pull the handles down with the lats.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=_hnYHWaw2B4",
+   "channel": "RowAlong",
+   "views": null
+  }
  },
  "Treadmill Run": {
   "pattern": "Conditioning",
@@ -877,7 +1272,12 @@
    "Dumbbells Only": "Outdoor Run",
    "Bodyweight Only": "Outdoor Run"
   },
-  "cue": "Stay relaxed and breathe in rhythm."
+  "cue": "Stay relaxed and breathe in rhythm.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=56hogeADi5U",
+   "channel": "The Body Mechanic",
+   "views": null
+  }
  },
  "Jump Rope": {
   "pattern": "Conditioning",
@@ -888,7 +1288,12 @@
    "Dumbbells Only": "Jump Rope",
    "Bodyweight Only": "Jump Rope"
   },
-  "cue": "Small hops and quiet landings."
+  "cue": "Small hops and quiet landings.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=aFoektJK9dU",
+   "channel": "Jump Rope Dudes",
+   "views": null
+  }
  },
  "Burpee": {
   "pattern": "Conditioning",
@@ -899,7 +1304,12 @@
    "Dumbbells Only": "Burpee",
    "Bodyweight Only": "Burpee"
   },
-  "cue": "Chest to the floor, jump, repeat."
+  "cue": "Chest to the floor, jump, repeat.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=G2hv_NYhM-A",
+   "channel": "BuiltLean",
+   "views": null
+  }
  },
  "Mountain Climber": {
   "pattern": "Conditioning",
@@ -910,7 +1320,12 @@
    "Dumbbells Only": "Mountain Climber",
    "Bodyweight Only": "Mountain Climber"
   },
-  "cue": "Hips low and fast knees."
+  "cue": "Hips low and fast knees.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=OR1eel_5oAY",
+   "channel": "Live Lean TV",
+   "views": 5527
+  }
  },
  "Thruster": {
   "pattern": "Conditioning",
@@ -921,7 +1336,12 @@
    "Dumbbells Only": "Dumbbell Thruster",
    "Bodyweight Only": "Squat Jump"
   },
-  "cue": "Squat to a press in one motion."
+  "cue": "Squat to a press in one motion.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=tJP-fwf5ASA",
+   "channel": "J2FIT Strength & Conditioning",
+   "views": null
+  }
  },
  "Dumbbell Complex": {
   "pattern": "Conditioning",
@@ -932,7 +1352,12 @@
    "Dumbbells Only": "Dumbbell Complex (row, clean, press)",
    "Bodyweight Only": "Burpee to Tuck Jump"
   },
-  "cue": "Move from one lift to the next without setting the weight down."
+  "cue": "Move from one lift to the next without setting the weight down.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=l5EhQoHLpPI",
+   "channel": "Testosterone Nation",
+   "views": null
+  }
  },
  "Dumbbell Clean and Press": {
   "pattern": "Conditioning",
@@ -943,7 +1368,12 @@
    "Dumbbells Only": "Dumbbell Clean and Press",
    "Bodyweight Only": "Squat Thrust with Jump"
   },
-  "cue": "Pull the weight to the shoulders and press overhead."
+  "cue": "Pull the weight to the shoulders and press overhead.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=8G-jnVP_f2s",
+   "channel": "Live Lean TV Daily Exercises",
+   "views": 205360
+  }
  },
  "Shuttle Run": {
   "pattern": "Conditioning",
@@ -954,7 +1384,12 @@
    "Dumbbells Only": "Shuttle Run (20 m)",
    "Bodyweight Only": "Shuttle Run (20 m)"
   },
-  "cue": "Touch the line each time and stay low on the turn."
+  "cue": "Touch the line each time and stay low on the turn.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=3-iZMS6twcE",
+   "channel": "ZOAR Fitness",
+   "views": 200991
+  }
  },
  "Zone 2 Cardio": {
   "pattern": "Conditioning",
@@ -965,7 +1400,12 @@
    "Dumbbells Only": "Brisk Walk or Easy Jog",
    "Bodyweight Only": "Brisk Walk or Easy Jog"
   },
-  "cue": "Breathe through the nose and keep it conversational."
+  "cue": "Breathe through the nose and keep it conversational.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=VcGMGIuVMFo",
+   "channel": "Marathon Handbook",
+   "views": null
+  }
  },
  "Rest Day": {
   "pattern": "Recovery",
@@ -987,7 +1427,12 @@
    "Dumbbells Only": "Sprawl",
    "Bodyweight Only": "Sprawl"
   },
-  "cue": "Hips down fast and pop back up."
+  "cue": "Hips down fast and pop back up.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=UFFODmd6RTc",
+   "channel": "cult fit",
+   "views": null
+  }
  },
  "Shadow Boxing Rounds": {
   "pattern": "Combat",
@@ -998,7 +1443,12 @@
    "Dumbbells Only": "Shadow Boxing Rounds",
    "Bodyweight Only": "Shadow Boxing Rounds"
   },
-  "cue": "Stay light on the feet and keep the hands up."
+  "cue": "Stay light on the feet and keep the hands up.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=ou8SvZnk1Uo",
+   "channel": "FightCamp",
+   "views": 43552
+  }
  },
  "Medicine Ball Slam": {
   "pattern": "Power",
@@ -1009,7 +1459,12 @@
    "Dumbbells Only": "Burpee Broad Jump",
    "Bodyweight Only": "Burpee Broad Jump"
   },
-  "cue": "Slam through the whole body."
+  "cue": "Slam through the whole body.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=CkO1mfSBvv4",
+   "channel": "Third Space London",
+   "views": null
+  }
  },
  "Dumbbell Woodchop": {
   "pattern": "Power",
@@ -1020,7 +1475,12 @@
    "Dumbbells Only": "Dumbbell Woodchop",
    "Bodyweight Only": "Bodyweight Woodchop"
   },
-  "cue": "Rotate from the hips."
+  "cue": "Rotate from the hips.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=tH8ZeVgupYY",
+   "channel": "Kai Simon",
+   "views": 948505
+  }
  },
  "Turkish Get-Up": {
   "pattern": "Power",
@@ -1031,7 +1491,12 @@
    "Dumbbells Only": "Dumbbell Turkish Get-Up",
    "Bodyweight Only": "Bodyweight Get-Up"
   },
-  "cue": "Eyes on the weight and move one step at a time."
+  "cue": "Eyes on the weight and move one step at a time.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=4IObymW_V-U",
+   "channel": "Pat Flynn",
+   "views": null
+  }
  },
  "Dumbbell Snatch": {
   "pattern": "Power",
@@ -1042,7 +1507,12 @@
    "Dumbbells Only": "Dumbbell Snatch",
    "Bodyweight Only": "Broad Jump"
   },
-  "cue": "Pull high and punch through at the top."
+  "cue": "Pull high and punch through at the top.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=zYAcRcT5hRg",
+   "channel": "moveSKILL",
+   "views": 209091
+  }
  },
  "Power Clean": {
   "pattern": "Power",
@@ -1053,7 +1523,12 @@
    "Dumbbells Only": "Dumbbell Hang Power Clean",
    "Bodyweight Only": "Broad Jump"
   },
-  "cue": "Jump, shrug, and catch with elbows fast."
+  "cue": "Jump, shrug, and catch with elbows fast.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=lI35socHJ4k",
+   "channel": "Barbell Logic",
+   "views": 340859
+  }
  },
  "Jump Squat": {
   "pattern": "Power",
@@ -1064,7 +1539,12 @@
    "Dumbbells Only": "Dumbbell Jump Squat (light)",
    "Bodyweight Only": "Jump Squat"
   },
-  "cue": "Land softly and reset."
+  "cue": "Land softly and reset.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=tZSYZdtbONc",
+   "channel": "NASM",
+   "views": 14660
+  }
  },
  "Box Jump": {
   "pattern": "Power",
@@ -1075,7 +1555,12 @@
    "Dumbbells Only": "Box Jump",
    "Bodyweight Only": "Tuck Jump"
   },
-  "cue": "Step down after each rep."
+  "cue": "Step down after each rep.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=YLPQsdRDmB0",
+   "channel": "Peak Strength",
+   "views": 32890
+  }
  },
  "Broad Jump": {
   "pattern": "Power",
@@ -1086,7 +1571,12 @@
    "Dumbbells Only": "Broad Jump",
    "Bodyweight Only": "Broad Jump"
   },
-  "cue": "Swing the arms and stick the landing."
+  "cue": "Swing the arms and stick the landing.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=z1IDJMMg024",
+   "channel": "Testosterone Nation",
+   "views": null
+  }
  },
  "Plyometric Push-Up": {
   "pattern": "Power",
@@ -1097,7 +1587,12 @@
    "Dumbbells Only": "Plyometric Push-Up",
    "Bodyweight Only": "Plyometric Push-Up"
   },
-  "cue": "Push the floor away hard and land softly."
+  "cue": "Push the floor away hard and land softly.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=xlGfa47o-4Y",
+   "channel": "Testosterone Nation",
+   "views": null
+  }
  },
  "Lateral Bound": {
   "pattern": "Power",
@@ -1108,7 +1603,12 @@
    "Dumbbells Only": "Lateral Bound",
    "Bodyweight Only": "Lateral Bound"
   },
-  "cue": "Push off one foot and stick the landing."
+  "cue": "Push off one foot and stick the landing.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=soqQy4dzEts",
+   "channel": "Third Space London",
+   "views": null
+  }
  },
  "Skater Jump": {
   "pattern": "Power",
@@ -1119,7 +1619,12 @@
    "Dumbbells Only": "Skater Jump",
    "Bodyweight Only": "Skater Jump"
   },
-  "cue": "Jump sideways and land on one foot."
+  "cue": "Jump sideways and land on one foot.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=9_jLW6VkU8A",
+   "channel": "BuiltLean",
+   "views": null
+  }
  },
  "Glute Bridge": {
   "pattern": "Hinge",
@@ -1130,7 +1635,12 @@
    "Dumbbells Only": "Glute Bridge",
    "Bodyweight Only": "Glute Bridge"
   },
-  "cue": "Drive through the heels and squeeze at the top."
+  "cue": "Drive through the heels and squeeze at the top.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=EEtd0uY-bMw",
+   "channel": "Get Exercise Confident",
+   "views": null
+  }
  },
  "90/90 Hip Switch": {
   "pattern": "Mobility",
@@ -1141,7 +1651,12 @@
    "Dumbbells Only": "90/90 Hip Switch",
    "Bodyweight Only": "90/90 Hip Switch"
   },
-  "cue": "Sit tall and move slowly."
+  "cue": "Sit tall and move slowly.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=t4Zz6-aG8Iw",
+   "channel": "Jack Hanrahan Fitness",
+   "views": 997122
+  }
  },
  "Hip Flexor Stretch": {
   "pattern": "Mobility",
@@ -1152,7 +1667,12 @@
    "Dumbbells Only": "Half-Kneeling Hip Flexor Stretch",
    "Bodyweight Only": "Half-Kneeling Hip Flexor Stretch"
   },
-  "cue": "Tuck the pelvis and squeeze the rear glute."
+  "cue": "Tuck the pelvis and squeeze the rear glute.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=iZ1eZBY4fwM",
+   "channel": "PureGym",
+   "views": 39148
+  }
  },
  "Cat-Cow": {
   "pattern": "Mobility",
@@ -1163,7 +1683,12 @@
    "Dumbbells Only": "Cat-Cow",
    "Bodyweight Only": "Cat-Cow"
   },
-  "cue": "Move the whole spine with each breath."
+  "cue": "Move the whole spine with each breath.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=Fa4ZMS5M7xA",
+   "channel": "Yoga52 | BODi",
+   "views": 15152
+  }
  },
  "Thoracic Rotation": {
   "pattern": "Mobility",
@@ -1174,7 +1699,12 @@
    "Dumbbells Only": "Open Book Thoracic Rotation",
    "Bodyweight Only": "Open Book Thoracic Rotation"
   },
-  "cue": "Follow the hand with the eyes."
+  "cue": "Follow the hand with the eyes.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=rDviWORCWEw",
+   "channel": "Revival Performance Physical Therapy",
+   "views": 30303
+  }
  },
  "Child's Pose": {
   "pattern": "Mobility",
@@ -1185,7 +1715,12 @@
    "Dumbbells Only": "Child's Pose",
    "Bodyweight Only": "Child's Pose"
   },
-  "cue": "Breathe into the lower ribs."
+  "cue": "Breathe into the lower ribs.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=1Awbr8FfrWE",
+   "channel": "Di Hickman",
+   "views": null
+  }
  },
  "Deep Squat Hold": {
   "pattern": "Mobility",
@@ -1196,7 +1731,12 @@
    "Dumbbells Only": "Deep Squat Hold",
    "Bodyweight Only": "Deep Squat Hold"
   },
-  "cue": "Heels down and chest tall."
+  "cue": "Heels down and chest tall.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=0wzrgyAurT8",
+   "channel": "Strength Side",
+   "views": null
+  }
  },
  "Wall Slide": {
   "pattern": "Mobility",
@@ -1207,7 +1747,12 @@
    "Dumbbells Only": "Wall Slide",
    "Bodyweight Only": "Wall Slide"
   },
-  "cue": "Keep the ribs down and forearms on the wall."
+  "cue": "Keep the ribs down and forearms on the wall.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=9ZBOvVO9JFs",
+   "channel": "Nottingham Physio",
+   "views": null
+  }
  },
  "Thread the Needle": {
   "pattern": "Mobility",
@@ -1218,7 +1763,12 @@
    "Dumbbells Only": "Thread the Needle",
    "Bodyweight Only": "Thread the Needle"
   },
-  "cue": "Reach under and rotate slowly."
+  "cue": "Reach under and rotate slowly.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=oAQ_qycUj5o",
+   "channel": "Live Lean TV Daily Exercises",
+   "views": null
+  }
  },
  "Dead Hang": {
   "pattern": "Mobility",
@@ -1229,7 +1779,12 @@
    "Dumbbells Only": "Prone Y Raise Hold",
    "Bodyweight Only": "Prone Y Raise Hold"
   },
-  "cue": "Relax the shoulders and hang long."
+  "cue": "Relax the shoulders and hang long.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=3CEmHJXbNpc",
+   "channel": "Adam McCubbin",
+   "views": 516800
+  }
  },
  "Doorway Pec Stretch": {
   "pattern": "Mobility",
@@ -1240,7 +1795,12 @@
    "Dumbbells Only": "Doorway Pec Stretch",
    "Bodyweight Only": "Doorway Pec Stretch"
   },
-  "cue": "Elbow at shoulder height and lean through."
+  "cue": "Elbow at shoulder height and lean through.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=B9uY01NoqBg",
+   "channel": "Baptist Health",
+   "views": 468173
+  }
  },
  "World's Greatest Stretch": {
   "pattern": "Mobility",
@@ -1251,7 +1811,12 @@
    "Dumbbells Only": "World's Greatest Stretch",
    "Bodyweight Only": "World's Greatest Stretch"
   },
-  "cue": "Lunge, rotate, then reach."
+  "cue": "Lunge, rotate, then reach.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=-CiWQ2IvY34",
+   "channel": "Squat University",
+   "views": null
+  }
  },
  "Cossack Squat": {
   "pattern": "Mobility",
@@ -1262,7 +1827,12 @@
    "Dumbbells Only": "Cossack Squat",
    "Bodyweight Only": "Cossack Squat"
   },
-  "cue": "Sit into one hip and keep the other leg long."
+  "cue": "Sit into one hip and keep the other leg long.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=tpczTeSkHz0",
+   "channel": "FitnessFAQs",
+   "views": null
+  }
  },
  "Hamstring Stretch": {
   "pattern": "Mobility",
@@ -1273,7 +1843,12 @@
    "Dumbbells Only": "Supine Hamstring Stretch",
    "Bodyweight Only": "Supine Hamstring Stretch"
   },
-  "cue": "Keep the leg straight and relax the neck."
+  "cue": "Keep the leg straight and relax the neck.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=uZ7AbE5KF1s",
+   "channel": "Strength Side",
+   "views": null
+  }
  },
  "Couch Stretch": {
   "pattern": "Mobility",
@@ -1284,7 +1859,12 @@
    "Dumbbells Only": "Couch Stretch",
    "Bodyweight Only": "Couch Stretch"
   },
-  "cue": "Back knee near the wall and ribs down."
+  "cue": "Back knee near the wall and ribs down.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=agbOuqQ7G_k",
+   "channel": "Swift Movement Academy",
+   "views": null
+  }
  },
  "Pigeon Stretch": {
   "pattern": "Mobility",
@@ -1295,7 +1875,12 @@
    "Dumbbells Only": "Pigeon Stretch",
    "Bodyweight Only": "Pigeon Stretch"
   },
-  "cue": "Fold forward slowly."
+  "cue": "Fold forward slowly.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=2vwIdJbOqx4",
+   "channel": "San Diego Chiropractic",
+   "views": null
+  }
  },
  "Ankle Rock": {
   "pattern": "Mobility",
@@ -1306,6 +1891,11 @@
    "Dumbbells Only": "Ankle Rock",
    "Bodyweight Only": "Ankle Rock"
   },
-  "cue": "Drive the knee over the toes with the heel down."
+  "cue": "Drive the knee over the toes with the heel down.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=Gs4AyvJpG1M",
+   "channel": "Train With Cuz",
+   "views": 6136
+  }
  }
 }
