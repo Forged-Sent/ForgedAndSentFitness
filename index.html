@@ -3388,7 +3388,7 @@ details.targets[open] summary::after { content: "\2212"; }
     "Keep me alert, firm in the faith, courageous, strong, and acting in love.",
     "Forge me today, and send me out for Your glory.",
     "Amen."];
-  // Shown when a man taps Start workout. The workout clock starts when he marks the prayer read.
+  // Shown when a man taps Start workout. The workout clock starts when he taps Amen.
   function openWorkoutPrayer(onRead) {
     var old = $("cdlg"); if (old) old.remove();
     var back = el("div", "cdlg"); back.id = "cdlg";
@@ -3396,12 +3396,10 @@ details.targets[open] summary::after { content: "\2212"; }
     box.appendChild(el("span", "label-caps wp-k", "Before you train"));
     var t = el("h2", null, "Workout prayer"); t.id = "wp-t"; box.appendChild(t);
     var tx = el("div", "wp-text"); WORKOUT_PRAYER.forEach(function (l, i) { tx.appendChild(el("p", i === WORKOUT_PRAYER.length - 1 ? "wp-amen" : null, l)); }); box.appendChild(tx);
-    var yes = el("button", "btn", "Mark as read"), no = el("button", "btn ghost", "Not yet"); yes.type = "button"; no.type = "button";
-    box.appendChild(yes); box.appendChild(no); back.appendChild(box);
+    var yes = el("button", "btn", "Amen"); yes.type = "button";
+    box.appendChild(yes); back.appendChild(box);
     function close() { back.remove(); }
     yes.addEventListener("click", function () { close(); onRead(); });
-    no.addEventListener("click", close);
-    back.addEventListener("keydown", function (ev) { if (ev.key === "Escape") { ev.stopPropagation(); close(); } });
     document.body.appendChild(back); yes.focus({ preventScroll: true });
   }
   function confirmDelete(o, onYes) {
