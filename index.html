@@ -251,6 +251,27 @@ details.targets[open] summary::after { content: "\2212"; }
 .wu-line.timed { grid-template-columns: minmax(0, 1fr) 26px; }
 .wu-line .field { padding: 8px 10px; min-height: 44px; text-align: center; }
 .bw-tag { font-size: 12px; color: var(--muted); text-align: center; align-self: center; }
+.lockline { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--muted); margin: 0; }
+.lockline svg, .lk-btn svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 2; flex: none; }
+.lk-stats { display: grid; grid-template-columns: repeat(3, 1fr); border: 1px solid var(--line); border-radius: var(--radius, 4px); }
+.lk-stats div { padding: 8px 6px; text-align: center; border-left: 1px solid var(--line); } .lk-stats div:first-child { border-left: 0; }
+.lk-stats b { display: block; font-family: var(--f-label); font-size: 19px; font-variant-numeric: tabular-nums; }
+.lk-stats span { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; }
+.lk-sec { display: flex; flex-direction: column; }
+.lk-h { font-family: var(--f-label); font-weight: 700; letter-spacing: .1em; text-transform: uppercase; font-size: 13px; color: var(--brass, #b08d57); margin: 6px 0 4px; }
+.lk-round { font-family: var(--f-label); font-weight: 600; letter-spacing: .08em; text-transform: uppercase; font-size: 12px; margin-top: 6px; }
+.lk-row { display: grid; grid-template-columns: 116px minmax(0, 1fr); gap: 8px; padding: 3px 0; font-size: 14px; }
+.lk-row > span { color: var(--muted); font-family: var(--f-label); text-transform: uppercase; letter-spacing: .06em; font-size: 12px; align-self: center; }
+.lk-row b { font-weight: 500; font-variant-numeric: tabular-nums; } .lk-row em { font-style: normal; color: var(--muted); }
+.lk-row.wu > span { opacity: .8; }
+.lk-ex { border-top: 1px dashed var(--line); padding: 9px 0; display: flex; flex-direction: column; gap: 2px; }
+.lk-name { display: flex; justify-content: space-between; align-items: center; gap: 8px; font-family: var(--f-label); font-weight: 700; font-size: 15px; }
+.lk-pr { font-size: 11px; letter-spacing: .08em; color: var(--accent-ink); background: var(--brass, #b08d57); border-radius: 3px; padding: 1px 6px; }
+.lk-none { font-size: 13px; color: var(--muted); }
+.lk-btn { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; margin-top: 10px; }
+.lk-edit { display: flex; align-items: center; justify-content: space-between; gap: 10px; border: 1px solid var(--hot); border-radius: var(--radius, 4px); padding: 10px 12px; font-size: 13px; margin-bottom: 4px; }
+.lk-edit b { display: block; color: var(--hot); font-family: var(--f-label); letter-spacing: .08em; text-transform: uppercase; }
+.lk-edit .btn { min-height: 38px; padding: 0 14px; flex: none; }
 .cdlg { position: fixed; inset: 0; z-index: 80; background: rgba(0,0,0,.55); display: flex; align-items: flex-start; justify-content: center; overflow-y: auto; padding: calc(56px + env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-right, 0px)) 16px max(16px, env(safe-area-inset-left, 0px)); }
 .cdlg-box { margin: 0 auto; width: 100%; max-width: 360px; background: var(--bg); border: 2px solid var(--danger); padding: 18px; display: flex; flex-direction: column; gap: 10px; }
 .cdlg-box h2 { margin: 0; font-family: var(--f-label); font-size: 17px; letter-spacing: .08em; text-transform: uppercase; }
@@ -1751,7 +1772,8 @@ details.targets[open] summary::after { content: "\2212"; }
     box.addEventListener("submit", function (ev) { ev.preventDefault(); send(); });
     back.appendChild(box); document.body.appendChild(back); post.focus();
   }
-  function awardPRs(key, root, boxPts, after) {
+  function computePRs(key, root, cb) { awardPRs(key, root, 0, cb, "compute"); }
+  function awardPRs(key, root, boxPts, after, mode) {
     var p = planCfg() || {};
     function finish(prev) {
       var best = {};
@@ -1766,11 +1788,14 @@ details.targets[open] summary::after { content: "\2212"; }
         var w = t.maxW > b.maxW, v = Math.round(t.vol) > Math.round(b.vol);
         if (w || v) list.push({ k: k, l: moveName(t.g, p.equip).slice(0, 60), w: w, v: v, tw: t.maxW, bw: b.maxW, tv: Math.round(t.vol), bv: Math.round(b.vol) });
       });
+      if (mode === "compute") { if (after) after(list); return; }
       if (key === todayKey()) writeDay(function (r) { r.prs = { n: list.length, list: list.map(function (x) { return { l: x.l, w: x.w, v: x.v }; }) }; });
+      if (state.page === "workout" && !(document.activeElement && document.activeElement.tagName === "INPUT")) drawWorkoutPage(true);
+      if (mode === "silent") return;
       showAwards(list, boxPts, prev !== null, after ? function () { after(list); } : null);
     }
     if (!state.me || !B.db || !B.listWorkouts) { finish([]); return; }
-    B.listWorkouts(state.me).then(finish).catch(function () { showAwards([], boxPts, false, after ? function () { after([]); } : null); });
+    B.listWorkouts(state.me).then(finish).catch(function () { if (mode) { if (mode === "compute" && after) after([]); return; } showAwards([], boxPts, false, after ? function () { after([]); } : null); });
   }
   function showAwards(list, boxPts, checked, onDone) {
     var old = $("cdlg"); if (old) old.remove();
@@ -2504,6 +2529,73 @@ details.targets[open] summary::after { content: "\2212"; }
     if (BW_RX.test(shown)) return false;
     return shown !== moveName(g, "Bodyweight Only");
   }
+  /* ---------- Finished workouts are locked: a text summary until the man unlocks to edit ---------- */
+  function drawLockedSummary(body, o) {
+    var key = o.key, rec = o.rec, w = o.w, S = o.S, p = planCfg() || {};
+    var fin = rec.finishedAt ? new Date(rec.finishedAt).toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" }) : "";
+    var ll = el("p", "lockline"); ll.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="1"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>';
+    ll.appendChild(document.createTextNode((fin ? "Finished at " + fin + ". " : "Finished. ") + "Locked.")); body.appendChild(ll);
+    var exList = (S ? [] : w.exercises.map(function (e, i) { return [effMove(rec, i, e[0]), e[1], false, null, e[0]]; }))
+      .concat(normExtra(rec.extra).map(function (x) { return [x.g, x.rx, true, x.rest, x.g]; }));
+    var prs = normPrs(recFor(key).prs).list, prNames = {}; prs.forEach(function (x) { prNames[x.l] = true; });
+    var vol = S ? volOf(rec, key, true) : volOf(rec, key), workSets = 0, prCount = 0;
+    exList.forEach(function (e, i) { var a = rec.ex && rec.ex[i]; if (Array.isArray(a)) a.forEach(function (s) { if (s && s.k !== "w" && (s.d || Number(s.r) > 0)) workSets++; }); if (prNames[moveName(e[0], p.equip)]) prCount++; });
+    var st = el("div", "lk-stats");
+    [[fmt(vol), "lb volume"], [String(workSets), workSets === 1 ? "work set" : "work sets"], [String(prCount), prCount === 1 ? "PR" : "PRs"]].forEach(function (x) { var d = el("div"); d.appendChild(el("b", null, x[0])); d.appendChild(el("span", null, x[1])); st.appendChild(d); });
+    body.appendChild(st);
+    function line(box, label, val, cls) { var r = el("div", "lk-row" + (cls ? " " + cls : "")); r.appendChild(el("span", null, label)); var b = el("b"); b.innerHTML = ""; val.forEach(function (v) { if (typeof v === "string") b.appendChild(document.createTextNode(v)); else b.appendChild(v); }); r.appendChild(b); box.appendChild(r); }
+    function mut(t) { return el("em", null, t); }
+    // Warm-up, round by round
+    var wl = Array.isArray(w.warmup) ? w.warmup : [];
+    if (!S && wl.length && rec.wu) {
+      var plans = wl.map(function (e) { return parseWarm(e[1]); }), rounds = Math.max.apply(null, plans.map(function (x) { return x.length; }).concat([1])), wb = el("div", "lk-sec"), any = false;
+      wb.appendChild(el("div", "lk-h", "Warm-up"));
+      for (var r = 0; r < rounds; r++) {
+        var rows = [];
+        wl.forEach(function (e, i) { var pl = plans[i][r], s = rec.wu[i] && rec.wu[i][r]; if (!pl || !s || !s.d) return; rows.push([moveName(e[0], p.equip), pl.time ? mmss(pl.time) : (s.r || pl.reps) + " reps"]); });
+        if (!rows.length) continue; any = true;
+        if (rounds > 1) wb.appendChild(el("div", "lk-round", "Round " + (r + 1)));
+        rows.forEach(function (x) { line(wb, x[0], [x[1]]); });
+      }
+      if (any) body.appendChild(wb);
+    }
+    var sb = el("div", "lk-sec"); sb.appendChild(el("div", "lk-h", S ? "Exercises" : "Work sets"));
+    exList.forEach(function (e, i) {
+      var g = e[0], shown = moveName(g, p.equip), ps = parseSets(e[1]), a = (rec.ex && rec.ex[i]) || [], bw = !needsWeight(g, p.equip), item = el("div", "lk-ex");
+      var hd = el("div", "lk-name"); hd.appendChild(el("span", null, shown)); if (prNames[shown]) hd.appendChild(el("span", "lk-pr", "PR")); item.appendChild(hd);
+      if (!e[2] && e[4] !== g) { var sw0 = effSwap(rec, i, e[4]); item.appendChild(el("span", "sw-note", "Swapped from " + moveName(e[4], p.equip) + (sw0 && sw0.why ? " · " + sw0.why : ""))); }
+      var logged = 0, wn = 0, sn = 0;
+      a.filter(function (s) { return s && s.k === "w"; }).concat(a.filter(function (s) { return s && s.k !== "w"; })).forEach(function (s) {
+        var lab = s.k === "w" ? "Warm-up " + (++wn) : "Set " + (++sn);
+        if (!(Number(s.r) > 0) && !s.d) return; logged++;
+        var val = ps && ps.time ? [(s.r || "") + " sec"] : !ps ? ["Done"] : [(s.r || "") + " reps"];
+        if (ps && !ps.time && !bw && s.w !== "" && s.w != null) { val.push(mut(" × ")); val.push(fmtW(Number(s.w)) + " lb"); }
+        else if (bw && ps) val.push(mut(" (bodyweight)"));
+        line(item, lab, val, s.k === "w" ? "wu" : "");
+      });
+      if (!logged) item.appendChild(el("span", "lk-none", "Not logged"));
+      sb.appendChild(item);
+    });
+    body.appendChild(sb);
+    if (o.off) return;
+    var share = el("button", "btn lk-btn"); share.type = "button"; share.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v11H9l-5 4z"/></svg>'; share.appendChild(document.createTextNode("Share to Rally"));
+    share.addEventListener("click", function () {
+      var info = workoutShareInfo(key, wk.root || rec, S ? rec : null, w);
+      computePRs(key, wk.root || rec, function (list) { openShare(info, list.filter(function (x) { return info.keys[x.k]; })); });
+    });
+    body.appendChild(share);
+    var un = el("button", "btn ghost lk-btn"); un.type = "button"; un.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="1"/><path d="M8 11V7a4 4 0 0 1 7.5-2"/></svg>'; un.appendChild(document.createTextNode("Unlock to edit"));
+    un.addEventListener("click", function () {
+      confirmDelete({ title: "Unlock this workout?", message: "You can change your sets, then lock it again. PRs and points are re-checked when you lock it.", yes: "Unlock", neutral: true }, function () { wk.editing = true; drawWorkoutPage(true); });
+    });
+    body.appendChild(un);
+  }
+  function lockWorkout(key) {
+    if (!wk) return; wk.editing = false;
+    if (wk.rec && !wk.rec.finishedAt) wk.rec.finishedAt = Date.now();
+    saveWkNow(); if (wk.root) awardPRs(key, wk.root, 0, null, "silent");
+    drawWorkoutPage(true);
+  }
   function drawWorkoutPage(force) {
     var body = $("wkp-body"), key = state.wkDay || todayKey(), wf = workoutFor(key), p = planCfg();
     if (!force && document.activeElement && document.activeElement.tagName === "INPUT" && body.contains(document.activeElement)) return;
@@ -2514,11 +2606,18 @@ details.targets[open] summary::after { content: "\2212"; }
     if (!S && (!wf || wf.kind !== "train")) { body.appendChild(el("p", "note", "No workout on this day.")); return; }
     var off = !state.me || !state.canWrite, isToday = key === todayKey(), rec = wk.rec || (S ? normSession({ id: sid }) : emptyWk(key));
     var w = S ? { title: rec.name, exercises: [] } : wf.w, th = S ? {} : wf.th, wkTask = taskOfKind("workout");
-    var done = S ? !!rec.finishedAt : wkTask && recFor(key).done[wkTask.id], started = !!rec.startedAt, live = isToday && started;
+    var done = S ? !!rec.finishedAt : !!((wkTask && recFor(key).done[wkTask.id]) || rec.finishedAt), started = !!rec.startedAt;
+    var editing = !!wk.editing && done, locked = done && !editing && wk.loaded, live = editing || (isToday && started && !done);
     body.appendChild(el("div", "wk-meta", S ? "Your own workout" : "Week " + w.week + " \u00B7 Day " + w.day + (w.minutes ? " \u00B7 " + w.minutes + " min" : "")));
     body.appendChild(el("h1", "pg", w.title));
+    if (locked) { drawLockedSummary(body, { key: key, rec: rec, w: w, S: S, off: off }); return; }
+    if (editing) {
+      var eb = el("div", "lk-edit"), et = el("span"); et.appendChild(el("b", null, "Editing")); et.appendChild(document.createTextNode("This workout was finished. Lock it when you\u2019re done."));
+      var lb = el("button", "btn", "Lock"); lb.type = "button"; lb.addEventListener("click", function () { lockWorkout(key); });
+      eb.appendChild(et); eb.appendChild(lb); body.insertBefore(eb, body.firstChild);
+    }
     if (isToday && !started && !done) { var sb = el("button", "btn wk-start", "Start workout"); sb.type = "button"; sb.disabled = off || !wk.loaded; sb.addEventListener("click", function () { if (!wk.root) wk.root = emptyWk(key); if (!wk.rec) wk.rec = wk.root; wk.rec.startedAt = Date.now(); saveWkNow(); drawWorkoutPage(true); }); body.appendChild(sb); }
-    if (live) body.appendChild(el("p", "note", "Started " + new Date(rec.startedAt).toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" }) + ". Log each set, then rest."));
+    if (live && !editing) body.appendChild(el("p", "note", "Started " + new Date(rec.startedAt).toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" }) + ". Log each set, then rest."));
     if (S && !normExtra(rec.extra).length) body.appendChild(el("p", "note", isToday ? "Add your first exercise from the library or enter your own." : "No exercises were logged."));
     if ((S ? isToday && wk.loaded : live) && !off) { var axb = el("button", "btn ghost wk-addex", "+ Add exercise"); axb.type = "button"; axb.addEventListener("click", function () { saveWkNow(); openExPicker(); }); body.appendChild(axb); }
     drawWarmup(body, w, th, rec, live && !S, off);
@@ -2602,16 +2701,17 @@ details.targets[open] summary::after { content: "\2212"; }
       body.appendChild(ex);
     });
     wkSection(body, "Finisher", th.finisher); wkSection(body, "Notes", th.notes);
-    if (isToday && (live || done)) {
-      var fb = el("button", "btn" + (done ? " ghost" : ""), done ? "Undo finish" : "Finish workout"); fb.type = "button"; fb.disabled = off;
+    if (editing) { var lk2 = el("button", "btn lk-btn", "Lock workout"); lk2.type = "button"; lk2.disabled = off; lk2.addEventListener("click", function () { lockWorkout(key); }); body.appendChild(lk2); }
+    else if (isToday && live && !done) {
+      var fb = el("button", "btn", "Finish workout"); fb.type = "button"; fb.disabled = off;
       fb.addEventListener("click", function () {
-        if (wk && wk.rec) wk.rec.finishedAt = done ? 0 : Date.now(); saveWkNow(); if (!S) previewWorkout(); drawWorkoutPage(true);
-        if (!done && wk && wk.root) {
+        if (wk && wk.rec) wk.rec.finishedAt = Date.now(); saveWkNow(); if (!S) { var wt = taskOfKind("workout"); if (wt && !recFor(key).done[wt.id]) previewWorkout(); } drawWorkoutPage(true);
+        if (wk && wk.root) {
           var info = workoutShareInfo(key, wk.root, S ? wk.rec : null, w);
           awardPRs(key, wk.root, 0, function (list) { openShare(info, list.filter(function (x) { return info.keys[x.k]; })); });
         }
       }); body.appendChild(fb);
-    } else if (!isToday && done) body.appendChild(el("p", "note", "Finished."));
+    }
     if (S && wk.loaded && !off) {
       var dlb = el("button", "btn ghost wk-del", "Delete this workout"); dlb.type = "button";
       dlb.addEventListener("click", function () {
@@ -3134,10 +3234,10 @@ details.targets[open] summary::after { content: "\2212"; }
   function confirmDelete(o, onYes) {
     var old = $("cdlg"); if (old) old.remove();
     var back = el("div", "cdlg"); back.id = "cdlg";
-    var box = el("div", "cdlg-box"); box.setAttribute("role", "alertdialog"); box.setAttribute("aria-modal", "true"); box.setAttribute("aria-labelledby", "cdlg-t"); box.setAttribute("aria-describedby", "cdlg-m");
+    var box = el("div", "cdlg-box" + (o.neutral ? " nw-box" : "")); box.setAttribute("role", "alertdialog"); box.setAttribute("aria-modal", "true"); box.setAttribute("aria-labelledby", "cdlg-t"); box.setAttribute("aria-describedby", "cdlg-m");
     var t = el("h2", null, o.title || "Delete this?"); t.id = "cdlg-t"; box.appendChild(t);
     var m = el("p", null, o.message || "This can\u2019t be undone."); m.id = "cdlg-m"; box.appendChild(m);
-    var row = el("div", "cdlg-btns"), no = el("button", "btn ghost", "Cancel"), yes = el("button", "btn cdlg-yes", o.yes || "Delete");
+    var row = el("div", "cdlg-btns"), no = el("button", "btn ghost", "Cancel"), yes = el("button", "btn" + (o.neutral ? "" : " cdlg-yes"), o.yes || "Delete");
     no.type = "button"; yes.type = "button"; row.appendChild(no); row.appendChild(yes); box.appendChild(row); back.appendChild(box);
     var prev = document.activeElement;
     function close() { back.remove(); try { if (prev && prev.focus && document.body.contains(prev)) prev.focus({ preventScroll: true }); } catch (e) {} }
