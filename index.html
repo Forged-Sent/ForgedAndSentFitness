@@ -836,6 +836,10 @@ details.targets[open] summary::after { content: "\2212"; }
             <option value="1.9">Very hard: physical job plus training</option>
           </select></label>
       </div>
+      <div class="fgrid" data-form="body" style="margin-top:12px">
+        <label class="flabel full">Your BMR (optional)<input class="field" type="number" id="b-bmr" min="800" max="5000" step="any" inputmode="numeric" placeholder="Leave blank to use the calculation"></label>
+      </div>
+      <p class="note">BMR is the calories your body burns at rest. If you know yours from a DEXA, InBody or metabolic test, enter it here and your calorie plan will use it instead of the estimate.</p>
       <p class="note">Update your weight here as it changes so your calorie plan stays accurate.</p>
     </section>
 
@@ -3046,29 +3050,29 @@ details.targets[open] summary::after { content: "\2212"; }
   /* Settings: stats calculator (Mifflin-St Jeor) */
   function readBody() {
     return { age: +$("b-age").value || 0, ft: +$("b-ft").value || 0, inch: +$("b-in").value || 0, wt: +$("b-wt").value || 0,
-      act: +$("b-act").value || 1.375, goal: $("b-goal").value, pace: +$("b-pace").value || 1, prot: +$("b-prot").value || 0.8, fat: +$("b-fat").value || 25 };
+      act: +$("b-act").value || 1.375, goal: $("b-goal").value, pace: +$("b-pace").value || 1, prot: +$("b-prot").value || 0.8, fat: +$("b-fat").value || 25, bmr: +$("b-bmr").value || 0 };
   }
   function calcPlan(b) {
-    var inches = b.ft * 12 + b.inch;
-    if (!(b.age > 0 && inches > 0 && b.wt > 0)) return null;
-    var kg = b.wt * 0.45359237, cm = inches * 2.54;
-    var bmr = 10 * kg + 6.25 * cm - 5 * b.age + 5, tdee = bmr * b.act, kcal = tdee, note = "";
+    var inches = b.ft * 12 + b.inch, own = b.bmr >= 800 && b.bmr <= 5000;
+    if (!(b.wt > 0 && (own || (b.age > 0 && inches > 0)))) return null;
+    var kg = b.wt * 0.45359237, cm = inches * 2.54, est = b.age > 0 && inches > 0 ? 10 * kg + 6.25 * cm - 5 * b.age + 5 : 0;
+    var bmr = own ? b.bmr : est, tdee = bmr * b.act, kcal = tdee, note = "";
     if (b.goal === "lose") kcal = tdee - b.pace * 500; else if (b.goal === "build") kcal = tdee + 250;
     if (kcal < 1500) { kcal = 1500; note = "Raised to a 1,500 kcal floor. Talk to your doctor before eating lower."; }
     kcal = Math.round(kcal / 10) * 10;
     var fp = Math.min(40, Math.max(15, b.fat || 25));
     var p = Math.round(b.prot * b.wt), f = Math.round(kcal * fp / 100 / 9), c = Math.max(0, Math.round((kcal - p * 4 - f * 9) / 4));
-    return { bmr: Math.round(bmr), tdee: Math.round(tdee), kcal: kcal, p: p, f: f, c: c, note: note };
+    return { bmr: Math.round(bmr), est: Math.round(est), own: own, tdee: Math.round(tdee), kcal: kcal, p: p, f: f, c: c, note: note };
   }
   function renderCalc() {
     var b = readBody(), plan = calcPlan(b), out = $("calc-out"); out.textContent = "";
     $("b-pace-wrap").hidden = b.goal !== "lose";
     $("calc-apply").disabled = !plan || !state.me || !state.canWrite;
-    if (!plan) { out.appendChild(el("span", "sub", "Enter your age, height and weight to see a starting plan.")); return; }
+    if (!plan) { out.appendChild(el("span", "sub", "Enter your age, height and weight (or your own BMR and weight) in Your body stats to see a starting plan.")); return; }
     out.appendChild(el("span", "label-caps", "Suggested daily intake"));
     out.appendChild(el("div", "big2", fmt(plan.kcal) + " kcal"));
     out.appendChild(el("div", "nums", "Protein " + plan.p + " g · Carbs " + plan.c + " g · Fat " + plan.f + " g"));
-    out.appendChild(el("span", "sub", "Resting burn about " + fmt(plan.bmr) + " kcal. Maintenance about " + fmt(plan.tdee) + " kcal."));
+    out.appendChild(el("span", "sub", plan.own ? "Using your BMR of " + fmt(plan.bmr) + " kcal" + (plan.est ? " (the calculation estimated " + fmt(plan.est) + ")" : "") + ". Maintenance about " + fmt(plan.tdee) + " kcal." : "Resting burn (BMR) about " + fmt(plan.bmr) + " kcal, calculated. Maintenance about " + fmt(plan.tdee) + " kcal."));
     if (plan.note) out.appendChild(el("span", "error", plan.note));
   }
   function fillForm(key, fn) {
@@ -3099,7 +3103,7 @@ details.targets[open] summary::after { content: "\2212"; }
       var b = st.body || {};
       $("b-age").value = b.age || ""; $("b-wt").value = b.wt || ""; $("b-ft").value = b.ft || ""; $("b-in").value = b.inch != null ? b.inch : "";
       $("b-act").value = String(b.act || 1.375); $("b-goal").value = b.goal || "lose"; $("b-pace").value = String(b.pace || 1);
-      $("b-prot").value = String(b.prot || 0.8); $("b-fat").value = b.fat || 25;
+      $("b-prot").value = String(b.prot || 0.8); $("b-fat").value = b.fat || 25; $("b-bmr").value = b.bmr ? b.bmr : "";
     });
     fillForm("targets", function () {
       var t = st.targets;
