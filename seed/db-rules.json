@@ -29,6 +29,15 @@
         {
           "path": "profiles/{self}",
           "write": "interact"
+        },
+        {
+          "path": "chsubs",
+          "read": "view",
+          "write": "owner"
+        },
+        {
+          "path": "chsubs/{self}",
+          "write": "interact"
         }
       ]
     },
@@ -42,6 +51,7 @@
     },
     "sample": {
       "images": true
-    }
+    },
+    "downloads": true
   }
 }
