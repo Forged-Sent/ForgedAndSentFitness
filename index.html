@@ -1526,7 +1526,7 @@ details.targets[open] summary::after { content: "\2212"; }
             row.appendChild(numField("sw", "Set " + (si + 1) + " weight in pounds", si > 0 && a[si - 1].w !== "" ? String(a[si - 1].w) : "lb", s.w, 2000, function (v) { s.w = v; }));
             row.appendChild(numField("sr", "Set " + (si + 1) + (ps.time ? " seconds" : " reps"), ps.target.length <= 8 ? ps.target : (ps.time ? "sec" : "reps"), s.r, 999, function (v) { s.r = v; }));
             var ck = el("button", "setck", "\u2713"); ck.type = "button"; ck.setAttribute("aria-label", "Mark set " + (si + 1) + " done"); ck.setAttribute("aria-pressed", String(!!s.d));
-            ck.addEventListener("click", function () { s.d = !s.d; row.className = "setrow" + (s.d ? " ok" : ""); ck.setAttribute("aria-pressed", String(!!s.d)); if (s.d) timerStart(timerFor(idx)); saveWkSoon(); });
+            ck.addEventListener("click", function () { s.d = !s.d; row.className = "setrow" + (s.d ? " ok" : ""); ck.setAttribute("aria-pressed", String(!!s.d)); saveWkSoon(); });
             row.appendChild(ck); ex.appendChild(row);
           })(si);
           ex.appendChild(el("span", "wc", "Target: " + ps.target + (ps.time ? "" : " reps") + " per set"));
