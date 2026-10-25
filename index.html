@@ -165,6 +165,9 @@ details.targets[open] summary::after { content: "\2212"; }
 .rng::-moz-range-progress { height: 8px; border-radius: 4px; background: var(--accent); }
 .rng::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 28px; height: 28px; margin-top: -10px; border-radius: 50%; background: #fff; border: 2px solid var(--accent); box-shadow: 0 1px 3px rgba(0,0,0,.35); }
 .rng::-moz-range-thumb { width: 26px; height: 26px; border-radius: 50%; background: #fff; border: 2px solid var(--accent); }
+.wx-addbar { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+.wx-addbar .label-caps { font-size: 11px; color: var(--brass, #b08d57); }
+.wk-addex { width: 100%; margin: 14px 0 4px; }
 .cdlg { position: fixed; inset: 0; z-index: 80; background: rgba(0,0,0,.55); display: flex; align-items: center; justify-content: center; padding: 16px max(16px, env(safe-area-inset-right, 0px)) 16px max(16px, env(safe-area-inset-left, 0px)); }
 .cdlg-box { width: 100%; max-width: 360px; background: var(--bg); border: 2px solid var(--danger); padding: 18px; display: flex; flex-direction: column; gap: 10px; }
 .cdlg-box h2 { margin: 0; font-family: var(--f-label); font-size: 17px; letter-spacing: .08em; text-transform: uppercase; }
@@ -1241,6 +1244,7 @@ details.targets[open] summary::after { content: "\2212"; }
   var stripBuilt = false, STRIP_BACK = 8, STRIP_FWD = 8;
   function go(p) {
     state.page = p;
+    if (p !== "workout") closeExPicker();
     if (p !== "fuel") { state.add = null; var fsh = document.getElementById("fsheet"); if (fsh) fsh.remove(); }
     ["today", "fuel", "train", "board", "checkin", "profile", "settings", "devo", "workout", "video"].forEach(function (n) { $("page-" + n).hidden = n !== p; });
     Array.prototype.forEach.call(document.querySelectorAll(".tabbar button"), function (b) {
@@ -1620,7 +1624,7 @@ details.targets[open] summary::after { content: "\2212"; }
   var volCache = {}, volAsked = {}, SVGNS = "http://www.w3.org/2000/svg";
   function volOf(rec, key) {
     if (!rec || !rec.ex) return 0;
-    var wf = workoutFor(key), exs = wf && wf.kind === "train" && wf.w ? wf.w.exercises : null, tot = 0;
+    var wf = workoutFor(key), exs = wf && wf.kind === "train" && wf.w ? wf.w.exercises.concat(normExtra(rec.extra).map(function (x) { return [x.g, x.rx]; })) : null, tot = 0;
     Object.keys(rec.ex).forEach(function (k) {
       var arr = rec.ex[k]; if (!Array.isArray(arr)) return;
       var ps = exs && exs[+k] ? parseSets(exs[+k][1]) : null; if (ps && ps.time) return;
@@ -1677,7 +1681,7 @@ details.targets[open] summary::after { content: "\2212"; }
   }
   /* ---------- Workout logging: sets, reps, weight, rest timer ---------- */
   var wk = null, wkTick = null, saveT = null, WK_BASE = 90;
-  function emptyWk(key) { return { date: key, startedAt: 0, finishedAt: 0, ex: {} }; }
+  function emptyWk(key) { return { date: key, startedAt: 0, finishedAt: 0, ex: {}, extra: [] }; }
   function normWk(r, key) {
     var o = emptyWk(key);
     if (r && typeof r === "object") {
@@ -1685,6 +1689,7 @@ details.targets[open] summary::after { content: "\2212"; }
       // Deep copy: data handed back by the database can be read-only, and sets must be editable.
       try { var ex = JSON.parse(JSON.stringify(r.ex || {})); o.ex = ex && typeof ex === "object" && !Array.isArray(ex) ? ex : {}; } catch (e) { o.ex = {}; }
       Object.keys(o.ex).forEach(function (k) { if (!Array.isArray(o.ex[k])) delete o.ex[k]; });
+      o.extra = normExtra(r.extra);
     }
     return o;
   }
@@ -1812,6 +1817,87 @@ details.targets[open] summary::after { content: "\2212"; }
     } else body.appendChild(el("p", "note", "No video for this one yet."));
     if (m.cue) { var c = el("p", "wk-sec"); c.appendChild(el("b", null, "Coaching cue")); c.appendChild(document.createTextNode(m.cue)); body.appendChild(c); }
   }
+  /* ---------- Add an exercise to today's workout ---------- */
+  var xp = null;
+  function normExtra(a) {
+    return (Array.isArray(a) ? a : []).slice(0, 20).map(function (x) { x = x || {}; return { g: String(x.g || "").slice(0, 60), rx: String(x.rx || "3 x 10").slice(0, 40) }; })
+      .filter(function (x) { return x.g; });
+  }
+  function closeExPicker() { xp = null; var s = $("xsheet"); if (s) s.remove(); }
+  function openExPicker() { xp = { q: "", pick: null, sets: "3", reps: "10" }; drawExPicker(true); }
+  function addExtraExercise(g, rx) {
+    if (!wk || !wk.rec) return;
+    wk.rec.extra = normExtra(wk.rec.extra); wk.rec.extra.push({ g: g, rx: rx });
+    saveWkNow(); closeExPicker(); drawWorkoutPage(true);
+    setTimeout(function () { var all = document.querySelectorAll("#wkp-body .wx"); var last = all[all.length - 1]; if (last && last.scrollIntoView) last.scrollIntoView({ block: "center" }); }, 50);
+  }
+  function removeExtraExercise(base, i, name) {
+    confirmDelete({ title: "Remove this exercise?", message: name + " and any sets you logged for it will be removed from today’s workout.", yes: "Remove" }, function () {
+      var r = wk && wk.rec; if (!r) return;
+      r.extra = normExtra(r.extra); var n = r.extra.length; r.extra.splice(i, 1);
+      for (var j = i; j < n; j++) { var from = r.ex[base + j + 1]; if (from) r.ex[base + j] = from; else delete r.ex[base + j]; delete wk.timers[base + j]; }
+      delete r.ex[base + n]; delete wk.timers[base + n];
+      saveWkNow(); drawWorkoutPage(true);
+    });
+  }
+  function drawExPicker(fresh) {
+    var sh = $("xsheet");
+    if (!sh) {
+      sh = el("div", "fsheet"); sh.id = "xsheet"; sh.setAttribute("role", "dialog"); sh.setAttribute("aria-modal", "true"); sh.setAttribute("aria-labelledby", "xsheet-t");
+      var hd = el("div", "fsheet-head"), h = el("h2", null, "Add exercise"); h.id = "xsheet-t"; hd.appendChild(h);
+      var x = el("button", "mini", "Close"); x.type = "button"; x.addEventListener("click", closeExPicker); hd.appendChild(x);
+      var bd = el("div", "fsheet-body"); bd.id = "xsheet-b"; sh.appendChild(hd); sh.appendChild(bd); document.body.appendChild(sh);
+      sh.addEventListener("keydown", function (ev) { if (ev.key === "Escape" && !$("cdlg")) closeExPicker(); });
+    }
+    var b = $("xsheet-b"); b.textContent = ""; var w = el("div", "af"), p = planCfg() || {};
+    if (xp.pick) {
+      var pk = xp.pick, top = el("div", "af-hd"), bk = el("button", "mini", "‹ Back"); bk.type = "button";
+      bk.addEventListener("click", function () { xp.pick = null; drawExPicker(); }); top.appendChild(bk); w.appendChild(top);
+      w.appendChild(el("h3", "af-name", pk.shown)); if (pk.sub) w.appendChild(el("p", "fnote", pk.sub));
+      var l1 = el("label", "flabel", "Sets"), row = el("div", "af-qty"), minus = el("button", "mini", "−"), si = el("input", "field"), plus = el("button", "mini", "+");
+      minus.type = "button"; plus.type = "button"; minus.setAttribute("aria-label", "Fewer sets"); plus.setAttribute("aria-label", "More sets");
+      si.type = "number"; si.min = "1"; si.max = "10"; si.step = "1"; si.inputMode = "numeric"; si.value = xp.sets; si.id = "xp-sets";
+      si.addEventListener("input", function () { xp.sets = si.value; });
+      function st(d) { var v = Math.max(1, Math.min(10, (parseInt(xp.sets, 10) || 0) + d)); xp.sets = String(v); si.value = xp.sets; }
+      minus.addEventListener("click", function () { st(-1); }); plus.addEventListener("click", function () { st(1); });
+      row.appendChild(minus); row.appendChild(si); row.appendChild(plus); l1.appendChild(row); w.appendChild(l1);
+      var l2 = el("label", "flabel", "Reps per set"), ri = el("input", "field"); ri.type = "text"; ri.maxLength = 20; ri.value = xp.reps; ri.id = "xp-reps"; ri.placeholder = "e.g. 10, 8-12 or 30 sec"; ri.autocomplete = "off";
+      ri.addEventListener("input", function () { xp.reps = ri.value; }); l2.appendChild(ri); w.appendChild(l2);
+      var ad = el("button", "btn", "Add to workout"); ad.type = "button";
+      ad.addEventListener("click", function () {
+        var n = Math.max(1, Math.min(10, parseInt(xp.sets, 10) || 3)), r = (xp.reps || "").trim().slice(0, 20) || "10";
+        addExtraExercise(pk.g, n + " x " + r);
+      });
+      w.appendChild(ad);
+    } else {
+      var f = el("form", "af-search"); f.setAttribute("role", "search");
+      var qi = el("input", "field"); qi.type = "search"; qi.id = "xp-q"; qi.placeholder = "Search exercises"; qi.value = xp.q; qi.setAttribute("aria-label", "Search exercises"); qi.autocomplete = "off"; qi.maxLength = 60;
+      f.appendChild(qi); f.addEventListener("submit", function (ev) { ev.preventDefault(); qi.blur(); });
+      w.appendChild(f);
+      var list = el("div", "af-list"); w.appendChild(list);
+      var paint = function () {
+        list.textContent = ""; var q = xp.q.trim().toLowerCase(), shown = 0;
+        var keys = Object.keys(PLAN.M).filter(function (g) { return g !== "Rest Day"; }).map(function (g) { var m = PLAN.M[g] || {}; return { g: g, shown: moveName(g, p.equip), sub: [m.pattern, m.muscles].filter(Boolean).join(" · ") }; })
+          .filter(function (x) { return !q || (x.g + " " + x.shown + " " + x.sub).toLowerCase().indexOf(q) >= 0; })
+          .sort(function (a, b) { return a.shown < b.shown ? -1 : 1; });
+        if (q && !keys.some(function (x) { return x.shown.toLowerCase() === q || x.g.toLowerCase() === q; })) {
+          var cn = xp.q.trim().slice(0, 60), cb = el("button", "af-row"); cb.type = "button";
+          var tx = el("span", "txt"); tx.appendChild(el("span", "name", "Add “" + cn + "”")); tx.appendChild(el("span", "sub", "Custom exercise")); cb.appendChild(tx); cb.appendChild(el("span", "nums", "+"));
+          cb.addEventListener("click", function () { xp.pick = { g: cn, shown: cn, sub: "Custom exercise" }; drawExPicker(); }); list.appendChild(cb);
+        }
+        keys.slice(0, 60).forEach(function (x) {
+          var r = el("button", "af-row"); r.type = "button"; r.setAttribute("aria-label", "Choose " + x.shown);
+          var tx = el("span", "txt"); tx.appendChild(el("span", "name", x.shown)); if (x.sub) tx.appendChild(el("span", "sub", x.sub)); r.appendChild(tx); r.appendChild(el("span", "nums", "›"));
+          r.addEventListener("click", function () { xp.pick = x; drawExPicker(); }); list.appendChild(r); shown++;
+        });
+        if (!shown && !q) list.appendChild(el("p", "fnote", "No exercises found."));
+      };
+      qi.addEventListener("input", function () { xp.q = qi.value; paint(); });
+      paint();
+      if (fresh) setTimeout(function () { try { qi.focus({ preventScroll: true }); } catch (e) {} }, 0);
+    }
+    b.appendChild(w);
+  }
   function redrawKeepScroll() { var sc = $("scroll"), t = sc.scrollTop; drawWorkoutPage(true); sc.scrollTop = t; }
   function drawWorkoutPage(force) {
     var body = $("wkp-body"), key = state.wkDay || todayKey(), wf = workoutFor(key), p = planCfg();
@@ -1826,8 +1912,9 @@ details.targets[open] summary::after { content: "\2212"; }
     if (isToday && !started && !done) { var sb = el("button", "btn wk-start", "Start workout"); sb.type = "button"; sb.disabled = off || !wk.loaded; sb.addEventListener("click", function () { wk.rec = wk.rec || emptyWk(key); wk.rec.startedAt = Date.now(); saveWkNow(); drawWorkoutPage(true); }); body.appendChild(sb); }
     if (live) body.appendChild(el("p", "note", "Started " + new Date(rec.startedAt).toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" }) + ". Log each set, then rest."));
     wkSection(body, "Warm-up", wf.th.warmup);
-    w.exercises.forEach(function (e, idx) {
-      var ex = el("div", "wx"), ps = parseSets(e[1]);
+    var exBase = w.exercises.length, exList = w.exercises.concat(normExtra(rec.extra).map(function (x) { return [x.g, x.rx, true]; }));
+    exList.forEach(function (e, idx) {
+      var ex = el("div", "wx" + (e[2] ? " wx-add" : "")), ps = parseSets(e[1]);
       var shownName = moveName(e[0], p.equip);
       if (moveVideo(e[0])) {
         var nb = el("button", "wn wlink"); nb.type = "button"; nb.setAttribute("aria-label", "Watch how to do " + shownName);
@@ -1883,8 +1970,14 @@ details.targets[open] summary::after { content: "\2212"; }
       } else if (Array.isArray(rec.ex[idx])) {
         var line = fmtSetLine(rec.ex[idx], ps && ps.time); if (line) ex.appendChild(el("span", "wlog", "Logged: " + line));
       }
+      if (e[2]) {
+        var xr = el("div", "wx-addbar"); xr.appendChild(el("span", "label-caps", "Added by you"));
+        if (live && !off) { var xb = el("button", "mini danger", "Remove exercise"); xb.type = "button"; xb.addEventListener("click", function () { saveWkNow(); removeExtraExercise(exBase, idx - exBase, shownName); }); xr.appendChild(xb); }
+        ex.insertBefore(xr, ex.firstChild);
+      }
       body.appendChild(ex);
     });
+    if (live && !off) { var axb = el("button", "btn ghost wk-addex", "+ Add exercise"); axb.type = "button"; axb.addEventListener("click", function () { saveWkNow(); openExPicker(); }); body.appendChild(axb); }
     wkSection(body, "Finisher", wf.th.finisher); wkSection(body, "Notes", wf.th.notes);
     if (isToday && (live || done)) {
       var fb = el("button", "btn" + (done ? " ghost" : ""), done ? "Undo finish" : "Finish workout"); fb.type = "button"; fb.disabled = off;
