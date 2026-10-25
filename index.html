@@ -794,7 +794,7 @@ details.targets[open] summary::after { content: "\2212"; }
     </section>
     <section aria-label="Stats">
       <div class="stats">
-        <div class="stat"><b id="st-streak">0</b><span>Day streak</span></div>
+        <div class="stat"><b id="st-streak">0</b><span>Full-day streak</span></div>
         <div class="stat"><b id="st-week">0</b><span>Week pts</span></div>
         <div class="stat"><b id="st-today">0</b><span>Boxes today</span></div>
       </div>
@@ -1255,8 +1255,10 @@ details.targets[open] summary::after { content: "\2212"; }
   function boxesOf(rec) { return stdDone(rec.done) + customDone(rec.done); }
   function streak(uid) {
     uid = uid || state.me;
-    var dt = devoTask(); if (!dt || !uid) return 0;
-    var days = {}; state.checks.forEach(function (c) { if (c.uid === uid && c.done[dt.id]) days[c.date] = true; });
+    // A streak day is a day with every daily box checked. The weekly Sabbath boxes (weigh-in, progress photos) don't break it.
+    var daily = state.tasks.filter(function (t) { return t.kind !== "weigh" && t.kind !== "photos"; });
+    if (!daily.length || !uid) return 0;
+    var days = {}; state.checks.forEach(function (c) { if (c.uid === uid && daily.every(function (t) { return c.done && c.done[t.id]; })) days[c.date] = true; });
     var k = todayKey(); if (!days[k]) k = addDays(k, -1);
     var n = 0; while (days[k]) { n++; k = addDays(k, -1); }
     return n;
@@ -1402,7 +1404,7 @@ details.targets[open] summary::after { content: "\2212"; }
     $("today-label").textContent = nowDate().toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric" });
     $("mission").textContent = MISSIONS[dayOfYear() % MISSIONS.length];
     var s = streak();
-    $("streak").textContent = devoTask() ? (s > 0 ? s + "-day devotional streak" : "Start today. Grace for yesterday.") : "";
+    $("streak").textContent = state.tasks.length ? (s > 0 ? "Full-day streak: " + s + (s === 1 ? " day" : " days") : "Start today. Grace for yesterday.") : "";
   }
   function drawToday() {
     var list = $("tasks"); list.textContent = "";
