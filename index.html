@@ -858,19 +858,20 @@ details.targets[open] summary::after { content: "\2212"; }
           <select class="field" id="b-prot"><option value="0.7">0.7 g</option><option value="0.8">0.8 g</option><option value="0.9">0.9 g</option><option value="1">1.0 g</option></select></label>
         <label class="flabel">Fat (% of calories)<input class="field" type="number" id="b-fat" min="15" max="40" inputmode="numeric"></label>
       </div>
-      <div class="calc" id="calc-out" style="margin-top:12px"></div>
-      <button class="btn" type="button" id="calc-apply" style="margin-top:10px;width:100%">Use these as my targets</button>
-      <p class="note">A starting estimate from the Mifflin-St Jeor equation, adjusted for activity and your goal. It is not medical advice. Check with your doctor before major diet or training changes. Adjust as your weight and energy respond.</p>
+      <p class="note">Your suggested calories and macros are shown in Daily calorie and macro targets below.</p>
     </section>
 
     <section aria-labelledby="h-s-tg">
       <div class="section-head"><h2 class="label-caps" id="h-s-tg" data-sub="The calories, protein, carbs and fat you track against on the Fuel tab.">Daily calorie and macro targets</h2></div>
+      <div class="calc" id="calc-out" style="margin-top:4px"></div>
+      <button class="btn" type="button" id="calc-apply" style="margin-top:10px;width:100%;margin-bottom:6px">Use these as my targets</button>
+      <p class="note">A starting estimate from the Mifflin-St Jeor equation, adjusted for activity and your goal. It is not medical advice. Check with your doctor before major diet or training changes. Adjust as your weight and energy respond.</p>
       <form class="tform" id="targets-form" data-form="targets" style="padding:0">
         <label class="full">Calorie goal<input class="field" type="number" id="t-kcal" min="0" max="10000" step="any" inputmode="numeric"></label>
         <div class="rng-row full"><div class="rng-top"><span class="rng-l">Protein</span><span class="rng-v" id="t-p-v"></span></div>
-          <input class="rng" type="range" id="t-p" min="0" max="400" step="5" aria-label="Protein grams"></div>
+          <input class="rng" type="range" id="t-p" min="0" max="400" step="1" aria-label="Protein grams"></div>
         <div class="rng-row full"><div class="rng-top"><span class="rng-l">Carbs</span><span class="rng-v" id="t-c-v"></span></div>
-          <input class="rng" type="range" id="t-c" min="0" max="700" step="5" aria-label="Carb grams"></div>
+          <input class="rng" type="range" id="t-c" min="0" max="700" step="1" aria-label="Carb grams"></div>
         <div class="rng-row full"><div class="rng-top"><span class="rng-l">Fat</span><span class="rng-v" id="t-f-v"></span></div>
           <input class="rng" type="range" id="t-f" min="0" max="250" step="1" aria-label="Fat grams"></div>
         <p class="note full" id="t-math" style="margin:0"></p>
@@ -3297,6 +3298,7 @@ details.targets[open] summary::after { content: "\2212"; }
       state.settings.body = b; state.settings.targets = { kcal: plan.kcal, p: plan.p, f: plan.f, c: plan.c };
       state.dirty.body = false; state.dirty.targets = false; saveSettings();
       writeDay(function () { return false; });
+      $("t-kcal").value = plan.kcal; $("t-p").value = plan.p; $("t-c").value = plan.c; $("t-f").value = plan.f; $("t-warn").hidden = true; updateTargetMath();
       $("t-status").textContent = "Targets set from your stats.";
     });
     $("rem-form").addEventListener("submit", function (ev) {
