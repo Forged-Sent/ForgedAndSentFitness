@@ -575,6 +575,7 @@ details.targets[open] summary::after { content: "\2212"; }
 .media img, .media video { width: 100%; max-height: 420px; object-fit: cover; background: var(--surface-2); border: 1px solid var(--line); display: block; }
 .pactions { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; align-items: center; }
 .pactions .mini { min-height: 34px; padding: 0 9px; font-size: 12px; letter-spacing: .06em; }
+.post .media img, .post .media video { min-height: 120px; background: var(--surface); }
 .replies { margin-top: 10px; padding-left: 12px; border-left: 2px solid var(--line); display: flex; flex-direction: column; gap: 10px; }
 .reply { display: grid; grid-template-columns: 28px minmax(0, 1fr); gap: 8px; }
 .reply .avatar.sm { width: 28px; height: 28px; }
@@ -3513,11 +3514,27 @@ details.targets[open] summary::after { content: "\2212"; }
     var d = new Date(ms), t = d.toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" });
     return dkey(d) === todayKey() ? "Today " + t : d.toLocaleDateString(undefined, { month: "short", day: "numeric" }) + " " + t;
   }
-  function drawFeed() {
-    var sc = $("scroll"), keepTop = sc ? sc.scrollTop : 0, feed = $("feed");
+  function refreshLikes() {
+    var count = {}, mine = {};
+    state.likes.forEach(function (l) { count[l.postId] = (count[l.postId] || 0) + 1; if (l.uid === state.me) mine[l.postId] = true; });
+    Array.prototype.forEach.call(document.querySelectorAll("#feed [data-like]"), function (b) {
+      var id = b.dataset.like, t = "Strong" + (count[id] ? " " + count[id] : "");
+      if (b.textContent !== t) b.textContent = t;
+      b.classList.toggle("on", !!mine[id]); b.setAttribute("aria-pressed", mine[id] ? "true" : "false");
+    });
+  }
+  var feedSig = "";
+  function drawFeed(force) {
+    var feed = $("feed"); if (!feed) return;
+    // Skip the rebuild when nothing the thread shows has changed; just refresh the Strong buttons.
+    var sig = JSON.stringify([state.posts.map(function (p) { return p.id + ":" + p.createdAt; }), (state.replies || []).map(function (r) { return r.id; }), Object.keys(state.settings.blocked || {}), state.replyOpen || "", state.confirm || "", Object.keys(state.reported || {}), Object.keys(state.repliesAll || {}), state.me || "", !!state.canWrite,
+      Object.keys(state.profs || {}).map(function (k) { return k + (state.profs[k] && state.profs[k].name || ""); }).join(",")]);
+    if (!force && sig === feedSig && feed.childNodes.length) { refreshLikes(); return; }
+    feedSig = sig;
+    var sc = $("scroll"), se = document.scrollingElement, keepTop = sc ? sc.scrollTop : 0, keepDoc = se ? se.scrollTop : 0;
     // Hold the height while rebuilding so the page doesn't jump to the top.
     feed.style.minHeight = feed.offsetHeight + "px"; feed.textContent = "";
-    try { drawFeedInner(feed); } finally { feed.style.minHeight = ""; if (sc && state.page === "checkin") sc.scrollTop = keepTop; }
+    try { drawFeedInner(feed); } finally { feed.style.minHeight = ""; if (state.page === "checkin") { if (sc) sc.scrollTop = keepTop; if (se) se.scrollTop = keepDoc; } }
   }
   function drawFeedInner(feed) {
     var blocked = state.settings.blocked || {};
@@ -3545,11 +3562,15 @@ details.targets[open] summary::after { content: "\2212"; }
         body.appendChild(md);
       }
       var acts = el("div", "pactions");
-      var lk = el("button", "mini" + (mine[p.id] ? " on" : ""), "Strong" + (likeCount[p.id] ? " " + likeCount[p.id] : "")); lk.type = "button";
+      var lk = el("button", "mini" + (mine[p.id] ? " on" : ""), "Strong" + (likeCount[p.id] ? " " + likeCount[p.id] : "")); lk.type = "button"; lk.dataset.like = p.id;
       lk.setAttribute("aria-pressed", mine[p.id] ? "true" : "false"); lk.disabled = !state.me || !state.canWrite;
+      lk.addEventListener("pointerdown", function (ev) { ev.preventDefault(); });
       lk.addEventListener("click", function (ev) {
-        ev.preventDefault(); var on = !mine[p.id]; mine[p.id] = on; likeCount[p.id] = Math.max(0, (likeCount[p.id] || 0) + (on ? 1 : -1));
-        lk.textContent = "Strong" + (likeCount[p.id] ? " " + likeCount[p.id] : ""); lk.classList.toggle("on", on); lk.setAttribute("aria-pressed", String(on));
+        ev.preventDefault(); if (!state.me) return;
+        var on = !state.likes.some(function (l) { return l.postId === p.id && l.uid === state.me; });
+        if (on) state.likes = state.likes.concat([{ id: p.id + "_" + state.me, postId: p.id, uid: state.me }]);
+        else state.likes = state.likes.filter(function (l) { return !(l.postId === p.id && l.uid === state.me); });
+        refreshLikes();
         if (B.db) B.setLike(p.id, state.me, on).catch(noop);
       });
       acts.appendChild(lk);
@@ -5047,7 +5068,8 @@ details.targets[open] summary::after { content: "\2212"; }
       });
     }
     B.watchPosts(function (rows) { state.posts = rows; drawFeed(); loadProfiles(); });
-    B.watchLikes(function (rows) { state.likes = rows; drawFeed(); });
+    // Likes only update the Strong buttons in place. Rebuilding the thread is what made the page jump.
+    B.watchLikes(function (rows) { state.likes = rows; refreshLikes(); });
     B.watchReplies(function (rows) { state.replies = rows; drawFeed(); loadProfiles(); });
     subscribeWindows(); drawAll(); loadProfiles();
     setInterval(function () { subscribeWindows(); drawAll(); }, 60000);
