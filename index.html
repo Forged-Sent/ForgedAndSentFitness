@@ -1062,7 +1062,7 @@ details.targets[open] summary::after { content: "\2212"; }
     </section>
 
     <section aria-labelledby="h-s-body">
-      <div class="section-head"><h2 class="label-caps" id="h-s-body" data-sub="Birthday, weight, height and activity. Used for your calorie plan and challenge age bracket.">Your body stats</h2></div>
+      <div class="section-head"><h2 class="label-caps" id="h-s-body" data-sub="Birthday, weight, height and activity. Used for your calorie plan and challenge age bracket.">Service record</h2></div>
       <div class="fgrid" id="body-form" data-form="body">
         <label class="flabel full">Birthday<input class="field" type="date" id="b-bday" min="1920-01-01" aria-describedby="b-bday-note"></label>
         <p class="note full" id="b-bday-note" style="margin:-4px 0 0">Saves right away. Sets your age for your calorie plan and your age bracket in the weekly challenges.</p>
@@ -3247,7 +3247,7 @@ details.targets[open] summary::after { content: "\2212"; }
         stS.appendChild(bd);
       }
       var flats = rows.filter(function (r) { return r.flat; }).length; if (flats) stS.appendChild(el("p", "fnote", flats + (flats === 1 ? " man" : " men") + " completed the Alternate or Scaled version."));
-      if (!myBracket(w.season)) stS.appendChild(el("p", "fnote", "Add your birthday in Settings \u2192 Your body stats to be ranked in your age bracket."));
+      if (!myBracket(w.season)) stS.appendChild(el("p", "fnote", "Add your birthday in Settings \u2192 Service record to be ranked in your age bracket."));
       body.appendChild(stS);
     }
     // Past attempts
@@ -4037,7 +4037,7 @@ details.targets[open] summary::after { content: "\2212"; }
       "Iron builds strength and Endure builds your engine. Do the Standard version and you're scored 0 to 100 against the best result in your age bracket. The leader gets 100.",
       "Alternate (for injuries) and Scaled earn a flat 50 points and aren't ranked.",
       "Enter your score and add a photo or video as proof. Proof is required, like a screenshot of your mile run showing distance and time. You can submit more than once. Your best attempt counts.",
-      "Add your birthday in Settings \u2192 Your body stats so you're ranked with men your age: under 30, 30s, 40s, 50s or 60+. Your age is counted on the first day of each season.",
+      "Add your birthday in Settings \u2192 Service record so you're ranked with men your age: under 30, 30s, 40s, 50s or 60+. Your age is counted on the first day of each season.",
       "Submit by Sunday at 8:00 AM Arizona time. After that, submissions close and results are final. The most you can earn in a week is 250 points."] },
     video: { t: "How to do it", why: "A quick guide for one movement.", how: [
       "Tap Watch on YouTube to see the video. Come back to the app when you're done.",
@@ -4051,7 +4051,7 @@ details.targets[open] summary::after { content: "\2212"; }
     settings: { t: "Settings", why: "Set up your profile, body stats, goals and app preferences.", how: [
       "Tap a section to open it.",
       "Your profile: photo, banner and morning motto.",
-      "Body stats and Your goal build your calorie plan. Protein is 1 g per lb of your goal weight by default.",
+      "Service record (your birthday, weight, height and activity) and Your goal build your calorie plan. Protein is 1 g per lb of your goal weight by default.",
       "Daily targets: fine-tune calories and macros with the sliders.",
       "Appearance switches between dark, light or auto."] }
   };
@@ -4584,7 +4584,7 @@ details.targets[open] summary::after { content: "\2212"; }
     var b = readBody(), plan = calcPlan(b), out = $("calc-out"); out.textContent = "";
     $("b-pace-wrap").hidden = b.goal !== "lose";
     $("calc-apply").disabled = !plan || !state.me || !state.canWrite;
-    if (!plan) { out.appendChild(el("span", "sub", "Enter your age, height and weight (or your own BMR and weight) in Your body stats to see a starting plan.")); return; }
+    if (!plan) { out.appendChild(el("span", "sub", "Enter your age, height and weight (or your own BMR and weight) in Service record to see a starting plan.")); return; }
     out.appendChild(el("span", "label-caps", "Suggested daily intake"));
     out.appendChild(el("div", "big2", fmt(plan.kcal) + " kcal"));
     out.appendChild(el("div", "nums", "Protein " + plan.p + " g · Carbs " + plan.c + " g · Fat " + plan.f + " g"));
