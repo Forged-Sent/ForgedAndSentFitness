@@ -289,6 +289,10 @@ details.targets[open] summary::after { content: "\2212"; }
 .help-right .me-btn, .topline .right .me-btn { margin: 0; }
 .cdlg-box .help-why { margin: 2px 0 6px; font-size: 15px; line-height: 1.5; }
 .cdlg-box .help-tip { margin: 0 0 8px; padding: 10px 12px; border-left: 3px solid var(--brass, var(--accent)); background: var(--surface); font-size: 14.5px; font-weight: 600; line-height: 1.45; }
+.cdlg-box { position: relative; }
+.dlg-x { position: absolute; top: 10px; right: 10px; width: 36px; height: 36px; min-height: 0; padding: 0; display: grid; place-items: center; background: transparent; border: 1px solid var(--line); border-radius: 50%; color: var(--ink); cursor: pointer; z-index: 1; }
+.dlg-x svg { width: 18px; height: 18px; stroke: currentColor; stroke-width: 2.2; fill: none; stroke-linecap: round; }
+.dlg-x:hover, .dlg-x:focus-visible { border-color: var(--accent); color: var(--accent); }
 .help-list { list-style: disc; margin: 0 0 8px; padding-left: 20px; display: grid; gap: 8px; font-size: 14px; line-height: 1.45; }
 .help-list li { display: list-item; }
 .help-list li::marker { color: var(--accent); }
@@ -2940,13 +2944,14 @@ details.targets[open] summary::after { content: "\2212"; }
     var old = $("cdlg"); if (old) old.remove();
     var back = el("div", "cdlg"); back.id = "cdlg";
     var box = el("div", "cdlg-box nw-box wp-box"); box.setAttribute("role", "dialog"); box.setAttribute("aria-modal", "true"); box.setAttribute("aria-labelledby", "pt-t");
+    var px = el("button", "dlg-x"); px.type = "button"; px.setAttribute("aria-label", "Close"); px.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>'; box.appendChild(px);
     box.appendChild(el("span", "label-caps wp-k", "The Board"));
     var t = el("h2", null, "How points work"); t.id = "pt-t"; box.appendChild(t);
     var b = el("div", "pts-body"); box.appendChild(b); drawPointsGuide(b);
     var ok = el("button", "btn", "Got it"); ok.type = "button"; box.appendChild(ok);
     var prev = document.activeElement;
     function close() { back.remove(); try { if (prev && prev.focus) prev.focus({ preventScroll: true }); } catch (e) {} }
-    ok.addEventListener("click", close); back.addEventListener("click", function (ev) { if (ev.target === back) close(); });
+    ok.addEventListener("click", close); px.addEventListener("click", close); back.addEventListener("click", function (ev) { if (ev.target === back) close(); });
     back.addEventListener("keydown", function (ev) { if (ev.key === "Escape") { ev.stopPropagation(); close(); } });
     back.appendChild(box); document.body.appendChild(back); ok.focus({ preventScroll: true });
   }
@@ -3618,6 +3623,7 @@ details.targets[open] summary::after { content: "\2212"; }
     var old = $("cdlg"); if (old) old.remove();
     var back = el("div", "cdlg"); back.id = "cdlg";
     var box = el("div", "cdlg-box nw-box wp-box help-box"); box.setAttribute("role", "dialog"); box.setAttribute("aria-modal", "true"); box.setAttribute("aria-labelledby", "hp-t");
+    var hx = el("button", "dlg-x"); hx.type = "button"; hx.setAttribute("aria-label", "Close"); hx.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>'; box.appendChild(hx);
     box.appendChild(el("span", "label-caps wp-k", "How this page works"));
     var t = el("h2", null, h.t); t.id = "hp-t"; box.appendChild(t);
     box.appendChild(el("p", "help-why", h.why));
@@ -3626,7 +3632,7 @@ details.targets[open] summary::after { content: "\2212"; }
     var ok = el("button", "btn", "Got it"); ok.type = "button"; box.appendChild(ok);
     var prev = document.activeElement;
     function close() { back.remove(); try { if (prev && prev.focus && document.body.contains(prev)) prev.focus({ preventScroll: true }); } catch (e) {} }
-    ok.addEventListener("click", close);
+    ok.addEventListener("click", close); hx.addEventListener("click", close);
     back.addEventListener("click", function (ev) { if (ev.target === back) close(); });
     back.addEventListener("keydown", function (ev) { if (ev.key === "Escape") { ev.stopPropagation(); close(); } });
     back.appendChild(box); document.body.appendChild(back); ok.focus({ preventScroll: true });
