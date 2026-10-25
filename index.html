@@ -425,6 +425,35 @@ details.targets[open] summary::after { content: "\2212"; }
 .fsheet-head h2{margin:0;font-family:var(--f-label);font-size:16px;letter-spacing:.1em;text-transform:uppercase}
 .fsheet-body{flex:1 1 auto;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:4px max(16px,env(safe-area-inset-right,0px)) calc(24px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
 .fsheet-body .fform{border-top:0}
+.af{display:flex;flex-direction:column;gap:12px;padding-top:12px}
+.af-search{display:flex;gap:8px}
+.af-search .field{flex:1;min-width:0}
+.af-search .btn{flex:none;min-width:96px}
+.af-hd{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.af-tabs{display:grid;grid-template-columns:repeat(4,1fr);border:2px solid var(--line)}
+.af-tabs button{min-height:44px;background:transparent;border:0;border-left:1px solid var(--line);font-family:var(--f-label);font-weight:600;font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink);padding:0 2px}
+.af-tabs button:first-child{border-left:0}
+.af-tabs button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+.af-list{display:flex;flex-direction:column}
+.af-row{width:100%;display:flex;align-items:center;justify-content:space-between;gap:12px;text-align:left;min-height:58px;padding:8px 2px;background:transparent;border:0;border-bottom:1px solid var(--line);color:var(--ink)}
+.af-row .txt{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.af-row .name{font-size:15px;font-weight:600}
+.af-row .sub{font-size:12.5px;color:var(--muted)}
+.af-row .nums{flex:none;font-variant-numeric:tabular-nums;font-size:14px}
+.af-rowwrap{display:flex;align-items:center;gap:8px}
+.af-rowwrap .af-row{flex:1;min-width:0}
+.af-quick{margin-top:4px}
+.af-name{margin:0;font-size:20px}
+.af-qty{width:100%;box-sizing:border-box;display:grid;grid-template-columns:52px 1fr 52px;gap:8px}
+.af-qty .mini{min-height:48px;min-width:0;width:100%;padding:0;font-size:20px;box-sizing:border-box}
+.af-qty .field{text-align:center;min-width:0;width:100%;box-sizing:border-box}
+.af-nut{display:grid;grid-template-columns:auto 1fr;align-items:baseline;gap:4px 10px;border:1px solid var(--line);padding:14px}
+.af-kcal{font-family:var(--f-label);font-size:34px;line-height:1;font-variant-numeric:tabular-nums}
+.af-mac{grid-column:1/-1;display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:8px}
+.af-mac div{display:flex;flex-direction:column;gap:2px}
+.af-mac b{font-size:17px;font-variant-numeric:tabular-nums}
+.af-mac span{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+.mealacts{display:flex;gap:8px;flex-wrap:wrap;padding-bottom:12px}
 .rchips{display:flex;flex-wrap:wrap;gap:6px}
 .rchip{border:1px solid var(--line);background:transparent;padding:6px 10px;font-size:13px;min-height:36px}
 /* Tab bar */
@@ -881,6 +910,14 @@ details.targets[open] summary::after { content: "\2212"; }
       if (!r || typeof r !== "object") throw new Error("bad");
       return { name: String(r.name || text).slice(0, 60), kcal: n(r.kcal, 5000), p: n(r.p, 500), f: n(r.f, 500), c: n(r.c, 1000) };
     },
+    searchFoods: async function (text) {
+      if (!this.sample) throw new Error("unavailable");
+      var q = String(text).replace(/["\\]/g, " ").slice(0, 80);
+      var r = await this.sample.json("You power the food search in a calorie tracking app. The user searched for: \"" + q + "\". Return up to 6 foods that best match, most likely first: common generic foods, and the named brand or restaurant item if the search names one. For each food give 2 to 4 serving size options a person would pick from (for example \"1 large egg (50 g)\", \"100 g\", \"1 cup\"), each with the nutrition for ONE of that serving. If the search includes a count like \"2 eggs\", still give per-serving numbers and put the matching single serving first. Reply with JSON only, no prose: {\"results\":[{\"name\":\"Egg, whole, large\",\"d\":\"short detail such as Generic, a brand, or how it is prepared\",\"s\":[{\"l\":\"1 large egg (50 g)\",\"kcal\":72,\"p\":6.3,\"f\":4.8,\"c\":0.4}]}]}. kcal whole numbers, grams to one decimal.", { modelTier: "quick" });
+      var arr = Array.isArray(r) ? r : (r && Array.isArray(r.results) ? r.results : []);
+      return arr.slice(0, 6).map(function (x) { x = x || {}; var sv = normServ(x.s || x.servings); return { name: String(x.name || "").slice(0, 60), d: String(x.d || x.detail || "").slice(0, 60), s: sv, si: 0, n: 1 }; })
+        .filter(function (x) { return x.name && x.s.length; });
+    },
     identity: async function () {
       var r = { id: null, canWrite: true };
       if (!this.user) return r;
@@ -910,8 +947,7 @@ details.targets[open] summary::after { content: "\2212"; }
         cb(s.docs.map(function (d) { var x = d.data() || {};
           var meals = emptyMeals();
           ["breakfast", "lunch", "dinner", "snack"].forEach(function (k) {
-            meals[k] = (Array.isArray(x.meals && x.meals[k]) ? x.meals[k] : []).map(function (e) { e = e || {};
-              return { id: String(e.id || ""), name: String(e.name || "Food").slice(0, 60), kcal: Number(e.kcal) || 0, p: Number(e.p) || 0, f: Number(e.f) || 0, c: Number(e.c) || 0 }; });
+            meals[k] = (Array.isArray(x.meals && x.meals[k]) ? x.meals[k] : []).map(normEntry);
           });
           return { date: x.date || d.id, water: Number(x.water) || 0, kcal: Number(x.kcal) || 0, p: Number(x.p) || 0, f: Number(x.f) || 0, c: Number(x.c) || 0, meals: meals }; }));
       }, noop);
@@ -1018,7 +1054,7 @@ details.targets[open] summary::after { content: "\2212"; }
     "Be faithful in the small things: water, steps, prayer, reps."
   ];
   var state = {
-    page: "today", healthToday: null, healthMsg: "", tasks: [], checks: [], logs: [], habits: {}, settings: { blocked: {}, targets: null, body: null, reminders: null, health: null, plan: null, theme: null, autofill: null, favs: [] }, planEdit: false, pubProfiles: {}, lifts: [], viewUid: null, prevPage: "today", liftEdit: null, liftMsg: null, dirty: {}, posts: [], likes: [],
+    page: "today", healthToday: null, healthMsg: "", tasks: [], checks: [], logs: [], habits: {}, settings: { blocked: {}, targets: null, body: null, reminders: null, health: null, plan: null, theme: null, autofill: null, favs: [], myMeals: [] }, planEdit: false, pubProfiles: {}, lifts: [], viewUid: null, prevPage: "today", liftEdit: null, liftMsg: null, dirty: {}, posts: [], likes: [],
     range: "week", me: null, canWrite: true, profs: {}, editSlot: null, draft: "", lastFocus: null,
     trainDay: null, confirm: null, reported: {}, files: [], mentions: [], posting: false
   };
@@ -1073,7 +1109,7 @@ details.targets[open] summary::after { content: "\2212"; }
   }
   var MEALS = [{ k: "breakfast", label: "Breakfast" }, { k: "lunch", label: "Lunch" }, { k: "dinner", label: "Dinner" }, { k: "snack", label: "Snack" }];
   function emptyMeals() { return { breakfast: [], lunch: [], dinner: [], snack: [] }; }
-  function cloneMeals(m) { var o = emptyMeals(); MEALS.forEach(function (x) { o[x.k] = ((m && m[x.k]) || []).map(function (e) { return { id: e.id, name: e.name, kcal: e.kcal, p: e.p, f: e.f, c: e.c }; }); }); return o; }
+  function cloneMeals(m) { var o = emptyMeals(); MEALS.forEach(function (x) { o[x.k] = ((m && m[x.k]) || []).map(normEntry); }); return o; }
   function mealTotals(m) { var t = { kcal: 0, p: 0, f: 0, c: 0 }; MEALS.forEach(function (x) { (m[x.k] || []).forEach(function (e) { t.kcal += e.kcal; t.p += e.p; t.f += e.f; t.c += e.c; }); }); return t; }
   function logFor(key) {
     for (var i = 0; i < state.logs.length; i++) if (state.logs[i].date === key) return state.logs[i];
@@ -1146,7 +1182,7 @@ details.targets[open] summary::after { content: "\2212"; }
   }
   function saveSettings() {
     if (!B.db || !state.me) return;
-    var st = { blocked: state.settings.blocked || {}, targets: state.settings.targets || null, body: state.settings.body || null, reminders: state.settings.reminders || null, health: state.settings.health || null, plan: state.settings.plan || null, theme: state.settings.theme || null, autofill: state.settings.autofill || null, favs: state.settings.favs || [] };
+    var st = { blocked: state.settings.blocked || {}, targets: state.settings.targets || null, body: state.settings.body || null, reminders: state.settings.reminders || null, health: state.settings.health || null, plan: state.settings.plan || null, theme: state.settings.theme || null, autofill: state.settings.autofill || null, favs: state.settings.favs || [], myMeals: state.settings.myMeals || [] };
     writeChain = writeChain.then(function () { return B.saveSettings(state.me, st); }).catch(noop);
   }
 
@@ -1154,7 +1190,7 @@ details.targets[open] summary::after { content: "\2212"; }
   var stripBuilt = false, STRIP_BACK = 8, STRIP_FWD = 8;
   function go(p) {
     state.page = p;
-    if (p !== "fuel") { var fsh = document.getElementById("fsheet"); if (fsh) fsh.remove(); }
+    if (p !== "fuel") { state.add = null; var fsh = document.getElementById("fsheet"); if (fsh) fsh.remove(); }
     ["today", "fuel", "train", "board", "checkin", "profile", "settings", "devo", "workout", "video"].forEach(function (n) { $("page-" + n).hidden = n !== p; });
     Array.prototype.forEach.call(document.querySelectorAll(".tabbar button"), function (b) {
       if (b.dataset.page === (p === "workout" || p === "video" ? "train" : p)) b.setAttribute("aria-current", "page"); else b.removeAttribute("aria-current");
@@ -2134,207 +2170,340 @@ details.targets[open] summary::after { content: "\2212"; }
 
   /* ---------- Food log ---------- */
   state.food = { meal: null, id: null, d: { name: "", kcal: "", p: "", f: "", c: "" }, err: "" };
-  function recentFoods() {
-    var seen = {}, out = [];
-    state.logs.slice().sort(function (a, b) { return a.date < b.date ? 1 : -1; }).forEach(function (l) {
-      MEALS.forEach(function (m) { (l.meals[m.k] || []).slice().reverse().forEach(function (e) {
-        var k = e.name.toLowerCase(); if (!seen[k] && out.length < 8) { seen[k] = 1; out.push(e); } }); });
-    });
-    return out;
-  }
   var MEAL_OPEN_KEY = "fmh-meals-open", mealOpenSt = {};
   try { mealOpenSt = JSON.parse(localStorage.getItem(MEAL_OPEN_KEY) || "{}") || {}; } catch (e) { mealOpenSt = {}; }
   state.mealOpen = mealOpenSt;
   function persistOpen() { try { localStorage.setItem(MEAL_OPEN_KEY, JSON.stringify(state.mealOpen)); } catch (e) {} }
-  function openFoodForm(meal, entry, mode) {
-    state.food = { meal: meal, id: entry ? entry.id : null, err: "", mode: entry ? "search" : (mode || "search"),
-      d: entry ? { name: entry.name, kcal: String(entry.kcal), p: String(entry.p), f: String(entry.f), c: String(entry.c) } : { name: "", kcal: "", p: "", f: "", c: "" } };
-    state.mealOpen[meal] = true; persistOpen(); drawMeals(true); var i = $("fd-name"); if (i) { try { i.focus({ preventScroll: true }); } catch (e) { i.focus(); } }
-  }
+  /* ---------- Food logging (modeled on a diary + Add Food screen + serving screen) ---------- */
   var FT_ICONS = {
     search: '<circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5 21 21"/>',
     photo: '<path d="M3 8h4l2-3h6l2 3h4v12H3z"/><circle cx="12" cy="13.5" r="3.5"/>',
     voice: '<rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/>',
     fav: '<path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2L12 17.3l-5.6 2.9 1.1-6.2L3 9.6l6.2-.9z"/>'
   };
-  function favKey(n) { return String(n || "").trim().toLowerCase(); }
-  function favList() { return Array.isArray(state.settings.favs) ? state.settings.favs : []; }
-  function isFav(name) { var k = favKey(name); return favList().some(function (x) { return favKey(x.name) === k; }); }
-  function toggleFav(e) {
-    if (!state.me || !state.canWrite) return;
-    var k = favKey(e.name), list = favList().filter(function (x) { return favKey(x.name) !== k; });
-    if (list.length === favList().length) list.unshift({ name: e.name, kcal: e.kcal, p: e.p, f: e.f, c: e.c });
-    state.settings.favs = list.slice(0, 60); saveSettings(); drawMeals(true);
+  function r1(n) { return Math.round((Number(n) || 0) * 10) / 10; }
+  function normServ(a) {
+    return (Array.isArray(a) ? a : []).slice(0, 6).map(function (x) { x = x || {};
+      return { l: String(x.l || x.label || "1 serving").slice(0, 40), kcal: Math.max(0, Math.min(5000, Math.round(Number(x.kcal) || 0))), p: Math.max(0, r1(x.p)), f: Math.max(0, r1(x.f)), c: Math.max(0, r1(x.c)) };
+    }).filter(function (x) { return x.kcal || x.p || x.f || x.c; });
   }
-  function foodTool(meal, mode, btn) {
-    var fd = state.food;
-    if (fd.meal === meal && fd.mode === mode && !fd.id) { state.food = { meal: null, id: null, d: { name: "", kcal: "", p: "", f: "", c: "" }, err: "" }; drawMeals(true); return; }
-    if (mode === "photo") {
-      var inp = document.createElement("input"); inp.type = "file"; inp.accept = "image/*"; inp.setAttribute("capture", "environment");
-      inp.addEventListener("change", function () {
-        var f = inp.files && inp.files[0]; if (!f) return;
-        openFoodForm(meal, null, "photo"); try { state.food.photo = URL.createObjectURL(f); } catch (e) {} drawMeals(true);
-      });
-      inp.click(); return;
-    }
-    if (mode === "fav") { state.food = { meal: meal, id: null, mode: "fav", err: "", d: { name: "", kcal: "", p: "", f: "", c: "" } }; state.mealOpen[meal] = true; persistOpen(); drawMeals(true); return; }
-    openFoodForm(meal, null, mode);
-    if (mode === "voice") startVoice();
+  function normEntry(e) {
+    e = e || {};
+    var o = { id: String(e.id || ""), name: String(e.name || "Food").slice(0, 60), kcal: Number(e.kcal) || 0, p: Number(e.p) || 0, f: Number(e.f) || 0, c: Number(e.c) || 0 };
+    var s = normServ(e.s);
+    if (s.length) { o.s = s; o.si = Math.min(s.length - 1, Math.max(0, Math.floor(Number(e.si) || 0))); o.n = Number(e.n) > 0 ? Math.min(100, Number(e.n)) : 1; }
+    if (e.d) o.d = String(e.d).slice(0, 60);
+    return o;
   }
-  function startVoice() {
-    var fd = state.food, SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-    function fallback() {
-      if (state.food !== fd) return; fd.listening = false;
-      fd.vmsg = "Tap the microphone on your keyboard and say what you ate, like \u201C2 eggs and toast.\u201D"; drawMeals(true);
-      var i = $("fd-name"); if (i) try { i.focus({ preventScroll: true }); } catch (e) {}
-    }
-    if (!SR) { fallback(); return; }
-    try {
-      var r = new SR(); r.lang = navigator.language || "en-US"; r.interimResults = false; r.maxAlternatives = 1;
-      fd.listening = true; fd.vmsg = "Listening\u2026 say what you ate."; drawMeals(true);
-      r.onresult = function (ev) {
-        if (state.food !== fd) return; var t = String(ev.results[0][0].transcript || "").trim();
-        fd.listening = false; fd.d.name = t.slice(0, 60); fd.vmsg = t ? "Heard: \u201C" + t + "\u201D" : ""; drawMeals(true);
-        var eb = $("fd-est"); if (t && eb && !eb.disabled) eb.click();
-      };
-      r.onerror = fallback; r.onend = function () { if (fd.listening) fallback(); };
-      r.start();
-      setTimeout(function () { if (fd.listening) { try { r.abort(); } catch (e) {} fallback(); } }, 8000);
-    } catch (e) { fallback(); }
+  // A "food" is something you can pick: { name, d, s:[servings], si, n }
+  function foodOf(e) {
+    if (e.s && e.s.length) return { name: e.name, d: e.d || "", s: e.s, si: e.si || 0, n: e.n || 1 };
+    return { name: e.name, d: e.d || "", s: [{ l: "1 serving", kcal: e.kcal, p: e.p, f: e.f, c: e.c }], si: 0, n: 1 };
   }
-  function saveFood() {
-    var fd = state.food, d = fd.d, name = d.name.trim().slice(0, 60);
-    function num(v, max) { var n = parseFloat(v); return isFinite(n) && n >= 0 ? Math.min(max, Math.round(n * 10) / 10) : 0; }
-    var p = num(d.p, 500), f = num(d.f, 500), c = num(d.c, 1000), kcal = num(d.kcal, 5000);
-    if (!kcal)  kcal = Math.round(p * 4 + f * 9 + c * 4);
-    if (!kcal && !p && !f && !c) { fd.err = "Enter calories or macros."; drawMeals(true); return; }
-    kcal = Math.round(kcal);
-    if (!name) name = "Quick add";
-    var meal = fd.meal, id = fd.id || ("f" + Date.now().toString(36) + Math.floor(Math.random() * 1296).toString(36));
-    state.food = { meal: null, id: null, d: { name: "", kcal: "", p: "", f: "", c: "" }, err: "" };
+  function servLabel(e) { return e.s && e.s.length ? fmtW(e.n || 1) + " × " + e.s[e.si || 0].l : ""; }
+  function entryFrom(food, si, n, id) {
+    var sv = food.s[si] || food.s[0];
+    return { id: id, name: String(food.name).slice(0, 60), d: food.d || "", kcal: Math.round(sv.kcal * n), p: r1(sv.p * n), f: r1(sv.f * n), c: r1(sv.c * n), s: food.s, si: si, n: n };
+  }
+  function newId() { return "f" + Date.now().toString(36) + Math.floor(Math.random() * 1296).toString(36); }
+  function putEntries(meal, list, replaceId) {
     writeDay(function (r, l) {
-      var arr = l.meals[meal], e = { id: id, name: name, kcal: kcal, p: p, f: f, c: c }, at = -1;
-      arr.forEach(function (x, i) { if (x.id === id) at = i; });
-      if (at >= 0) arr[at] = e; else arr.push(e);
-      var t = mealTotals(l.meals); l.kcal = t.kcal; l.p = t.p; l.f = t.f; l.c = t.c; return true;
+      var arr = l.meals[meal];
+      list.forEach(function (e) {
+        var at = -1; if (replaceId) arr.forEach(function (x, i) { if (x.id === replaceId) at = i; });
+        if (at >= 0) arr[at] = e; else arr.push(e);
+      });
+      var t = mealTotals(l.meals); l.kcal = t.kcal; l.p = r1(t.p); l.f = r1(t.f); l.c = r1(t.c); return true;
     });
-    drawMeals(true);
   }
   function removeFood(meal, id) {
     writeDay(function (r, l) {
       l.meals[meal] = l.meals[meal].filter(function (x) { return x.id !== id; });
-      var t = mealTotals(l.meals); l.kcal = t.kcal; l.p = t.p; l.f = t.f; l.c = t.c; return true;
+      var t = mealTotals(l.meals); l.kcal = t.kcal; l.p = r1(t.p); l.f = r1(t.f); l.c = r1(t.c); return true;
     });
     drawMeals(true);
   }
+  function allEntries() {
+    var out = [];
+    state.logs.slice().sort(function (a, b) { return a.date < b.date ? 1 : -1; }).forEach(function (l) {
+      MEALS.forEach(function (m) { (l.meals[m.k] || []).slice().reverse().forEach(function (e) { out.push(e); }); });
+    });
+    return out;
+  }
+  function recentFoods() {
+    var seen = {}, out = [];
+    allEntries().forEach(function (e) { var k = e.name.toLowerCase(); if (!seen[k] && out.length < 15) { seen[k] = 1; out.push(foodOf(e)); } });
+    return out;
+  }
+  function frequentFoods() {
+    var cnt = {}, first = {};
+    allEntries().forEach(function (e) { var k = e.name.toLowerCase(); cnt[k] = (cnt[k] || 0) + 1; if (!first[k]) first[k] = e; });
+    return Object.keys(cnt).filter(function (k) { return cnt[k] >= 2; }).sort(function (a, b) { return cnt[b] - cnt[a]; }).slice(0, 15)
+      .map(function (k) { var f = foodOf(first[k]); f.count = cnt[k]; return f; });
+  }
+  function favKey(n) { return String(n || "").trim().toLowerCase(); }
+  function favList() {
+    return (Array.isArray(state.settings.favs) ? state.settings.favs : []).map(function (x) { return x && x.s ? { name: x.name, d: x.d || "", s: normServ(x.s), si: x.si || 0, n: x.n || 1 } : foodOf(normEntry(x)); })
+      .filter(function (x) { return x.s && x.s.length; });
+  }
+  function isFav(name) { var k = favKey(name); return favList().some(function (x) { return favKey(x.name) === k; }); }
+  function toggleFav(food) {
+    if (!state.me || !state.canWrite) return;
+    var k = favKey(food.name), cur = favList(), list = cur.filter(function (x) { return favKey(x.name) !== k; });
+    if (list.length === cur.length) list.unshift({ name: food.name, d: food.d || "", s: food.s, si: food.si || 0, n: food.n || 1 });
+    state.settings.favs = list.slice(0, 60); saveSettings();
+  }
+  function myMeals() { return (Array.isArray(state.settings.myMeals) ? state.settings.myMeals : []).filter(function (x) { return x && Array.isArray(x.items) && x.items.length; }); }
+  function mealSum(items) { var t = { kcal: 0, p: 0, f: 0, c: 0 }; items.forEach(function (e) { t.kcal += Number(e.kcal) || 0; t.p += Number(e.p) || 0; t.f += Number(e.f) || 0; t.c += Number(e.c) || 0; }); return t; }
+  function copyItems(items) { return items.map(function (e) { var o = normEntry(e); o.id = newId(); return o; }); }
+
+  // Add Food screen state
+  state.add = null;
+  function openAdd(meal, o) {
+    o = o || {};
+    state.add = { meal: meal, view: o.view || "list", tab: o.tab || "recent", q: "", results: null, busy: false, err: "", pick: null, editId: null, photo: o.photo || null, vmsg: "", listening: false, qd: { name: "", kcal: "", p: "", f: "", c: "" }, mealName: "" };
+    state.mealOpen[meal] = true; persistOpen(); drawMeals(true);
+    if (o.focus) { var q = $("af-q"); if (q) try { q.focus({ preventScroll: true }); } catch (e) {} }
+  }
+  function closeAdd() { var a = state.add; if (a && a.photo) try { URL.revokeObjectURL(a.photo); } catch (e) {} state.add = null; drawMeals(true); }
+  var closeFoodSheet = closeAdd;
+  function editEntry(meal, e) {
+    openAdd(meal);
+    var a = state.add;
+    if (e.s && e.s.length) { a.view = "serving"; a.editId = e.id; a.pick = foodOf(e); a.pick.nStr = String(e.n || 1); }
+    else { a.view = "quick"; a.editId = e.id; a.qd = { name: e.name, kcal: String(e.kcal), p: String(e.p), f: String(e.f), c: String(e.c) }; }
+    drawMeals(true);
+  }
+  function mealTool(meal, mode) {
+    if (mode === "photo") {
+      var inp = document.createElement("input"); inp.type = "file"; inp.accept = "image/*"; inp.setAttribute("capture", "environment");
+      inp.addEventListener("change", function () { var f = inp.files && inp.files[0]; if (!f) return; var u = null; try { u = URL.createObjectURL(f); } catch (e) {} openAdd(meal, { photo: u }); });
+      inp.click(); return;
+    }
+    if (mode === "fav") { openAdd(meal, { tab: "fav" }); return; }
+    openAdd(meal, { focus: mode === "search" });
+    if (mode === "voice") startVoice();
+  }
+  function startVoice() {
+    var a = state.add, SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    function fallback() {
+      if (state.add !== a) return; a.listening = false;
+      a.vmsg = "Tap the microphone on your keyboard and say what you ate, like “2 eggs and toast.” Then tap Search."; drawMeals(true);
+      var i = $("af-q"); if (i) try { i.focus({ preventScroll: true }); } catch (e) {}
+    }
+    if (!SR) { fallback(); return; }
+    try {
+      var r = new SR(); r.lang = navigator.language || "en-US"; r.interimResults = false; r.maxAlternatives = 1;
+      a.listening = true; a.vmsg = "Listening… say what you ate."; drawMeals(true);
+      r.onresult = function (ev) {
+        if (state.add !== a) return; var t = String(ev.results[0][0].transcript || "").trim();
+        a.listening = false; a.q = t.slice(0, 80); a.vmsg = t ? "Heard: “" + t + "”" : ""; if (t) runSearch(); else drawMeals(true);
+      };
+      r.onerror = fallback; r.onend = function () { if (a.listening) fallback(); };
+      r.start();
+      setTimeout(function () { if (a.listening) { try { r.abort(); } catch (e) {} fallback(); } }, 8000);
+    } catch (e) { fallback(); }
+  }
+  function runSearch() {
+    var a = state.add; if (!a) return; var q = (a.q || "").trim();
+    if (!q) { a.err = "Type a food to search for."; drawMeals(true); return; }
+    if (!B.searchFoods) { a.err = "Search isn’t available here. Use Quick add."; drawMeals(true); return; }
+    a.err = ""; a.busy = true; a.results = null; drawMeals(true);
+    B.searchFoods(q).then(function (res) {
+      if (state.add !== a) return; a.busy = false; a.results = res; if (!res.length) a.err = "No matches. Try different words, or use Quick add."; drawMeals(true);
+    }).catch(function () { if (state.add !== a) return; a.busy = false; a.err = "Search didn’t work just now. Try again, or use Quick add."; drawMeals(true); });
+  }
+  function pickFood(food) { var a = state.add; a.pick = { name: food.name, d: food.d || "", s: food.s, si: food.si || 0, nStr: String(food.n || 1) }; a.view = "serving"; drawMeals(true); var b = $("fsheet-b"); if (b) b.scrollTop = 0; }
+
+  function afRow(food, right, onTap, label) {
+    var b = el("button", "af-row"); b.type = "button"; b.setAttribute("aria-label", label || ("Choose " + food.name));
+    var sv = food.s[food.si || 0], tx = el("span", "txt");
+    tx.appendChild(el("span", "name", food.name));
+    tx.appendChild(el("span", "sub", [food.d, (food.n && food.n !== 1 ? fmtW(food.n) + " × " : "") + sv.l].filter(Boolean).join(" · ")));
+    b.appendChild(tx); b.appendChild(el("span", "nums", right != null ? right : fmt(sv.kcal * (food.n || 1)) + " cal"));
+    b.addEventListener("click", onTap); return b;
+  }
+  function drawAddSheet(m, off) {
+    var a = state.add, wrap = el("div", "af");
+    if (a.view === "serving") return [drawServing(m, off), a.editId ? "Edit food" : "Add to " + m.label];
+    if (a.view === "quick") return [drawQuick(m, off), a.editId ? "Edit food" : "Quick add · " + m.label];
+    if (a.view === "savemeal") return [drawSaveMeal(m, off), "Save meal"];
+    // search bar
+    var f = el("form", "af-search"); f.setAttribute("role", "search");
+    var qi = el("input", "field"); qi.type = "search"; qi.id = "af-q"; qi.placeholder = "Search for a food"; qi.value = a.q; qi.setAttribute("aria-label", "Search for a food"); qi.setAttribute("autocomplete", "off"); qi.maxLength = 80; qi.setAttribute("enterkeyhint", "search");
+    qi.addEventListener("input", function () { a.q = qi.value; });
+    var sb = el("button", "btn", a.busy ? "…" : "Search"); sb.type = "submit"; sb.disabled = a.busy || off;
+    f.appendChild(qi); f.appendChild(sb); f.addEventListener("submit", function (ev) { ev.preventDefault(); qi.blur(); runSearch(); });
+    wrap.appendChild(f);
+    if (a.photo) { var im = el("img", "fphoto"); im.src = a.photo; im.alt = "Your meal photo"; wrap.appendChild(im); wrap.appendChild(el("p", "fnote", "Reading meals from photos is coming soon. For now, search for what’s on the plate.")); }
+    if (a.vmsg) wrap.appendChild(el("p", "fnote", a.vmsg));
+    if (a.err) wrap.appendChild(el("p", "error", a.err));
+    if (a.busy) wrap.appendChild(el("p", "fnote", "Searching…"));
+    if (a.results && a.results.length) {
+      var hd = el("div", "af-hd"); hd.appendChild(el("span", "label-caps", "Results"));
+      var cl = el("button", "mini", "Clear"); cl.type = "button"; cl.addEventListener("click", function () { a.results = null; a.q = ""; a.err = ""; drawMeals(true); }); hd.appendChild(cl);
+      wrap.appendChild(hd);
+      var rl = el("div", "af-list"); a.results.forEach(function (food) { rl.appendChild(afRow(food, null, function () { pickFood(food); })); }); wrap.appendChild(rl);
+      wrap.appendChild(el("p", "fnote", "Results are estimated by Claude. Check the numbers before adding."));
+    } else if (!a.busy) {
+      var tabs = el("div", "af-tabs"); tabs.setAttribute("role", "group"); tabs.setAttribute("aria-label", "Food lists");
+      [["recent", "Recent"], ["frequent", "Frequent"], ["fav", "Favorites"], ["meals", "My meals"]].forEach(function (t) {
+        var b = el("button", null, t[1]); b.type = "button"; b.setAttribute("aria-pressed", String(a.tab === t[0]));
+        b.addEventListener("click", function () { a.tab = t[0]; drawMeals(true); }); tabs.appendChild(b);
+      });
+      wrap.appendChild(tabs);
+      var list = el("div", "af-list");
+      if (a.tab === "meals") {
+        var mm = myMeals();
+        if (!mm.length) list.appendChild(el("p", "fnote", "No saved meals yet. After you log a meal, tap Save meal under it to reuse it in one tap."));
+        mm.forEach(function (x) {
+          var row = el("div", "af-rowwrap"), t = mealSum(x.items), b = el("button", "af-row"); b.type = "button"; b.disabled = off; b.setAttribute("aria-label", "Add " + x.name + " to " + m.label.toLowerCase());
+          var tx = el("span", "txt"); tx.appendChild(el("span", "name", x.name)); tx.appendChild(el("span", "sub", x.items.length + (x.items.length === 1 ? " food" : " foods") + " · " + x.items.map(function (e) { return e.name; }).join(", ")));
+          b.appendChild(tx); b.appendChild(el("span", "nums", fmt(t.kcal) + " cal"));
+          b.addEventListener("click", function () { putEntries(m.k, copyItems(x.items)); closeAdd(); });
+          var rx = el("button", "mini danger fx", "X"); rx.type = "button"; rx.disabled = off; rx.setAttribute("aria-label", "Delete saved meal " + x.name);
+          rx.addEventListener("click", function () { state.settings.myMeals = myMeals().filter(function (y) { return y !== x; }); saveSettings(); drawMeals(true); });
+          row.appendChild(b); row.appendChild(rx); list.appendChild(row);
+        });
+      } else {
+        var foods = a.tab === "fav" ? favList() : a.tab === "frequent" ? frequentFoods() : recentFoods();
+        if (!foods.length) list.appendChild(el("p", "fnote", a.tab === "fav" ? "No favorites yet. Tap the star on a food’s serving screen to save it here." : a.tab === "frequent" ? "Foods you log more than once show up here." : "Foods you log show up here. Search above to find your first one."));
+        foods.forEach(function (food) { list.appendChild(afRow(food, null, function () { pickFood(food); })); });
+      }
+      wrap.appendChild(list);
+    }
+    var qa = el("button", "btn ghost af-quick", "Quick add calories"); qa.type = "button"; qa.disabled = off;
+    qa.addEventListener("click", function () { a.view = "quick"; a.qd = { name: (a.q || "").slice(0, 60), kcal: "", p: "", f: "", c: "" }; drawMeals(true); });
+    wrap.appendChild(qa);
+    return [wrap, "Add to " + m.label];
+  }
+  function drawServing(m, off) {
+    var a = state.add, pk = a.pick, w = el("div", "af af-serv");
+    var top = el("div", "af-hd");
+    var bk = el("button", "mini", a.editId ? "Close" : "‹ Back"); bk.type = "button";
+    bk.addEventListener("click", function () { if (a.editId) closeAdd(); else { a.view = "list"; a.pick = null; drawMeals(true); } });
+    top.appendChild(bk);
+    var fv = isFav(pk.name), st = el("button", "mini fx" + (fv ? " star" : ""), fv ? "★" : "☆"); st.type = "button"; st.disabled = off;
+    st.setAttribute("aria-pressed", String(fv)); st.setAttribute("aria-label", fv ? "Remove from favorites" : "Save as a favorite");
+    st.addEventListener("click", function () { toggleFav({ name: pk.name, d: pk.d, s: pk.s, si: pk.si, n: parseFloat(pk.nStr) > 0 ? parseFloat(pk.nStr) : 1 }); drawMeals(true); });
+    top.appendChild(st); w.appendChild(top);
+    w.appendChild(el("h3", "af-name", pk.name)); if (pk.d) w.appendChild(el("p", "fnote", pk.d));
+    var l1 = el("label", "flabel", "Serving size"), sel = el("select", "field"); sel.id = "af-si";
+    pk.s.forEach(function (sv, i) { var o = el("option", null, sv.l); o.value = String(i); if (i === pk.si) o.selected = true; sel.appendChild(o); });
+    l1.appendChild(sel); w.appendChild(l1);
+    var l2 = el("label", "flabel", "Number of servings"), row = el("div", "af-qty");
+    var minus = el("button", "mini", "−"), ni = el("input", "field"), plus = el("button", "mini", "+");
+    minus.type = "button"; plus.type = "button"; minus.setAttribute("aria-label", "Fewer servings"); plus.setAttribute("aria-label", "More servings");
+    ni.type = "number"; ni.id = "af-n"; ni.min = "0"; ni.max = "100"; ni.step = "any"; ni.inputMode = "decimal"; ni.value = pk.nStr;
+    row.appendChild(minus); row.appendChild(ni); row.appendChild(plus); l2.appendChild(row); w.appendChild(l2);
+    var card = el("div", "af-nut"), kc = el("b", "af-kcal"), mac = el("div", "af-mac");
+    card.appendChild(kc); card.appendChild(el("span", "label-caps", "Calories")); card.appendChild(mac); w.appendChild(card);
+    function n() { var v = parseFloat(pk.nStr); return isFinite(v) && v > 0 ? Math.min(100, v) : 0; }
+    function paint() {
+      var sv = pk.s[pk.si] || pk.s[0], k = n();
+      kc.textContent = fmt(sv.kcal * k); mac.textContent = "";
+      [["Protein", sv.p], ["Fat", sv.f], ["Carbs", sv.c]].forEach(function (x) { var c = el("div"); c.appendChild(el("b", null, fmtW(x[1] * k) + " g")); c.appendChild(el("span", null, x[0])); mac.appendChild(c); });
+      ad.disabled = off || !k;
+    }
+    sel.addEventListener("change", function () { pk.si = +sel.value; paint(); });
+    ni.addEventListener("input", function () { pk.nStr = ni.value; paint(); });
+    function step(d) { var v = Math.max(0, Math.round(((parseFloat(pk.nStr) || 0) + d) * 100) / 100); pk.nStr = String(v); ni.value = pk.nStr; paint(); }
+    minus.addEventListener("click", function () { step(-0.5); }); plus.addEventListener("click", function () { step(0.5); });
+    var ad = el("button", "btn", a.editId ? "Save changes" : "Add to " + m.label.toLowerCase()); ad.type = "button";
+    ad.addEventListener("click", function () { var k = n(); if (!k) return; putEntries(a.meal, [entryFrom(pk, pk.si, k, a.editId || newId())], a.editId); closeAdd(); });
+    w.appendChild(ad);
+    if (a.editId) { var rm = el("button", "btn ghost", "Remove from " + m.label.toLowerCase()); rm.type = "button"; rm.disabled = off; rm.addEventListener("click", function () { var id = a.editId; state.add = null; removeFood(m.k, id); }); w.appendChild(rm); }
+    paint(); return w;
+  }
+  function drawQuick(m, off) {
+    var a = state.add, d = a.qd, form = el("form", "fform");
+    function field(label, key, type, cls, attrs) {
+      var l = el("label", cls || null, label), i = el("input", "field"); i.type = type; i.value = d[key];
+      Object.keys(attrs || {}).forEach(function (k) { i.setAttribute(k, attrs[k]); });
+      i.addEventListener("input", function () { d[key] = i.value; }); l.appendChild(i); form.appendChild(l); return i;
+    }
+    field("Food name (optional)", "name", "text", "full", { maxlength: "60", placeholder: "e.g. Protein bar", autocomplete: "off" });
+    field("Calories", "kcal", "number", null, { min: "0", max: "5000", inputmode: "numeric", placeholder: "Enter calories" });
+    field("Protein (g)", "p", "number", null, { min: "0", max: "500", inputmode: "decimal" });
+    field("Fat (g)", "f", "number", null, { min: "0", max: "500", inputmode: "decimal" });
+    field("Carbs (g)", "c", "number", null, { min: "0", max: "1000", inputmode: "decimal" });
+    if (a.err) form.appendChild(el("p", "error full", a.err));
+    var sv = el("button", "btn", a.editId ? "Save changes" : "Add to " + m.label.toLowerCase()); sv.type = "submit"; sv.disabled = off; form.appendChild(sv);
+    var cn = el("button", "btn ghost", a.editId ? "Remove" : "Back"); cn.type = "button";
+    cn.addEventListener("click", function () { if (a.editId) { var id = a.editId; state.add = null; removeFood(m.k, id); } else { a.view = "list"; a.err = ""; drawMeals(true); } });
+    form.appendChild(cn);
+    form.addEventListener("submit", function (ev) {
+      ev.preventDefault();
+      function num(v, max) { var x = parseFloat(v); return isFinite(x) && x >= 0 ? Math.min(max, r1(x)) : 0; }
+      var p = num(d.p, 500), f = num(d.f, 500), c = num(d.c, 1000), kcal = num(d.kcal, 5000);
+      if (!kcal) kcal = Math.round(p * 4 + f * 9 + c * 4);
+      if (!kcal && !p && !f && !c) { a.err = "Enter calories or macros."; drawMeals(true); return; }
+      putEntries(a.meal, [{ id: a.editId || newId(), name: (d.name || "").trim().slice(0, 60) || "Quick add", kcal: Math.round(kcal), p: p, f: f, c: c }], a.editId); closeAdd();
+    });
+    return form;
+  }
+  function drawSaveMeal(m, off) {
+    var a = state.add, items = logFor(todayKey()).meals[a.meal] || [], w = el("form", "af");
+    var l = el("label", "flabel", "Meal name"), i = el("input", "field"); i.type = "text"; i.maxLength = 40; i.value = a.mealName; i.placeholder = "e.g. Usual breakfast"; i.id = "af-mn";
+    i.addEventListener("input", function () { a.mealName = i.value; }); l.appendChild(i); w.appendChild(l);
+    var list = el("div", "af-list"); items.forEach(function (e) { list.appendChild(afRow(foodOf(e), fmt(e.kcal) + " cal", function () {}, e.name)); }); w.appendChild(list);
+    if (a.err) w.appendChild(el("p", "error", a.err));
+    var sv = el("button", "btn", "Save meal"); sv.type = "submit"; sv.disabled = off || !items.length; w.appendChild(sv);
+    w.addEventListener("submit", function (ev) {
+      ev.preventDefault(); var nm = (a.mealName || "").trim();
+      if (!nm) { a.err = "Give the meal a name."; drawMeals(true); return; }
+      var list2 = myMeals().filter(function (x) { return favKey(x.name) !== favKey(nm); });
+      list2.unshift({ name: nm.slice(0, 40), items: items.map(function (e) { var o = normEntry(e); delete o.id; return o; }) });
+      state.settings.myMeals = list2.slice(0, 30); saveSettings(); closeAdd();
+    });
+    return w;
+  }
   function drawMeals(force) {
-    var box = $("meals"), a = document.activeElement, sh = $("fsheet");
-    if (!force && a && (a.tagName === "INPUT") && (box.contains(a) || (sh && sh.contains(a)))) return;
-    var sheetForm = null, sheetTitle = "";
+    var box = $("meals"), ae = document.activeElement, sh = $("fsheet");
+    if (!force && ae && /^(INPUT|SELECT)$/.test(ae.tagName) && (box.contains(ae) || (sh && sh.contains(ae)))) return;
     box.textContent = "";
-    var log = logFor(todayKey()), off = !state.me || !state.canWrite;
+    var log = logFor(todayKey()), off = !state.me || !state.canWrite, sheet = null;
+    var ylog = logFor(addDays(todayKey(), -1));
     $("food-total").textContent = fmt(log.kcal) + " kcal today";
     MEALS.forEach(function (m) {
       var entries = log.meals[m.k] || [], sec = el("div", "meal");
       var sum = 0; entries.forEach(function (e) { sum += e.kcal; });
-      var open = !!state.mealOpen[m.k] || state.food.meal === m.k;
+      var open = !!state.mealOpen[m.k] || (state.add && state.add.meal === m.k);
       var head = el("button", "meal-head meal-toggle"); head.type = "button"; head.setAttribute("aria-expanded", String(open));
-      head.appendChild(el("span", "mt-chev", open ? "\u25BE" : "\u25B8"));
+      head.appendChild(el("span", "mt-chev", open ? "▾" : "▸"));
       var ht = el("span", "txt"); ht.appendChild(el("span", "name", m.label)); ht.appendChild(el("span", "sub", entries.length + (entries.length === 1 ? " item" : " items"))); head.appendChild(ht);
       head.appendChild(el("span", "nums", fmt(sum) + " kcal"));
-      head.addEventListener("click", function () {
-        if (open && state.food.meal === m.k) state.food.meal = null;
-        state.mealOpen[m.k] = !open; persistOpen(); drawMeals(true);
-      });
+      head.addEventListener("click", function () { state.mealOpen[m.k] = !open; persistOpen(); drawMeals(true); });
       sec.appendChild(head);
+      if (state.add && state.add.meal === m.k) sheet = drawAddSheet(m, off);
       if (!open) { box.appendChild(sec); return; }
       entries.forEach(function (e) {
         var row = el("div", "fentry"), main = el("button", "fe-main"); main.type = "button"; main.disabled = off;
         main.setAttribute("aria-label", "Edit " + e.name);
         var tx = el("span", "txt"); tx.appendChild(el("span", "name", e.name));
-        tx.appendChild(el("span", "sub", "P " + fmtW(e.p) + " \u00B7 F " + fmtW(e.f) + " \u00B7 C " + fmtW(e.c)));
+        var sl = servLabel(e);
+        tx.appendChild(el("span", "sub", (sl ? sl + " · " : "") + "P " + fmtW(e.p) + " · F " + fmtW(e.f) + " · C " + fmtW(e.c)));
         main.appendChild(tx); main.appendChild(el("span", "nums", fmt(e.kcal)));
-        main.addEventListener("click", function () { openFoodForm(m.k, e); });
+        main.addEventListener("click", function () { editEntry(m.k, e); });
         var rm = el("button", "mini danger fx", "X"); rm.type = "button"; rm.disabled = off; rm.setAttribute("aria-label", "Remove " + e.name);
         rm.addEventListener("click", function () { removeFood(m.k, e.id); });
-        var fv = isFav(e.name), st = el("button", "mini fx" + (fv ? " star" : ""), fv ? "\u2605" : "\u2606"); st.type = "button"; st.disabled = off;
-        st.setAttribute("aria-pressed", String(fv)); st.setAttribute("aria-label", (fv ? "Remove " : "Save ") + e.name + (fv ? " from favorites" : " as a favorite"));
-        st.addEventListener("click", function () { toggleFav(e); });
-        row.appendChild(main); row.appendChild(st); row.appendChild(rm); sec.appendChild(row);
+        row.appendChild(main); row.appendChild(rm); sec.appendChild(row);
       });
-      var fd = state.food, curMode = fd.meal === m.k && !fd.id ? fd.mode : null;
       var bar = el("div", "ftools");
       [["search", "Search"], ["photo", "Photo"], ["voice", "Voice"], ["fav", "Favorites"]].forEach(function (t) {
-        var b = el("button", "ftool" + (curMode === t[0] ? " on" : "")); b.type = "button"; b.disabled = off; b.setAttribute("aria-pressed", String(curMode === t[0]));
+        var b = el("button", "ftool"); b.type = "button"; b.disabled = off;
         b.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true">' + FT_ICONS[t[0]] + '</svg>'; b.appendChild(el("span", null, t[1]));
-        b.addEventListener("click", function () { foodTool(m.k, t[0]); }); bar.appendChild(b);
+        b.addEventListener("click", function () { mealTool(m.k, t[0]); }); bar.appendChild(b);
       });
       sec.appendChild(bar);
-      if (fd.meal === m.k && fd.mode === "fav") {
-        var fl = el("div", "favlist"), favs = favList();
-        if (!favs.length) fl.appendChild(el("p", "fnote", "No favorites yet. Tap the \u2606 next to any food you\u2019ve logged to save it here."));
-        favs.forEach(function (x) {
-          var r = el("div", "favrow"), b = el("button", "fe-main"); b.type = "button"; b.disabled = off; b.setAttribute("aria-label", "Add " + x.name + " to " + m.label.toLowerCase());
-          var tx = el("span", "txt"); tx.appendChild(el("span", "name", x.name)); tx.appendChild(el("span", "sub", "P " + fmtW(x.p) + " \u00B7 F " + fmtW(x.f) + " \u00B7 C " + fmtW(x.c)));
-          b.appendChild(tx); b.appendChild(el("span", "nums", fmt(x.kcal) + " +"));
-          b.addEventListener("click", function () { state.food = { meal: m.k, id: null, mode: "fav", err: "", d: { name: x.name, kcal: String(x.kcal), p: String(x.p), f: String(x.f), c: String(x.c) } }; saveFood(); });
-          var rx = el("button", "mini danger fx", "X"); rx.type = "button"; rx.disabled = off; rx.setAttribute("aria-label", "Remove " + x.name + " from favorites");
-          rx.addEventListener("click", function () { toggleFav(x); });
-          r.appendChild(b); r.appendChild(rx); fl.appendChild(r);
-        });
-        if (favs.length) fl.appendChild(el("p", "fnote", "Tap a favorite to add it to " + m.label.toLowerCase() + "."));
-        sec.appendChild(fl);
-      } else if (fd.meal === m.k) {
-        var form = el("form", "fform");
-        if (fd.mode === "photo") {
-          if (fd.photo) { var im = el("img", "fphoto full"); im.src = fd.photo; im.alt = "Your meal photo"; form.appendChild(im); }
-          form.appendChild(el("p", "fnote full", "Reading meals from photos is coming soon. For now, type what\u2019s on the plate below."));
-        }
-        if (fd.mode === "voice" && fd.vmsg) form.appendChild(el("p", "fnote full", fd.vmsg));
-        var rec = recentFoods();
-        if (!fd.id && fd.mode === "search" && rec.length) {
-          var rw = el("div", "full"); rw.appendChild(el("div", "sub", "Recent foods")); var chips = el("div", "rchips");
-          rec.forEach(function (e) { var c = el("button", "rchip", e.name); c.type = "button";
-            c.addEventListener("click", function () { fd.d = { name: e.name, kcal: String(e.kcal), p: String(e.p), f: String(e.f), c: String(e.c) }; fd.err = ""; drawMeals(true); });
-            chips.appendChild(c); });
-          rw.appendChild(chips); form.appendChild(rw);
-        }
-        function field(label, key, type, cls, attrs) {
-          var l = el("label", cls || null, label), i = el("input", "field"); i.type = type; i.value = fd.d[key];
-          Object.keys(attrs || {}).forEach(function (k) { i.setAttribute(k, attrs[k]); });
-          i.addEventListener("input", function () { fd.d[key] = i.value; });
-          l.appendChild(i); form.appendChild(l); return i;
-        }
-        var ni = field("Food", "name", "text", "full", { maxlength: "60", placeholder: "e.g. 2 eggs and toast (optional)", id: "fd-name", autocomplete: "off" });
-        if (B.sample) {
-          var eb = el("button", "btn ghost full", fd.busy ? "Estimating\u2026" : "Estimate with Claude"); eb.type = "button"; eb.id = "fd-est"; eb.disabled = !!fd.busy;
-          eb.addEventListener("click", function () {
-            var q = (fd.d.name || "").trim();
-            if (!q) { fd.err = "Type the food and amount first, like \"2 eggs and toast\"."; drawMeals(true); return; }
-            fd.err = ""; fd.busy = true; drawMeals(true);
-            B.lookupFood(q).then(function (r) {
-              fd.busy = false; if (state.food !== fd) return;
-              fd.d = { name: r.name, kcal: String(r.kcal), p: String(r.p), f: String(r.f), c: String(r.c) }; fd.err = ""; fd.est = true; drawMeals(true);
-            }).catch(function () { fd.busy = false; if (state.food === fd) { fd.err = "Couldn\u2019t estimate that. Enter the numbers yourself."; drawMeals(true); } });
-          });
-          form.appendChild(eb);
-          if (fd.est) form.appendChild(el("p", "sub full", "Estimated by Claude. Check the numbers and adjust before adding."));
-        }
-        field("Calories", "kcal", "number", null, { min: "0", max: "5000", inputmode: "numeric", placeholder: "Enter calories" });
-        field("Protein (g)", "p", "number", null, { min: "0", max: "500", inputmode: "decimal" });
-        field("Fat (g)", "f", "number", null, { min: "0", max: "500", inputmode: "decimal" });
-        field("Carbs (g)", "c", "number", null, { min: "0", max: "1000", inputmode: "decimal" });
-        if (fd.err) form.appendChild(el("p", "error full", fd.err));
-        var sv = el("button", "btn", fd.id ? "Save changes" : "Add to " + m.label.toLowerCase()); sv.type = "submit"; form.appendChild(sv);
-        var cn = el("button", "btn ghost", "Cancel"); cn.type = "button"; cn.addEventListener("click", closeFoodSheet); form.appendChild(cn);
-        form.addEventListener("submit", function (ev) { ev.preventDefault(); saveFood(); });
-        sheetForm = form; sheetTitle = (fd.id ? "Edit food \u00B7 " : (fd.mode === "voice" ? "Voice \u00B7 " : fd.mode === "photo" ? "Photo \u00B7 " : "Search \u00B7 ")) + m.label;
-      }
+      var yItems = ylog.meals[m.k] || [], acts = el("div", "mealacts");
+      if (yItems.length) { var cy = el("button", "mini", "Copy yesterday (" + yItems.length + ")"); cy.type = "button"; cy.disabled = off; cy.addEventListener("click", function () { putEntries(m.k, copyItems(yItems)); drawMeals(true); }); acts.appendChild(cy); }
+      if (entries.length) { var smb = el("button", "mini", "Save meal"); smb.type = "button"; smb.disabled = off; smb.addEventListener("click", function () { openAdd(m.k, { view: "savemeal" }); }); acts.appendChild(smb); }
+      if (acts.childNodes.length) sec.appendChild(acts);
       box.appendChild(sec);
     });
-    drawFoodSheet(sheetForm, sheetTitle);
+    drawFoodSheet(sheet ? sheet[0] : null, sheet ? sheet[1] : "");
   }
-  function closeFoodSheet() { if (state.food.photo) try { URL.revokeObjectURL(state.food.photo); } catch (e) {} state.food = { meal: null, id: null, d: { name: "", kcal: "", p: "", f: "", c: "" }, err: "" }; drawMeals(true); }
   function drawFoodSheet(form, title) {
     var sh = $("fsheet");
     if (!form || state.page !== "fuel") { if (sh) sh.remove(); return; }
@@ -2617,7 +2786,7 @@ details.targets[open] summary::after { content: "\2212"; }
         await writeChain; await B.deleteMyData(state.me);
         var me = state.me;
         state.checks = state.checks.filter(function (c) { return c.uid !== me; }); state.logs = []; state.habits = {};
-        state.settings = { blocked: {}, targets: null, body: null, reminders: null, health: null, plan: null, theme: null, autofill: null, favs: [] }; delete state.pubProfiles[me];
+        state.settings = { blocked: {}, targets: null, body: null, reminders: null, health: null, plan: null, theme: null, autofill: null, favs: [], myMeals: [] }; delete state.pubProfiles[me];
         ds.textContent = "All your data was deleted."; var bx = $("del-box"); bx.hidden = true; bx.style.display = "none";
         drawAll();
       } catch (e) { ds.textContent = "Could not finish deleting. Try again."; }
@@ -2725,7 +2894,7 @@ details.targets[open] summary::after { content: "\2212"; }
         state.habits = clean; drawAll();
       });
       B.watchSettings(state.me, function (st) {
-        state.settings = { blocked: (st && st.blocked) || {}, targets: (st && st.targets) || null, body: (st && st.body) || null, reminders: (st && st.reminders) || null, health: (st && st.health) || null, plan: (st && st.plan) || null, theme: (st && st.theme) || null, autofill: (st && st.autofill) || null, favs: (st && Array.isArray(st.favs)) ? st.favs.slice(0, 60) : [] }; if (state.settings.theme) applyTheme(state.settings.theme, false); drawAll(); drawFeed(); refreshHealth();
+        state.settings = { blocked: (st && st.blocked) || {}, targets: (st && st.targets) || null, body: (st && st.body) || null, reminders: (st && st.reminders) || null, health: (st && st.health) || null, plan: (st && st.plan) || null, theme: (st && st.theme) || null, autofill: (st && st.autofill) || null, favs: (st && Array.isArray(st.favs)) ? st.favs.slice(0, 60) : [], myMeals: (st && Array.isArray(st.myMeals)) ? st.myMeals.slice(0, 30) : [] }; if (state.settings.theme) applyTheme(state.settings.theme, false); drawAll(); drawFeed(); refreshHealth();
       });
     }
     B.watchPosts(function (rows) { state.posts = rows; drawFeed(); loadProfiles(); });
