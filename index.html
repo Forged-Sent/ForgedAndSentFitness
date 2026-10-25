@@ -169,14 +169,14 @@ details.targets[open] summary::after { content: "\2212"; }
 .wk-addown { width: 100%; margin-top: 10px; }
 .wk-own { margin-top: 8px; }
 .wk-del { width: 100%; margin-top: 12px; border-color: var(--danger); color: var(--danger); }
-.nw-box { border-color: var(--brass, #b08d57); }
+.cdlg-box.nw-box { border-color: var(--brass, #b08d57); }
 .nw-box .rchips { margin-top: -2px; }
 .wx-addbar { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
 .wx-addbar .label-caps { font-size: 11px; color: var(--brass, #b08d57); }
 .wk-addex { width: 100%; margin: 4px 0 10px; }
 #adj-targets { min-height: 36px; padding: 0 12px; font-size: 11.5px; }
-.cdlg { position: fixed; inset: 0; z-index: 80; background: rgba(0,0,0,.55); display: flex; align-items: center; justify-content: center; padding: 16px max(16px, env(safe-area-inset-right, 0px)) 16px max(16px, env(safe-area-inset-left, 0px)); }
-.cdlg-box { width: 100%; max-width: 360px; background: var(--bg); border: 2px solid var(--danger); padding: 18px; display: flex; flex-direction: column; gap: 10px; }
+.cdlg { position: fixed; inset: 0; z-index: 80; background: rgba(0,0,0,.55); display: flex; align-items: flex-start; justify-content: center; overflow-y: auto; padding: calc(56px + env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-right, 0px)) 16px max(16px, env(safe-area-inset-left, 0px)); }
+.cdlg-box { margin: 0 auto; width: 100%; max-width: 360px; background: var(--bg); border: 2px solid var(--danger); padding: 18px; display: flex; flex-direction: column; gap: 10px; }
 .cdlg-box h2 { margin: 0; font-family: var(--f-label); font-size: 17px; letter-spacing: .08em; text-transform: uppercase; }
 .cdlg-box p { margin: 0; font-size: 14.5px; line-height: 1.45; }
 .cdlg-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 6px; }
@@ -1655,21 +1655,24 @@ details.targets[open] summary::after { content: "\2212"; }
     back.addEventListener("click", function (ev) { if (ev.target === back) close(); });
     back.addEventListener("keydown", function (ev) { if (ev.key === "Escape") close(); });
     inp.addEventListener("input", function () { err.hidden = true; });
-    box.addEventListener("submit", function (ev) {
-      ev.preventDefault(); var name = inp.value.trim().slice(0, 40);
+    var busy = false;
+    yes.addEventListener("click", function (ev) { ev.preventDefault(); create(); });
+    box.addEventListener("submit", function (ev) { ev.preventDefault(); create(); });
+    function create() {
+      if (busy) return; var name = inp.value.trim().slice(0, 40);
       if (!name) { err.hidden = false; inp.focus(); return; }
-      yes.disabled = true;
+      busy = true; yes.disabled = true; yes.textContent = "Creating\u2026";
       var make = function (root) {
         var id = "s" + Date.now().toString(36);
         root.sessions = (root.sessions || []).concat([normSession({ id: id, name: name })]);
         wkDocCache[key] = root; if (wk && wk.key === key && wk.root && wk.root !== root) wk.root = root;
         var done2 = function () { close(); openSession(key, id); };
-        if (state.me && B.db) B.saveWorkoutLog(state.me, root).then(done2).catch(function () { yes.disabled = false; err.textContent = "Couldn\u2019t save. Try again."; err.hidden = false; }); else done2();
+        if (state.me && B.db) B.saveWorkoutLog(state.me, root).then(done2).catch(function () { busy = false; yes.disabled = false; yes.textContent = "Create workout"; err.textContent = "Couldn\u2019t save the workout. Check your connection and try again."; err.hidden = false; }); else done2();
       };
       if (wk && wk.key === key && wk.root) make(wk.root);
       else if (state.me && B.db) B.getWorkoutLog(state.me, key).then(function (r) { make(normWk(r, key)); }).catch(function () { make(emptyWk(key)); });
       else make(emptyWk(key));
-    });
+    }
     document.body.appendChild(back); inp.focus();
   }
   function drawDayWorkoutOld(sel, done, isToday, off) {
@@ -3164,9 +3167,14 @@ details.targets[open] summary::after { content: "\2212"; }
     // Tapping anywhere outside a text box closes it (iPhone keeps the box focused otherwise).
     document.addEventListener("pointerdown", function (ev) {
       var ae = document.activeElement; if (!ae || !/^(INPUT|TEXTAREA|SELECT)$/.test(ae.tagName)) return;
-      var t = ev.target; if (t === ae || (t.closest && t.closest("input, textarea, select, label"))) return;
+      var t = ev.target; if (t === ae || (t.closest && t.closest("input, textarea, select, label, button, a, summary, [role=button]"))) return;
       ae.blur();
     }, true);
+    // Buttons: close the keyboard only after the tap has done its job, so the layout never moves under the finger.
+    document.addEventListener("click", function (ev) {
+      var ae = document.activeElement, t = ev.target; if (!ae || !/^(INPUT|TEXTAREA|SELECT)$/.test(ae.tagName)) return;
+      if (t && t.closest && t.closest("button, a, summary, [role=button]") && document.body.contains(ae)) setTimeout(function () { if (document.activeElement === ae) ae.blur(); }, 0);
+    });
     // Settings below the profile photos: each section is a button that opens its form.
     ["h-s-wk", "h-s-body", "h-s-goal", "h-s-tg", "h-s-rem", "h-s-health", "h-s-safe", "h-s-acct"].forEach(function (hid) {
       var h = $(hid); if (!h) return; var sec = h.closest("section"), head = h.closest(".section-head"); if (!sec || !head) return;
