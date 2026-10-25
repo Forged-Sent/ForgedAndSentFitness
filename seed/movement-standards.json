@@ -1,0 +1,167 @@
+{
+  "name": "Forged & Sent Movement Standards",
+  "version": 1,
+  "note": "What counts as a rep. Standards define fairness; they do not prescribe technique or pacing.",
+  "movements": [
+    {
+      "movement": "Push-up",
+      "countsWhen": "Hands and toes (or the Alternate surface) are the only contact points. Body forms a straight line. Chest or chin touches the floor or the lower surface and the arms fully lock out at the top.",
+      "doesNotCountWhen": "Hips sag or pike; chest does not reach the floor; elbows do not lock out; knees touch the floor in the Standard version."
+    },
+    {
+      "movement": "Strict push-up (Push-Up Test; Forged Test)",
+      "countsWhen": "Same as a push-up. Max-effort tests are one unbroken set: the set ends when you rest with hands or knees off the starting position for longer than a pause at the top.",
+      "doesNotCountWhen": "Any re-set; kipping or body wave; resting on the knees."
+    },
+    {
+      "movement": "Pull-up",
+      "countsWhen": "Start from a dead hang with arms straight. Chin clears the top of the bar. Return to full arm extension.",
+      "doesNotCountWhen": "Chin does not clear the bar; arms not fully extended at the bottom. Kipping is not allowed in strict tests."
+    },
+    {
+      "movement": "Chin-up",
+      "countsWhen": "Same as a pull-up with an underhand grip.",
+      "doesNotCountWhen": "Chin does not clear the bar; arms not fully extended at the bottom."
+    },
+    {
+      "movement": "Dip",
+      "countsWhen": "Start with arms locked out on parallel bars. Lower until the upper arms are at least parallel to the floor and press back to lockout.",
+      "doesNotCountWhen": "Shoulders stay above the elbows at the bottom; no lockout at the top."
+    },
+    {
+      "movement": "Bodyweight squat",
+      "countsWhen": "Hip crease passes below the top of the knee and you stand to full hip and knee extension.",
+      "doesNotCountWhen": "Hip crease stays above the knee; you do not stand fully."
+    },
+    {
+      "movement": "Goblet squat; Loaded squat",
+      "countsWhen": "Same depth standard as a bodyweight squat while holding the stated weight at the chest (goblet) or wearing the stated pack (loaded).",
+      "doesNotCountWhen": "Weight is set down mid-set in a way that ends the rep; depth not reached."
+    },
+    {
+      "movement": "Alternating lunge",
+      "countsWhen": "Rear knee touches the floor or a mat and the front leg extends fully to stand. Reps alternate legs.",
+      "doesNotCountWhen": "Rear knee does not reach the floor; two reps in a row on the same leg."
+    },
+    {
+      "movement": "Rear-foot elevated split squat",
+      "countsWhen": "Rear foot rests on a bench. Front thigh reaches parallel or lower and you stand to full extension. Reps are split evenly between legs.",
+      "doesNotCountWhen": "Depth not reached; unequal reps between legs."
+    },
+    {
+      "movement": "Single-leg squat to bench",
+      "countsWhen": "Sit to a bench on one leg with the other leg off the floor and stand to full extension without pushing off the free leg.",
+      "doesNotCountWhen": "Free foot touches the floor; you sit down and rock up."
+    },
+    {
+      "movement": "Step-up",
+      "countsWhen": "Whole foot on the step. Stand to full hip and knee extension on top. Reps are split evenly between legs.",
+      "doesNotCountWhen": "Foot is partly off the step; no full extension at the top."
+    },
+    {
+      "movement": "Sit-up",
+      "countsWhen": "Shoulder blades touch the floor on the way down and the chest reaches the thighs at the top.",
+      "doesNotCountWhen": "Shoulder blades do not touch the floor; the top position is not reached."
+    },
+    {
+      "movement": "Leg raise",
+      "countsWhen": "Lying on your back with legs straight (or the Alternate version). Raise until the feet pass the hips (about 90 degrees) and lower until the heels are near the floor.",
+      "doesNotCountWhen": "Knees bend heavily; the feet do not reach the hips."
+    },
+    {
+      "movement": "Russian twist",
+      "countsWhen": "Seated and leaning back. Touch the floor or the weight beside each hip. One touch to each side counts as two reps.",
+      "doesNotCountWhen": "The hands do not travel past the hips."
+    },
+    {
+      "movement": "Burpee",
+      "countsWhen": "Chest and thighs touch the floor in the down position. Stand up and jump with both feet leaving the floor with the hands reaching overhead. The Alternate version removes the jump.",
+      "doesNotCountWhen": "Chest does not touch the floor; no jump (Standard) or no full overhead reach."
+    },
+    {
+      "movement": "Jump rope skip",
+      "countsWhen": "One pass of the rope under the feet counts as one skip. Double unders count as one skip each.",
+      "doesNotCountWhen": "The rope does not pass under the feet."
+    },
+    {
+      "movement": "Strict overhead press",
+      "countsWhen": "Dumbbells start at shoulder height and finish locked out overhead with the ears in front of the arms. No leg drive.",
+      "doesNotCountWhen": "Knees dip to help; no lockout; the press touches the head at the top."
+    },
+    {
+      "movement": "Dumbbell row",
+      "countsWhen": "One hand and knee on a bench or a hinged position. Pull until the dumbbell touches the ribs and extend the arm fully. Reps are split between arms.",
+      "doesNotCountWhen": "The dumbbell does not touch the ribs; no full arm extension."
+    },
+    {
+      "movement": "Kettlebell swing",
+      "countsWhen": "The weight travels from between the legs to at least chest height with the hips and knees fully extended at the top.",
+      "doesNotCountWhen": "The weight stays below chest height; the arms lift it instead of the hips."
+    },
+    {
+      "movement": "Romanian deadlift (dumbbell)",
+      "countsWhen": "Stand tall with the weights; hinge until the weights pass the knees and return to full hip extension.",
+      "doesNotCountWhen": "The weights do not pass the knees; no full standing lockout."
+    },
+    {
+      "movement": "Deadlift (Move 5000)",
+      "countsWhen": "The bar or weight starts on the floor and the lifter stands to full hip and knee extension. Total weight moved is reps multiplied by the weight lifted; the result is shown in pounds.",
+      "doesNotCountWhen": "Not standing fully; the weight is dropped before lockout."
+    },
+    {
+      "movement": "Dead hang",
+      "countsWhen": "Hands on the bar and feet off the floor with arms straight. The clock stops when a hand releases or your feet touch the floor.",
+      "doesNotCountWhen": "Feet touch the floor; bent arms; a hand releases."
+    },
+    {
+      "movement": "Wall sit",
+      "countsWhen": "Back flat to a wall with thighs parallel to the floor and the knees at about 90 degrees. The clock stops when the thighs rise above parallel or you move off the wall.",
+      "doesNotCountWhen": "Thighs above parallel; hands pushed on the legs."
+    },
+    {
+      "movement": "Forearm plank; Hollow hold",
+      "countsWhen": "Plank: body in a straight line on forearms and toes. Hollow: lower back pressed to the floor with arms and legs raised. The clock stops when the position breaks or knees or body touch the floor.",
+      "doesNotCountWhen": "Hips sag or pike; the lower back arches off the floor in the hollow hold."
+    },
+    {
+      "movement": "Sprint (100 yards)",
+      "countsWhen": "Cover the full 100 yards. Rep time ends when you cross the finish mark. Each rep is a separate sprint.",
+      "doesNotCountWhen": "Stopping short of the mark."
+    },
+    {
+      "movement": "Hill repeat (100 yards)",
+      "countsWhen": "Cover 100 yards uphill on foot and return to the start by any means on foot.",
+      "doesNotCountWhen": "Not covering the full uphill distance."
+    },
+    {
+      "movement": "Shuttle run (50 yards)",
+      "countsWhen": "Run 50 yards out and 50 yards back, touching the marker on each end. One out and back counts as one shuttle.",
+      "doesNotCountWhen": "A marker is not touched."
+    },
+    {
+      "movement": "Stair climb (flight)",
+      "countsWhen": "One flight is one continuous set of stairs between floors (about 10 to 12 steps). Record flights climbed up.",
+      "doesNotCountWhen": "Counting flights going down."
+    },
+    {
+      "movement": "Ruck",
+      "countsWhen": "Walk or run the full distance carrying the stated pack weight. The pack is worn on the back for the whole distance and the weight is measured before you start. Water counts if it is inside the pack and the total is at least the required weight.",
+      "doesNotCountWhen": "Putting the pack down; carrying less than the stated weight."
+    },
+    {
+      "movement": "Carry (farmer; heavy)",
+      "countsWhen": "Carry the two stated weights by your sides for the stated total distance. The weights may be set down but the clock keeps running.",
+      "doesNotCountWhen": "Carrying less than the stated weight; using straps that lock the grip (unless you use the Alternate)."
+    },
+    {
+      "movement": "Run; walk and distance events",
+      "countsWhen": "Distance is recorded with a GPS watch or phone app and the total is shown on the screen. The route is up to you but it must be continuous and recorded.",
+      "doesNotCountWhen": "Pausing the app; stopping the recording and starting again."
+    },
+    {
+      "movement": "Row; bike; swim (Cardio Choice)",
+      "countsWhen": "Distance shown on the machine display or app over the full time limit. Ranked only within the mode you choose.",
+      "doesNotCountWhen": "Mixing modes in one attempt."
+    }
+  ]
+}

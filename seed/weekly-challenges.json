@@ -1,0 +1,3785 @@
+{
+  "name": "Forged & Sent Weekly Challenges",
+  "version": 1,
+  "source": "Google Sheet: Forged and Sent Weekly Challenges",
+  "assumptions": {
+    "week1Start": "2026-11-02",
+    "note": "Veterans Day lands in Week 2 and Memorial Day in Week 31 when Week 1 starts Monday Nov 2 2026. Move holiday weeks if the start date changes."
+  },
+  "slots": [
+    {
+      "id": "family",
+      "label": "Family",
+      "description": "Something the man does for his family that is centered on faith. Completion only; not ranked."
+    },
+    {
+      "id": "iron",
+      "label": "Iron",
+      "description": "Rep, hold or quantity event that builds strength. Ranked. Named for Proverbs 27:17."
+    },
+    {
+      "id": "endure",
+      "label": "Endure",
+      "description": "Distance, time or round event that builds the engine. Ranked. Named for Hebrews 12:1."
+    }
+  ],
+  "scoring": {
+    "status": "proposed",
+    "weekRunsFrom": "Monday 12:00 AM",
+    "weekRunsTo": "Sunday 11:59 PM",
+    "bestAttemptCounts": true,
+    "completionPoints": {
+      "family": 30,
+      "iron": 25,
+      "endure": 25,
+      "gauntlet": 40
+    },
+    "placementBonus": {
+      "appliesTo": [
+        "iron",
+        "endure"
+      ],
+      "perDivision": true,
+      "requiresQualifyingStandard": true,
+      "regular": [
+        {
+          "place": "1",
+          "points": 15
+        },
+        {
+          "place": "2",
+          "points": 10
+        },
+        {
+          "place": "3",
+          "points": 7
+        },
+        {
+          "place": "4-10",
+          "points": 3
+        }
+      ],
+      "gauntlet": [
+        {
+          "place": "1",
+          "points": 30
+        },
+        {
+          "place": "2",
+          "points": 20
+        },
+        {
+          "place": "3",
+          "points": 14
+        },
+        {
+          "place": "4-10",
+          "points": 6
+        }
+      ]
+    },
+    "divisions": [
+      "standard",
+      "alternate"
+    ],
+    "scaleDownEarns": "completion only; not ranked",
+    "tiebreak": "earliest submission",
+    "scoredByTypes": {
+      "completion": "Family check-in",
+      "fastest_time": "Lowest total time wins",
+      "most_reps": "Most reps in the set or window wins",
+      "longest_hold": "Longest single hold wins",
+      "greatest_distance": "Farthest distance in the fixed time wins; ranked within the mode chosen",
+      "most_rounds": "Most completed rounds wins; extra reps break ties",
+      "highest_total": "Highest combined score across stations wins"
+    },
+    "targetMeaning": "Fixed-work events: the work to finish. Most reps, longest hold, greatest distance, most rounds and highest total events: the minimum result needed to qualify.",
+    "maxWeek": {
+      "regular": 110,
+      "gauntlet": 180
+    }
+  },
+  "seasons": [
+    {
+      "id": 1,
+      "name": "Be Watchful",
+      "weeks": [
+        1,
+        13
+      ],
+      "anchorScripture": "1 Corinthians 16:13 (be watchful)",
+      "theme": "Pay attention; guard what matters; build the daily habits of a man who is present.",
+      "familyFocus": "Prayer; presence at the table; knowing and blessing your wife and kids; guarding the home.",
+      "physicalFocus": "Build the base: modest bodyweight volume; first benchmark tests; easy cardio and short rucks. Veterans Day week themed in Week 2."
+    },
+    {
+      "id": 2,
+      "name": "Stand Firm",
+      "weeks": [
+        14,
+        26
+      ],
+      "anchorScripture": "1 Corinthians 16:13 (stand firm in the faith)",
+      "theme": "Hold your ground in your convictions; set boundaries; stand beside your wife.",
+      "familyFocus": "Family mission; boundaries; Scripture memory; serving together; covenant with your wife.",
+      "physicalFocus": "Gradual increase: first strength tests; longer jogs and rucks; short intervals."
+    },
+    {
+      "id": 3,
+      "name": "Act Like Men",
+      "weeks": [
+        27,
+        39
+      ],
+      "anchorScripture": "1 Corinthians 16:13 (act like men)",
+      "theme": "Take initiative; lead by serving; carry responsibility.",
+      "familyFocus": "Leading prayer; household initiative; blessing your kids; generosity; discipling another man.",
+      "physicalFocus": "Moderate volume; heavy carries; sprints; longer endurance days. Memorial Day week themed in Week 31."
+    },
+    {
+      "id": 4,
+      "name": "Be Strong",
+      "weeks": [
+        40,
+        52
+      ],
+      "anchorScripture": "1 Corinthians 16:13-14 (be strong; do everything in love) and Matthew 28:18-20",
+      "theme": "Strength under love; finish the year strong and get sent out on mission.",
+      "familyFocus": "Love shown daily; speaking life; going and inviting; Sabbath; commissioning your family.",
+      "physicalFocus": "Retests against earlier benchmarks; steady volume; year-end ruck on Week 52."
+    }
+  ],
+  "weeks": [
+    {
+      "week": 1,
+      "season": 1,
+      "gauntlet": false,
+      "holiday": null,
+      "challenges": [
+        {
+          "slot": "family",
+          "name": "Watch and Pray",
+          "description": "Pray out loud with your wife or kids on 5 days this week. Keep it short and sincere.",
+          "target": 5,
+          "unit": "days",
+          "points": 30,
+          "scoredBy": "completion",
+          "equipment": "None",
+          "scaleDown": "3 days",
+          "scripture": "1 Corinthians 16:13",
+          "record": "Mark complete with a short note or photo",
+          "alternate": null,
+          "id": "w01-family"
+        },
+        {
+          "slot": "iron",
+          "name": "Foundation 50",
+          "description": "Complete 50 push-ups.",
+          "target": 50,
+          "unit": "reps",
+          "points": 25,
+          "scoredBy": "fastest_time",
+          "equipment": "None",
+          "scaleDown": "25 reps on knees or incline",
+          "record": "Total reps and total time",
+          "alternate": {
+            "description": "Incline push-ups with hands on a counter or bench; or push-ups on fists or dumbbell handles.",
+            "target": 50,
+            "unit": "reps",
+            "helpsWith": [
+              "Wrist",
+              "Shoulder"
+            ]
+          },
+          "id": "w01-iron"
+        },
+        {
+          "slot": "endure",
+          "name": "Mile Time Trial",
+          "description": "Cover one mile on foot.",
+          "target": 1,
+          "unit": "mi",
+          "points": 25,
+          "scoredBy": "fastest_time",
+          "equipment": "None",
+          "scaleDown": "Brisk 1 mile walk",
+          "record": "Finish time",
+          "alternate": {
+            "description": "Bike 3 miles.",
+            "target": 3,
+            "unit": "mi",
+            "helpsWith": [
+              "Knee",
+              "Ankle",
+              "Foot",
+              "Shin"
+            ]
+          },
+          "id": "w01-endure"
+        }
+      ]
+    },
+    {
+      "week": 2,
+      "season": 1,
+      "gauntlet": false,
+      "holiday": "veterans_day",
+      "challenges": [
+        {
+          "slot": "family",
+          "name": "Honor a Veteran",
+          "description": "Veterans Day week (Nov 11). Thank a veteran in person with your family; ask to hear part of their story and give them a hand-written card.",
+          "target": 1,
+          "unit": "done",
+          "points": 30,
+          "scoredBy": "completion",
+          "equipment": "None",
+          "scaleDown": "Send a card or make a call",
+          "scripture": "John 15:13",
+          "record": "Mark complete with a short note or photo",
+          "alternate": null,
+          "id": "w02-family"
+        },
+        {
+          "slot": "iron",
+          "name": "Eleven-Eleven",
+          "description": "Veterans Day week. Complete 5 rounds of 11 squats; 11 push-ups and 11 sit-ups (165 reps) in honor of those who served.",
+          "target": 165,
+          "unit": "reps",
+          "points": 25,
+          "scoredBy": "fastest_time",
+          "equipment": "None",
+          "scaleDown": "99 reps (3 rounds)",
+          "record": "Total reps and total time",
+          "alternate": {
+            "description": "5 rounds of 11 box squats; 11 incline push-ups and 11 dead bugs (165 reps).",
+            "target": 165,
+            "unit": "reps",
+            "helpsWith": [
+              "Knee",
+              "Wrist",
+              "Low back"
+            ]
+          },
+          "id": "w02-iron"
+        },
+        {
+          "slot": "endure",
+          "name": "Ruck for a Vet",
+          "description": "Veterans Day week. Cover 3 miles carrying a 10 lb pack and dedicate it to a veteran you know by name; text him afterward.",
+          "target": 3,
+          "unit": "mi",
+          "points": 25,
+          "scoredBy": "fastest_time",
+          "equipment": "Backpack",
+          "scaleDown": "2 miles with no pack",
+          "record": "Distance and total time",
+          "alternate": {
+            "description": "Cover 3 miles on flat ground with no pack.",
+            "target": 3,
+            "unit": "mi",
+            "helpsWith": [
+              "Low back",
+              "Shoulder",
+              "Hip"
+            ]
+          },
+          "id": "w02-endure"
+        }
+      ]
+    },
+    {
+      "week": 3,
+      "season": 1,
+      "gauntlet": false,
+      "holiday": null,
+      "challenges": [
+        {
+          "slot": "family",
+          "name": "Pray By Name",
+          "description": "Ask each family member how you can pray for them this week; then pray for each one by name.",
+          "target": 1,
+          "unit": "done",
+          "points": 30,
+          "scoredBy": "completion",
+          "equipment": "None",
+          "scaleDown": "Ask just your wife",
+          "scripture": "Philippians 4:6",
+          "record": "Mark complete with a short note or photo",
+          "alternate": null,
+          "id": "w03-family"
+        },
+        {
+          "slot": "iron",
+          "name": "Pull-Up 10",
+          "description": "Complete 10 pull-ups.",
+          "target": 10,
+          "unit": "reps",
+          "points": 25,
+          "scoredBy": "fastest_time",
+          "equipment": "Pull-up bar",
+          "scaleDown": "10 band-assisted pull-ups or inverted rows",
+          "record": "Total reps and total time",
+          "alternate": {
+            "description": "Inverted rows or seated band pull-downs.",
+            "target": 10,
+            "unit": "reps",
+            "helpsWith": [
+              "Shoulder",
+              "Elbow",
+              "Grip"
+            ]
+          },
+          "id": "w03-iron"
+        },
+        {
+          "slot": "endure",
+          "name": "Burpee 50",
+          "description": "Complete 50 burpees.",
+          "target": 50,
+          "unit": "reps",
+          "points": 25,
+          "scoredBy": "fastest_time",
+          "equipment": "None",
+          "scaleDown": "25 reps",
+          "record": "Total reps and total time",
+          "alternate": {
+            "description": "Squat with a full overhead reach at the top; no jumping.",
+            "target": 50,
+            "unit": "reps",
+            "helpsWith": [
+              "Wrist",
+              "Shoulder",
+              "Knee",
+              "Ankle"
+            ]
+          },
+          "id": "w03-endure"
+        }
+      ]
+    },
+    {
+      "week": 4,
+      "season": 1,
+      "gauntlet": false,
+      "holiday": null,
+      "challenges": [
+        {
+          "slot": "family",
+          "name": "Words for Her",
+          "description": "Hand-write a note to your wife naming three specific things you admire in her and give it to her in person.",
+          "target": 1,
+          "unit": "done",
+          "points": 30,
+          "scoredBy": "completion",
+          "equipment": "None",
+          "scaleDown": "A personal text message",
+          "scripture": "Proverbs 31:28-29",
+          "record": "Mark complete with a short note or photo",
+          "alternate": null,
+          "id": "w04-family"
+        },
+        {
+          "slot": "iron",
+          "name": "Squat 100",
+          "description": "Complete 100 bodyweight squats.",
+          "target": 100,
+          "unit": "reps",
+          "points": 25,
+          "scoredBy": "fastest_time",
+          "equipment": "None",
+          "scaleDown": "50 reps",
+          "record": "Total reps and total time",
+          "alternate": {
+            "description": "Box squats to a bench or chair.",
+            "target": 100,
+            "unit": "reps",
+            "helpsWith": [
+              "Knee",
+              "Hip"
+            ]
+          },
+          "id": "w04-iron"
+        },
+        {
+          "slot": "endure",
+          "name": "First 5K",
+          "description": "Cover 5 kilometers (3.1 miles) on foot.",
+          "target": 3.1,
+          "unit": "mi",
+          "points": 25,
+          "scoredBy": "fastest_time",
+          "equipment": "None",
+          "scaleDown": "Walk the distance",
+          "record": "Finish time",
+          "alternate": {
+            "description": "Bike 8 miles.",
+            "target": 8,
+            "unit": "mi",
+            "helpsWith": [
+              "Knee",
+              "Ankle",
+              "Foot",
+              "Shin"
+            ]
+          },
+          "id": "w04-endure"
+        }
+      ]
+    },
+    {
+      "week": 5,
+      "season": 1,
+      "gauntlet": false,
+      "holiday": null,
+      "challenges": [
+        {
+          "slot": "family",
+          "name": "The Family Table",
+          "description": "Host 4 sit-down family meals that include a prayer and a short Scripture reading.",
+          "target": 4,
+          "unit": "meals",
+          "points": 30,
+          "scoredBy": "completion",
+          "equipment": "None",
+          "scaleDown": "2 meals",
+          "scripture": "Acts 2:46",
+          "record": "Mark complete with a short note or photo",
+          "alternate": null,
+          "id": "w05-family"
+        },
+        {
+          "slot": "iron",
+          "name": "Dip 25",
+          "description": "Complete 25 dips.",
+          "target": 25,
+          "unit": "reps",
+          "points": 25,
+          "scoredBy": "fastest_time",
+          "equipment": "Bars or bench",
+          "scaleDown": "12 reps",
+          "record": "Total reps and total time",
+          "alternate": {
+            "description": "Close-grip incline push-ups or band triceps pushdowns.",
+            "target": 25,
+            "unit": "reps",
+            "helpsWith": [
+              "Shoulder",
+              "Elbow"
+            ]
+          },
+          "id": "w05-iron"
+        },
+        {
+          "slot": "endure",
+          "name": "Jump Rope 500",
+          "description": "Complete 500 jump rope skips.",
+          "target": 500,
+          "unit": "reps",
+          "points": 25,
+          "scoredBy": "fastest_time",
+          "equipment": "Jump rope",
+          "scaleDown": "250 skips or 250 jumping jacks",
+          "record": "Total reps and total time",
+          "alternate": {
+            "description": "Step-jacks with no jumping.",
+            "target": 500,
+            "unit": "reps",
+            "helpsWith": [
+              "Knee",
+              "Ankle",
+              "Foot",
+              "Shin"
+            ]
+          },
+          "id": "w05-endure"
+        }
+      ]
+    },
+    {
+      "week": 6,
+      "season": 1,
+      "gauntlet": false,
+      "holiday": null,
+      "challenges": [
+        {
+          "slot": "family",
+          "name": "One-on-One",
+          "description": "Give 30 undistracted minutes to one child or your wife doing whatever they choose.",
+          "target": 1,
+          "unit": "done",
+          "points": 30,
+          "scoredBy": "completion",
+          "equipment": "None",
+          "scaleDown": "15 minutes",
+          "scripture": "Ephesians 6:4",
+          "record": "Mark complete with a short note or photo",
+          "alternate": null,
+          "id": "w06-family"
+        },
+        {
+          "slot": "iron",
+          "name": "Lunge 50",
+          "description": "Complete 50 alternating lunges (25 per leg).",
+          "target": 50,
+          "unit": "reps",
+          "points": 25,
+          "scoredBy": "fastest_time",
+          "equipment": "None",
+          "scaleDown": "30 reps",
+          "record": "Total reps and total time",
+          "alternate": {
+            "description": "Supported split squats holding a wall or chair.",
+            "target": 50,
+            "unit": "reps",
+            "helpsWith": [
+              "Knee",
+              "Hip",
+              "Balance"
+            ]
+          },
+          "id": "w06-iron"
+        },
+        {
+          "slot": "endure",
+          "name": "Hill Repeats 5",
+          "description": "Complete 5 uphill repeats of 100 yards.",
+          "target": 5,
+          "unit": "reps",
+          "points": 25,
+          "scoredBy": "fastest_time",
+          "equipment": "Hill or stairs",
+          "scaleDown": "3 reps",
+          "record": "Total reps and total time",
+          "alternate": {
+            "description": "5 repeats of a 100-yard incline walk.",
+            "target": 5,
+            "unit": "reps",
+            "helpsWith": [
+              "Knee",
+              "Ankle",
+              "Achilles",
+              "Hamstring"
+            ]
+          },
+          "id": "w06-endure"
+        }
+      ]
+    },
+    {
+      "week": 7,
+      "season": 1,
+      "gauntlet": false,
+      "holiday": null,
+      "challenges": [
+        {
+          "slot": "family",
+          "name": "Read It Aloud",
+          "description": "Read a chapter of Scripture aloud with your family on 4 days.",
+          "target": 4,
+          "unit": "days",
+          "points": 30,
+          "scoredBy": "completion",
+          "equipment": "Bible",
+          "scaleDown": "2 days with a short passage",
+          "scripture": "Deuteronomy 6:6-7",
+          "record": "Mark complete with a short note or photo",
+          "alternate": null,
+          "id": "w07-family"
+        },
+        {
+          "slot": "iron",
+          "name": "Farmer Carry",
+          "description": "Carry two 25 lb weights for 200 yards total.",
+          "target": 200,
+          "unit": "yd",
+          "points": 25,
+          "scoredBy": "fastest_time",
+          "equipment": "Heavy weights",
+          "scaleDown": "100 yd with lighter loads",
+          "record": "Distance and total time",
+          "alternate": {
+            "description": "Carry a backpack with about 20 lb (or one dumbbell in a suitcase carry) for 200 yards.",
+            "target": 200,
+            "unit": "yd",
+            "helpsWith": [
+              "Low back",
+              "Wrist",
+              "Grip"
+            ]
+          },
+          "id": "w07-iron"
+        },
+        {
+          "slot": "endure",
+          "name": "15-Min AMRAP",
+          "description": "Complete as many rounds as possible in 15 minutes of: 3 pull-ups; 6 push-ups; 9 squats.",
+          "target": 15,
+          "unit": "min",
+          "points": 25,
+          "scoredBy": "most_rounds",
+          "equipment": "Pull-up bar",
+          "scaleDown": "10 minutes and rows in place of pull-ups",
+          "record": "Rounds and extra reps",
+          "alternate": {
+            "description": "Most rounds in 15 minutes of: 3 inverted rows; 6 incline push-ups; 9 box squats.",
+            "target": 15,
+            "unit": "min",
+            "helpsWith": [
+              "Shoulder",
+              "Wrist",
+              "Knee",
+              "Low back"
+            ]
+          },
+          "id": "w07-endure"
+        }
+      ]
+    },
+    {
+      "week": 8,
+      "season": 1,
+      "gauntlet": false,
+      "holiday": null,
+      "challenges": [
+        {
+          "slot": "family",
+          "name": "Guard the Home",
+          "description": "Walk through your home with your family and remove one influence that does not belong (media; habit; clutter).",
+          "target": 1,
+          "unit": "done",
+          "points": 30,
+          "scoredBy": "completion",
+          "equipment": "None",
+          "scaleDown": "Identify it and plan to remove it",
+          "scripture": "Joshua 24:15",
+          "record": "Mark complete with a short note or photo",
+          "alternate": null,
+          "id": "w08-family"
+        },
+        {
+          "slot": "iron",
+          "name": "Dead Hang",
+          "description": "Hold a dead hang from a bar.",
+          "target": 30,
+          "unit": "sec",
+          "points": 25,
+          "scoredBy": "longest_hold",
+          "equipment": "Pull-up bar",
+          "scaleDown": "15 sec",
+          "record": "Hold time",
+          "alternate": {
+            "description": "Longest feet-assisted hang from a bar with your feet on the floor or a box.",
+            "target": 60,
+            "unit": "sec",
+            "helpsWith": [
+              "Shoulder",
+              "Elbow",
+              "Grip"
+            ]
+          },
+          "id": "w08-iron"
+        },
+        {
+          "slot": "endure",
+          "name": "Two-Mile Run",
+          "description": "Cover 2 miles on foot.",
+          "target": 2,
+          "unit": "mi",
+          "points": 25,
+          "scoredBy": "fastest_time",
+          "equipment": "None",
+          "scaleDown": "1 mile or walk the distance",
+          "record": "Distance and total time",
+          "alternate": {
+            "description": "Walk 2 miles.",
+            "target": 2,
+            "unit": "mi",
+            "helpsWith": [
+              "Knee",
+              "Ankle",
+              "Foot",
+              "Shin"
+            ]
+          },
+          "id": "w08-endure"
+        }
+      ]
+    },
+    {
+      "week": 9,
+      "season": 1,
+      "gauntlet": false,
+      "holiday": null,
+      "challenges": [
+        {
+          "slot": "family",
+          "name": "Call a Man You Respect",
+          "description": "Call your father or a mentor; thank him and ask for one piece of advice on being a husband and dad.",
+          "target": 1,
+          "unit": "done",
+          "points": 30,
+          "scoredBy": "completion",
+          "equipment": "None",
+          "scaleDown": "Send a message",
+          "scripture": "Proverbs 13:20",
+          "record": "Mark complete with a short note or photo",
+          "alternate": null,
+          "id": "w09-family"
+        },
+        {
+          "slot": "iron",
+          "name": "Hinge 50",
+          "description": "Complete 50 kettlebell swings or dumbbell Romanian deadlifts with a 35 lb weight.",
+          "target": 50,
+          "unit": "reps",
+          "points": 25,
+          "scoredBy": "fastest_time",
+          "equipment": "Kettlebell or dumbbells",
+          "scaleDown": "30 reps with lighter weight",
+          "record": "Total reps and total time",
+          "alternate": {
+            "description": "Glute bridges.",
+            "target": 50,
+            "unit": "reps",
+            "helpsWith": [
+              "Low back",
+              "Hamstring"
+            ]
+          },
+          "id": "w09-iron"
+        },
+        {
+          "slot": "endure",
+          "name": "Burpee 75",
+          "description": "Complete 75 burpees.",
+          "target": 75,
+          "unit": "reps",
+          "points": 25,
+          "scoredBy": "fastest_time",
+          "equipment": "None",
+          "scaleDown": "40 reps",
+          "record": "Total reps and total time",
+          "alternate": {
+            "description": "Squat with a full overhead reach at the top; no jumping.",
+            "target": 75,
+            "unit": "reps",
+            "helpsWith": [
+              "Wrist",
+              "Shoulder",
+              "Knee",
+              "Ankle"
+            ]
+          },
+          "id": "w09-endure"
+        }
+      ]
+    },
+    {
+      "week": 10,
+      "season": 1,
+      "gauntlet": false,
+      "holiday": null,
+      "challenges": [
+        {
+          "slot": "family",
+          "name": "Pray for Their Future",
+          "description": "Pray daily for your kids' future; character and future spouses (or for your wife's heart if no kids are at home).",
+          "target": 7,
+          "unit": "days",
+          "points": 30,
+          "scoredBy": "completion",
+          "equipment": "None",
+          "scaleDown": "4 days",
+          "scripture": "Psalm 127:3",
+          "record": "Mark complete with a short note or photo",
+          "alternate": null,
+          "id": "w10-family"
+        },
+        {
+          "slot": "iron",
+          "name": "Push-Up 75",
+          "description": "Complete 75 push-ups.",
+          "target": 75,
+          "unit": "reps",
+          "points": 25,
+          "scoredBy": "fastest_time",
+          "equipment": "None",
+          "scaleDown": "40 reps",
+          "record": "Total reps and total time",
+          "alternate": {
+            "description": "Incline push-ups.",
+            "target": 75,
+            "unit": "reps",
+            "helpsWith": [
+              "Wrist",
+              "Shoulder"
+            ]
+          },
+          "id": "w10-iron"
+        },
+        {
+          "slot": "endure",
+          "name": "20-Minute Distance",
+          "description": "Cover as much distance as possible on foot in 20 minutes.",
+          "target": 20,
+          "unit": "min",
+          "points": 25,
+          "scoredBy": "greatest_distance",
+          "equipment": "Any",
+          "scaleDown": "15 minutes of walking",
+          "record": "Distance covered",
+          "alternate": {
+            "description": "Cover as much distance as possible in 20 minutes by stationary bike or swim.",
+            "target": 20,
+            "unit": "min",
+            "helpsWith": [
+              "Knee",
+              "Ankle",
+              "Foot",
+              "Shin"
+            ]
+          },
+          "id": "w10-endure"
+        }
+      ]
+    },
+    {
+      "week": 11,
+      "season": 1,
+      "gauntlet": false,
+      "holiday": null,
+      "challenges": [
+        {
+          "slot": "family",
+          "name": "Ready for Worship",
+          "description": "Lead your family to worship: get everyone ready on time; sit together and talk about the message on the way home.",
+          "target": 1,
+          "unit": "done",
+          "points": 30,
+          "scoredBy": "completion",
+          "equipment": "None",
+          "scaleDown": "Attend together",
+          "scripture": "Hebrews 10:24-25",
+          "record": "Mark complete with a short note or photo",
+          "alternate": null,
+          "id": "w11-family"
+        },
+        {
+          "slot": "iron",
+          "name": "Leg Raise 50",
+          "description": "Complete 50 leg raises.",
+          "target": 50,
+          "unit": "reps",
+          "points": 25,
+          "scoredBy": "fastest_time",
+          "equipment": "None or bar",
+          "scaleDown": "25 lying leg raises",
+          "record": "Total reps and total time",
+          "alternate": {
+            "description": "Dead bugs.",
+            "target": 50,
+            "unit": "reps",
+            "helpsWith": [
+              "Low back",
+              "Hip flexor"
+            ]
+          },
+          "id": "w11-iron"
+        },
+        {
+          "slot": "endure",
+          "name": "Sprint 6x100",
+          "description": "Complete 6 sprints of 100 yards.",
+          "target": 6,
+          "unit": "reps",
+          "points": 25,
+          "scoredBy": "fastest_time",
+          "equipment": "Open space",
+          "scaleDown": "3 sprints",
+          "record": "Total reps and total time",
+          "alternate": {
+            "description": "Complete 6 bike sprints of 20 seconds each.",
+            "target": 6,
+            "unit": "reps",
+            "helpsWith": [
+              "Hamstring",
+              "Achilles",
+              "Knee",
+              "Ankle"
+            ]
+          },
+          "id": "w11-endure"
+        }
+      ]
+    },
+    {
+      "week": 12,
+      "season": 1,
+      "gauntlet": false,
+      "holiday": null,
+      "challenges": [
+        {
+          "slot": "family",
+          "name": "Make It Right",
+          "description": "Ask forgiveness from a family member you have wronged. No excuses and no 'but'.",
+          "target": 1,
+          "unit": "done",
+          "points": 30,
+          "scoredBy": "completion",
+          "equipment": "None",
+          "scaleDown": "Write it down and plan the conversation",
+          "scripture": "James 5:16",
+          "record": "Mark complete with a short note or photo",
+          "alternate": null,
+          "id": "w12-family"
+        },
+        {
+          "slot": "iron",
+          "name": "Goblet Squat 50",
+          "description": "Complete 50 goblet squats holding a 35 lb weight.",
+          "target": 50,
+          "unit": "reps",
+          "points": 25,
+          "scoredBy": "fastest_time",
+          "equipment": "Dumbbell or kettlebell",
+          "scaleDown": "30 reps",
+          "record": "Total reps and total time",
+          "alternate": {
+            "description": "Box goblet squats to a bench holding a 20 lb weight.",
+            "target": 50,
+            "unit": "reps",
+            "helpsWith": [
+              "Knee",
+              "Low back"
+            ]
+          },
+          "id": "w12-iron"
+        },
+        {
+          "slot": "endure",
+          "name": "Ruck 3",
+          "description": "Cover 3 miles carrying a 10 lb pack.",
+          "target": 3,
+          "unit": "mi",
+          "points": 25,
+          "scoredBy": "fastest_time",
+          "equipment": "Backpack",
+          "scaleDown": "2 miles with no pack",
+          "record": "Distance and total time",
+          "alternate": {
+            "description": "Walk 3 miles with no pack.",
+            "target": 3,
+            "unit": "mi",
+            "helpsWith": [
+              "Low back",
+              "Shoulder"
+            ]
+          },
+          "id": "w12-endure"
+        }
+      ]
+    },
+    {
+      "week": 13,
+      "season": 1,
+      "gauntlet": true,
+      "holiday": null,
+      "challenges": [
+        {
+          "slot": "family",
+          "name": "Gauntlet: Family Watch Night",
+          "description": "Host a family night: worship; share what God did over the past 13 weeks and have each person name one thing they are grateful for.",
+          "target": 1,
+          "unit": "done",
+          "points": 40,
+          "scoredBy": "completion",
+          "equipment": "None",
+          "scaleDown": "30-minute version",
+          "scripture": "Psalm 78:4",
+          "record": "Mark complete with a short note or photo",
+          "alternate": null,
+          "id": "w13-family"
+        },
+        {
+          "slot": "iron",
+          "name": "Gauntlet: Triple 50",
+          "description": "Complete 50 push-ups; 50 squats and 50 sit-ups.",
+          "target": 150,
+          "unit": "reps",
+          "points": 40,
+          "scoredBy": "fastest_time",
+          "equipment": "None",
+          "scaleDown": "75 total reps (25 of each)",
+          "record": "Total reps and total time",
+          "alternate": {
+            "description": "50 incline push-ups; 50 box squats and 50 dead bugs.",
+            "target": 150,
+            "unit": "reps",
+            "helpsWith": [
+              "Wrist",
+              "Shoulder",
+              "Knee",
+              "Low back"
+            ]
+          },
+          "id": "w13-iron"
+        },
+        {
+          "slot": "endure",
+          "name": "Gauntlet: 5K",
+          "description": "Cover 5 kilometers (3.1 miles) on foot.",
+          "target": 3.1,
+          "unit": "mi",
+          "points": 40,
+          "scoredBy": "fastest_time",
+          "equipment": "None",
+          "scaleDown": "Walk the distance",
+          "record": "Finish time",
+          "alternate": {
+            "description": "Bike 8 miles.",
+            "target": 8,
+            "unit": "mi",
+            "helpsWith": [
+              "Knee",
+              "Ankle",
+              "Foot",
+              "Shin"
+            ]
+          },
+          "id": "w13-endure"
+        }
+      ]
+    },
+    {
+      "week": 14,
+      "season": 2,
+      "gauntlet": false,
+      "holiday": null,
+      "challenges": [
+        {
+          "slot": "family",
+          "name": "Family Mission",
+          "description": "Write a one to three sentence mission statement with your family and post it where everyone can see it.",
+          "target": 1,
+          "unit": "done",
+          "points": 30,
+          "scoredBy": "completion",
+          "equipment": "None",
+          "scaleDown": "Draft it with your wife",
+          "scripture": "Ephesians 6:13",
+          "record": "Mark complete with a short note or photo",
+          "alternate": null,
+          "id": "w14-family"
+        },
+        {
+          "slot": "iron",
+          "name": "Push-Up Test",
+          "description": "Complete as many strict push-ups as possible in one unbroken set.",
+          "target": 20,
+          "unit": "reps",
+          "points": 25,
+          "scoredBy": "most_reps",
+          "equipment": "None",
+          "scaleDown": "10 reps",
+          "record": "Reps completed in the set",
+          "alternate": {
+            "description": "Most incline push-ups in one unbroken set.",
+            "target": 25,
+            "unit": "reps",
+            "helpsWith": [
+              "Wrist",
+              "Shoulder"
+            ]
+          },
+          "id": "w14-iron"
+        },
+        {
+          "slot": "endure",
+          "name": "5K Time Trial",
+          "description": "Cover 5 kilometers (3.1 miles) on foot.",
+          "target": 3.1,
+          "unit": "mi",
+          "points": 25,
+          "scoredBy": "fastest_time",
+          "equipment": "None",
+          "scaleDown": "Run-walk intervals",
+          "record": "Finish time",
+          "alternate": {
+            "description": "Bike 8 miles.",
+            "target": 8,
+            "unit": "mi",
+            "helpsWith": [
+              "Knee",
+              "Ankle",
+              "Foot",
+              "Shin"
+            ]
+          },
+          "id": "w14-endure"
+        }
+      ]
+    },
+    {
+      "week": 15,
+      "season": 2,
+      "gauntlet": false,
+      "holiday": null,
+      "challenges": [
+        {
+          "slot": "family",
+          "name": "Where Do You Need Me",
+          "description": "Ask your wife where she needs you to stand firm. Listen without defending and then act on one thing she says.",
+          "target": 1,
+          "unit": "done",
+          "points": 30,
+          "scoredBy": "completion",
+          "equipment": "None",
+          "scaleDown": "Ask and listen only",
+          "scripture": "Ephesians 5:25",
+          "record": "Mark complete with a short note or photo",
+          "alternate": null,
+          "id": "w15-family"
+        },
+        {
+          "slot": "iron",
+          "name": "Pull-Up Test",
+          "description": "Complete as many strict pull-ups as possible in one unbroken set.",
+          "target": 5,
+          "unit": "reps",
+          "points": 25,
+          "scoredBy": "most_reps",
+          "equipment": "Pull-up bar",
+          "scaleDown": "3 reps or band-assisted",
+          "record": "Reps completed in the set",
+          "alternate": {
+            "description": "Most inverted rows in one unbroken set.",
+            "target": 10,
+            "unit": "reps",
+            "helpsWith": [
+              "Shoulder",
+              "Elbow"
+            ]
+          },
+          "id": "w15-iron"
+        },
+        {
+          "slot": "endure",
+          "name": "Burpee 100",
+          "description": "Complete 100 burpees.",
+          "target": 100,
+          "unit": "reps",
+          "points": 25,
+          "scoredBy": "fastest_time",
+          "equipment": "None",
+          "scaleDown": "50 reps",
+          "record": "Total reps and total time",
+          "alternate": {
+            "description": "Squat with a full overhead reach at the top; no jumping.",
+            "target": 100,
+            "unit": "reps",
+            "helpsWith": [
+              "Wrist",
+              "Shoulder",
+              "Knee",
+              "Ankle"
+            ]
+          },
+          "id": "w15-endure"
+        }
+      ]
+    },
+    {
+      "week": 16,
+      "season": 2,
+      "gauntlet": false,
+      "holiday": null,
+      "challenges": [
+        {
+          "slot": "family",
+          "name": "Seven Days of Prayer",
+          "description": "Pray with your family every day this week.",
+          "target": 7,
+          "unit": "days",
+          "points": 30,
+          "scoredBy": "completion",
+          "equipment": "None",
+          "scaleDown": "5 days",
+          "scripture": "1 Thessalonians 5:17",
+          "record": "Mark complete with a short note or photo",
+          "alternate": null,
+          "id": "w16-family"
+        },
+        {
+          "slot": "iron",
+          "name": "Wall Sit",
+          "description": "Hold a wall sit with thighs parallel to the floor.",
+          "target": 90,
+          "unit": "sec",
+          "points": 25,
+          "scoredBy": "longest_hold",
+          "equipment": "Wall",
+          "scaleDown": "45 sec",
+          "record": "Hold time",
+          "alternate": {
+            "description": "Longest shallow wall sit with thighs above parallel.",
+            "target": 90,
+            "unit": "sec",
+            "helpsWith": [
+              "Knee",
+              "Hip"
+            ]
+          },
+          "id": "w16-iron"
+        },
+        {
+          "slot": "endure",
+          "name": "Ruck 3",
+          "description": "Cover 3 miles carrying a 15 lb pack.",
+          "target": 3,
+          "unit": "mi",
+          "points": 25,
+          "scoredBy": "fastest_time",
+          "equipment": "Backpack",
+          "scaleDown": "2 miles with no pack",
+          "record": "Distance and total time",
+          "alternate": {
+            "description": "Walk 3 miles with no pack.",
+            "target": 3,
+            "unit": "mi",
+            "helpsWith": [
+              "Low back",
+              "Shoulder"
+            ]
+          },
+          "id": "w16-endure"
+        }
+      ]
+    },
+    {
+      "week": 17,
+      "season": 2,
+      "gauntlet": false,
+      "holiday": null,
+      "challenges": [
+        {
+          "slot": "family",
+          "name": "Hide It in the Heart",
+          "description": "Memorize one verse with your family and recite it together by Sunday.",
+          "target": 1,
+          "unit": "done",
+          "points": 30,
+          "scoredBy": "completion",
+          "equipment": "Bible",
+          "scaleDown": "A shorter verse",
+          "scripture": "Psalm 119:11",
+          "record": "Mark complete with a short note or photo",
+          "alternate": null,
+          "id": "w17-family"
+        },
+        {
+          "slot": "iron",
+          "name": "Split Squat 50",
+          "description": "Complete 50 rear-foot elevated split squats (25 per leg).",
+          "target": 50,
+          "unit": "reps",
+          "points": 25,
+          "scoredBy": "fastest_time",
+          "equipment": "Bench or chair",
+          "scaleDown": "30 reps",
+          "record": "Total reps and total time",
+          "alternate": {
+            "description": "Step-ups to a very low step with rail support (25 per leg).",
+            "target": 50,
+            "unit": "reps",
+            "helpsWith": [
+              "Knee",
+              "Hip",
+              "Balance"
+            ]
+          },
+          "id": "w17-iron"
+        },
+        {
+          "slot": "endure",
+          "name": "Tabata Double",
+          "description": "Complete two 4-minute Tabata intervals (8 rounds of 20 seconds work and 10 seconds rest each) with 1 minute between them: squat jumps in the first and push-ups in the second. Score is total reps.",
+          "target": 8,
+          "unit": "min",
+          "points": 25,
+          "scoredBy": "most_reps",
+          "equipment": "None",
+          "scaleDown": "4 minutes (1 block)",
+          "record": "Total reps",
+          "alternate": {
+            "description": "Two 4-minute Tabata intervals (8 rounds of 20 seconds work and 10 seconds rest each): fast marching in the first and incline push-ups in the second. Score is total reps.",
+            "target": 8,
+            "unit": "min",
+            "helpsWith": [
+              "Knee",
+              "Ankle",
+              "Wrist"
+            ]
+          },
+          "id": "w17-endure"
+        }
+      ]
+    },
+    {
+      "week": 18,
+      "season": 2,
+      "gauntlet": false,
+      "holiday": null,
+      "challenges": [
+        {
+          "slot": "family",
+          "name": "Draw the Line",
+          "description": "Pick one worldly influence in your home (show; app; habit) and have the conversation to set a boundary.",
+          "target": 1,
+          "unit": "done",
+          "points": 30,
+          "scoredBy": "completion",
+          "equipment": "None",
+          "scaleDown": "Decide the boundary with your wife first",
+          "scripture": "Psalm 101:3",
+          "record": "Mark complete with a short note or photo",
+          "alternate": null,
+          "id": "w18-family"
+        },
+        {
+          "slot": "iron",
+          "name": "Press 50",
+          "description": "Complete 50 strict overhead presses with a 20 lb dumbbell in each hand.",
+          "target": 50,
+          "unit": "reps",
+          "points": 25,
+          "scoredBy": "fastest_time",
+          "equipment": "Dumbbells or none",
+          "scaleDown": "25 reps",
+          "record": "Total reps and total time",
+          "alternate": {
+            "description": "Landmine press or neutral-grip dumbbell press on a 45-degree incline bench with 15 lb dumbbells.",
+            "target": 50,
+            "unit": "reps",
+            "helpsWith": [
+              "Shoulder",
+              "Neck"
+            ]
+          },
+          "id": "w18-iron"
+        },
+        {
+          "slot": "endure",
+          "name": "Jump Rope 1000",
+          "description": "Complete 1000 jump rope skips.",
+          "target": 1000,
+          "unit": "reps",
+          "points": 25,
+          "scoredBy": "fastest_time",
+          "equipment": "Jump rope",
+          "scaleDown": "500 skips",
+          "record": "Total reps and total time",
+          "alternate": {
+            "description": "Step-jacks with no jumping.",
+            "target": 1000,
+            "unit": "reps",
+            "helpsWith": [
+              "Knee",
+              "Ankle",
+              "Foot",
+              "Shin"
+            ]
+          },
+          "id": "w18-endure"
+        }
+      ]
+    },
+    {
+      "week": 19,
+      "season": 2,
+      "gauntlet": false,
+      "holiday": null,
+      "challenges": [
+        {
+          "slot": "family",
+          "name": "Serve Together",
+          "description": "Serve at church or in the community with your family; or host another family for dinner.",
+          "target": 1,
+          "unit": "done",
+          "points": 30,
+          "scoredBy": "completion",
+          "equipment": "None",
+          "scaleDown": "Serve with one family member",
+          "scripture": "Galatians 5:13",
+          "record": "Mark complete with a short note or photo",
+          "alternate": {
+            "description": "Serve in a seated or light role (cook; greet; organize; write cards).",
+            "target": 1,
+            "unit": "done",
+            "helpsWith": [
+              "Mobility",
+              "Stamina"
+            ]
+          },
+          "id": "w19-family"
+        },
+        {
+          "slot": "iron",
+          "name": "Row 50",
+          "description": "Complete 50 dumbbell rows with a 30 lb dumbbell (reps split between arms).",
+          "target": 50,
+          "unit": "reps",
+          "points": 25,
+          "scoredBy": "fastest_time",
+          "equipment": "Dumbbells or bar",
+          "scaleDown": "25 reps",
+          "record": "Total reps and total time",
+          "alternate": {
+            "description": "Chest-supported dumbbell rows on an incline bench with a 25 lb dumbbell (reps split between arms).",
+            "target": 50,
+            "unit": "reps",
+            "helpsWith": [
+              "Low back",
+              "Shoulder"
+            ]
+          },
+          "id": "w19-iron"
+        },
+        {
+          "slot": "endure",
+          "name": "Hill Repeats 8",
+          "description": "Complete 8 uphill repeats of 100 yards.",
+          "target": 8,
+          "unit": "reps",
+          "points": 25,
+          "scoredBy": "fastest_time",
+          "equipment": "Hill or stairs",
+          "scaleDown": "4 reps",
+          "record": "Total reps and total time",
+          "alternate": {
+            "description": "8 repeats of a 100-yard incline walk.",
+            "target": 8,
+            "unit": "reps",
+            "helpsWith": [
+              "Knee",
+              "Ankle",
+              "Achilles"
+            ]
+          },
+          "id": "w19-endure"
+        }
+      ]
+    },
+    {
+      "week": 20,
+      "season": 2,
+      "gauntlet": false,
+      "holiday": null,
+      "challenges": [
+        {
+          "slot": "family",
+          "name": "Fast With Purpose",
+          "description": "Fast from one meal or one screen habit and spend that time praying for your family. Choose the screen fast if a meal fast is not wise for you.",
+          "target": 1,
+          "unit": "done",
+          "points": 30,
+          "scoredBy": "completion",
+          "equipment": "None",
+          "scaleDown": "Screen fast only",
+          "scripture": "Matthew 6:16-18",
+          "record": "Mark complete with a short note or photo",
+          "alternate": null,
+          "id": "w20-family"
+        },
+        {
+          "slot": "iron",
+          "name": "Heavy Carry 300",
+          "description": "Carry two 35 lb weights for 300 yards total.",
+          "target": 300,
+          "unit": "yd",
+          "points": 25,
+          "scoredBy": "fastest_time",
+          "equipment": "Heavy weights",
+          "scaleDown": "150 yd",
+          "record": "Distance and total time",
+          "alternate": {
+            "description": "Carry a backpack with about 20 lb for 300 yards.",
+            "target": 300,
+            "unit": "yd",
+            "helpsWith": [
+              "Wrist",
+              "Grip",
+              "Low back"
+            ]
+          },
+          "id": "w20-iron"
+        },
+        {
+          "slot": "endure",
+          "name": "Three-Mile Run",
+          "description": "Cover 3 miles on foot.",
+          "target": 3,
+          "unit": "mi",
+          "points": 25,
+          "scoredBy": "fastest_time",
+          "equipment": "None",
+          "scaleDown": "2 miles or walk the distance",
+          "record": "Distance and total time",
+          "alternate": {
+            "description": "Bike 6 miles.",
+            "target": 6,
+            "unit": "mi",
+            "helpsWith": [
+              "Knee",
+              "Ankle",
+              "Foot",
+              "Shin"
+            ]
+          },
+          "id": "w20-endure"
+        }
+      ]
+    },
+    {
+      "week": 21,
+      "season": 2,
+      "gauntlet": false,
+      "holiday": null,
+      "challenges": [
+        {
+          "slot": "family",
+          "name": "Lead the Date",
+          "description": "Plan and pay for a date with your wife: no kids; no phones and one faith-centered conversation.",
+          "target": 1,
+          "unit": "done",
+          "points": 30,
+          "scoredBy": "completion",
+          "equipment": "None",
+          "scaleDown": "At-home date after the kids are in bed",
+          "scripture": "Ephesians 5:25-26",
+          "record": "Mark complete with a short note or photo",
+          "alternate": null,
+          "id": "w21-family"
+        },
+        {
+          "slot": "iron",
+          "name": "Push-Up 100",
+          "description": "Complete 100 push-ups.",
+          "target": 100,
+          "unit": "reps",
+          "points": 25,
+          "scoredBy": "fastest_time",
+          "equipment": "None",
+          "scaleDown": "50 reps",
+          "record": "Total reps and total time",
+          "alternate": {
+            "description": "Incline push-ups.",
+            "target": 100,
+            "unit": "reps",
+            "helpsWith": [
+              "Wrist",
+              "Shoulder"
+            ]
+          },
+          "id": "w21-iron"
+        },
+        {
+          "slot": "endure",
+          "name": "20-Min AMRAP",
+          "description": "Complete as many rounds as possible in 20 minutes of: 5 burpees; 10 squats; 15 sit-ups.",
+          "target": 20,
+          "unit": "min",
+          "points": 25,
+          "scoredBy": "most_rounds",
+          "equipment": "None",
+          "scaleDown": "12 minutes",
+          "record": "Rounds and extra reps",
+          "alternate": {
+            "description": "Most rounds in 20 minutes of: 5 squats with an overhead reach; 10 box squats; 15 dead bugs.",
+            "target": 20,
+            "unit": "min",
+            "helpsWith": [
+              "Wrist",
+              "Knee",
+              "Low back"
+            ]
+          },
+          "id": "w21-endure"
+        }
+      ]
+    },
+    {
+      "week": 22,
+      "season": 2,
+      "gauntlet": false,
+      "holiday": null,
+      "challenges": [
+        {
+          "slot": "family",
+          "name": "Pass It On",
+          "description": "Teach a child a practical skill (tools; cooking; fixing something) and tie it to a truth from Scripture.",
+          "target": 1,
+          "unit": "done",
+          "points": 30,
+          "scoredBy": "completion",
+          "equipment": "None",
+          "scaleDown": "15-minute lesson",
+          "scripture": "Proverbs 22:6",
+          "record": "Mark complete with a short note or photo",
+          "alternate": null,
+          "id": "w22-family"
+        },
+        {
+          "slot": "iron",
+          "name": "Hollow Hold",
+          "description": "Hold a hollow body position.",
+          "target": 45,
+          "unit": "sec",
+          "points": 25,
+          "scoredBy": "longest_hold",
+          "equipment": "None",
+          "scaleDown": "20 sec",
+          "record": "Hold time",
+          "alternate": {
+            "description": "Longest bird-dog hold with opposite arm and leg lifted.",
+            "target": 60,
+            "unit": "sec",
+            "helpsWith": [
+              "Low back",
+              "Neck",
+              "Hip"
+            ]
+          },
+          "id": "w22-iron"
+        },
+        {
+          "slot": "endure",
+          "name": "Sprint 10x100",
+          "description": "Complete 10 sprints of 100 yards.",
+          "target": 10,
+          "unit": "reps",
+          "points": 25,
+          "scoredBy": "fastest_time",
+          "equipment": "Open space",
+          "scaleDown": "5 sprints",
+          "record": "Total reps and total time",
+          "alternate": {
+            "description": "Complete 10 bike sprints of 20 seconds each.",
+            "target": 10,
+            "unit": "reps",
+            "helpsWith": [
+              "Hamstring",
+              "Achilles",
+              "Knee",
+              "Ankle"
+            ]
+          },
+          "id": "w22-endure"
+        }
+      ]
+    },
+    {
+      "week": 23,
+      "season": 2,
+      "gauntlet": false,
+      "holiday": null,
+      "challenges": [
+        {
+          "slot": "family",
+          "name": "Gratitude Round",
+          "description": "At dinner each night everyone shares one thing God did that day.",
+          "target": 5,
+          "unit": "nights",
+          "points": 30,
+          "scoredBy": "completion",
+          "equipment": "None",
+          "scaleDown": "3 nights",
+          "scripture": "1 Thessalonians 5:18",
+          "record": "Mark complete with a short note or photo",
+          "alternate": null,
+          "id": "w23-family"
+        },
+        {
+          "slot": "iron",
+          "name": "Step-Up 80",
+          "description": "Complete 80 step-ups to a 16-inch step (40 per leg).",
+          "target": 80,
+          "unit": "reps",
+          "points": 25,
+          "scoredBy": "fastest_time",
+          "equipment": "Bench or step",
+          "scaleDown": "40 reps",
+          "record": "Total reps and total time",
+          "alternate": {
+            "description": "Glute bridge marches.",
+            "target": 80,
+            "unit": "reps",
+            "helpsWith": [
+              "Knee",
+              "Hip"
+            ]
+          },
+          "id": "w23-iron"
+        },
+        {
+          "slot": "endure",
+          "name": "30-Minute Distance",
+          "description": "Cover as much distance as possible on foot in 30 minutes.",
+          "target": 30,
+          "unit": "min",
+          "points": 25,
+          "scoredBy": "greatest_distance",
+          "equipment": "Any",
+          "scaleDown": "20 minutes",
+          "record": "Distance covered",
+          "alternate": {
+            "description": "Cover as much distance as possible in 30 minutes by stationary bike or swim.",
+            "target": 30,
+            "unit": "min",
+            "helpsWith": [
+              "Knee",
+              "Ankle",
+              "Foot",
+              "Shin"
+            ]
+          },
+          "id": "w23-endure"
+        }
+      ]
+    },
+    {
+      "week": 24,
+      "season": 2,
+      "gauntlet": false,
+      "holiday": null,
+      "challenges": [
+        {
+          "slot": "family",
+          "name": "Stand in the Gap",
+          "description": "Pray for three other men or families by name and text each one to let them know.",
+          "target": 3,
+          "unit": "people",
+          "points": 30,
+          "scoredBy": "completion",
+          "equipment": "None",
+          "scaleDown": "1 person",
+          "scripture": "Ezekiel 22:30",
+          "record": "Mark complete with a short note or photo",
+          "alternate": null,
+          "id": "w24-family"
+        },
+        {
+          "slot": "iron",
+          "name": "Chin-Up 20",
+          "description": "Complete 20 chin-ups.",
+          "target": 20,
+          "unit": "reps",
+          "points": 25,
+          "scoredBy": "fastest_time",
+          "equipment": "Pull-up bar",
+          "scaleDown": "10 reps band-assisted",
+          "record": "Total reps and total time",
+          "alternate": {
+            "description": "Seated band pull-downs.",
+            "target": 20,
+            "unit": "reps",
+            "helpsWith": [
+              "Shoulder",
+              "Elbow"
+            ]
+          },
+          "id": "w24-iron"
+        },
+        {
+          "slot": "endure",
+          "name": "Ruck 4",
+          "description": "Cover 4 miles carrying a 15 lb pack.",
+          "target": 4,
+          "unit": "mi",
+          "points": 25,
+          "scoredBy": "fastest_time",
+          "equipment": "Backpack",
+          "scaleDown": "2 miles",
+          "record": "Distance and total time",
+          "alternate": {
+            "description": "Walk 4 miles with no pack.",
+            "target": 4,
+            "unit": "mi",
+            "helpsWith": [
+              "Low back",
+              "Shoulder"
+            ]
+          },
+          "id": "w24-endure"
+        }
+      ]
+    },
+    {
+      "week": 25,
+      "season": 2,
+      "gauntlet": false,
+      "holiday": null,
+      "challenges": [
+        {
+          "slot": "family",
+          "name": "Hard Questions",
+          "description": "Invite your kids to ask hard questions about faith and answer honestly with Scripture. Say 'I will find out' when you do not know.",
+          "target": 1,
+          "unit": "done",
+          "points": 30,
+          "scoredBy": "completion",
+          "equipment": "Bible",
+          "scaleDown": "Ask one question and listen",
+          "scripture": "1 Peter 3:15",
+          "record": "Mark complete with a short note or photo",
+          "alternate": null,
+          "id": "w25-family"
+        },
+        {
+          "slot": "iron",
+          "name": "Squat 150",
+          "description": "Complete 150 bodyweight squats.",
+          "target": 150,
+          "unit": "reps",
+          "points": 25,
+          "scoredBy": "fastest_time",
+          "equipment": "None",
+          "scaleDown": "75 reps",
+          "record": "Total reps and total time",
+          "alternate": {
+            "description": "Box squats to a bench.",
+            "target": 150,
+            "unit": "reps",
+            "helpsWith": [
+              "Knee",
+              "Hip"
+            ]
+          },
+          "id": "w25-iron"
+        },
+        {
+          "slot": "endure",
+          "name": "Cardio Choice",
+          "description": "Cover as much distance as possible in 25 minutes by rowing; biking or swimming. Ranked within the mode you choose.",
+          "target": 25,
+          "unit": "min",
+          "points": 25,
+          "scoredBy": "greatest_distance",
+          "equipment": "Rower or bike or pool",
+          "scaleDown": "15 minutes",
+          "record": "Distance covered and mode used",
+          "alternate": {
+            "description": "Cover as much distance as possible in 25 minutes by arm bike or swim. Ranked within the mode you choose.",
+            "target": 25,
+            "unit": "min",
+            "helpsWith": [
+              "Knee",
+              "Ankle",
+              "Foot",
+              "Hip"
+            ]
+          },
+          "id": "w25-endure"
+        }
+      ]
+    },
+    {
+      "week": 26,
+      "season": 2,
+      "gauntlet": true,
+      "holiday": null,
+      "challenges": [
+        {
+          "slot": "family",
+          "name": "Gauntlet: Covenant Night",
+          "description": "Take your wife out for a night of covenant: pray together; speak your commitment and ask where you can grow.",
+          "target": 1,
+          "unit": "done",
+          "points": 40,
+          "scoredBy": "completion",
+          "equipment": "None",
+          "scaleDown": "30 minutes at home",
+          "scripture": "Ecclesiastes 4:12",
+          "record": "Mark complete with a short note or photo",
+          "alternate": null,
+          "id": "w26-family"
+        },
+        {
+          "slot": "iron",
+          "name": "Gauntlet: Iron 50s",
+          "description": "Complete 50 push-ups; 25 pull-ups; 50 squats and 50 sit-ups.",
+          "target": 175,
+          "unit": "reps",
+          "points": 40,
+          "scoredBy": "fastest_time",
+          "equipment": "Pull-up bar",
+          "scaleDown": "Half the reps",
+          "record": "Total reps and total time",
+          "alternate": {
+            "description": "50 incline push-ups; 25 inverted rows; 50 box squats and 50 dead bugs.",
+            "target": 175,
+            "unit": "reps",
+            "helpsWith": [
+              "Wrist",
+              "Shoulder",
+              "Knee",
+              "Low back"
+            ]
+          },
+          "id": "w26-iron"
+        },
+        {
+          "slot": "endure",
+          "name": "Gauntlet: Ruck 5",
+          "description": "Cover 5 miles carrying a 20 lb pack.",
+          "target": 5,
+          "unit": "mi",
+          "points": 40,
+          "scoredBy": "fastest_time",
+          "equipment": "Backpack",
+          "scaleDown": "3 miles with a lighter pack",
+          "record": "Distance and total time",
+          "alternate": {
+            "description": "Walk 5 miles with no pack.",
+            "target": 5,
+            "unit": "mi",
+            "helpsWith": [
+              "Low back",
+              "Shoulder",
+              "Knee"
+            ]
+          },
+          "id": "w26-endure"
+        }
+      ]
+    },
+    {
+      "week": 27,
+      "season": 3,
+      "gauntlet": false,
+      "holiday": null,
+      "challenges": [
+        {
+          "slot": "family",
+          "name": "Lead at the Table",
+          "description": "Lead the prayer at every meal you share with your family this week.",
+          "target": 7,
+          "unit": "meals",
+          "points": 30,
+          "scoredBy": "completion",
+          "equipment": "None",
+          "scaleDown": "4 meals",
+          "scripture": "1 Timothy 4:4-5",
+          "record": "Mark complete with a short note or photo",
+          "alternate": null,
+          "id": "w27-family"
+        },
+        {
+          "slot": "iron",
+          "name": "Single-Leg Squat 30",
+          "description": "Complete 30 single-leg squats to a bench (15 per leg).",
+          "target": 30,
+          "unit": "reps",
+          "points": 25,
+          "scoredBy": "fastest_time",
+          "equipment": "Bench",
+          "scaleDown": "16 reps",
+          "record": "Total reps and total time",
+          "alternate": {
+            "description": "Box squats to a bench (two legs).",
+            "target": 30,
+            "unit": "reps",
+            "helpsWith": [
+              "Knee",
+              "Ankle"
+            ]
+          },
+          "id": "w27-iron"
+        },
+        {
+          "slot": "endure",
+          "name": "Mile Repeats",
+          "description": "Complete three 1-mile efforts on foot.",
+          "target": 3,
+          "unit": "mi",
+          "points": 25,
+          "scoredBy": "fastest_time",
+          "equipment": "None",
+          "scaleDown": "2 x 1 mile",
+          "record": "Distance and total time",
+          "alternate": {
+            "description": "Bike 9 miles as three 3-mile efforts.",
+            "target": 9,
+            "unit": "mi",
+            "helpsWith": [
+              "Knee",
+              "Ankle",
+              "Foot",
+              "Shin"
+            ]
+          },
+          "id": "w27-endure"
+        }
+      ]
+    },
+    {
+      "week": 28,
+      "season": 3,
+      "gauntlet": false,
+      "holiday": null,
+      "challenges": [
+        {
+          "slot": "family",
+          "name": "Take the Initiative",
+          "description": "Do a household task without being asked on 5 days (dishes; laundry; trash; bedtime routine).",
+          "target": 5,
+          "unit": "days",
+          "points": 30,
+          "scoredBy": "completion",
+          "equipment": "None",
+          "scaleDown": "3 days",
+          "scripture": "Mark 10:45",
+          "record": "Mark complete with a short note or photo",
+          "alternate": null,
+          "id": "w28-family"
+        },
+        {
+          "slot": "iron",
+          "name": "Push-Up 125",
+          "description": "Complete 125 push-ups.",
+          "target": 125,
+          "unit": "reps",
+          "points": 25,
+          "scoredBy": "fastest_time",
+          "equipment": "None",
+          "scaleDown": "60 reps",
+          "record": "Total reps and total time",
+          "alternate": {
+            "description": "Incline push-ups.",
+            "target": 125,
+            "unit": "reps",
+            "helpsWith": [
+              "Wrist",
+              "Shoulder"
+            ]
+          },
+          "id": "w28-iron"
+        },
+        {
+          "slot": "endure",
+          "name": "Burpee 125",
+          "description": "Complete 125 burpees.",
+          "target": 125,
+          "unit": "reps",
+          "points": 25,
+          "scoredBy": "fastest_time",
+          "equipment": "None",
+          "scaleDown": "60 reps",
+          "record": "Total reps and total time",
+          "alternate": {
+            "description": "Squat with a full overhead reach at the top; no jumping.",
+            "target": 125,
+            "unit": "reps",
+            "helpsWith": [
+              "Wrist",
+              "Shoulder",
+              "Knee",
+              "Ankle"
+            ]
+          },
+          "id": "w28-endure"
+        }
+      ]
+    },
+    {
+      "week": 29,
+      "season": 3,
+      "gauntlet": false,
+      "holiday": null,
+      "challenges": [
+        {
+          "slot": "family",
+          "name": "Man the Calendar",
+          "description": "Plan the family week with your wife and put faith time and one-on-one time on the calendar.",
+          "target": 1,
+          "unit": "done",
+          "points": 30,
+          "scoredBy": "completion",
+          "equipment": "None",
+          "scaleDown": "Plan three days",
+          "scripture": "Psalm 90:12",
+          "record": "Mark complete with a short note or photo",
+          "alternate": null,
+          "id": "w29-family"
+        },
+        {
+          "slot": "iron",
+          "name": "Loaded Squat 50",
+          "description": "Complete 50 squats wearing a 20 lb backpack.",
+          "target": 50,
+          "unit": "reps",
+          "points": 25,
+          "scoredBy": "fastest_time",
+          "equipment": "Backpack",
+          "scaleDown": "30 reps with a lighter pack",
+          "record": "Total reps and total time",
+          "alternate": {
+            "description": "Box squats holding a 10 lb backpack at your chest.",
+            "target": 50,
+            "unit": "reps",
+            "helpsWith": [
+              "Knee",
+              "Low back",
+              "Shoulder"
+            ]
+          },
+          "id": "w29-iron"
+        },
+        {
+          "slot": "endure",
+          "name": "Ruck 5",
+          "description": "Cover 5 miles carrying a 20 lb pack.",
+          "target": 5,
+          "unit": "mi",
+          "points": 25,
+          "scoredBy": "fastest_time",
+          "equipment": "Backpack",
+          "scaleDown": "3 miles with a lighter pack",
+          "record": "Distance and total time",
+          "alternate": {
+            "description": "Walk 5 miles with no pack.",
+            "target": 5,
+            "unit": "mi",
+            "helpsWith": [
+              "Low back",
+              "Shoulder"
+            ]
+          },
+          "id": "w29-endure"
+        }
+      ]
+    },
+    {
+      "week": 30,
+      "season": 3,
+      "gauntlet": false,
+      "holiday": null,
+      "challenges": [
+        {
+          "slot": "family",
+          "name": "Speak a Blessing",
+          "description": "Lay hands on each child (or your wife) and speak a blessing over them. Tell them what you see God doing in their life.",
+          "target": 1,
+          "unit": "done",
+          "points": 30,
+          "scoredBy": "completion",
+          "equipment": "None",
+          "scaleDown": "Bless one person",
+          "scripture": "Numbers 6:24-26",
+          "record": "Mark complete with a short note or photo",
+          "alternate": null,
+          "id": "w30-family"
+        },
+        {
+          "slot": "iron",
+          "name": "Pull-Up 25",
+          "description": "Complete 25 pull-ups.",
+          "target": 25,
+          "unit": "reps",
+          "points": 25,
+          "scoredBy": "fastest_time",
+          "equipment": "Pull-up bar",
+          "scaleDown": "12 reps",
+          "record": "Total reps and total time",
+          "alternate": {
+            "description": "Inverted rows.",
+            "target": 25,
+            "unit": "reps",
+            "helpsWith": [
+              "Shoulder",
+              "Elbow"
+            ]
+          },
+          "id": "w30-iron"
+        },
+        {
+          "slot": "endure",
+          "name": "Four-Mile Run",
+          "description": "Cover 4 miles on foot.",
+          "target": 4,
+          "unit": "mi",
+          "points": 25,
+          "scoredBy": "fastest_time",
+          "equipment": "None",
+          "scaleDown": "2 miles",
+          "record": "Distance and total time",
+          "alternate": {
+            "description": "Bike 8 miles.",
+            "target": 8,
+            "unit": "mi",
+            "helpsWith": [
+              "Knee",
+              "Ankle",
+              "Foot",
+              "Shin"
+            ]
+          },
+          "id": "w30-endure"
+        }
+      ]
+    },
+    {
+      "week": 31,
+      "season": 3,
+      "gauntlet": false,
+      "holiday": "memorial_day",
+      "challenges": [
+        {
+          "slot": "family",
+          "name": "Remember the Fallen",
+          "description": "Memorial Day week (May 31). Visit a cemetery or memorial with your family; talk about those who gave their lives serving and pray for Gold Star families.",
+          "target": 1,
+          "unit": "done",
+          "points": 30,
+          "scoredBy": "completion",
+          "equipment": "None",
+          "scaleDown": "Pray and talk at home",
+          "scripture": "Psalm 112:6",
+          "record": "Mark complete with a short note or photo",
+          "alternate": {
+            "description": "Honor them from a car or bench; or join a memorial service online.",
+            "target": 1,
+            "unit": "done",
+            "helpsWith": [
+              "Mobility",
+              "Stamina"
+            ]
+          },
+          "id": "w31-family"
+        },
+        {
+          "slot": "iron",
+          "name": "Remember Reps",
+          "description": "Memorial Day week. Complete 3 rounds of 10 push-ups; 15 squats and 20 sit-ups (135 reps) in memory of the fallen.",
+          "target": 135,
+          "unit": "reps",
+          "points": 25,
+          "scoredBy": "fastest_time",
+          "equipment": "None",
+          "scaleDown": "90 reps (2 rounds)",
+          "record": "Total reps and total time",
+          "alternate": {
+            "description": "3 rounds of 10 incline push-ups; 15 box squats and 20 dead bugs.",
+            "target": 135,
+            "unit": "reps",
+            "helpsWith": [
+              "Wrist",
+              "Shoulder",
+              "Knee",
+              "Low back"
+            ]
+          },
+          "id": "w31-iron"
+        },
+        {
+          "slot": "endure",
+          "name": "Memorial Day Murph Tribute",
+          "description": "Memorial Day week. Quarter Murph: 0.5-mile run; 25 pull-ups; 50 push-ups; 75 squats; 0.5-mile run. Murph honors Navy Lt. Michael P. Murphy.",
+          "target": 150,
+          "unit": "reps",
+          "points": 25,
+          "scoredBy": "fastest_time",
+          "equipment": "Pull-up bar",
+          "scaleDown": "Walk the miles; 75 reps and rows for pull-ups",
+          "record": "Total reps and total time",
+          "alternate": {
+            "description": "Walk 0.5 mile; 25 inverted rows; 50 incline push-ups; 75 box squats; walk 0.5 mile.",
+            "target": 150,
+            "unit": "reps",
+            "helpsWith": [
+              "Knee",
+              "Wrist",
+              "Shoulder",
+              "Low back"
+            ]
+          },
+          "id": "w31-endure"
+        }
+      ]
+    },
+    {
+      "week": 32,
+      "season": 3,
+      "gauntlet": false,
+      "holiday": null,
+      "challenges": [
+        {
+          "slot": "family",
+          "name": "Open Books",
+          "description": "Review your finances with your wife and choose one family gift or act of generosity together.",
+          "target": 1,
+          "unit": "done",
+          "points": 30,
+          "scoredBy": "completion",
+          "equipment": "None",
+          "scaleDown": "Review one month",
+          "scripture": "2 Corinthians 9:7",
+          "record": "Mark complete with a short note or photo",
+          "alternate": null,
+          "id": "w32-family"
+        },
+        {
+          "slot": "iron",
+          "name": "Heavy Carry 400",
+          "description": "Carry two 35 lb weights for 400 yards total.",
+          "target": 400,
+          "unit": "yd",
+          "points": 25,
+          "scoredBy": "fastest_time",
+          "equipment": "Heavy weights",
+          "scaleDown": "200 yd",
+          "record": "Distance and total time",
+          "alternate": {
+            "description": "Carry a backpack with about 20 lb for 400 yards.",
+            "target": 400,
+            "unit": "yd",
+            "helpsWith": [
+              "Wrist",
+              "Grip",
+              "Low back"
+            ]
+          },
+          "id": "w32-iron"
+        },
+        {
+          "slot": "endure",
+          "name": "Stair Climb 50",
+          "description": "Climb 50 flights of stairs.",
+          "target": 50,
+          "unit": "flights",
+          "points": 25,
+          "scoredBy": "fastest_time",
+          "equipment": "Stairs",
+          "scaleDown": "25 flights",
+          "record": "Flights and total time",
+          "alternate": {
+            "description": "Cover as much distance as possible in 30 minutes walking on flat ground.",
+            "target": 30,
+            "unit": "min",
+            "helpsWith": [
+              "Knee",
+              "Hip",
+              "Ankle"
+            ]
+          },
+          "id": "w32-endure"
+        }
+      ]
+    },
+    {
+      "week": 33,
+      "season": 3,
+      "gauntlet": false,
+      "holiday": null,
+      "challenges": [
+        {
+          "slot": "family",
+          "name": "Integrity Check",
+          "description": "Share one area where you want to grow in integrity and ask your wife to hold you accountable.",
+          "target": 1,
+          "unit": "done",
+          "points": 30,
+          "scoredBy": "completion",
+          "equipment": "None",
+          "scaleDown": "Pray about it first",
+          "scripture": "Proverbs 11:3",
+          "record": "Mark complete with a short note or photo",
+          "alternate": null,
+          "id": "w33-family"
+        },
+        {
+          "slot": "iron",
+          "name": "Move 5000",
+          "description": "Deadlift a total of 5000 lb (reps x weight).",
+          "target": 5000,
+          "unit": "lb",
+          "points": 25,
+          "scoredBy": "fastest_time",
+          "equipment": "Barbell or kettlebell",
+          "scaleDown": "2500 lb or 50 swings",
+          "record": "Total weight and total time",
+          "alternate": {
+            "description": "Hip thrusts totaling 5000 lb (reps x weight).",
+            "target": 5000,
+            "unit": "lb",
+            "helpsWith": [
+              "Low back",
+              "Hamstring"
+            ]
+          },
+          "id": "w33-iron"
+        },
+        {
+          "slot": "endure",
+          "name": "Pack Run",
+          "description": "Cover 2 miles on foot carrying a 10 lb pack.",
+          "target": 2,
+          "unit": "mi",
+          "points": 25,
+          "scoredBy": "fastest_time",
+          "equipment": "Backpack",
+          "scaleDown": "2 miles with no pack",
+          "record": "Distance and total time",
+          "alternate": {
+            "description": "Walk 2 miles with no pack.",
+            "target": 2,
+            "unit": "mi",
+            "helpsWith": [
+              "Low back",
+              "Shoulder",
+              "Knee"
+            ]
+          },
+          "id": "w33-endure"
+        }
+      ]
+    },
+    {
+      "week": 34,
+      "season": 3,
+      "gauntlet": false,
+      "holiday": null,
+      "challenges": [
+        {
+          "slot": "family",
+          "name": "Iron Sharpens Iron",
+          "description": "Meet with another man for 30 minutes or more to read Scripture and pray together.",
+          "target": 1,
+          "unit": "done",
+          "points": 30,
+          "scoredBy": "completion",
+          "equipment": "Bible",
+          "scaleDown": "Phone call",
+          "scripture": "Proverbs 27:17",
+          "record": "Mark complete with a short note or photo",
+          "alternate": null,
+          "id": "w34-family"
+        },
+        {
+          "slot": "iron",
+          "name": "Plank 1:30",
+          "description": "Hold a forearm plank.",
+          "target": 90,
+          "unit": "sec",
+          "points": 25,
+          "scoredBy": "longest_hold",
+          "equipment": "None",
+          "scaleDown": "45 sec",
+          "record": "Hold time",
+          "alternate": {
+            "description": "Longest incline forearm plank on a bench.",
+            "target": 90,
+            "unit": "sec",
+            "helpsWith": [
+              "Low back",
+              "Shoulder",
+              "Wrist"
+            ]
+          },
+          "id": "w34-iron"
+        },
+        {
+          "slot": "endure",
+          "name": "Sprint 15x100",
+          "description": "Complete 15 sprints of 100 yards.",
+          "target": 15,
+          "unit": "reps",
+          "points": 25,
+          "scoredBy": "fastest_time",
+          "equipment": "Open space",
+          "scaleDown": "8 sprints",
+          "record": "Total reps and total time",
+          "alternate": {
+            "description": "Complete 15 bike sprints of 20 seconds each.",
+            "target": 15,
+            "unit": "reps",
+            "helpsWith": [
+              "Hamstring",
+              "Achilles",
+              "Knee",
+              "Ankle"
+            ]
+          },
+          "id": "w34-endure"
+        }
+      ]
+    },
+    {
+      "week": 35,
+      "season": 3,
+      "gauntlet": false,
+      "holiday": null,
+      "challenges": [
+        {
+          "slot": "family",
+          "name": "Family Workday",
+          "description": "Complete a family work project together and pray before and after.",
+          "target": 1,
+          "unit": "done",
+          "points": 30,
+          "scoredBy": "completion",
+          "equipment": "None",
+          "scaleDown": "1 hour project",
+          "scripture": "Colossians 3:23",
+          "record": "Mark complete with a short note or photo",
+          "alternate": {
+            "description": "Take a planning or light-duty role (supervise; cook; hold tools; lead the prayer).",
+            "target": 1,
+            "unit": "done",
+            "helpsWith": [
+              "Mobility",
+              "Stamina"
+            ]
+          },
+          "id": "w35-family"
+        },
+        {
+          "slot": "iron",
+          "name": "Dip 50",
+          "description": "Complete 50 dips.",
+          "target": 50,
+          "unit": "reps",
+          "points": 25,
+          "scoredBy": "fastest_time",
+          "equipment": "Bars or bench",
+          "scaleDown": "25 reps",
+          "record": "Total reps and total time",
+          "alternate": {
+            "description": "Band triceps pushdowns or close-grip incline push-ups.",
+            "target": 50,
+            "unit": "reps",
+            "helpsWith": [
+              "Shoulder",
+              "Elbow"
+            ]
+          },
+          "id": "w35-iron"
+        },
+        {
+          "slot": "endure",
+          "name": "40-Minute Distance",
+          "description": "Cover as much distance as possible on foot in 40 minutes.",
+          "target": 40,
+          "unit": "min",
+          "points": 25,
+          "scoredBy": "greatest_distance",
+          "equipment": "Any",
+          "scaleDown": "25 minutes",
+          "record": "Distance covered",
+          "alternate": {
+            "description": "Cover as much distance as possible in 40 minutes by stationary bike or swim.",
+            "target": 40,
+            "unit": "min",
+            "helpsWith": [
+              "Knee",
+              "Ankle",
+              "Foot",
+              "Shin"
+            ]
+          },
+          "id": "w35-endure"
+        }
+      ]
+    },
+    {
+      "week": 36,
+      "season": 3,
+      "gauntlet": false,
+      "holiday": null,
+      "challenges": [
+        {
+          "slot": "family",
+          "name": "Tell Your Story",
+          "description": "Share your testimony of how you came to Christ with your family and invite each person to share theirs.",
+          "target": 1,
+          "unit": "done",
+          "points": 30,
+          "scoredBy": "completion",
+          "equipment": "None",
+          "scaleDown": "Share with one person",
+          "scripture": "Psalm 66:16",
+          "record": "Mark complete with a short note or photo",
+          "alternate": null,
+          "id": "w36-family"
+        },
+        {
+          "slot": "iron",
+          "name": "Lunge 100",
+          "description": "Complete 100 alternating lunges (50 per leg).",
+          "target": 100,
+          "unit": "reps",
+          "points": 25,
+          "scoredBy": "fastest_time",
+          "equipment": "None",
+          "scaleDown": "50 reps",
+          "record": "Total reps and total time",
+          "alternate": {
+            "description": "Sit-to-stand from a chair.",
+            "target": 100,
+            "unit": "reps",
+            "helpsWith": [
+              "Knee",
+              "Hip"
+            ]
+          },
+          "id": "w36-iron"
+        },
+        {
+          "slot": "endure",
+          "name": "Hill Repeats 10",
+          "description": "Complete 10 uphill repeats of 100 yards.",
+          "target": 10,
+          "unit": "reps",
+          "points": 25,
+          "scoredBy": "fastest_time",
+          "equipment": "Hill or stairs",
+          "scaleDown": "5 reps",
+          "record": "Total reps and total time",
+          "alternate": {
+            "description": "10 repeats of a 100-yard incline walk.",
+            "target": 10,
+            "unit": "reps",
+            "helpsWith": [
+              "Knee",
+              "Ankle",
+              "Achilles"
+            ]
+          },
+          "id": "w36-endure"
+        }
+      ]
+    },
+    {
+      "week": 37,
+      "season": 3,
+      "gauntlet": false,
+      "holiday": null,
+      "challenges": [
+        {
+          "slot": "family",
+          "name": "Honor Your Parents",
+          "description": "Call or visit your parents or in-laws and ask if you can pray with them.",
+          "target": 1,
+          "unit": "done",
+          "points": 30,
+          "scoredBy": "completion",
+          "equipment": "None",
+          "scaleDown": "A message of thanks",
+          "scripture": "Ephesians 6:2",
+          "record": "Mark complete with a short note or photo",
+          "alternate": null,
+          "id": "w37-family"
+        },
+        {
+          "slot": "iron",
+          "name": "Press 75",
+          "description": "Complete 75 strict overhead presses with a 20 lb dumbbell in each hand.",
+          "target": 75,
+          "unit": "reps",
+          "points": 25,
+          "scoredBy": "fastest_time",
+          "equipment": "Dumbbells or none",
+          "scaleDown": "40 reps",
+          "record": "Total reps and total time",
+          "alternate": {
+            "description": "Landmine press or neutral-grip incline dumbbell press with 15 lb dumbbells.",
+            "target": 75,
+            "unit": "reps",
+            "helpsWith": [
+              "Shoulder",
+              "Neck"
+            ]
+          },
+          "id": "w37-iron"
+        },
+        {
+          "slot": "endure",
+          "name": "Long Haul 5",
+          "description": "Cover 5 miles on foot.",
+          "target": 5,
+          "unit": "mi",
+          "points": 25,
+          "scoredBy": "fastest_time",
+          "equipment": "None",
+          "scaleDown": "3 miles",
+          "record": "Distance and total time",
+          "alternate": {
+            "description": "Walk 5 miles.",
+            "target": 5,
+            "unit": "mi",
+            "helpsWith": [
+              "Knee",
+              "Ankle",
+              "Foot",
+              "Shin"
+            ]
+          },
+          "id": "w37-endure"
+        }
+      ]
+    },
+    {
+      "week": 38,
+      "season": 3,
+      "gauntlet": false,
+      "holiday": null,
+      "challenges": [
+        {
+          "slot": "family",
+          "name": "Face the Fear",
+          "description": "Do the thing you have been avoiding for your family (a hard talk; a doctor visit; a home repair).",
+          "target": 1,
+          "unit": "done",
+          "points": 30,
+          "scoredBy": "completion",
+          "equipment": "None",
+          "scaleDown": "Take the first step",
+          "scripture": "Joshua 1:9",
+          "record": "Mark complete with a short note or photo",
+          "alternate": null,
+          "id": "w38-family"
+        },
+        {
+          "slot": "iron",
+          "name": "Row 75",
+          "description": "Complete 75 dumbbell rows with a 30 lb dumbbell (reps split between arms).",
+          "target": 75,
+          "unit": "reps",
+          "points": 25,
+          "scoredBy": "fastest_time",
+          "equipment": "Dumbbells or bar",
+          "scaleDown": "40 reps",
+          "record": "Total reps and total time",
+          "alternate": {
+            "description": "Chest-supported dumbbell rows with a 25 lb dumbbell (reps split between arms).",
+            "target": 75,
+            "unit": "reps",
+            "helpsWith": [
+              "Low back",
+              "Shoulder"
+            ]
+          },
+          "id": "w38-iron"
+        },
+        {
+          "slot": "endure",
+          "name": "Burpee 150",
+          "description": "Complete 150 burpees.",
+          "target": 150,
+          "unit": "reps",
+          "points": 25,
+          "scoredBy": "fastest_time",
+          "equipment": "None",
+          "scaleDown": "75 reps",
+          "record": "Total reps and total time",
+          "alternate": {
+            "description": "Squat with a full overhead reach at the top; no jumping.",
+            "target": 150,
+            "unit": "reps",
+            "helpsWith": [
+              "Wrist",
+              "Shoulder",
+              "Knee",
+              "Ankle"
+            ]
+          },
+          "id": "w38-endure"
+        }
+      ]
+    },
+    {
+      "week": 39,
+      "season": 3,
+      "gauntlet": true,
+      "holiday": null,
+      "challenges": [
+        {
+          "slot": "family",
+          "name": "Gauntlet: Service Day",
+          "description": "Spend half a day serving others with your family and then talk about what you learned.",
+          "target": 1,
+          "unit": "done",
+          "points": 40,
+          "scoredBy": "completion",
+          "equipment": "None",
+          "scaleDown": "2 hours",
+          "scripture": "Matthew 25:40",
+          "record": "Mark complete with a short note or photo",
+          "alternate": {
+            "description": "Choose a seated service (write cards; prepare meals; make calls).",
+            "target": 1,
+            "unit": "done",
+            "helpsWith": [
+              "Mobility",
+              "Stamina"
+            ]
+          },
+          "id": "w39-family"
+        },
+        {
+          "slot": "iron",
+          "name": "Gauntlet: Warrior 250",
+          "description": "Complete 250 total reps in any mix of push-ups; pull-ups; squats and sit-ups.",
+          "target": 250,
+          "unit": "reps",
+          "points": 40,
+          "scoredBy": "fastest_time",
+          "equipment": "Pull-up bar",
+          "scaleDown": "125 reps",
+          "record": "Total reps and total time",
+          "alternate": {
+            "description": "250 reps in any mix of incline push-ups; inverted rows; box squats and dead bugs.",
+            "target": 250,
+            "unit": "reps",
+            "helpsWith": [
+              "Wrist",
+              "Shoulder",
+              "Knee",
+              "Low back"
+            ]
+          },
+          "id": "w39-iron"
+        },
+        {
+          "slot": "endure",
+          "name": "Gauntlet: 10K",
+          "description": "Cover 10 kilometers (6.2 miles) on foot.",
+          "target": 6.2,
+          "unit": "mi",
+          "points": 40,
+          "scoredBy": "fastest_time",
+          "equipment": "None",
+          "scaleDown": "3.1 miles",
+          "record": "Distance and total time",
+          "alternate": {
+            "description": "Bike 15 miles.",
+            "target": 15,
+            "unit": "mi",
+            "helpsWith": [
+              "Knee",
+              "Ankle",
+              "Foot",
+              "Shin"
+            ]
+          },
+          "id": "w39-endure"
+        }
+      ]
+    },
+    {
+      "week": 40,
+      "season": 4,
+      "gauntlet": false,
+      "holiday": null,
+      "challenges": [
+        {
+          "slot": "family",
+          "name": "Love Their Way",
+          "description": "Ask your wife what love looks like to her and do it every day this week.",
+          "target": 7,
+          "unit": "days",
+          "points": 30,
+          "scoredBy": "completion",
+          "equipment": "None",
+          "scaleDown": "4 days",
+          "scripture": "1 Corinthians 16:14",
+          "record": "Mark complete with a short note or photo",
+          "alternate": null,
+          "id": "w40-family"
+        },
+        {
+          "slot": "iron",
+          "name": "Push-Up Retest",
+          "description": "Complete as many strict push-ups as possible in one unbroken set.",
+          "target": 25,
+          "unit": "reps",
+          "points": 25,
+          "scoredBy": "most_reps",
+          "equipment": "None",
+          "scaleDown": "Beat your Week 14 best by one rep",
+          "record": "Reps completed in the set",
+          "alternate": {
+            "description": "Most incline push-ups in one unbroken set.",
+            "target": 30,
+            "unit": "reps",
+            "helpsWith": [
+              "Wrist",
+              "Shoulder"
+            ]
+          },
+          "id": "w40-iron"
+        },
+        {
+          "slot": "endure",
+          "name": "Mile Retest",
+          "description": "Cover one mile on foot.",
+          "target": 1,
+          "unit": "mi",
+          "points": 25,
+          "scoredBy": "fastest_time",
+          "equipment": "None",
+          "scaleDown": "Beat your Week 1 time by one second",
+          "record": "Finish time",
+          "alternate": {
+            "description": "Bike 3 miles.",
+            "target": 3,
+            "unit": "mi",
+            "helpsWith": [
+              "Knee",
+              "Ankle",
+              "Foot",
+              "Shin"
+            ]
+          },
+          "id": "w40-endure"
+        }
+      ]
+    },
+    {
+      "week": 41,
+      "season": 4,
+      "gauntlet": false,
+      "holiday": null,
+      "challenges": [
+        {
+          "slot": "family",
+          "name": "Speak Life",
+          "description": "For 7 days no sarcasm or criticism toward your family. Give one specific compliment each day.",
+          "target": 7,
+          "unit": "days",
+          "points": 30,
+          "scoredBy": "completion",
+          "equipment": "None",
+          "scaleDown": "4 days",
+          "scripture": "Ephesians 4:29",
+          "record": "Mark complete with a short note or photo",
+          "alternate": null,
+          "id": "w41-family"
+        },
+        {
+          "slot": "iron",
+          "name": "Pull-Up Retest",
+          "description": "Complete as many strict pull-ups as possible in one unbroken set.",
+          "target": 8,
+          "unit": "reps",
+          "points": 25,
+          "scoredBy": "most_reps",
+          "equipment": "Pull-up bar",
+          "scaleDown": "Add one rep to your best or slow negatives",
+          "record": "Reps completed in the set",
+          "alternate": {
+            "description": "Most inverted rows in one unbroken set.",
+            "target": 15,
+            "unit": "reps",
+            "helpsWith": [
+              "Shoulder",
+              "Elbow"
+            ]
+          },
+          "id": "w41-iron"
+        },
+        {
+          "slot": "endure",
+          "name": "5K Retest",
+          "description": "Cover 5 kilometers (3.1 miles) on foot.",
+          "target": 3.1,
+          "unit": "mi",
+          "points": 25,
+          "scoredBy": "fastest_time",
+          "equipment": "None",
+          "scaleDown": "Run-walk intervals",
+          "record": "Finish time",
+          "alternate": {
+            "description": "Bike 8 miles.",
+            "target": 8,
+            "unit": "mi",
+            "helpsWith": [
+              "Knee",
+              "Ankle",
+              "Foot",
+              "Shin"
+            ]
+          },
+          "id": "w41-endure"
+        }
+      ]
+    },
+    {
+      "week": 42,
+      "season": 4,
+      "gauntlet": false,
+      "holiday": null,
+      "challenges": [
+        {
+          "slot": "family",
+          "name": "First Light",
+          "description": "Spend 15 minutes with God before anyone else wakes up on 5 days.",
+          "target": 5,
+          "unit": "days",
+          "points": 30,
+          "scoredBy": "completion",
+          "equipment": "Bible",
+          "scaleDown": "3 days",
+          "scripture": "Mark 1:35",
+          "record": "Mark complete with a short note or photo",
+          "alternate": null,
+          "id": "w42-family"
+        },
+        {
+          "slot": "iron",
+          "name": "Squat 250",
+          "description": "Complete 250 bodyweight squats.",
+          "target": 250,
+          "unit": "reps",
+          "points": 25,
+          "scoredBy": "fastest_time",
+          "equipment": "None",
+          "scaleDown": "125 reps",
+          "record": "Total reps and total time",
+          "alternate": {
+            "description": "Box squats to a bench.",
+            "target": 250,
+            "unit": "reps",
+            "helpsWith": [
+              "Knee",
+              "Hip"
+            ]
+          },
+          "id": "w42-iron"
+        },
+        {
+          "slot": "endure",
+          "name": "Burpee 200",
+          "description": "Complete 200 burpees.",
+          "target": 200,
+          "unit": "reps",
+          "points": 25,
+          "scoredBy": "fastest_time",
+          "equipment": "None",
+          "scaleDown": "100 reps",
+          "record": "Total reps and total time",
+          "alternate": {
+            "description": "Squat with a full overhead reach at the top; no jumping.",
+            "target": 200,
+            "unit": "reps",
+            "helpsWith": [
+              "Wrist",
+              "Shoulder",
+              "Knee",
+              "Ankle"
+            ]
+          },
+          "id": "w42-endure"
+        }
+      ]
+    },
+    {
+      "week": 43,
+      "season": 4,
+      "gauntlet": false,
+      "holiday": null,
+      "challenges": [
+        {
+          "slot": "family",
+          "name": "Go and Invite",
+          "description": "Invite a friend; coworker or neighbor to church; Forged in Faith or a meal and share why your faith matters to you.",
+          "target": 1,
+          "unit": "done",
+          "points": 30,
+          "scoredBy": "completion",
+          "equipment": "None",
+          "scaleDown": "Pray for them by name",
+          "scripture": "Matthew 28:19-20",
+          "record": "Mark complete with a short note or photo",
+          "alternate": null,
+          "id": "w43-family"
+        },
+        {
+          "slot": "iron",
+          "name": "Dip Test",
+          "description": "Complete as many strict dips as possible in one unbroken set.",
+          "target": 15,
+          "unit": "reps",
+          "points": 25,
+          "scoredBy": "most_reps",
+          "equipment": "Bars",
+          "scaleDown": "8 reps",
+          "record": "Reps completed in the set",
+          "alternate": {
+            "description": "Most close-grip incline push-ups in one unbroken set.",
+            "target": 20,
+            "unit": "reps",
+            "helpsWith": [
+              "Shoulder",
+              "Elbow"
+            ]
+          },
+          "id": "w43-iron"
+        },
+        {
+          "slot": "endure",
+          "name": "Ruck 6",
+          "description": "Cover 6 miles carrying a 20 lb pack.",
+          "target": 6,
+          "unit": "mi",
+          "points": 25,
+          "scoredBy": "fastest_time",
+          "equipment": "Backpack",
+          "scaleDown": "3 miles",
+          "record": "Distance and total time",
+          "alternate": {
+            "description": "Walk 6 miles with no pack.",
+            "target": 6,
+            "unit": "mi",
+            "helpsWith": [
+              "Low back",
+              "Shoulder"
+            ]
+          },
+          "id": "w43-endure"
+        }
+      ]
+    },
+    {
+      "week": 44,
+      "season": 4,
+      "gauntlet": false,
+      "holiday": null,
+      "challenges": [
+        {
+          "slot": "family",
+          "name": "Prayer Walk",
+          "description": "Walk your neighborhood with your family and pray for each home you pass.",
+          "target": 1,
+          "unit": "done",
+          "points": 30,
+          "scoredBy": "completion",
+          "equipment": "None",
+          "scaleDown": "Pray for your street",
+          "scripture": "Jeremiah 29:7",
+          "record": "Mark complete with a short note or photo",
+          "alternate": {
+            "description": "Pray from the porch or from the car while driving through the neighborhood.",
+            "target": 1,
+            "unit": "done",
+            "helpsWith": [
+              "Mobility",
+              "Stamina"
+            ]
+          },
+          "id": "w44-family"
+        },
+        {
+          "slot": "iron",
+          "name": "Plank 2:00",
+          "description": "Hold a forearm plank.",
+          "target": 120,
+          "unit": "sec",
+          "points": 25,
+          "scoredBy": "longest_hold",
+          "equipment": "None",
+          "scaleDown": "1:00",
+          "record": "Hold time",
+          "alternate": {
+            "description": "Longest incline forearm plank on a bench.",
+            "target": 120,
+            "unit": "sec",
+            "helpsWith": [
+              "Low back",
+              "Shoulder",
+              "Wrist"
+            ]
+          },
+          "id": "w44-iron"
+        },
+        {
+          "slot": "endure",
+          "name": "Five-Mile Run",
+          "description": "Cover 5 miles on foot.",
+          "target": 5,
+          "unit": "mi",
+          "points": 25,
+          "scoredBy": "fastest_time",
+          "equipment": "None",
+          "scaleDown": "3 miles",
+          "record": "Distance and total time",
+          "alternate": {
+            "description": "Bike 10 miles.",
+            "target": 10,
+            "unit": "mi",
+            "helpsWith": [
+              "Knee",
+              "Ankle",
+              "Foot",
+              "Shin"
+            ]
+          },
+          "id": "w44-endure"
+        }
+      ]
+    },
+    {
+      "week": 45,
+      "season": 4,
+      "gauntlet": false,
+      "holiday": null,
+      "challenges": [
+        {
+          "slot": "family",
+          "name": "Heritage Night",
+          "description": "Tell your family stories of faith from your parents and grandparents and record one of them.",
+          "target": 1,
+          "unit": "done",
+          "points": 30,
+          "scoredBy": "completion",
+          "equipment": "None",
+          "scaleDown": "Tell one story",
+          "scripture": "Deuteronomy 4:9",
+          "record": "Mark complete with a short note or photo",
+          "alternate": null,
+          "id": "w45-family"
+        },
+        {
+          "slot": "iron",
+          "name": "Push-Up 150",
+          "description": "Complete 150 push-ups.",
+          "target": 150,
+          "unit": "reps",
+          "points": 25,
+          "scoredBy": "fastest_time",
+          "equipment": "None",
+          "scaleDown": "75 reps",
+          "record": "Total reps and total time",
+          "alternate": {
+            "description": "Incline push-ups.",
+            "target": 150,
+            "unit": "reps",
+            "helpsWith": [
+              "Wrist",
+              "Shoulder"
+            ]
+          },
+          "id": "w45-iron"
+        },
+        {
+          "slot": "endure",
+          "name": "Jump Rope 1500",
+          "description": "Complete 1500 jump rope skips.",
+          "target": 1500,
+          "unit": "reps",
+          "points": 25,
+          "scoredBy": "fastest_time",
+          "equipment": "Jump rope",
+          "scaleDown": "750 skips",
+          "record": "Total reps and total time",
+          "alternate": {
+            "description": "Step-jacks with no jumping.",
+            "target": 1500,
+            "unit": "reps",
+            "helpsWith": [
+              "Knee",
+              "Ankle",
+              "Foot",
+              "Shin"
+            ]
+          },
+          "id": "w45-endure"
+        }
+      ]
+    },
+    {
+      "week": 46,
+      "season": 4,
+      "gauntlet": false,
+      "holiday": null,
+      "challenges": [
+        {
+          "slot": "family",
+          "name": "Written Blessing",
+          "description": "Hand-write a letter to each child about who they are and what you pray for them.",
+          "target": 1,
+          "unit": "done",
+          "points": 30,
+          "scoredBy": "completion",
+          "equipment": "None",
+          "scaleDown": "One child",
+          "scripture": "3 John 1:4",
+          "record": "Mark complete with a short note or photo",
+          "alternate": null,
+          "id": "w46-family"
+        },
+        {
+          "slot": "iron",
+          "name": "Carry 800",
+          "description": "Carry two 35 lb weights for 800 yards total.",
+          "target": 800,
+          "unit": "yd",
+          "points": 25,
+          "scoredBy": "fastest_time",
+          "equipment": "Heavy weights",
+          "scaleDown": "400 yd",
+          "record": "Distance and total time",
+          "alternate": {
+            "description": "Carry a backpack with about 20 lb for 800 yards.",
+            "target": 800,
+            "unit": "yd",
+            "helpsWith": [
+              "Wrist",
+              "Grip",
+              "Low back"
+            ]
+          },
+          "id": "w46-iron"
+        },
+        {
+          "slot": "endure",
+          "name": "Hill Repeats 12",
+          "description": "Complete 12 uphill repeats of 100 yards.",
+          "target": 12,
+          "unit": "reps",
+          "points": 25,
+          "scoredBy": "fastest_time",
+          "equipment": "Hill or stairs",
+          "scaleDown": "6 reps",
+          "record": "Total reps and total time",
+          "alternate": {
+            "description": "12 repeats of a 100-yard incline walk.",
+            "target": 12,
+            "unit": "reps",
+            "helpsWith": [
+              "Knee",
+              "Ankle",
+              "Achilles"
+            ]
+          },
+          "id": "w46-endure"
+        }
+      ]
+    },
+    {
+      "week": 47,
+      "season": 4,
+      "gauntlet": false,
+      "holiday": null,
+      "challenges": [
+        {
+          "slot": "family",
+          "name": "True Sabbath",
+          "description": "Take one full day of rest with your family: no work; chores or shopping. Worship; rest and play.",
+          "target": 1,
+          "unit": "done",
+          "points": 30,
+          "scoredBy": "completion",
+          "equipment": "None",
+          "scaleDown": "Half day",
+          "scripture": "Exodus 20:8-10",
+          "record": "Mark complete with a short note or photo",
+          "alternate": null,
+          "id": "w47-family"
+        },
+        {
+          "slot": "iron",
+          "name": "Dead Hang",
+          "description": "Hold a dead hang from a bar.",
+          "target": 45,
+          "unit": "sec",
+          "points": 25,
+          "scoredBy": "longest_hold",
+          "equipment": "Pull-up bar",
+          "scaleDown": "25 sec",
+          "record": "Hold time",
+          "alternate": {
+            "description": "Longest feet-assisted hang.",
+            "target": 90,
+            "unit": "sec",
+            "helpsWith": [
+              "Shoulder",
+              "Elbow",
+              "Grip"
+            ]
+          },
+          "id": "w47-iron"
+        },
+        {
+          "slot": "endure",
+          "name": "Shuttle Runs 20",
+          "description": "Complete 20 shuttle runs of 50 yards (out and back counts as one).",
+          "target": 20,
+          "unit": "reps",
+          "points": 25,
+          "scoredBy": "fastest_time",
+          "equipment": "Open space",
+          "scaleDown": "10 reps",
+          "record": "Total reps and total time",
+          "alternate": {
+            "description": "Complete 20 shuttle walks of 50 yards.",
+            "target": 20,
+            "unit": "reps",
+            "helpsWith": [
+              "Ankle",
+              "Knee",
+              "Hamstring"
+            ]
+          },
+          "id": "w47-endure"
+        }
+      ]
+    },
+    {
+      "week": 48,
+      "season": 4,
+      "gauntlet": false,
+      "holiday": null,
+      "challenges": [
+        {
+          "slot": "family",
+          "name": "Pray the House",
+          "description": "Pray with your family in every room of your home.",
+          "target": 1,
+          "unit": "done",
+          "points": 30,
+          "scoredBy": "completion",
+          "equipment": "None",
+          "scaleDown": "The main rooms",
+          "scripture": "Psalm 127:1",
+          "record": "Mark complete with a short note or photo",
+          "alternate": null,
+          "id": "w48-family"
+        },
+        {
+          "slot": "iron",
+          "name": "Lunge 150",
+          "description": "Complete 150 alternating lunges (75 per leg).",
+          "target": 150,
+          "unit": "reps",
+          "points": 25,
+          "scoredBy": "fastest_time",
+          "equipment": "None",
+          "scaleDown": "75 reps",
+          "record": "Total reps and total time",
+          "alternate": {
+            "description": "Sit-to-stand from a chair.",
+            "target": 150,
+            "unit": "reps",
+            "helpsWith": [
+              "Knee",
+              "Hip"
+            ]
+          },
+          "id": "w48-iron"
+        },
+        {
+          "slot": "endure",
+          "name": "45-Minute Distance",
+          "description": "Cover as much distance as possible on foot in 45 minutes.",
+          "target": 45,
+          "unit": "min",
+          "points": 25,
+          "scoredBy": "greatest_distance",
+          "equipment": "Any",
+          "scaleDown": "30 minutes",
+          "record": "Distance covered",
+          "alternate": {
+            "description": "Cover as much distance as possible in 45 minutes by stationary bike or swim.",
+            "target": 45,
+            "unit": "min",
+            "helpsWith": [
+              "Knee",
+              "Ankle",
+              "Foot",
+              "Shin"
+            ]
+          },
+          "id": "w48-endure"
+        }
+      ]
+    },
+    {
+      "week": 49,
+      "season": 4,
+      "gauntlet": false,
+      "holiday": null,
+      "challenges": [
+        {
+          "slot": "family",
+          "name": "Honor Her Publicly",
+          "description": "Tell your wife in front of your children what you admire in her.",
+          "target": 1,
+          "unit": "done",
+          "points": 30,
+          "scoredBy": "completion",
+          "equipment": "None",
+          "scaleDown": "Say it in front of one child",
+          "scripture": "1 Peter 3:7",
+          "record": "Mark complete with a short note or photo",
+          "alternate": null,
+          "id": "w49-family"
+        },
+        {
+          "slot": "iron",
+          "name": "Pull-Up 35",
+          "description": "Complete 35 pull-ups.",
+          "target": 35,
+          "unit": "reps",
+          "points": 25,
+          "scoredBy": "fastest_time",
+          "equipment": "Pull-up bar",
+          "scaleDown": "18 reps",
+          "record": "Total reps and total time",
+          "alternate": {
+            "description": "Inverted rows.",
+            "target": 35,
+            "unit": "reps",
+            "helpsWith": [
+              "Shoulder",
+              "Elbow"
+            ]
+          },
+          "id": "w49-iron"
+        },
+        {
+          "slot": "endure",
+          "name": "Stair Climb 75",
+          "description": "Climb 75 flights of stairs.",
+          "target": 75,
+          "unit": "flights",
+          "points": 25,
+          "scoredBy": "fastest_time",
+          "equipment": "Stairs",
+          "scaleDown": "40 flights",
+          "record": "Flights and total time",
+          "alternate": {
+            "description": "Cover as much distance as possible in 40 minutes walking on flat ground.",
+            "target": 40,
+            "unit": "min",
+            "helpsWith": [
+              "Knee",
+              "Hip",
+              "Ankle"
+            ]
+          },
+          "id": "w49-endure"
+        }
+      ]
+    },
+    {
+      "week": 50,
+      "season": 4,
+      "gauntlet": false,
+      "holiday": null,
+      "challenges": [
+        {
+          "slot": "family",
+          "name": "Quiet Giving",
+          "description": "Choose someone in need as a family and give to them anonymously.",
+          "target": 1,
+          "unit": "done",
+          "points": 30,
+          "scoredBy": "completion",
+          "equipment": "None",
+          "scaleDown": "Give a small gift",
+          "scripture": "Matthew 6:3-4",
+          "record": "Mark complete with a short note or photo",
+          "alternate": null,
+          "id": "w50-family"
+        },
+        {
+          "slot": "iron",
+          "name": "Hinge 150",
+          "description": "Complete 150 kettlebell swings or dumbbell Romanian deadlifts with a 35 lb weight.",
+          "target": 150,
+          "unit": "reps",
+          "points": 25,
+          "scoredBy": "fastest_time",
+          "equipment": "Kettlebell or dumbbells",
+          "scaleDown": "75 reps",
+          "record": "Total reps and total time",
+          "alternate": {
+            "description": "Glute bridges.",
+            "target": 150,
+            "unit": "reps",
+            "helpsWith": [
+              "Low back",
+              "Hamstring"
+            ]
+          },
+          "id": "w50-iron"
+        },
+        {
+          "slot": "endure",
+          "name": "Long Haul 7",
+          "description": "Cover 7 miles on foot.",
+          "target": 7,
+          "unit": "mi",
+          "points": 25,
+          "scoredBy": "fastest_time",
+          "equipment": "None",
+          "scaleDown": "4 miles",
+          "record": "Distance and total time",
+          "alternate": {
+            "description": "Bike 16 miles.",
+            "target": 16,
+            "unit": "mi",
+            "helpsWith": [
+              "Knee",
+              "Ankle",
+              "Foot",
+              "Shin"
+            ]
+          },
+          "id": "w50-endure"
+        }
+      ]
+    },
+    {
+      "week": 51,
+      "season": 4,
+      "gauntlet": false,
+      "holiday": null,
+      "challenges": [
+        {
+          "slot": "family",
+          "name": "Remember Answered Prayer",
+          "description": "Review the year with your family and write down the prayers God answered.",
+          "target": 1,
+          "unit": "done",
+          "points": 30,
+          "scoredBy": "completion",
+          "equipment": "None",
+          "scaleDown": "Write five",
+          "scripture": "Psalm 103:2",
+          "record": "Mark complete with a short note or photo",
+          "alternate": null,
+          "id": "w51-family"
+        },
+        {
+          "slot": "iron",
+          "name": "Core 250",
+          "description": "Complete 250 core reps in any mix of sit-ups; leg raises and Russian twists.",
+          "target": 250,
+          "unit": "reps",
+          "points": 25,
+          "scoredBy": "fastest_time",
+          "equipment": "None",
+          "scaleDown": "125 reps",
+          "record": "Total reps and total time",
+          "alternate": {
+            "description": "Dead bugs; bird-dogs and glute bridges in any mix.",
+            "target": 250,
+            "unit": "reps",
+            "helpsWith": [
+              "Low back",
+              "Neck",
+              "Hip"
+            ]
+          },
+          "id": "w51-iron"
+        },
+        {
+          "slot": "endure",
+          "name": "Pack Run 5K",
+          "description": "Cover 5 kilometers (3.1 miles) on foot carrying a 10 lb pack.",
+          "target": 3.1,
+          "unit": "mi",
+          "points": 25,
+          "scoredBy": "fastest_time",
+          "equipment": "Backpack",
+          "scaleDown": "5K with no pack",
+          "record": "Distance and total time",
+          "alternate": {
+            "description": "Walk 3.1 miles with no pack.",
+            "target": 3.1,
+            "unit": "mi",
+            "helpsWith": [
+              "Low back",
+              "Shoulder",
+              "Knee"
+            ]
+          },
+          "id": "w51-endure"
+        }
+      ]
+    },
+    {
+      "week": 52,
+      "season": 4,
+      "gauntlet": true,
+      "holiday": null,
+      "challenges": [
+        {
+          "slot": "family",
+          "name": "Gauntlet: Commissioned",
+          "description": "Choose one mission for your family for the coming year; pray over it together and write it down.",
+          "target": 1,
+          "unit": "done",
+          "points": 40,
+          "scoredBy": "completion",
+          "equipment": "Bible",
+          "scaleDown": "Draft it with your wife",
+          "scripture": "Matthew 28:18-20",
+          "record": "Mark complete with a short note or photo",
+          "alternate": null,
+          "id": "w52-family"
+        },
+        {
+          "slot": "iron",
+          "name": "Gauntlet: Forged Test",
+          "description": "Four 1-minute stations with 2 minutes rest between: push-ups; pull-ups; squats and plank. Score is total reps plus plank seconds.",
+          "target": 4,
+          "unit": "min",
+          "points": 40,
+          "scoredBy": "highest_total",
+          "equipment": "Pull-up bar",
+          "scaleDown": "30-second stations (2 minutes of work)",
+          "record": "Reps and hold time at each station",
+          "alternate": {
+            "description": "Four 1-minute stations: incline push-ups; inverted rows; box squats and incline plank. Score is total reps plus plank seconds.",
+            "target": 4,
+            "unit": "min",
+            "helpsWith": [
+              "Wrist",
+              "Shoulder",
+              "Knee",
+              "Low back"
+            ]
+          },
+          "id": "w52-iron"
+        },
+        {
+          "slot": "endure",
+          "name": "Gauntlet: Year-End Ruck",
+          "description": "Cover 8 miles carrying a 20 lb pack.",
+          "target": 8,
+          "unit": "mi",
+          "points": 40,
+          "scoredBy": "fastest_time",
+          "equipment": "Backpack",
+          "scaleDown": "5 miles with a lighter pack",
+          "record": "Distance and total time",
+          "alternate": {
+            "description": "Walk 8 miles on flat ground.",
+            "target": 8,
+            "unit": "mi",
+            "helpsWith": [
+              "Knee",
+              "Ankle",
+              "Foot",
+              "Shin"
+            ]
+          },
+          "id": "w52-endure"
+        }
+      ]
+    }
+  ]
+}
