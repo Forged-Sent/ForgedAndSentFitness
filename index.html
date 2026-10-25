@@ -188,6 +188,19 @@ details.targets[open] summary::after { content: "\2212"; }
 .wk-card { margin-top: 14px; border: 1px solid var(--line); padding: 14px; background: var(--surface); }
 .wk-meta { font-family: var(--f-label); font-weight: 600; font-size: 13px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
 .wk-title { margin: 4px 0 10px; font-family: var(--f-display); font-weight: 700; font-size: 24px; line-height: 1.15; text-transform: uppercase; }
+.vstats { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 8px; }
+.vstat { flex: 1 1 130px; min-width: 0; border: 1px solid var(--line); padding: 10px 12px; }
+.vstat small { display: block; font-family: var(--f-label); font-weight: 600; font-size: 12px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+.vstat b { display: block; font-family: var(--f-label); font-size: 28px; line-height: 1.15; font-variant-numeric: tabular-nums; }
+.vstat span { font-size: 13px; color: var(--muted); }
+.vchart { width: 100%; height: auto; display: block; }
+.vchart .vb { fill: var(--accent); cursor: pointer; }
+.vchart .vb.zero { fill: var(--line); }
+.vchart .vb.sel { stroke: var(--ink); stroke-width: 2; }
+.vchart .vt { fill: var(--ink); font-size: 11px; text-anchor: middle; font-variant-numeric: tabular-nums; }
+.vchart .vl { fill: var(--muted); font-size: 11px; text-anchor: middle; letter-spacing: .06em; text-transform: uppercase; }
+.vchart .vl.today { fill: var(--ink); font-weight: 700; }
+.vchart .vg { stroke: var(--line); stroke-width: 1; }
 .wk-sec { margin: 12px 0 0; font-size: 15px; line-height: 1.5; }
 .wk-sec b { display: block; font-family: var(--f-label); font-weight: 600; font-size: 13px; letter-spacing: .12em; text-transform: uppercase; color: var(--brass, #b08d57); margin-bottom: 2px; }
 .wx { display: flex; flex-direction: column; gap: 2px; padding: 10px 0; border-top: 1px dashed var(--line); }
@@ -516,6 +529,11 @@ details.targets[open] summary::after { content: "\2212"; }
     <section aria-labelledby="h-week" id="week-sec" hidden>
       <div class="section-head"><h2 class="label-caps" id="h-week">Your week</h2></div>
       <div id="week-list"></div>
+    </section>
+
+    <section aria-labelledby="h-vol" id="vol-sec" hidden>
+      <div class="section-head"><h2 class="label-caps" id="h-vol">Training volume</h2></div>
+      <div id="vol-body"></div>
     </section>
 
     <section aria-labelledby="h-plan">
@@ -1431,6 +1449,53 @@ details.targets[open] summary::after { content: "\2212"; }
     var msg = wf.kind === "rest" ? "Sabbath. " + wf.w.exercises[0][1] : wf.kind === "off" ? "Rest day. Turn on the 4th training day in your plan to see an optional workout here." : wf.kind === "before" ? "Your plan starts " + longDate(p.start) + "." : "You finished all 365 days. Pick a new plan below to keep going.";
     box.appendChild(el("p", "note", msg));
   }
+  /* ---------- Weekly volume chart ---------- */
+  var volCache = {}, volAsked = {}, SVGNS = "http://www.w3.org/2000/svg";
+  function volOf(rec, key) {
+    if (!rec || !rec.ex) return 0;
+    var wf = workoutFor(key), exs = wf && wf.kind === "train" && wf.w ? wf.w.exercises : null, tot = 0;
+    Object.keys(rec.ex).forEach(function (k) {
+      var arr = rec.ex[k]; if (!Array.isArray(arr)) return;
+      var ps = exs && exs[+k] ? parseSets(exs[+k][1]) : null; if (ps && ps.time) return;
+      arr.forEach(function (s) { if (!s || s.k === "w") return; var w = parseFloat(s.w), r = parseFloat(s.r); if (w > 0 && r > 0) tot += w * r; });
+    });
+    return Math.round(tot);
+  }
+  function fmtVol(n) { return n >= 10000 ? (Math.round(n / 100) / 10) + "k" : String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ","); }
+  function svgEl(n, a) { var e = document.createElementNS(SVGNS, n); for (var k in a) e.setAttribute(k, a[k]); return e; }
+  function drawVolume(sel) {
+    var sec = $("vol-sec"), body = $("vol-body"), p = planCfg(); sec.hidden = !p; if (!p) return;
+    var mon = mondayKey(sel), today = todayKey(), prev = addDays(mon, -7), keys = [], pkeys = [];
+    for (var i = 0; i < 7; i++) { keys.push(addDays(mon, i)); pkeys.push(addDays(prev, i)); }
+    var need = keys.concat(pkeys).filter(function (k) { return volCache[k] === undefined && !volAsked[k] && k <= today; });
+    if (need.length && state.me && B.db) {
+      need.forEach(function (k) { volAsked[k] = true; });
+      Promise.all(need.map(function (k) { return B.getWorkoutLog(state.me, k).then(function (r) { volCache[k] = volOf(normWk(r, k), k); }).catch(function () { delete volAsked[k]; }); })).then(function () { if (!$("page-train").hidden) drawVolume(state.trainDay || todayKey()); });
+    }
+    var v = keys.map(function (k) { return volCache[k] || 0; }), total = v.reduce(function (a, b) { return a + b; }, 0);
+    var lastTotal = pkeys.reduce(function (a, k) { return a + (volCache[k] || 0); }, 0), selV = volCache[sel] || 0;
+    body.textContent = "";
+    var st = el("div", "vstats"), a = el("div", "vstat"), b = el("div", "vstat");
+    a.appendChild(el("small", null, "This week")); a.appendChild(el("b", null, fmtVol(total) + " lb"));
+    a.appendChild(el("span", null, lastTotal ? (total >= lastTotal ? "\u25B2 " : "\u25BC ") + fmtVol(Math.abs(total - lastTotal)) + " lb vs last week" : "No volume logged last week"));
+    b.appendChild(el("small", null, longDate(sel).split(",")[0])); b.appendChild(el("b", null, fmtVol(selV) + " lb")); b.appendChild(el("span", null, selV ? "Selected day" : "Nothing logged"));
+    st.appendChild(a); st.appendChild(b); body.appendChild(st);
+    var W = 320, H = 170, top = 22, bot = 24, ph = H - top - bot, max = Math.max.apply(null, v), step = max > 20000 ? 5000 : max > 8000 ? 2000 : max > 3000 ? 1000 : 500, ymax = Math.max(step, Math.ceil(max / step) * step);
+    var svg = svgEl("svg", { "class": "vchart", viewBox: "0 0 " + W + " " + H, role: "img", "aria-label": "Volume per day this week in pounds" });
+    svg.appendChild(svgEl("line", { "class": "vg", x1: 0, x2: W, y1: top + ph, y2: top + ph }));
+    var bw = 28, gap = (W - 7 * bw) / 7;
+    keys.forEach(function (k, i) {
+      var x = gap / 2 + i * (bw + gap), h = v[i] ? Math.max(3, v[i] / ymax * ph) : 3, y = top + ph - h;
+      var r = svgEl("rect", { "class": "vb" + (v[i] ? "" : " zero") + (k === sel ? " sel" : ""), x: x, y: y, width: bw, height: h, rx: 0 });
+      var t = svgEl("title", {}); t.textContent = longDate(k) + ": " + (v[i] ? v[i].toLocaleString() + " lb" : "no volume"); r.appendChild(t);
+      r.addEventListener("click", function () { state.trainDay = k; drawTrain(); });
+      svg.appendChild(r);
+      if (v[i]) { var tx = svgEl("text", { "class": "vt", x: x + bw / 2, y: y - 5 }); tx.textContent = fmtVol(v[i]); svg.appendChild(tx); }
+      var lb = svgEl("text", { "class": "vl" + (k === today ? " today" : ""), x: x + bw / 2, y: H - 8 }); lb.textContent = DOW[i]; svg.appendChild(lb);
+    });
+    body.appendChild(svg);
+    body.appendChild(el("p", "note", "Volume is weight \u00D7 reps for logged work sets. Warm-ups, timed holds and bodyweight sets with no weight are not counted."));
+  }
   function drawWeek(sel) {
     var sec = $("week-sec"), list = $("week-list"), p = planCfg(); list.textContent = ""; sec.hidden = !p; if (!p) return;
     var wkTask = taskOfKind("workout"), mon = mondayKey(sel), today = todayKey();
@@ -1474,6 +1539,7 @@ details.targets[open] summary::after { content: "\2212"; }
   function saveWkNow() {
     clearTimeout(saveT); saveT = null;
     if (!wk || !wk.rec || !state.me || !state.canWrite || !B.db) return;
+    volCache[wk.rec.date] = volOf(wk.rec, wk.rec.date); volAsked[wk.rec.date] = true;
     B.saveWorkoutLog(state.me, wk.rec).catch(noop);
   }
   function saveWkSoon() { clearTimeout(saveT); saveT = setTimeout(saveWkNow, 700); }
@@ -1689,7 +1755,7 @@ details.targets[open] summary::after { content: "\2212"; }
     $("pv-vpr").textContent = pr.v ? "Preview: undo volume PR" : "Preview: volume PR";
     $("pv-wpr").disabled = off; $("pv-vpr").disabled = off;
     $("cal-today").hidden = isToday && stripWeekIndex() === STRIP_BACK;
-    drawDayWorkout(sel, !!done, isToday, off); drawWeek(sel); drawPlan();
+    drawDayWorkout(sel, !!done, isToday, off); drawWeek(sel); drawVolume(sel); drawPlan();
   }
 
   /* ---------- Board ---------- */
