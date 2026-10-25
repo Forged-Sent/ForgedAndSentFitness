@@ -184,6 +184,7 @@ details.targets[open] summary::after { content: "\2212"; }
 .aw-total { display: flex; justify-content: space-between; align-items: baseline; margin: 4px 0 0; }
 .aw-total span { font-family: var(--f-label); font-weight: 600; letter-spacing: .1em; text-transform: uppercase; font-size: 13px; }
 .aw-total b { font-family: var(--f-label); font-size: 28px; color: var(--accent); }
+.wk-hint { list-style: none; padding: 10px 2px 2px; font-size: 13px; color: var(--muted); }
 .cdlg { position: fixed; inset: 0; z-index: 80; background: rgba(0,0,0,.55); display: flex; align-items: flex-start; justify-content: center; overflow-y: auto; padding: calc(56px + env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-right, 0px)) 16px max(16px, env(safe-area-inset-left, 0px)); }
 .cdlg-box { margin: 0 auto; width: 100%; max-width: 360px; background: var(--bg); border: 2px solid var(--danger); padding: 18px; display: flex; flex-direction: column; gap: 10px; }
 .cdlg-box h2 { margin: 0; font-family: var(--f-label); font-size: 17px; letter-spacing: .08em; text-transform: uppercase; }
@@ -1167,6 +1168,10 @@ details.targets[open] summary::after { content: "\2212"; }
   var CHECK_SVG = '<svg viewBox="0 0 18 18" aria-hidden="true"><path d="M3.5 9.5l3.6 3.6L14.5 5.2"/></svg>';
   function fmt(n) { return Math.round(n).toLocaleString(); }
 
+  // Weigh-in is weekly, on the man's Sabbath (his plan's rest day; Sunday if no plan yet).
+  function sabbathDow() { var p = planCfg(); return p && p.rest != null ? Number(p.rest) : 0; }
+  function isWeighDay(key) { return parseKey(key).getDay() === sabbathDow(); }
+  function dayTasks(key) { return state.tasks.filter(function (t) { return t.kind !== "weigh" || isWeighDay(key); }); }
   function taskOfKind(kind) { for (var i = 0; i < state.tasks.length; i++) if (state.tasks[i].kind === kind) return state.tasks[i]; return null; }
   function devoTask() { return taskOfKind("devo"); }
   function filledSlots() { return CUSTOM.filter(function (k) { return state.habits[k]; }); }
@@ -1215,7 +1220,7 @@ details.targets[open] summary::after { content: "\2212"; }
     var wt = taskOfKind("water");
     if (wt) { if (log.water >= WATER_GOAL_OZ) rec.done[wt.id] = true; else delete rec.done[wt.id]; }
     var hs = taskOfKind("steps"); if (hs && healthHave("steps")) { if (state.healthToday.steps >= STEPS_GOAL) rec.done[hs.id] = true; else delete rec.done[hs.id]; }
-    var hw = taskOfKind("weigh"); if (hw && healthHave("weight")) { if (state.healthToday.weightLb > 0) rec.done[hw.id] = true; else delete rec.done[hw.id]; }
+    var hw = taskOfKind("weigh"); if (hw && isWeighDay(rec.date) && healthHave("weight")) { if (state.healthToday.weightLb > 0) rec.done[hw.id] = true; else delete rec.done[hw.id]; }
     var hk = taskOfKind("workout"); if (hk && healthHave("workouts") && state.healthToday.workouts > 0) rec.done[hk.id] = true;
     var ct = taskOfKind("calories"), t = targets(), tk = t ? Number(t.kcal) || 0 : 0;
     if (ct) { if (tk > 0 && log.kcal >= 0.9 * tk && log.kcal <= 1.1 * tk) rec.done[ct.id] = true; else delete rec.done[ct.id]; }
@@ -1349,8 +1354,8 @@ details.targets[open] summary::after { content: "\2212"; }
     var list = $("tasks"); list.textContent = "";
     var notice = $("notice"); notice.textContent = "";
     var rec = myDoc(), done = rec.done, log = logFor(todayKey()), t = targets();
-    var total = state.tasks.length + filledSlots().length;
-    var n = stdDone(done) + filledSlots().filter(function (k) { return done[k]; }).length;
+    var tasks = dayTasks(todayKey()), total = tasks.length + filledSlots().length;
+    var n = tasks.filter(function (t) { return done[t.id]; }).length + filledSlots().filter(function (k) { return done[k]; }).length;
     var tl = $("my-tally"); tl.textContent = "";
     if (total) { tl.appendChild(document.createTextNode(String(n))); tl.appendChild(el("span", null, " / " + total)); }
     $("my-meter").style.width = total ? Math.round(100 * n / total) + "%" : "0%";
@@ -1361,7 +1366,7 @@ details.targets[open] summary::after { content: "\2212"; }
       var e = el("li", "empty"); e.appendChild(el("strong", null, "No standard tasks yet"));
       e.appendChild(document.createTextNode("The standard list is not set up yet.")); list.appendChild(e); return;
     }
-    state.tasks.forEach(function (tk) {
+    tasks.forEach(function (tk) {
       var li = el("li", "item"), b = el("button", "hit"); b.type = "button";
       var isDevo = tk.kind === "devo", page = AUTO_PAGE[tk.kind];
       var hAuto = (tk.kind === "steps" && healthHave("steps")) || (tk.kind === "weigh" && healthHave("weight"));
@@ -1379,6 +1384,7 @@ details.targets[open] summary::after { content: "\2212"; }
       else if (tk.kind === "calories") sub = t && Number(t.kcal) ? fmt(log.kcal) + " of " + fmt(Number(t.kcal)) + " kcal. Log it in Fuel" : "Set your targets in Fuel";
       else if (tk.kind === "workout") sub = done[tk.id] ? "Finished in Train" : "Checks itself when you finish a workout";
       else if (tk.kind === "checkin") sub = done[tk.id] ? "Posted today" : "Post in the check-in thread";
+      else if (tk.kind === "weigh") sub = done[tk.id] ? "Weighed in this week" : "Your weekly weigh-in, every Sabbath. Step on the scale and tap to check.";
       if (hAuto) sub = tk.kind === "steps" ? fmt(state.healthToday.steps) + " of " + fmt(STEPS_GOAL) + " steps, from your health data" : "Weigh-in found in your health data";
       if (tk.id === "t_motto") { var mm = (state.pubProfiles[state.me] || {}).motto; sub = mm ? "\u201C" + mm + "\u201D" : "Set your motto in Settings"; }
       if (sub) txt.appendChild(el("span", "sub", sub));
@@ -1388,6 +1394,11 @@ details.targets[open] summary::after { content: "\2212"; }
       b.addEventListener("click", function () { if (isDevo) openDevo(); else if (!auto) toggle(tk.id); });
       li.appendChild(b); list.appendChild(li);
     });
+    var wt = taskOfKind("weigh");
+    if (wt && !isWeighDay(todayKey())) {
+      var nx = 0; while (nx < 7 && !isWeighDay(addDays(todayKey(), nx))) nx++;
+      list.appendChild(el("li", "wk-hint", "Weekly weigh-in is on your Sabbath, " + DAYN[sabbathDow()] + (nx === 1 ? " (tomorrow)." : " (in " + nx + " days).")));
+    }
   }
   function drawYours() {
     var wrap = $("yours"), a = document.activeElement;
