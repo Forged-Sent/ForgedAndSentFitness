@@ -711,13 +711,6 @@ details.targets[open] summary::after { content: "\2212"; }
       <p class="note">Auto follows your phone. Your choice is saved to your account.</p>
     </section>
 
-    <section aria-labelledby="h-s-wk">
-      <div class="section-head"><h2 class="label-caps" id="h-s-wk">Workouts</h2></div>
-      <label class="sw-row"><span>Auto-fill weight</span><input type="checkbox" role="switch" class="switch" id="s-af-w"></label>
-      <label class="sw-row"><span>Auto-fill reps</span><input type="checkbox" role="switch" class="switch" id="s-af-r"></label>
-      <p class="note">When on, what you enter for a set fills in the empty sets below it for that exercise. Warm-up sets are skipped, and you can still change any set.</p>
-    </section>
-
     <section aria-labelledby="h-s-prof">
       <div class="section-head"><h2 class="label-caps" id="h-s-prof">Your profile</h2></div>
       <form class="setgrp" id="motto-form" data-form="motto">
@@ -735,6 +728,13 @@ details.targets[open] summary::after { content: "\2212"; }
           <button class="btn ghost" type="button" id="s-bn-rm">Remove</button></div>
         <p class="note" id="s-photo-status" style="margin:0">Photos are visible to the group. Large photos are resized automatically.</p>
       </div>
+    </section>
+
+    <section aria-labelledby="h-s-wk">
+      <div class="section-head"><h2 class="label-caps" id="h-s-wk">Workouts</h2></div>
+      <label class="sw-row"><span>Auto-fill weight</span><input type="checkbox" role="switch" class="switch" id="s-af-w"></label>
+      <label class="sw-row"><span>Auto-fill reps</span><input type="checkbox" role="switch" class="switch" id="s-af-r"></label>
+      <p class="note">When on, what you enter for a set fills in the empty sets below it for that exercise. Warm-up sets are skipped, and you can still change any set.</p>
     </section>
 
     <section aria-labelledby="h-s-body">
@@ -2451,7 +2451,7 @@ details.targets[open] summary::after { content: "\2212"; }
       ae.blur();
     }, true);
     // Settings below the profile photos: each section is a button that opens its form.
-    ["h-s-body", "h-s-tg", "h-s-rem", "h-s-health", "h-s-safe", "h-s-acct"].forEach(function (hid) {
+    ["h-s-wk", "h-s-body", "h-s-tg", "h-s-rem", "h-s-health", "h-s-safe", "h-s-acct"].forEach(function (hid) {
       var h = $(hid); if (!h) return; var sec = h.closest("section"), head = h.closest(".section-head"); if (!sec || !head) return;
       var body = el("div", "set-body"); body.id = hid + "-body"; body.hidden = true;
       while (head.nextSibling) body.appendChild(head.nextSibling);
