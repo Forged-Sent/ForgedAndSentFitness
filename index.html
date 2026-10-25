@@ -188,6 +188,9 @@ details.targets[open] summary::after { content: "\2212"; }
 .wk-card { margin-top: 14px; border: 1px solid var(--line); padding: 14px; background: var(--surface); }
 .wk-meta { font-family: var(--f-label); font-weight: 600; font-size: 13px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
 .wk-title { margin: 4px 0 10px; font-family: var(--f-display); font-weight: 700; font-size: 24px; line-height: 1.15; text-transform: uppercase; }
+.sec-toggle { display: inline-flex; align-items: center; gap: 10px; min-height: 48px; padding: 0; margin: 0; border: 0; background: transparent; color: inherit; font: inherit; letter-spacing: inherit; text-transform: inherit; cursor: pointer; text-align: left; }
+.section-head h2:has(.sec-toggle)::before { content: none; }
+.sec-toggle > span:last-child::before { content: "// "; }
 .vstats { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 8px; }
 .vstat { flex: 1 1 130px; min-width: 0; border: 1px solid var(--line); padding: 10px 12px; }
 .vstat small { display: block; font-family: var(--f-label); font-weight: 600; font-size: 12px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
@@ -1168,6 +1171,15 @@ details.targets[open] summary::after { content: "\2212"; }
     $("devo-back").addEventListener("click", function () { go("today"); });
     $("wk-back").addEventListener("click", function () { go("train"); });
     $("vid-back").addEventListener("click", function () { go("workout"); });
+    var colSt = {}; try { colSt = JSON.parse(localStorage.getItem("fs-collapsed") || "{}") || {}; } catch (e) { colSt = {}; }
+    [["h-week", "week-list", "week"], ["h-vol", "vol-body", "vol"]].forEach(function (c) {
+      var h = $(c[0]), body = $(c[1]); if (!h || !body) return;
+      var label = h.textContent, btn = el("button", "sec-toggle"), chev = el("span", "mt-chev"); btn.type = "button"; btn.setAttribute("aria-controls", c[1]);
+      btn.appendChild(chev); btn.appendChild(el("span", null, label)); h.textContent = ""; h.appendChild(btn);
+      function apply() { var shut = !!colSt[c[2]]; body.hidden = shut; chev.textContent = shut ? "\u25B8" : "\u25BE"; btn.setAttribute("aria-expanded", String(!shut)); }
+      btn.addEventListener("click", function () { colSt[c[2]] = !colSt[c[2]]; apply(); try { localStorage.setItem("fs-collapsed", JSON.stringify(colSt)); } catch (e) {} });
+      apply();
+    });
     $("devo-read").addEventListener("click", function () {
       var dt = devoTask(); if (!dt) return;
       var was = !!myDoc().done[dt.id];
