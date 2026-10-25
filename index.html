@@ -784,9 +784,10 @@ details.targets[open] summary::after { content: "\2212"; }
       <div class="pg-row"><h1 class="pg">Standings</h1><button type="button" class="mini pts-btn" id="pts-open">How points work</button></div>
     </header>
     <section aria-labelledby="h-board">
+      <label class="lb-pick"><select class="field" id="board-sel" aria-label="Choose a board"></select></label>
       <div class="section-head">
-        <h2 class="label-caps" id="h-board">The brotherhood</h2>
-        <div class="tabs" role="group" aria-label="Standings range">
+        <h2 class="label-caps" id="h-board">Kingdom Warrior</h2>
+        <div class="tabs" id="board-tabs" role="group" aria-label="Standings range">
           <button type="button" id="tab-today" aria-pressed="false">Today</button>
           <button type="button" id="tab-week" aria-pressed="true">This week</button>
           <button type="button" id="tab-all" aria-pressed="false">All time</button>
@@ -794,12 +795,6 @@ details.targets[open] summary::after { content: "\2212"; }
       </div>
       <div class="board" id="board"></div>
       <p class="note" id="board-note"></p>
-    </section>
-    <section aria-labelledby="h-liftb">
-      <div class="section-head"><h2 class="label-caps" id="h-liftb">Top lifts</h2></div>
-      <label class="flabel lb-pick">Lift<select class="field" id="liftb-sel" aria-describedby="liftb-note"></select></label>
-      <div class="board" id="liftb"></div>
-      <p class="note" id="liftb-note">Heaviest weight each man has logged as his PR in his profile.</p>
     </section>
   </div>
 
@@ -1427,6 +1422,7 @@ details.targets[open] summary::after { content: "\2212"; }
   /* ---------- Pages ---------- */
   var stripBuilt = false, STRIP_BACK = 8, STRIP_FWD = 8;
   function go(p) {
+    if (p === "board" && state.page !== "board") state.boardView = "kw";
     state.page = p;
     if (p !== "workout") { closeExPicker(); closeSwap(); }
     if (p !== "fuel") { state.add = null; var fsh = document.getElementById("fsheet"); if (fsh) fsh.remove(); }
@@ -2971,16 +2967,23 @@ details.targets[open] summary::after { content: "\2212"; }
     group("Personal records", [["Weight PR or volume PR on a lift", "+" + PR_PTS + " pts"]], "Awarded when you finish a workout. Each lift earns it once a day, even if you hit both a weight and a volume PR.");
     b.appendChild(el("p", "fnote", "Today shows points earned today. This week adds up Monday through Sunday, then resets. All time adds up every point since a man joined."));
   }
-  function drawLiftBoard() {
-    var sel = $("liftb-sel"), box = $("liftb"); if (!sel || !box) return;
-    var lifts = state.lifts || [];
-    if (!lifts.some(function (l) { return l.id === state.liftBoard; })) state.liftBoard = lifts.length ? lifts[0].id : null;
+  function boardPicker() {
+    var sel = $("board-sel"), lifts = state.lifts || [];
+    if (state.boardView !== "kw" && !lifts.some(function (l) { return l.id === state.boardView; })) state.boardView = "kw";
     var sig = lifts.map(function (l) { return l.id + ":" + l.name; }).join("|");
-    if (sel.dataset.sig !== sig) { sel.textContent = ""; lifts.forEach(function (l) { var o = el("option", null, l.name); o.value = l.id; sel.appendChild(o); }); sel.dataset.sig = sig; }
-    sel.value = state.liftBoard || ""; sel.disabled = !lifts.length;
-    box.textContent = "";
-    if (!lifts.length) { var e0 = el("div", "empty"); e0.appendChild(el("strong", null, "No lifts yet")); e0.appendChild(document.createTextNode("Your leader will set the lifts the group tracks.")); box.appendChild(e0); return; }
-    var id = state.liftBoard, rows = [];
+    if (sel.dataset.sig !== sig) {
+      sel.textContent = ""; var k = el("option", null, "Kingdom Warrior"); k.value = "kw"; sel.appendChild(k);
+      if (lifts.length) { var g = el("optgroup"); g.label = "Top lift PRs"; lifts.forEach(function (l) { var o = el("option", null, l.name); o.value = l.id; g.appendChild(o); }); sel.appendChild(g); }
+      sel.dataset.sig = sig;
+    }
+    sel.value = state.boardView;
+  }
+  function drawLiftBoard() {
+    var box = $("board"); box.textContent = "";
+    var id = state.boardView, lift = (state.lifts || []).filter(function (l) { return l.id === id; })[0], rows = [];
+    $("h-board").textContent = (lift ? lift.name : "Lift") + " \u00B7 Top PRs";
+    $("board-tabs").hidden = true;
+    $("board-note").textContent = "Heaviest weight each man has logged as his PR on his profile. Tap a man to see all his lifts.";
     Object.keys(state.pubProfiles || {}).forEach(function (uid) { var pr = ((state.pubProfiles[uid] || {}).prs || {})[id]; if (pr && Number(pr.w) > 0) rows.push({ uid: uid, w: Number(pr.w), reps: Number(pr.reps) || 0, date: pr.date || "" }); });
     rows.sort(function (a, b) { return (b.w - a.w) || (b.reps - a.reps) || (a.date < b.date ? -1 : 1); });
     if (!rows.length) { var e = el("div", "empty"); e.appendChild(el("strong", null, "No PRs logged yet")); e.appendChild(document.createTextNode("Be the first. Log your PR on your profile.")); box.appendChild(e); return; }
@@ -2997,7 +3000,10 @@ details.targets[open] summary::after { content: "\2212"; }
     });
   }
   function drawBoard() {
-    drawLiftBoard();
+    if (!state.boardView) state.boardView = "kw";
+    boardPicker();
+    if (state.boardView !== "kw") { drawLiftBoard(); return; }
+    $("h-board").textContent = "Kingdom Warrior"; $("board-tabs").hidden = false;
     var board = $("board"); board.textContent = "";
     var today = todayKey(), ws = weekStartKey(), people = {}, range = state.range || "week", isAll = range === "all", isWeek = range === "week";
     if (isAll) watchAllChecks();
@@ -3578,7 +3584,7 @@ details.targets[open] summary::after { content: "\2212"; }
     board: { t: "Board", why: "See where the brothers stand, today and for the week.", how: [
       "Switch between Today, This week and All time. The week runs Monday to Sunday. All time adds up every point since a man joined.",
       "Points come from your boxes, your three habits, step bonuses and PRs. Tap How points work next to Standings for the full breakdown.",
-      "Top lifts: pick a lift from the menu to see who holds the heaviest PR. PRs come from what each man logs on his profile.",
+      "Kingdom Warrior is the points board. Use the menu at the top to switch to a lift and see who holds the heaviest PR. Pick Kingdom Warrior to come back.",
       "Tap a man to see his profile and lift PRs.",
       "Use it to push each other, and to find the man who needs encouraging."] },
     checkin: { t: "Rally", why: "The group thread. Show up, share wins and encourage a brother.", how: [
@@ -4436,7 +4442,7 @@ details.targets[open] summary::after { content: "\2212"; }
     $("tab-today").addEventListener("click", function () { state.range = "today"; drawBoard(); });
     $("tab-week").addEventListener("click", function () { state.range = "week"; drawBoard(); });
     $("tab-all").addEventListener("click", function () { state.range = "all"; drawBoard(); });
-    $("liftb-sel").addEventListener("change", function (ev) { state.liftBoard = ev.target.value; drawLiftBoard(); });
+    $("board-sel").addEventListener("change", function (ev) { state.boardView = ev.target.value; drawBoard(); });
     wireDevo();
     $("water-add").addEventListener("click", function () { addWater(WATER_STEP); });
     $("water-sub-btn").addEventListener("click", function () { addWater(-WATER_STEP); });
