@@ -1,0 +1,156 @@
+<title>Forged & Sent Theme Options</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600&family=Saira+Condensed:wght@600;700;800&family=Saira+Stencil+One&family=IBM+Plex+Sans:wght@400;500;600&family=Archivo:wght@400;500;600;800;900&family=Bebas+Neue&family=Source+Sans+3:wght@400;600;700&family=Teko:wght@500;600;700&family=Manrope:wght@400;500;700;800&display=swap">
+<style>
+/* Layout: a gallery of five phone mockups, each rendered in its own palette and type pair. */
+:root {
+  --bg: #f3f3f1; --fg: #1b1c1e; --muted: #5d6066; --line: #d6d6d2; --card: #ffffff;
+  --f-ui: "Source Sans 3", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --f-head: "Archivo", system-ui, sans-serif;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --bg: #121315; --fg: #ececea; --muted: #9a9ca1; --line: #2c2e32; --card: #1b1c1f; color-scheme: dark; } }
+:root[data-theme="dark"] { --bg: #121315; --fg: #ececea; --muted: #9a9ca1; --line: #2c2e32; --card: #1b1c1f; color-scheme: dark; }
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--fg); font-family: var(--f-ui); font-size: 15px; line-height: 1.5; margin: 0; }
+.wrap { max-width: 1240px; margin: 0 auto; padding-block: 32px 64px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+h1 { font-family: var(--f-head); font-weight: 900; font-size: clamp(28px, 6vw, 44px); letter-spacing: -.01em; line-height: 1.05; margin: 0 0 10px; text-wrap: balance; }
+.lede { max-width: 66ch; color: var(--muted); margin: 0 0 28px; }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 28px; }
+.opt { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+.opt-h { display: flex; align-items: baseline; gap: 10px; }
+.opt-h .n { font-family: var(--f-head); font-weight: 800; font-size: 13px; color: var(--muted); letter-spacing: .08em; }
+.opt-h h2 { font-family: var(--f-head); font-weight: 800; font-size: 22px; margin: 0; }
+.opt p { margin: 0; color: var(--muted); font-size: 14px; max-width: 60ch; }
+.chips { display: flex; gap: 6px; flex-wrap: wrap; }
+.chip { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--muted); border: 1px solid var(--line); background: var(--card); padding: 3px 8px 3px 4px; border-radius: 999px; font-variant-numeric: tabular-nums; }
+.chip i { width: 14px; height: 14px; border-radius: 50%; display: block; border: 1px solid rgba(127,127,127,.35); }
+.specs { font-size: 13px; color: var(--muted); display: grid; grid-template-columns: auto 1fr; gap: 2px 10px; }
+.specs b { color: var(--fg); font-weight: 600; }
+
+/* Phone mock: every color inside comes from the option's own variables. */
+.phone { width: 100%; max-width: 340px; border-radius: 28px; overflow: hidden; background: var(--p-bg); color: var(--p-ink); border: 1px solid var(--line); box-shadow: 0 10px 30px rgba(0,0,0,.18); font-family: var(--p-body); }
+.ph-in { padding: 18px 16px 8px; display: flex; flex-direction: column; gap: 14px; }
+.ph-top { display: flex; justify-content: space-between; align-items: center; font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--p-muted); }
+.ph-av { width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; background: var(--p-accent); color: var(--p-on); font-family: var(--p-head); font-size: 14px; }
+.ph-title { font-family: var(--p-head); font-size: 34px; line-height: .95; margin: 0; letter-spacing: var(--p-track, 0); text-transform: var(--p-case, none); color: var(--p-ink); }
+.ph-sub { font-size: 13px; color: var(--p-muted); margin: -6px 0 0; }
+.ph-card { background: var(--p-card); border-radius: var(--p-r); padding: 12px; border: var(--p-border); }
+.ph-row { display: flex; justify-content: space-between; align-items: baseline; }
+.ph-lab { font-family: var(--p-head); font-size: 15px; letter-spacing: var(--p-track-s, .02em); text-transform: var(--p-case, none); }
+.ph-big { font-family: var(--p-head); font-size: 30px; line-height: 1; color: var(--p-ink); }
+.ph-big small { font-size: 15px; color: var(--p-muted); }
+.ph-bar { height: 8px; border-radius: 99px; background: var(--p-track-c); margin-top: 8px; overflow: hidden; display: flex; }
+.ph-bar b { display: block; background: var(--p-accent); }
+.ph-bar b.ov { background: var(--p-hot); }
+.ph-list { display: flex; flex-direction: column; gap: 8px; }
+.ph-item { display: flex; align-items: center; gap: 10px; background: var(--p-card); border-radius: var(--p-r); padding: 10px 12px; border: var(--p-border); }
+.ph-box { width: 22px; height: 22px; flex: none; border-radius: var(--p-rbox); border: 2px solid var(--p-line); display: grid; place-items: center; font-size: 13px; color: transparent; }
+.ph-item.done .ph-box { background: var(--p-accent); border-color: var(--p-accent); color: var(--p-on); }
+.ph-item .t { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.ph-item .t b { font-size: 14px; font-weight: 600; }
+.ph-item .t span { font-size: 12px; color: var(--p-muted); }
+.ph-item .pts { font-family: var(--p-head); font-size: 14px; color: var(--p-accent2); }
+.ph-btn { display: block; text-align: center; padding: 13px; border-radius: var(--p-rbtn); background: var(--p-accent); color: var(--p-on); font-family: var(--p-head); font-size: 16px; letter-spacing: var(--p-track-s, .04em); text-transform: var(--p-case, none); }
+.ph-tabs { display: grid; grid-template-columns: repeat(5, 1fr); padding: 8px 6px 14px; border-top: 1px solid var(--p-line); background: var(--p-bar); margin-top: 6px; }
+.ph-tab { display: flex; flex-direction: column; align-items: center; gap: 3px; font-size: 10px; color: var(--p-muted); letter-spacing: .04em; }
+.ph-tab svg { width: 20px; height: 20px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.ph-tab.on { color: var(--p-accent2); }
+
+/* 1 Iron & Ember */
+.t1 { --p-bg: #141517; --p-card: #1e2023; --p-ink: #f1ede6; --p-muted: #8d9096; --p-line: #33363b; --p-track-c: #2b2e32; --p-bar: #111214;
+  --p-accent: #e8612c; --p-accent2: #f08a4b; --p-hot: #d93a2e; --p-on: #141517;
+  --p-head: "Barlow Condensed", "Arial Narrow", sans-serif; --p-body: "Barlow", system-ui, sans-serif; --p-case: uppercase; --p-track: .01em;
+  --p-r: 10px; --p-rbox: 6px; --p-rbtn: 10px; --p-border: 0; }
+.t1 .ph-title { font-weight: 800; } .t1 .ph-lab, .t1 .ph-big, .t1 .ph-btn, .t1 .pts { font-weight: 700; }
+/* 2 Field Ops */
+.t2 { --p-bg: #1b1f17; --p-card: #252a1f; --p-ink: #e9e3cf; --p-muted: #a29c84; --p-line: #3c4232; --p-track-c: #323827; --p-bar: #171a13;
+  --p-accent: #c9b27a; --p-accent2: #e0c46c; --p-hot: #d0642f; --p-on: #1b1f17;
+  --p-head: "Saira Condensed", "Arial Narrow", sans-serif; --p-body: "IBM Plex Sans", system-ui, sans-serif; --p-case: uppercase; --p-track: .02em; --p-track-s: .06em;
+  --p-r: 4px; --p-rbox: 2px; --p-rbtn: 4px; --p-border: 1px solid #3c4232; }
+.t2 .ph-title { font-family: "Saira Stencil One", "Saira Condensed", sans-serif; font-weight: 400; font-size: 32px; }
+.t2 .ph-lab, .t2 .ph-big, .t2 .ph-btn, .t2 .pts { font-weight: 700; }
+/* 3 Midnight Steel */
+.t3 { --p-bg: #0b0f14; --p-card: #141a22; --p-ink: #eef3f8; --p-muted: #8593a3; --p-line: #26303c; --p-track-c: #1f2832; --p-bar: #0b0f14;
+  --p-accent: #3d9bff; --p-accent2: #5fb0ff; --p-hot: #ff6b4a; --p-on: #ffffff;
+  --p-head: "Archivo", system-ui, sans-serif; --p-body: "Archivo", system-ui, sans-serif; --p-case: none; --p-track: -.02em; --p-track-s: 0;
+  --p-r: 16px; --p-rbox: 50%; --p-rbtn: 999px; --p-border: 0; }
+.t3 .ph-title { font-weight: 900; } .t3 .ph-lab, .t3 .ph-big { font-weight: 800; } .t3 .ph-btn, .t3 .pts { font-weight: 600; }
+/* 4 Granite & Brass */
+.t4 { --p-bg: #1f2226; --p-card: #292d32; --p-ink: #f3efe7; --p-muted: #9a9ea5; --p-line: #3a3f46; --p-track-c: #353a41; --p-bar: #1a1d20;
+  --p-accent: #c9a24b; --p-accent2: #d9b766; --p-hot: #b8423a; --p-on: #1f2226;
+  --p-head: "Bebas Neue", "Arial Narrow", sans-serif; --p-body: "Source Sans 3", system-ui, sans-serif; --p-case: uppercase; --p-track: .03em; --p-track-s: .05em;
+  --p-r: 12px; --p-rbox: 6px; --p-rbtn: 12px; --p-border: 1px solid #353a41; }
+.t4 .ph-title { font-size: 40px; font-weight: 400; } .t4 .ph-lab, .t4 .ph-btn, .t4 .pts { font-weight: 400; font-size: 17px; } .t4 .ph-big { font-weight: 400; font-size: 34px; }
+/* 5 Concrete Forge (light) */
+.t5 { --p-bg: #eceef0; --p-card: #ffffff; --p-ink: #15171a; --p-muted: #636a72; --p-line: #d3d7dc; --p-track-c: #e1e4e8; --p-bar: #ffffff;
+  --p-accent: #15171a; --p-accent2: #ff5a1f; --p-hot: #ff5a1f; --p-on: #ffffff;
+  --p-head: "Teko", "Arial Narrow", sans-serif; --p-body: "Manrope", system-ui, sans-serif; --p-case: uppercase; --p-track: .01em; --p-track-s: .04em;
+  --p-r: 14px; --p-rbox: 7px; --p-rbtn: 14px; --p-border: 0; }
+.t5 .ph-title { font-weight: 700; font-size: 44px; } .t5 .ph-lab, .t5 .ph-btn, .t5 .pts { font-weight: 600; font-size: 18px; } .t5 .ph-big { font-weight: 600; font-size: 36px; }
+.t5 .ph-bar b { background: var(--p-accent2); } .t5 .ph-item.done .ph-box { background: var(--p-accent2); border-color: var(--p-accent2); }
+.t5 .phone { box-shadow: 0 10px 30px rgba(0,0,0,.10); }
+</style>
+
+<div class="wrap">
+  <h1>Five looks for Forged &amp; Sent</h1>
+  <p class="lede">Each phone shows the same Today screen in a different palette, font pair and shape. Rounder corners and fewer outlines make a look feel less blocky. Pick one, or mix pieces, like the palette from one and the fonts from another.</p>
+  <div class="grid" id="grid"></div>
+</div>
+
+<template id="phone-tpl">
+  <div class="phone"><div class="ph-in">
+    <div class="ph-top"><span>Sunday, October 25</span><span class="ph-av">C</span></div>
+    <h3 class="ph-title">Forged &amp; Sent</h3>
+    <p class="ph-sub">Be watchful. Stand firm. Act like men.</p>
+    <div class="ph-card">
+      <div class="ph-row"><span class="ph-lab">Today's boxes</span><span class="ph-big">5<small> / 9</small></span></div>
+      <div class="ph-bar"><b style="width:55%"></b></div>
+    </div>
+    <div class="ph-list">
+      <div class="ph-item done"><span class="ph-box">✓</span><span class="t"><b>Daily Devotional</b><span>Mark 9:24</span></span><span class="pts">+2</span></div>
+      <div class="ph-item done"><span class="ph-box">✓</span><span class="t"><b>Workout</b><span>Squat Day: Back Squat</span></span><span class="pts">+3</span></div>
+      <div class="ph-item"><span class="ph-box">✓</span><span class="t"><b>Progress Photos</b><span>Front, side and rear</span></span><span class="pts">+1</span></div>
+    </div>
+    <div class="ph-card">
+      <div class="ph-row"><span class="ph-lab">Protein</span><span>208 / 239 g</span></div>
+      <div class="ph-bar"><b style="width:87%"></b></div>
+      <div class="ph-row" style="margin-top:10px"><span class="ph-lab">Fat</span><span>74 / 67 g</span></div>
+      <div class="ph-bar"><b style="width:90%"></b><b class="ov" style="width:10%"></b></div>
+    </div>
+    <span class="ph-btn">Start workout</span>
+  </div>
+  <div class="ph-tabs">
+    <span class="ph-tab on"><svg viewBox="0 0 24 24"><path d="M4 4h16v16H4zM8 12l3 3 5-6"/></svg>Today</span>
+    <span class="ph-tab"><svg viewBox="0 0 24 24"><path d="M12 3c2.5 3.5 6 6.5 6 11a6 6 0 0 1-12 0c0-2.5 1.2-4.3 2.5-5.5.3 2 1.3 3 2.5 3.5C11 9 11 6 12 3z"/></svg>Fuel</span>
+    <span class="ph-tab"><svg viewBox="0 0 24 24"><path d="M3 9v6M6 7v10M18 7v10M21 9v6M6 12h12"/></svg>Train</span>
+    <span class="ph-tab"><svg viewBox="0 0 24 24"><path d="M5 20V10M12 20V4M19 20v-7"/></svg>Board</span>
+    <span class="ph-tab"><svg viewBox="0 0 24 24"><path d="M4 5h16v11H9l-5 4z"/></svg>Rally</span>
+  </div></div>
+</template>
+
+<script>
+  var OPTS = [
+    { cls: "t1", name: "Iron & Ember", desc: "Charcoal steel with a forge-fire orange. Tall condensed headings, soft 10 px corners and no outlines, so cards float instead of boxing in.", colors: [["#141517", "Charcoal"], ["#1e2023", "Steel"], ["#f1ede6", "Bone"], ["#e8612c", "Ember"], ["#d93a2e", "Over goal"]], fonts: ["Barlow Condensed, headings", "Barlow, text"], shape: "Rounded 10 px, no borders" },
+    { cls: "t2", name: "Field Ops", desc: "Olive drab and desert tan with a stencil logo. It's the closest to the current military feel, but with more contrast and cleaner type. It stays square-edged and rugged.", colors: [["#1b1f17", "OD green"], ["#252a1f", "Canvas"], ["#e9e3cf", "Sand"], ["#c9b27a", "Tan"], ["#d0642f", "Signal"]], fonts: ["Saira Stencil One, logo", "Saira Condensed, headings", "IBM Plex Sans, text"], shape: "Square 4 px, thin outlines" },
+    { cls: "t3", name: "Midnight Steel", desc: "Modern performance-app look: deep navy-black, electric blue, pill buttons and round checkboxes. Sleek rather than military.", colors: [["#0b0f14", "Midnight"], ["#141a22", "Slate"], ["#eef3f8", "Ice"], ["#3d9bff", "Volt blue"], ["#ff6b4a", "Over goal"]], fonts: ["Archivo Black and Archivo, headings and text"], shape: "Rounded 16 px, pill buttons" },
+    { cls: "t4", name: "Granite & Brass", desc: "Premium and timeless: granite gray with brass, like a challenge coin or a well-made rifle stock. Bold all-caps headings with plenty of space.", colors: [["#1f2226", "Granite"], ["#292d32", "Gunmetal"], ["#f3efe7", "Linen"], ["#c9a24b", "Brass"], ["#b8423a", "Crimson"]], fonts: ["Bebas Neue, headings", "Source Sans 3, text"], shape: "Rounded 12 px, hairline outlines" },
+    { cls: "t5", name: "Concrete Forge", desc: "A light option: poured-concrete gray, black ink and safety orange, like a strength gym's signage. White cards with soft shadows instead of borders.", colors: [["#eceef0", "Concrete"], ["#ffffff", "White"], ["#15171a", "Iron black"], ["#ff5a1f", "Safety orange"]], fonts: ["Teko, headings", "Manrope, text"], shape: "Rounded 14 px, shadows, no borders" }
+  ];
+  var grid = document.getElementById("grid"), tpl = document.getElementById("phone-tpl");
+  OPTS.forEach(function (o, i) {
+    var d = document.createElement("article"); d.className = "opt";
+    var h = document.createElement("div"); h.className = "opt-h";
+    var n = document.createElement("span"); n.className = "n"; n.textContent = "OPTION " + (i + 1);
+    var t = document.createElement("h2"); t.textContent = o.name; h.appendChild(n); h.appendChild(t); d.appendChild(h);
+    var ph = tpl.content.firstElementChild.cloneNode(true), w = document.createElement("div"); w.className = o.cls; w.appendChild(ph); d.appendChild(w);
+    var p = document.createElement("p"); p.textContent = o.desc; d.appendChild(p);
+    var c = document.createElement("div"); c.className = "chips";
+    o.colors.forEach(function (x) { var s = document.createElement("span"); s.className = "chip"; var dot = document.createElement("i"); dot.style.background = x[0]; s.appendChild(dot); s.appendChild(document.createTextNode(x[1] + " " + x[0])); c.appendChild(s); });
+    d.appendChild(c);
+    var sp = document.createElement("div"); sp.className = "specs";
+    [["Fonts", o.fonts.join(" · ")], ["Shape", o.shape]].forEach(function (r) { var a = document.createElement("span"); a.textContent = r[0]; var b = document.createElement("b"); b.textContent = r[1]; sp.appendChild(a); sp.appendChild(b); });
+    d.appendChild(sp); grid.appendChild(d);
+  });
+</script>
