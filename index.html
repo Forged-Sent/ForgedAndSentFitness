@@ -366,6 +366,7 @@ details.targets[open] summary::after { content: "\2212"; }
 .ch-score b { font-family: var(--f-label); font-size: 30px; color: var(--accent); }
 .ch-score span { font-size: 13.5px; color: var(--muted); }
 .ch-br { margin-bottom: 8px; }
+.ch-due { margin: 0 0 4px; font-family: var(--f-label); font-weight: 700; letter-spacing: .06em; text-transform: uppercase; font-size: 13px; color: var(--hot, var(--accent)); }
 .ch-ok { margin: 0; padding: 10px 12px; border-left: 3px solid var(--accent); background: var(--surface); font-weight: 600; }
 .wp-k { color: var(--brass, var(--accent)); }
 .wp-text { border-left: 3px solid var(--accent); padding: 2px 0 2px 14px; margin: 4px 0 6px; }
@@ -1061,8 +1062,10 @@ details.targets[open] summary::after { content: "\2212"; }
     </section>
 
     <section aria-labelledby="h-s-body">
-      <div class="section-head"><h2 class="label-caps" id="h-s-body" data-sub="Age, weight, height and activity. Used to estimate the calories you burn.">Your body stats</h2></div>
+      <div class="section-head"><h2 class="label-caps" id="h-s-body" data-sub="Birthday, weight, height and activity. Used for your calorie plan and challenge age bracket.">Your body stats</h2></div>
       <div class="fgrid" id="body-form" data-form="body">
+        <label class="flabel full">Birthday<input class="field" type="date" id="b-bday" min="1920-01-01" aria-describedby="b-bday-note"></label>
+        <p class="note full" id="b-bday-note" style="margin:-4px 0 0">Saves right away. Sets your age for your calorie plan and your age bracket in the weekly challenges.</p>
         <label class="flabel">Age<input class="field" type="number" id="b-age" min="14" max="99" inputmode="numeric"></label>
         <label class="flabel">Weight (lb)<input class="field" type="number" id="b-wt" min="80" max="600" inputmode="decimal"></label>
         <label class="flabel">Height (ft)<input class="field" type="number" id="b-ft" min="3" max="8" inputmode="numeric"></label>
@@ -3045,6 +3048,14 @@ details.targets[open] summary::after { content: "\2212"; }
     if (n > CHAL.weeks.length) return { over: true, n: CHAL.weeks.length, w: CHAL.weeks[CHAL.weeks.length - 1], start: start };
     return { n: n, w: CHAL.weeks[n - 1], start: start, wkStart: addDays(start, (n - 1) * 7) };
   }
+  // Submissions close Sunday 8:00 AM Arizona time (MST, UTC-7; Arizona has no daylight saving).
+  function chalDeadline(weekNo) {
+    var start = (CHAL.assumptions && CHAL.assumptions.week1Start) || "2026-11-02", sun = addDays(start, (weekNo - 1) * 7 + 6).split("-").map(Number);
+    return Date.UTC(sun[0], sun[1] - 1, sun[2], 15, 0, 0);
+  }
+  function chalOpenAt(weekNo) { var start = (CHAL.assumptions && CHAL.assumptions.week1Start) || "2026-11-02", mon = addDays(start, (weekNo - 1) * 7).split("-").map(Number); return Date.UTC(mon[0], mon[1] - 1, mon[2], 7, 0, 0); }
+  function chalIsOpen(weekNo) { var t = nowDate().getTime(); return t >= chalOpenAt(weekNo) && t < chalDeadline(weekNo); }
+  function chalDeadlineText(weekNo) { var d = new Date(chalDeadline(weekNo) - 7 * 3600000); return "Sunday, " + d.toLocaleDateString("en-US", { month: "short", day: "numeric", timeZone: "UTC" }) + " at 8:00 AM Arizona time"; }
   function chalSeason(id) { return (CHAL.seasons || []).filter(function (s) { return s.id === id; })[0] || {}; }
   function chalSlot(id) { return (CHAL.slots || []).filter(function (s) { return s.id === id; })[0] || { label: id }; }
   function chalSubs() { return (state.chal && state.chal.subs) || {}; }
@@ -3086,8 +3097,14 @@ details.targets[open] summary::after { content: "\2212"; }
   }
   /* Scoring: Family, Scaled and Alternate earn a flat 50. Standard Iron and Endure earn 0-100 against the
      best result in the man's age bracket (100 x result / leader, or leader / result for time). */
-  function myBracket() {
-    var age = Number(((state.settings || {}).body || {}).age) || 0; if (!age) return "";
+  function seasonStart(seasonId) {
+    var ss = chalSeason(seasonId), first = (ss.weeks && ss.weeks[0]) || 1;
+    return addDays((CHAL.assumptions && CHAL.assumptions.week1Start) || "2026-11-02", (first - 1) * 7);
+  }
+  // Age is counted on the first day of the season (from the birthday when he's entered one).
+  function myBracket(seasonId) {
+    var body = (state.settings || {}).body || {}, sid = seasonId || chalWeekFor(todayKey()).w.season;
+    var age = validBday(body.bday) ? ageOn(body.bday, seasonStart(sid)) : Number(body.age) || 0; if (!age) return "";
     var b = (CHAL.scoring.ageBrackets || []).filter(function (x) { return age >= x.min && (x.max == null || age <= x.max); })[0];
     return b ? b.id : "";
   }
@@ -3133,7 +3150,8 @@ details.targets[open] summary::after { content: "\2212"; }
     var box = $("chal-btns"); if (!box) return; box.textContent = "";
     var cw = chalWeekFor(todayKey()), w = cw.w, ss = chalSeason(w.season);
     var hd = $("chal-sub");
-    hd.textContent = cw.pre ? "Week 1 starts " + parseKey(cw.start).toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric" }) + ". Preview below." : cw.over ? "The 52-week challenge is complete." : "Week " + cw.n + " of 52 · " + (ss.name || "") + (w.gauntlet ? " · Gauntlet week" : "") + ". Runs Monday to Sunday.";
+    var closed = !cw.pre && !cw.over && !chalIsOpen(cw.n);
+    hd.textContent = cw.pre ? "Week 1 starts " + parseKey(cw.start).toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric" }) + ". Preview below." : cw.over ? "The 52-week challenge is complete." : "Week " + cw.n + " of 52 · " + (ss.name || "") + (w.gauntlet ? " · Gauntlet week" : "") + (closed ? ". Submissions are closed. Results are final." : ". Submit by Sunday 8:00 AM Arizona time.");
     var weekPts = 0;
     w.challenges.forEach(function (c) {
       var b = el("button", "chal-btn chal-" + c.slot + (w.gauntlet ? " gaunt" : "")); b.type = "button";
@@ -3154,7 +3172,7 @@ details.targets[open] summary::after { content: "\2212"; }
   function drawChallengePage() {
     var body = $("chal-body"); if (!body) return;
     var f = chalFind(chalCur); body.textContent = ""; if (!f) return;
-    var w = f.w, c = f.c, cw = chalWeekFor(todayKey()), live = !cw.pre && !cw.over && cw.n === w.week, ss = chalSeason(w.season), slot = chalSlot(c.slot);
+    var w = f.w, c = f.c, cw = chalWeekFor(todayKey()), live = !cw.pre && !cw.over && cw.n === w.week && chalIsOpen(w.week), ss = chalSeason(w.season), slot = chalSlot(c.slot);
     var sb = CHAL.scoring.scoredByTypes || {}, ranked = chalRanked(c);
     var head = el("header", "ch-head");
     head.appendChild(el("div", "label-caps ch-k", slot.label + " · Week " + w.week + (w.gauntlet ? " · Gauntlet" : "")));
@@ -3203,7 +3221,7 @@ details.targets[open] summary::after { content: "\2212"; }
     if (ranked) {
       var groups = {}; rows.forEach(function (r) { if (r.rank) (groups[r.g] = groups[r.g] || []).push(r); });
       var keys = Object.keys(groups);
-      if (!state.chalBr || keys.indexOf(state.chalBr) < 0) state.chalBr = me && groups[me.g] ? me.g : (myBracket() + "|") in groups ? myBracket() + "|" : keys[0];
+      if (!state.chalBr || keys.indexOf(state.chalBr) < 0) state.chalBr = me && groups[me.g] ? me.g : (myBracket(w.season) + "|") in groups ? myBracket(w.season) + "|" : keys[0];
       var stS = el("section", "ch-sec"); stS.appendChild(el("h2", "label-caps", "Standings"));
       if (!keys.length) stS.appendChild(el("p", "fnote", "No Standard results yet. Be the first."));
       else {
@@ -3223,7 +3241,7 @@ details.targets[open] summary::after { content: "\2212"; }
         stS.appendChild(bd);
       }
       var flats = rows.filter(function (r) { return r.flat; }).length; if (flats) stS.appendChild(el("p", "fnote", flats + (flats === 1 ? " man" : " men") + " completed the Alternate or Scaled version."));
-      if (!myBracket()) stS.appendChild(el("p", "fnote", "Add your age in Settings \u2192 Your body stats to be ranked in your age bracket."));
+      if (!myBracket(w.season)) stS.appendChild(el("p", "fnote", "Add your birthday in Settings \u2192 Your body stats to be ranked in your age bracket."));
       body.appendChild(stS);
     }
     // Past attempts
@@ -3244,7 +3262,8 @@ details.targets[open] summary::after { content: "\2212"; }
     }
     // Submit
     var sub = el("section", "ch-sec"); if (!(c.scoredBy === "completion" && at.length)) sub.appendChild(el("h2", "label-caps", at.length ? "Submit another attempt" : "Submit your result"));
-    if (!live) { sub.appendChild(el("p", "fnote", cw.pre ? "Submissions open when Week 1 starts on " + parseKey(cw.start).toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric" }) + "." : "Submissions are closed for this week.")); body.appendChild(sub); return; }
+    if (!live) { sub.appendChild(el("p", "fnote", cw.pre ? "Submissions open when Week 1 starts on " + parseKey(cw.start).toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric" }) + "." : "Submissions closed " + chalDeadlineText(w.week) + ". Results are final.")); body.appendChild(sub); return; }
+    sub.appendChild(el("p", "ch-due", "Submit by " + chalDeadlineText(w.week) + "."));
     if (!state.me || !state.canWrite) { sub.appendChild(el("p", "fnote", "Sign in to submit.")); body.appendChild(sub); return; }
     if (c.scoredBy === "completion" && at.length) { if (state.chalMsg) { sub.appendChild(el("p", "ch-ok", state.chalMsg)); state.chalMsg = ""; } body.appendChild(sub); return; }
     if (!chalForm) chalForm = { mode: "standard", v: "", x: "", m: CH_MODES[0], note: "", files: [], busy: false, msg: "" };
@@ -3290,6 +3309,7 @@ details.targets[open] summary::after { content: "\2212"; }
     var go2 = el("button", "btn", F.busy ? "Working…" : c.scoredBy === "completion" ? "Mark complete" : "Submit result"); go2.type = "submit"; go2.disabled = F.busy; form.appendChild(go2);
     form.addEventListener("submit", async function (ev) {
       ev.preventDefault(); if (F.busy) return;
+      if (!chalIsOpen(w.week)) { F.msg = "Submissions closed " + chalDeadlineText(w.week) + "."; drawChallengePage(); return; }
       var a = { mode: F.mode, at: nowDate().getTime(), note: F.note.trim().slice(0, 300) };
       if (needsScore) {
         var v = c.scoredBy === "fastest_time" || c.scoredBy === "longest_hold" ? parseClock(F.v) : Number(String(F.v).replace(/,/g, ""));
@@ -4006,8 +4026,8 @@ details.targets[open] summary::after { content: "\2212"; }
       "Iron builds strength and Endure builds your engine. Do the Standard version and you're scored 0 to 100 against the best result in your age bracket. The leader gets 100.",
       "Alternate (for injuries) and Scaled earn a flat 50 points and aren't ranked.",
       "Enter your score, add a note, and add a photo or video if you want. You can submit more than once. Your best attempt counts.",
-      "Set your age in Settings so you're ranked with men your age: under 30, 30s, 40s, 50s or 60+.",
-      "The week runs Monday to Sunday. The most you can earn in a week is 250 points."] },
+      "Add your birthday in Settings \u2192 Your body stats so you're ranked with men your age: under 30, 30s, 40s, 50s or 60+. Your age is counted on the first day of each season.",
+      "Submit by Sunday at 8:00 AM Arizona time. After that, submissions close and results are final. The most you can earn in a week is 250 points."] },
     video: { t: "How to do it", why: "A quick guide for one movement.", how: [
       "Tap Watch on YouTube to see the video. Come back to the app when you're done.",
       "Read the coaching cue before your first set."] },
@@ -4522,8 +4542,19 @@ details.targets[open] summary::after { content: "\2212"; }
   }
 
   /* Settings: stats calculator (Mifflin-St Jeor) */
+  function validBday(v) { return typeof v === "string" && /^\d{4}-\d{2}-\d{2}$/.test(v) && v >= "1920-01-01" && v <= todayKey(); }
+  // Age in whole years on a given date key.
+  function ageOn(bday, key) { var b = bday.split("-").map(Number), k = key.split("-").map(Number), a = k[0] - b[0]; if (k[1] < b[1] || (k[1] === b[1] && k[2] < b[2])) a--; return Math.max(0, a); }
+  function saveBirthday(v) {
+    if (!state.me || !state.canWrite) return;
+    var b = Object.assign({}, state.settings.body || {});
+    if (validBday(v)) { b.bday = v; b.age = ageOn(v, todayKey()); } else delete b.bday;
+    state.settings.body = b; saveSettings();
+    $("b-age").readOnly = validBday(v); if (validBday(v)) $("b-age").value = b.age;
+    renderCalc(); drawChallengeButtons();
+  }
   function readBody() {
-    return { age: +$("b-age").value || 0, ft: +$("b-ft").value || 0, inch: +$("b-in").value || 0, wt: +$("b-wt").value || 0, gwt: +$("b-gwt").value || 0,
+    return { bday: validBday($("b-bday").value) ? $("b-bday").value : "", age: +$("b-age").value || 0, ft: +$("b-ft").value || 0, inch: +$("b-in").value || 0, wt: +$("b-wt").value || 0, gwt: +$("b-gwt").value || 0,
       act: +$("b-act").value || 1.375, goal: $("b-goal").value, pace: +$("b-pace").value || 1, prot: +$("b-prot").value || 1, fat: +$("b-fat").value || 25, bmr: +$("b-bmr").value || 0 };
   }
   function calcPlan(b) {
@@ -4577,7 +4608,7 @@ details.targets[open] summary::after { content: "\2212"; }
     fillForm("motto", function () { $("s-motto").value = pp.motto || ""; });
     fillForm("body", function () {
       var b = st.body || {};
-      $("b-age").value = b.age || ""; $("b-wt").value = b.wt || ""; $("b-ft").value = b.ft || ""; $("b-in").value = b.inch != null ? b.inch : "";
+      $("b-bday").value = validBday(b.bday) ? b.bday : ""; $("b-age").value = validBday(b.bday) ? ageOn(b.bday, todayKey()) : (b.age || ""); $("b-age").readOnly = validBday(b.bday); $("b-wt").value = b.wt || ""; $("b-ft").value = b.ft || ""; $("b-in").value = b.inch != null ? b.inch : "";
       $("b-act").value = String(b.act || 1.375); $("b-goal").value = b.goal || "lose"; $("b-pace").value = String(b.pace || 1);
       $("b-gwt").value = b.gwt ? b.gwt : ""; $("b-prot").value = String(b.prot || 1); $("b-fat").value = b.fat || 25; $("b-bmr").value = b.bmr ? b.bmr : "";
     });
@@ -4789,6 +4820,7 @@ details.targets[open] summary::after { content: "\2212"; }
     $("s-bn-file").addEventListener("change", function (ev) { uploadPhoto(ev.target.files[0], "bannerId"); ev.target.value = ""; });
     $("s-av-rm").addEventListener("click", function () { var o = (state.pubProfiles[state.me] || {}).avatarId; saveProfilePatch({ avatarId: "" }); if (o) B.deleteAsset(o); });
     $("s-bn-rm").addEventListener("click", function () { var o = (state.pubProfiles[state.me] || {}).bannerId; saveProfilePatch({ bannerId: "" }); if (o) B.deleteAsset(o); });
+    $("b-bday").addEventListener("change", function (ev) { saveBirthday(ev.target.value); });
     $("calc-apply").addEventListener("click", function () {
       var b = readBody(), plan = calcPlan(b); if (!plan) return;
       state.settings.body = b; state.settings.targets = { kcal: plan.kcal, p: plan.p, f: plan.f, c: plan.c };
