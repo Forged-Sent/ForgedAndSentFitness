@@ -293,6 +293,7 @@ details.targets[open] summary::after { content: "\2212"; }
 .help-list li::marker { color: var(--accent); }
 .pg-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
 .pg-row .pts-btn { flex: none; min-height: 34px; padding: 0 12px; font-size: 12px; }
+.lb-pick { display: block; margin-bottom: 10px; }
 .pts-body { padding: 0 0 4px; }
 .pts-body .pts-h:first-child { margin-top: 4px; }
 .pts-h { font-family: var(--f-label); font-weight: 700; letter-spacing: .1em; text-transform: uppercase; font-size: 13px; color: var(--brass, var(--accent)); margin: 14px 0 6px; }
@@ -793,6 +794,12 @@ details.targets[open] summary::after { content: "\2212"; }
       </div>
       <div class="board" id="board"></div>
       <p class="note" id="board-note"></p>
+    </section>
+    <section aria-labelledby="h-liftb">
+      <div class="section-head"><h2 class="label-caps" id="h-liftb">Top lifts</h2></div>
+      <label class="flabel lb-pick">Lift<select class="field" id="liftb-sel" aria-describedby="liftb-note"></select></label>
+      <div class="board" id="liftb"></div>
+      <p class="note" id="liftb-note">Heaviest weight each man has logged as his PR in his profile.</p>
     </section>
   </div>
 
@@ -2964,7 +2971,33 @@ details.targets[open] summary::after { content: "\2212"; }
     group("Personal records", [["Weight PR or volume PR on a lift", "+" + PR_PTS + " pts"]], "Awarded when you finish a workout. Each lift earns it once a day, even if you hit both a weight and a volume PR.");
     b.appendChild(el("p", "fnote", "Today shows points earned today. This week adds up Monday through Sunday, then resets. All time adds up every point since a man joined."));
   }
+  function drawLiftBoard() {
+    var sel = $("liftb-sel"), box = $("liftb"); if (!sel || !box) return;
+    var lifts = state.lifts || [];
+    if (!lifts.some(function (l) { return l.id === state.liftBoard; })) state.liftBoard = lifts.length ? lifts[0].id : null;
+    var sig = lifts.map(function (l) { return l.id + ":" + l.name; }).join("|");
+    if (sel.dataset.sig !== sig) { sel.textContent = ""; lifts.forEach(function (l) { var o = el("option", null, l.name); o.value = l.id; sel.appendChild(o); }); sel.dataset.sig = sig; }
+    sel.value = state.liftBoard || ""; sel.disabled = !lifts.length;
+    box.textContent = "";
+    if (!lifts.length) { var e0 = el("div", "empty"); e0.appendChild(el("strong", null, "No lifts yet")); e0.appendChild(document.createTextNode("Your leader will set the lifts the group tracks.")); box.appendChild(e0); return; }
+    var id = state.liftBoard, rows = [];
+    Object.keys(state.pubProfiles || {}).forEach(function (uid) { var pr = ((state.pubProfiles[uid] || {}).prs || {})[id]; if (pr && Number(pr.w) > 0) rows.push({ uid: uid, w: Number(pr.w), reps: Number(pr.reps) || 0, date: pr.date || "" }); });
+    rows.sort(function (a, b) { return (b.w - a.w) || (b.reps - a.reps) || (a.date < b.date ? -1 : 1); });
+    if (!rows.length) { var e = el("div", "empty"); e.appendChild(el("strong", null, "No PRs logged yet")); e.appendChild(document.createTextNode("Be the first. Log your PR on your profile.")); box.appendChild(e); return; }
+    var max = rows[0].w, prev = null, rank = 0;
+    rows.forEach(function (r, i) {
+      if (r.w !== prev) { rank = i + 1; prev = r.w; }
+      var row = el("div", "row" + (rank === 1 ? " lead" : ""));
+      row.appendChild(el("div", "rank", String(rank)));
+      var img = el("img", "avatar"); img.alt = ""; if (avatarSrc(r.uid)) img.src = avatarSrc(r.uid); makeLink(img, r.uid); row.appendChild(img);
+      var who = el("div", "who"), nm = el("div", "nm", nameOf(r.uid)); if (r.uid === state.me) nm.appendChild(el("em", null, "YOU")); makeLink(nm, r.uid); who.appendChild(nm);
+      var bar = el("div", "bar"), fill = el("i"); fill.style.width = Math.round(100 * r.w / max) + "%"; bar.appendChild(fill); who.appendChild(bar); row.appendChild(who);
+      var sc = el("div", "score"); sc.appendChild(el("b", null, fmtW(r.w))); sc.appendChild(el("span", null, "lb" + (r.reps ? " \u00D7 " + r.reps : "") + (r.date ? " \u00B7 " + shortDate(r.date) : "")));
+      row.appendChild(sc); box.appendChild(row);
+    });
+  }
   function drawBoard() {
+    drawLiftBoard();
     var board = $("board"); board.textContent = "";
     var today = todayKey(), ws = weekStartKey(), people = {}, range = state.range || "week", isAll = range === "all", isWeek = range === "week";
     if (isAll) watchAllChecks();
@@ -3545,6 +3578,7 @@ details.targets[open] summary::after { content: "\2212"; }
     board: { t: "Board", why: "See where the brothers stand, today and for the week.", how: [
       "Switch between Today, This week and All time. The week runs Monday to Sunday. All time adds up every point since a man joined.",
       "Points come from your boxes, your three habits, step bonuses and PRs. Tap How points work next to Standings for the full breakdown.",
+      "Top lifts: pick a lift from the menu to see who holds the heaviest PR. PRs come from what each man logs on his profile.",
       "Tap a man to see his profile and lift PRs.",
       "Use it to push each other, and to find the man who needs encouraging."] },
     checkin: { t: "Rally", why: "The group thread. Show up, share wins and encourage a brother.", how: [
@@ -4402,6 +4436,7 @@ details.targets[open] summary::after { content: "\2212"; }
     $("tab-today").addEventListener("click", function () { state.range = "today"; drawBoard(); });
     $("tab-week").addEventListener("click", function () { state.range = "week"; drawBoard(); });
     $("tab-all").addEventListener("click", function () { state.range = "all"; drawBoard(); });
+    $("liftb-sel").addEventListener("change", function (ev) { state.liftBoard = ev.target.value; drawLiftBoard(); });
     wireDevo();
     $("water-add").addEventListener("click", function () { addWater(WATER_STEP); });
     $("water-sub-btn").addEventListener("click", function () { addWater(-WATER_STEP); });
