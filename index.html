@@ -272,15 +272,18 @@ details.targets[open] summary::after { content: "\2212"; }
 .wk-card .btn { width: 100%; margin-top: 14px; }
 #wkp-body .btn { width: 100%; margin-top: 18px; }
 #wkp-body .wk-start { min-height: 60px; font-size: 16.5px; }
-.setrow { display: grid; grid-template-columns: 46px minmax(0, 1fr) minmax(0, 1fr) 48px 36px; gap: 6px; align-items: center; margin-top: 8px; }
+.setrow { display: grid; grid-template-columns: 46px minmax(0, 1fr) minmax(0, 1fr) 26px 32px; gap: 6px; align-items: center; margin-top: 8px; }
 .setrow.one { grid-template-columns: 54px 48px; }
 .setx { min-height: 48px; min-width: 36px; padding: 0; background: transparent; border: 0; color: var(--danger); font-size: 19px; font-weight: 700; }
 .addset { display: flex; gap: 8px; margin-top: 10px; }
 .addset .mini { flex: 1; min-height: 44px; }
 .setrow .sn { font-family: var(--f-label); font-weight: 600; font-size: 12.5px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
 .setrow .field { padding: 8px 10px; min-height: 48px; text-align: center; }
-.setck { min-height: 48px; min-width: 48px; background: transparent; border: 2px solid var(--line); color: var(--muted); font-size: 17px; font-weight: 700; }
-.setck[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--bg); }
+.setck { width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center; justify-self: center; border: 2px solid var(--line); color: var(--line); font-size: 12px; font-weight: 700; line-height: 1; transition: background .15s, border-color .15s, color .15s; }
+.setck-btn { min-height: 48px; min-width: 48px; background: transparent; border: 2px solid var(--line); color: var(--muted); font-size: 17px; font-weight: 700; }
+.setck-btn[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--bg); }
+.setck.on { background: var(--accent); border-color: var(--accent); color: var(--bg); }
+@media (prefers-reduced-motion: reduce) { .setck { transition: none; } }
 .rest { display: flex; align-items: center; gap: 8px; margin-top: 12px; padding-top: 10px; border-top: 1px dashed var(--line); }
 .rest .rt-label { font-family: var(--f-label); font-weight: 600; font-size: 13px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
 .rest .rt-time { flex: 1; font-family: var(--f-display); font-weight: 700; font-size: 21.5px; min-width: 62px; }
@@ -2100,12 +2103,17 @@ details.targets[open] summary::after { content: "\2212"; }
           a.forEach(function (s, j) {
             var isW = s.k === "w", isX = s.k === "x", row = el("div", "setrow" + (s.d ? " ok" : "")), lab = isW ? "W" + (++wNo) : "Set " + (++setNo);
             row.appendChild(el("span", "sn", lab));
-            row.appendChild(numField("sw", (isW ? "Warm-up " + wNo : lab) + " weight in pounds", "lb", s.w, 2000, function (v) { s.w = v; }));
-            row.appendChild(numField("sr", (isW ? "Warm-up " + wNo : lab) + (ps.time ? " seconds" : " reps"), ps.time ? "sec" : "reps", s.r, 999, function (v) { s.r = v; }));
-            afRows.push({ s: s, w: row.querySelector(".sw"), r: row.querySelector(".sr") });
-            var ck = el("button", "setck", "\u2713"); ck.type = "button"; ck.setAttribute("aria-label", "Mark " + lab + " done"); ck.setAttribute("aria-pressed", String(!!s.d));
-            ck.addEventListener("click", function () { s.d = !s.d; row.className = "setrow" + (s.d ? " ok" : ""); ck.setAttribute("aria-pressed", String(!!s.d)); saveWkSoon(); });
-            row.appendChild(ck);
+            var ck = el("span", "setck", "\u2713");
+            // Lights up on its own once the set has reps (or time) and weight. Not tappable.
+            var paintDone = function () {
+              var on = Number(s.r) > 0 && (ps.time || s.w !== ""); s.d = on;
+              row.className = "setrow" + (on ? " ok" : ""); ck.classList.toggle("on", on);
+              ck.setAttribute("aria-label", lab + (on ? " logged" : " not logged yet"));
+            };
+            row.appendChild(numField("sr", (isW ? "Warm-up " + wNo : lab) + (ps.time ? " seconds" : " reps"), ps.time ? "sec" : "reps", s.r, 999, function (v) { s.r = v; paintDone(); }));
+            row.appendChild(numField("sw", (isW ? "Warm-up " + wNo : lab) + " weight in pounds", "lb", s.w, 2000, function (v) { s.w = v; paintDone(); }));
+            afRows.push({ s: s, w: row.querySelector(".sw"), r: row.querySelector(".sr"), paint: paintDone });
+            ck.setAttribute("role", "img"); row.appendChild(ck); paintDone();
             if (isW || isX) {
               var rm = el("button", "setx", "\u00D7"); rm.type = "button"; rm.setAttribute("aria-label", "Remove " + lab);
               rm.addEventListener("click", function () { confirmDelete({ title: "Remove " + (isW ? "this warm-up set" : "this set") + "?", message: lab + " and anything you entered for it will be removed.", yes: "Remove" }, function () { a.splice(j, 1); saveWkNow(); redrawKeepScroll(); }); }); row.appendChild(rm);
@@ -2118,7 +2126,7 @@ details.targets[open] summary::after { content: "\2212"; }
             ["w", "r"].filter(function (f) { return afOn[f]; }).forEach(function (f) {
               src[f].addEventListener("change", function () {
                 if (src.s[f] === "") return;
-                for (var k = j + 1; k < afRows.length; k++) { var t = afRows[k]; if (t.s.k === "w" || t.s[f] !== "") continue; t.s[f] = src.s[f]; t[f].value = String(src.s[f]); }
+                for (var k = j + 1; k < afRows.length; k++) { var t = afRows[k]; if (t.s.k === "w" || t.s[f] !== "") continue; t.s[f] = src.s[f]; t[f].value = String(src.s[f]); if (t.paint) t.paint(); }
                 saveWkSoon();
               });
             });
@@ -2132,7 +2140,7 @@ details.targets[open] summary::after { content: "\2212"; }
           ex.appendChild(el("span", "wc", "Target: " + ps.target + (ps.time ? "" : " reps") + " per set"));
         } else {
           var d0 = a[0], r0 = el("div", "setrow one" + (d0.d ? " ok" : "")); r0.appendChild(el("span", "sn", "Done?"));
-          var ck0 = el("button", "setck", "\u2713"); ck0.type = "button"; ck0.setAttribute("aria-pressed", String(!!d0.d)); ck0.setAttribute("aria-label", "Mark done");
+          var ck0 = el("button", "setck-btn", "\u2713"); ck0.type = "button"; ck0.setAttribute("aria-pressed", String(!!d0.d)); ck0.setAttribute("aria-label", "Mark done");
           ck0.addEventListener("click", function () { d0.d = !d0.d; r0.className = "setrow one" + (d0.d ? " ok" : ""); ck0.setAttribute("aria-pressed", String(!!d0.d)); saveWkSoon(); });
           r0.appendChild(ck0); ex.appendChild(r0);
         }
