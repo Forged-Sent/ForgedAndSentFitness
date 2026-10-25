@@ -53,6 +53,10 @@ body {
 /* App shell: the page itself never scrolls. Only #scroll moves, and only up and down. The tab bar is a fixed row below it. */
 html { height: 100%; overflow: hidden; overscroll-behavior: none; }
 body { height: 100%; overflow: hidden; overscroll-behavior: none; position: fixed; inset: 0; width: 100%; }
+/* Phones stay in portrait: when the phone turns sideways the whole app is turned back so it reads the same way. */
+html.rot-l body, html.rot-r body { inset: auto; top: 0; left: 0; width: var(--rot-w, 100vh); height: var(--rot-h, 100vw); }
+html.rot-l body { transform-origin: 0 0; transform: rotate(-90deg) translateX(-100%); }
+html.rot-r body { transform-origin: 0 0; transform: rotate(90deg) translateY(-100%); }
 #app { position: absolute; inset: 0; display: flex; flex-direction: column; overflow: hidden; }
 #scroll { flex: 1 1 auto; min-height: 0; overflow-y: auto; overflow-x: hidden; overscroll-behavior: contain; -webkit-overflow-scrolling: touch;
   padding: 20px max(16px, env(safe-area-inset-right, 0px)) 28px max(16px, env(safe-area-inset-left, 0px)); }
@@ -273,7 +277,7 @@ details.targets[open] summary::after { content: "\2212"; }
 .lk-edit b { display: block; color: var(--hot); font-family: var(--f-label); letter-spacing: .08em; text-transform: uppercase; }
 .lk-edit .btn { min-height: 38px; padding: 0 14px; flex: none; }
 .im-prev { width: 100%; aspect-ratio: 4 / 5; max-width: 100%; object-fit: contain; background: #1b1f17; border: 1px solid var(--line); border-radius: var(--radius, 4px); display: block; -webkit-touch-callout: default; }
-.wp-box { max-height: calc(100dvh - 48px); overflow-y: auto; }
+.wp-box { max-height: calc(var(--app-h, 100dvh) - 48px); overflow-y: auto; }
 .wp-k { color: var(--brass, var(--accent)); }
 .wp-text { border-left: 3px solid var(--accent); padding: 2px 0 2px 14px; margin: 4px 0 6px; }
 .cdlg-box .wp-text p { margin: 0 0 12px; font-size: 15.5px; line-height: 1.55; }
@@ -3402,6 +3406,26 @@ details.targets[open] summary::after { content: "\2212"; }
     yes.addEventListener("click", function () { close(); onRead(); });
     document.body.appendChild(back); yes.focus({ preventScroll: true });
   }
+  /* ---------- Keep phones in portrait ---------- */
+  function applyPortraitLock() {
+    var root = document.documentElement, w = window.innerWidth, h = window.innerHeight;
+    var shortSide = Math.min(screen.width || w, screen.height || h);
+    var phone = shortSide < 600 && !!(window.matchMedia && matchMedia("(pointer: coarse)").matches);
+    var a = typeof window.orientation === "number" ? window.orientation : (screen.orientation && typeof screen.orientation.angle === "number" ? screen.orientation.angle : 90);
+    a = ((a % 360) + 360) % 360;
+    var cls = phone && w > h ? (a === 270 ? "rot-r" : "rot-l") : "";
+    root.classList.remove("rot-l", "rot-r"); if (cls) root.classList.add(cls);
+    root.style.setProperty("--rot-w", h + "px"); root.style.setProperty("--rot-h", w + "px");
+    root.style.setProperty("--app-h", (cls ? w : h) + "px");
+  }
+  function initPortraitLock() {
+    try { if (screen.orientation && screen.orientation.lock) screen.orientation.lock("portrait").catch(function () {}); } catch (e) {}
+    applyPortraitLock();
+    window.addEventListener("resize", applyPortraitLock);
+    window.addEventListener("orientationchange", function () { setTimeout(applyPortraitLock, 50); });
+    try { if (screen.orientation) screen.orientation.addEventListener("change", applyPortraitLock); } catch (e) {}
+  }
+  initPortraitLock();
   function confirmDelete(o, onYes) {
     var old = $("cdlg"); if (old) old.remove();
     var back = el("div", "cdlg"); back.id = "cdlg";
