@@ -1,0 +1,27 @@
+{
+ "source": "Google Sheet: Forged and Sent Workout Library (1M-DqwYO3NNPdksY3rubN-PBkoHeWw2BqDoLpQzjgX7c)",
+ "programs": {
+  "Forged": "Strength",
+  "Built": "Size",
+  "Engine": "Conditioning",
+  "Warrior": "Athletic and combat"
+ },
+ "equipmentSetups": [
+  "Full Gym",
+  "Home Gym (Barbell + Dumbbells)",
+  "Dumbbells Only",
+  "Bodyweight Only"
+ ],
+ "planDays": 365,
+ "weeklyTemplate": {
+  "1": "Core",
+  "2": "Recovery",
+  "3": "Core",
+  "4": "Recovery",
+  "5": "Core",
+  "6": "Optional",
+  "7": "Rest"
+ },
+ "restDayRule": "Place templateDay 7 on the user's chosen weekday and count forward, so templateDay 1 is the day after the rest day. Plan day 1 starts on the first date that is the day after the rest day. Optional (templateDay 6) is shown only when the user turns on the 4th training day.",
+ "notes": "day = plan day 1-365. templateDay = ((day-1) mod 7)+1. Day 365 is templateDay 1 of week 53. exercises are [generic movement, prescription]; resolve the movement through movements.json byEquipment[setup]. theme details (warmup, finisher, notes) are in workout-themes.json keyed 'Program|templateDay'."
+}

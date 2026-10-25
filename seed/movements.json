@@ -1,0 +1,1311 @@
+{
+ "Back Squat": {
+  "pattern": "Squat",
+  "muscles": "Quads, glutes",
+  "byEquipment": {
+   "Full Gym": "Barbell Back Squat",
+   "Home Gym (Barbell + Dumbbells)": "Barbell Back Squat (rack)",
+   "Dumbbells Only": "Dumbbell Goblet Squat",
+   "Bodyweight Only": "Tempo Bodyweight Squat (3 sec down)"
+  },
+  "cue": "Brace, sit between the hips, drive the floor away."
+ },
+ "Front Squat": {
+  "pattern": "Squat",
+  "muscles": "Quads, core",
+  "byEquipment": {
+   "Full Gym": "Barbell Front Squat",
+   "Home Gym (Barbell + Dumbbells)": "Barbell Front Squat",
+   "Dumbbells Only": "Dumbbell Front-Rack Squat",
+   "Bodyweight Only": "Pause Bodyweight Squat (2 sec at bottom)"
+  },
+  "cue": "Elbows high and torso upright."
+ },
+ "Pause Squat": {
+  "pattern": "Squat",
+  "muscles": "Quads, glutes",
+  "byEquipment": {
+   "Full Gym": "Barbell Pause Squat",
+   "Home Gym (Barbell + Dumbbells)": "Barbell Pause Squat",
+   "Dumbbells Only": "Dumbbell Goblet Pause Squat",
+   "Bodyweight Only": "Bodyweight Pause Squat (3 sec at bottom)"
+  },
+  "cue": "Hold the bottom for 2 seconds, stay tight, then stand."
+ },
+ "Box Squat": {
+  "pattern": "Squat",
+  "muscles": "Quads, glutes",
+  "byEquipment": {
+   "Full Gym": "Barbell Box Squat",
+   "Home Gym (Barbell + Dumbbells)": "Barbell Box Squat",
+   "Dumbbells Only": "Dumbbell Box Squat",
+   "Bodyweight Only": "Bodyweight Box Squat"
+  },
+  "cue": "Sit back to the box, stay tight, stand without rocking."
+ },
+ "Tempo Squat": {
+  "pattern": "Squat",
+  "muscles": "Quads, glutes",
+  "byEquipment": {
+   "Full Gym": "Barbell Tempo Squat (3 sec down)",
+   "Home Gym (Barbell + Dumbbells)": "Barbell Tempo Squat (3 sec down)",
+   "Dumbbells Only": "Dumbbell Goblet Tempo Squat (3 sec down)",
+   "Bodyweight Only": "Bodyweight Tempo Squat (4 sec down)"
+  },
+  "cue": "Lower slowly, drive up at normal speed."
+ },
+ "Goblet Squat": {
+  "pattern": "Squat",
+  "muscles": "Quads, glutes",
+  "byEquipment": {
+   "Full Gym": "Dumbbell Goblet Squat",
+   "Home Gym (Barbell + Dumbbells)": "Dumbbell Goblet Squat",
+   "Dumbbells Only": "Dumbbell Goblet Squat",
+   "Bodyweight Only": "Bodyweight Squat"
+  },
+  "cue": "Hold the weight at the chest with elbows inside the knees."
+ },
+ "Leg Press": {
+  "pattern": "Squat",
+  "muscles": "Quads, glutes",
+  "byEquipment": {
+   "Full Gym": "Leg Press Machine",
+   "Home Gym (Barbell + Dumbbells)": "Barbell Front-Foot-Elevated Split Squat",
+   "Dumbbells Only": "Dumbbell Heel-Elevated Goblet Squat",
+   "Bodyweight Only": "Wall Sit"
+  },
+  "cue": "Use full range and keep the hips down."
+ },
+ "Hack Squat": {
+  "pattern": "Squat",
+  "muscles": "Quads",
+  "byEquipment": {
+   "Full Gym": "Hack Squat Machine",
+   "Home Gym (Barbell + Dumbbells)": "Barbell Heel-Elevated Squat",
+   "Dumbbells Only": "Dumbbell Heel-Elevated Goblet Squat",
+   "Bodyweight Only": "Heels-Elevated Bodyweight Squat"
+  },
+  "cue": "Control the lowering and keep the front foot flat."
+ },
+ "Split Squat": {
+  "pattern": "Single leg",
+  "muscles": "Quads, glutes",
+  "byEquipment": {
+   "Full Gym": "Dumbbell Split Squat",
+   "Home Gym (Barbell + Dumbbells)": "Dumbbell Split Squat",
+   "Dumbbells Only": "Dumbbell Split Squat",
+   "Bodyweight Only": "Bodyweight Split Squat"
+  },
+  "cue": "Stay tall and drop the back knee straight down."
+ },
+ "Bulgarian Split Squat": {
+  "pattern": "Single leg",
+  "muscles": "Quads, glutes",
+  "byEquipment": {
+   "Full Gym": "Dumbbell Bulgarian Split Squat",
+   "Home Gym (Barbell + Dumbbells)": "Dumbbell Bulgarian Split Squat",
+   "Dumbbells Only": "Dumbbell Bulgarian Split Squat",
+   "Bodyweight Only": "Bodyweight Bulgarian Split Squat"
+  },
+  "cue": "Rear foot on a bench, lean slightly forward, drive through the front heel."
+ },
+ "Walking Lunge": {
+  "pattern": "Single leg",
+  "muscles": "Quads, glutes",
+  "byEquipment": {
+   "Full Gym": "Dumbbell Walking Lunge",
+   "Home Gym (Barbell + Dumbbells)": "Barbell Walking Lunge",
+   "Dumbbells Only": "Dumbbell Walking Lunge",
+   "Bodyweight Only": "Bodyweight Walking Lunge"
+  },
+  "cue": "Long steps, torso upright, no bouncing off the knee."
+ },
+ "Reverse Lunge": {
+  "pattern": "Single leg",
+  "muscles": "Quads, glutes",
+  "byEquipment": {
+   "Full Gym": "Barbell Reverse Lunge",
+   "Home Gym (Barbell + Dumbbells)": "Barbell Reverse Lunge",
+   "Dumbbells Only": "Dumbbell Reverse Lunge",
+   "Bodyweight Only": "Bodyweight Reverse Lunge"
+  },
+  "cue": "Step back softly and push through the front foot."
+ },
+ "Step-Up": {
+  "pattern": "Single leg",
+  "muscles": "Quads, glutes",
+  "byEquipment": {
+   "Full Gym": "Dumbbell Step-Up",
+   "Home Gym (Barbell + Dumbbells)": "Dumbbell Step-Up",
+   "Dumbbells Only": "Dumbbell Step-Up",
+   "Bodyweight Only": "Bodyweight Step-Up (high box)"
+  },
+  "cue": "Use a box that puts the knee near hip height and avoid pushing off the back foot."
+ },
+ "Lateral Lunge": {
+  "pattern": "Single leg",
+  "muscles": "Adductors, glutes",
+  "byEquipment": {
+   "Full Gym": "Dumbbell Lateral Lunge",
+   "Home Gym (Barbell + Dumbbells)": "Dumbbell Lateral Lunge",
+   "Dumbbells Only": "Dumbbell Lateral Lunge",
+   "Bodyweight Only": "Bodyweight Lateral Lunge"
+  },
+  "cue": "Sit back into one hip and keep the other leg straight."
+ },
+ "Deadlift": {
+  "pattern": "Hinge",
+  "muscles": "Hamstrings, glutes, back",
+  "byEquipment": {
+   "Full Gym": "Barbell Deadlift",
+   "Home Gym (Barbell + Dumbbells)": "Barbell Deadlift",
+   "Dumbbells Only": "Dumbbell Deadlift",
+   "Bodyweight Only": "Single-Leg Hip Hinge (bodyweight)"
+  },
+  "cue": "Bar over mid-foot, flat back, push the floor away."
+ },
+ "Trap Bar Deadlift": {
+  "pattern": "Hinge",
+  "muscles": "Quads, glutes, back",
+  "byEquipment": {
+   "Full Gym": "Trap Bar Deadlift",
+   "Home Gym (Barbell + Dumbbells)": "Barbell Deadlift",
+   "Dumbbells Only": "Dumbbell Deadlift",
+   "Bodyweight Only": "Tempo Bodyweight Hip Hinge (3 sec down)"
+  },
+  "cue": "Stand tall at the top and keep the weight close."
+ },
+ "Deficit Deadlift": {
+  "pattern": "Hinge",
+  "muscles": "Hamstrings, glutes, back",
+  "byEquipment": {
+   "Full Gym": "Barbell Deficit Deadlift",
+   "Home Gym (Barbell + Dumbbells)": "Barbell Deficit Deadlift",
+   "Dumbbells Only": "Dumbbell Deficit Deadlift",
+   "Bodyweight Only": "Single-Leg Hip Hinge (bodyweight)"
+  },
+  "cue": "Stand on a 1 to 2 inch plate and keep the back flat at the start."
+ },
+ "Pause Deadlift": {
+  "pattern": "Hinge",
+  "muscles": "Hamstrings, glutes, back",
+  "byEquipment": {
+   "Full Gym": "Barbell Pause Deadlift",
+   "Home Gym (Barbell + Dumbbells)": "Barbell Pause Deadlift",
+   "Dumbbells Only": "Dumbbell Pause Deadlift",
+   "Bodyweight Only": "Bodyweight Good Morning (3 sec pause)"
+  },
+  "cue": "Pause for 2 seconds just below the knee, then finish the pull."
+ },
+ "Sumo Deadlift": {
+  "pattern": "Hinge",
+  "muscles": "Glutes, adductors, back",
+  "byEquipment": {
+   "Full Gym": "Barbell Sumo Deadlift",
+   "Home Gym (Barbell + Dumbbells)": "Barbell Sumo Deadlift",
+   "Dumbbells Only": "Dumbbell Sumo Deadlift",
+   "Bodyweight Only": "Bodyweight Sumo Squat Pulse"
+  },
+  "cue": "Wide stance, knees out, chest tall."
+ },
+ "Romanian Deadlift": {
+  "pattern": "Hinge",
+  "muscles": "Hamstrings, glutes",
+  "byEquipment": {
+   "Full Gym": "Barbell Romanian Deadlift",
+   "Home Gym (Barbell + Dumbbells)": "Barbell Romanian Deadlift",
+   "Dumbbells Only": "Dumbbell Romanian Deadlift",
+   "Bodyweight Only": "Single-Leg Romanian Deadlift (bodyweight)"
+  },
+  "cue": "Push the hips back, soft knees, feel the hamstrings stretch."
+ },
+ "Good Morning": {
+  "pattern": "Hinge",
+  "muscles": "Hamstrings, glutes, back",
+  "byEquipment": {
+   "Full Gym": "Barbell Good Morning",
+   "Home Gym (Barbell + Dumbbells)": "Barbell Good Morning",
+   "Dumbbells Only": "Dumbbell Good Morning",
+   "Bodyweight Only": "Bodyweight Good Morning"
+  },
+  "cue": "Hands on the shoulders or behind the head, hinge with a flat back."
+ },
+ "Hip Thrust": {
+  "pattern": "Hinge",
+  "muscles": "Glutes",
+  "byEquipment": {
+   "Full Gym": "Barbell Hip Thrust",
+   "Home Gym (Barbell + Dumbbells)": "Barbell Hip Thrust",
+   "Dumbbells Only": "Dumbbell Hip Thrust",
+   "Bodyweight Only": "Single-Leg Glute Bridge"
+  },
+  "cue": "Chin tucked, ribs down, squeeze the glutes at the top."
+ },
+ "Back Extension": {
+  "pattern": "Hinge",
+  "muscles": "Spinal erectors, glutes",
+  "byEquipment": {
+   "Full Gym": "Back Extension (45 degree bench)",
+   "Home Gym (Barbell + Dumbbells)": "Prone Back Extension (floor)",
+   "Dumbbells Only": "Prone Back Extension with Dumbbell",
+   "Bodyweight Only": "Prone Superman Hold"
+  },
+  "cue": "Lift to a straight line and avoid over-arching."
+ },
+ "Single-Leg Romanian Deadlift": {
+  "pattern": "Hinge",
+  "muscles": "Hamstrings, glutes",
+  "byEquipment": {
+   "Full Gym": "Dumbbell Single-Leg Romanian Deadlift",
+   "Home Gym (Barbell + Dumbbells)": "Dumbbell Single-Leg Romanian Deadlift",
+   "Dumbbells Only": "Dumbbell Single-Leg Romanian Deadlift",
+   "Bodyweight Only": "Single-Leg Romanian Deadlift (bodyweight)"
+  },
+  "cue": "Hips square, reach long, slight bend in the standing knee."
+ },
+ "Kettlebell Swing": {
+  "pattern": "Hinge",
+  "muscles": "Glutes, hamstrings",
+  "byEquipment": {
+   "Full Gym": "Kettlebell Swing",
+   "Home Gym (Barbell + Dumbbells)": "Dumbbell Swing",
+   "Dumbbells Only": "Dumbbell Swing",
+   "Bodyweight Only": "Hip Hinge Snap (bodyweight)"
+  },
+  "cue": "Snap the hips and let the arms float."
+ },
+ "Leg Curl": {
+  "pattern": "Hinge",
+  "muscles": "Hamstrings",
+  "byEquipment": {
+   "Full Gym": "Seated Leg Curl Machine",
+   "Home Gym (Barbell + Dumbbells)": "Slow Dumbbell Romanian Deadlift (3 sec down)",
+   "Dumbbells Only": "Slow Dumbbell Romanian Deadlift (3 sec down)",
+   "Bodyweight Only": "Nordic Hamstring Curl (assisted)"
+  },
+  "cue": "Control the lowering phase."
+ },
+ "Calf Raise": {
+  "pattern": "Calves",
+  "muscles": "Calves",
+  "byEquipment": {
+   "Full Gym": "Standing Calf Raise Machine",
+   "Home Gym (Barbell + Dumbbells)": "Barbell Standing Calf Raise",
+   "Dumbbells Only": "Dumbbell Single-Leg Calf Raise",
+   "Bodyweight Only": "Bodyweight Single-Leg Calf Raise"
+  },
+  "cue": "Pause at the top and stretch at the bottom."
+ },
+ "Bench Press": {
+  "pattern": "Horizontal push",
+  "muscles": "Chest, triceps, shoulders",
+  "byEquipment": {
+   "Full Gym": "Barbell Bench Press",
+   "Home Gym (Barbell + Dumbbells)": "Barbell Bench Press",
+   "Dumbbells Only": "Dumbbell Bench Press (neutral grip)",
+   "Bodyweight Only": "Push-Up (feet elevated)"
+  },
+  "cue": "Shoulder blades pinched, feet planted, bar to the lower chest."
+ },
+ "Pause Bench Press": {
+  "pattern": "Horizontal push",
+  "muscles": "Chest, triceps",
+  "byEquipment": {
+   "Full Gym": "Barbell Pause Bench Press",
+   "Home Gym (Barbell + Dumbbells)": "Barbell Pause Bench Press",
+   "Dumbbells Only": "Dumbbell Pause Bench Press",
+   "Bodyweight Only": "Pause Push-Up (2 sec at bottom)"
+  },
+  "cue": "Pause on the chest for 1 to 2 seconds, then press."
+ },
+ "Incline Bench Press": {
+  "pattern": "Horizontal push",
+  "muscles": "Upper chest, shoulders",
+  "byEquipment": {
+   "Full Gym": "Incline Barbell Bench Press",
+   "Home Gym (Barbell + Dumbbells)": "Incline Barbell Bench Press (adjustable bench)",
+   "Dumbbells Only": "Incline Dumbbell Press (neutral grip)",
+   "Bodyweight Only": "Feet-Elevated Push-Up"
+  },
+  "cue": "Bench angle around 30 degrees."
+ },
+ "Close-Grip Bench Press": {
+  "pattern": "Horizontal push",
+  "muscles": "Triceps, chest",
+  "byEquipment": {
+   "Full Gym": "Close-Grip Barbell Bench Press",
+   "Home Gym (Barbell + Dumbbells)": "Close-Grip Barbell Bench Press",
+   "Dumbbells Only": "Dumbbell Close-Grip Press (palms facing)",
+   "Bodyweight Only": "Close-Grip Push-Up"
+  },
+  "cue": "Hands just inside shoulder width, elbows tucked."
+ },
+ "Floor Press": {
+  "pattern": "Horizontal push",
+  "muscles": "Triceps, chest",
+  "byEquipment": {
+   "Full Gym": "Barbell Floor Press",
+   "Home Gym (Barbell + Dumbbells)": "Barbell Floor Press",
+   "Dumbbells Only": "Dumbbell Floor Press",
+   "Bodyweight Only": "Push-Up"
+  },
+  "cue": "Pause the triceps on the floor, then press."
+ },
+ "Dumbbell Bench Press": {
+  "pattern": "Horizontal push",
+  "muscles": "Chest, triceps",
+  "byEquipment": {
+   "Full Gym": "Dumbbell Bench Press",
+   "Home Gym (Barbell + Dumbbells)": "Dumbbell Bench Press",
+   "Dumbbells Only": "Dumbbell Bench Press",
+   "Bodyweight Only": "Tempo Push-Up (3 sec down)"
+  },
+  "cue": "Lower until the elbows are slightly below the bench."
+ },
+ "Incline Dumbbell Press": {
+  "pattern": "Horizontal push",
+  "muscles": "Upper chest",
+  "byEquipment": {
+   "Full Gym": "Incline Dumbbell Press",
+   "Home Gym (Barbell + Dumbbells)": "Incline Dumbbell Press",
+   "Dumbbells Only": "Incline Dumbbell Press",
+   "Bodyweight Only": "Archer Push-Up"
+  },
+  "cue": "Press up and slightly together."
+ },
+ "Push-Up": {
+  "pattern": "Horizontal push",
+  "muscles": "Chest, triceps",
+  "byEquipment": {
+   "Full Gym": "Push-Up",
+   "Home Gym (Barbell + Dumbbells)": "Push-Up",
+   "Dumbbells Only": "Push-Up",
+   "Bodyweight Only": "Push-Up"
+  },
+  "cue": "Body in one line, chest to the floor."
+ },
+ "Dips": {
+  "pattern": "Horizontal push",
+  "muscles": "Chest, triceps",
+  "byEquipment": {
+   "Full Gym": "Parallel Bar Dip",
+   "Home Gym (Barbell + Dumbbells)": "Weighted Bench Dip (dumbbell on lap)",
+   "Dumbbells Only": "Bench Dip",
+   "Bodyweight Only": "Bench Dip"
+  },
+  "cue": "Shoulders down, lean slightly forward for chest."
+ },
+ "Chest Fly": {
+  "pattern": "Horizontal push",
+  "muscles": "Chest",
+  "byEquipment": {
+   "Full Gym": "Cable Chest Fly",
+   "Home Gym (Barbell + Dumbbells)": "Dumbbell Chest Fly",
+   "Dumbbells Only": "Dumbbell Chest Fly",
+   "Bodyweight Only": "Wide Push-Up"
+  },
+  "cue": "Soft elbows, stretch wide, hug the weight in."
+ },
+ "Overhead Press": {
+  "pattern": "Vertical push",
+  "muscles": "Shoulders, triceps",
+  "byEquipment": {
+   "Full Gym": "Barbell Overhead Press",
+   "Home Gym (Barbell + Dumbbells)": "Barbell Overhead Press",
+   "Dumbbells Only": "Dumbbell Overhead Press",
+   "Bodyweight Only": "Pike Push-Up"
+  },
+  "cue": "Squeeze the glutes and press the bar in a straight line."
+ },
+ "Push Press": {
+  "pattern": "Vertical push",
+  "muscles": "Shoulders, triceps, legs",
+  "byEquipment": {
+   "Full Gym": "Barbell Push Press",
+   "Home Gym (Barbell + Dumbbells)": "Barbell Push Press",
+   "Dumbbells Only": "Dumbbell Push Press",
+   "Bodyweight Only": "Pike Push-Up (explosive)"
+  },
+  "cue": "Dip and drive with the legs, then finish with the arms."
+ },
+ "Seated Dumbbell Press": {
+  "pattern": "Vertical push",
+  "muscles": "Shoulders",
+  "byEquipment": {
+   "Full Gym": "Seated Dumbbell Shoulder Press",
+   "Home Gym (Barbell + Dumbbells)": "Seated Dumbbell Shoulder Press",
+   "Dumbbells Only": "Seated Dumbbell Shoulder Press",
+   "Bodyweight Only": "Pike Push-Up"
+  },
+  "cue": "Keep the ribs down and press slightly in."
+ },
+ "Landmine Press": {
+  "pattern": "Vertical push",
+  "muscles": "Shoulders, chest",
+  "byEquipment": {
+   "Full Gym": "Landmine Press",
+   "Home Gym (Barbell + Dumbbells)": "Barbell Landmine Press (corner)",
+   "Dumbbells Only": "Single-Arm Dumbbell Press",
+   "Bodyweight Only": "Pike Push-Up"
+  },
+  "cue": "Press up and forward and keep the ribs down."
+ },
+ "Arnold Press": {
+  "pattern": "Vertical push",
+  "muscles": "Shoulders",
+  "byEquipment": {
+   "Full Gym": "Dumbbell Arnold Press",
+   "Home Gym (Barbell + Dumbbells)": "Dumbbell Arnold Press",
+   "Dumbbells Only": "Dumbbell Arnold Press",
+   "Bodyweight Only": "Pike Push-Up"
+  },
+  "cue": "Rotate smoothly and avoid shrugging."
+ },
+ "Lateral Raise": {
+  "pattern": "Vertical push",
+  "muscles": "Side delts",
+  "byEquipment": {
+   "Full Gym": "Cable Lateral Raise",
+   "Home Gym (Barbell + Dumbbells)": "Dumbbell Lateral Raise",
+   "Dumbbells Only": "Dumbbell Lateral Raise",
+   "Bodyweight Only": "Wall Isometric Lateral Raise"
+  },
+  "cue": "Lead with the elbows to shoulder height."
+ },
+ "Barbell Row": {
+  "pattern": "Horizontal pull",
+  "muscles": "Back, biceps",
+  "byEquipment": {
+   "Full Gym": "Barbell Bent-Over Row",
+   "Home Gym (Barbell + Dumbbells)": "Barbell Bent-Over Row",
+   "Dumbbells Only": "Two-Arm Dumbbell Bent-Over Row",
+   "Bodyweight Only": "Inverted Row (table or bar)"
+  },
+  "cue": "Hinge to about 45 degrees and pull to the lower ribs."
+ },
+ "Pendlay Row": {
+  "pattern": "Horizontal pull",
+  "muscles": "Back",
+  "byEquipment": {
+   "Full Gym": "Barbell Pendlay Row",
+   "Home Gym (Barbell + Dumbbells)": "Barbell Pendlay Row",
+   "Dumbbells Only": "Dumbbell Row (from floor)",
+   "Bodyweight Only": "Pause Inverted Row (table or bar)"
+  },
+  "cue": "Reset on the floor each rep and keep the back flat."
+ },
+ "Dumbbell Row": {
+  "pattern": "Horizontal pull",
+  "muscles": "Back, biceps",
+  "byEquipment": {
+   "Full Gym": "Single-Arm Dumbbell Row",
+   "Home Gym (Barbell + Dumbbells)": "Single-Arm Dumbbell Row",
+   "Dumbbells Only": "Single-Arm Dumbbell Row",
+   "Bodyweight Only": "One-Arm Biased Inverted Row (table or bar)"
+  },
+  "cue": "Pull the elbow to the hip without twisting."
+ },
+ "Chest-Supported Row": {
+  "pattern": "Horizontal pull",
+  "muscles": "Mid back",
+  "byEquipment": {
+   "Full Gym": "Chest-Supported Row Machine",
+   "Home Gym (Barbell + Dumbbells)": "Chest-Supported Dumbbell Row (incline bench)",
+   "Dumbbells Only": "Chest-Supported Dumbbell Row (incline bench)",
+   "Bodyweight Only": "Wide-Grip Inverted Row (table or bar)"
+  },
+  "cue": "Squeeze the shoulder blades together at the top."
+ },
+ "Seated Cable Row": {
+  "pattern": "Horizontal pull",
+  "muscles": "Back",
+  "byEquipment": {
+   "Full Gym": "Seated Cable Row",
+   "Home Gym (Barbell + Dumbbells)": "Dumbbell Gorilla Row",
+   "Dumbbells Only": "Dumbbell Gorilla Row",
+   "Bodyweight Only": "Feet-Elevated Inverted Row (table or bar)"
+  },
+  "cue": "Chest tall and pull to the belly button."
+ },
+ "Face Pull": {
+  "pattern": "Horizontal pull",
+  "muscles": "Rear delts, upper back",
+  "byEquipment": {
+   "Full Gym": "Cable Face Pull",
+   "Home Gym (Barbell + Dumbbells)": "Dumbbell High Pull (elbows flared)",
+   "Dumbbells Only": "Dumbbell High Pull (elbows flared)",
+   "Bodyweight Only": "Prone W Raise"
+  },
+  "cue": "Pull to the face with elbows high and thumbs back."
+ },
+ "Rear Delt Fly": {
+  "pattern": "Horizontal pull",
+  "muscles": "Rear delts",
+  "byEquipment": {
+   "Full Gym": "Reverse Pec Deck",
+   "Home Gym (Barbell + Dumbbells)": "Dumbbell Rear-Delt Fly",
+   "Dumbbells Only": "Dumbbell Rear-Delt Fly",
+   "Bodyweight Only": "Prone Y-T Raise"
+  },
+  "cue": "Small arc, lead with the elbows."
+ },
+ "Pull-Up": {
+  "pattern": "Vertical pull",
+  "muscles": "Lats, biceps",
+  "byEquipment": {
+   "Full Gym": "Pull-Up",
+   "Home Gym (Barbell + Dumbbells)": "Barbell Underhand Bent-Over Row",
+   "Dumbbells Only": "Dumbbell Pullover",
+   "Bodyweight Only": "Underhand Inverted Row (table or bar)"
+  },
+  "cue": "Start from a dead hang and pull the chest to the bar. Use a pull-up bar when one is available."
+ },
+ "Chin-Up": {
+  "pattern": "Vertical pull",
+  "muscles": "Lats, biceps",
+  "byEquipment": {
+   "Full Gym": "Chin-Up",
+   "Home Gym (Barbell + Dumbbells)": "Barbell Underhand Bent-Over Row",
+   "Dumbbells Only": "Dumbbell Underhand Row",
+   "Bodyweight Only": "Underhand Inverted Row (table or bar)"
+  },
+  "cue": "Palms facing you, chin over the bar. Use a pull-up bar when one is available."
+ },
+ "Lat Pulldown": {
+  "pattern": "Vertical pull",
+  "muscles": "Lats",
+  "byEquipment": {
+   "Full Gym": "Lat Pulldown",
+   "Home Gym (Barbell + Dumbbells)": "Barbell Underhand Row",
+   "Dumbbells Only": "Dumbbell Pullover",
+   "Bodyweight Only": "Underhand Inverted Row"
+  },
+  "cue": "Pull the elbows to the ribs."
+ },
+ "Straight-Arm Pulldown": {
+  "pattern": "Vertical pull",
+  "muscles": "Lats",
+  "byEquipment": {
+   "Full Gym": "Cable Straight-Arm Pulldown",
+   "Home Gym (Barbell + Dumbbells)": "Hinged Dumbbell Straight-Arm Pulldown",
+   "Dumbbells Only": "Hinged Dumbbell Straight-Arm Pulldown",
+   "Bodyweight Only": "Prone Snow Angel"
+  },
+  "cue": "Keep the arms long and sweep down."
+ },
+ "Barbell Curl": {
+  "pattern": "Arms",
+  "muscles": "Biceps",
+  "byEquipment": {
+   "Full Gym": "Barbell Curl",
+   "Home Gym (Barbell + Dumbbells)": "Barbell Curl",
+   "Dumbbells Only": "Dumbbell Curl",
+   "Bodyweight Only": "Underhand Inverted Row (biceps focus)"
+  },
+  "cue": "Elbows at the sides and no swinging."
+ },
+ "Hammer Curl": {
+  "pattern": "Arms",
+  "muscles": "Biceps, forearms",
+  "byEquipment": {
+   "Full Gym": "Dumbbell Hammer Curl",
+   "Home Gym (Barbell + Dumbbells)": "Dumbbell Hammer Curl",
+   "Dumbbells Only": "Dumbbell Hammer Curl",
+   "Bodyweight Only": "Neutral-Grip Inverted Row"
+  },
+  "cue": "Thumbs up and control the lowering."
+ },
+ "Incline Curl": {
+  "pattern": "Arms",
+  "muscles": "Biceps",
+  "byEquipment": {
+   "Full Gym": "Incline Dumbbell Curl",
+   "Home Gym (Barbell + Dumbbells)": "Incline Dumbbell Curl",
+   "Dumbbells Only": "Incline Dumbbell Curl",
+   "Bodyweight Only": "Underhand Inverted Row (biceps focus)"
+  },
+  "cue": "Arms hang straight down and stretch the biceps."
+ },
+ "Cable Curl": {
+  "pattern": "Arms",
+  "muscles": "Biceps",
+  "byEquipment": {
+   "Full Gym": "Cable Curl",
+   "Home Gym (Barbell + Dumbbells)": "Dumbbell Curl",
+   "Dumbbells Only": "Dumbbell Curl",
+   "Bodyweight Only": "Underhand Inverted Row (biceps focus)"
+  },
+  "cue": "Constant tension and a slow lowering phase."
+ },
+ "Triceps Pushdown": {
+  "pattern": "Arms",
+  "muscles": "Triceps",
+  "byEquipment": {
+   "Full Gym": "Cable Triceps Pushdown",
+   "Home Gym (Barbell + Dumbbells)": "Lying Barbell Triceps Extension",
+   "Dumbbells Only": "Dumbbell Overhead Triceps Extension",
+   "Bodyweight Only": "Bench Dip"
+  },
+  "cue": "Elbows pinned and full lockout."
+ },
+ "Skull Crusher": {
+  "pattern": "Arms",
+  "muscles": "Triceps",
+  "byEquipment": {
+   "Full Gym": "EZ-Bar Skull Crusher",
+   "Home Gym (Barbell + Dumbbells)": "Barbell Skull Crusher",
+   "Dumbbells Only": "Dumbbell Skull Crusher",
+   "Bodyweight Only": "Diamond Push-Up"
+  },
+  "cue": "Lower to the forehead and keep the elbows still."
+ },
+ "Overhead Triceps Extension": {
+  "pattern": "Arms",
+  "muscles": "Triceps",
+  "byEquipment": {
+   "Full Gym": "Cable Overhead Triceps Extension",
+   "Home Gym (Barbell + Dumbbells)": "Dumbbell Overhead Triceps Extension",
+   "Dumbbells Only": "Dumbbell Overhead Triceps Extension",
+   "Bodyweight Only": "Bodyweight Triceps Extension (bar or table)"
+  },
+  "cue": "Elbows close to the ears and a deep stretch."
+ },
+ "Plank": {
+  "pattern": "Core",
+  "muscles": "Abs, core",
+  "byEquipment": {
+   "Full Gym": "Plank",
+   "Home Gym (Barbell + Dumbbells)": "Plank",
+   "Dumbbells Only": "Plank",
+   "Bodyweight Only": "Plank"
+  },
+  "cue": "Ribs down and squeeze the glutes."
+ },
+ "Ab Wheel": {
+  "pattern": "Core",
+  "muscles": "Abs, core",
+  "byEquipment": {
+   "Full Gym": "Ab Wheel Rollout",
+   "Home Gym (Barbell + Dumbbells)": "Barbell Rollout",
+   "Dumbbells Only": "Dumbbell Plank Pull-Through",
+   "Bodyweight Only": "Body Saw Plank"
+  },
+  "cue": "Roll out only as far as you can keep the lower back flat."
+ },
+ "Pallof Press": {
+  "pattern": "Core",
+  "muscles": "Obliques, core",
+  "byEquipment": {
+   "Full Gym": "Cable Pallof Press",
+   "Home Gym (Barbell + Dumbbells)": "Side Plank",
+   "Dumbbells Only": "Side Plank",
+   "Bodyweight Only": "Side Plank"
+  },
+  "cue": "Resist rotation and keep the hips square."
+ },
+ "Hanging Knee Raise": {
+  "pattern": "Core",
+  "muscles": "Abs, hip flexors",
+  "byEquipment": {
+   "Full Gym": "Hanging Leg Raise",
+   "Home Gym (Barbell + Dumbbells)": "Lying Leg Raise",
+   "Dumbbells Only": "Lying Leg Raise",
+   "Bodyweight Only": "Lying Leg Raise"
+  },
+  "cue": "Curl the pelvis up and avoid swinging."
+ },
+ "Dead Bug": {
+  "pattern": "Core",
+  "muscles": "Abs, core",
+  "byEquipment": {
+   "Full Gym": "Dead Bug",
+   "Home Gym (Barbell + Dumbbells)": "Dead Bug",
+   "Dumbbells Only": "Dead Bug",
+   "Bodyweight Only": "Dead Bug"
+  },
+  "cue": "Press the lower back into the floor."
+ },
+ "Bird Dog": {
+  "pattern": "Core",
+  "muscles": "Core, glutes",
+  "byEquipment": {
+   "Full Gym": "Bird Dog",
+   "Home Gym (Barbell + Dumbbells)": "Bird Dog",
+   "Dumbbells Only": "Bird Dog",
+   "Bodyweight Only": "Bird Dog"
+  },
+  "cue": "Reach long and keep the hips level."
+ },
+ "Hollow Hold": {
+  "pattern": "Core",
+  "muscles": "Abs",
+  "byEquipment": {
+   "Full Gym": "Hollow Hold",
+   "Home Gym (Barbell + Dumbbells)": "Hollow Hold",
+   "Dumbbells Only": "Hollow Hold",
+   "Bodyweight Only": "Hollow Hold"
+  },
+  "cue": "Lower back stays on the floor."
+ },
+ "Russian Twist": {
+  "pattern": "Core",
+  "muscles": "Obliques",
+  "byEquipment": {
+   "Full Gym": "Weighted Russian Twist",
+   "Home Gym (Barbell + Dumbbells)": "Dumbbell Russian Twist",
+   "Dumbbells Only": "Dumbbell Russian Twist",
+   "Bodyweight Only": "Bodyweight Russian Twist"
+  },
+  "cue": "Rotate through the ribs, not just the arms."
+ },
+ "Cable Crunch": {
+  "pattern": "Core",
+  "muscles": "Abs",
+  "byEquipment": {
+   "Full Gym": "Cable Crunch",
+   "Home Gym (Barbell + Dumbbells)": "Dumbbell Weighted Crunch",
+   "Dumbbells Only": "Dumbbell Weighted Crunch",
+   "Bodyweight Only": "Bicycle Crunch"
+  },
+  "cue": "Curl the ribs to the hips."
+ },
+ "Side Plank": {
+  "pattern": "Core",
+  "muscles": "Obliques",
+  "byEquipment": {
+   "Full Gym": "Side Plank",
+   "Home Gym (Barbell + Dumbbells)": "Side Plank",
+   "Dumbbells Only": "Side Plank",
+   "Bodyweight Only": "Side Plank"
+  },
+  "cue": "Stack the feet and lift the hips."
+ },
+ "Farmer Carry": {
+  "pattern": "Carry",
+  "muscles": "Grip, traps, core",
+  "byEquipment": {
+   "Full Gym": "Farmer Carry (handles or dumbbells)",
+   "Home Gym (Barbell + Dumbbells)": "Dumbbell Farmer Carry",
+   "Dumbbells Only": "Dumbbell Farmer Carry",
+   "Bodyweight Only": "Loaded Backpack Carry"
+  },
+  "cue": "Walk tall with short quick steps."
+ },
+ "Suitcase Carry": {
+  "pattern": "Carry",
+  "muscles": "Obliques, grip",
+  "byEquipment": {
+   "Full Gym": "Dumbbell Suitcase Carry",
+   "Home Gym (Barbell + Dumbbells)": "Dumbbell Suitcase Carry",
+   "Dumbbells Only": "Dumbbell Suitcase Carry",
+   "Bodyweight Only": "Single-Arm Loaded Backpack Carry"
+  },
+  "cue": "Stay upright and do not lean into the weight."
+ },
+ "Overhead Carry": {
+  "pattern": "Carry",
+  "muscles": "Shoulders, core",
+  "byEquipment": {
+   "Full Gym": "Dumbbell Overhead Carry (single arm)",
+   "Home Gym (Barbell + Dumbbells)": "Dumbbell Overhead Carry (single arm)",
+   "Dumbbells Only": "Dumbbell Overhead Carry (single arm)",
+   "Bodyweight Only": "Plank Shoulder Taps"
+  },
+  "cue": "Biceps by the ear and ribs down."
+ },
+ "Sled Push": {
+  "pattern": "Carry",
+  "muscles": "Legs, conditioning",
+  "byEquipment": {
+   "Full Gym": "Sled Push",
+   "Home Gym (Barbell + Dumbbells)": "Dumbbell Front-Rack Carry",
+   "Dumbbells Only": "Dumbbell Front-Rack Carry",
+   "Bodyweight Only": "Bear Crawl"
+  },
+  "cue": "Low hips, drive with long steps."
+ },
+ "Bear Crawl": {
+  "pattern": "Carry",
+  "muscles": "Shoulders, core",
+  "byEquipment": {
+   "Full Gym": "Bear Crawl",
+   "Home Gym (Barbell + Dumbbells)": "Bear Crawl",
+   "Dumbbells Only": "Bear Crawl",
+   "Bodyweight Only": "Bear Crawl"
+  },
+  "cue": "Knees hover one inch off the floor."
+ },
+ "Air Bike Sprint": {
+  "pattern": "Conditioning",
+  "muscles": "Full body",
+  "byEquipment": {
+   "Full Gym": "Air Bike",
+   "Home Gym (Barbell + Dumbbells)": "Shuttle Run (20 m)",
+   "Dumbbells Only": "Shuttle Run (20 m)",
+   "Bodyweight Only": "Shuttle Run (20 m)"
+  },
+  "cue": "Drive with legs and arms together."
+ },
+ "Rowing Machine": {
+  "pattern": "Conditioning",
+  "muscles": "Full body",
+  "byEquipment": {
+   "Full Gym": "Rowing Machine",
+   "Home Gym (Barbell + Dumbbells)": "Dumbbell Squat to Row",
+   "Dumbbells Only": "Dumbbell Squat to Row",
+   "Bodyweight Only": "Jump Rope (or High Knees)"
+  },
+  "cue": "Legs, then back, then arms."
+ },
+ "SkiErg": {
+  "pattern": "Conditioning",
+  "muscles": "Full body",
+  "byEquipment": {
+   "Full Gym": "SkiErg",
+   "Home Gym (Barbell + Dumbbells)": "Dumbbell Thruster",
+   "Dumbbells Only": "Dumbbell Thruster",
+   "Bodyweight Only": "Squat Jump"
+  },
+  "cue": "Hinge and pull the handles down with the lats."
+ },
+ "Treadmill Run": {
+  "pattern": "Conditioning",
+  "muscles": "Legs, heart",
+  "byEquipment": {
+   "Full Gym": "Treadmill Run",
+   "Home Gym (Barbell + Dumbbells)": "Outdoor Run",
+   "Dumbbells Only": "Outdoor Run",
+   "Bodyweight Only": "Outdoor Run"
+  },
+  "cue": "Stay relaxed and breathe in rhythm."
+ },
+ "Jump Rope": {
+  "pattern": "Conditioning",
+  "muscles": "Calves, heart",
+  "byEquipment": {
+   "Full Gym": "Jump Rope",
+   "Home Gym (Barbell + Dumbbells)": "Jump Rope",
+   "Dumbbells Only": "Jump Rope",
+   "Bodyweight Only": "Jump Rope"
+  },
+  "cue": "Small hops and quiet landings."
+ },
+ "Burpee": {
+  "pattern": "Conditioning",
+  "muscles": "Full body",
+  "byEquipment": {
+   "Full Gym": "Burpee",
+   "Home Gym (Barbell + Dumbbells)": "Burpee",
+   "Dumbbells Only": "Burpee",
+   "Bodyweight Only": "Burpee"
+  },
+  "cue": "Chest to the floor, jump, repeat."
+ },
+ "Mountain Climber": {
+  "pattern": "Conditioning",
+  "muscles": "Core, shoulders",
+  "byEquipment": {
+   "Full Gym": "Mountain Climber",
+   "Home Gym (Barbell + Dumbbells)": "Mountain Climber",
+   "Dumbbells Only": "Mountain Climber",
+   "Bodyweight Only": "Mountain Climber"
+  },
+  "cue": "Hips low and fast knees."
+ },
+ "Thruster": {
+  "pattern": "Conditioning",
+  "muscles": "Legs, shoulders",
+  "byEquipment": {
+   "Full Gym": "Barbell Thruster",
+   "Home Gym (Barbell + Dumbbells)": "Barbell Thruster",
+   "Dumbbells Only": "Dumbbell Thruster",
+   "Bodyweight Only": "Squat Jump"
+  },
+  "cue": "Squat to a press in one motion."
+ },
+ "Dumbbell Complex": {
+  "pattern": "Conditioning",
+  "muscles": "Full body",
+  "byEquipment": {
+   "Full Gym": "Barbell Complex",
+   "Home Gym (Barbell + Dumbbells)": "Barbell Complex",
+   "Dumbbells Only": "Dumbbell Complex (row, clean, press)",
+   "Bodyweight Only": "Burpee to Tuck Jump"
+  },
+  "cue": "Move from one lift to the next without setting the weight down."
+ },
+ "Dumbbell Clean and Press": {
+  "pattern": "Conditioning",
+  "muscles": "Full body",
+  "byEquipment": {
+   "Full Gym": "Dumbbell Clean and Press",
+   "Home Gym (Barbell + Dumbbells)": "Dumbbell Clean and Press",
+   "Dumbbells Only": "Dumbbell Clean and Press",
+   "Bodyweight Only": "Squat Thrust with Jump"
+  },
+  "cue": "Pull the weight to the shoulders and press overhead."
+ },
+ "Shuttle Run": {
+  "pattern": "Conditioning",
+  "muscles": "Legs, heart",
+  "byEquipment": {
+   "Full Gym": "Shuttle Run (20 m)",
+   "Home Gym (Barbell + Dumbbells)": "Shuttle Run (20 m)",
+   "Dumbbells Only": "Shuttle Run (20 m)",
+   "Bodyweight Only": "Shuttle Run (20 m)"
+  },
+  "cue": "Touch the line each time and stay low on the turn."
+ },
+ "Zone 2 Cardio": {
+  "pattern": "Conditioning",
+  "muscles": "Heart",
+  "byEquipment": {
+   "Full Gym": "Easy Aerobic (bike, rower, or treadmill)",
+   "Home Gym (Barbell + Dumbbells)": "Brisk Walk or Easy Jog",
+   "Dumbbells Only": "Brisk Walk or Easy Jog",
+   "Bodyweight Only": "Brisk Walk or Easy Jog"
+  },
+  "cue": "Breathe through the nose and keep it conversational."
+ },
+ "Rest Day": {
+  "pattern": "Recovery",
+  "muscles": "Whole Body",
+  "byEquipment": {
+   "Full Gym": "Full Rest",
+   "Home Gym (Barbell + Dumbbells)": "Full Rest",
+   "Dumbbells Only": "Full Rest",
+   "Bodyweight Only": "Full Rest"
+  },
+  "cue": "Sleep well, hydrate and eat enough protein. An easy walk is optional."
+ },
+ "Sprawl": {
+  "pattern": "Combat",
+  "muscles": "Full body",
+  "byEquipment": {
+   "Full Gym": "Sprawl",
+   "Home Gym (Barbell + Dumbbells)": "Sprawl",
+   "Dumbbells Only": "Sprawl",
+   "Bodyweight Only": "Sprawl"
+  },
+  "cue": "Hips down fast and pop back up."
+ },
+ "Shadow Boxing Rounds": {
+  "pattern": "Combat",
+  "muscles": "Full body",
+  "byEquipment": {
+   "Full Gym": "Shadow Boxing Rounds",
+   "Home Gym (Barbell + Dumbbells)": "Shadow Boxing Rounds",
+   "Dumbbells Only": "Shadow Boxing Rounds",
+   "Bodyweight Only": "Shadow Boxing Rounds"
+  },
+  "cue": "Stay light on the feet and keep the hands up."
+ },
+ "Medicine Ball Slam": {
+  "pattern": "Power",
+  "muscles": "Core, lats",
+  "byEquipment": {
+   "Full Gym": "Medicine Ball Slam",
+   "Home Gym (Barbell + Dumbbells)": "Burpee Broad Jump",
+   "Dumbbells Only": "Burpee Broad Jump",
+   "Bodyweight Only": "Burpee Broad Jump"
+  },
+  "cue": "Slam through the whole body."
+ },
+ "Dumbbell Woodchop": {
+  "pattern": "Power",
+  "muscles": "Obliques, core",
+  "byEquipment": {
+   "Full Gym": "Dumbbell Woodchop",
+   "Home Gym (Barbell + Dumbbells)": "Dumbbell Woodchop",
+   "Dumbbells Only": "Dumbbell Woodchop",
+   "Bodyweight Only": "Bodyweight Woodchop"
+  },
+  "cue": "Rotate from the hips."
+ },
+ "Turkish Get-Up": {
+  "pattern": "Power",
+  "muscles": "Shoulders, core",
+  "byEquipment": {
+   "Full Gym": "Kettlebell Turkish Get-Up",
+   "Home Gym (Barbell + Dumbbells)": "Dumbbell Turkish Get-Up",
+   "Dumbbells Only": "Dumbbell Turkish Get-Up",
+   "Bodyweight Only": "Bodyweight Get-Up"
+  },
+  "cue": "Eyes on the weight and move one step at a time."
+ },
+ "Dumbbell Snatch": {
+  "pattern": "Power",
+  "muscles": "Full body",
+  "byEquipment": {
+   "Full Gym": "Dumbbell Snatch",
+   "Home Gym (Barbell + Dumbbells)": "Dumbbell Snatch",
+   "Dumbbells Only": "Dumbbell Snatch",
+   "Bodyweight Only": "Broad Jump"
+  },
+  "cue": "Pull high and punch through at the top."
+ },
+ "Power Clean": {
+  "pattern": "Power",
+  "muscles": "Full body",
+  "byEquipment": {
+   "Full Gym": "Barbell Power Clean",
+   "Home Gym (Barbell + Dumbbells)": "Barbell Power Clean",
+   "Dumbbells Only": "Dumbbell Hang Power Clean",
+   "Bodyweight Only": "Broad Jump"
+  },
+  "cue": "Jump, shrug, and catch with elbows fast."
+ },
+ "Jump Squat": {
+  "pattern": "Power",
+  "muscles": "Quads, glutes",
+  "byEquipment": {
+   "Full Gym": "Jump Squat",
+   "Home Gym (Barbell + Dumbbells)": "Jump Squat",
+   "Dumbbells Only": "Dumbbell Jump Squat (light)",
+   "Bodyweight Only": "Jump Squat"
+  },
+  "cue": "Land softly and reset."
+ },
+ "Box Jump": {
+  "pattern": "Power",
+  "muscles": "Quads, glutes",
+  "byEquipment": {
+   "Full Gym": "Box Jump",
+   "Home Gym (Barbell + Dumbbells)": "Box Jump (sturdy box)",
+   "Dumbbells Only": "Box Jump",
+   "Bodyweight Only": "Tuck Jump"
+  },
+  "cue": "Step down after each rep."
+ },
+ "Broad Jump": {
+  "pattern": "Power",
+  "muscles": "Glutes, quads",
+  "byEquipment": {
+   "Full Gym": "Broad Jump",
+   "Home Gym (Barbell + Dumbbells)": "Broad Jump",
+   "Dumbbells Only": "Broad Jump",
+   "Bodyweight Only": "Broad Jump"
+  },
+  "cue": "Swing the arms and stick the landing."
+ },
+ "Plyometric Push-Up": {
+  "pattern": "Power",
+  "muscles": "Chest, triceps",
+  "byEquipment": {
+   "Full Gym": "Plyometric Push-Up",
+   "Home Gym (Barbell + Dumbbells)": "Plyometric Push-Up",
+   "Dumbbells Only": "Plyometric Push-Up",
+   "Bodyweight Only": "Plyometric Push-Up"
+  },
+  "cue": "Push the floor away hard and land softly."
+ },
+ "Lateral Bound": {
+  "pattern": "Power",
+  "muscles": "Glutes, adductors",
+  "byEquipment": {
+   "Full Gym": "Lateral Bound",
+   "Home Gym (Barbell + Dumbbells)": "Lateral Bound",
+   "Dumbbells Only": "Lateral Bound",
+   "Bodyweight Only": "Lateral Bound"
+  },
+  "cue": "Push off one foot and stick the landing."
+ },
+ "Skater Jump": {
+  "pattern": "Power",
+  "muscles": "Glutes, quads",
+  "byEquipment": {
+   "Full Gym": "Skater Jump",
+   "Home Gym (Barbell + Dumbbells)": "Skater Jump",
+   "Dumbbells Only": "Skater Jump",
+   "Bodyweight Only": "Skater Jump"
+  },
+  "cue": "Jump sideways and land on one foot."
+ },
+ "Glute Bridge": {
+  "pattern": "Hinge",
+  "muscles": "Glutes",
+  "byEquipment": {
+   "Full Gym": "Glute Bridge",
+   "Home Gym (Barbell + Dumbbells)": "Glute Bridge",
+   "Dumbbells Only": "Glute Bridge",
+   "Bodyweight Only": "Glute Bridge"
+  },
+  "cue": "Drive through the heels and squeeze at the top."
+ },
+ "90/90 Hip Switch": {
+  "pattern": "Mobility",
+  "muscles": "Hips",
+  "byEquipment": {
+   "Full Gym": "90/90 Hip Switch",
+   "Home Gym (Barbell + Dumbbells)": "90/90 Hip Switch",
+   "Dumbbells Only": "90/90 Hip Switch",
+   "Bodyweight Only": "90/90 Hip Switch"
+  },
+  "cue": "Sit tall and move slowly."
+ },
+ "Hip Flexor Stretch": {
+  "pattern": "Mobility",
+  "muscles": "Hip flexors",
+  "byEquipment": {
+   "Full Gym": "Half-Kneeling Hip Flexor Stretch",
+   "Home Gym (Barbell + Dumbbells)": "Half-Kneeling Hip Flexor Stretch",
+   "Dumbbells Only": "Half-Kneeling Hip Flexor Stretch",
+   "Bodyweight Only": "Half-Kneeling Hip Flexor Stretch"
+  },
+  "cue": "Tuck the pelvis and squeeze the rear glute."
+ },
+ "Cat-Cow": {
+  "pattern": "Mobility",
+  "muscles": "Spine",
+  "byEquipment": {
+   "Full Gym": "Cat-Cow",
+   "Home Gym (Barbell + Dumbbells)": "Cat-Cow",
+   "Dumbbells Only": "Cat-Cow",
+   "Bodyweight Only": "Cat-Cow"
+  },
+  "cue": "Move the whole spine with each breath."
+ },
+ "Thoracic Rotation": {
+  "pattern": "Mobility",
+  "muscles": "Upper back",
+  "byEquipment": {
+   "Full Gym": "Open Book Thoracic Rotation",
+   "Home Gym (Barbell + Dumbbells)": "Open Book Thoracic Rotation",
+   "Dumbbells Only": "Open Book Thoracic Rotation",
+   "Bodyweight Only": "Open Book Thoracic Rotation"
+  },
+  "cue": "Follow the hand with the eyes."
+ },
+ "Child's Pose": {
+  "pattern": "Mobility",
+  "muscles": "Back, hips",
+  "byEquipment": {
+   "Full Gym": "Child's Pose",
+   "Home Gym (Barbell + Dumbbells)": "Child's Pose",
+   "Dumbbells Only": "Child's Pose",
+   "Bodyweight Only": "Child's Pose"
+  },
+  "cue": "Breathe into the lower ribs."
+ },
+ "Deep Squat Hold": {
+  "pattern": "Mobility",
+  "muscles": "Hips, ankles",
+  "byEquipment": {
+   "Full Gym": "Deep Squat Hold",
+   "Home Gym (Barbell + Dumbbells)": "Deep Squat Hold",
+   "Dumbbells Only": "Deep Squat Hold",
+   "Bodyweight Only": "Deep Squat Hold"
+  },
+  "cue": "Heels down and chest tall."
+ },
+ "Wall Slide": {
+  "pattern": "Mobility",
+  "muscles": "Shoulders",
+  "byEquipment": {
+   "Full Gym": "Wall Slide",
+   "Home Gym (Barbell + Dumbbells)": "Wall Slide",
+   "Dumbbells Only": "Wall Slide",
+   "Bodyweight Only": "Wall Slide"
+  },
+  "cue": "Keep the ribs down and forearms on the wall."
+ },
+ "Thread the Needle": {
+  "pattern": "Mobility",
+  "muscles": "Upper back",
+  "byEquipment": {
+   "Full Gym": "Thread the Needle",
+   "Home Gym (Barbell + Dumbbells)": "Thread the Needle",
+   "Dumbbells Only": "Thread the Needle",
+   "Bodyweight Only": "Thread the Needle"
+  },
+  "cue": "Reach under and rotate slowly."
+ },
+ "Dead Hang": {
+  "pattern": "Mobility",
+  "muscles": "Shoulders, grip",
+  "byEquipment": {
+   "Full Gym": "Dead Hang",
+   "Home Gym (Barbell + Dumbbells)": "Prone Y Raise Hold",
+   "Dumbbells Only": "Prone Y Raise Hold",
+   "Bodyweight Only": "Prone Y Raise Hold"
+  },
+  "cue": "Relax the shoulders and hang long."
+ },
+ "Doorway Pec Stretch": {
+  "pattern": "Mobility",
+  "muscles": "Chest",
+  "byEquipment": {
+   "Full Gym": "Doorway Pec Stretch",
+   "Home Gym (Barbell + Dumbbells)": "Doorway Pec Stretch",
+   "Dumbbells Only": "Doorway Pec Stretch",
+   "Bodyweight Only": "Doorway Pec Stretch"
+  },
+  "cue": "Elbow at shoulder height and lean through."
+ },
+ "World's Greatest Stretch": {
+  "pattern": "Mobility",
+  "muscles": "Hips, spine",
+  "byEquipment": {
+   "Full Gym": "World's Greatest Stretch",
+   "Home Gym (Barbell + Dumbbells)": "World's Greatest Stretch",
+   "Dumbbells Only": "World's Greatest Stretch",
+   "Bodyweight Only": "World's Greatest Stretch"
+  },
+  "cue": "Lunge, rotate, then reach."
+ },
+ "Cossack Squat": {
+  "pattern": "Mobility",
+  "muscles": "Hips, adductors",
+  "byEquipment": {
+   "Full Gym": "Cossack Squat",
+   "Home Gym (Barbell + Dumbbells)": "Cossack Squat",
+   "Dumbbells Only": "Cossack Squat",
+   "Bodyweight Only": "Cossack Squat"
+  },
+  "cue": "Sit into one hip and keep the other leg long."
+ },
+ "Hamstring Stretch": {
+  "pattern": "Mobility",
+  "muscles": "Hamstrings",
+  "byEquipment": {
+   "Full Gym": "Supine Hamstring Stretch",
+   "Home Gym (Barbell + Dumbbells)": "Supine Hamstring Stretch",
+   "Dumbbells Only": "Supine Hamstring Stretch",
+   "Bodyweight Only": "Supine Hamstring Stretch"
+  },
+  "cue": "Keep the leg straight and relax the neck."
+ },
+ "Couch Stretch": {
+  "pattern": "Mobility",
+  "muscles": "Quads, hip flexors",
+  "byEquipment": {
+   "Full Gym": "Couch Stretch",
+   "Home Gym (Barbell + Dumbbells)": "Couch Stretch",
+   "Dumbbells Only": "Couch Stretch",
+   "Bodyweight Only": "Couch Stretch"
+  },
+  "cue": "Back knee near the wall and ribs down."
+ },
+ "Pigeon Stretch": {
+  "pattern": "Mobility",
+  "muscles": "Glutes",
+  "byEquipment": {
+   "Full Gym": "Pigeon Stretch",
+   "Home Gym (Barbell + Dumbbells)": "Pigeon Stretch",
+   "Dumbbells Only": "Pigeon Stretch",
+   "Bodyweight Only": "Pigeon Stretch"
+  },
+  "cue": "Fold forward slowly."
+ },
+ "Ankle Rock": {
+  "pattern": "Mobility",
+  "muscles": "Ankles",
+  "byEquipment": {
+   "Full Gym": "Ankle Rock",
+   "Home Gym (Barbell + Dumbbells)": "Ankle Rock",
+   "Dumbbells Only": "Ankle Rock",
+   "Bodyweight Only": "Ankle Rock"
+  },
+  "cue": "Drive the knee over the toes with the heel down."
+ }
+}

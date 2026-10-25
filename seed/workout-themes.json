@@ -1,0 +1,198 @@
+{
+ "Forged|1": {
+  "theme": "Squat Day",
+  "sessionType": "Core",
+  "warmup": "5 min easy cardio, then 2 rounds of 8 bodyweight squats, 8 hip hinges, and 8 glute bridges. Build to the first work set in 3 steps.",
+  "finisher": "3 min easy walk, then stretch the muscles trained for 2 minutes.",
+  "notes": "Rest 2 to 3 minutes between main sets. Stop each main set with 1 to 2 reps in reserve. Week 4 of every block is a deload."
+ },
+ "Forged|2": {
+  "theme": "Active Recovery",
+  "sessionType": "Recovery",
+  "warmup": "3 min easy walking, then begin the first movement at a low effort.",
+  "finisher": "5 min of slow breathing: in for 4 seconds, out for 6 seconds.",
+  "notes": "Easy effort only. Finish feeling better than you started."
+ },
+ "Forged|3": {
+  "theme": "Deadlift Day",
+  "sessionType": "Core",
+  "warmup": "5 min easy cardio, then 2 rounds of 8 bodyweight squats, 8 hip hinges, and 8 glute bridges. Build to the first work set in 3 steps.",
+  "finisher": "3 min easy walk, then stretch the muscles trained for 2 minutes.",
+  "notes": "Reset between reps and keep the back flat. Rest 2 to 3 minutes between main sets. Week 4 of every block is a deload."
+ },
+ "Forged|4": {
+  "theme": "Active Recovery",
+  "sessionType": "Recovery",
+  "warmup": "3 min easy walking, then begin the first movement at a low effort.",
+  "finisher": "5 min of slow breathing: in for 4 seconds, out for 6 seconds.",
+  "notes": "Easy effort only. Finish feeling better than you started."
+ },
+ "Forged|5": {
+  "theme": "Bench Day",
+  "sessionType": "Core",
+  "warmup": "5 min easy cardio, then 2 rounds of 10 arm circles each way, 10 wall slides, and 10 incline push-ups. Build to the first work set in 3 steps.",
+  "finisher": "3 min easy walk, then stretch the muscles trained for 2 minutes.",
+  "notes": "Rest 2 to 3 minutes between main sets. Stop each main set with 1 to 2 reps in reserve. Week 4 of every block is a deload."
+ },
+ "Forged|6": {
+  "theme": "Optional: Pull and Press Volume",
+  "sessionType": "Optional",
+  "warmup": "5 min easy cardio, then 2 rounds of 10 cat-cows, 10 scapular pulls, and 8 hip hinges. Build to the first work set in 3 steps.",
+  "finisher": "3 min easy walk, then stretch the muscles trained for 2 minutes.",
+  "notes": "Optional fourth session. Skip it if you are sore, short on time, or sleeping poorly. Moderate effort, never to failure."
+ },
+ "Forged|7": {
+  "theme": "Rest Day",
+  "sessionType": "Rest",
+  "warmup": "",
+  "finisher": "",
+  "notes": "Full rest. Sleep, water and protein matter most today. An easy walk or stretch is fine if you want it."
+ },
+ "Built|1": {
+  "theme": "Upper Body",
+  "sessionType": "Core",
+  "warmup": "5 min easy cardio, then 2 rounds of 10 arm circles each way, 10 wall slides, and 10 incline push-ups. Build to the first work set in 3 steps.",
+  "finisher": "3 min easy walk, then stretch the muscles trained for 2 minutes.",
+  "notes": "Control the lowering phase and rest 60 to 90 seconds between sets. Add load once you reach the top of the rep range on every set."
+ },
+ "Built|2": {
+  "theme": "Active Recovery",
+  "sessionType": "Recovery",
+  "warmup": "3 min easy walking, then begin the first movement at a low effort.",
+  "finisher": "5 min of slow breathing: in for 4 seconds, out for 6 seconds.",
+  "notes": "Easy effort only. Finish feeling better than you started."
+ },
+ "Built|3": {
+  "theme": "Lower Body",
+  "sessionType": "Core",
+  "warmup": "5 min easy cardio, then 2 rounds of 8 bodyweight squats, 8 hip hinges, and 8 glute bridges. Build to the first work set in 3 steps.",
+  "finisher": "3 min easy walk, then stretch the muscles trained for 2 minutes.",
+  "notes": "Control the lowering phase and rest 60 to 90 seconds between sets. Add load once you reach the top of the rep range on every set."
+ },
+ "Built|4": {
+  "theme": "Active Recovery",
+  "sessionType": "Recovery",
+  "warmup": "3 min easy walking, then begin the first movement at a low effort.",
+  "finisher": "5 min of slow breathing: in for 4 seconds, out for 6 seconds.",
+  "notes": "Easy effort only. Finish feeling better than you started."
+ },
+ "Built|5": {
+  "theme": "Full Body",
+  "sessionType": "Core",
+  "warmup": "5 min easy cardio, then 2 rounds of 8 bodyweight squats, 8 hip hinges, and 8 glute bridges. Build to the first work set in 3 steps.",
+  "finisher": "3 min easy walk, then stretch the muscles trained for 2 minutes.",
+  "notes": "Control the lowering phase and rest 60 to 90 seconds between sets. Add load once you reach the top of the rep range on every set."
+ },
+ "Built|6": {
+  "theme": "Optional: Arms and Shoulders",
+  "sessionType": "Optional",
+  "warmup": "5 min easy cardio, then 2 rounds of 10 arm circles each way, 10 wall slides, and 10 incline push-ups. Build to the first work set in 3 steps.",
+  "finisher": "3 min easy walk, then stretch the muscles trained for 2 minutes.",
+  "notes": "Optional fourth session. Skip it if you are sore, short on time, or sleeping poorly. Keep two reps in reserve on every set."
+ },
+ "Built|7": {
+  "theme": "Rest Day",
+  "sessionType": "Rest",
+  "warmup": "",
+  "finisher": "",
+  "notes": "Full rest. Sleep, water and protein matter most today. An easy walk or stretch is fine if you want it."
+ },
+ "Engine|1": {
+  "theme": "Intervals",
+  "sessionType": "Core",
+  "warmup": "5 min easy cardio, then 2 rounds of 10 squats, 10 mountain climbers, and 10 arm swings. Raise the pace over the last minute.",
+  "finisher": "3 min easy walk and slow nasal breathing.",
+  "notes": "Hard means about 8 out of 10 effort. Easy means moving gently until breathing settles."
+ },
+ "Engine|2": {
+  "theme": "Aerobic Base",
+  "sessionType": "Recovery",
+  "warmup": "3 min easy walking, then begin the first movement at a low effort.",
+  "finisher": "5 min of slow breathing: in for 4 seconds, out for 6 seconds.",
+  "notes": "Hold a pace where you can speak in full sentences."
+ },
+ "Engine|3": {
+  "theme": "Strength Circuit",
+  "sessionType": "Core",
+  "warmup": "5 min easy cardio, then 2 rounds of 10 squats, 10 mountain climbers, and 10 arm swings. Raise the pace over the last minute.",
+  "finisher": "3 min easy walk and slow nasal breathing.",
+  "notes": "Move through the circuit in order and rest only as listed."
+ },
+ "Engine|4": {
+  "theme": "Active Recovery",
+  "sessionType": "Recovery",
+  "warmup": "3 min easy walking, then begin the first movement at a low effort.",
+  "finisher": "5 min of slow breathing: in for 4 seconds, out for 6 seconds.",
+  "notes": "Easy effort only. Finish feeling better than you started."
+ },
+ "Engine|5": {
+  "theme": "Metabolic Complex",
+  "sessionType": "Core",
+  "warmup": "5 min easy cardio, then 2 rounds of 10 squats, 10 mountain climbers, and 10 arm swings. Raise the pace over the last minute.",
+  "finisher": "3 min easy walk and slow nasal breathing.",
+  "notes": "Keep every rep crisp. Cut the round short if form breaks down."
+ },
+ "Engine|6": {
+  "theme": "Optional: Loaded Carries",
+  "sessionType": "Optional",
+  "warmup": "5 min easy cardio, then 2 rounds of 10 squats, 10 mountain climbers, and 10 arm swings. Raise the pace over the last minute.",
+  "finisher": "3 min easy walk and slow nasal breathing.",
+  "notes": "Optional fourth session. Skip it if you are sore, short on time, or sleeping poorly. Walk tall and keep the weight close."
+ },
+ "Engine|7": {
+  "theme": "Rest Day",
+  "sessionType": "Rest",
+  "warmup": "",
+  "finisher": "",
+  "notes": "Full rest. Sleep, water and protein matter most today. An easy walk or stretch is fine if you want it."
+ },
+ "Warrior|1": {
+  "theme": "Lower Power and Strength",
+  "sessionType": "Core",
+  "warmup": "5 min easy cardio, then 2 rounds of 8 squats, 8 lunges, 6 pogo hops, and 5 easy jumps. Build intensity before the first power set.",
+  "finisher": "3 min easy walk, then stretch the muscles trained for 2 minutes.",
+  "notes": "Move fast on power work and stop the set when speed drops. Take full rest between power sets."
+ },
+ "Warrior|2": {
+  "theme": "Mobility and Movement",
+  "sessionType": "Recovery",
+  "warmup": "3 min easy walking, then begin the first movement at a low effort.",
+  "finisher": "5 min of slow breathing: in for 4 seconds, out for 6 seconds.",
+  "notes": "Move smoothly and never force a stretch."
+ },
+ "Warrior|3": {
+  "theme": "Upper Power and Strength",
+  "sessionType": "Core",
+  "warmup": "5 min easy cardio, then 2 rounds of 8 squats, 8 lunges, 6 pogo hops, and 5 easy jumps. Build intensity before the first power set.",
+  "finisher": "3 min easy walk, then stretch the muscles trained for 2 minutes.",
+  "notes": "Move fast on power work and stop the set when speed drops. Take full rest between power sets."
+ },
+ "Warrior|4": {
+  "theme": "Active Recovery",
+  "sessionType": "Recovery",
+  "warmup": "3 min easy walking, then begin the first movement at a low effort.",
+  "finisher": "5 min of slow breathing: in for 4 seconds, out for 6 seconds.",
+  "notes": "Easy effort only. Finish feeling better than you started."
+ },
+ "Warrior|5": {
+  "theme": "Combat Circuit",
+  "sessionType": "Core",
+  "warmup": "5 min easy cardio, then 2 rounds of 10 squats, 10 mountain climbers, and 10 arm swings. Raise the pace over the last minute.",
+  "finisher": "3 min easy walk and slow nasal breathing.",
+  "notes": "Move through the circuit in order and rest only as listed."
+ },
+ "Warrior|6": {
+  "theme": "Optional: Combat Conditioning",
+  "sessionType": "Optional",
+  "warmup": "5 min easy cardio, then 2 rounds of 10 squats, 10 mountain climbers, and 10 arm swings. Raise the pace over the last minute.",
+  "finisher": "3 min easy walk and slow nasal breathing.",
+  "notes": "Optional fourth session. Skip it if you are sore, short on time, or sleeping poorly. Stay relaxed in the shoulders and keep the hands up."
+ },
+ "Warrior|7": {
+  "theme": "Rest Day",
+  "sessionType": "Rest",
+  "warmup": "",
+  "finisher": "",
+  "notes": "Full rest. Sleep, water and protein matter most today. An easy walk or stretch is fine if you want it."
+ }
+}
