@@ -899,6 +899,7 @@ details.targets[open] summary::after { content: "\2212"; }
     init: async function () {
       var c = window.claude; if (!c || !c.use) return false;
       this.db = await c.use("db"); this.user = await c.use("user"); this.assets = await c.use("assets"); try { this.sample = await c.use("sample"); } catch (e) { this.sample = null; }
+      try { var lim = this.sample && this.sample.limits ? await this.sample.limits() : null; this.sampleImages = lim && lim.images ? lim.images : null; } catch (e) { this.sampleImages = null; }
       return !!this.db;
     },
     /* Food lookup provider. Today: Claude estimate (artifact "sample" capability).
@@ -909,6 +910,15 @@ details.targets[open] summary::after { content: "\2212"; }
       var n = function (v, m) { v = parseFloat(v); return isFinite(v) && v >= 0 ? Math.min(m, Math.round(v)) : 0; };
       if (!r || typeof r !== "object") throw new Error("bad");
       return { name: String(r.name || text).slice(0, 60), kcal: n(r.kcal, 5000), p: n(r.p, 500), f: n(r.f, 500), c: n(r.c, 1000) };
+    },
+    canPhoto: function () { return !!(this.sample && this.sampleImages); },
+    estimatePhoto: async function (file, hint) {
+      if (!this.canPhoto()) throw new Error("unavailable");
+      var h = String(hint || "").replace(/["\\]/g, " ").slice(0, 60);
+      var r = await this.sample.json("The attached photo is a man's meal prep: one portion of food in a container or on a plate, for a calorie tracking app." + (h ? " He calls it \"" + h + "\"." : "") + " Identify the foods and estimate the portion sizes you can see, then estimate the nutrition for that ONE portion. Reply with JSON only, no prose: {\"name\": short meal name, \"l\": serving label such as \"1 container\", \"kcal\": number, \"p\": protein grams, \"f\": fat grams, \"c\": carb grams, \"note\": one short sentence listing the foods and amounts you estimated}. kcal whole number, grams to one decimal. If the photo does not show food, reply {\"error\": \"no food\"}.", { images: [file], modelTier: "default" });
+      if (!r || typeof r !== "object" || r.error) throw new Error("nofood");
+      var n = function (v, m) { v = parseFloat(v); return isFinite(v) && v >= 0 ? Math.min(m, Math.round(v * 10) / 10) : 0; };
+      return { name: String(r.name || "").slice(0, 60), l: String(r.l || "1 container").slice(0, 40), kcal: Math.round(n(r.kcal, 5000)), p: n(r.p, 500), f: n(r.f, 500), c: n(r.c, 1000), note: String(r.note || "").slice(0, 200) };
     },
     searchFoods: async function (text) {
       if (!this.sample) throw new Error("unavailable");
@@ -2420,17 +2430,17 @@ details.targets[open] summary::after { content: "\2212"; }
     paint(); return w;
   }
   function drawQuick(m, off) {
-    var a = state.add, d = a.qd, form = el("form", "fform");
+    var a = state.add, d = a.qd, form = el("form", "fform"); form.noValidate = true;
     function field(label, key, type, cls, attrs) {
       var l = el("label", cls || null, label), i = el("input", "field"); i.type = type; i.value = d[key];
       Object.keys(attrs || {}).forEach(function (k) { i.setAttribute(k, attrs[k]); });
       i.addEventListener("input", function () { d[key] = i.value; }); l.appendChild(i); form.appendChild(l); return i;
     }
     field("Food name (optional)", "name", "text", "full", { maxlength: "60", placeholder: "e.g. Protein bar", autocomplete: "off" });
-    field("Calories", "kcal", "number", null, { min: "0", max: "5000", inputmode: "numeric", placeholder: "Enter calories" });
-    field("Protein (g)", "p", "number", null, { min: "0", max: "500", inputmode: "decimal" });
-    field("Fat (g)", "f", "number", null, { min: "0", max: "500", inputmode: "decimal" });
-    field("Carbs (g)", "c", "number", null, { min: "0", max: "1000", inputmode: "decimal" });
+    field("Calories", "kcal", "number", null, { min: "0", max: "5000", inputmode: "numeric", step: "any", placeholder: "Enter calories" });
+    field("Protein (g)", "p", "number", null, { min: "0", max: "500", inputmode: "decimal", step: "any" });
+    field("Fat (g)", "f", "number", null, { min: "0", max: "500", inputmode: "decimal", step: "any" });
+    field("Carbs (g)", "c", "number", null, { min: "0", max: "1000", inputmode: "decimal", step: "any" });
     if (a.err) form.appendChild(el("p", "error full", a.err));
     var sv = el("button", "btn", a.editId ? "Save changes" : "Add to " + m.label.toLowerCase()); sv.type = "submit"; sv.disabled = off; form.appendChild(sv);
     var cn = el("button", "btn ghost", a.editId ? "Remove" : "Back"); cn.type = "button";
@@ -2467,18 +2477,49 @@ details.targets[open] summary::after { content: "\2212"; }
     return w;
   }
   function drawPrepForm(m, off) {
-    var a = state.add, d = a.pd, form = el("form", "fform");
+    var a = state.add, d = a.pd, form = el("form", "fform"); form.noValidate = true;
     function field(label, key, type, cls, attrs) {
       var l = el("label", cls || null, label), i = el("input", "field"); i.type = type; i.value = d[key];
       Object.keys(attrs || {}).forEach(function (k) { i.setAttribute(k, attrs[k]); });
       i.addEventListener("input", function () { d[key] = i.value; }); l.appendChild(i); form.appendChild(l); return i;
     }
+    if (B.canPhoto()) {
+      var pb = el("button", "btn ghost full af-photo", a.pbusy ? "Reading your photo\u2026" : "Take a photo to calculate macros"); pb.type = "button"; pb.disabled = off || !!a.pbusy;
+      pb.addEventListener("click", function () {
+        var inp = document.createElement("input"); inp.type = "file"; inp.accept = (B.sampleImages.mediaTypes || ["image/jpeg", "image/png", "image/webp"]).join(","); inp.setAttribute("capture", "environment");
+        inp.addEventListener("change", function () {
+          var f = inp.files && inp.files[0]; if (!f) return;
+          if (a.pphoto) try { URL.revokeObjectURL(a.pphoto); } catch (e) {}
+          try { a.pphoto = URL.createObjectURL(f); } catch (e) { a.pphoto = null; }
+          a.pbusy = true; a.err = ""; a.pnote = ""; drawMeals(true);
+          B.estimatePhoto(f, d.name).then(function (r) {
+            if (state.add !== a) return; a.pbusy = false;
+            if (!d.name.trim() && r.name) d.name = r.name;
+            if (r.l) d.l = r.l; d.kcal = String(r.kcal); d.p = String(r.p); d.f = String(r.f); d.c = String(r.c);
+            a.pnote = (r.note ? r.note + " " : "") + "Estimated by Claude from your photo. Check the numbers and adjust before saving."; drawMeals(true);
+          }).catch(function (e) {
+            if (state.add !== a) return; a.pbusy = false;
+            var c = e && e.code;
+            a.err = e && e.message === "nofood" ? "Couldn\u2019t find food in that photo. Try again with the whole container in view, or enter the numbers yourself."
+              : c === "image_rejected" ? "That photo couldn\u2019t be read. Try a JPEG or PNG photo."
+              : c === "not_granted" ? "Photo estimates need permission to send the photo to Claude. Enter the numbers yourself, or allow it and try again."
+              : c === "rate_limited" ? "Too many estimates right now. Wait a minute and try again."
+              : "Couldn\u2019t estimate from that photo. Enter the numbers yourself.";
+            drawMeals(true);
+          });
+        });
+        inp.click();
+      });
+      form.appendChild(pb);
+      if (a.pphoto) { var im = el("img", "fphoto full"); im.src = a.pphoto; im.alt = "Your meal prep photo"; form.appendChild(im); }
+      if (a.pnote) form.appendChild(el("p", "fnote full", a.pnote));
+    }
     field("Meal prep name", "name", "text", "full", { maxlength: "60", placeholder: "e.g. Chicken, rice and broccoli", autocomplete: "off", id: "af-pn" });
     field("Serving", "l", "text", "full", { maxlength: "40", placeholder: "e.g. 1 container" });
-    field("Calories", "kcal", "number", null, { min: "0", max: "5000", inputmode: "numeric", placeholder: "Per serving" });
-    field("Protein (g)", "p", "number", null, { min: "0", max: "500", inputmode: "decimal" });
-    field("Fat (g)", "f", "number", null, { min: "0", max: "500", inputmode: "decimal" });
-    field("Carbs (g)", "c", "number", null, { min: "0", max: "1000", inputmode: "decimal" });
+    field("Calories", "kcal", "number", null, { min: "0", max: "5000", inputmode: "numeric", step: "any", placeholder: "Per serving" });
+    field("Protein (g)", "p", "number", null, { min: "0", max: "500", inputmode: "decimal", step: "any" });
+    field("Fat (g)", "f", "number", null, { min: "0", max: "500", inputmode: "decimal", step: "any" });
+    field("Carbs (g)", "c", "number", null, { min: "0", max: "1000", inputmode: "decimal", step: "any" });
     if (a.err) form.appendChild(el("p", "error full", a.err));
     var sv = el("button", "btn full", "Save meal prep"); sv.type = "submit"; sv.disabled = off; form.appendChild(sv);
     var sa = el("button", "btn ghost full", "Save and add to " + m.label.toLowerCase()); sa.type = "button"; sa.disabled = off; form.appendChild(sa);

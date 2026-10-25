@@ -40,6 +40,8 @@
     "assets": {
       "upload": "interact"
     },
-    "sample": {}
+    "sample": {
+      "images": true
+    }
   }
 }
