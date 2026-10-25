@@ -202,6 +202,7 @@ details.targets[open] summary::after { content: "\2212"; }
 .pg-th { aspect-ratio: 3 / 4; max-width: 100%; background: var(--surface); border: 1px solid var(--line); display: grid; place-items: center; overflow: hidden; }
 .pg-th img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .pg-none { font-size: 11px; color: var(--muted); }
+.test-banner { position: fixed; left: 0; right: 0; top: 0; z-index: 90; padding: calc(6px + env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-right, 0px)) 6px max(16px, env(safe-area-inset-left, 0px)); background: var(--hot, #a9490f); color: #fff; border: 0; font-family: var(--f-label); font-weight: 600; font-size: 12px; letter-spacing: .06em; text-transform: uppercase; text-align: center; }
 .cdlg { position: fixed; inset: 0; z-index: 80; background: rgba(0,0,0,.55); display: flex; align-items: flex-start; justify-content: center; overflow-y: auto; padding: calc(56px + env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-right, 0px)) 16px max(16px, env(safe-area-inset-left, 0px)); }
 .cdlg-box { margin: 0 auto; width: 100%; max-width: 360px; background: var(--bg); border: 2px solid var(--danger); padding: 18px; display: flex; flex-direction: column; gap: 10px; }
 .cdlg-box h2 { margin: 0; font-family: var(--f-label); font-size: 17px; letter-spacing: .08em; text-transform: uppercase; }
@@ -789,12 +790,12 @@ details.targets[open] summary::after { content: "\2212"; }
       </div>
     </section>
     <section aria-labelledby="h-lifts">
-      <div class="section-head"><h2 class="label-caps" id="h-lifts">Core lift PRs</h2></div>
+      <div class="section-head"><h2 class="label-caps" id="h-lifts" data-sub="Your best squat, bench, deadlift and more. The group can see these.">Core lift PRs</h2></div>
       <div class="rows" id="lifts"></div>
       <p class="note" id="lifts-note"></p>
     </section>
     <section aria-labelledby="h-prog" id="prog-sec" hidden>
-      <div class="section-head"><h2 class="label-caps" id="h-prog">Progress photos</h2><span class="tag">Private</span></div>
+      <div class="section-head"><h2 class="label-caps" id="h-prog" data-sub="Front, side and rear, every Sabbath. Private to you.">Progress photos</h2></div>
       <p class="note" style="margin-top:0">Only you can see these. They are never shown to the group.</p>
       <div id="prog-today"></div>
       <div class="sub-head" style="margin-top:16px"><span class="label-caps">Compare</span></div>
@@ -940,6 +941,13 @@ details.targets[open] summary::after { content: "\2212"; }
       <div id="blocked-list"></div>
       <p class="note" id="blocked-empty">You have not blocked anyone.</p>
       <p class="note">Concern about a post or a brother? Use Report on the post, or contact your group leader. A public support email gets added before the app store launch.</p>
+    </section>
+
+    <section aria-labelledby="h-s-test">
+      <div class="section-head"><h2 class="label-caps" id="h-s-test" data-sub="Preview the app as if it were another day. Only on this phone.">Testing: change the date</h2></div>
+      <label class="flabel">Pretend today is<input class="field" type="date" id="test-date"></label>
+      <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap"><button class="btn" type="button" id="test-go" style="flex:1">Use this date</button><button class="btn ghost" type="button" id="test-off" style="flex:1">Back to the real date</button></div>
+      <p class="note">Anything you log while testing is saved to that date for real. Delete test entries when you are done.</p>
     </section>
 
     <section aria-labelledby="h-s-acct">
@@ -1189,11 +1197,15 @@ details.targets[open] summary::after { content: "\2212"; }
   function dkey(d) { return d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate()); }
   function parseKey(k) { var p = k.split("-"); return new Date(+p[0], +p[1] - 1, +p[2]); }
   function addDays(key, n) { var d = parseKey(key); d.setDate(d.getDate() + n); return dkey(d); }
-  function todayKey() { return dkey(new Date()); }
+  // Testing: a man can preview another day (Settings > Testing). Stored only on this device.
+  var TEST_DATE = ""; try { TEST_DATE = localStorage.getItem("fs-test-date") || ""; } catch (e) {}
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(TEST_DATE)) TEST_DATE = "";
+  function nowDate() { if (!TEST_DATE) return new Date(); var d = parseKey(TEST_DATE), n = new Date(); d.setHours(n.getHours(), n.getMinutes(), n.getSeconds()); return d; }
+  function todayKey() { return TEST_DATE || dkey(new Date()); }
   function mondayKey(key) { var d = parseKey(key); d.setDate(d.getDate() - ((d.getDay() + 6) % 7)); return dkey(d); }
   function weekStartKey() { return mondayKey(todayKey()); }
   function lowKey() { var w = weekStartKey(), s = addDays(todayKey(), -34); return w < s ? w : s; }
-  function dayOfYear() { var n = new Date(); return Math.floor((n - new Date(n.getFullYear(), 0, 0)) / 864e5); }
+  function dayOfYear() { var n = nowDate(); return Math.floor((n - new Date(n.getFullYear(), 0, 0)) / 864e5); }
   function $(id) { return document.getElementById(id); }
   function el(tag, cls, text) { var e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; }
   var CHECK_SVG = '<svg viewBox="0 0 18 18" aria-hidden="true"><path d="M3.5 9.5l3.6 3.6L14.5 5.2"/></svg>';
@@ -1316,7 +1328,7 @@ details.targets[open] summary::after { content: "\2212"; }
   /* ---------- Daily devotional screen ---------- */
   // One devotional per calendar date (MM-DD). Scripture: Berean Standard Bible (public domain).
   function devoToday() {
-    var d = new Date(), k = pad(d.getMonth() + 1) + "-" + pad(d.getDate()), e = DEVOS.days[k];
+    var d = nowDate(), k = pad(d.getMonth() + 1) + "-" + pad(d.getDate()), e = DEVOS.days[k];
     return e ? { key: k, e: e, m: DEVOS.months[d.getMonth() + 1] || {}, date: d } : null;
   }
   var devoReached = false;
@@ -1377,7 +1389,7 @@ details.targets[open] summary::after { content: "\2212"; }
 
   /* ---------- Today ---------- */
   function drawHeader() {
-    $("today-label").textContent = new Date().toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric" });
+    $("today-label").textContent = nowDate().toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric" });
     $("mission").textContent = MISSIONS[dayOfYear() % MISSIONS.length];
     var s = streak();
     $("streak").textContent = devoTask() ? (s > 0 ? s + "-day devotional streak" : "Start today. Grace for yesterday.") : "";
@@ -2501,6 +2513,7 @@ details.targets[open] summary::after { content: "\2212"; }
   function blobUrl(id) { return id ? "/_blob/" + id : ""; }
   function openProgress() {
     openProfile(null);
+    var pb = $("h-prog-body"), bt = pb && pb.parentNode.querySelector(".set-open"); if (pb && pb.hidden && bt) bt.click();
     setTimeout(function () { var s = $("prog-sec"); if (s && s.scrollIntoView) s.scrollIntoView({ block: "start", behavior: "smooth" }); }, 80);
   }
   async function addProgPhoto(pose, file) {
@@ -3237,6 +3250,7 @@ details.targets[open] summary::after { content: "\2212"; }
   }
   function afPrefs() { var a = state.settings.autofill; if (a === true) return { w: true, r: true }; return { w: !!(a && a.w), r: !!(a && a.r) }; }
   function drawSettings() {
+    var tdi = $("test-date"); if (tdi && !TEST_DATE && !tdi.dataset.touched) { var nk = addDays(todayKey(), 1); while (!isWeighDay(nk)) nk = addDays(nk, 1); tdi.value = nk; }
     var afp = afPrefs(); [["s-af-w", "w"], ["s-af-r", "r"]].forEach(function (c) { var x = $(c[0]); if (x) { x.checked = afp[c[1]]; x.disabled = !state.me || !state.canWrite; } });
     if (state.page !== "settings") return;
     var pp = state.pubProfiles[state.me] || {}, st = state.settings, canUp = B.canUpload();
@@ -3410,7 +3424,7 @@ details.targets[open] summary::after { content: "\2212"; }
       if (t && t.closest && t.closest("button, a, summary, [role=button]") && document.body.contains(ae)) setTimeout(function () { if (document.activeElement === ae) ae.blur(); }, 0);
     });
     // Settings below the profile photos: each section is a button that opens its form.
-    ["h-s-wk", "h-s-body", "h-s-goal", "h-s-tg", "h-s-rem", "h-s-health", "h-s-safe", "h-s-acct"].forEach(function (hid) {
+    ["h-lifts", "h-prog"].forEach(function (hid) {
       var h = $(hid); if (!h) return; var sec = h.closest("section"), head = h.closest(".section-head"); if (!sec || !head) return;
       var body = el("div", "set-body"); body.id = hid + "-body"; body.hidden = true;
       while (head.nextSibling) body.appendChild(head.nextSibling);
@@ -3420,6 +3434,21 @@ details.targets[open] summary::after { content: "\2212"; }
       btn.addEventListener("click", function () { var open = body.hidden; body.hidden = !open; btn.setAttribute("aria-expanded", String(open)); });
       head.hidden = true; sec.classList.add("set-card"); sec.appendChild(btn); sec.appendChild(body);
     });
+    ["h-s-wk", "h-s-body", "h-s-goal", "h-s-tg", "h-s-rem", "h-s-health", "h-s-safe", "h-s-test", "h-s-acct"].forEach(function (hid) {
+      var h = $(hid); if (!h) return; var sec = h.closest("section"), head = h.closest(".section-head"); if (!sec || !head) return;
+      var body = el("div", "set-body"); body.id = hid + "-body"; body.hidden = true;
+      while (head.nextSibling) body.appendChild(head.nextSibling);
+      var btn = el("button", "set-open"); btn.type = "button"; btn.setAttribute("aria-expanded", "false"); btn.setAttribute("aria-controls", body.id);
+      var bt = el("span", "sc-txt"); bt.appendChild(el("span", null, h.textContent)); if (h.dataset.sub) bt.appendChild(el("small", null, h.dataset.sub));
+      btn.appendChild(bt); btn.appendChild(el("span", "sc-chev", "\u203A"));
+      btn.addEventListener("click", function () { var open = body.hidden; body.hidden = !open; btn.setAttribute("aria-expanded", String(open)); });
+      head.hidden = true; sec.classList.add("set-card"); sec.appendChild(btn); sec.appendChild(body);
+    });
+    $("test-date").value = TEST_DATE || dkey(new Date());
+    $("test-date").addEventListener("input", function () { this.dataset.touched = "1"; });
+    $("test-go").addEventListener("click", function () { var v = $("test-date").value; if (!/^\d{4}-\d{2}-\d{2}$/.test(v)) return; try { localStorage.setItem("fs-test-date", v === dkey(new Date()) ? "" : v); } catch (e) {} location.reload(); });
+    $("test-off").addEventListener("click", function () { try { localStorage.removeItem("fs-test-date"); } catch (e) {} location.reload(); });
+    if (TEST_DATE) { var tb = el("button", "test-banner", "Test mode: " + longDate(TEST_DATE) + ". Tap to go back to the real date."); tb.type = "button"; tb.addEventListener("click", function () { try { localStorage.removeItem("fs-test-date"); } catch (e) {} location.reload(); }); document.body.appendChild(tb); }
     [["s-af-w", "w"], ["s-af-r", "r"]].forEach(function (c) {
       $(c[0]).addEventListener("change", function () { var a = afPrefs(); a[c[1]] = this.checked; state.settings.autofill = a; if (state.me && state.canWrite) saveSettings(); });
     });
