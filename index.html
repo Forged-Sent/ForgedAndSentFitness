@@ -217,7 +217,7 @@ details.targets[open] summary::after { content: "\2212"; }
 .wx .wlink .pl { color: var(--accent); font-size: 15px; text-decoration: none; }
 .vframe { position: relative; width: 100%; padding-top: 56.25%; background: #000; border: 1px solid var(--line); margin-top: 12px; }
 .vframe iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
-.vlink { display: flex; align-items: center; justify-content: center; margin-top: 12px; min-height: 52px; border: 2px solid var(--line); text-decoration: none; color: var(--ink); font-family: var(--f-label); font-weight: 600; font-size: 15px; letter-spacing: .1em; text-transform: uppercase; }
+.vlink { background: var(--accent); color: var(--bg); border-color: var(--accent); display: flex; align-items: center; justify-content: center; margin-top: 12px; min-height: 52px; border: 2px solid var(--line); text-decoration: none; color: var(--ink); font-family: var(--f-label); font-weight: 600; font-size: 15px; letter-spacing: .1em; text-transform: uppercase; }
 .vmeta { font-size: 14px; color: var(--muted); margin: 6px 0 0; }
 .wk-open { width: 100%; margin-top: 12px; display: flex; align-items: center; justify-content: space-between; gap: 12px; text-align: left; min-height: 64px; padding: 10px 14px; background: var(--surface); border: 2px solid var(--accent); }
 .wk-open .txt { display: flex; flex-direction: column; min-width: 0; }
@@ -1561,11 +1561,7 @@ details.targets[open] summary::after { content: "\2212"; }
     body.appendChild(el("h1", "pg", vidCur.shown));
     var meta = [m.pattern, m.muscles].filter(Boolean).join(" \u00B7 "); if (meta) body.appendChild(el("p", "vmeta", meta));
     if (id) {
-      var fr = el("div", "vframe"), f = el("iframe");
-      f.src = "https://www.youtube-nocookie.com/embed/" + id + "?rel=0&playsinline=1&modestbranding=1";
-      f.title = "Video: " + vidCur.shown; f.setAttribute("allow", "accelerometer; encrypted-media; gyroscope; picture-in-picture; fullscreen"); f.setAttribute("allowfullscreen", ""); f.setAttribute("referrerpolicy", "strict-origin-when-cross-origin"); f.setAttribute("loading", "lazy");
-      fr.appendChild(f); body.appendChild(fr);
-      var a = el("a", "vlink", "Video not playing? Open on YouTube"); a.href = "https://www.youtube.com/watch?v=" + id; a.target = "_blank"; a.rel = "noopener noreferrer"; body.appendChild(a);
+      var a = el("a", "vlink", "\u25B6  Watch on YouTube"); a.href = "https://www.youtube.com/watch?v=" + id; a.target = "_blank"; a.rel = "noopener noreferrer"; body.appendChild(a);
       if (m.vch) body.appendChild(el("p", "vmeta", "Video by " + m.vch + " on YouTube."));
       if (vidCur.shown !== vidCur.g) body.appendChild(el("p", "vmeta", "This video demonstrates the " + vidCur.g + ". Your version today is the " + vidCur.shown + "."));
     } else body.appendChild(el("p", "note", "No video for this one yet."));
