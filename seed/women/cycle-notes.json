@@ -1,0 +1,36 @@
+{
+ "disclaimer": "General information, not medical advice. Effects of the cycle on performance are small on average and differ a lot between people. Talk to a clinician about missed periods, severe pain or heavy bleeding.",
+ "source": "https://rgu-repository.worktribe.com/output/940959",
+ "phases": [
+  {
+   "phase": "Menstrual",
+   "days": "Days 1-5",
+   "notice": "Energy and comfort vary a lot. Some feel fine, some feel low energy or cramps.",
+   "adjustment": "Train as planned if you feel good. If not, lower the load or reps, shorten the session, or swap to a recovery day."
+  },
+  {
+   "phase": "Follicular",
+   "days": "Days 6-13",
+   "notice": "Many feel more energetic as the cycle progresses.",
+   "adjustment": "Good window to push a heavy or high-effort day if you feel ready."
+  },
+  {
+   "phase": "Ovulation",
+   "days": "Days 14-16",
+   "notice": "Some feel strong, some notice looser joints or a dip in coordination.",
+   "adjustment": "Warm up well, control landings and cutting movements, and use the Low Impact swap if a joint feels unstable."
+  },
+  {
+   "phase": "Luteal",
+   "days": "Days 17-28",
+   "notice": "Higher effort feel, poorer sleep, bloating or mood changes are common late in this phase.",
+   "adjustment": "Keep training. Use RIR to pace sets, extend rest between sets, and keep deload and recovery days honest."
+  },
+  {
+   "phase": "No cycle, irregular, menopause or hormonal contraception",
+   "days": "Any",
+   "notice": "Patterns differ and may not follow these phases.",
+   "adjustment": "Ignore the phases. Use how you feel on the day, sleep and stress as the guide."
+  }
+ ]
+}

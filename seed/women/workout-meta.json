@@ -1,0 +1,35 @@
+{
+ "source": "Google Sheet: Forged and Sent Women's Workout Library (1srKHSbZfVFY_y8tXRpj7aD8CKOrFVpf48TJMxcmukkw)",
+ "programs": {
+  "Rooted": "Strength, glute and leg forward, with bone loading",
+  "Sculpted": "Muscle shape and tone",
+  "Pulse": "Conditioning and fat loss",
+  "Valkyrie": "Athletic power and combat-style"
+ },
+ "equipmentSetups": [
+  "Full Gym",
+  "Home Gym (Barbell + Dumbbells)",
+  "Dumbbells Only",
+  "Bodyweight Only"
+ ],
+ "planDays": 365,
+ "weeklyTemplate": {
+  "1": "Core",
+  "2": "Recovery",
+  "3": "Core",
+  "4": "Recovery",
+  "5": "Core",
+  "6": "Optional",
+  "7": "Rest"
+ },
+ "restDayRule": "Place templateDay 7 on the user's chosen weekday and count forward, so templateDay 1 is the day after the rest day. Plan day 1 starts on the first date that is the day after the rest day. Optional (templateDay 6) is shown only when the user turns on the 4th training day.",
+ "notes": "day = plan day 1-365. templateDay = ((day-1) mod 7)+1. Day 365 is templateDay 1 of week 53. exercises are [generic movement, prescription]; resolve the movement through movements.json byEquipment[setup]. theme details (warmup, finisher, notes) are in workout-themes.json keyed 'Program|templateDay'.",
+ "sessionDesign": "Core days (templateDay 1, 3, 5) are full-body sessions in Rooted and Sculpted, and full-body power sessions in Valkyrie (days 1 and 3). Pulse and Valkyrie day 5 stay conditioning circuits. Optional day 6 is a lighter full-body or conditioning session; in Rooted it adds soft-landing jumps (BONE slot) and carries for bone loading.",
+ "movementCount": 226,
+ "movementsNote": "movements.json is the full women's exercise library for custom plans (includes the Rest Day entry). Some movements are not used in any scheduled day. Each has a 'video' object {url, channel, views}, except Rest Day; the 9 movements added for this library have channel and views null.",
+ "warmupDesign": "Each Core and Optional day has a 'warmup' list of [movement, prescription] pairs: cardio primer, mobility, activation, and a bodyweight primer matched to the day's main pattern. No warm-up movement needs a barbell or dumbbells. Pairs resolve through movements.json like exercises. Recovery and Rest days have an empty list and use the theme warmup text. For Core/Optional days the theme 'warmup' text is only a generic fallback line.",
+ "alternatesDesign": "alternates.json maps movement -> reason -> up to 4 swap movements (nearest first). Reasons: No Barbell, No Bench, No Pull-Up Bar, No Cable or Machine, Knee, Hip, Low Back, Shoulder, Elbow or Wrist, Low Impact, Pelvic Floor, Any Discomfort. Pelvic Floor replaces jumping, running and straining core work with lower-pressure options. Not medical advice.",
+ "audience": "women",
+ "cycleNotesNote": "cycle-notes.json holds optional cycle-phase prompts. Core and Optional day notes in workout-themes.json include one optional sentence pointing to them. They are suggestions, not rules.",
+ "toggleNote": "Separate set for the sex toggle: load seed/women/* when the user selects female, and seed/* (root) for male. Same schema in both."
+}

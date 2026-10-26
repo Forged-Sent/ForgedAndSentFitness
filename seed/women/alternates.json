@@ -1,0 +1,3831 @@
+{
+ "disclaimer": "Swap suggestions are general guidance based on common physical therapy principles, not medical advice. Stop if pain increases and see a clinician. Cycle and pelvic floor notes are general information.",
+ "reasons": [
+  {
+   "id": "No Barbell",
+   "type": "Equipment",
+   "note": "Swap when no barbell or rack is available."
+  },
+  {
+   "id": "No Bench",
+   "type": "Equipment",
+   "note": "Swap when no bench or box is available."
+  },
+  {
+   "id": "No Pull-Up Bar",
+   "type": "Equipment",
+   "note": "Swap when no pull-up, dip or hanging bar is available."
+  },
+  {
+   "id": "No Cable or Machine",
+   "type": "Equipment",
+   "note": "Swap when no cable stack, machine, sled or cardio machine is available."
+  },
+  {
+   "id": "Knee",
+   "type": "Injury",
+   "note": "Limits deep or loaded knee bending and impact. Uses high-box, supported or isometric options. Stop if pain increases."
+  },
+  {
+   "id": "Hip",
+   "type": "Injury",
+   "note": "Limits deep hip flexion, wide stances and loaded hip rotation. Uses supported and pain-free-range options. Stop if pain increases."
+  },
+  {
+   "id": "Low Back",
+   "type": "Injury",
+   "note": "Limits loaded spinal bending and rotation. Uses supported, seated and stability options. Stop if pain increases."
+  },
+  {
+   "id": "Shoulder",
+   "type": "Injury",
+   "note": "Limits overhead and deep pressing positions. Uses neutral-grip, below-shoulder-height and supported options. Stop if pain increases."
+  },
+  {
+   "id": "Elbow or Wrist",
+   "type": "Injury",
+   "note": "Limits weight on bent wrists and heavy straight-bar elbow loading. Uses neutral-grip, handle and cable options. Stop if pain increases."
+  },
+  {
+   "id": "Low Impact",
+   "type": "Impact",
+   "note": "Replaces jumping, running and landing with lower-impact options."
+  },
+  {
+   "id": "Pelvic Floor",
+   "type": "Pelvic health",
+   "note": "Swap if you feel pelvic heaviness, pressure or leaking. Replaces jumping, running and straining core work with lower-pressure options. Exhale on the effort. A pelvic health physical therapist can help. Stop if symptoms increase."
+  },
+  {
+   "id": "Any Discomfort",
+   "type": "General",
+   "note": "Gentler mobility options if a stretch or position is uncomfortable."
+  }
+ ],
+ "alternates": {
+  "90/90 Hip Switch": {
+   "Any Discomfort": [
+    "Hip Flexor Stretch",
+    "Couch Stretch",
+    "Pigeon Stretch"
+   ]
+  },
+  "Ab Wheel": {
+   "Low Back": [
+    "Plank",
+    "Dead Bug",
+    "Bird Dog",
+    "Side Plank"
+   ],
+   "Shoulder": [
+    "Dead Bug",
+    "Bird Dog",
+    "Pallof Press",
+    "Curl-Up"
+   ],
+   "Elbow or Wrist": [
+    "Dead Bug",
+    "Bird Dog",
+    "Hollow Hold",
+    "Curl-Up"
+   ],
+   "Pelvic Floor": [
+    "Heel Slide",
+    "Dead Bug",
+    "Bird Dog",
+    "Side Plank"
+   ]
+  },
+  "Adductor Squeeze": {
+   "No Cable or Machine": [
+    "Sumo Squat",
+    "Lateral Lunge",
+    "Glute Bridge"
+   ],
+   "Knee": [
+    "Terminal Knee Extension",
+    "Hip Thrust",
+    "Glute Bridge",
+    "Banded Lateral Walk"
+   ],
+   "Hip": [
+    "Terminal Knee Extension",
+    "Clamshell",
+    "Banded Lateral Walk",
+    "Glute Bridge"
+   ]
+  },
+  "Air Bike Sprint": {
+   "No Cable or Machine": [
+    "Hill Sprint",
+    "Burpee",
+    "Shuttle Run",
+    "Jump Rope"
+   ]
+  },
+  "Ankle Rock": {
+   "Any Discomfort": [
+    "Calf Stretch",
+    "Cat-Cow",
+    "Child's Pose"
+   ]
+  },
+  "Arnold Press": {
+   "Shoulder": [
+    "Landmine Press",
+    "Floor Press",
+    "Machine Chest Press",
+    "Cable Lateral Raise"
+   ]
+  },
+  "Back Extension": {
+   "No Cable or Machine": [
+    "Glute Bridge",
+    "Single-Leg Glute Bridge",
+    "Frog Pump",
+    "Slider Hamstring Curl"
+   ],
+   "Hip": [
+    "Glute Bridge",
+    "Clamshell",
+    "Leg Curl"
+   ],
+   "Low Back": [
+    "Glute Bridge",
+    "Bird Dog",
+    "Hip Thrust",
+    "Leg Curl"
+   ]
+  },
+  "Back Squat": {
+   "No Barbell": [
+    "Goblet Squat",
+    "Sumo Squat",
+    "Hack Squat",
+    "Leg Press"
+   ],
+   "Knee": [
+    "Box Squat",
+    "Leg Press",
+    "Wall Sit",
+    "Terminal Knee Extension"
+   ],
+   "Hip": [
+    "Box Squat",
+    "Leg Press",
+    "Wall Sit",
+    "Leg Extension"
+   ],
+   "Low Back": [
+    "Goblet Squat",
+    "Leg Press",
+    "Hack Squat",
+    "Split Squat"
+   ],
+   "Shoulder": [
+    "Goblet Squat",
+    "Hack Squat",
+    "Leg Press"
+   ]
+  },
+  "Band Pull-Apart": {
+   "Any Discomfort": [
+    "Rear Delt Fly",
+    "Shrug",
+    "Face Pull"
+   ]
+  },
+  "Banded Lateral Walk": {
+   "Knee": [
+    "Terminal Knee Extension",
+    "Hip Thrust",
+    "Glute Bridge",
+    "Single-Leg Hip Thrust"
+   ],
+   "Hip": [
+    "Terminal Knee Extension",
+    "Clamshell",
+    "Glute Bridge",
+    "Leg Extension"
+   ]
+  },
+  "Barbell Curl": {
+   "No Barbell": [
+    "Hammer Curl",
+    "Incline Curl",
+    "Cable Curl",
+    "Preacher Curl"
+   ],
+   "Elbow or Wrist": [
+    "Hammer Curl",
+    "Cable Curl",
+    "Incline Curl",
+    "Concentration Curl"
+   ]
+  },
+  "Barbell Row": {
+   "No Barbell": [
+    "Dumbbell Row",
+    "Chest-Supported Row",
+    "Seated Cable Row",
+    "Single-Arm Cable Row"
+   ],
+   "Low Back": [
+    "Chest-Supported Row",
+    "Seated Cable Row",
+    "Single-Arm Cable Row",
+    "Band Pull-Apart"
+   ],
+   "Elbow or Wrist": [
+    "Chest-Supported Row",
+    "Seated Cable Row",
+    "Single-Arm Cable Row",
+    "Band Pull-Apart"
+   ]
+  },
+  "Battle Rope Slam": {
+   "No Cable or Machine": [
+    "Medicine Ball Slam",
+    "Overhead Medicine Ball Throw",
+    "Burpee",
+    "Mountain Climber"
+   ],
+   "Shoulder": [
+    "Kettlebell Swing",
+    "Stationary Bike Ride",
+    "Incline Treadmill Walk"
+   ]
+  },
+  "Battle Rope Wave": {
+   "No Cable or Machine": [
+    "Medicine Ball Slam",
+    "Overhead Medicine Ball Throw",
+    "Burpee",
+    "Mountain Climber"
+   ],
+   "Shoulder": [
+    "Kettlebell Swing",
+    "Stationary Bike Ride",
+    "Incline Treadmill Walk"
+   ]
+  },
+  "Bear Crawl": {
+   "Knee": [
+    "Farmer Carry",
+    "Suitcase Carry",
+    "Sled Pull"
+   ],
+   "Shoulder": [
+    "Farmer Carry",
+    "Suitcase Carry",
+    "Sled Pull",
+    "Weighted Ruck March"
+   ],
+   "Elbow or Wrist": [
+    "Sled Pull",
+    "Weighted Ruck March",
+    "Dead Bug"
+   ]
+  },
+  "Bear Hold": {
+   "Shoulder": [
+    "Dead Bug",
+    "Bird Dog",
+    "Heel Slide",
+    "Curl-Up"
+   ],
+   "Elbow or Wrist": [
+    "Dead Bug",
+    "Bird Dog",
+    "Heel Slide",
+    "Curl-Up"
+   ]
+  },
+  "Bench Press": {
+   "No Barbell": [
+    "Dumbbell Bench Press",
+    "Incline Dumbbell Press",
+    "Machine Chest Press",
+    "Push-Up"
+   ],
+   "No Bench": [
+    "Floor Press",
+    "Push-Up",
+    "Fist Push-Up",
+    "Machine Chest Press"
+   ],
+   "Shoulder": [
+    "Floor Press",
+    "Machine Chest Press",
+    "Dumbbell Bench Press",
+    "Push-Up"
+   ],
+   "Elbow or Wrist": [
+    "Dumbbell Bench Press",
+    "Machine Chest Press",
+    "Fist Push-Up",
+    "Floor Press"
+   ]
+  },
+  "Bicycle Crunch": {
+   "Hip": [
+    "Dead Bug",
+    "Plank",
+    "Side Plank",
+    "Curl-Up"
+   ],
+   "Low Back": [
+    "Curl-Up",
+    "Dead Bug",
+    "Bird Dog",
+    "Side Plank"
+   ],
+   "Pelvic Floor": [
+    "Heel Slide",
+    "Dead Bug",
+    "Bird Dog",
+    "Side Plank"
+   ]
+  },
+  "Bird Dog": {
+   "Any Discomfort": [
+    "Dead Bug",
+    "Hollow Hold",
+    "Side Plank"
+   ]
+  },
+  "Bounding": {
+   "Knee": [
+    "Kettlebell Swing",
+    "Medicine Ball Slam",
+    "Hip Thrust",
+    "Cable Pull-Through"
+   ],
+   "Hip": [
+    "Kettlebell Swing",
+    "Medicine Ball Slam",
+    "Cable Pull-Through",
+    "Overhead Medicine Ball Throw"
+   ],
+   "Low Back": [
+    "Goblet Squat",
+    "Hip Thrust",
+    "Cable Pull-Through",
+    "Medicine Ball Slam"
+   ],
+   "Pelvic Floor": [
+    "Goblet Squat",
+    "Step-Up",
+    "Hip Thrust",
+    "Glute Bridge"
+   ],
+   "Low Impact": [
+    "Goblet Squat",
+    "Step-Up",
+    "Kettlebell Swing",
+    "Hip Thrust"
+   ]
+  },
+  "Box Jump": {
+   "No Bench": [
+    "Jump Squat",
+    "Broad Jump",
+    "Tuck Jump",
+    "Split Jump"
+   ],
+   "Knee": [
+    "Kettlebell Swing",
+    "Medicine Ball Slam",
+    "Hip Thrust",
+    "Cable Pull-Through"
+   ],
+   "Hip": [
+    "Kettlebell Swing",
+    "Medicine Ball Slam",
+    "Cable Pull-Through",
+    "Overhead Medicine Ball Throw"
+   ],
+   "Low Back": [
+    "Goblet Squat",
+    "Hip Thrust",
+    "Cable Pull-Through",
+    "Medicine Ball Slam"
+   ],
+   "Pelvic Floor": [
+    "Goblet Squat",
+    "Step-Up",
+    "Hip Thrust",
+    "Glute Bridge"
+   ],
+   "Low Impact": [
+    "Step-Up",
+    "Goblet Squat",
+    "Kettlebell Swing",
+    "Hip Thrust"
+   ]
+  },
+  "Box Squat": {
+   "No Barbell": [
+    "Goblet Squat",
+    "Sumo Squat",
+    "Hack Squat",
+    "Leg Press"
+   ],
+   "No Bench": [
+    "Goblet Squat",
+    "Pause Squat",
+    "Tempo Squat",
+    "Back Squat"
+   ],
+   "Knee": [
+    "Leg Press",
+    "Wall Sit",
+    "Terminal Knee Extension",
+    "Hip Thrust"
+   ],
+   "Low Back": [
+    "Goblet Squat",
+    "Leg Press",
+    "Hack Squat",
+    "Split Squat"
+   ],
+   "Shoulder": [
+    "Goblet Squat",
+    "Hack Squat",
+    "Leg Press"
+   ]
+  },
+  "Broad Jump": {
+   "Knee": [
+    "Kettlebell Swing",
+    "Medicine Ball Slam",
+    "Hip Thrust",
+    "Cable Pull-Through"
+   ],
+   "Hip": [
+    "Kettlebell Swing",
+    "Medicine Ball Slam",
+    "Cable Pull-Through",
+    "Overhead Medicine Ball Throw"
+   ],
+   "Low Back": [
+    "Goblet Squat",
+    "Hip Thrust",
+    "Cable Pull-Through",
+    "Medicine Ball Slam"
+   ],
+   "Pelvic Floor": [
+    "Goblet Squat",
+    "Step-Up",
+    "Hip Thrust",
+    "Glute Bridge"
+   ],
+   "Low Impact": [
+    "Goblet Squat",
+    "Step-Up",
+    "Kettlebell Swing",
+    "Hip Thrust"
+   ]
+  },
+  "Bulgarian Split Squat": {
+   "No Bench": [
+    "Split Squat",
+    "Reverse Lunge",
+    "Forward Lunge",
+    "Curtsy Lunge"
+   ],
+   "Knee": [
+    "Terminal Knee Extension",
+    "Hip Thrust",
+    "Glute Bridge",
+    "Banded Lateral Walk"
+   ],
+   "Hip": [
+    "Terminal Knee Extension",
+    "Clamshell",
+    "Banded Lateral Walk",
+    "Glute Bridge"
+   ]
+  },
+  "Burpee": {
+   "Knee": [
+    "Stationary Bike Ride",
+    "Rowing Machine",
+    "Elliptical Trainer",
+    "Incline Treadmill Walk"
+   ],
+   "Hip": [
+    "Stationary Bike Ride",
+    "Rowing Machine",
+    "Elliptical Trainer",
+    "Incline Treadmill Walk"
+   ],
+   "Low Back": [
+    "Stationary Bike Ride",
+    "Incline Treadmill Walk",
+    "Elliptical Trainer"
+   ],
+   "Elbow or Wrist": [
+    "Stationary Bike Ride",
+    "Incline Treadmill Walk",
+    "Shadow Boxing Rounds",
+    "Dead Bug"
+   ],
+   "Pelvic Floor": [
+    "Stationary Bike Ride",
+    "Rowing Machine",
+    "Elliptical Trainer",
+    "Incline Treadmill Walk"
+   ],
+   "Low Impact": [
+    "Stationary Bike Ride",
+    "Rowing Machine",
+    "Elliptical Trainer",
+    "Incline Treadmill Walk"
+   ]
+  },
+  "Cable Crossover": {
+   "No Cable or Machine": [
+    "Chest Fly",
+    "Push-Up",
+    "Floor Press",
+    "Dumbbell Bench Press"
+   ],
+   "Shoulder": [
+    "Floor Press",
+    "Machine Chest Press",
+    "Dumbbell Bench Press",
+    "Push-Up"
+   ],
+   "Elbow or Wrist": [
+    "Dumbbell Bench Press",
+    "Machine Chest Press",
+    "Fist Push-Up",
+    "Floor Press"
+   ]
+  },
+  "Cable Crunch": {
+   "No Cable or Machine": [
+    "Reverse Crunch",
+    "V-Up",
+    "Bicycle Crunch",
+    "Sit-Up"
+   ],
+   "Hip": [
+    "Dead Bug",
+    "Plank",
+    "Side Plank",
+    "Curl-Up"
+   ],
+   "Low Back": [
+    "Curl-Up",
+    "Dead Bug",
+    "Bird Dog",
+    "Side Plank"
+   ],
+   "Pelvic Floor": [
+    "Heel Slide",
+    "Dead Bug",
+    "Bird Dog",
+    "Side Plank"
+   ]
+  },
+  "Cable Curl": {
+   "No Cable or Machine": [
+    "Barbell Curl",
+    "Hammer Curl",
+    "Incline Curl",
+    "Concentration Curl"
+   ],
+   "Elbow or Wrist": [
+    "Hammer Curl",
+    "Incline Curl",
+    "Concentration Curl"
+   ]
+  },
+  "Cable Kickback": {
+   "No Cable or Machine": [
+    "Frog Pump",
+    "Single-Leg Glute Bridge",
+    "Glute Bridge",
+    "Banded Lateral Walk"
+   ]
+  },
+  "Cable Lateral Raise": {
+   "No Cable or Machine": [
+    "Lateral Raise",
+    "Front Raise",
+    "Pike Push-Up",
+    "Landmine Press"
+   ],
+   "Shoulder": [
+    "Face Pull",
+    "Rear Delt Fly",
+    "Band Pull-Apart"
+   ]
+  },
+  "Cable Pull-Through": {
+   "No Cable or Machine": [
+    "Kettlebell Swing",
+    "Romanian Deadlift",
+    "Single-Leg Romanian Deadlift",
+    "Glute Bridge"
+   ],
+   "Hip": [
+    "Glute Bridge",
+    "Back Extension",
+    "Leg Curl"
+   ]
+  },
+  "Calf Raise": {
+   "Any Discomfort": [
+    "Nordic Hamstring Curl",
+    "Seated Calf Raise",
+    "Slider Hamstring Curl"
+   ]
+  },
+  "Calf Stretch": {
+   "Any Discomfort": [
+    "Ankle Rock",
+    "Cat-Cow",
+    "Child's Pose"
+   ]
+  },
+  "Cat-Cow": {
+   "Any Discomfort": [
+    "Child's Pose",
+    "Thread the Needle",
+    "Thoracic Rotation"
+   ]
+  },
+  "Chest Fly": {
+   "No Bench": [
+    "Cable Crossover",
+    "Pec Deck Fly",
+    "Push-Up",
+    "Floor Press"
+   ],
+   "Shoulder": [
+    "Floor Press",
+    "Machine Chest Press",
+    "Dumbbell Bench Press",
+    "Push-Up"
+   ],
+   "Elbow or Wrist": [
+    "Dumbbell Bench Press",
+    "Machine Chest Press",
+    "Fist Push-Up",
+    "Floor Press"
+   ]
+  },
+  "Chest-Supported Row": {
+   "No Bench": [
+    "Dumbbell Row",
+    "Inverted Row",
+    "Seated Cable Row",
+    "Barbell Row"
+   ],
+   "Elbow or Wrist": [
+    "Seated Cable Row",
+    "Single-Arm Cable Row",
+    "Band Pull-Apart"
+   ]
+  },
+  "Child's Pose": {
+   "Any Discomfort": [
+    "Cat-Cow",
+    "Thread the Needle",
+    "Thoracic Rotation"
+   ]
+  },
+  "Chin-Up": {
+   "No Pull-Up Bar": [
+    "Inverted Row",
+    "Lat Pulldown",
+    "Dumbbell Pullover",
+    "Dumbbell Row"
+   ],
+   "Shoulder": [
+    "Neutral-Grip Pull-Up",
+    "Chest-Supported Row",
+    "Seated Cable Row",
+    "Single-Arm Cable Row"
+   ],
+   "Elbow or Wrist": [
+    "Lat Pulldown",
+    "Straight-Arm Pulldown",
+    "Neutral-Grip Pull-Up",
+    "Seated Cable Row"
+   ]
+  },
+  "Clamshell": {
+   "Knee": [
+    "Terminal Knee Extension",
+    "Hip Thrust",
+    "Glute Bridge",
+    "Banded Lateral Walk"
+   ],
+   "Hip": [
+    "Terminal Knee Extension",
+    "Banded Lateral Walk",
+    "Glute Bridge",
+    "Leg Extension"
+   ]
+  },
+  "Close-Grip Bench Press": {
+   "No Barbell": [
+    "Diamond Push-Up",
+    "Dumbbell Bench Press",
+    "Triceps Pushdown",
+    "Floor Press"
+   ],
+   "No Bench": [
+    "Floor Press",
+    "Push-Up",
+    "Fist Push-Up",
+    "Machine Chest Press"
+   ],
+   "Shoulder": [
+    "Floor Press",
+    "Machine Chest Press",
+    "Dumbbell Bench Press",
+    "Push-Up"
+   ],
+   "Elbow or Wrist": [
+    "Dumbbell Bench Press",
+    "Machine Chest Press",
+    "Fist Push-Up",
+    "Floor Press"
+   ]
+  },
+  "Cobra Stretch": {
+   "Any Discomfort": [
+    "Thoracic Rotation",
+    "Thoracic Extension on Foam Roller",
+    "Thread the Needle"
+   ]
+  },
+  "Concentration Curl": {
+   "No Bench": [
+    "Hammer Curl",
+    "Barbell Curl",
+    "Cable Curl",
+    "Zottman Curl"
+   ],
+   "Elbow or Wrist": [
+    "Hammer Curl",
+    "Cable Curl",
+    "Incline Curl"
+   ]
+  },
+  "Copenhagen Plank": {
+   "Any Discomfort": [
+    "Plank Shoulder Tap",
+    "Ab Wheel",
+    "Pallof Press"
+   ]
+  },
+  "Cossack Squat": {
+   "Any Discomfort": [
+    "Hip CARs",
+    "Frog Stretch",
+    "Standing Quad Stretch"
+   ]
+  },
+  "Couch Stretch": {
+   "Any Discomfort": [
+    "Hip Flexor Stretch",
+    "Pigeon Stretch",
+    "90/90 Hip Switch"
+   ]
+  },
+  "Crab Walk": {
+   "Knee": [
+    "Farmer Carry",
+    "Suitcase Carry",
+    "Sled Pull"
+   ],
+   "Shoulder": [
+    "Farmer Carry",
+    "Suitcase Carry",
+    "Sled Pull",
+    "Weighted Ruck March"
+   ],
+   "Elbow or Wrist": [
+    "Sled Pull",
+    "Weighted Ruck March",
+    "Dead Bug"
+   ]
+  },
+  "Curl-Up": {
+   "Any Discomfort": [
+    "Ab Wheel",
+    "Lying Leg Raise",
+    "Copenhagen Plank"
+   ]
+  },
+  "Curtsy Lunge": {
+   "No Barbell": [
+    "Lateral Step-Up",
+    "Lateral Lunge",
+    "Step-Down",
+    "Pistol Squat"
+   ],
+   "Knee": [
+    "Terminal Knee Extension",
+    "Hip Thrust",
+    "Glute Bridge",
+    "Banded Lateral Walk"
+   ],
+   "Hip": [
+    "Terminal Knee Extension",
+    "Clamshell",
+    "Banded Lateral Walk",
+    "Glute Bridge"
+   ]
+  },
+  "Dead Bug": {
+   "Any Discomfort": [
+    "Side Plank",
+    "Bird Dog",
+    "Plank"
+   ]
+  },
+  "Dead Hang": {
+   "Any Discomfort": [
+    "Lat Stretch",
+    "Shoulder Pass-Through",
+    "Doorway Pec Stretch"
+   ]
+  },
+  "Deadlift": {
+   "No Barbell": [
+    "Single-Leg Romanian Deadlift",
+    "Kettlebell Swing",
+    "Cable Pull-Through",
+    "Glute Bridge"
+   ],
+   "Hip": [
+    "Cable Pull-Through",
+    "Glute Bridge",
+    "Back Extension",
+    "Leg Curl"
+   ],
+   "Low Back": [
+    "Trap Bar Deadlift",
+    "Hip Thrust",
+    "Cable Pull-Through",
+    "Glute Bridge"
+   ]
+  },
+  "Decline Bench Press": {
+   "No Barbell": [
+    "Dumbbell Bench Press",
+    "Incline Dumbbell Press",
+    "Machine Chest Press",
+    "Push-Up"
+   ],
+   "No Bench": [
+    "Floor Press",
+    "Push-Up",
+    "Fist Push-Up",
+    "Machine Chest Press"
+   ],
+   "Shoulder": [
+    "Floor Press",
+    "Machine Chest Press",
+    "Dumbbell Bench Press",
+    "Push-Up"
+   ],
+   "Elbow or Wrist": [
+    "Dumbbell Bench Press",
+    "Machine Chest Press",
+    "Fist Push-Up",
+    "Floor Press"
+   ]
+  },
+  "Deep Squat Hold": {
+   "Any Discomfort": [
+    "Standing Quad Stretch",
+    "Hip CARs",
+    "Hamstring Stretch"
+   ]
+  },
+  "Deficit Deadlift": {
+   "No Barbell": [
+    "Single-Leg Romanian Deadlift",
+    "Kettlebell Swing",
+    "Cable Pull-Through",
+    "Glute Bridge"
+   ],
+   "Hip": [
+    "Cable Pull-Through",
+    "Glute Bridge",
+    "Back Extension",
+    "Leg Curl"
+   ],
+   "Low Back": [
+    "Hip Thrust",
+    "Glute Bridge",
+    "Cable Pull-Through",
+    "Leg Curl"
+   ]
+  },
+  "Diamond Push-Up": {
+   "Shoulder": [
+    "Floor Press",
+    "Machine Chest Press",
+    "Dumbbell Bench Press",
+    "Push-Up"
+   ],
+   "Elbow or Wrist": [
+    "Fist Push-Up",
+    "Machine Chest Press",
+    "Dumbbell Bench Press",
+    "Floor Press"
+   ]
+  },
+  "Diaphragmatic Breathing": {
+   "Any Discomfort": [
+    "Thoracic Extension on Foam Roller",
+    "Cobra Stretch",
+    "Thoracic Rotation"
+   ]
+  },
+  "Dips": {
+   "No Bench": [
+    "Push-Up",
+    "Diamond Push-Up",
+    "Triceps Pushdown",
+    "Floor Press"
+   ],
+   "No Pull-Up Bar": [
+    "Push-Up",
+    "Diamond Push-Up",
+    "Triceps Pushdown",
+    "Floor Press"
+   ],
+   "Shoulder": [
+    "Floor Press",
+    "Machine Chest Press",
+    "Dumbbell Bench Press",
+    "Push-Up"
+   ],
+   "Elbow or Wrist": [
+    "Dumbbell Bench Press",
+    "Machine Chest Press",
+    "Fist Push-Up",
+    "Floor Press"
+   ]
+  },
+  "Doorway Pec Stretch": {
+   "Any Discomfort": [
+    "Wall Slide",
+    "Shoulder Pass-Through",
+    "Lat Stretch"
+   ]
+  },
+  "Dumbbell Bench Press": {
+   "No Bench": [
+    "Floor Press",
+    "Push-Up",
+    "Fist Push-Up",
+    "Machine Chest Press"
+   ],
+   "Shoulder": [
+    "Floor Press",
+    "Machine Chest Press",
+    "Push-Up",
+    "Cable Crossover"
+   ],
+   "Elbow or Wrist": [
+    "Machine Chest Press",
+    "Fist Push-Up",
+    "Floor Press",
+    "Cable Crossover"
+   ]
+  },
+  "Dumbbell Clean and Press": {
+   "Knee": [
+    "Kettlebell Swing",
+    "Cable Pull-Through",
+    "Medicine Ball Slam",
+    "Hip Thrust"
+   ],
+   "Low Back": [
+    "Kettlebell Swing",
+    "Cable Pull-Through",
+    "Hip Thrust",
+    "Goblet Squat"
+   ],
+   "Shoulder": [
+    "Kettlebell Swing",
+    "Cable Pull-Through",
+    "Hip Thrust",
+    "Goblet Squat"
+   ],
+   "Elbow or Wrist": [
+    "Kettlebell Swing",
+    "Cable Pull-Through",
+    "Hip Thrust",
+    "Goblet Squat"
+   ]
+  },
+  "Dumbbell Complex": {
+   "Knee": [
+    "Kettlebell Swing",
+    "Cable Pull-Through",
+    "Medicine Ball Slam",
+    "Hip Thrust"
+   ],
+   "Low Back": [
+    "Kettlebell Swing",
+    "Cable Pull-Through",
+    "Hip Thrust",
+    "Goblet Squat"
+   ],
+   "Shoulder": [
+    "Kettlebell Swing",
+    "Cable Pull-Through",
+    "Hip Thrust",
+    "Goblet Squat"
+   ],
+   "Elbow or Wrist": [
+    "Kettlebell Swing",
+    "Cable Pull-Through",
+    "Hip Thrust",
+    "Goblet Squat"
+   ]
+  },
+  "Dumbbell Pullover": {
+   "Shoulder": [
+    "Neutral-Grip Pull-Up",
+    "Chest-Supported Row",
+    "Seated Cable Row",
+    "Single-Arm Cable Row"
+   ],
+   "Elbow or Wrist": [
+    "Lat Pulldown",
+    "Straight-Arm Pulldown",
+    "Neutral-Grip Pull-Up",
+    "Seated Cable Row"
+   ]
+  },
+  "Dumbbell Row": {
+   "Low Back": [
+    "Chest-Supported Row",
+    "Seated Cable Row",
+    "Single-Arm Cable Row",
+    "Band Pull-Apart"
+   ],
+   "Elbow or Wrist": [
+    "Chest-Supported Row",
+    "Seated Cable Row",
+    "Single-Arm Cable Row",
+    "Band Pull-Apart"
+   ]
+  },
+  "Dumbbell Snatch": {
+   "Knee": [
+    "Kettlebell Swing",
+    "Cable Pull-Through",
+    "Medicine Ball Slam",
+    "Hip Thrust"
+   ],
+   "Low Back": [
+    "Kettlebell Swing",
+    "Cable Pull-Through",
+    "Hip Thrust",
+    "Goblet Squat"
+   ],
+   "Shoulder": [
+    "Kettlebell Swing",
+    "Cable Pull-Through",
+    "Hip Thrust",
+    "Goblet Squat"
+   ],
+   "Elbow or Wrist": [
+    "Kettlebell Swing",
+    "Cable Pull-Through",
+    "Hip Thrust",
+    "Goblet Squat"
+   ]
+  },
+  "Dumbbell Woodchop": {
+   "Low Back": [
+    "Pallof Press",
+    "Side Plank",
+    "Dead Bug",
+    "Plank"
+   ]
+  },
+  "Elliptical Trainer": {
+   "No Cable or Machine": [
+    "Weighted Ruck March",
+    "Jump Rope",
+    "Shuttle Run",
+    "Burpee"
+   ]
+  },
+  "Face Pull": {
+   "No Cable or Machine": [
+    "Band Pull-Apart",
+    "Dumbbell Row",
+    "Inverted Row",
+    "Shrug"
+   ]
+  },
+  "Farmer Carry": {
+   "Elbow or Wrist": [
+    "Weighted Ruck March",
+    "Sled Push",
+    "Sled Pull"
+   ]
+  },
+  "Figure-Four Stretch": {
+   "Any Discomfort": [
+    "Pigeon Stretch",
+    "Lizard Pose",
+    "Couch Stretch"
+   ]
+  },
+  "Fist Push-Up": {
+   "Shoulder": [
+    "Floor Press",
+    "Machine Chest Press",
+    "Dumbbell Bench Press",
+    "Push-Up"
+   ],
+   "Elbow or Wrist": [
+    "Dumbbell Bench Press",
+    "Machine Chest Press",
+    "Floor Press",
+    "Cable Crossover"
+   ]
+  },
+  "Flat Sprint": {
+   "Knee": [
+    "Stationary Bike Ride",
+    "Rowing Machine",
+    "Elliptical Trainer",
+    "Incline Treadmill Walk"
+   ],
+   "Hip": [
+    "Stationary Bike Ride",
+    "Rowing Machine",
+    "Elliptical Trainer",
+    "Incline Treadmill Walk"
+   ],
+   "Low Back": [
+    "Stationary Bike Ride",
+    "Incline Treadmill Walk",
+    "Elliptical Trainer"
+   ],
+   "Pelvic Floor": [
+    "Stationary Bike Ride",
+    "Rowing Machine",
+    "Elliptical Trainer",
+    "Incline Treadmill Walk"
+   ],
+   "Low Impact": [
+    "Stationary Bike Ride",
+    "Rowing Machine",
+    "Elliptical Trainer",
+    "Incline Treadmill Walk"
+   ]
+  },
+  "Floor Press": {
+   "No Barbell": [
+    "Dumbbell Bench Press",
+    "Incline Dumbbell Press",
+    "Machine Chest Press",
+    "Push-Up"
+   ],
+   "Shoulder": [
+    "Machine Chest Press",
+    "Dumbbell Bench Press",
+    "Push-Up",
+    "Cable Crossover"
+   ],
+   "Elbow or Wrist": [
+    "Dumbbell Bench Press",
+    "Machine Chest Press",
+    "Fist Push-Up",
+    "Cable Crossover"
+   ]
+  },
+  "Flutter Kick": {
+   "Hip": [
+    "Dead Bug",
+    "Plank",
+    "Side Plank",
+    "Curl-Up"
+   ],
+   "Low Back": [
+    "Curl-Up",
+    "Dead Bug",
+    "Bird Dog",
+    "Side Plank"
+   ],
+   "Pelvic Floor": [
+    "Heel Slide",
+    "Dead Bug",
+    "Bird Dog",
+    "Side Plank"
+   ]
+  },
+  "Forward Lunge": {
+   "No Barbell": [
+    "Bulgarian Split Squat",
+    "Step-Up",
+    "Split Squat",
+    "Step-Down"
+   ],
+   "Knee": [
+    "Terminal Knee Extension",
+    "Hip Thrust",
+    "Glute Bridge",
+    "Banded Lateral Walk"
+   ],
+   "Hip": [
+    "Terminal Knee Extension",
+    "Clamshell",
+    "Banded Lateral Walk",
+    "Glute Bridge"
+   ]
+  },
+  "Frog Pump": {
+   "Any Discomfort": [
+    "Cable Kickback",
+    "Single-Leg Glute Bridge",
+    "Single-Leg Hip Thrust"
+   ]
+  },
+  "Frog Stretch": {
+   "Any Discomfort": [
+    "Lizard Pose",
+    "Hip CARs",
+    "Figure-Four Stretch"
+   ]
+  },
+  "Front Raise": {
+   "Shoulder": [
+    "Face Pull",
+    "Rear Delt Fly",
+    "Band Pull-Apart"
+   ]
+  },
+  "Front Squat": {
+   "No Barbell": [
+    "Goblet Squat",
+    "Sumo Squat",
+    "Hack Squat",
+    "Leg Press"
+   ],
+   "Knee": [
+    "Box Squat",
+    "Leg Press",
+    "Wall Sit",
+    "Terminal Knee Extension"
+   ],
+   "Hip": [
+    "Box Squat",
+    "Leg Press",
+    "Wall Sit",
+    "Leg Extension"
+   ],
+   "Low Back": [
+    "Goblet Squat",
+    "Leg Press",
+    "Hack Squat",
+    "Split Squat"
+   ],
+   "Shoulder": [
+    "Goblet Squat",
+    "Hack Squat",
+    "Leg Press"
+   ]
+  },
+  "Glute Bridge": {
+   "Hip": [
+    "Clamshell",
+    "Leg Curl",
+    "Back Extension"
+   ]
+  },
+  "Goblet Squat": {
+   "Knee": [
+    "Box Squat",
+    "Leg Press",
+    "Wall Sit",
+    "Terminal Knee Extension"
+   ],
+   "Hip": [
+    "Box Squat",
+    "Leg Press",
+    "Wall Sit",
+    "Leg Extension"
+   ]
+  },
+  "Good Morning": {
+   "No Barbell": [
+    "Single-Leg Romanian Deadlift",
+    "Kettlebell Swing",
+    "Cable Pull-Through",
+    "Glute Bridge"
+   ],
+   "Hip": [
+    "Cable Pull-Through",
+    "Glute Bridge",
+    "Back Extension",
+    "Leg Curl"
+   ],
+   "Low Back": [
+    "Hip Thrust",
+    "Glute Bridge",
+    "Cable Pull-Through",
+    "Leg Curl"
+   ]
+  },
+  "Hack Squat": {
+   "No Cable or Machine": [
+    "Goblet Squat",
+    "Heel-Elevated Squat",
+    "Split Squat",
+    "Wall Sit"
+   ],
+   "Knee": [
+    "Box Squat",
+    "Leg Press",
+    "Wall Sit",
+    "Terminal Knee Extension"
+   ]
+  },
+  "Hammer Curl": {
+   "Elbow or Wrist": [
+    "Cable Curl",
+    "Incline Curl",
+    "Concentration Curl"
+   ]
+  },
+  "Hamstring Stretch": {
+   "Any Discomfort": [
+    "Standing Quad Stretch",
+    "Quadruped Rock-Back",
+    "Spiderman Stretch"
+   ]
+  },
+  "Hang Power Clean": {
+   "No Barbell": [
+    "Thruster",
+    "Dumbbell Clean and Press",
+    "Dumbbell Complex",
+    "Dumbbell Snatch"
+   ],
+   "Knee": [
+    "Kettlebell Swing",
+    "Cable Pull-Through",
+    "Medicine Ball Slam",
+    "Hip Thrust"
+   ],
+   "Low Back": [
+    "Kettlebell Swing",
+    "Cable Pull-Through",
+    "Hip Thrust",
+    "Goblet Squat"
+   ],
+   "Shoulder": [
+    "Kettlebell Swing",
+    "Cable Pull-Through",
+    "Hip Thrust",
+    "Goblet Squat"
+   ],
+   "Elbow or Wrist": [
+    "Kettlebell Swing",
+    "Cable Pull-Through",
+    "Hip Thrust",
+    "Goblet Squat"
+   ]
+  },
+  "Hanging Knee Raise": {
+   "No Pull-Up Bar": [
+    "Lying Leg Raise",
+    "Reverse Crunch",
+    "V-Up",
+    "Bicycle Crunch"
+   ],
+   "Hip": [
+    "Dead Bug",
+    "Plank",
+    "Side Plank",
+    "Curl-Up"
+   ],
+   "Low Back": [
+    "Curl-Up",
+    "Dead Bug",
+    "Bird Dog",
+    "Side Plank"
+   ],
+   "Shoulder": [
+    "Lying Leg Raise",
+    "Reverse Crunch",
+    "Dead Bug",
+    "Curl-Up"
+   ],
+   "Pelvic Floor": [
+    "Heel Slide",
+    "Dead Bug",
+    "Bird Dog",
+    "Side Plank"
+   ]
+  },
+  "Hanging Leg Raise": {
+   "No Pull-Up Bar": [
+    "Lying Leg Raise",
+    "Reverse Crunch",
+    "V-Up",
+    "Bicycle Crunch"
+   ],
+   "Hip": [
+    "Dead Bug",
+    "Plank",
+    "Side Plank",
+    "Curl-Up"
+   ],
+   "Low Back": [
+    "Curl-Up",
+    "Dead Bug",
+    "Bird Dog",
+    "Side Plank"
+   ],
+   "Shoulder": [
+    "Lying Leg Raise",
+    "Reverse Crunch",
+    "Dead Bug",
+    "Curl-Up"
+   ],
+   "Pelvic Floor": [
+    "Heel Slide",
+    "Dead Bug",
+    "Bird Dog",
+    "Side Plank"
+   ]
+  },
+  "Heel Slide": {
+   "Any Discomfort": [
+    "Lying Leg Raise",
+    "Bear Hold",
+    "Curl-Up"
+   ]
+  },
+  "Heel-Elevated Squat": {
+   "No Barbell": [
+    "Goblet Squat",
+    "Sumo Squat",
+    "Hack Squat",
+    "Leg Press"
+   ],
+   "Knee": [
+    "Box Squat",
+    "Leg Press",
+    "Wall Sit",
+    "Terminal Knee Extension"
+   ],
+   "Hip": [
+    "Box Squat",
+    "Leg Press",
+    "Wall Sit",
+    "Leg Extension"
+   ],
+   "Low Back": [
+    "Goblet Squat",
+    "Leg Press",
+    "Hack Squat",
+    "Split Squat"
+   ],
+   "Shoulder": [
+    "Goblet Squat",
+    "Hack Squat",
+    "Leg Press"
+   ]
+  },
+  "High Knees": {
+   "Knee": [
+    "Stationary Bike Ride",
+    "Rowing Machine",
+    "Elliptical Trainer",
+    "Incline Treadmill Walk"
+   ],
+   "Hip": [
+    "Stationary Bike Ride",
+    "Rowing Machine",
+    "Elliptical Trainer",
+    "Incline Treadmill Walk"
+   ],
+   "Low Back": [
+    "Stationary Bike Ride",
+    "Incline Treadmill Walk",
+    "Elliptical Trainer"
+   ],
+   "Pelvic Floor": [
+    "Stationary Bike Ride",
+    "Rowing Machine",
+    "Elliptical Trainer",
+    "Incline Treadmill Walk"
+   ],
+   "Low Impact": [
+    "Stationary Bike Ride",
+    "Rowing Machine",
+    "Elliptical Trainer",
+    "Incline Treadmill Walk"
+   ]
+  },
+  "Hill Sprint": {
+   "Knee": [
+    "Stationary Bike Ride",
+    "Rowing Machine",
+    "Elliptical Trainer",
+    "Incline Treadmill Walk"
+   ],
+   "Hip": [
+    "Stationary Bike Ride",
+    "Rowing Machine",
+    "Elliptical Trainer",
+    "Incline Treadmill Walk"
+   ],
+   "Low Back": [
+    "Stationary Bike Ride",
+    "Incline Treadmill Walk",
+    "Elliptical Trainer"
+   ],
+   "Pelvic Floor": [
+    "Stationary Bike Ride",
+    "Rowing Machine",
+    "Elliptical Trainer",
+    "Incline Treadmill Walk"
+   ],
+   "Low Impact": [
+    "Stationary Bike Ride",
+    "Rowing Machine",
+    "Elliptical Trainer",
+    "Incline Treadmill Walk"
+   ]
+  },
+  "Hip Abduction Machine": {
+   "No Cable or Machine": [
+    "Banded Lateral Walk",
+    "Clamshell",
+    "Lateral Lunge",
+    "Curtsy Lunge"
+   ],
+   "Knee": [
+    "Terminal Knee Extension",
+    "Hip Thrust",
+    "Glute Bridge",
+    "Banded Lateral Walk"
+   ],
+   "Hip": [
+    "Terminal Knee Extension",
+    "Clamshell",
+    "Banded Lateral Walk",
+    "Glute Bridge"
+   ]
+  },
+  "Hip CARs": {
+   "Any Discomfort": [
+    "Frog Stretch",
+    "Lizard Pose",
+    "Figure-Four Stretch"
+   ]
+  },
+  "Hip Flexor Stretch": {
+   "Any Discomfort": [
+    "90/90 Hip Switch",
+    "Couch Stretch",
+    "Pigeon Stretch"
+   ]
+  },
+  "Hip Thrust": {
+   "No Barbell": [
+    "Glute Bridge",
+    "Cable Pull-Through",
+    "Kettlebell Swing",
+    "Slider Hamstring Curl"
+   ],
+   "No Bench": [
+    "Glute Bridge",
+    "Cable Pull-Through",
+    "Romanian Deadlift",
+    "Slider Hamstring Curl"
+   ],
+   "Hip": [
+    "Glute Bridge",
+    "Clamshell",
+    "Leg Curl",
+    "Back Extension"
+   ]
+  },
+  "Hollow Hold": {
+   "Pelvic Floor": [
+    "Heel Slide",
+    "Dead Bug",
+    "Bird Dog",
+    "Side Plank"
+   ]
+  },
+  "Inchworm": {
+   "Any Discomfort": [
+    "Diaphragmatic Breathing",
+    "Thoracic Extension on Foam Roller",
+    "Cobra Stretch"
+   ]
+  },
+  "Incline Bench Press": {
+   "No Barbell": [
+    "Dumbbell Bench Press",
+    "Incline Dumbbell Press",
+    "Machine Chest Press",
+    "Push-Up"
+   ],
+   "No Bench": [
+    "Landmine Press",
+    "Pike Push-Up",
+    "Floor Press",
+    "Push-Up"
+   ],
+   "Shoulder": [
+    "Floor Press",
+    "Machine Chest Press",
+    "Dumbbell Bench Press",
+    "Push-Up"
+   ],
+   "Elbow or Wrist": [
+    "Dumbbell Bench Press",
+    "Machine Chest Press",
+    "Fist Push-Up",
+    "Floor Press"
+   ]
+  },
+  "Incline Curl": {
+   "No Bench": [
+    "Hammer Curl",
+    "Barbell Curl",
+    "Cable Curl",
+    "Zottman Curl"
+   ],
+   "Elbow or Wrist": [
+    "Hammer Curl",
+    "Cable Curl",
+    "Concentration Curl"
+   ]
+  },
+  "Incline Dumbbell Press": {
+   "No Bench": [
+    "Landmine Press",
+    "Pike Push-Up",
+    "Floor Press",
+    "Push-Up"
+   ],
+   "Shoulder": [
+    "Floor Press",
+    "Machine Chest Press",
+    "Dumbbell Bench Press",
+    "Push-Up"
+   ],
+   "Elbow or Wrist": [
+    "Dumbbell Bench Press",
+    "Machine Chest Press",
+    "Fist Push-Up",
+    "Floor Press"
+   ]
+  },
+  "Incline Treadmill Walk": {
+   "No Cable or Machine": [
+    "Weighted Ruck March",
+    "Jump Rope",
+    "Shuttle Run",
+    "Burpee"
+   ]
+  },
+  "Inverted Row": {
+   "Elbow or Wrist": [
+    "Chest-Supported Row",
+    "Seated Cable Row",
+    "Single-Arm Cable Row",
+    "Band Pull-Apart"
+   ]
+  },
+  "JM Press": {
+   "No Barbell": [
+    "Triceps Pushdown",
+    "Overhead Triceps Extension",
+    "Triceps Kickback",
+    "Diamond Push-Up"
+   ],
+   "No Bench": [
+    "Triceps Pushdown",
+    "Overhead Triceps Extension",
+    "Triceps Kickback",
+    "Diamond Push-Up"
+   ],
+   "Shoulder": [
+    "Floor Press",
+    "Machine Chest Press",
+    "Dumbbell Bench Press",
+    "Push-Up"
+   ],
+   "Elbow or Wrist": [
+    "Dumbbell Bench Press",
+    "Machine Chest Press",
+    "Fist Push-Up",
+    "Floor Press"
+   ]
+  },
+  "Jefferson Curl": {
+   "Any Discomfort": [
+    "Thoracic Extension on Foam Roller",
+    "Cobra Stretch",
+    "Diaphragmatic Breathing"
+   ]
+  },
+  "Jump Rope": {
+   "Knee": [
+    "Stationary Bike Ride",
+    "Rowing Machine",
+    "Elliptical Trainer",
+    "Incline Treadmill Walk"
+   ],
+   "Hip": [
+    "Stationary Bike Ride",
+    "Rowing Machine",
+    "Elliptical Trainer",
+    "Incline Treadmill Walk"
+   ],
+   "Low Back": [
+    "Stationary Bike Ride",
+    "Incline Treadmill Walk",
+    "Elliptical Trainer"
+   ],
+   "Pelvic Floor": [
+    "Stationary Bike Ride",
+    "Rowing Machine",
+    "Elliptical Trainer",
+    "Incline Treadmill Walk"
+   ],
+   "Low Impact": [
+    "Stationary Bike Ride",
+    "Rowing Machine",
+    "Elliptical Trainer",
+    "Incline Treadmill Walk"
+   ]
+  },
+  "Jump Squat": {
+   "Knee": [
+    "Kettlebell Swing",
+    "Medicine Ball Slam",
+    "Hip Thrust",
+    "Cable Pull-Through"
+   ],
+   "Hip": [
+    "Kettlebell Swing",
+    "Medicine Ball Slam",
+    "Cable Pull-Through",
+    "Overhead Medicine Ball Throw"
+   ],
+   "Low Back": [
+    "Goblet Squat",
+    "Hip Thrust",
+    "Cable Pull-Through",
+    "Medicine Ball Slam"
+   ],
+   "Pelvic Floor": [
+    "Goblet Squat",
+    "Step-Up",
+    "Hip Thrust",
+    "Glute Bridge"
+   ],
+   "Low Impact": [
+    "Goblet Squat",
+    "Step-Up",
+    "Kettlebell Swing",
+    "Hip Thrust"
+   ]
+  },
+  "Jumping Jack": {
+   "Knee": [
+    "Stationary Bike Ride",
+    "Rowing Machine",
+    "Elliptical Trainer",
+    "Incline Treadmill Walk"
+   ],
+   "Hip": [
+    "Stationary Bike Ride",
+    "Rowing Machine",
+    "Elliptical Trainer",
+    "Incline Treadmill Walk"
+   ],
+   "Low Back": [
+    "Stationary Bike Ride",
+    "Incline Treadmill Walk",
+    "Elliptical Trainer"
+   ],
+   "Pelvic Floor": [
+    "Stationary Bike Ride",
+    "Rowing Machine",
+    "Elliptical Trainer",
+    "Incline Treadmill Walk"
+   ],
+   "Low Impact": [
+    "Stationary Bike Ride",
+    "Rowing Machine",
+    "Elliptical Trainer",
+    "Incline Treadmill Walk"
+   ]
+  },
+  "Kettlebell Clean": {
+   "Knee": [
+    "Kettlebell Swing",
+    "Cable Pull-Through",
+    "Medicine Ball Slam",
+    "Hip Thrust"
+   ],
+   "Low Back": [
+    "Kettlebell Swing",
+    "Cable Pull-Through",
+    "Hip Thrust",
+    "Goblet Squat"
+   ],
+   "Shoulder": [
+    "Kettlebell Swing",
+    "Cable Pull-Through",
+    "Hip Thrust",
+    "Goblet Squat"
+   ],
+   "Elbow or Wrist": [
+    "Kettlebell Swing",
+    "Cable Pull-Through",
+    "Hip Thrust",
+    "Goblet Squat"
+   ]
+  },
+  "Kettlebell Snatch": {
+   "Knee": [
+    "Kettlebell Swing",
+    "Cable Pull-Through",
+    "Medicine Ball Slam",
+    "Hip Thrust"
+   ],
+   "Low Back": [
+    "Kettlebell Swing",
+    "Cable Pull-Through",
+    "Hip Thrust",
+    "Goblet Squat"
+   ],
+   "Shoulder": [
+    "Kettlebell Swing",
+    "Cable Pull-Through",
+    "Hip Thrust",
+    "Goblet Squat"
+   ],
+   "Elbow or Wrist": [
+    "Kettlebell Swing",
+    "Cable Pull-Through",
+    "Hip Thrust",
+    "Goblet Squat"
+   ]
+  },
+  "Kettlebell Swing": {
+   "Knee": [
+    "Cable Pull-Through",
+    "Medicine Ball Slam",
+    "Hip Thrust"
+   ],
+   "Low Back": [
+    "Cable Pull-Through",
+    "Hip Thrust",
+    "Goblet Squat"
+   ],
+   "Shoulder": [
+    "Cable Pull-Through",
+    "Hip Thrust",
+    "Goblet Squat"
+   ],
+   "Elbow or Wrist": [
+    "Cable Pull-Through",
+    "Hip Thrust",
+    "Goblet Squat"
+   ]
+  },
+  "L-Sit": {
+   "No Pull-Up Bar": [
+    "Hollow Hold",
+    "Lying Leg Raise",
+    "Reverse Crunch",
+    "Plank"
+   ],
+   "Hip": [
+    "Dead Bug",
+    "Plank",
+    "Side Plank",
+    "Curl-Up"
+   ],
+   "Low Back": [
+    "Curl-Up",
+    "Dead Bug",
+    "Bird Dog",
+    "Side Plank"
+   ],
+   "Shoulder": [
+    "Lying Leg Raise",
+    "Reverse Crunch",
+    "Dead Bug",
+    "Curl-Up"
+   ],
+   "Pelvic Floor": [
+    "Heel Slide",
+    "Dead Bug",
+    "Bird Dog",
+    "Side Plank"
+   ]
+  },
+  "Landmine Press": {
+   "No Barbell": [
+    "Arnold Press",
+    "Pike Push-Up",
+    "Standing Dumbbell Press",
+    "Lateral Raise"
+   ],
+   "Shoulder": [
+    "Floor Press",
+    "Machine Chest Press",
+    "Cable Lateral Raise",
+    "Lateral Raise"
+   ]
+  },
+  "Landmine Rotation": {
+   "No Barbell": [
+    "Russian Twist",
+    "Dumbbell Woodchop",
+    "Medicine Ball Rotational Throw"
+   ],
+   "Low Back": [
+    "Pallof Press",
+    "Side Plank",
+    "Dead Bug",
+    "Plank"
+   ]
+  },
+  "Lat Pulldown": {
+   "No Cable or Machine": [
+    "Inverted Row",
+    "Dumbbell Pullover",
+    "Pull-Up",
+    "Chin-Up"
+   ],
+   "Shoulder": [
+    "Neutral-Grip Pull-Up",
+    "Chest-Supported Row",
+    "Seated Cable Row",
+    "Single-Arm Cable Row"
+   ],
+   "Elbow or Wrist": [
+    "Straight-Arm Pulldown",
+    "Neutral-Grip Pull-Up",
+    "Seated Cable Row"
+   ]
+  },
+  "Lat Stretch": {
+   "Any Discomfort": [
+    "Shoulder Pass-Through",
+    "Doorway Pec Stretch",
+    "Wall Slide"
+   ]
+  },
+  "Lateral Bound": {
+   "Knee": [
+    "Kettlebell Swing",
+    "Medicine Ball Slam",
+    "Hip Thrust",
+    "Cable Pull-Through"
+   ],
+   "Hip": [
+    "Kettlebell Swing",
+    "Medicine Ball Slam",
+    "Cable Pull-Through",
+    "Overhead Medicine Ball Throw"
+   ],
+   "Low Back": [
+    "Goblet Squat",
+    "Hip Thrust",
+    "Cable Pull-Through",
+    "Medicine Ball Slam"
+   ],
+   "Pelvic Floor": [
+    "Goblet Squat",
+    "Step-Up",
+    "Hip Thrust",
+    "Glute Bridge"
+   ],
+   "Low Impact": [
+    "Goblet Squat",
+    "Step-Up",
+    "Kettlebell Swing",
+    "Hip Thrust"
+   ]
+  },
+  "Lateral Lunge": {
+   "Knee": [
+    "Terminal Knee Extension",
+    "Hip Thrust",
+    "Glute Bridge",
+    "Banded Lateral Walk"
+   ],
+   "Hip": [
+    "Terminal Knee Extension",
+    "Clamshell",
+    "Banded Lateral Walk",
+    "Glute Bridge"
+   ]
+  },
+  "Lateral Raise": {
+   "Shoulder": [
+    "Face Pull",
+    "Rear Delt Fly",
+    "Band Pull-Apart"
+   ]
+  },
+  "Lateral Step-Up": {
+   "No Bench": [
+    "Split Squat",
+    "Reverse Lunge",
+    "Forward Lunge",
+    "Curtsy Lunge"
+   ],
+   "Knee": [
+    "Terminal Knee Extension",
+    "Hip Thrust",
+    "Glute Bridge",
+    "Banded Lateral Walk"
+   ],
+   "Hip": [
+    "Terminal Knee Extension",
+    "Clamshell",
+    "Banded Lateral Walk",
+    "Glute Bridge"
+   ]
+  },
+  "Leg Curl": {
+   "No Cable or Machine": [
+    "Slider Hamstring Curl",
+    "Nordic Hamstring Curl",
+    "Single-Leg Romanian Deadlift",
+    "Glute Bridge"
+   ]
+  },
+  "Leg Extension": {
+   "No Cable or Machine": [
+    "Sissy Squat",
+    "Wall Sit",
+    "Split Squat",
+    "Goblet Squat"
+   ],
+   "Knee": [
+    "Terminal Knee Extension",
+    "Wall Sit",
+    "Leg Press",
+    "Hip Thrust"
+   ]
+  },
+  "Leg Press": {
+   "No Cable or Machine": [
+    "Goblet Squat",
+    "Split Squat",
+    "Wall Sit",
+    "Sumo Squat"
+   ],
+   "Knee": [
+    "Box Squat",
+    "Wall Sit",
+    "Terminal Knee Extension",
+    "Hip Thrust"
+   ]
+  },
+  "Lizard Pose": {
+   "Any Discomfort": [
+    "Figure-Four Stretch",
+    "Frog Stretch",
+    "Pigeon Stretch"
+   ]
+  },
+  "Lying Leg Raise": {
+   "Any Discomfort": [
+    "Curl-Up",
+    "Heel Slide",
+    "Ab Wheel"
+   ]
+  },
+  "Machine Chest Press": {
+   "No Cable or Machine": [
+    "Incline Dumbbell Press",
+    "Push-Up",
+    "Dumbbell Bench Press",
+    "Fist Push-Up"
+   ],
+   "Shoulder": [
+    "Floor Press",
+    "Dumbbell Bench Press",
+    "Push-Up",
+    "Cable Crossover"
+   ],
+   "Elbow or Wrist": [
+    "Dumbbell Bench Press",
+    "Fist Push-Up",
+    "Floor Press",
+    "Cable Crossover"
+   ]
+  },
+  "Meadows Row": {
+   "No Barbell": [
+    "Dumbbell Row",
+    "Chest-Supported Row",
+    "Seated Cable Row",
+    "Single-Arm Cable Row"
+   ],
+   "Low Back": [
+    "Chest-Supported Row",
+    "Seated Cable Row",
+    "Single-Arm Cable Row",
+    "Band Pull-Apart"
+   ],
+   "Elbow or Wrist": [
+    "Chest-Supported Row",
+    "Seated Cable Row",
+    "Single-Arm Cable Row",
+    "Band Pull-Apart"
+   ]
+  },
+  "Medicine Ball Chest Pass": {
+   "Shoulder": [
+    "Kettlebell Swing",
+    "Cable Pull-Through",
+    "Stationary Bike Ride",
+    "Incline Treadmill Walk"
+   ]
+  },
+  "Medicine Ball Rotational Throw": {
+   "Low Back": [
+    "Pallof Press",
+    "Side Plank",
+    "Dead Bug",
+    "Plank"
+   ]
+  },
+  "Medicine Ball Slam": {
+   "Knee": [
+    "Kettlebell Swing",
+    "Cable Pull-Through",
+    "Hip Thrust"
+   ],
+   "Low Back": [
+    "Kettlebell Swing",
+    "Cable Pull-Through",
+    "Hip Thrust",
+    "Goblet Squat"
+   ],
+   "Shoulder": [
+    "Kettlebell Swing",
+    "Cable Pull-Through",
+    "Hip Thrust",
+    "Goblet Squat"
+   ],
+   "Elbow or Wrist": [
+    "Kettlebell Swing",
+    "Cable Pull-Through",
+    "Hip Thrust",
+    "Goblet Squat"
+   ],
+   "Pelvic Floor": [
+    "Kettlebell Swing",
+    "Cable Pull-Through",
+    "Hip Thrust"
+   ]
+  },
+  "Mountain Climber": {
+   "Knee": [
+    "Stationary Bike Ride",
+    "Rowing Machine",
+    "Elliptical Trainer",
+    "Incline Treadmill Walk"
+   ],
+   "Hip": [
+    "Stationary Bike Ride",
+    "Rowing Machine",
+    "Elliptical Trainer",
+    "Incline Treadmill Walk"
+   ],
+   "Low Back": [
+    "Stationary Bike Ride",
+    "Incline Treadmill Walk",
+    "Elliptical Trainer"
+   ],
+   "Elbow or Wrist": [
+    "Stationary Bike Ride",
+    "Incline Treadmill Walk",
+    "Shadow Boxing Rounds",
+    "Dead Bug"
+   ],
+   "Pelvic Floor": [
+    "Stationary Bike Ride",
+    "Rowing Machine",
+    "Elliptical Trainer",
+    "Incline Treadmill Walk"
+   ],
+   "Low Impact": [
+    "Stationary Bike Ride",
+    "Rowing Machine",
+    "Elliptical Trainer",
+    "Incline Treadmill Walk"
+   ]
+  },
+  "Neutral-Grip Pull-Up": {
+   "No Pull-Up Bar": [
+    "Inverted Row",
+    "Lat Pulldown",
+    "Dumbbell Pullover",
+    "Dumbbell Row"
+   ],
+   "Shoulder": [
+    "Chest-Supported Row",
+    "Seated Cable Row",
+    "Single-Arm Cable Row",
+    "Inverted Row"
+   ],
+   "Elbow or Wrist": [
+    "Lat Pulldown",
+    "Straight-Arm Pulldown",
+    "Seated Cable Row"
+   ]
+  },
+  "Nordic Hamstring Curl": {
+   "Any Discomfort": [
+    "Slider Hamstring Curl",
+    "Calf Raise",
+    "Leg Curl"
+   ]
+  },
+  "Overhead Carry": {
+   "Shoulder": [
+    "Farmer Carry",
+    "Suitcase Carry"
+   ],
+   "Elbow or Wrist": [
+    "Weighted Ruck March",
+    "Sled Push",
+    "Sled Pull"
+   ]
+  },
+  "Overhead Medicine Ball Throw": {
+   "Shoulder": [
+    "Kettlebell Swing",
+    "Cable Pull-Through",
+    "Stationary Bike Ride",
+    "Incline Treadmill Walk"
+   ]
+  },
+  "Overhead Press": {
+   "No Barbell": [
+    "Seated Dumbbell Press",
+    "Standing Dumbbell Press",
+    "Arnold Press",
+    "Pike Push-Up"
+   ],
+   "Low Back": [
+    "Seated Dumbbell Press",
+    "Landmine Press",
+    "Lateral Raise"
+   ],
+   "Shoulder": [
+    "Landmine Press",
+    "Floor Press",
+    "Machine Chest Press",
+    "Cable Lateral Raise"
+   ]
+  },
+  "Overhead Triceps Extension": {
+   "No Cable or Machine": [
+    "Skull Crusher",
+    "Diamond Push-Up",
+    "Close-Grip Bench Press",
+    "Dips"
+   ],
+   "Elbow or Wrist": [
+    "Triceps Pushdown",
+    "Triceps Kickback",
+    "Floor Press"
+   ]
+  },
+  "Pallof Press": {
+   "No Cable or Machine": [
+    "Side Plank",
+    "Dead Bug",
+    "Plank",
+    "Russian Twist"
+   ]
+  },
+  "Pause Bench Press": {
+   "No Barbell": [
+    "Dumbbell Bench Press",
+    "Incline Dumbbell Press",
+    "Machine Chest Press",
+    "Push-Up"
+   ],
+   "No Bench": [
+    "Floor Press",
+    "Push-Up",
+    "Fist Push-Up",
+    "Machine Chest Press"
+   ],
+   "Shoulder": [
+    "Floor Press",
+    "Machine Chest Press",
+    "Dumbbell Bench Press",
+    "Push-Up"
+   ],
+   "Elbow or Wrist": [
+    "Dumbbell Bench Press",
+    "Machine Chest Press",
+    "Fist Push-Up",
+    "Floor Press"
+   ]
+  },
+  "Pause Deadlift": {
+   "No Barbell": [
+    "Single-Leg Romanian Deadlift",
+    "Kettlebell Swing",
+    "Cable Pull-Through",
+    "Glute Bridge"
+   ],
+   "Hip": [
+    "Cable Pull-Through",
+    "Glute Bridge",
+    "Back Extension",
+    "Leg Curl"
+   ],
+   "Low Back": [
+    "Hip Thrust",
+    "Glute Bridge",
+    "Cable Pull-Through",
+    "Leg Curl"
+   ]
+  },
+  "Pause Squat": {
+   "No Barbell": [
+    "Goblet Squat",
+    "Sumo Squat",
+    "Hack Squat",
+    "Leg Press"
+   ],
+   "Knee": [
+    "Box Squat",
+    "Leg Press",
+    "Wall Sit",
+    "Terminal Knee Extension"
+   ],
+   "Hip": [
+    "Box Squat",
+    "Leg Press",
+    "Wall Sit",
+    "Leg Extension"
+   ],
+   "Low Back": [
+    "Goblet Squat",
+    "Leg Press",
+    "Hack Squat",
+    "Split Squat"
+   ],
+   "Shoulder": [
+    "Goblet Squat",
+    "Hack Squat",
+    "Leg Press"
+   ]
+  },
+  "Pec Deck Fly": {
+   "No Cable or Machine": [
+    "Chest Fly",
+    "Push-Up",
+    "Floor Press",
+    "Dumbbell Bench Press"
+   ],
+   "Shoulder": [
+    "Floor Press",
+    "Machine Chest Press",
+    "Dumbbell Bench Press",
+    "Push-Up"
+   ],
+   "Elbow or Wrist": [
+    "Dumbbell Bench Press",
+    "Machine Chest Press",
+    "Fist Push-Up",
+    "Floor Press"
+   ]
+  },
+  "Pendlay Row": {
+   "No Barbell": [
+    "Dumbbell Row",
+    "Chest-Supported Row",
+    "Seated Cable Row",
+    "Single-Arm Cable Row"
+   ],
+   "Low Back": [
+    "Chest-Supported Row",
+    "Seated Cable Row",
+    "Single-Arm Cable Row",
+    "Band Pull-Apart"
+   ],
+   "Elbow or Wrist": [
+    "Chest-Supported Row",
+    "Seated Cable Row",
+    "Single-Arm Cable Row",
+    "Band Pull-Apart"
+   ]
+  },
+  "Pigeon Stretch": {
+   "Any Discomfort": [
+    "Couch Stretch",
+    "Figure-Four Stretch",
+    "Hip Flexor Stretch"
+   ]
+  },
+  "Pike Push-Up": {
+   "Shoulder": [
+    "Landmine Press",
+    "Floor Press",
+    "Machine Chest Press",
+    "Cable Lateral Raise"
+   ]
+  },
+  "Pistol Squat": {
+   "Knee": [
+    "Terminal Knee Extension",
+    "Hip Thrust",
+    "Glute Bridge",
+    "Banded Lateral Walk"
+   ],
+   "Hip": [
+    "Terminal Knee Extension",
+    "Clamshell",
+    "Banded Lateral Walk",
+    "Glute Bridge"
+   ]
+  },
+  "Plank": {
+   "Elbow or Wrist": [
+    "Dead Bug",
+    "Bird Dog",
+    "Hollow Hold",
+    "Curl-Up"
+   ]
+  },
+  "Plank Shoulder Tap": {
+   "Shoulder": [
+    "Dead Bug",
+    "Bird Dog",
+    "Pallof Press",
+    "Curl-Up"
+   ],
+   "Elbow or Wrist": [
+    "Dead Bug",
+    "Bird Dog",
+    "Hollow Hold",
+    "Curl-Up"
+   ]
+  },
+  "Plyometric Push-Up": {
+   "Shoulder": [
+    "Kettlebell Swing",
+    "Cable Pull-Through",
+    "Stationary Bike Ride",
+    "Incline Treadmill Walk"
+   ],
+   "Elbow or Wrist": [
+    "Fist Push-Up",
+    "Machine Chest Press",
+    "Medicine Ball Chest Pass"
+   ],
+   "Pelvic Floor": [
+    "Push-Up",
+    "Medicine Ball Chest Pass",
+    "Floor Press"
+   ],
+   "Low Impact": [
+    "Push-Up",
+    "Medicine Ball Chest Pass",
+    "Floor Press"
+   ]
+  },
+  "Power Clean": {
+   "No Barbell": [
+    "Dumbbell Clean and Press",
+    "Dumbbell Snatch",
+    "Thruster",
+    "Kettlebell Snatch"
+   ],
+   "Knee": [
+    "Kettlebell Swing",
+    "Cable Pull-Through",
+    "Medicine Ball Slam",
+    "Hip Thrust"
+   ],
+   "Low Back": [
+    "Kettlebell Swing",
+    "Cable Pull-Through",
+    "Hip Thrust",
+    "Goblet Squat"
+   ],
+   "Shoulder": [
+    "Kettlebell Swing",
+    "Cable Pull-Through",
+    "Hip Thrust",
+    "Goblet Squat"
+   ],
+   "Elbow or Wrist": [
+    "Kettlebell Swing",
+    "Cable Pull-Through",
+    "Hip Thrust",
+    "Goblet Squat"
+   ]
+  },
+  "Preacher Curl": {
+   "No Bench": [
+    "Hammer Curl",
+    "Barbell Curl",
+    "Cable Curl",
+    "Zottman Curl"
+   ],
+   "Elbow or Wrist": [
+    "Hammer Curl",
+    "Cable Curl",
+    "Incline Curl",
+    "Concentration Curl"
+   ]
+  },
+  "Pull-Up": {
+   "No Pull-Up Bar": [
+    "Inverted Row",
+    "Lat Pulldown",
+    "Dumbbell Pullover",
+    "Dumbbell Row"
+   ],
+   "Shoulder": [
+    "Neutral-Grip Pull-Up",
+    "Chest-Supported Row",
+    "Seated Cable Row",
+    "Single-Arm Cable Row"
+   ],
+   "Elbow or Wrist": [
+    "Lat Pulldown",
+    "Straight-Arm Pulldown",
+    "Neutral-Grip Pull-Up",
+    "Seated Cable Row"
+   ]
+  },
+  "Push Press": {
+   "No Barbell": [
+    "Seated Dumbbell Press",
+    "Standing Dumbbell Press",
+    "Arnold Press",
+    "Pike Push-Up"
+   ],
+   "Low Back": [
+    "Seated Dumbbell Press",
+    "Landmine Press",
+    "Lateral Raise"
+   ],
+   "Shoulder": [
+    "Landmine Press",
+    "Floor Press",
+    "Machine Chest Press",
+    "Cable Lateral Raise"
+   ]
+  },
+  "Push-Up": {
+   "Shoulder": [
+    "Floor Press",
+    "Machine Chest Press",
+    "Dumbbell Bench Press",
+    "Cable Crossover"
+   ],
+   "Elbow or Wrist": [
+    "Fist Push-Up",
+    "Machine Chest Press",
+    "Dumbbell Bench Press",
+    "Floor Press"
+   ]
+  },
+  "Quadruped Rock-Back": {
+   "Any Discomfort": [
+    "Hamstring Stretch",
+    "Spiderman Stretch",
+    "Standing Quad Stretch"
+   ]
+  },
+  "Rack Pull": {
+   "No Barbell": [
+    "Single-Leg Romanian Deadlift",
+    "Kettlebell Swing",
+    "Cable Pull-Through",
+    "Glute Bridge"
+   ],
+   "Hip": [
+    "Cable Pull-Through",
+    "Glute Bridge",
+    "Back Extension",
+    "Leg Curl"
+   ],
+   "Low Back": [
+    "Hip Thrust",
+    "Glute Bridge",
+    "Cable Pull-Through",
+    "Leg Curl"
+   ]
+  },
+  "Rear Delt Fly": {
+   "No Cable or Machine": [
+    "Band Pull-Apart",
+    "Dumbbell Row",
+    "Inverted Row"
+   ]
+  },
+  "Reverse Crunch": {
+   "Hip": [
+    "Dead Bug",
+    "Plank",
+    "Side Plank",
+    "Curl-Up"
+   ],
+   "Low Back": [
+    "Curl-Up",
+    "Dead Bug",
+    "Bird Dog",
+    "Side Plank"
+   ],
+   "Pelvic Floor": [
+    "Heel Slide",
+    "Dead Bug",
+    "Bird Dog",
+    "Side Plank"
+   ]
+  },
+  "Reverse Curl": {
+   "No Barbell": [
+    "Hammer Curl",
+    "Zottman Curl",
+    "Cable Curl"
+   ],
+   "Elbow or Wrist": [
+    "Hammer Curl",
+    "Cable Curl",
+    "Farmer Carry"
+   ]
+  },
+  "Reverse Hyperextension": {
+   "No Cable or Machine": [
+    "Glute Bridge",
+    "Slider Hamstring Curl",
+    "Single-Leg Glute Bridge",
+    "Nordic Hamstring Curl"
+   ],
+   "Hip": [
+    "Glute Bridge",
+    "Clamshell",
+    "Leg Curl",
+    "Back Extension"
+   ],
+   "Low Back": [
+    "Glute Bridge",
+    "Bird Dog",
+    "Hip Thrust",
+    "Leg Curl"
+   ]
+  },
+  "Reverse Lunge": {
+   "No Barbell": [
+    "Bulgarian Split Squat",
+    "Split Squat",
+    "Step-Up",
+    "Step-Down"
+   ],
+   "Knee": [
+    "Terminal Knee Extension",
+    "Hip Thrust",
+    "Glute Bridge",
+    "Banded Lateral Walk"
+   ],
+   "Hip": [
+    "Terminal Knee Extension",
+    "Clamshell",
+    "Banded Lateral Walk",
+    "Glute Bridge"
+   ]
+  },
+  "Romanian Deadlift": {
+   "No Barbell": [
+    "Single-Leg Romanian Deadlift",
+    "Kettlebell Swing",
+    "Cable Pull-Through",
+    "Glute Bridge"
+   ],
+   "Hip": [
+    "Cable Pull-Through",
+    "Glute Bridge",
+    "Back Extension",
+    "Leg Curl"
+   ],
+   "Low Back": [
+    "Hip Thrust",
+    "Glute Bridge",
+    "Cable Pull-Through",
+    "Leg Curl"
+   ]
+  },
+  "Rowing Machine": {
+   "No Cable or Machine": [
+    "Jump Rope",
+    "Burpee",
+    "Shuttle Run",
+    "Mountain Climber"
+   ]
+  },
+  "Russian Twist": {
+   "Low Back": [
+    "Pallof Press",
+    "Side Plank",
+    "Dead Bug",
+    "Plank"
+   ]
+  },
+  "Scapular Pull-Up": {
+   "No Pull-Up Bar": [
+    "Inverted Row",
+    "Lat Pulldown",
+    "Dumbbell Pullover",
+    "Dumbbell Row"
+   ],
+   "Shoulder": [
+    "Neutral-Grip Pull-Up",
+    "Chest-Supported Row",
+    "Seated Cable Row",
+    "Single-Arm Cable Row"
+   ],
+   "Elbow or Wrist": [
+    "Lat Pulldown",
+    "Straight-Arm Pulldown",
+    "Neutral-Grip Pull-Up",
+    "Seated Cable Row"
+   ]
+  },
+  "Seated Cable Row": {
+   "No Cable or Machine": [
+    "Dumbbell Row",
+    "Inverted Row",
+    "Barbell Row",
+    "Chest-Supported Row"
+   ],
+   "Elbow or Wrist": [
+    "Chest-Supported Row",
+    "Single-Arm Cable Row",
+    "Band Pull-Apart"
+   ]
+  },
+  "Seated Calf Raise": {
+   "Any Discomfort": [
+    "Calf Raise",
+    "Nordic Hamstring Curl",
+    "Slider Hamstring Curl"
+   ]
+  },
+  "Seated Dumbbell Press": {
+   "No Bench": [
+    "Standing Dumbbell Press",
+    "Arnold Press",
+    "Pike Push-Up",
+    "Landmine Press"
+   ],
+   "Shoulder": [
+    "Landmine Press",
+    "Floor Press",
+    "Machine Chest Press",
+    "Cable Lateral Raise"
+   ]
+  },
+  "Shadow Boxing Rounds": {
+   "Any Discomfort": [
+    "Elliptical Trainer",
+    "Zone 2 Cardio",
+    "Incline Treadmill Walk"
+   ]
+  },
+  "Shoulder Pass-Through": {
+   "Any Discomfort": [
+    "Doorway Pec Stretch",
+    "Lat Stretch",
+    "Wall Slide"
+   ]
+  },
+  "Shrug": {
+   "Any Discomfort": [
+    "Band Pull-Apart",
+    "Rear Delt Fly",
+    "Face Pull"
+   ]
+  },
+  "Shuttle Run": {
+   "Knee": [
+    "Stationary Bike Ride",
+    "Rowing Machine",
+    "Elliptical Trainer",
+    "Incline Treadmill Walk"
+   ],
+   "Hip": [
+    "Stationary Bike Ride",
+    "Rowing Machine",
+    "Elliptical Trainer",
+    "Incline Treadmill Walk"
+   ],
+   "Low Back": [
+    "Stationary Bike Ride",
+    "Incline Treadmill Walk",
+    "Elliptical Trainer"
+   ],
+   "Pelvic Floor": [
+    "Stationary Bike Ride",
+    "Rowing Machine",
+    "Elliptical Trainer",
+    "Incline Treadmill Walk"
+   ],
+   "Low Impact": [
+    "Stationary Bike Ride",
+    "Rowing Machine",
+    "Elliptical Trainer",
+    "Incline Treadmill Walk"
+   ]
+  },
+  "Side Plank": {
+   "Elbow or Wrist": [
+    "Dead Bug",
+    "Bird Dog",
+    "Hollow Hold",
+    "Curl-Up"
+   ]
+  },
+  "Single-Arm Cable Row": {
+   "No Cable or Machine": [
+    "Dumbbell Row",
+    "Inverted Row",
+    "Barbell Row",
+    "Chest-Supported Row"
+   ],
+   "Elbow or Wrist": [
+    "Chest-Supported Row",
+    "Seated Cable Row",
+    "Band Pull-Apart"
+   ]
+  },
+  "Single-Leg Glute Bridge": {
+   "Any Discomfort": [
+    "Frog Pump",
+    "Glute Bridge",
+    "Cable Kickback"
+   ]
+  },
+  "Single-Leg Hip Thrust": {
+   "No Barbell": [
+    "Glute Bridge",
+    "Cable Pull-Through",
+    "Kettlebell Swing",
+    "Slider Hamstring Curl"
+   ],
+   "No Bench": [
+    "Glute Bridge",
+    "Cable Pull-Through",
+    "Romanian Deadlift",
+    "Slider Hamstring Curl"
+   ],
+   "Hip": [
+    "Glute Bridge",
+    "Clamshell",
+    "Leg Curl",
+    "Back Extension"
+   ]
+  },
+  "Single-Leg Hop": {
+   "Knee": [
+    "Kettlebell Swing",
+    "Medicine Ball Slam",
+    "Hip Thrust",
+    "Cable Pull-Through"
+   ],
+   "Hip": [
+    "Kettlebell Swing",
+    "Medicine Ball Slam",
+    "Cable Pull-Through",
+    "Overhead Medicine Ball Throw"
+   ],
+   "Low Back": [
+    "Goblet Squat",
+    "Hip Thrust",
+    "Cable Pull-Through",
+    "Medicine Ball Slam"
+   ],
+   "Pelvic Floor": [
+    "Goblet Squat",
+    "Step-Up",
+    "Hip Thrust",
+    "Glute Bridge"
+   ],
+   "Low Impact": [
+    "Goblet Squat",
+    "Step-Up",
+    "Kettlebell Swing",
+    "Hip Thrust"
+   ]
+  },
+  "Single-Leg Romanian Deadlift": {
+   "Hip": [
+    "Cable Pull-Through",
+    "Glute Bridge",
+    "Back Extension",
+    "Leg Curl"
+   ],
+   "Low Back": [
+    "Hip Thrust",
+    "Glute Bridge",
+    "Cable Pull-Through",
+    "Leg Curl"
+   ]
+  },
+  "Sissy Squat": {
+   "Knee": [
+    "Terminal Knee Extension",
+    "Wall Sit",
+    "Leg Press",
+    "Hip Thrust"
+   ],
+   "Hip": [
+    "Box Squat",
+    "Leg Press",
+    "Wall Sit",
+    "Leg Extension"
+   ]
+  },
+  "Sit-Up": {
+   "Hip": [
+    "Dead Bug",
+    "Plank",
+    "Side Plank",
+    "Curl-Up"
+   ],
+   "Low Back": [
+    "Curl-Up",
+    "Dead Bug",
+    "Bird Dog",
+    "Side Plank"
+   ],
+   "Pelvic Floor": [
+    "Heel Slide",
+    "Dead Bug",
+    "Bird Dog",
+    "Side Plank"
+   ]
+  },
+  "Skater Jump": {
+   "Knee": [
+    "Kettlebell Swing",
+    "Medicine Ball Slam",
+    "Hip Thrust",
+    "Cable Pull-Through"
+   ],
+   "Hip": [
+    "Kettlebell Swing",
+    "Medicine Ball Slam",
+    "Cable Pull-Through",
+    "Overhead Medicine Ball Throw"
+   ],
+   "Low Back": [
+    "Goblet Squat",
+    "Hip Thrust",
+    "Cable Pull-Through",
+    "Medicine Ball Slam"
+   ],
+   "Pelvic Floor": [
+    "Goblet Squat",
+    "Step-Up",
+    "Hip Thrust",
+    "Glute Bridge"
+   ],
+   "Low Impact": [
+    "Goblet Squat",
+    "Step-Up",
+    "Kettlebell Swing",
+    "Hip Thrust"
+   ]
+  },
+  "SkiErg": {
+   "No Cable or Machine": [
+    "Jump Rope",
+    "Burpee",
+    "Shuttle Run",
+    "Mountain Climber"
+   ],
+   "Shoulder": [
+    "Stationary Bike Ride",
+    "Incline Treadmill Walk",
+    "Rowing Machine"
+   ]
+  },
+  "Skull Crusher": {
+   "No Barbell": [
+    "Triceps Pushdown",
+    "Overhead Triceps Extension",
+    "Triceps Kickback"
+   ],
+   "No Bench": [
+    "Triceps Pushdown",
+    "Overhead Triceps Extension",
+    "Triceps Kickback",
+    "Diamond Push-Up"
+   ],
+   "Elbow or Wrist": [
+    "Triceps Pushdown",
+    "Triceps Kickback",
+    "Overhead Triceps Extension",
+    "Floor Press"
+   ]
+  },
+  "Sled Pull": {
+   "No Cable or Machine": [
+    "Weighted Ruck March",
+    "Farmer Carry",
+    "Bear Crawl",
+    "Suitcase Carry"
+   ],
+   "Elbow or Wrist": [
+    "Weighted Ruck March",
+    "Sled Push"
+   ]
+  },
+  "Sled Push": {
+   "No Cable or Machine": [
+    "Weighted Ruck March",
+    "Farmer Carry",
+    "Bear Crawl",
+    "Suitcase Carry"
+   ],
+   "Knee": [
+    "Farmer Carry",
+    "Suitcase Carry",
+    "Sled Pull"
+   ],
+   "Elbow or Wrist": [
+    "Weighted Ruck March",
+    "Sled Pull"
+   ]
+  },
+  "Slider Hamstring Curl": {
+   "Any Discomfort": [
+    "Leg Curl",
+    "Nordic Hamstring Curl",
+    "Reverse Hyperextension"
+   ]
+  },
+  "Spiderman Stretch": {
+   "Any Discomfort": [
+    "Quadruped Rock-Back",
+    "World's Greatest Stretch",
+    "Hamstring Stretch"
+   ]
+  },
+  "Split Jump": {
+   "Knee": [
+    "Kettlebell Swing",
+    "Medicine Ball Slam",
+    "Hip Thrust",
+    "Cable Pull-Through"
+   ],
+   "Hip": [
+    "Kettlebell Swing",
+    "Medicine Ball Slam",
+    "Cable Pull-Through",
+    "Overhead Medicine Ball Throw"
+   ],
+   "Low Back": [
+    "Goblet Squat",
+    "Hip Thrust",
+    "Cable Pull-Through",
+    "Medicine Ball Slam"
+   ],
+   "Pelvic Floor": [
+    "Goblet Squat",
+    "Step-Up",
+    "Hip Thrust",
+    "Glute Bridge"
+   ],
+   "Low Impact": [
+    "Goblet Squat",
+    "Step-Up",
+    "Kettlebell Swing",
+    "Hip Thrust"
+   ]
+  },
+  "Split Squat": {
+   "Knee": [
+    "Terminal Knee Extension",
+    "Hip Thrust",
+    "Glute Bridge",
+    "Banded Lateral Walk"
+   ],
+   "Hip": [
+    "Terminal Knee Extension",
+    "Clamshell",
+    "Banded Lateral Walk",
+    "Glute Bridge"
+   ]
+  },
+  "Sprawl": {
+   "Knee": [
+    "Stationary Bike Ride",
+    "Rowing Machine",
+    "Elliptical Trainer",
+    "Incline Treadmill Walk"
+   ],
+   "Hip": [
+    "Stationary Bike Ride",
+    "Rowing Machine",
+    "Elliptical Trainer",
+    "Incline Treadmill Walk"
+   ],
+   "Low Back": [
+    "Stationary Bike Ride",
+    "Incline Treadmill Walk",
+    "Elliptical Trainer"
+   ],
+   "Elbow or Wrist": [
+    "Stationary Bike Ride",
+    "Incline Treadmill Walk",
+    "Shadow Boxing Rounds",
+    "Dead Bug"
+   ],
+   "Pelvic Floor": [
+    "Stationary Bike Ride",
+    "Rowing Machine",
+    "Elliptical Trainer",
+    "Incline Treadmill Walk"
+   ],
+   "Low Impact": [
+    "Stationary Bike Ride",
+    "Rowing Machine",
+    "Elliptical Trainer",
+    "Incline Treadmill Walk"
+   ]
+  },
+  "Stair Climb": {
+   "No Cable or Machine": [
+    "Step-Up",
+    "Hill Sprint",
+    "Burpee",
+    "Mountain Climber"
+   ],
+   "Knee": [
+    "Stationary Bike Ride",
+    "Rowing Machine",
+    "Elliptical Trainer",
+    "Incline Treadmill Walk"
+   ],
+   "Hip": [
+    "Stationary Bike Ride",
+    "Rowing Machine",
+    "Elliptical Trainer",
+    "Incline Treadmill Walk"
+   ],
+   "Low Back": [
+    "Stationary Bike Ride",
+    "Incline Treadmill Walk",
+    "Elliptical Trainer"
+   ],
+   "Pelvic Floor": [
+    "Stationary Bike Ride",
+    "Rowing Machine",
+    "Elliptical Trainer",
+    "Incline Treadmill Walk"
+   ],
+   "Low Impact": [
+    "Stationary Bike Ride",
+    "Rowing Machine",
+    "Elliptical Trainer",
+    "Incline Treadmill Walk"
+   ]
+  },
+  "Standing Dumbbell Press": {
+   "Low Back": [
+    "Seated Dumbbell Press",
+    "Landmine Press",
+    "Lateral Raise"
+   ],
+   "Shoulder": [
+    "Landmine Press",
+    "Floor Press",
+    "Machine Chest Press",
+    "Cable Lateral Raise"
+   ]
+  },
+  "Standing Quad Stretch": {
+   "Any Discomfort": [
+    "Hamstring Stretch",
+    "Quadruped Rock-Back",
+    "Hip CARs"
+   ]
+  },
+  "Stationary Bike Ride": {
+   "No Cable or Machine": [
+    "Weighted Ruck March",
+    "Jump Rope",
+    "Shuttle Run",
+    "Burpee"
+   ]
+  },
+  "Step-Down": {
+   "Knee": [
+    "Terminal Knee Extension",
+    "Glute Bridge",
+    "Hip Thrust",
+    "Wall Sit"
+   ],
+   "Hip": [
+    "Terminal Knee Extension",
+    "Clamshell",
+    "Banded Lateral Walk",
+    "Glute Bridge"
+   ]
+  },
+  "Step-Up": {
+   "No Bench": [
+    "Split Squat",
+    "Reverse Lunge",
+    "Forward Lunge",
+    "Curtsy Lunge"
+   ],
+   "Knee": [
+    "Terminal Knee Extension",
+    "Hip Thrust",
+    "Glute Bridge",
+    "Banded Lateral Walk"
+   ],
+   "Hip": [
+    "Terminal Knee Extension",
+    "Clamshell",
+    "Banded Lateral Walk",
+    "Glute Bridge"
+   ]
+  },
+  "Stiff-Leg Deadlift": {
+   "No Barbell": [
+    "Single-Leg Romanian Deadlift",
+    "Kettlebell Swing",
+    "Cable Pull-Through",
+    "Glute Bridge"
+   ],
+   "Hip": [
+    "Cable Pull-Through",
+    "Glute Bridge",
+    "Back Extension",
+    "Leg Curl"
+   ],
+   "Low Back": [
+    "Hip Thrust",
+    "Glute Bridge",
+    "Cable Pull-Through",
+    "Leg Curl"
+   ]
+  },
+  "Straight-Arm Pulldown": {
+   "No Cable or Machine": [
+    "Dumbbell Pullover",
+    "Inverted Row",
+    "Pull-Up"
+   ],
+   "Shoulder": [
+    "Neutral-Grip Pull-Up",
+    "Chest-Supported Row",
+    "Seated Cable Row",
+    "Single-Arm Cable Row"
+   ],
+   "Elbow or Wrist": [
+    "Lat Pulldown",
+    "Neutral-Grip Pull-Up",
+    "Seated Cable Row"
+   ]
+  },
+  "Suitcase Carry": {
+   "Elbow or Wrist": [
+    "Weighted Ruck March",
+    "Sled Push",
+    "Sled Pull"
+   ]
+  },
+  "Sumo Deadlift": {
+   "No Barbell": [
+    "Single-Leg Romanian Deadlift",
+    "Kettlebell Swing",
+    "Cable Pull-Through",
+    "Glute Bridge"
+   ],
+   "Hip": [
+    "Cable Pull-Through",
+    "Glute Bridge",
+    "Back Extension",
+    "Leg Curl"
+   ],
+   "Low Back": [
+    "Hip Thrust",
+    "Glute Bridge",
+    "Cable Pull-Through",
+    "Leg Curl"
+   ]
+  },
+  "Sumo Squat": {
+   "Knee": [
+    "Box Squat",
+    "Leg Press",
+    "Wall Sit",
+    "Terminal Knee Extension"
+   ],
+   "Hip": [
+    "Box Squat",
+    "Leg Press",
+    "Wall Sit",
+    "Leg Extension"
+   ],
+   "Low Back": [
+    "Goblet Squat",
+    "Leg Press",
+    "Hack Squat",
+    "Split Squat"
+   ]
+  },
+  "T-Bar Row": {
+   "No Barbell": [
+    "Dumbbell Row",
+    "Chest-Supported Row",
+    "Seated Cable Row",
+    "Single-Arm Cable Row"
+   ],
+   "Low Back": [
+    "Chest-Supported Row",
+    "Seated Cable Row",
+    "Single-Arm Cable Row",
+    "Band Pull-Apart"
+   ],
+   "Elbow or Wrist": [
+    "Chest-Supported Row",
+    "Seated Cable Row",
+    "Single-Arm Cable Row",
+    "Band Pull-Apart"
+   ]
+  },
+  "Tempo Squat": {
+   "No Barbell": [
+    "Goblet Squat",
+    "Sumo Squat",
+    "Hack Squat",
+    "Leg Press"
+   ],
+   "Knee": [
+    "Box Squat",
+    "Leg Press",
+    "Wall Sit",
+    "Terminal Knee Extension"
+   ],
+   "Hip": [
+    "Box Squat",
+    "Leg Press",
+    "Wall Sit",
+    "Leg Extension"
+   ],
+   "Low Back": [
+    "Goblet Squat",
+    "Leg Press",
+    "Hack Squat",
+    "Split Squat"
+   ],
+   "Shoulder": [
+    "Goblet Squat",
+    "Hack Squat",
+    "Leg Press"
+   ]
+  },
+  "Terminal Knee Extension": {
+   "Knee": [
+    "Hip Thrust",
+    "Glute Bridge",
+    "Banded Lateral Walk",
+    "Single-Leg Hip Thrust"
+   ],
+   "Hip": [
+    "Clamshell",
+    "Banded Lateral Walk",
+    "Glute Bridge",
+    "Leg Extension"
+   ]
+  },
+  "Thoracic Extension on Foam Roller": {
+   "Any Discomfort": [
+    "Cobra Stretch",
+    "Thoracic Rotation",
+    "Thread the Needle"
+   ]
+  },
+  "Thoracic Rotation": {
+   "Any Discomfort": [
+    "Thread the Needle",
+    "Cobra Stretch",
+    "Child's Pose"
+   ]
+  },
+  "Thread the Needle": {
+   "Any Discomfort": [
+    "Child's Pose",
+    "Thoracic Rotation",
+    "Cat-Cow"
+   ]
+  },
+  "Thruster": {
+   "Knee": [
+    "Kettlebell Swing",
+    "Cable Pull-Through",
+    "Medicine Ball Slam",
+    "Hip Thrust"
+   ],
+   "Low Back": [
+    "Kettlebell Swing",
+    "Cable Pull-Through",
+    "Hip Thrust",
+    "Goblet Squat"
+   ],
+   "Shoulder": [
+    "Kettlebell Swing",
+    "Cable Pull-Through",
+    "Hip Thrust",
+    "Goblet Squat"
+   ],
+   "Elbow or Wrist": [
+    "Kettlebell Swing",
+    "Cable Pull-Through",
+    "Hip Thrust",
+    "Goblet Squat"
+   ]
+  },
+  "Toes-to-Bar": {
+   "No Pull-Up Bar": [
+    "Lying Leg Raise",
+    "Reverse Crunch",
+    "V-Up",
+    "Bicycle Crunch"
+   ],
+   "Hip": [
+    "Dead Bug",
+    "Plank",
+    "Side Plank",
+    "Curl-Up"
+   ],
+   "Low Back": [
+    "Curl-Up",
+    "Dead Bug",
+    "Bird Dog",
+    "Side Plank"
+   ],
+   "Shoulder": [
+    "Lying Leg Raise",
+    "Reverse Crunch",
+    "Dead Bug",
+    "Curl-Up"
+   ],
+   "Pelvic Floor": [
+    "Heel Slide",
+    "Dead Bug",
+    "Bird Dog",
+    "Side Plank"
+   ]
+  },
+  "Trap Bar Deadlift": {
+   "No Barbell": [
+    "Single-Leg Romanian Deadlift",
+    "Kettlebell Swing",
+    "Cable Pull-Through",
+    "Glute Bridge"
+   ],
+   "Hip": [
+    "Cable Pull-Through",
+    "Glute Bridge",
+    "Back Extension",
+    "Leg Curl"
+   ],
+   "Low Back": [
+    "Hip Thrust",
+    "Glute Bridge",
+    "Cable Pull-Through",
+    "Leg Curl"
+   ]
+  },
+  "Treadmill Run": {
+   "No Cable or Machine": [
+    "Hill Sprint",
+    "Flat Sprint",
+    "Shuttle Run",
+    "Jump Rope"
+   ],
+   "Knee": [
+    "Stationary Bike Ride",
+    "Rowing Machine",
+    "Elliptical Trainer",
+    "Incline Treadmill Walk"
+   ],
+   "Hip": [
+    "Stationary Bike Ride",
+    "Rowing Machine",
+    "Elliptical Trainer",
+    "Incline Treadmill Walk"
+   ],
+   "Low Back": [
+    "Stationary Bike Ride",
+    "Incline Treadmill Walk",
+    "Elliptical Trainer"
+   ],
+   "Pelvic Floor": [
+    "Stationary Bike Ride",
+    "Rowing Machine",
+    "Elliptical Trainer",
+    "Incline Treadmill Walk"
+   ],
+   "Low Impact": [
+    "Stationary Bike Ride",
+    "Rowing Machine",
+    "Elliptical Trainer",
+    "Incline Treadmill Walk"
+   ]
+  },
+  "Triceps Kickback": {
+   "No Cable or Machine": [
+    "Skull Crusher",
+    "Diamond Push-Up",
+    "Close-Grip Bench Press",
+    "Dips"
+   ],
+   "Elbow or Wrist": [
+    "Triceps Pushdown",
+    "Overhead Triceps Extension",
+    "Floor Press"
+   ]
+  },
+  "Triceps Pushdown": {
+   "No Cable or Machine": [
+    "Skull Crusher",
+    "Diamond Push-Up",
+    "Close-Grip Bench Press",
+    "Dips"
+   ],
+   "Elbow or Wrist": [
+    "Triceps Kickback",
+    "Overhead Triceps Extension",
+    "Floor Press"
+   ]
+  },
+  "Tuck Jump": {
+   "Knee": [
+    "Kettlebell Swing",
+    "Medicine Ball Slam",
+    "Hip Thrust",
+    "Cable Pull-Through"
+   ],
+   "Hip": [
+    "Kettlebell Swing",
+    "Medicine Ball Slam",
+    "Cable Pull-Through",
+    "Overhead Medicine Ball Throw"
+   ],
+   "Low Back": [
+    "Goblet Squat",
+    "Hip Thrust",
+    "Cable Pull-Through",
+    "Medicine Ball Slam"
+   ],
+   "Pelvic Floor": [
+    "Goblet Squat",
+    "Step-Up",
+    "Hip Thrust",
+    "Glute Bridge"
+   ],
+   "Low Impact": [
+    "Goblet Squat",
+    "Step-Up",
+    "Kettlebell Swing",
+    "Hip Thrust"
+   ]
+  },
+  "Turkish Get-Up": {
+   "Knee": [
+    "Kettlebell Swing",
+    "Cable Pull-Through",
+    "Medicine Ball Slam",
+    "Hip Thrust"
+   ],
+   "Low Back": [
+    "Kettlebell Swing",
+    "Cable Pull-Through",
+    "Hip Thrust",
+    "Goblet Squat"
+   ],
+   "Shoulder": [
+    "Kettlebell Swing",
+    "Cable Pull-Through",
+    "Hip Thrust",
+    "Goblet Squat"
+   ],
+   "Elbow or Wrist": [
+    "Kettlebell Swing",
+    "Cable Pull-Through",
+    "Hip Thrust",
+    "Goblet Squat"
+   ]
+  },
+  "V-Up": {
+   "Hip": [
+    "Dead Bug",
+    "Plank",
+    "Side Plank",
+    "Curl-Up"
+   ],
+   "Low Back": [
+    "Curl-Up",
+    "Dead Bug",
+    "Bird Dog",
+    "Side Plank"
+   ],
+   "Pelvic Floor": [
+    "Heel Slide",
+    "Dead Bug",
+    "Bird Dog",
+    "Side Plank"
+   ]
+  },
+  "Walking Lunge": {
+   "No Barbell": [
+    "Step-Up",
+    "Step-Down",
+    "Bulgarian Split Squat",
+    "Lateral Step-Up"
+   ],
+   "Knee": [
+    "Terminal Knee Extension",
+    "Hip Thrust",
+    "Glute Bridge",
+    "Banded Lateral Walk"
+   ],
+   "Hip": [
+    "Terminal Knee Extension",
+    "Clamshell",
+    "Banded Lateral Walk",
+    "Glute Bridge"
+   ]
+  },
+  "Wall Sit": {
+   "Knee": [
+    "Box Squat",
+    "Leg Press",
+    "Terminal Knee Extension",
+    "Hip Thrust"
+   ]
+  },
+  "Wall Slide": {
+   "Any Discomfort": [
+    "Doorway Pec Stretch",
+    "Shoulder Pass-Through",
+    "Lat Stretch"
+   ]
+  },
+  "Weighted Ruck March": {
+   "Knee": [
+    "Farmer Carry",
+    "Suitcase Carry",
+    "Sled Pull",
+    "Stationary Bike Ride"
+   ],
+   "Elbow or Wrist": [
+    "Sled Push",
+    "Sled Pull"
+   ]
+  },
+  "Wide-Grip Pull-Up": {
+   "No Pull-Up Bar": [
+    "Inverted Row",
+    "Lat Pulldown",
+    "Dumbbell Pullover",
+    "Dumbbell Row"
+   ],
+   "Shoulder": [
+    "Neutral-Grip Pull-Up",
+    "Chest-Supported Row",
+    "Seated Cable Row",
+    "Single-Arm Cable Row"
+   ],
+   "Elbow or Wrist": [
+    "Lat Pulldown",
+    "Straight-Arm Pulldown",
+    "Neutral-Grip Pull-Up",
+    "Seated Cable Row"
+   ]
+  },
+  "World's Greatest Stretch": {
+   "Any Discomfort": [
+    "Spiderman Stretch",
+    "Quadruped Rock-Back",
+    "Hamstring Stretch"
+   ]
+  },
+  "Wrist Curl": {
+   "No Barbell": [
+    "Farmer Carry",
+    "Hammer Curl",
+    "Zottman Curl"
+   ],
+   "Elbow or Wrist": [
+    "Hammer Curl",
+    "Cable Curl",
+    "Farmer Carry"
+   ]
+  },
+  "Z Press": {
+   "No Barbell": [
+    "Seated Dumbbell Press",
+    "Standing Dumbbell Press",
+    "Arnold Press",
+    "Pike Push-Up"
+   ],
+   "Low Back": [
+    "Seated Dumbbell Press",
+    "Landmine Press",
+    "Lateral Raise"
+   ],
+   "Shoulder": [
+    "Landmine Press",
+    "Floor Press",
+    "Machine Chest Press",
+    "Cable Lateral Raise"
+   ]
+  },
+  "Zercher Squat": {
+   "No Barbell": [
+    "Goblet Squat",
+    "Sumo Squat",
+    "Hack Squat",
+    "Leg Press"
+   ],
+   "Knee": [
+    "Box Squat",
+    "Leg Press",
+    "Wall Sit",
+    "Terminal Knee Extension"
+   ],
+   "Hip": [
+    "Box Squat",
+    "Leg Press",
+    "Wall Sit",
+    "Leg Extension"
+   ],
+   "Low Back": [
+    "Goblet Squat",
+    "Leg Press",
+    "Hack Squat",
+    "Split Squat"
+   ],
+   "Shoulder": [
+    "Goblet Squat",
+    "Hack Squat",
+    "Leg Press"
+   ]
+  },
+  "Zone 2 Cardio": {
+   "Any Discomfort": [
+    "Incline Treadmill Walk",
+    "Elliptical Trainer",
+    "Stationary Bike Ride"
+   ]
+  },
+  "Zottman Curl": {
+   "Elbow or Wrist": [
+    "Hammer Curl",
+    "Cable Curl",
+    "Farmer Carry"
+   ]
+  }
+ }
+}

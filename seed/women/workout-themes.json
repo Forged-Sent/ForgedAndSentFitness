@@ -1,0 +1,198 @@
+{
+ "Rooted|1": {
+  "theme": "Full Body Strength A",
+  "sessionType": "Core",
+  "warmup": "Work through the warm-up movements in order, then build to your first work set.",
+  "finisher": "3 min easy walk, stretch the muscles trained for 2 minutes, then 1 minute of 90/90 breathing.",
+  "notes": "Rest 2 to 3 minutes between main sets. Stop each main set with 1 to 2 reps in reserve. Exhale through the hardest part of each rep and use a brief brace only on your heaviest sets. Week 4 of every block is a deload. Energy changes across the cycle for some women. See the Cycle Notes tab and adjust effort, not the plan."
+ },
+ "Rooted|2": {
+  "theme": "Active Recovery",
+  "sessionType": "Recovery",
+  "warmup": "3 min easy walking, then begin the first movement at a low effort.",
+  "finisher": "5 min of slow breathing: in for 4 seconds, out for 6 seconds.",
+  "notes": "Easy effort only. Finish feeling better than you started."
+ },
+ "Rooted|3": {
+  "theme": "Full Body Strength B",
+  "sessionType": "Core",
+  "warmup": "Work through the warm-up movements in order, then build to your first work set.",
+  "finisher": "3 min easy walk, stretch the muscles trained for 2 minutes, then 1 minute of 90/90 breathing.",
+  "notes": "Reset between reps and keep the back flat. Rest 2 to 3 minutes between main sets. Exhale through the hardest part of each rep. Week 4 of every block is a deload. Energy changes across the cycle for some women. See the Cycle Notes tab and adjust effort, not the plan."
+ },
+ "Rooted|4": {
+  "theme": "Active Recovery",
+  "sessionType": "Recovery",
+  "warmup": "3 min easy walking, then begin the first movement at a low effort.",
+  "finisher": "5 min of slow breathing: in for 4 seconds, out for 6 seconds.",
+  "notes": "Easy effort only. Finish feeling better than you started."
+ },
+ "Rooted|5": {
+  "theme": "Full Body Strength C",
+  "sessionType": "Core",
+  "warmup": "Work through the warm-up movements in order, then build to your first work set.",
+  "finisher": "3 min easy walk, stretch the muscles trained for 2 minutes, then 1 minute of 90/90 breathing.",
+  "notes": "Rest 2 to 3 minutes between main sets. Stop each main set with 1 to 2 reps in reserve. Exhale through the hardest part of each rep. Week 4 of every block is a deload. Energy changes across the cycle for some women. See the Cycle Notes tab and adjust effort, not the plan."
+ },
+ "Rooted|6": {
+  "theme": "Optional: Strength and Bone Loading",
+  "sessionType": "Optional",
+  "warmup": "Work through the warm-up movements in order, then build to your first work set.",
+  "finisher": "3 min easy walk, stretch the muscles trained for 2 minutes, then 1 minute of 90/90 breathing.",
+  "notes": "Optional fourth session. Skip it if you are sore, short on time, or sleeping poorly. Land softly and quietly on the jumps. If you feel pelvic heaviness, pressure or leaking, use the Pelvic Floor alternate. Energy changes across the cycle for some women. See the Cycle Notes tab and adjust effort, not the plan."
+ },
+ "Rooted|7": {
+  "theme": "Rest Day",
+  "sessionType": "Rest",
+  "warmup": "",
+  "finisher": "",
+  "notes": "Full rest. Sleep, water and protein matter most today. An easy walk or stretch is fine if you want it."
+ },
+ "Sculpted|1": {
+  "theme": "Full Body: Glute Focus",
+  "sessionType": "Core",
+  "warmup": "Work through the warm-up movements in order, then build to your first work set.",
+  "finisher": "3 min easy walk, stretch the muscles trained for 2 minutes, then 1 minute of 90/90 breathing.",
+  "notes": "Control the lowering phase and rest 60 to 90 seconds between sets. Exhale on the effort. Add load once you reach the top of the rep range on every set. Energy changes across the cycle for some women. See the Cycle Notes tab and adjust effort, not the plan."
+ },
+ "Sculpted|2": {
+  "theme": "Active Recovery",
+  "sessionType": "Recovery",
+  "warmup": "3 min easy walking, then begin the first movement at a low effort.",
+  "finisher": "5 min of slow breathing: in for 4 seconds, out for 6 seconds.",
+  "notes": "Easy effort only. Finish feeling better than you started."
+ },
+ "Sculpted|3": {
+  "theme": "Full Body: Legs and Shoulders",
+  "sessionType": "Core",
+  "warmup": "Work through the warm-up movements in order, then build to your first work set.",
+  "finisher": "3 min easy walk, stretch the muscles trained for 2 minutes, then 1 minute of 90/90 breathing.",
+  "notes": "Control the lowering phase and rest 60 to 90 seconds between sets. Exhale on the effort. Add load once you reach the top of the rep range on every set. Energy changes across the cycle for some women. See the Cycle Notes tab and adjust effort, not the plan."
+ },
+ "Sculpted|4": {
+  "theme": "Active Recovery",
+  "sessionType": "Recovery",
+  "warmup": "3 min easy walking, then begin the first movement at a low effort.",
+  "finisher": "5 min of slow breathing: in for 4 seconds, out for 6 seconds.",
+  "notes": "Easy effort only. Finish feeling better than you started."
+ },
+ "Sculpted|5": {
+  "theme": "Full Body: Back and Hamstrings",
+  "sessionType": "Core",
+  "warmup": "Work through the warm-up movements in order, then build to your first work set.",
+  "finisher": "3 min easy walk, stretch the muscles trained for 2 minutes, then 1 minute of 90/90 breathing.",
+  "notes": "Control the lowering phase and rest 60 to 90 seconds between sets. Exhale on the effort. Add load once you reach the top of the rep range on every set. Energy changes across the cycle for some women. See the Cycle Notes tab and adjust effort, not the plan."
+ },
+ "Sculpted|6": {
+  "theme": "Optional: Shape and Tone Volume",
+  "sessionType": "Optional",
+  "warmup": "Work through the warm-up movements in order, then build to your first work set.",
+  "finisher": "3 min easy walk, stretch the muscles trained for 2 minutes, then 1 minute of 90/90 breathing.",
+  "notes": "Optional fourth session. Skip it if you are sore, short on time, or sleeping poorly. Keep two reps in reserve on every set. Energy changes across the cycle for some women. See the Cycle Notes tab and adjust effort, not the plan."
+ },
+ "Sculpted|7": {
+  "theme": "Rest Day",
+  "sessionType": "Rest",
+  "warmup": "",
+  "finisher": "",
+  "notes": "Full rest. Sleep, water and protein matter most today. An easy walk or stretch is fine if you want it."
+ },
+ "Pulse|1": {
+  "theme": "Intervals",
+  "sessionType": "Core",
+  "warmup": "Work through the warm-up movements in order, then build to your first work set.",
+  "finisher": "3 min easy walk and slow nasal breathing.",
+  "notes": "Hard means about 8 out of 10 effort. Easy means moving gently until breathing settles. On low-energy days, shorten the session or lower the effort. See the Cycle Notes tab."
+ },
+ "Pulse|2": {
+  "theme": "Aerobic Base",
+  "sessionType": "Recovery",
+  "warmup": "3 min easy walking, then begin the first movement at a low effort.",
+  "finisher": "5 min of slow breathing: in for 4 seconds, out for 6 seconds.",
+  "notes": "Hold a pace where you can speak in full sentences."
+ },
+ "Pulse|3": {
+  "theme": "Strength Circuit",
+  "sessionType": "Core",
+  "warmup": "Work through the warm-up movements in order, then build to your first work set.",
+  "finisher": "3 min easy walk and slow nasal breathing.",
+  "notes": "Move through the circuit in order and rest only as listed. On low-energy days, shorten the session or lower the effort. See the Cycle Notes tab."
+ },
+ "Pulse|4": {
+  "theme": "Active Recovery",
+  "sessionType": "Recovery",
+  "warmup": "3 min easy walking, then begin the first movement at a low effort.",
+  "finisher": "5 min of slow breathing: in for 4 seconds, out for 6 seconds.",
+  "notes": "Easy effort only. Finish feeling better than you started."
+ },
+ "Pulse|5": {
+  "theme": "Metabolic Complex",
+  "sessionType": "Core",
+  "warmup": "Work through the warm-up movements in order, then build to your first work set.",
+  "finisher": "3 min easy walk and slow nasal breathing.",
+  "notes": "Keep every rep crisp. Cut the round short if form breaks down. On low-energy days, shorten the session or lower the effort. See the Cycle Notes tab."
+ },
+ "Pulse|6": {
+  "theme": "Optional: Loaded Carries",
+  "sessionType": "Optional",
+  "warmup": "Work through the warm-up movements in order, then build to your first work set.",
+  "finisher": "3 min easy walk and slow nasal breathing.",
+  "notes": "Optional fourth session. Skip it if you are sore, short on time, or sleeping poorly. Walk tall and keep the weight close. On low-energy days, shorten the session or lower the effort. See the Cycle Notes tab."
+ },
+ "Pulse|7": {
+  "theme": "Rest Day",
+  "sessionType": "Rest",
+  "warmup": "",
+  "finisher": "",
+  "notes": "Full rest. Sleep, water and protein matter most today. An easy walk or stretch is fine if you want it."
+ },
+ "Valkyrie|1": {
+  "theme": "Full Body Power A",
+  "sessionType": "Core",
+  "warmup": "Work through the warm-up movements in order, then build to your first work set.",
+  "finisher": "3 min easy walk, then stretch the muscles trained for 2 minutes.",
+  "notes": "Move fast on power work and stop the set when speed drops. Take full rest between power sets. On low-energy days, shorten the session or lower the effort. See the Cycle Notes tab."
+ },
+ "Valkyrie|2": {
+  "theme": "Mobility and Movement",
+  "sessionType": "Recovery",
+  "warmup": "3 min easy walking, then begin the first movement at a low effort.",
+  "finisher": "5 min of slow breathing: in for 4 seconds, out for 6 seconds.",
+  "notes": "Move smoothly and never force a stretch."
+ },
+ "Valkyrie|3": {
+  "theme": "Full Body Power B",
+  "sessionType": "Core",
+  "warmup": "Work through the warm-up movements in order, then build to your first work set.",
+  "finisher": "3 min easy walk, then stretch the muscles trained for 2 minutes.",
+  "notes": "Move fast on power work and stop the set when speed drops. Take full rest between power sets. On low-energy days, shorten the session or lower the effort. See the Cycle Notes tab."
+ },
+ "Valkyrie|4": {
+  "theme": "Active Recovery",
+  "sessionType": "Recovery",
+  "warmup": "3 min easy walking, then begin the first movement at a low effort.",
+  "finisher": "5 min of slow breathing: in for 4 seconds, out for 6 seconds.",
+  "notes": "Easy effort only. Finish feeling better than you started."
+ },
+ "Valkyrie|5": {
+  "theme": "Combat Circuit",
+  "sessionType": "Core",
+  "warmup": "Work through the warm-up movements in order, then build to your first work set.",
+  "finisher": "3 min easy walk and slow nasal breathing.",
+  "notes": "Move through the circuit in order and rest only as listed. On low-energy days, shorten the session or lower the effort. See the Cycle Notes tab."
+ },
+ "Valkyrie|6": {
+  "theme": "Optional: Combat Conditioning",
+  "sessionType": "Optional",
+  "warmup": "Work through the warm-up movements in order, then build to your first work set.",
+  "finisher": "3 min easy walk and slow nasal breathing.",
+  "notes": "Optional fourth session. Skip it if you are sore, short on time, or sleeping poorly. Stay relaxed in the shoulders and keep the hands up. On low-energy days, shorten the session or lower the effort. See the Cycle Notes tab."
+ },
+ "Valkyrie|7": {
+  "theme": "Rest Day",
+  "sessionType": "Rest",
+  "warmup": "",
+  "finisher": "",
+  "notes": "Full rest. Sleep, water and protein matter most today. An easy walk or stretch is fine if you want it."
+ }
+}

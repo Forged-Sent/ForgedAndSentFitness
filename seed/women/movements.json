@@ -1,0 +1,3629 @@
+{
+ "Back Squat": {
+  "pattern": "Squat",
+  "muscles": "Quads, glutes",
+  "byEquipment": {
+   "Full Gym": "Barbell Back Squat",
+   "Home Gym (Barbell + Dumbbells)": "Barbell Back Squat (rack)",
+   "Dumbbells Only": "Dumbbell Goblet Squat",
+   "Bodyweight Only": "Tempo Bodyweight Squat (3 sec down)"
+  },
+  "cue": "Brace, sit between the hips, drive the floor away.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=irA7MTz96ho",
+   "channel": "Kelly Matthews",
+   "views": 430781
+  }
+ },
+ "Front Squat": {
+  "pattern": "Squat",
+  "muscles": "Quads, core",
+  "byEquipment": {
+   "Full Gym": "Barbell Front Squat",
+   "Home Gym (Barbell + Dumbbells)": "Barbell Front Squat",
+   "Dumbbells Only": "Dumbbell Front-Rack Squat",
+   "Bodyweight Only": "Pause Bodyweight Squat (2 sec at bottom)"
+  },
+  "cue": "Elbows high and torso upright.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=v-mQm_droHg",
+   "channel": "Jeff Nippard",
+   "views": null
+  }
+ },
+ "Pause Squat": {
+  "pattern": "Squat",
+  "muscles": "Quads, glutes",
+  "byEquipment": {
+   "Full Gym": "Barbell Pause Squat",
+   "Home Gym (Barbell + Dumbbells)": "Barbell Pause Squat",
+   "Dumbbells Only": "Dumbbell Goblet Pause Squat",
+   "Bodyweight Only": "Bodyweight Pause Squat (3 sec at bottom)"
+  },
+  "cue": "Hold the bottom for 2 seconds, stay tight, then stand.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=JkwJ3LlFE7M",
+   "channel": "Juggernaut Training Systems",
+   "views": 9562
+  }
+ },
+ "Box Squat": {
+  "pattern": "Squat",
+  "muscles": "Quads, glutes",
+  "byEquipment": {
+   "Full Gym": "Barbell Box Squat",
+   "Home Gym (Barbell + Dumbbells)": "Barbell Box Squat",
+   "Dumbbells Only": "Dumbbell Box Squat",
+   "Bodyweight Only": "Bodyweight Box Squat"
+  },
+  "cue": "Sit back to the box, stay tight, stand without rocking.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=4ShOT0idPR8",
+   "channel": "Barbell Logic",
+   "views": null
+  }
+ },
+ "Tempo Squat": {
+  "pattern": "Squat",
+  "muscles": "Quads, glutes",
+  "byEquipment": {
+   "Full Gym": "Barbell Tempo Squat (3 sec down)",
+   "Home Gym (Barbell + Dumbbells)": "Barbell Tempo Squat (3 sec down)",
+   "Dumbbells Only": "Dumbbell Goblet Tempo Squat (3 sec down)",
+   "Bodyweight Only": "Bodyweight Tempo Squat (4 sec down)"
+  },
+  "cue": "Lower slowly, drive up at normal speed.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=dC3G_CFrPVg",
+   "channel": "Barbell Logic",
+   "views": null
+  }
+ },
+ "Goblet Squat": {
+  "pattern": "Squat",
+  "muscles": "Quads, glutes",
+  "byEquipment": {
+   "Full Gym": "Dumbbell Goblet Squat",
+   "Home Gym (Barbell + Dumbbells)": "Dumbbell Goblet Squat",
+   "Dumbbells Only": "Dumbbell Goblet Squat",
+   "Bodyweight Only": "Bodyweight Squat"
+  },
+  "cue": "Hold the weight at the chest with elbows inside the knees.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=JO7D6GJ98wY",
+   "channel": "Jack Hanrahan Fitness",
+   "views": 126339
+  }
+ },
+ "Leg Press": {
+  "pattern": "Squat",
+  "muscles": "Quads, glutes",
+  "byEquipment": {
+   "Full Gym": "Leg Press Machine",
+   "Home Gym (Barbell + Dumbbells)": "Barbell Front-Foot-Elevated Split Squat",
+   "Dumbbells Only": "Dumbbell Heel-Elevated Goblet Squat",
+   "Bodyweight Only": "Wall Sit"
+  },
+  "cue": "Use full range and keep the hips down.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=cDGOn-yfKJA",
+   "channel": "NASM",
+   "views": null
+  }
+ },
+ "Hack Squat": {
+  "pattern": "Squat",
+  "muscles": "Quads",
+  "byEquipment": {
+   "Full Gym": "Hack Squat Machine",
+   "Home Gym (Barbell + Dumbbells)": "Barbell Heel-Elevated Squat",
+   "Dumbbells Only": "Dumbbell Heel-Elevated Goblet Squat",
+   "Bodyweight Only": "Heels-Elevated Bodyweight Squat"
+  },
+  "cue": "Control the lowering and keep the front foot flat.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=-lAnEGH2blE",
+   "channel": "Physio Plus Fitness",
+   "views": 41752
+  }
+ },
+ "Split Squat": {
+  "pattern": "Single leg",
+  "muscles": "Quads, glutes",
+  "byEquipment": {
+   "Full Gym": "Dumbbell Split Squat",
+   "Home Gym (Barbell + Dumbbells)": "Dumbbell Split Squat",
+   "Dumbbells Only": "Dumbbell Split Squat",
+   "Bodyweight Only": "Bodyweight Split Squat"
+  },
+  "cue": "Stay tall and drop the back knee straight down.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=4aqrcebiFZo",
+   "channel": "Born Fitness",
+   "views": null
+  }
+ },
+ "Bulgarian Split Squat": {
+  "pattern": "Single leg",
+  "muscles": "Quads, glutes",
+  "byEquipment": {
+   "Full Gym": "Dumbbell Bulgarian Split Squat",
+   "Home Gym (Barbell + Dumbbells)": "Dumbbell Bulgarian Split Squat",
+   "Dumbbells Only": "Dumbbell Bulgarian Split Squat",
+   "Bodyweight Only": "Bodyweight Bulgarian Split Squat"
+  },
+  "cue": "Rear foot on a bench, lean slightly forward, drive through the front heel.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=hiLF_pF3EJM",
+   "channel": "ATHLEAN-X",
+   "views": null
+  }
+ },
+ "Walking Lunge": {
+  "pattern": "Single leg",
+  "muscles": "Quads, glutes",
+  "byEquipment": {
+   "Full Gym": "Dumbbell Walking Lunge",
+   "Home Gym (Barbell + Dumbbells)": "Barbell Walking Lunge",
+   "Dumbbells Only": "Dumbbell Walking Lunge",
+   "Bodyweight Only": "Bodyweight Walking Lunge"
+  },
+  "cue": "Long steps, torso upright, no bouncing off the knee.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=qLyj6xo3j5c",
+   "channel": "Quadzilla Hikes",
+   "views": null
+  }
+ },
+ "Reverse Lunge": {
+  "pattern": "Single leg",
+  "muscles": "Quads, glutes",
+  "byEquipment": {
+   "Full Gym": "Barbell Reverse Lunge",
+   "Home Gym (Barbell + Dumbbells)": "Barbell Reverse Lunge",
+   "Dumbbells Only": "Dumbbell Reverse Lunge",
+   "Bodyweight Only": "Bodyweight Reverse Lunge"
+  },
+  "cue": "Step back softly and push through the front foot.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=GcYirgCLhnI",
+   "channel": "Idris",
+   "views": 6794
+  }
+ },
+ "Step-Up": {
+  "pattern": "Single leg",
+  "muscles": "Quads, glutes",
+  "byEquipment": {
+   "Full Gym": "Dumbbell Step-Up",
+   "Home Gym (Barbell + Dumbbells)": "Dumbbell Step-Up",
+   "Dumbbells Only": "Dumbbell Step-Up",
+   "Bodyweight Only": "Bodyweight Step-Up (high box)"
+  },
+  "cue": "Use a box that puts the knee near hip height and avoid pushing off the back foot.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=vs87hPGdnCc",
+   "channel": "Fit Father Project",
+   "views": null
+  }
+ },
+ "Lateral Lunge": {
+  "pattern": "Single leg",
+  "muscles": "Adductors, glutes",
+  "byEquipment": {
+   "Full Gym": "Dumbbell Lateral Lunge",
+   "Home Gym (Barbell + Dumbbells)": "Dumbbell Lateral Lunge",
+   "Dumbbells Only": "Dumbbell Lateral Lunge",
+   "Bodyweight Only": "Bodyweight Lateral Lunge"
+  },
+  "cue": "Sit back into one hip and keep the other leg straight.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=Vx6mQXEj8kw",
+   "channel": "Born Fitness",
+   "views": null
+  }
+ },
+ "Deadlift": {
+  "pattern": "Hinge",
+  "muscles": "Hamstrings, glutes, back",
+  "byEquipment": {
+   "Full Gym": "Barbell Deadlift",
+   "Home Gym (Barbell + Dumbbells)": "Barbell Deadlift",
+   "Dumbbells Only": "Dumbbell Deadlift",
+   "Bodyweight Only": "Single-Leg Hip Hinge (bodyweight)"
+  },
+  "cue": "Bar over mid-foot, flat back, push the floor away.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=VL5Ab0T07e4",
+   "channel": "Jeff Nippard",
+   "views": 3115759
+  }
+ },
+ "Trap Bar Deadlift": {
+  "pattern": "Hinge",
+  "muscles": "Quads, glutes, back",
+  "byEquipment": {
+   "Full Gym": "Trap Bar Deadlift",
+   "Home Gym (Barbell + Dumbbells)": "Barbell Deadlift",
+   "Dumbbells Only": "Dumbbell Deadlift",
+   "Bodyweight Only": "Tempo Bodyweight Hip Hinge (3 sec down)"
+  },
+  "cue": "Stand tall at the top and keep the weight close.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=5BpuTmfQjro",
+   "channel": "Colossus Fitness",
+   "views": null
+  }
+ },
+ "Deficit Deadlift": {
+  "pattern": "Hinge",
+  "muscles": "Hamstrings, glutes, back",
+  "byEquipment": {
+   "Full Gym": "Barbell Deficit Deadlift",
+   "Home Gym (Barbell + Dumbbells)": "Barbell Deficit Deadlift",
+   "Dumbbells Only": "Dumbbell Deficit Deadlift",
+   "Bodyweight Only": "Single-Leg Hip Hinge (bodyweight)"
+  },
+  "cue": "Stand on a 1 to 2 inch plate and keep the back flat at the start.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=hnuPZZfeRzs",
+   "channel": "Misfit Athletics",
+   "views": 69106
+  }
+ },
+ "Pause Deadlift": {
+  "pattern": "Hinge",
+  "muscles": "Hamstrings, glutes, back",
+  "byEquipment": {
+   "Full Gym": "Barbell Pause Deadlift",
+   "Home Gym (Barbell + Dumbbells)": "Barbell Pause Deadlift",
+   "Dumbbells Only": "Dumbbell Pause Deadlift",
+   "Bodyweight Only": "Bodyweight Good Morning (3 sec pause)"
+  },
+  "cue": "Pause for 2 seconds just below the knee, then finish the pull.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=cjT5Fx4qv-4",
+   "channel": "Testify Strength & Conditioning",
+   "views": 8240
+  }
+ },
+ "Sumo Deadlift": {
+  "pattern": "Hinge",
+  "muscles": "Glutes, adductors, back",
+  "byEquipment": {
+   "Full Gym": "Barbell Sumo Deadlift",
+   "Home Gym (Barbell + Dumbbells)": "Barbell Sumo Deadlift",
+   "Dumbbells Only": "Dumbbell Sumo Deadlift",
+   "Bodyweight Only": "Bodyweight Sumo Squat Pulse"
+  },
+  "cue": "Wide stance, knees out, chest tall.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=JbY72Him34Q",
+   "channel": "PureGym",
+   "views": null
+  }
+ },
+ "Romanian Deadlift": {
+  "pattern": "Hinge",
+  "muscles": "Hamstrings, glutes",
+  "byEquipment": {
+   "Full Gym": "Barbell Romanian Deadlift",
+   "Home Gym (Barbell + Dumbbells)": "Barbell Romanian Deadlift",
+   "Dumbbells Only": "Dumbbell Romanian Deadlift",
+   "Bodyweight Only": "Single-Leg Romanian Deadlift (bodyweight)"
+  },
+  "cue": "Push the hips back, soft knees, feel the hamstrings stretch.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=5bJEigM5iVg",
+   "channel": "Squat University",
+   "views": null
+  }
+ },
+ "Good Morning": {
+  "pattern": "Hinge",
+  "muscles": "Hamstrings, glutes, back",
+  "byEquipment": {
+   "Full Gym": "Barbell Good Morning",
+   "Home Gym (Barbell + Dumbbells)": "Barbell Good Morning",
+   "Dumbbells Only": "Dumbbell Good Morning",
+   "Bodyweight Only": "Bodyweight Good Morning"
+  },
+  "cue": "Hands on the shoulders or behind the head, hinge with a flat back.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=VkNcc0BQrpA",
+   "channel": "Nick Tumminello",
+   "views": 452106
+  }
+ },
+ "Hip Thrust": {
+  "pattern": "Hinge",
+  "muscles": "Glutes",
+  "byEquipment": {
+   "Full Gym": "Barbell Hip Thrust",
+   "Home Gym (Barbell + Dumbbells)": "Barbell Hip Thrust",
+   "Dumbbells Only": "Dumbbell Hip Thrust",
+   "Bodyweight Only": "Single-Leg Glute Bridge"
+  },
+  "cue": "Chin tucked, ribs down, squeeze the glutes at the top.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=UmY5lVwpycE",
+   "channel": "Dr. Carl Baird",
+   "views": null
+  }
+ },
+ "Back Extension": {
+  "pattern": "Hinge",
+  "muscles": "Spinal erectors, glutes",
+  "byEquipment": {
+   "Full Gym": "Back Extension (45 degree bench)",
+   "Home Gym (Barbell + Dumbbells)": "Prone Back Extension (floor)",
+   "Dumbbells Only": "Prone Back Extension with Dumbbell",
+   "Bodyweight Only": "Prone Superman Hold"
+  },
+  "cue": "Lift to a straight line and avoid over-arching.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=gLT-WLH84B4",
+   "channel": "Steev",
+   "views": null
+  }
+ },
+ "Single-Leg Romanian Deadlift": {
+  "pattern": "Hinge",
+  "muscles": "Hamstrings, glutes",
+  "byEquipment": {
+   "Full Gym": "Dumbbell Single-Leg Romanian Deadlift",
+   "Home Gym (Barbell + Dumbbells)": "Dumbbell Single-Leg Romanian Deadlift",
+   "Dumbbells Only": "Dumbbell Single-Leg Romanian Deadlift",
+   "Bodyweight Only": "Single-Leg Romanian Deadlift (bodyweight)"
+  },
+  "cue": "Hips square, reach long, slight bend in the standing knee.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=Zfr6wizR8rs",
+   "channel": "Squat University",
+   "views": null
+  }
+ },
+ "Kettlebell Swing": {
+  "pattern": "Hinge",
+  "muscles": "Glutes, hamstrings",
+  "byEquipment": {
+   "Full Gym": "Kettlebell Swing",
+   "Home Gym (Barbell + Dumbbells)": "Dumbbell Swing",
+   "Dumbbells Only": "Dumbbell Swing",
+   "Bodyweight Only": "Hip Hinge Snap (bodyweight)"
+  },
+  "cue": "Snap the hips and let the arms float.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=bDCeXbMJVNs",
+   "channel": "Zack Henderson",
+   "views": null
+  }
+ },
+ "Leg Curl": {
+  "pattern": "Hinge",
+  "muscles": "Hamstrings",
+  "byEquipment": {
+   "Full Gym": "Seated Leg Curl Machine",
+   "Home Gym (Barbell + Dumbbells)": "Slow Dumbbell Romanian Deadlift (3 sec down)",
+   "Dumbbells Only": "Slow Dumbbell Romanian Deadlift (3 sec down)",
+   "Bodyweight Only": "Nordic Hamstring Curl (assisted)"
+  },
+  "cue": "Control the lowering phase.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=S367qaHeYWU",
+   "channel": "Fitness 19",
+   "views": 2286
+  }
+ },
+ "Calf Raise": {
+  "pattern": "Calves",
+  "muscles": "Calves",
+  "byEquipment": {
+   "Full Gym": "Standing Calf Raise Machine",
+   "Home Gym (Barbell + Dumbbells)": "Barbell Standing Calf Raise",
+   "Dumbbells Only": "Dumbbell Single-Leg Calf Raise",
+   "Bodyweight Only": "Bodyweight Single-Leg Calf Raise"
+  },
+  "cue": "Pause at the top and stretch at the bottom.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=KRJIKsY02nE",
+   "channel": "Strength, Verified",
+   "views": 2061
+  }
+ },
+ "Bench Press": {
+  "pattern": "Horizontal push",
+  "muscles": "Chest, triceps, shoulders",
+  "byEquipment": {
+   "Full Gym": "Barbell Bench Press",
+   "Home Gym (Barbell + Dumbbells)": "Barbell Bench Press",
+   "Dumbbells Only": "Dumbbell Bench Press (neutral grip)",
+   "Bodyweight Only": "Push-Up (feet elevated)"
+  },
+  "cue": "Shoulder blades pinched, feet planted, bar to the lower chest.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=4Y2ZdHCOXok",
+   "channel": "Jeremy Ethier",
+   "views": 5945152
+  }
+ },
+ "Pause Bench Press": {
+  "pattern": "Horizontal push",
+  "muscles": "Chest, triceps",
+  "byEquipment": {
+   "Full Gym": "Barbell Pause Bench Press",
+   "Home Gym (Barbell + Dumbbells)": "Barbell Pause Bench Press",
+   "Dumbbells Only": "Dumbbell Pause Bench Press",
+   "Bodyweight Only": "Pause Push-Up (2 sec at bottom)"
+  },
+  "cue": "Pause on the chest for 1 to 2 seconds, then press.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=RZRZNsZPpHw",
+   "channel": "Kev-D Fitness",
+   "views": 6083
+  }
+ },
+ "Incline Bench Press": {
+  "pattern": "Horizontal push",
+  "muscles": "Upper chest, shoulders",
+  "byEquipment": {
+   "Full Gym": "Incline Barbell Bench Press",
+   "Home Gym (Barbell + Dumbbells)": "Incline Barbell Bench Press (adjustable bench)",
+   "Dumbbells Only": "Incline Dumbbell Press (neutral grip)",
+   "Bodyweight Only": "Feet-Elevated Push-Up"
+  },
+  "cue": "Bench angle around 30 degrees.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=11gY7Q5D5wo",
+   "channel": "LIVESTRONG",
+   "views": 463399
+  }
+ },
+ "Close-Grip Bench Press": {
+  "pattern": "Horizontal push",
+  "muscles": "Triceps, chest",
+  "byEquipment": {
+   "Full Gym": "Close-Grip Barbell Bench Press",
+   "Home Gym (Barbell + Dumbbells)": "Close-Grip Barbell Bench Press",
+   "Dumbbells Only": "Dumbbell Close-Grip Press (palms facing)",
+   "Bodyweight Only": "Close-Grip Push-Up"
+  },
+  "cue": "Hands just inside shoulder width, elbows tucked.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=UYJsFzqdgK4",
+   "channel": "ScottHermanFitness",
+   "views": null
+  }
+ },
+ "Floor Press": {
+  "pattern": "Horizontal push",
+  "muscles": "Triceps, chest",
+  "byEquipment": {
+   "Full Gym": "Barbell Floor Press",
+   "Home Gym (Barbell + Dumbbells)": "Barbell Floor Press",
+   "Dumbbells Only": "Dumbbell Floor Press",
+   "Bodyweight Only": "Push-Up"
+  },
+  "cue": "Pause the triceps on the floor, then press.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=gacJl2rHwtg",
+   "channel": "SET FOR SET",
+   "views": null
+  }
+ },
+ "Dumbbell Bench Press": {
+  "pattern": "Horizontal push",
+  "muscles": "Chest, triceps",
+  "byEquipment": {
+   "Full Gym": "Dumbbell Bench Press",
+   "Home Gym (Barbell + Dumbbells)": "Dumbbell Bench Press",
+   "Dumbbells Only": "Dumbbell Bench Press",
+   "Bodyweight Only": "Tempo Push-Up (3 sec down)"
+  },
+  "cue": "Lower until the elbows are slightly below the bench.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=5Y3VZsLb1Ys",
+   "channel": "Jack Hanrahan Fitness",
+   "views": 1133133
+  }
+ },
+ "Incline Dumbbell Press": {
+  "pattern": "Horizontal push",
+  "muscles": "Upper chest",
+  "byEquipment": {
+   "Full Gym": "Incline Dumbbell Press",
+   "Home Gym (Barbell + Dumbbells)": "Incline Dumbbell Press",
+   "Dumbbells Only": "Incline Dumbbell Press",
+   "Bodyweight Only": "Archer Push-Up"
+  },
+  "cue": "Press up and slightly together.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=OC7Qs_SAO2E",
+   "channel": "Jack Hanrahan Fitness",
+   "views": 137227
+  }
+ },
+ "Push-Up": {
+  "pattern": "Horizontal push",
+  "muscles": "Chest, triceps",
+  "byEquipment": {
+   "Full Gym": "Push-Up",
+   "Home Gym (Barbell + Dumbbells)": "Push-Up",
+   "Dumbbells Only": "Push-Up",
+   "Bodyweight Only": "Push-Up"
+  },
+  "cue": "Body in one line, chest to the floor.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=WDIpL0pjun0",
+   "channel": "NASM",
+   "views": null
+  }
+ },
+ "Dips": {
+  "pattern": "Horizontal push",
+  "muscles": "Chest, triceps",
+  "byEquipment": {
+   "Full Gym": "Parallel Bar Dip",
+   "Home Gym (Barbell + Dumbbells)": "Weighted Bench Dip (dumbbell on lap)",
+   "Dumbbells Only": "Bench Dip",
+   "Bodyweight Only": "Bench Dip"
+  },
+  "cue": "Shoulders down, lean slightly forward for chest.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=BNi3UmLyV8Q",
+   "channel": "SaturnoMovement",
+   "views": null
+  }
+ },
+ "Chest Fly": {
+  "pattern": "Horizontal push",
+  "muscles": "Chest",
+  "byEquipment": {
+   "Full Gym": "Cable Chest Fly",
+   "Home Gym (Barbell + Dumbbells)": "Dumbbell Chest Fly",
+   "Dumbbells Only": "Dumbbell Chest Fly",
+   "Bodyweight Only": "Wide Push-Up"
+  },
+  "cue": "Soft elbows, stretch wide, hug the weight in.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=LofDAe2Dr30",
+   "channel": "Mind Pump TV",
+   "views": null
+  }
+ },
+ "Overhead Press": {
+  "pattern": "Vertical push",
+  "muscles": "Shoulders, triceps",
+  "byEquipment": {
+   "Full Gym": "Barbell Overhead Press",
+   "Home Gym (Barbell + Dumbbells)": "Barbell Overhead Press",
+   "Dumbbells Only": "Dumbbell Overhead Press",
+   "Bodyweight Only": "Pike Push-Up"
+  },
+  "cue": "Squeeze the glutes and press the bar in a straight line.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=nNMR9fRGRjQ",
+   "channel": "Barbell Logic",
+   "views": null
+  }
+ },
+ "Push Press": {
+  "pattern": "Vertical push",
+  "muscles": "Shoulders, triceps, legs",
+  "byEquipment": {
+   "Full Gym": "Barbell Push Press",
+   "Home Gym (Barbell + Dumbbells)": "Barbell Push Press",
+   "Dumbbells Only": "Dumbbell Push Press",
+   "Bodyweight Only": "Pike Push-Up (explosive)"
+  },
+  "cue": "Dip and drive with the legs, then finish with the arms.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=a8HQo8z20Uo",
+   "channel": "MSP Fitness",
+   "views": null
+  }
+ },
+ "Seated Dumbbell Press": {
+  "pattern": "Vertical push",
+  "muscles": "Shoulders",
+  "byEquipment": {
+   "Full Gym": "Seated Dumbbell Shoulder Press",
+   "Home Gym (Barbell + Dumbbells)": "Seated Dumbbell Shoulder Press",
+   "Dumbbells Only": "Seated Dumbbell Shoulder Press",
+   "Bodyweight Only": "Pike Push-Up"
+  },
+  "cue": "Keep the ribs down and press slightly in.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=JvOJ3IW5JoA",
+   "channel": "Josh Hauptman",
+   "views": null
+  }
+ },
+ "Landmine Press": {
+  "pattern": "Vertical push",
+  "muscles": "Shoulders, chest",
+  "byEquipment": {
+   "Full Gym": "Landmine Press",
+   "Home Gym (Barbell + Dumbbells)": "Barbell Landmine Press (corner)",
+   "Dumbbells Only": "Single-Arm Dumbbell Press",
+   "Bodyweight Only": "Pike Push-Up"
+  },
+  "cue": "Press up and forward and keep the ribs down.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=PY9HorHANhc",
+   "channel": "Colossus Fitness",
+   "views": null
+  }
+ },
+ "Arnold Press": {
+  "pattern": "Vertical push",
+  "muscles": "Shoulders",
+  "byEquipment": {
+   "Full Gym": "Dumbbell Arnold Press",
+   "Home Gym (Barbell + Dumbbells)": "Dumbbell Arnold Press",
+   "Dumbbells Only": "Dumbbell Arnold Press",
+   "Bodyweight Only": "Pike Push-Up"
+  },
+  "cue": "Rotate smoothly and avoid shrugging.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=ris9tKqMwgU",
+   "channel": "ATHLEAN-X",
+   "views": 1337979
+  }
+ },
+ "Lateral Raise": {
+  "pattern": "Vertical push",
+  "muscles": "Side delts",
+  "byEquipment": {
+   "Full Gym": "Cable Lateral Raise",
+   "Home Gym (Barbell + Dumbbells)": "Dumbbell Lateral Raise",
+   "Dumbbells Only": "Dumbbell Lateral Raise",
+   "Bodyweight Only": "Wall Isometric Lateral Raise"
+  },
+  "cue": "Lead with the elbows to shoulder height.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=Y29xKcze8Ik",
+   "channel": "Physique Development",
+   "views": null
+  }
+ },
+ "Barbell Row": {
+  "pattern": "Horizontal pull",
+  "muscles": "Back, biceps",
+  "byEquipment": {
+   "Full Gym": "Barbell Bent-Over Row",
+   "Home Gym (Barbell + Dumbbells)": "Barbell Bent-Over Row",
+   "Dumbbells Only": "Two-Arm Dumbbell Bent-Over Row",
+   "Bodyweight Only": "Inverted Row (table or bar)"
+  },
+  "cue": "Hinge to about 45 degrees and pull to the lower ribs.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=kBWAon7ItDw",
+   "channel": "Jeremy Ethier",
+   "views": null
+  }
+ },
+ "Pendlay Row": {
+  "pattern": "Horizontal pull",
+  "muscles": "Back",
+  "byEquipment": {
+   "Full Gym": "Barbell Pendlay Row",
+   "Home Gym (Barbell + Dumbbells)": "Barbell Pendlay Row",
+   "Dumbbells Only": "Dumbbell Row (from floor)",
+   "Bodyweight Only": "Pause Inverted Row (table or bar)"
+  },
+  "cue": "Reset on the floor each rep and keep the back flat.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=axoeDmW0oAY",
+   "channel": "Jeff Nippard",
+   "views": null
+  }
+ },
+ "Dumbbell Row": {
+  "pattern": "Horizontal pull",
+  "muscles": "Back, biceps",
+  "byEquipment": {
+   "Full Gym": "Single-Arm Dumbbell Row",
+   "Home Gym (Barbell + Dumbbells)": "Single-Arm Dumbbell Row",
+   "Dumbbells Only": "Single-Arm Dumbbell Row",
+   "Bodyweight Only": "One-Arm Biased Inverted Row (table or bar)"
+  },
+  "cue": "Pull the elbow to the hip without twisting.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=gfUg6qWohTk",
+   "channel": "ATHLEAN-X",
+   "views": null
+  }
+ },
+ "Chest-Supported Row": {
+  "pattern": "Horizontal pull",
+  "muscles": "Mid back",
+  "byEquipment": {
+   "Full Gym": "Chest-Supported Row Machine",
+   "Home Gym (Barbell + Dumbbells)": "Chest-Supported Dumbbell Row (incline bench)",
+   "Dumbbells Only": "Chest-Supported Dumbbell Row (incline bench)",
+   "Bodyweight Only": "Wide-Grip Inverted Row (table or bar)"
+  },
+  "cue": "Squeeze the shoulder blades together at the top.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=ro2vfHfD0DQ",
+   "channel": "Jack Hanrahan Fitness",
+   "views": null
+  }
+ },
+ "Seated Cable Row": {
+  "pattern": "Horizontal pull",
+  "muscles": "Back",
+  "byEquipment": {
+   "Full Gym": "Seated Cable Row",
+   "Home Gym (Barbell + Dumbbells)": "Dumbbell Gorilla Row",
+   "Dumbbells Only": "Dumbbell Gorilla Row",
+   "Bodyweight Only": "Feet-Elevated Inverted Row (table or bar)"
+  },
+  "cue": "Chest tall and pull to the belly button.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=oFtfkSElE0s",
+   "channel": "Hammer Fitness",
+   "views": null
+  }
+ },
+ "Face Pull": {
+  "pattern": "Horizontal pull",
+  "muscles": "Rear delts, upper back",
+  "byEquipment": {
+   "Full Gym": "Cable Face Pull",
+   "Home Gym (Barbell + Dumbbells)": "Dumbbell High Pull (elbows flared)",
+   "Dumbbells Only": "Dumbbell High Pull (elbows flared)",
+   "Bodyweight Only": "Prone W Raise"
+  },
+  "cue": "Pull to the face with elbows high and thumbs back.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=ljgqer1ZpXg",
+   "channel": "ATHLEAN-X",
+   "views": null
+  }
+ },
+ "Rear Delt Fly": {
+  "pattern": "Horizontal pull",
+  "muscles": "Rear delts",
+  "byEquipment": {
+   "Full Gym": "Reverse Pec Deck",
+   "Home Gym (Barbell + Dumbbells)": "Dumbbell Rear-Delt Fly",
+   "Dumbbells Only": "Dumbbell Rear-Delt Fly",
+   "Bodyweight Only": "Prone Y-T Raise"
+  },
+  "cue": "Small arc, lead with the elbows.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=NeNdcvHFpWE",
+   "channel": "PowerFlow Fitness",
+   "views": 1917
+  }
+ },
+ "Pull-Up": {
+  "pattern": "Vertical pull",
+  "muscles": "Lats, biceps",
+  "byEquipment": {
+   "Full Gym": "Pull-Up",
+   "Home Gym (Barbell + Dumbbells)": "Barbell Underhand Bent-Over Row",
+   "Dumbbells Only": "Dumbbell Pullover",
+   "Bodyweight Only": "Underhand Inverted Row (table or bar)"
+  },
+  "cue": "Start from a dead hang and pull the chest to the bar. Use a pull-up bar when one is available.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=sIvJTfGxdFo",
+   "channel": "ATHLEAN-X",
+   "views": null
+  }
+ },
+ "Chin-Up": {
+  "pattern": "Vertical pull",
+  "muscles": "Lats, biceps",
+  "byEquipment": {
+   "Full Gym": "Chin-Up",
+   "Home Gym (Barbell + Dumbbells)": "Barbell Underhand Bent-Over Row",
+   "Dumbbells Only": "Dumbbell Underhand Row",
+   "Bodyweight Only": "Underhand Inverted Row (table or bar)"
+  },
+  "cue": "Palms facing you, chin over the bar. Use a pull-up bar when one is available.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=qV7vOUcUfD4",
+   "channel": "Barbell Logic",
+   "views": null
+  }
+ },
+ "Lat Pulldown": {
+  "pattern": "Vertical pull",
+  "muscles": "Lats",
+  "byEquipment": {
+   "Full Gym": "Lat Pulldown",
+   "Home Gym (Barbell + Dumbbells)": "Barbell Underhand Row",
+   "Dumbbells Only": "Dumbbell Pullover",
+   "Bodyweight Only": "Underhand Inverted Row"
+  },
+  "cue": "Pull the elbows to the ribs.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=AOpi-p0cJkc",
+   "channel": "SilverSneakers",
+   "views": 1717493
+  }
+ },
+ "Straight-Arm Pulldown": {
+  "pattern": "Vertical pull",
+  "muscles": "Lats",
+  "byEquipment": {
+   "Full Gym": "Cable Straight-Arm Pulldown",
+   "Home Gym (Barbell + Dumbbells)": "Hinged Dumbbell Straight-Arm Pulldown",
+   "Dumbbells Only": "Hinged Dumbbell Straight-Arm Pulldown",
+   "Bodyweight Only": "Prone Snow Angel"
+  },
+  "cue": "Keep the arms long and sweep down.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=WDOV2PDpkiU",
+   "channel": "Colossus Fitness",
+   "views": null
+  }
+ },
+ "Barbell Curl": {
+  "pattern": "Arms",
+  "muscles": "Biceps",
+  "byEquipment": {
+   "Full Gym": "Barbell Curl",
+   "Home Gym (Barbell + Dumbbells)": "Barbell Curl",
+   "Dumbbells Only": "Dumbbell Curl",
+   "Bodyweight Only": "Underhand Inverted Row (biceps focus)"
+  },
+  "cue": "Elbows at the sides and no swinging.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=bV54Vl--I50",
+   "channel": "J2FIT Strength & Conditioning",
+   "views": null
+  }
+ },
+ "Hammer Curl": {
+  "pattern": "Arms",
+  "muscles": "Biceps, forearms",
+  "byEquipment": {
+   "Full Gym": "Dumbbell Hammer Curl",
+   "Home Gym (Barbell + Dumbbells)": "Dumbbell Hammer Curl",
+   "Dumbbells Only": "Dumbbell Hammer Curl",
+   "Bodyweight Only": "Neutral-Grip Inverted Row"
+  },
+  "cue": "Thumbs up and control the lowering.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=5FAuyZuvJFg",
+   "channel": "Fit Father Project",
+   "views": 136220
+  }
+ },
+ "Incline Curl": {
+  "pattern": "Arms",
+  "muscles": "Biceps",
+  "byEquipment": {
+   "Full Gym": "Incline Dumbbell Curl",
+   "Home Gym (Barbell + Dumbbells)": "Incline Dumbbell Curl",
+   "Dumbbells Only": "Incline Dumbbell Curl",
+   "Bodyweight Only": "Underhand Inverted Row (biceps focus)"
+  },
+  "cue": "Arms hang straight down and stretch the biceps.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=DCe8f6vMe9A",
+   "channel": "ATHLEAN-X",
+   "views": null
+  }
+ },
+ "Cable Curl": {
+  "pattern": "Arms",
+  "muscles": "Biceps",
+  "byEquipment": {
+   "Full Gym": "Cable Curl",
+   "Home Gym (Barbell + Dumbbells)": "Dumbbell Curl",
+   "Dumbbells Only": "Dumbbell Curl",
+   "Bodyweight Only": "Underhand Inverted Row (biceps focus)"
+  },
+  "cue": "Constant tension and a slow lowering phase.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=2MUEL4nL6hA",
+   "channel": "Colossus Fitness",
+   "views": null
+  }
+ },
+ "Triceps Pushdown": {
+  "pattern": "Arms",
+  "muscles": "Triceps",
+  "byEquipment": {
+   "Full Gym": "Cable Triceps Pushdown",
+   "Home Gym (Barbell + Dumbbells)": "Lying Barbell Triceps Extension",
+   "Dumbbells Only": "Dumbbell Overhead Triceps Extension",
+   "Bodyweight Only": "Bench Dip"
+  },
+  "cue": "Elbows pinned and full lockout.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=w_viR9hVi4A",
+   "channel": "MuscleWiki",
+   "views": 2407
+  }
+ },
+ "Skull Crusher": {
+  "pattern": "Arms",
+  "muscles": "Triceps",
+  "byEquipment": {
+   "Full Gym": "EZ-Bar Skull Crusher",
+   "Home Gym (Barbell + Dumbbells)": "Barbell Skull Crusher",
+   "Dumbbells Only": "Dumbbell Skull Crusher",
+   "Bodyweight Only": "Diamond Push-Up"
+  },
+  "cue": "Lower to the forehead and keep the elbows still.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=OQ4TWXkZjTc",
+   "channel": "Renaissance Periodization",
+   "views": null
+  }
+ },
+ "Overhead Triceps Extension": {
+  "pattern": "Arms",
+  "muscles": "Triceps",
+  "byEquipment": {
+   "Full Gym": "Cable Overhead Triceps Extension",
+   "Home Gym (Barbell + Dumbbells)": "Dumbbell Overhead Triceps Extension",
+   "Dumbbells Only": "Dumbbell Overhead Triceps Extension",
+   "Bodyweight Only": "Bodyweight Triceps Extension (bar or table)"
+  },
+  "cue": "Elbows close to the ears and a deep stretch.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=fYqswDVbJDg",
+   "channel": "ScottHermanFitness",
+   "views": null
+  }
+ },
+ "Plank": {
+  "pattern": "Core",
+  "muscles": "Abs, core",
+  "byEquipment": {
+   "Full Gym": "Plank",
+   "Home Gym (Barbell + Dumbbells)": "Plank",
+   "Dumbbells Only": "Plank",
+   "Bodyweight Only": "Plank"
+  },
+  "cue": "Ribs down and squeeze the glutes.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=6LqqeBtFn9M",
+   "channel": "Get Exercise Confident",
+   "views": 777991
+  }
+ },
+ "Ab Wheel": {
+  "pattern": "Core",
+  "muscles": "Abs, core",
+  "byEquipment": {
+   "Full Gym": "Ab Wheel Rollout",
+   "Home Gym (Barbell + Dumbbells)": "Barbell Rollout",
+   "Dumbbells Only": "Dumbbell Plank Pull-Through",
+   "Bodyweight Only": "Body Saw Plank"
+  },
+  "cue": "Roll out only as far as you can keep the lower back flat.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=qeqofno2lSM",
+   "channel": "Fit Father Project",
+   "views": 27214
+  }
+ },
+ "Pallof Press": {
+  "pattern": "Core",
+  "muscles": "Obliques, core",
+  "byEquipment": {
+   "Full Gym": "Cable Pallof Press",
+   "Home Gym (Barbell + Dumbbells)": "Side Plank",
+   "Dumbbells Only": "Side Plank",
+   "Bodyweight Only": "Side Plank"
+  },
+  "cue": "Resist rotation and keep the hips square.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=5_8d8vHgZvU",
+   "channel": "Girls Gone Strong",
+   "views": 917865
+  }
+ },
+ "Hanging Knee Raise": {
+  "pattern": "Core",
+  "muscles": "Abs, hip flexors",
+  "byEquipment": {
+   "Full Gym": "Hanging Leg Raise",
+   "Home Gym (Barbell + Dumbbells)": "Lying Leg Raise",
+   "Dumbbells Only": "Lying Leg Raise",
+   "Bodyweight Only": "Lying Leg Raise"
+  },
+  "cue": "Curl the pelvis up and avoid swinging.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=G6a5267YpHM",
+   "channel": "FIT.nl",
+   "views": 3075
+  }
+ },
+ "Dead Bug": {
+  "pattern": "Core",
+  "muscles": "Abs, core",
+  "byEquipment": {
+   "Full Gym": "Dead Bug",
+   "Home Gym (Barbell + Dumbbells)": "Dead Bug",
+   "Dumbbells Only": "Dead Bug",
+   "Bodyweight Only": "Dead Bug"
+  },
+  "cue": "Press the lower back into the floor.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=bxn9FBrt4-A",
+   "channel": "NASM",
+   "views": null
+  }
+ },
+ "Bird Dog": {
+  "pattern": "Core",
+  "muscles": "Core, glutes",
+  "byEquipment": {
+   "Full Gym": "Bird Dog",
+   "Home Gym (Barbell + Dumbbells)": "Bird Dog",
+   "Dumbbells Only": "Bird Dog",
+   "Bodyweight Only": "Bird Dog"
+  },
+  "cue": "Reach long and keep the hips level.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=k2azbhhuKuM",
+   "channel": "National Training Center - Clermont, FL",
+   "views": 2143766
+  }
+ },
+ "Hollow Hold": {
+  "pattern": "Core",
+  "muscles": "Abs",
+  "byEquipment": {
+   "Full Gym": "Hollow Hold",
+   "Home Gym (Barbell + Dumbbells)": "Hollow Hold",
+   "Dumbbells Only": "Hollow Hold",
+   "Bodyweight Only": "Hollow Hold"
+  },
+  "cue": "Lower back stays on the floor.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=0yPin8hSc8o",
+   "channel": "FIT.nl",
+   "views": null
+  }
+ },
+ "Russian Twist": {
+  "pattern": "Core",
+  "muscles": "Obliques",
+  "byEquipment": {
+   "Full Gym": "Weighted Russian Twist",
+   "Home Gym (Barbell + Dumbbells)": "Dumbbell Russian Twist",
+   "Dumbbells Only": "Dumbbell Russian Twist",
+   "Bodyweight Only": "Bodyweight Russian Twist"
+  },
+  "cue": "Rotate through the ribs, not just the arms.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=wkD8rjkodUI",
+   "channel": "Howcast",
+   "views": 11688405
+  }
+ },
+ "Cable Crunch": {
+  "pattern": "Core",
+  "muscles": "Abs",
+  "byEquipment": {
+   "Full Gym": "Cable Crunch",
+   "Home Gym (Barbell + Dumbbells)": "Dumbbell Weighted Crunch",
+   "Dumbbells Only": "Dumbbell Weighted Crunch",
+   "Bodyweight Only": "Bicycle Crunch"
+  },
+  "cue": "Curl the ribs to the hips.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=cEuIsW4xZKM",
+   "channel": "Eric Bach",
+   "views": null
+  }
+ },
+ "Side Plank": {
+  "pattern": "Core",
+  "muscles": "Obliques",
+  "byEquipment": {
+   "Full Gym": "Side Plank",
+   "Home Gym (Barbell + Dumbbells)": "Side Plank",
+   "Dumbbells Only": "Side Plank",
+   "Bodyweight Only": "Side Plank"
+  },
+  "cue": "Stack the feet and lift the hips.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=0M-erHBl48U",
+   "channel": "Heal Fit Physio",
+   "views": null
+  }
+ },
+ "Farmer Carry": {
+  "pattern": "Carry",
+  "muscles": "Grip, traps, core",
+  "byEquipment": {
+   "Full Gym": "Farmer Carry (handles or dumbbells)",
+   "Home Gym (Barbell + Dumbbells)": "Dumbbell Farmer Carry",
+   "Dumbbells Only": "Dumbbell Farmer Carry",
+   "Bodyweight Only": "Loaded Backpack Carry"
+  },
+  "cue": "Walk tall with short quick steps.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=z7E_YU9P1jU",
+   "channel": "Dr. Carl Baird",
+   "views": null
+  }
+ },
+ "Suitcase Carry": {
+  "pattern": "Carry",
+  "muscles": "Obliques, grip",
+  "byEquipment": {
+   "Full Gym": "Dumbbell Suitcase Carry",
+   "Home Gym (Barbell + Dumbbells)": "Dumbbell Suitcase Carry",
+   "Dumbbells Only": "Dumbbell Suitcase Carry",
+   "Bodyweight Only": "Single-Arm Loaded Backpack Carry"
+  },
+  "cue": "Stay upright and do not lean into the weight.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=y-hn_Ha1-RE",
+   "channel": "Dr. Carl Baird",
+   "views": null
+  }
+ },
+ "Overhead Carry": {
+  "pattern": "Carry",
+  "muscles": "Shoulders, core",
+  "byEquipment": {
+   "Full Gym": "Dumbbell Overhead Carry (single arm)",
+   "Home Gym (Barbell + Dumbbells)": "Dumbbell Overhead Carry (single arm)",
+   "Dumbbells Only": "Dumbbell Overhead Carry (single arm)",
+   "Bodyweight Only": "Plank Shoulder Taps"
+  },
+  "cue": "Biceps by the ear and ribs down.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=54POVWkWjEs",
+   "channel": "[P]rehab",
+   "views": 57413
+  }
+ },
+ "Sled Push": {
+  "pattern": "Carry",
+  "muscles": "Legs, conditioning",
+  "byEquipment": {
+   "Full Gym": "Sled Push",
+   "Home Gym (Barbell + Dumbbells)": "Dumbbell Front-Rack Carry",
+   "Dumbbells Only": "Dumbbell Front-Rack Carry",
+   "Bodyweight Only": "Bear Crawl"
+  },
+  "cue": "Low hips, drive with long steps.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=9XRRXaUpnLk",
+   "channel": "Mind Pump TV",
+   "views": null
+  }
+ },
+ "Bear Crawl": {
+  "pattern": "Carry",
+  "muscles": "Shoulders, core",
+  "byEquipment": {
+   "Full Gym": "Bear Crawl",
+   "Home Gym (Barbell + Dumbbells)": "Bear Crawl",
+   "Dumbbells Only": "Bear Crawl",
+   "Bodyweight Only": "Bear Crawl"
+  },
+  "cue": "Knees hover one inch off the floor.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=Gb2e9edK8a4",
+   "channel": "Get Healthy U - with Chris Freytag",
+   "views": null
+  }
+ },
+ "Air Bike Sprint": {
+  "pattern": "Conditioning",
+  "muscles": "Full body",
+  "byEquipment": {
+   "Full Gym": "Air Bike",
+   "Home Gym (Barbell + Dumbbells)": "Shuttle Run (20 m)",
+   "Dumbbells Only": "Shuttle Run (20 m)",
+   "Bodyweight Only": "Shuttle Run (20 m)"
+  },
+  "cue": "Drive with legs and arms together.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=PHReR7tC_tw",
+   "channel": "Live Lean TV Daily Exercises",
+   "views": 7016
+  }
+ },
+ "Rowing Machine": {
+  "pattern": "Conditioning",
+  "muscles": "Full body",
+  "byEquipment": {
+   "Full Gym": "Rowing Machine",
+   "Home Gym (Barbell + Dumbbells)": "Dumbbell Squat to Row",
+   "Dumbbells Only": "Dumbbell Squat to Row",
+   "Bodyweight Only": "Jump Rope (or High Knees)"
+  },
+  "cue": "Legs, then back, then arms.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=4zWu1yuJ0_g",
+   "channel": "Concept2",
+   "views": null
+  }
+ },
+ "SkiErg": {
+  "pattern": "Conditioning",
+  "muscles": "Full body",
+  "byEquipment": {
+   "Full Gym": "SkiErg",
+   "Home Gym (Barbell + Dumbbells)": "Dumbbell Thruster",
+   "Dumbbells Only": "Dumbbell Thruster",
+   "Bodyweight Only": "Squat Jump"
+  },
+  "cue": "Hinge and pull the handles down with the lats.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=_hnYHWaw2B4",
+   "channel": "RowAlong",
+   "views": null
+  }
+ },
+ "Treadmill Run": {
+  "pattern": "Conditioning",
+  "muscles": "Legs, heart",
+  "byEquipment": {
+   "Full Gym": "Treadmill Run",
+   "Home Gym (Barbell + Dumbbells)": "Outdoor Run",
+   "Dumbbells Only": "Outdoor Run",
+   "Bodyweight Only": "Outdoor Run"
+  },
+  "cue": "Stay relaxed and breathe in rhythm.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=56hogeADi5U",
+   "channel": "The Body Mechanic",
+   "views": null
+  }
+ },
+ "Jump Rope": {
+  "pattern": "Conditioning",
+  "muscles": "Calves, heart",
+  "byEquipment": {
+   "Full Gym": "Jump Rope",
+   "Home Gym (Barbell + Dumbbells)": "Jump Rope",
+   "Dumbbells Only": "Jump Rope",
+   "Bodyweight Only": "Jump Rope"
+  },
+  "cue": "Small hops and quiet landings.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=aFoektJK9dU",
+   "channel": "Jump Rope Dudes",
+   "views": null
+  }
+ },
+ "Burpee": {
+  "pattern": "Conditioning",
+  "muscles": "Full body",
+  "byEquipment": {
+   "Full Gym": "Burpee",
+   "Home Gym (Barbell + Dumbbells)": "Burpee",
+   "Dumbbells Only": "Burpee",
+   "Bodyweight Only": "Burpee"
+  },
+  "cue": "Chest to the floor, jump, repeat.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=G2hv_NYhM-A",
+   "channel": "BuiltLean",
+   "views": null
+  }
+ },
+ "Mountain Climber": {
+  "pattern": "Conditioning",
+  "muscles": "Core, shoulders",
+  "byEquipment": {
+   "Full Gym": "Mountain Climber",
+   "Home Gym (Barbell + Dumbbells)": "Mountain Climber",
+   "Dumbbells Only": "Mountain Climber",
+   "Bodyweight Only": "Mountain Climber"
+  },
+  "cue": "Hips low and fast knees.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=OR1eel_5oAY",
+   "channel": "Live Lean TV",
+   "views": 5527
+  }
+ },
+ "Thruster": {
+  "pattern": "Conditioning",
+  "muscles": "Legs, shoulders",
+  "byEquipment": {
+   "Full Gym": "Barbell Thruster",
+   "Home Gym (Barbell + Dumbbells)": "Barbell Thruster",
+   "Dumbbells Only": "Dumbbell Thruster",
+   "Bodyweight Only": "Squat Jump"
+  },
+  "cue": "Squat to a press in one motion.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=tJP-fwf5ASA",
+   "channel": "J2FIT Strength & Conditioning",
+   "views": null
+  }
+ },
+ "Dumbbell Complex": {
+  "pattern": "Conditioning",
+  "muscles": "Full body",
+  "byEquipment": {
+   "Full Gym": "Barbell Complex",
+   "Home Gym (Barbell + Dumbbells)": "Barbell Complex",
+   "Dumbbells Only": "Dumbbell Complex (row, clean, press)",
+   "Bodyweight Only": "Burpee to Tuck Jump"
+  },
+  "cue": "Move from one lift to the next without setting the weight down.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=l5EhQoHLpPI",
+   "channel": "Testosterone Nation",
+   "views": null
+  }
+ },
+ "Dumbbell Clean and Press": {
+  "pattern": "Conditioning",
+  "muscles": "Full body",
+  "byEquipment": {
+   "Full Gym": "Dumbbell Clean and Press",
+   "Home Gym (Barbell + Dumbbells)": "Dumbbell Clean and Press",
+   "Dumbbells Only": "Dumbbell Clean and Press",
+   "Bodyweight Only": "Squat Thrust with Jump"
+  },
+  "cue": "Pull the weight to the shoulders and press overhead.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=8G-jnVP_f2s",
+   "channel": "Live Lean TV Daily Exercises",
+   "views": 205360
+  }
+ },
+ "Shuttle Run": {
+  "pattern": "Conditioning",
+  "muscles": "Legs, heart",
+  "byEquipment": {
+   "Full Gym": "Shuttle Run (20 m)",
+   "Home Gym (Barbell + Dumbbells)": "Shuttle Run (20 m)",
+   "Dumbbells Only": "Shuttle Run (20 m)",
+   "Bodyweight Only": "Shuttle Run (20 m)"
+  },
+  "cue": "Touch the line each time and stay low on the turn.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=3-iZMS6twcE",
+   "channel": "ZOAR Fitness",
+   "views": 200991
+  }
+ },
+ "Zone 2 Cardio": {
+  "pattern": "Conditioning",
+  "muscles": "Heart",
+  "byEquipment": {
+   "Full Gym": "Easy Aerobic (bike, rower, or treadmill)",
+   "Home Gym (Barbell + Dumbbells)": "Brisk Walk or Easy Jog",
+   "Dumbbells Only": "Brisk Walk or Easy Jog",
+   "Bodyweight Only": "Brisk Walk or Easy Jog"
+  },
+  "cue": "Breathe through the nose and keep it conversational.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=VcGMGIuVMFo",
+   "channel": "Marathon Handbook",
+   "views": null
+  }
+ },
+ "Rest Day": {
+  "pattern": "Recovery",
+  "muscles": "Whole Body",
+  "byEquipment": {
+   "Full Gym": "Full Rest",
+   "Home Gym (Barbell + Dumbbells)": "Full Rest",
+   "Dumbbells Only": "Full Rest",
+   "Bodyweight Only": "Full Rest"
+  },
+  "cue": "Sleep well, hydrate and eat enough protein. An easy walk is optional."
+ },
+ "Sprawl": {
+  "pattern": "Combat",
+  "muscles": "Full body",
+  "byEquipment": {
+   "Full Gym": "Sprawl",
+   "Home Gym (Barbell + Dumbbells)": "Sprawl",
+   "Dumbbells Only": "Sprawl",
+   "Bodyweight Only": "Sprawl"
+  },
+  "cue": "Hips down fast and pop back up.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=UFFODmd6RTc",
+   "channel": "cult fit",
+   "views": null
+  }
+ },
+ "Shadow Boxing Rounds": {
+  "pattern": "Combat",
+  "muscles": "Full body",
+  "byEquipment": {
+   "Full Gym": "Shadow Boxing Rounds",
+   "Home Gym (Barbell + Dumbbells)": "Shadow Boxing Rounds",
+   "Dumbbells Only": "Shadow Boxing Rounds",
+   "Bodyweight Only": "Shadow Boxing Rounds"
+  },
+  "cue": "Stay light on the feet and keep the hands up.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=ou8SvZnk1Uo",
+   "channel": "FightCamp",
+   "views": 43552
+  }
+ },
+ "Medicine Ball Slam": {
+  "pattern": "Power",
+  "muscles": "Core, lats",
+  "byEquipment": {
+   "Full Gym": "Medicine Ball Slam",
+   "Home Gym (Barbell + Dumbbells)": "Burpee Broad Jump",
+   "Dumbbells Only": "Burpee Broad Jump",
+   "Bodyweight Only": "Burpee Broad Jump"
+  },
+  "cue": "Slam through the whole body.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=CkO1mfSBvv4",
+   "channel": "Third Space London",
+   "views": null
+  }
+ },
+ "Dumbbell Woodchop": {
+  "pattern": "Power",
+  "muscles": "Obliques, core",
+  "byEquipment": {
+   "Full Gym": "Dumbbell Woodchop",
+   "Home Gym (Barbell + Dumbbells)": "Dumbbell Woodchop",
+   "Dumbbells Only": "Dumbbell Woodchop",
+   "Bodyweight Only": "Bodyweight Woodchop"
+  },
+  "cue": "Rotate from the hips.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=tH8ZeVgupYY",
+   "channel": "Kai Simon",
+   "views": 948505
+  }
+ },
+ "Turkish Get-Up": {
+  "pattern": "Power",
+  "muscles": "Shoulders, core",
+  "byEquipment": {
+   "Full Gym": "Kettlebell Turkish Get-Up",
+   "Home Gym (Barbell + Dumbbells)": "Dumbbell Turkish Get-Up",
+   "Dumbbells Only": "Dumbbell Turkish Get-Up",
+   "Bodyweight Only": "Bodyweight Get-Up"
+  },
+  "cue": "Eyes on the weight and move one step at a time.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=4IObymW_V-U",
+   "channel": "Pat Flynn",
+   "views": null
+  }
+ },
+ "Dumbbell Snatch": {
+  "pattern": "Power",
+  "muscles": "Full body",
+  "byEquipment": {
+   "Full Gym": "Dumbbell Snatch",
+   "Home Gym (Barbell + Dumbbells)": "Dumbbell Snatch",
+   "Dumbbells Only": "Dumbbell Snatch",
+   "Bodyweight Only": "Broad Jump"
+  },
+  "cue": "Pull high and punch through at the top.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=zYAcRcT5hRg",
+   "channel": "moveSKILL",
+   "views": 209091
+  }
+ },
+ "Power Clean": {
+  "pattern": "Power",
+  "muscles": "Full body",
+  "byEquipment": {
+   "Full Gym": "Barbell Power Clean",
+   "Home Gym (Barbell + Dumbbells)": "Barbell Power Clean",
+   "Dumbbells Only": "Dumbbell Hang Power Clean",
+   "Bodyweight Only": "Broad Jump"
+  },
+  "cue": "Jump, shrug, and catch with elbows fast.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=lI35socHJ4k",
+   "channel": "Barbell Logic",
+   "views": 340859
+  }
+ },
+ "Jump Squat": {
+  "pattern": "Power",
+  "muscles": "Quads, glutes",
+  "byEquipment": {
+   "Full Gym": "Jump Squat",
+   "Home Gym (Barbell + Dumbbells)": "Jump Squat",
+   "Dumbbells Only": "Dumbbell Jump Squat (light)",
+   "Bodyweight Only": "Jump Squat"
+  },
+  "cue": "Land softly and reset.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=tZSYZdtbONc",
+   "channel": "NASM",
+   "views": 14660
+  }
+ },
+ "Box Jump": {
+  "pattern": "Power",
+  "muscles": "Quads, glutes",
+  "byEquipment": {
+   "Full Gym": "Box Jump",
+   "Home Gym (Barbell + Dumbbells)": "Box Jump (sturdy box)",
+   "Dumbbells Only": "Box Jump",
+   "Bodyweight Only": "Tuck Jump"
+  },
+  "cue": "Step down after each rep.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=YLPQsdRDmB0",
+   "channel": "Peak Strength",
+   "views": 32890
+  }
+ },
+ "Broad Jump": {
+  "pattern": "Power",
+  "muscles": "Glutes, quads",
+  "byEquipment": {
+   "Full Gym": "Broad Jump",
+   "Home Gym (Barbell + Dumbbells)": "Broad Jump",
+   "Dumbbells Only": "Broad Jump",
+   "Bodyweight Only": "Broad Jump"
+  },
+  "cue": "Swing the arms and stick the landing.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=z1IDJMMg024",
+   "channel": "Testosterone Nation",
+   "views": null
+  }
+ },
+ "Plyometric Push-Up": {
+  "pattern": "Power",
+  "muscles": "Chest, triceps",
+  "byEquipment": {
+   "Full Gym": "Plyometric Push-Up",
+   "Home Gym (Barbell + Dumbbells)": "Plyometric Push-Up",
+   "Dumbbells Only": "Plyometric Push-Up",
+   "Bodyweight Only": "Plyometric Push-Up"
+  },
+  "cue": "Push the floor away hard and land softly.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=xlGfa47o-4Y",
+   "channel": "Testosterone Nation",
+   "views": null
+  }
+ },
+ "Lateral Bound": {
+  "pattern": "Power",
+  "muscles": "Glutes, adductors",
+  "byEquipment": {
+   "Full Gym": "Lateral Bound",
+   "Home Gym (Barbell + Dumbbells)": "Lateral Bound",
+   "Dumbbells Only": "Lateral Bound",
+   "Bodyweight Only": "Lateral Bound"
+  },
+  "cue": "Push off one foot and stick the landing.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=soqQy4dzEts",
+   "channel": "Third Space London",
+   "views": null
+  }
+ },
+ "Skater Jump": {
+  "pattern": "Power",
+  "muscles": "Glutes, quads",
+  "byEquipment": {
+   "Full Gym": "Skater Jump",
+   "Home Gym (Barbell + Dumbbells)": "Skater Jump",
+   "Dumbbells Only": "Skater Jump",
+   "Bodyweight Only": "Skater Jump"
+  },
+  "cue": "Jump sideways and land on one foot.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=9_jLW6VkU8A",
+   "channel": "BuiltLean",
+   "views": null
+  }
+ },
+ "Glute Bridge": {
+  "pattern": "Hinge",
+  "muscles": "Glutes",
+  "byEquipment": {
+   "Full Gym": "Glute Bridge",
+   "Home Gym (Barbell + Dumbbells)": "Glute Bridge",
+   "Dumbbells Only": "Glute Bridge",
+   "Bodyweight Only": "Glute Bridge"
+  },
+  "cue": "Drive through the heels and squeeze at the top.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=EEtd0uY-bMw",
+   "channel": "Get Exercise Confident",
+   "views": null
+  }
+ },
+ "90/90 Hip Switch": {
+  "pattern": "Mobility",
+  "muscles": "Hips",
+  "byEquipment": {
+   "Full Gym": "90/90 Hip Switch",
+   "Home Gym (Barbell + Dumbbells)": "90/90 Hip Switch",
+   "Dumbbells Only": "90/90 Hip Switch",
+   "Bodyweight Only": "90/90 Hip Switch"
+  },
+  "cue": "Sit tall and move slowly.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=t4Zz6-aG8Iw",
+   "channel": "Jack Hanrahan Fitness",
+   "views": 997122
+  }
+ },
+ "Hip Flexor Stretch": {
+  "pattern": "Mobility",
+  "muscles": "Hip flexors",
+  "byEquipment": {
+   "Full Gym": "Half-Kneeling Hip Flexor Stretch",
+   "Home Gym (Barbell + Dumbbells)": "Half-Kneeling Hip Flexor Stretch",
+   "Dumbbells Only": "Half-Kneeling Hip Flexor Stretch",
+   "Bodyweight Only": "Half-Kneeling Hip Flexor Stretch"
+  },
+  "cue": "Tuck the pelvis and squeeze the rear glute.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=iZ1eZBY4fwM",
+   "channel": "PureGym",
+   "views": 39148
+  }
+ },
+ "Cat-Cow": {
+  "pattern": "Mobility",
+  "muscles": "Spine",
+  "byEquipment": {
+   "Full Gym": "Cat-Cow",
+   "Home Gym (Barbell + Dumbbells)": "Cat-Cow",
+   "Dumbbells Only": "Cat-Cow",
+   "Bodyweight Only": "Cat-Cow"
+  },
+  "cue": "Move the whole spine with each breath.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=Fa4ZMS5M7xA",
+   "channel": "Yoga52 | BODi",
+   "views": 15152
+  }
+ },
+ "Thoracic Rotation": {
+  "pattern": "Mobility",
+  "muscles": "Upper back",
+  "byEquipment": {
+   "Full Gym": "Open Book Thoracic Rotation",
+   "Home Gym (Barbell + Dumbbells)": "Open Book Thoracic Rotation",
+   "Dumbbells Only": "Open Book Thoracic Rotation",
+   "Bodyweight Only": "Open Book Thoracic Rotation"
+  },
+  "cue": "Follow the hand with the eyes.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=rDviWORCWEw",
+   "channel": "Revival Performance Physical Therapy",
+   "views": 30303
+  }
+ },
+ "Child's Pose": {
+  "pattern": "Mobility",
+  "muscles": "Back, hips",
+  "byEquipment": {
+   "Full Gym": "Child's Pose",
+   "Home Gym (Barbell + Dumbbells)": "Child's Pose",
+   "Dumbbells Only": "Child's Pose",
+   "Bodyweight Only": "Child's Pose"
+  },
+  "cue": "Breathe into the lower ribs.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=1Awbr8FfrWE",
+   "channel": "Di Hickman",
+   "views": null
+  }
+ },
+ "Deep Squat Hold": {
+  "pattern": "Mobility",
+  "muscles": "Hips, ankles",
+  "byEquipment": {
+   "Full Gym": "Deep Squat Hold",
+   "Home Gym (Barbell + Dumbbells)": "Deep Squat Hold",
+   "Dumbbells Only": "Deep Squat Hold",
+   "Bodyweight Only": "Deep Squat Hold"
+  },
+  "cue": "Heels down and chest tall.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=0wzrgyAurT8",
+   "channel": "Strength Side",
+   "views": null
+  }
+ },
+ "Wall Slide": {
+  "pattern": "Mobility",
+  "muscles": "Shoulders",
+  "byEquipment": {
+   "Full Gym": "Wall Slide",
+   "Home Gym (Barbell + Dumbbells)": "Wall Slide",
+   "Dumbbells Only": "Wall Slide",
+   "Bodyweight Only": "Wall Slide"
+  },
+  "cue": "Keep the ribs down and forearms on the wall.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=9ZBOvVO9JFs",
+   "channel": "Nottingham Physio",
+   "views": null
+  }
+ },
+ "Thread the Needle": {
+  "pattern": "Mobility",
+  "muscles": "Upper back",
+  "byEquipment": {
+   "Full Gym": "Thread the Needle",
+   "Home Gym (Barbell + Dumbbells)": "Thread the Needle",
+   "Dumbbells Only": "Thread the Needle",
+   "Bodyweight Only": "Thread the Needle"
+  },
+  "cue": "Reach under and rotate slowly.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=oAQ_qycUj5o",
+   "channel": "Live Lean TV Daily Exercises",
+   "views": null
+  }
+ },
+ "Dead Hang": {
+  "pattern": "Mobility",
+  "muscles": "Shoulders, grip",
+  "byEquipment": {
+   "Full Gym": "Dead Hang",
+   "Home Gym (Barbell + Dumbbells)": "Prone Y Raise Hold",
+   "Dumbbells Only": "Prone Y Raise Hold",
+   "Bodyweight Only": "Prone Y Raise Hold"
+  },
+  "cue": "Relax the shoulders and hang long.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=3CEmHJXbNpc",
+   "channel": "Adam McCubbin",
+   "views": 516800
+  }
+ },
+ "Doorway Pec Stretch": {
+  "pattern": "Mobility",
+  "muscles": "Chest",
+  "byEquipment": {
+   "Full Gym": "Doorway Pec Stretch",
+   "Home Gym (Barbell + Dumbbells)": "Doorway Pec Stretch",
+   "Dumbbells Only": "Doorway Pec Stretch",
+   "Bodyweight Only": "Doorway Pec Stretch"
+  },
+  "cue": "Elbow at shoulder height and lean through.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=B9uY01NoqBg",
+   "channel": "Baptist Health",
+   "views": 468173
+  }
+ },
+ "World's Greatest Stretch": {
+  "pattern": "Mobility",
+  "muscles": "Hips, spine",
+  "byEquipment": {
+   "Full Gym": "World's Greatest Stretch",
+   "Home Gym (Barbell + Dumbbells)": "World's Greatest Stretch",
+   "Dumbbells Only": "World's Greatest Stretch",
+   "Bodyweight Only": "World's Greatest Stretch"
+  },
+  "cue": "Lunge, rotate, then reach.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=-CiWQ2IvY34",
+   "channel": "Squat University",
+   "views": null
+  }
+ },
+ "Cossack Squat": {
+  "pattern": "Mobility",
+  "muscles": "Hips, adductors",
+  "byEquipment": {
+   "Full Gym": "Cossack Squat",
+   "Home Gym (Barbell + Dumbbells)": "Cossack Squat",
+   "Dumbbells Only": "Cossack Squat",
+   "Bodyweight Only": "Cossack Squat"
+  },
+  "cue": "Sit into one hip and keep the other leg long.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=tpczTeSkHz0",
+   "channel": "FitnessFAQs",
+   "views": null
+  }
+ },
+ "Hamstring Stretch": {
+  "pattern": "Mobility",
+  "muscles": "Hamstrings",
+  "byEquipment": {
+   "Full Gym": "Supine Hamstring Stretch",
+   "Home Gym (Barbell + Dumbbells)": "Supine Hamstring Stretch",
+   "Dumbbells Only": "Supine Hamstring Stretch",
+   "Bodyweight Only": "Supine Hamstring Stretch"
+  },
+  "cue": "Keep the leg straight and relax the neck.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=uZ7AbE5KF1s",
+   "channel": "Strength Side",
+   "views": null
+  }
+ },
+ "Couch Stretch": {
+  "pattern": "Mobility",
+  "muscles": "Quads, hip flexors",
+  "byEquipment": {
+   "Full Gym": "Couch Stretch",
+   "Home Gym (Barbell + Dumbbells)": "Couch Stretch",
+   "Dumbbells Only": "Couch Stretch",
+   "Bodyweight Only": "Couch Stretch"
+  },
+  "cue": "Back knee near the wall and ribs down.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=agbOuqQ7G_k",
+   "channel": "Swift Movement Academy",
+   "views": null
+  }
+ },
+ "Pigeon Stretch": {
+  "pattern": "Mobility",
+  "muscles": "Glutes",
+  "byEquipment": {
+   "Full Gym": "Pigeon Stretch",
+   "Home Gym (Barbell + Dumbbells)": "Pigeon Stretch",
+   "Dumbbells Only": "Pigeon Stretch",
+   "Bodyweight Only": "Pigeon Stretch"
+  },
+  "cue": "Fold forward slowly.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=2vwIdJbOqx4",
+   "channel": "San Diego Chiropractic",
+   "views": null
+  }
+ },
+ "Ankle Rock": {
+  "pattern": "Mobility",
+  "muscles": "Ankles",
+  "byEquipment": {
+   "Full Gym": "Ankle Rock",
+   "Home Gym (Barbell + Dumbbells)": "Ankle Rock",
+   "Dumbbells Only": "Ankle Rock",
+   "Bodyweight Only": "Ankle Rock"
+  },
+  "cue": "Drive the knee over the toes with the heel down.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=Gs4AyvJpG1M",
+   "channel": "Train With Cuz",
+   "views": 6136
+  }
+ },
+ "Zercher Squat": {
+  "pattern": "Squat",
+  "muscles": "Quads, glutes, core",
+  "byEquipment": {
+   "Full Gym": "Barbell Zercher Squat",
+   "Home Gym (Barbell + Dumbbells)": "Barbell Zercher Squat (rack)",
+   "Dumbbells Only": "Dumbbell Goblet Squat (pause at bottom)",
+   "Bodyweight Only": "Bodyweight Squat (arms crossed, 3 sec down)"
+  },
+  "cue": "Bar in the elbow crease, chest tall, sit between the hips.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=zWo0TXIKkQ4",
+   "channel": "Judd Lienhard",
+   "views": 20222
+  }
+ },
+ "Leg Extension": {
+  "pattern": "Squat",
+  "muscles": "Quads",
+  "byEquipment": {
+   "Full Gym": "Leg Extension Machine",
+   "Home Gym (Barbell + Dumbbells)": "Dumbbell Heel-Elevated Goblet Squat",
+   "Dumbbells Only": "Dumbbell Heel-Elevated Goblet Squat",
+   "Bodyweight Only": "Sissy Squat (hold a post)"
+  },
+  "cue": "Pause at the top and lower under control.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=3zWKiW9BBpo",
+   "channel": "Cris Edmonds TV",
+   "views": null
+  }
+ },
+ "Curtsy Lunge": {
+  "pattern": "Single leg",
+  "muscles": "Glutes, quads",
+  "byEquipment": {
+   "Full Gym": "Dumbbell Curtsy Lunge",
+   "Home Gym (Barbell + Dumbbells)": "Barbell Curtsy Lunge",
+   "Dumbbells Only": "Dumbbell Curtsy Lunge",
+   "Bodyweight Only": "Bodyweight Curtsy Lunge"
+  },
+  "cue": "Step back and across, keep the front knee over the foot.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=g8mCJDtD2DQ",
+   "channel": "Studio SWEAT",
+   "views": null
+  }
+ },
+ "Pistol Squat": {
+  "pattern": "Single leg",
+  "muscles": "Quads, glutes",
+  "byEquipment": {
+   "Full Gym": "Box Pistol Squat (assisted)",
+   "Home Gym (Barbell + Dumbbells)": "Box Pistol Squat (assisted)",
+   "Dumbbells Only": "Box Pistol Squat (assisted)",
+   "Bodyweight Only": "Box Pistol Squat (assisted)"
+  },
+  "cue": "Sit to a box on one leg and keep the heel down.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=vq5-vdgJc0I",
+   "channel": "Squat University",
+   "views": null
+  }
+ },
+ "Sissy Squat": {
+  "pattern": "Squat",
+  "muscles": "Quads",
+  "byEquipment": {
+   "Full Gym": "Sissy Squat (hold a post)",
+   "Home Gym (Barbell + Dumbbells)": "Sissy Squat (hold a post)",
+   "Dumbbells Only": "Sissy Squat (hold a post)",
+   "Bodyweight Only": "Sissy Squat (hold a post)"
+  },
+  "cue": "Lean back, knees forward, hips locked in line.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=4Y30vn1IIe8",
+   "channel": "Chris Gates Fitness",
+   "views": null
+  }
+ },
+ "Forward Lunge": {
+  "pattern": "Single leg",
+  "muscles": "Quads, glutes",
+  "byEquipment": {
+   "Full Gym": "Dumbbell Forward Lunge",
+   "Home Gym (Barbell + Dumbbells)": "Barbell Forward Lunge",
+   "Dumbbells Only": "Dumbbell Forward Lunge",
+   "Bodyweight Only": "Bodyweight Forward Lunge"
+  },
+  "cue": "Step long, drop the back knee, push back to standing.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=B7VQJiVv3xw",
+   "channel": "Live Lean TV Daily Exercises",
+   "views": 4494
+  }
+ },
+ "Heel-Elevated Squat": {
+  "pattern": "Squat",
+  "muscles": "Quads",
+  "byEquipment": {
+   "Full Gym": "Barbell Heel-Elevated Front Squat",
+   "Home Gym (Barbell + Dumbbells)": "Barbell Heel-Elevated Front Squat",
+   "Dumbbells Only": "Dumbbell Heel-Elevated Goblet Squat",
+   "Bodyweight Only": "Heel-Elevated Bodyweight Squat"
+  },
+  "cue": "Heels on a plate, knees travel forward, torso upright.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=RUXLuZ_GLrE",
+   "channel": "nutritioneering",
+   "views": null
+  }
+ },
+ "Lateral Step-Up": {
+  "pattern": "Single leg",
+  "muscles": "Quads, glutes",
+  "byEquipment": {
+   "Full Gym": "Dumbbell Lateral Step-Up",
+   "Home Gym (Barbell + Dumbbells)": "Dumbbell Lateral Step-Up",
+   "Dumbbells Only": "Dumbbell Lateral Step-Up",
+   "Bodyweight Only": "Bodyweight Lateral Step-Up"
+  },
+  "cue": "Stand beside the box, step up with the near leg and lower slowly.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=z6WChpJB08Q",
+   "channel": "Live Lean TV Daily Exercises",
+   "views": null
+  }
+ },
+ "Wall Sit": {
+  "pattern": "Squat",
+  "muscles": "Quads",
+  "byEquipment": {
+   "Full Gym": "Weighted Wall Sit (plate on lap)",
+   "Home Gym (Barbell + Dumbbells)": "Weighted Wall Sit (plate on lap)",
+   "Dumbbells Only": "Dumbbell Wall Sit (dumbbell on lap)",
+   "Bodyweight Only": "Bodyweight Wall Sit"
+  },
+  "cue": "Thighs parallel, back flat on the wall.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=cWTZ8Am1Ee0",
+   "channel": "Medbridge",
+   "views": null
+  }
+ },
+ "Sumo Squat": {
+  "pattern": "Squat",
+  "muscles": "Glutes, adductors",
+  "byEquipment": {
+   "Full Gym": "Dumbbell Sumo Squat",
+   "Home Gym (Barbell + Dumbbells)": "Barbell Sumo Squat",
+   "Dumbbells Only": "Dumbbell Sumo Squat",
+   "Bodyweight Only": "Bodyweight Sumo Squat"
+  },
+  "cue": "Wide stance, toes out, knees track over the toes.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=Sq88Uw0roVU",
+   "channel": "Openfit on BODi",
+   "views": 218003
+  }
+ },
+ "Stiff-Leg Deadlift": {
+  "pattern": "Hinge",
+  "muscles": "Hamstrings, glutes",
+  "byEquipment": {
+   "Full Gym": "Barbell Stiff-Leg Deadlift",
+   "Home Gym (Barbell + Dumbbells)": "Barbell Stiff-Leg Deadlift",
+   "Dumbbells Only": "Dumbbell Stiff-Leg Deadlift",
+   "Bodyweight Only": "Bodyweight Stiff-Leg Good Morning"
+  },
+  "cue": "Knees nearly straight, hinge until the hamstrings stretch.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=yYB9e6ZWGTc",
+   "channel": "Your House Fitness",
+   "views": null
+  }
+ },
+ "Rack Pull": {
+  "pattern": "Hinge",
+  "muscles": "Back, glutes, traps",
+  "byEquipment": {
+   "Full Gym": "Barbell Rack Pull",
+   "Home Gym (Barbell + Dumbbells)": "Barbell Rack Pull (pins or blocks)",
+   "Dumbbells Only": "Dumbbell Deadlift from Blocks",
+   "Bodyweight Only": "Single-Leg Hip Hinge (bodyweight)"
+  },
+  "cue": "Bar starts at the knee, lock out with the glutes.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=e11lVmLsvFU",
+   "channel": "Anthony Cooke",
+   "views": null
+  }
+ },
+ "Single-Leg Hip Thrust": {
+  "pattern": "Hinge",
+  "muscles": "Glutes",
+  "byEquipment": {
+   "Full Gym": "Single-Leg Barbell Hip Thrust",
+   "Home Gym (Barbell + Dumbbells)": "Single-Leg Barbell Hip Thrust",
+   "Dumbbells Only": "Single-Leg Dumbbell Hip Thrust",
+   "Bodyweight Only": "Single-Leg Hip Thrust (bodyweight)"
+  },
+  "cue": "Ribs down, drive through the heel, squeeze at the top.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=L4nTaesNm0E",
+   "channel": "J2FIT Strength & Conditioning",
+   "views": null
+  }
+ },
+ "Cable Pull-Through": {
+  "pattern": "Hinge",
+  "muscles": "Glutes, hamstrings",
+  "byEquipment": {
+   "Full Gym": "Cable Pull-Through",
+   "Home Gym (Barbell + Dumbbells)": "Dumbbell Romanian Deadlift",
+   "Dumbbells Only": "Dumbbell Romanian Deadlift",
+   "Bodyweight Only": "Bodyweight Hip Hinge (hands behind head)"
+  },
+  "cue": "Hinge back, then snap the hips forward.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=OkcryKUZTZs",
+   "channel": "Criticalbench",
+   "views": null
+  }
+ },
+ "Nordic Hamstring Curl": {
+  "pattern": "Hinge",
+  "muscles": "Hamstrings",
+  "byEquipment": {
+   "Full Gym": "Nordic Hamstring Curl (anchored)",
+   "Home Gym (Barbell + Dumbbells)": "Nordic Hamstring Curl (anchored)",
+   "Dumbbells Only": "Nordic Hamstring Curl (anchored)",
+   "Bodyweight Only": "Nordic Hamstring Curl (anchored)"
+  },
+  "cue": "Lower slowly with a straight hip line and catch yourself at the floor.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=kFSnvwvc5ac",
+   "channel": "Citizen Athletics",
+   "views": 27505
+  }
+ },
+ "Slider Hamstring Curl": {
+  "pattern": "Hinge",
+  "muscles": "Hamstrings",
+  "byEquipment": {
+   "Full Gym": "Slider Hamstring Curl",
+   "Home Gym (Barbell + Dumbbells)": "Slider Hamstring Curl",
+   "Dumbbells Only": "Slider Hamstring Curl",
+   "Bodyweight Only": "Slider Hamstring Curl (towel on a smooth floor)"
+  },
+  "cue": "Bridge up, slide out slowly, curl back.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=HAQpsaX3s2o",
+   "channel": "Fitasamamabear Strength Training & Nutrition Coach",
+   "views": null
+  }
+ },
+ "Seated Calf Raise": {
+  "pattern": "Calves",
+  "muscles": "Calves (soleus)",
+  "byEquipment": {
+   "Full Gym": "Seated Calf Raise Machine",
+   "Home Gym (Barbell + Dumbbells)": "Barbell Seated Calf Raise",
+   "Dumbbells Only": "Dumbbell Seated Calf Raise",
+   "Bodyweight Only": "Bodyweight Seated Calf Raise (pulses)"
+  },
+  "cue": "Bent knees target the soleus. Pause at the top.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=6O5hh1rBtx8",
+   "channel": "Colossus Fitness",
+   "views": null
+  }
+ },
+ "Banded Lateral Walk": {
+  "pattern": "Single leg",
+  "muscles": "Glute medius",
+  "byEquipment": {
+   "Full Gym": "Cable Hip Abduction",
+   "Home Gym (Barbell + Dumbbells)": "Banded Lateral Walk",
+   "Dumbbells Only": "Banded Lateral Walk",
+   "Bodyweight Only": "Side-Lying Leg Raise (bodyweight)"
+  },
+  "cue": "Stay in a quarter squat and keep tension on the band.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=rPTkrAJ6Fh4",
+   "channel": "Orillia Sports Medicine And Rehabilitation",
+   "views": 105465
+  }
+ },
+ "Reverse Hyperextension": {
+  "pattern": "Hinge",
+  "muscles": "Glutes, hamstrings, low back",
+  "byEquipment": {
+   "Full Gym": "Reverse Hyperextension Machine",
+   "Home Gym (Barbell + Dumbbells)": "Bench Reverse Hyperextension",
+   "Dumbbells Only": "Bench Reverse Hyperextension (dumbbell between feet)",
+   "Bodyweight Only": "Prone Reverse Hyperextension (bench or floor)"
+  },
+  "cue": "Swing the legs up with control and avoid over-arching.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=Pqigpd54aL8",
+   "channel": "MDFit",
+   "views": null
+  }
+ },
+ "Decline Bench Press": {
+  "pattern": "Horizontal push",
+  "muscles": "Lower chest, triceps",
+  "byEquipment": {
+   "Full Gym": "Barbell Decline Bench Press",
+   "Home Gym (Barbell + Dumbbells)": "Barbell Bench Press",
+   "Dumbbells Only": "Dumbbell Bench Press (hips lifted)",
+   "Bodyweight Only": "Decline Push-Up (feet elevated)"
+  },
+  "cue": "Slight decline, bar to the lower chest.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=16yItsCGnsw",
+   "channel": "LIVESTRONG",
+   "views": 143370
+  }
+ },
+ "Machine Chest Press": {
+  "pattern": "Horizontal push",
+  "muscles": "Chest, triceps",
+  "byEquipment": {
+   "Full Gym": "Machine Chest Press",
+   "Home Gym (Barbell + Dumbbells)": "Barbell Bench Press",
+   "Dumbbells Only": "Dumbbell Bench Press",
+   "Bodyweight Only": "Push-Up"
+  },
+  "cue": "Set the handles at mid-chest and press without shrugging.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=4YpxZXFADmc",
+   "channel": "Fitness 19",
+   "views": null
+  }
+ },
+ "Pike Push-Up": {
+  "pattern": "Vertical push",
+  "muscles": "Shoulders, triceps",
+  "byEquipment": {
+   "Full Gym": "Pike Push-Up",
+   "Home Gym (Barbell + Dumbbells)": "Pike Push-Up",
+   "Dumbbells Only": "Pike Push-Up",
+   "Bodyweight Only": "Pike Push-Up"
+  },
+  "cue": "Hips high, head between the arms, press the crown forward.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=shEnAXgc9y4",
+   "channel": "Calixpert",
+   "views": null
+  }
+ },
+ "Diamond Push-Up": {
+  "pattern": "Horizontal push",
+  "muscles": "Triceps, chest",
+  "byEquipment": {
+   "Full Gym": "Diamond Push-Up",
+   "Home Gym (Barbell + Dumbbells)": "Diamond Push-Up",
+   "Dumbbells Only": "Diamond Push-Up",
+   "Bodyweight Only": "Diamond Push-Up"
+  },
+  "cue": "Hands form a diamond under the chest, elbows close.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=8_ILkbB9an8",
+   "channel": "Colossus Fitness",
+   "views": 249585
+  }
+ },
+ "Cable Crossover": {
+  "pattern": "Horizontal push",
+  "muscles": "Chest",
+  "byEquipment": {
+   "Full Gym": "Cable Crossover",
+   "Home Gym (Barbell + Dumbbells)": "Dumbbell Chest Fly",
+   "Dumbbells Only": "Dumbbell Chest Fly",
+   "Bodyweight Only": "Wide Push-Up"
+  },
+  "cue": "Soft elbows, bring the hands together in an arc.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=taI4XduLpTk",
+   "channel": "LIVESTRONG",
+   "views": 4582831
+  }
+ },
+ "Pec Deck Fly": {
+  "pattern": "Horizontal push",
+  "muscles": "Chest",
+  "byEquipment": {
+   "Full Gym": "Pec Deck Machine",
+   "Home Gym (Barbell + Dumbbells)": "Dumbbell Chest Fly",
+   "Dumbbells Only": "Dumbbell Chest Fly",
+   "Bodyweight Only": "Wide Push-Up"
+  },
+  "cue": "Squeeze the chest and keep the shoulders back.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=hZ0CGRaKwbQ",
+   "channel": "Hammer Fitness",
+   "views": 4249
+  }
+ },
+ "Z Press": {
+  "pattern": "Vertical push",
+  "muscles": "Shoulders, core",
+  "byEquipment": {
+   "Full Gym": "Barbell Z Press",
+   "Home Gym (Barbell + Dumbbells)": "Barbell Z Press",
+   "Dumbbells Only": "Dumbbell Z Press",
+   "Bodyweight Only": "Pike Push-Up"
+  },
+  "cue": "Sit on the floor with legs straight and do not lean back.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=DkI_hV92ZKg",
+   "channel": "BarBend",
+   "views": null
+  }
+ },
+ "Front Raise": {
+  "pattern": "Vertical push",
+  "muscles": "Front delts",
+  "byEquipment": {
+   "Full Gym": "Cable Front Raise",
+   "Home Gym (Barbell + Dumbbells)": "Dumbbell Front Raise",
+   "Dumbbells Only": "Dumbbell Front Raise",
+   "Bodyweight Only": "Backpack Front Raise"
+  },
+  "cue": "Raise to eye level with no swing.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=zkP0MsTcIVU",
+   "channel": "PureGym",
+   "views": null
+  }
+ },
+ "Standing Dumbbell Press": {
+  "pattern": "Vertical push",
+  "muscles": "Shoulders, triceps",
+  "byEquipment": {
+   "Full Gym": "Standing Dumbbell Press",
+   "Home Gym (Barbell + Dumbbells)": "Standing Dumbbell Press",
+   "Dumbbells Only": "Standing Dumbbell Press",
+   "Bodyweight Only": "Pike Push-Up"
+  },
+  "cue": "Squeeze the glutes and press straight overhead without leaning.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=guW_ENwLOMI",
+   "channel": "Jack Hanrahan Fitness",
+   "views": null
+  }
+ },
+ "Cable Lateral Raise": {
+  "pattern": "Vertical push",
+  "muscles": "Side delts",
+  "byEquipment": {
+   "Full Gym": "Cable Lateral Raise",
+   "Home Gym (Barbell + Dumbbells)": "Dumbbell Lateral Raise",
+   "Dumbbells Only": "Dumbbell Lateral Raise",
+   "Bodyweight Only": "Backpack Lateral Raise"
+  },
+  "cue": "Lead with the elbow and stop at shoulder height.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=Z5FA9aq3L6A",
+   "channel": "PureGym",
+   "views": 779625
+  }
+ },
+ "Triceps Kickback": {
+  "pattern": "Arms",
+  "muscles": "Triceps",
+  "byEquipment": {
+   "Full Gym": "Cable Triceps Kickback",
+   "Home Gym (Barbell + Dumbbells)": "Dumbbell Triceps Kickback",
+   "Dumbbells Only": "Dumbbell Triceps Kickback",
+   "Bodyweight Only": "Bench Dip"
+  },
+  "cue": "Upper arm pinned to the torso, extend fully.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=EnTHDwZQ2dY",
+   "channel": "Scott Abel Coaching",
+   "views": 83237
+  }
+ },
+ "JM Press": {
+  "pattern": "Horizontal push",
+  "muscles": "Triceps",
+  "byEquipment": {
+   "Full Gym": "Barbell JM Press",
+   "Home Gym (Barbell + Dumbbells)": "Barbell JM Press",
+   "Dumbbells Only": "Dumbbell JM Press",
+   "Bodyweight Only": "Close-Grip Push-Up"
+  },
+  "cue": "Elbows in, lower to the upper chest and press back.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=mTxOBkKDkzs",
+   "channel": "The Strength Archives",
+   "views": 266500
+  }
+ },
+ "Inverted Row": {
+  "pattern": "Horizontal pull",
+  "muscles": "Back, biceps",
+  "byEquipment": {
+   "Full Gym": "Inverted Row (bar in a rack)",
+   "Home Gym (Barbell + Dumbbells)": "Barbell Inverted Row",
+   "Dumbbells Only": "Dumbbell Row",
+   "Bodyweight Only": "Inverted Row (sturdy table or rail)"
+  },
+  "cue": "Body in a straight line, pull the chest to the bar.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=GdyhjXlxE-U",
+   "channel": "Colossus Fitness",
+   "views": null
+  }
+ },
+ "Meadows Row": {
+  "pattern": "Horizontal pull",
+  "muscles": "Lats, upper back",
+  "byEquipment": {
+   "Full Gym": "Landmine Meadows Row",
+   "Home Gym (Barbell + Dumbbells)": "Landmine Meadows Row (barbell in a corner)",
+   "Dumbbells Only": "Dumbbell Row (staggered stance)",
+   "Bodyweight Only": "Backpack Row (staggered stance)"
+  },
+  "cue": "Stagger the stance, row to the hip and squeeze the lat.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=G-jU1aPVhnY",
+   "channel": "mountaindog1",
+   "views": null
+  }
+ },
+ "T-Bar Row": {
+  "pattern": "Horizontal pull",
+  "muscles": "Back",
+  "byEquipment": {
+   "Full Gym": "T-Bar Row",
+   "Home Gym (Barbell + Dumbbells)": "Landmine T-Bar Row",
+   "Dumbbells Only": "Dumbbell Chest-Supported Row",
+   "Bodyweight Only": "Inverted Row (sturdy table or rail)"
+  },
+  "cue": "Chest up, pull to the lower ribs.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=oa-WYYfTYcM",
+   "channel": "Iron Paradise",
+   "views": 298
+  }
+ },
+ "Single-Arm Cable Row": {
+  "pattern": "Horizontal pull",
+  "muscles": "Lats, rhomboids",
+  "byEquipment": {
+   "Full Gym": "Single-Arm Cable Row",
+   "Home Gym (Barbell + Dumbbells)": "Dumbbell Row",
+   "Dumbbells Only": "Dumbbell Row",
+   "Bodyweight Only": "Inverted Row (sturdy table or rail)"
+  },
+  "cue": "Row to the hip and let the shoulder blade glide.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=1jN6qeXdvWA",
+   "channel": "Robur Exercise Library",
+   "views": 174316
+  }
+ },
+ "Neutral-Grip Pull-Up": {
+  "pattern": "Vertical pull",
+  "muscles": "Lats, biceps",
+  "byEquipment": {
+   "Full Gym": "Neutral-Grip Pull-Up",
+   "Home Gym (Barbell + Dumbbells)": "Neutral-Grip Pull-Up",
+   "Dumbbells Only": "Neutral-Grip Pull-Up",
+   "Bodyweight Only": "Neutral-Grip Pull-Up (parallel bars or rings)"
+  },
+  "cue": "Palms facing, chest to the bar.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=fGv2Sxw9SDQ",
+   "channel": "AMMFitness",
+   "views": 5940
+  }
+ },
+ "Wide-Grip Pull-Up": {
+  "pattern": "Vertical pull",
+  "muscles": "Lats",
+  "byEquipment": {
+   "Full Gym": "Wide-Grip Pull-Up",
+   "Home Gym (Barbell + Dumbbells)": "Wide-Grip Pull-Up",
+   "Dumbbells Only": "Wide-Grip Pull-Up",
+   "Bodyweight Only": "Wide-Grip Pull-Up"
+  },
+  "cue": "Hands wider than the shoulders, drive the elbows to the ribs.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=Hdc7Mw6BIEE",
+   "channel": "Jeff Nippard",
+   "views": null
+  }
+ },
+ "Scapular Pull-Up": {
+  "pattern": "Vertical pull",
+  "muscles": "Lower traps, lats",
+  "byEquipment": {
+   "Full Gym": "Scapular Pull-Up",
+   "Home Gym (Barbell + Dumbbells)": "Scapular Pull-Up",
+   "Dumbbells Only": "Scapular Pull-Up",
+   "Bodyweight Only": "Scapular Pull-Up"
+  },
+  "cue": "Hang with straight arms and pull the shoulder blades down.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=-ZIpSoTRsuE",
+   "channel": "Zack Henderson",
+   "views": 392474
+  }
+ },
+ "Dumbbell Pullover": {
+  "pattern": "Vertical pull",
+  "muscles": "Lats, chest",
+  "byEquipment": {
+   "Full Gym": "Dumbbell Pullover",
+   "Home Gym (Barbell + Dumbbells)": "Dumbbell Pullover",
+   "Dumbbells Only": "Dumbbell Pullover",
+   "Bodyweight Only": "Backpack Pullover (lying)"
+  },
+  "cue": "Reach back with the ribs down and pull with the lats.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=tcHaHIQStsk",
+   "channel": "Mind Pump TV",
+   "views": 581049
+  }
+ },
+ "Band Pull-Apart": {
+  "pattern": "Horizontal pull",
+  "muscles": "Rear delts, upper back",
+  "byEquipment": {
+   "Full Gym": "Band Pull-Apart",
+   "Home Gym (Barbell + Dumbbells)": "Band Pull-Apart",
+   "Dumbbells Only": "Band Pull-Apart",
+   "Bodyweight Only": "Towel Pull-Apart (isometric)"
+  },
+  "cue": "Arms straight, pull the band apart at chest level and squeeze.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=smSSXITNpCI",
+   "channel": "Rogue Fitness",
+   "views": null
+  }
+ },
+ "Shrug": {
+  "pattern": "Horizontal pull",
+  "muscles": "Upper traps",
+  "byEquipment": {
+   "Full Gym": "Barbell Shrug",
+   "Home Gym (Barbell + Dumbbells)": "Barbell Shrug",
+   "Dumbbells Only": "Dumbbell Shrug",
+   "Bodyweight Only": "Backpack Shrug"
+  },
+  "cue": "Lift straight up, hold, lower slowly.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=xiLT85G_GuU",
+   "channel": "J2FIT Strength & Conditioning",
+   "views": null
+  }
+ },
+ "Preacher Curl": {
+  "pattern": "Arms",
+  "muscles": "Biceps",
+  "byEquipment": {
+   "Full Gym": "Preacher Curl Machine",
+   "Home Gym (Barbell + Dumbbells)": "Dumbbell Preacher Curl (incline bench)",
+   "Dumbbells Only": "Dumbbell Preacher Curl (incline bench)",
+   "Bodyweight Only": "Towel Curl (isometric)"
+  },
+  "cue": "Full range, stretch at the bottom without bouncing.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=BPmUhDtdQfw",
+   "channel": "REP",
+   "views": null
+  }
+ },
+ "Concentration Curl": {
+  "pattern": "Arms",
+  "muscles": "Biceps",
+  "byEquipment": {
+   "Full Gym": "Dumbbell Concentration Curl",
+   "Home Gym (Barbell + Dumbbells)": "Dumbbell Concentration Curl",
+   "Dumbbells Only": "Dumbbell Concentration Curl",
+   "Bodyweight Only": "Backpack Concentration Curl"
+  },
+  "cue": "Elbow on the inner thigh and curl without swinging.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=4tqc6FQSHn8",
+   "channel": "Hayden Steele",
+   "views": null
+  }
+ },
+ "Zottman Curl": {
+  "pattern": "Arms",
+  "muscles": "Biceps, forearms",
+  "byEquipment": {
+   "Full Gym": "Dumbbell Zottman Curl",
+   "Home Gym (Barbell + Dumbbells)": "Dumbbell Zottman Curl",
+   "Dumbbells Only": "Dumbbell Zottman Curl",
+   "Bodyweight Only": "Backpack Zottman Curl"
+  },
+  "cue": "Curl palms up, rotate at the top, lower palms down.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=RiwNqRqNzb8",
+   "channel": "Katie Orlic",
+   "views": null
+  }
+ },
+ "Reverse Curl": {
+  "pattern": "Arms",
+  "muscles": "Forearms, brachialis",
+  "byEquipment": {
+   "Full Gym": "Barbell Reverse Curl",
+   "Home Gym (Barbell + Dumbbells)": "Barbell Reverse Curl",
+   "Dumbbells Only": "Dumbbell Reverse Curl",
+   "Bodyweight Only": "Backpack Reverse Curl"
+  },
+  "cue": "Overhand grip, elbows pinned, wrists straight.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=X5df_LHBVKQ",
+   "channel": "PureGym",
+   "views": null
+  }
+ },
+ "Wrist Curl": {
+  "pattern": "Arms",
+  "muscles": "Forearms",
+  "byEquipment": {
+   "Full Gym": "Barbell Wrist Curl",
+   "Home Gym (Barbell + Dumbbells)": "Barbell Wrist Curl",
+   "Dumbbells Only": "Dumbbell Wrist Curl",
+   "Bodyweight Only": "Towel Wring"
+  },
+  "cue": "Forearms on the thighs, roll the weight to the fingertips and curl up.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=NoO4ol8Zw2I",
+   "channel": "Jim Stoppani, PhD",
+   "views": null
+  }
+ },
+ "Hanging Leg Raise": {
+  "pattern": "Core",
+  "muscles": "Abs, hip flexors",
+  "byEquipment": {
+   "Full Gym": "Hanging Leg Raise",
+   "Home Gym (Barbell + Dumbbells)": "Hanging Leg Raise",
+   "Dumbbells Only": "Hanging Leg Raise",
+   "Bodyweight Only": "Hanging Leg Raise"
+  },
+  "cue": "No swing, lift the legs to hip height or higher.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=EYe6dc_i4L0",
+   "channel": "Zack Henderson",
+   "views": null
+  }
+ },
+ "Toes-to-Bar": {
+  "pattern": "Core",
+  "muscles": "Abs, lats",
+  "byEquipment": {
+   "Full Gym": "Toes-to-Bar",
+   "Home Gym (Barbell + Dumbbells)": "Toes-to-Bar",
+   "Dumbbells Only": "Toes-to-Bar",
+   "Bodyweight Only": "Toes-to-Bar"
+  },
+  "cue": "Pull the bar down with the lats and bring the toes to it.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=rYXXj2AMQ5c",
+   "channel": "WODprep",
+   "views": null
+  }
+ },
+ "V-Up": {
+  "pattern": "Core",
+  "muscles": "Abs",
+  "byEquipment": {
+   "Full Gym": "V-Up",
+   "Home Gym (Barbell + Dumbbells)": "V-Up",
+   "Dumbbells Only": "V-Up",
+   "Bodyweight Only": "V-Up"
+  },
+  "cue": "Reach the hands to the toes while lifting the legs.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=DfVArP2V6kg",
+   "channel": "Gymless Fitness",
+   "views": null
+  }
+ },
+ "Bicycle Crunch": {
+  "pattern": "Core",
+  "muscles": "Abs, obliques",
+  "byEquipment": {
+   "Full Gym": "Bicycle Crunch",
+   "Home Gym (Barbell + Dumbbells)": "Bicycle Crunch",
+   "Dumbbells Only": "Bicycle Crunch",
+   "Bodyweight Only": "Bicycle Crunch"
+  },
+  "cue": "Slow rotation, elbow to the opposite knee.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=VaL7XWK3MVE",
+   "channel": "Medbridge",
+   "views": null
+  }
+ },
+ "Sit-Up": {
+  "pattern": "Core",
+  "muscles": "Abs",
+  "byEquipment": {
+   "Full Gym": "Weighted Sit-Up (plate)",
+   "Home Gym (Barbell + Dumbbells)": "Weighted Sit-Up (dumbbell)",
+   "Dumbbells Only": "Weighted Sit-Up (dumbbell)",
+   "Bodyweight Only": "Sit-Up"
+  },
+  "cue": "Feet anchored, curl up with control.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=iL06z9PWYs8",
+   "channel": "Combat Fit",
+   "views": null
+  }
+ },
+ "L-Sit": {
+  "pattern": "Core",
+  "muscles": "Abs, hip flexors, triceps",
+  "byEquipment": {
+   "Full Gym": "Parallel Bar L-Sit",
+   "Home Gym (Barbell + Dumbbells)": "Parallel Bar L-Sit",
+   "Dumbbells Only": "Parallel Bar L-Sit",
+   "Bodyweight Only": "L-Sit (floor or chairs)"
+  },
+  "cue": "Press down with straight legs parallel to the floor.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=vKbcOYQQNrQ",
+   "channel": "Flow by Dominik",
+   "views": null
+  }
+ },
+ "Copenhagen Plank": {
+  "pattern": "Core",
+  "muscles": "Adductors, obliques",
+  "byEquipment": {
+   "Full Gym": "Copenhagen Plank",
+   "Home Gym (Barbell + Dumbbells)": "Copenhagen Plank",
+   "Dumbbells Only": "Copenhagen Plank",
+   "Bodyweight Only": "Copenhagen Plank"
+  },
+  "cue": "Top leg on a bench, hips stacked, lift the bottom leg.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=gsWpUFyVRyM",
+   "channel": "Emily Matt",
+   "views": null
+  }
+ },
+ "Landmine Rotation": {
+  "pattern": "Core",
+  "muscles": "Obliques",
+  "byEquipment": {
+   "Full Gym": "Landmine Rotation",
+   "Home Gym (Barbell + Dumbbells)": "Landmine Rotation (barbell in a corner)",
+   "Dumbbells Only": "Dumbbell Standing Rotation",
+   "Bodyweight Only": "Standing Torso Rotation (bodyweight)"
+  },
+  "cue": "Turn through the hips and keep the arms long.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=WnbP_2bWdKE",
+   "channel": "Your House Fitness",
+   "views": null
+  }
+ },
+ "Reverse Crunch": {
+  "pattern": "Core",
+  "muscles": "Lower abs",
+  "byEquipment": {
+   "Full Gym": "Reverse Crunch",
+   "Home Gym (Barbell + Dumbbells)": "Reverse Crunch",
+   "Dumbbells Only": "Reverse Crunch",
+   "Bodyweight Only": "Reverse Crunch"
+  },
+  "cue": "Curl the hips off the floor and do not swing.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=XY8KzdDcMFg",
+   "channel": "PureGym",
+   "views": 982046
+  }
+ },
+ "Flutter Kick": {
+  "pattern": "Core",
+  "muscles": "Lower abs",
+  "byEquipment": {
+   "Full Gym": "Flutter Kick",
+   "Home Gym (Barbell + Dumbbells)": "Flutter Kick",
+   "Dumbbells Only": "Flutter Kick",
+   "Bodyweight Only": "Flutter Kick"
+  },
+  "cue": "Low back flat, small fast kicks.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=6D23AyECRGQ",
+   "channel": "LivingFit",
+   "views": null
+  }
+ },
+ "Plank Shoulder Tap": {
+  "pattern": "Core",
+  "muscles": "Core, shoulders",
+  "byEquipment": {
+   "Full Gym": "Plank Shoulder Tap",
+   "Home Gym (Barbell + Dumbbells)": "Plank Shoulder Tap",
+   "Dumbbells Only": "Plank Shoulder Tap",
+   "Bodyweight Only": "Plank Shoulder Tap"
+  },
+  "cue": "Feet wide, hips still, tap alternating shoulders.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=eT93C-xUZI8",
+   "channel": "Spine Body Collective",
+   "views": null
+  }
+ },
+ "Lying Leg Raise": {
+  "pattern": "Core",
+  "muscles": "Lower abs",
+  "byEquipment": {
+   "Full Gym": "Lying Leg Raise",
+   "Home Gym (Barbell + Dumbbells)": "Lying Leg Raise",
+   "Dumbbells Only": "Lying Leg Raise",
+   "Bodyweight Only": "Lying Leg Raise"
+  },
+  "cue": "Press the low back down and lower the legs slowly.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=sY2ZgV2Sj_s",
+   "channel": "FIT.nl",
+   "views": null
+  }
+ },
+ "Sled Pull": {
+  "pattern": "Carry",
+  "muscles": "Quads, glutes, grip",
+  "byEquipment": {
+   "Full Gym": "Backward Sled Drag",
+   "Home Gym (Barbell + Dumbbells)": "Backward Sled Drag (or banded walk)",
+   "Dumbbells Only": "Backward Walk (dumbbells at sides)",
+   "Bodyweight Only": "Backward Walk (bodyweight)"
+  },
+  "cue": "Lean back, take small steps, drive through the quads.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=NaQt6IYoAgw",
+   "channel": "Live Lean TV Daily Exercises",
+   "views": null
+  }
+ },
+ "Kettlebell Clean": {
+  "pattern": "Power",
+  "muscles": "Glutes, hamstrings, shoulders",
+  "byEquipment": {
+   "Full Gym": "Kettlebell Clean",
+   "Home Gym (Barbell + Dumbbells)": "Dumbbell Clean",
+   "Dumbbells Only": "Dumbbell Clean",
+   "Bodyweight Only": "Hip Snap Jump (bodyweight)"
+  },
+  "cue": "Keep it close, drive the hips, catch softly.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=ZJuFcYWgHdQ",
+   "channel": "MrKettlebell",
+   "views": null
+  }
+ },
+ "Kettlebell Snatch": {
+  "pattern": "Power",
+  "muscles": "Glutes, shoulders",
+  "byEquipment": {
+   "Full Gym": "Kettlebell Snatch",
+   "Home Gym (Barbell + Dumbbells)": "Dumbbell Snatch",
+   "Dumbbells Only": "Dumbbell Snatch",
+   "Bodyweight Only": "Hip Snap Jump (bodyweight)"
+  },
+  "cue": "Hips drive it overhead and punch through at the top.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=XHlXPW8R3OU",
+   "channel": "Pat Flynn",
+   "views": 21047
+  }
+ },
+ "Hang Power Clean": {
+  "pattern": "Power",
+  "muscles": "Glutes, traps, quads",
+  "byEquipment": {
+   "Full Gym": "Barbell Hang Power Clean",
+   "Home Gym (Barbell + Dumbbells)": "Barbell Hang Power Clean",
+   "Dumbbells Only": "Dumbbell Hang Clean",
+   "Bodyweight Only": "Jump Shrug (bodyweight)"
+  },
+  "cue": "Slide the bar to the knee, jump, shrug, catch with the elbows up.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=G4uPAxxJOAs",
+   "channel": "Christian Bosse",
+   "views": null
+  }
+ },
+ "Medicine Ball Chest Pass": {
+  "pattern": "Power",
+  "muscles": "Chest, triceps",
+  "byEquipment": {
+   "Full Gym": "Medicine Ball Chest Pass (wall)",
+   "Home Gym (Barbell + Dumbbells)": "Medicine Ball Chest Pass (wall)",
+   "Dumbbells Only": "Medicine Ball Chest Pass (wall)",
+   "Bodyweight Only": "Explosive Push-Up"
+  },
+  "cue": "Drive from the chest, catch and reset.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=U1uXbG-j1NI",
+   "channel": "RockIt Fitness",
+   "views": null
+  }
+ },
+ "Medicine Ball Rotational Throw": {
+  "pattern": "Power",
+  "muscles": "Obliques, hips",
+  "byEquipment": {
+   "Full Gym": "Medicine Ball Rotational Throw (wall)",
+   "Home Gym (Barbell + Dumbbells)": "Medicine Ball Rotational Throw (wall)",
+   "Dumbbells Only": "Medicine Ball Rotational Throw (wall)",
+   "Bodyweight Only": "Explosive Standing Torso Rotation (bodyweight)"
+  },
+  "cue": "Load the back hip, rotate and release.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=o9BC7lgN1bo",
+   "channel": "Live Lean TV Daily Exercises",
+   "views": 28325
+  }
+ },
+ "Overhead Medicine Ball Throw": {
+  "pattern": "Power",
+  "muscles": "Lats, core, glutes",
+  "byEquipment": {
+   "Full Gym": "Overhead Medicine Ball Throw",
+   "Home Gym (Barbell + Dumbbells)": "Overhead Medicine Ball Throw",
+   "Dumbbells Only": "Overhead Medicine Ball Throw",
+   "Bodyweight Only": "Jump Reach (bodyweight)"
+  },
+  "cue": "Load slightly, extend the hips and throw.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=c3JOp_z-Sb4",
+   "channel": "12 Minute Athlete",
+   "views": null
+  }
+ },
+ "Tuck Jump": {
+  "pattern": "Power",
+  "muscles": "Quads, glutes",
+  "byEquipment": {
+   "Full Gym": "Tuck Jump",
+   "Home Gym (Barbell + Dumbbells)": "Tuck Jump",
+   "Dumbbells Only": "Tuck Jump",
+   "Bodyweight Only": "Tuck Jump"
+  },
+  "cue": "Jump tall, pull the knees up and land softly.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=-bnJGikRGsM",
+   "channel": "NASM",
+   "views": null
+  }
+ },
+ "Split Jump": {
+  "pattern": "Power",
+  "muscles": "Quads, glutes",
+  "byEquipment": {
+   "Full Gym": "Split Jump",
+   "Home Gym (Barbell + Dumbbells)": "Split Jump",
+   "Dumbbells Only": "Split Jump",
+   "Bodyweight Only": "Split Jump"
+  },
+  "cue": "Land soft in a lunge and switch legs in the air.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=j7ODZHSEGQA",
+   "channel": "Bobby Maximus",
+   "views": 5601
+  }
+ },
+ "Single-Leg Hop": {
+  "pattern": "Power",
+  "muscles": "Quads, calves",
+  "byEquipment": {
+   "Full Gym": "Single-Leg Hop",
+   "Home Gym (Barbell + Dumbbells)": "Single-Leg Hop",
+   "Dumbbells Only": "Single-Leg Hop",
+   "Bodyweight Only": "Single-Leg Hop"
+  },
+  "cue": "Hop in place or forward and stick the landing.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=7WgzHOQGgYw",
+   "channel": "Elevate Yourself",
+   "views": 113699
+  }
+ },
+ "Bounding": {
+  "pattern": "Power",
+  "muscles": "Glutes, hamstrings",
+  "byEquipment": {
+   "Full Gym": "Bounding (outdoor or track)",
+   "Home Gym (Barbell + Dumbbells)": "Bounding (outdoor or track)",
+   "Dumbbells Only": "Bounding (outdoor or track)",
+   "Bodyweight Only": "Bounding"
+  },
+  "cue": "Exaggerated running strides, drive the knee up and push off hard.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=oNKXelqRGoM",
+   "channel": "Lyfestyle Athletics",
+   "views": null
+  }
+ },
+ "High Knees": {
+  "pattern": "Conditioning",
+  "muscles": "Hip flexors, calves",
+  "byEquipment": {
+   "Full Gym": "High Knees",
+   "Home Gym (Barbell + Dumbbells)": "High Knees",
+   "Dumbbells Only": "High Knees",
+   "Bodyweight Only": "High Knees"
+  },
+  "cue": "Drive the knees to hip height and stay on the balls of the feet.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=WofWmk-4qU4",
+   "channel": "HIIT Academy",
+   "views": null
+  }
+ },
+ "Jumping Jack": {
+  "pattern": "Conditioning",
+  "muscles": "Full body",
+  "byEquipment": {
+   "Full Gym": "Jumping Jack",
+   "Home Gym (Barbell + Dumbbells)": "Jumping Jack",
+   "Dumbbells Only": "Jumping Jack",
+   "Bodyweight Only": "Jumping Jack"
+  },
+  "cue": "Soft knees, arms overhead, land quietly.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=uLVt6u15L98",
+   "channel": "NASM",
+   "views": null
+  }
+ },
+ "Battle Rope Wave": {
+  "pattern": "Conditioning",
+  "muscles": "Shoulders, core",
+  "byEquipment": {
+   "Full Gym": "Battle Rope Alternating Waves",
+   "Home Gym (Barbell + Dumbbells)": "Battle Rope Alternating Waves",
+   "Dumbbells Only": "Dumbbell Alternating Arm Swing (light)",
+   "Bodyweight Only": "Shadow Arm Waves (bodyweight)"
+  },
+  "cue": "Athletic stance, whip the ropes from the shoulders.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=WwojJ5IQVxU",
+   "channel": "LivingFit",
+   "views": null
+  }
+ },
+ "Battle Rope Slam": {
+  "pattern": "Conditioning",
+  "muscles": "Lats, shoulders, core",
+  "byEquipment": {
+   "Full Gym": "Battle Rope Power Slam",
+   "Home Gym (Barbell + Dumbbells)": "Battle Rope Power Slam",
+   "Dumbbells Only": "Dumbbell Thruster",
+   "Bodyweight Only": "Squat to Overhead Reach (bodyweight)"
+  },
+  "cue": "Raise overhead and slam down using the hips.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=VbpLX_iQCdc",
+   "channel": "The Gym Group",
+   "views": null
+  }
+ },
+ "Incline Treadmill Walk": {
+  "pattern": "Conditioning",
+  "muscles": "Glutes, calves",
+  "byEquipment": {
+   "Full Gym": "Incline Treadmill Walk (10 to 12 percent)",
+   "Home Gym (Barbell + Dumbbells)": "Brisk Hill or Stair Walk",
+   "Dumbbells Only": "Brisk Hill or Stair Walk",
+   "Bodyweight Only": "Brisk Hill or Stair Walk"
+  },
+  "cue": "Keep the shoulders relaxed and do not hold the handrails.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=dXYQDCyqDqI",
+   "channel": "AftannFIT",
+   "views": 8730
+  }
+ },
+ "Stationary Bike Ride": {
+  "pattern": "Conditioning",
+  "muscles": "Quads, glutes",
+  "byEquipment": {
+   "Full Gym": "Stationary Bike",
+   "Home Gym (Barbell + Dumbbells)": "Stationary Bike or Road Ride",
+   "Dumbbells Only": "Easy Road Ride or Brisk Walk",
+   "Bodyweight Only": "Brisk Walk"
+  },
+  "cue": "Smooth cadence. Keep easy rides conversational.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=TZjvXjecexI",
+   "channel": "LIVESTRONG",
+   "views": null
+  }
+ },
+ "Hill Sprint": {
+  "pattern": "Conditioning",
+  "muscles": "Glutes, hamstrings",
+  "byEquipment": {
+   "Full Gym": "Hill Sprint (or treadmill at 8 percent incline)",
+   "Home Gym (Barbell + Dumbbells)": "Hill Sprint (outdoor)",
+   "Dumbbells Only": "Hill Sprint (outdoor)",
+   "Bodyweight Only": "Hill Sprint (outdoor)"
+  },
+  "cue": "Drive the knees, lean in, walk down for full recovery.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=VzHQUh5jzsI",
+   "channel": "TaylorMade Coaching & Events",
+   "views": null
+  }
+ },
+ "Weighted Ruck March": {
+  "pattern": "Carry",
+  "muscles": "Legs, back, grip",
+  "byEquipment": {
+   "Full Gym": "Weighted Ruck March (backpack)",
+   "Home Gym (Barbell + Dumbbells)": "Weighted Ruck March (backpack)",
+   "Dumbbells Only": "Weighted Ruck March (backpack)",
+   "Bodyweight Only": "Weighted Ruck March (backpack)"
+  },
+  "cue": "Pack high and snug, walk tall at a steady pace.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=Dk07AiKLSOE",
+   "channel": "JB Outside",
+   "views": null
+  }
+ },
+ "Inchworm": {
+  "pattern": "Mobility",
+  "muscles": "Hamstrings, shoulders, core",
+  "byEquipment": {
+   "Full Gym": "Inchworm",
+   "Home Gym (Barbell + Dumbbells)": "Inchworm",
+   "Dumbbells Only": "Inchworm",
+   "Bodyweight Only": "Inchworm"
+  },
+  "cue": "Walk the hands out to a plank and back with the legs straight.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=ml3MdmCkwbQ",
+   "channel": "Born Fitness",
+   "views": null
+  }
+ },
+ "Crab Walk": {
+  "pattern": "Conditioning",
+  "muscles": "Triceps, glutes, core",
+  "byEquipment": {
+   "Full Gym": "Crab Walk",
+   "Home Gym (Barbell + Dumbbells)": "Crab Walk",
+   "Dumbbells Only": "Crab Walk",
+   "Bodyweight Only": "Crab Walk"
+  },
+  "cue": "Hips high, walk forward and back.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=VTzvPeBCzuw",
+   "channel": "MoveAbout Therapy Services",
+   "views": null
+  }
+ },
+ "Flat Sprint": {
+  "pattern": "Conditioning",
+  "muscles": "Glutes, hamstrings",
+  "byEquipment": {
+   "Full Gym": "Flat Sprint (track or field)",
+   "Home Gym (Barbell + Dumbbells)": "Flat Sprint (track or field)",
+   "Dumbbells Only": "Flat Sprint (track or field)",
+   "Bodyweight Only": "Flat Sprint (track or field)"
+  },
+  "cue": "Tall posture, drive the arms, relax the face.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=bc4-3dCPwqI",
+   "channel": "Simple Speed Coach",
+   "views": null
+  }
+ },
+ "Stair Climb": {
+  "pattern": "Conditioning",
+  "muscles": "Quads, glutes",
+  "byEquipment": {
+   "Full Gym": "Stair Climber Machine",
+   "Home Gym (Barbell + Dumbbells)": "Stair Climb (outdoor stairs)",
+   "Dumbbells Only": "Stair Climb (outdoor stairs)",
+   "Bodyweight Only": "Stair Climb (outdoor stairs)"
+  },
+  "cue": "Drive through the whole foot and stand tall.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=sCPAaFc38zc",
+   "channel": "Therani",
+   "views": 8043
+  }
+ },
+ "Shoulder Pass-Through": {
+  "pattern": "Mobility",
+  "muscles": "Shoulders, chest",
+  "byEquipment": {
+   "Full Gym": "Band Shoulder Pass-Through",
+   "Home Gym (Barbell + Dumbbells)": "Dowel or Band Shoulder Pass-Through",
+   "Dumbbells Only": "Band or Towel Shoulder Pass-Through",
+   "Bodyweight Only": "Towel Shoulder Pass-Through"
+  },
+  "cue": "Wide grip, arms straight, go only as far as you can without pain.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=riVxa9By-pM",
+   "channel": "66 Days Fitness Coaching",
+   "views": null
+  }
+ },
+ "Hip CARs": {
+  "pattern": "Mobility",
+  "muscles": "Hips",
+  "byEquipment": {
+   "Full Gym": "Standing Hip CARs",
+   "Home Gym (Barbell + Dumbbells)": "Standing Hip CARs",
+   "Dumbbells Only": "Standing Hip CARs",
+   "Bodyweight Only": "Standing Hip CARs"
+  },
+  "cue": "Draw the biggest slow circle with the knee while the torso stays still.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=zbH4XmSREoc",
+   "channel": "LivingFit",
+   "views": null
+  }
+ },
+ "Lizard Pose": {
+  "pattern": "Mobility",
+  "muscles": "Hips, groin",
+  "byEquipment": {
+   "Full Gym": "Lizard Pose",
+   "Home Gym (Barbell + Dumbbells)": "Lizard Pose",
+   "Dumbbells Only": "Lizard Pose",
+   "Bodyweight Only": "Lizard Pose"
+  },
+  "cue": "Both hands inside the front foot and sink the hips.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=qu5BcFn3ubM",
+   "channel": "Cheeky Yoga Club",
+   "views": 339
+  }
+ },
+ "Frog Stretch": {
+  "pattern": "Mobility",
+  "muscles": "Adductors",
+  "byEquipment": {
+   "Full Gym": "Frog Stretch",
+   "Home Gym (Barbell + Dumbbells)": "Frog Stretch",
+   "Dumbbells Only": "Frog Stretch",
+   "Bodyweight Only": "Frog Stretch"
+  },
+  "cue": "Knees wide, rock the hips back with a neutral spine.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=ZWqCfEqXipA",
+   "channel": "The Sustainable Training Method",
+   "views": 1699
+  }
+ },
+ "Quadruped Rock-Back": {
+  "pattern": "Mobility",
+  "muscles": "Hips",
+  "byEquipment": {
+   "Full Gym": "Quadruped Rock-Back",
+   "Home Gym (Barbell + Dumbbells)": "Quadruped Rock-Back",
+   "Dumbbells Only": "Quadruped Rock-Back",
+   "Bodyweight Only": "Quadruped Rock-Back"
+  },
+  "cue": "Keep the spine neutral and rock the hips toward the heels.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=ub7AzL_5IKo",
+   "channel": "The Doctors of Physical Therapy",
+   "views": 2429
+  }
+ },
+ "Cobra Stretch": {
+  "pattern": "Mobility",
+  "muscles": "Abs, spine",
+  "byEquipment": {
+   "Full Gym": "Cobra Stretch",
+   "Home Gym (Barbell + Dumbbells)": "Cobra Stretch",
+   "Dumbbells Only": "Cobra Stretch",
+   "Bodyweight Only": "Cobra Stretch"
+  },
+  "cue": "Hips on the floor, press up gently through the chest.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=JDcdhTuycOI",
+   "channel": "FitnessBlender",
+   "views": null
+  }
+ },
+ "Lat Stretch": {
+  "pattern": "Mobility",
+  "muscles": "Lats",
+  "byEquipment": {
+   "Full Gym": "Banded Lat Stretch",
+   "Home Gym (Barbell + Dumbbells)": "Overhead Lat Stretch (rack or doorframe)",
+   "Dumbbells Only": "Overhead Lat Stretch (doorframe)",
+   "Bodyweight Only": "Overhead Lat Stretch (doorframe)"
+  },
+  "cue": "Reach long, ribs down, sit the hips back.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=WzT33HO52O4",
+   "channel": "World Wide Athletics",
+   "views": null
+  }
+ },
+ "Calf Stretch": {
+  "pattern": "Mobility",
+  "muscles": "Calves",
+  "byEquipment": {
+   "Full Gym": "Wall Calf Stretch",
+   "Home Gym (Barbell + Dumbbells)": "Wall Calf Stretch",
+   "Dumbbells Only": "Wall Calf Stretch",
+   "Bodyweight Only": "Wall Calf Stretch"
+  },
+  "cue": "Heel down with a straight knee, then bend the knee for the soleus.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=YTYQo4WvJHA",
+   "channel": "Travis Tarrant",
+   "views": null
+  }
+ },
+ "Figure-Four Stretch": {
+  "pattern": "Mobility",
+  "muscles": "Glutes, hips",
+  "byEquipment": {
+   "Full Gym": "Figure-Four Stretch",
+   "Home Gym (Barbell + Dumbbells)": "Figure-Four Stretch",
+   "Dumbbells Only": "Figure-Four Stretch",
+   "Bodyweight Only": "Figure-Four Stretch"
+  },
+  "cue": "Ankle across the knee and pull the thigh toward the chest.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=VgjgTGnBkx0",
+   "channel": "PureGym",
+   "views": null
+  }
+ },
+ "Standing Quad Stretch": {
+  "pattern": "Mobility",
+  "muscles": "Quads",
+  "byEquipment": {
+   "Full Gym": "Standing Quad Stretch",
+   "Home Gym (Barbell + Dumbbells)": "Standing Quad Stretch",
+   "Dumbbells Only": "Standing Quad Stretch",
+   "Bodyweight Only": "Standing Quad Stretch"
+  },
+  "cue": "Knees together, tuck the pelvis and pull the heel to the glute.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=Jb6JEEUGbDY",
+   "channel": "Live Lean TV Daily Exercises",
+   "views": null
+  }
+ },
+ "Thoracic Extension on Foam Roller": {
+  "pattern": "Mobility",
+  "muscles": "Upper back",
+  "byEquipment": {
+   "Full Gym": "Thoracic Extension on Foam Roller",
+   "Home Gym (Barbell + Dumbbells)": "Thoracic Extension on Foam Roller",
+   "Dumbbells Only": "Thoracic Extension on Foam Roller",
+   "Bodyweight Only": "Thoracic Extension over a Rolled Towel"
+  },
+  "cue": "Roller across the mid-back, hands behind the head, extend gently.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=J1-aNR1yby0",
+   "channel": "Integrated Rehab and Performance Center",
+   "views": null
+  }
+ },
+ "Jefferson Curl": {
+  "pattern": "Mobility",
+  "muscles": "Hamstrings, spine",
+  "byEquipment": {
+   "Full Gym": "Jefferson Curl (light barbell)",
+   "Home Gym (Barbell + Dumbbells)": "Jefferson Curl (light barbell)",
+   "Dumbbells Only": "Jefferson Curl (light dumbbell)",
+   "Bodyweight Only": "Bodyweight Jefferson Curl"
+  },
+  "cue": "Light load, curl the spine down one segment at a time.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=nYS0R4c3qCA",
+   "channel": "Emmet Louis",
+   "views": null
+  }
+ },
+ "Spiderman Stretch": {
+  "pattern": "Mobility",
+  "muscles": "Hips, thoracic spine",
+  "byEquipment": {
+   "Full Gym": "Spiderman Stretch with Rotation",
+   "Home Gym (Barbell + Dumbbells)": "Spiderman Stretch with Rotation",
+   "Dumbbells Only": "Spiderman Stretch with Rotation",
+   "Bodyweight Only": "Spiderman Stretch with Rotation"
+  },
+  "cue": "Step into a deep lunge, hand inside, rotate and reach up.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=1g7as3OKN7I",
+   "channel": "Nottingham Physio",
+   "views": 652
+  }
+ },
+ "Terminal Knee Extension": {
+  "pattern": "Single leg",
+  "muscles": "Quads",
+  "byEquipment": {
+   "Full Gym": "Cable Terminal Knee Extension",
+   "Home Gym (Barbell + Dumbbells)": "Band Terminal Knee Extension",
+   "Dumbbells Only": "Band Terminal Knee Extension",
+   "Bodyweight Only": "Quad Set (towel under the knee)"
+  },
+  "cue": "Soft knee, straighten fully against the resistance and squeeze the quad.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=ZY09wd68TFI",
+   "channel": "Seriously Strong Training",
+   "views": null
+  }
+ },
+ "Clamshell": {
+  "pattern": "Single leg",
+  "muscles": "Glute medius",
+  "byEquipment": {
+   "Full Gym": "Banded Clamshell",
+   "Home Gym (Barbell + Dumbbells)": "Banded Clamshell",
+   "Dumbbells Only": "Banded Clamshell",
+   "Bodyweight Only": "Clamshell (bodyweight)"
+  },
+  "cue": "Hips stacked, feet together, lift the top knee without rolling back.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=aQVApsdOLSI",
+   "channel": "PostureFlow",
+   "views": null
+  }
+ },
+ "Curl-Up": {
+  "pattern": "Core",
+  "muscles": "Abs",
+  "byEquipment": {
+   "Full Gym": "Curl-Up (hands under the low back)",
+   "Home Gym (Barbell + Dumbbells)": "Curl-Up (hands under the low back)",
+   "Dumbbells Only": "Curl-Up (hands under the low back)",
+   "Bodyweight Only": "Curl-Up (hands under the low back)"
+  },
+  "cue": "Lift only the head and shoulders, hold briefly, and keep the low back still.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=I_drRVYlHbc",
+   "channel": "Prime Health Co.",
+   "views": 201048
+  }
+ },
+ "Fist Push-Up": {
+  "pattern": "Horizontal push",
+  "muscles": "Chest, triceps",
+  "byEquipment": {
+   "Full Gym": "Push-Up on Handles",
+   "Home Gym (Barbell + Dumbbells)": "Push-Up on Handles",
+   "Dumbbells Only": "Push-Up on Handles",
+   "Bodyweight Only": "Fist Push-Up"
+  },
+  "cue": "Keep the wrists straight and lower the chest between the hands.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=WH3I9ct5p5g",
+   "channel": "GKCgoju",
+   "views": null
+  }
+ },
+ "Elliptical Trainer": {
+  "pattern": "Conditioning",
+  "muscles": "Full body",
+  "byEquipment": {
+   "Full Gym": "Elliptical Trainer",
+   "Home Gym (Barbell + Dumbbells)": "Brisk Walk",
+   "Dumbbells Only": "Brisk Walk",
+   "Bodyweight Only": "Brisk Walk"
+  },
+  "cue": "Stand tall and keep smooth, even strides.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=RakIFxUmSpA",
+   "channel": "Live Lean TV Daily Exercises",
+   "views": null
+  }
+ },
+ "Cable Kickback": {
+  "pattern": "Hinge",
+  "muscles": "Glutes",
+  "byEquipment": {
+   "Full Gym": "Cable Glute Kickback (ankle strap)",
+   "Home Gym (Barbell + Dumbbells)": "Banded Glute Kickback (anchored band)",
+   "Dumbbells Only": "Dumbbell Glute Kickback (on all fours)",
+   "Bodyweight Only": "Quadruped Glute Kickback"
+  },
+  "cue": "Hips square to the floor, squeeze the glute, do not arch the low back.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=SqO-VUEak2M",
+   "channel": null,
+   "views": null
+  }
+ },
+ "Frog Pump": {
+  "pattern": "Hinge",
+  "muscles": "Glutes",
+  "byEquipment": {
+   "Full Gym": "Frog Pump (plate on hips)",
+   "Home Gym (Barbell + Dumbbells)": "Frog Pump (dumbbell on hips)",
+   "Dumbbells Only": "Frog Pump (dumbbell on hips)",
+   "Bodyweight Only": "Frog Pump"
+  },
+  "cue": "Soles together, knees out, drive the hips up and squeeze at the top.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=L0nEfiTMTBI",
+   "channel": null,
+   "views": null
+  }
+ },
+ "Hip Abduction Machine": {
+  "pattern": "Single leg",
+  "muscles": "Glute medius, outer hips",
+  "byEquipment": {
+   "Full Gym": "Seated Hip Abduction Machine",
+   "Home Gym (Barbell + Dumbbells)": "Banded Seated Hip Abduction",
+   "Dumbbells Only": "Banded Seated Hip Abduction",
+   "Bodyweight Only": "Side-Lying Leg Raise"
+  },
+  "cue": "Lean slightly forward, push the knees out with control.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=5O_Y9l__iao",
+   "channel": null,
+   "views": null
+  }
+ },
+ "Adductor Squeeze": {
+  "pattern": "Single leg",
+  "muscles": "Inner thighs, deep core",
+  "byEquipment": {
+   "Full Gym": "Hip Adduction Machine",
+   "Home Gym (Barbell + Dumbbells)": "Pillow Squeeze Glute Bridge",
+   "Dumbbells Only": "Pillow Squeeze Glute Bridge",
+   "Bodyweight Only": "Pillow Squeeze Glute Bridge"
+  },
+  "cue": "Squeeze evenly and breathe out as you squeeze.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=dfH1vsIa7tw",
+   "channel": null,
+   "views": null
+  }
+ },
+ "Diaphragmatic Breathing": {
+  "pattern": "Mobility",
+  "muscles": "Diaphragm, pelvic floor",
+  "byEquipment": {
+   "Full Gym": "90/90 Breathing (feet on a bench)",
+   "Home Gym (Barbell + Dumbbells)": "90/90 Breathing (feet on a chair)",
+   "Dumbbells Only": "90/90 Breathing (feet on a chair)",
+   "Bodyweight Only": "90/90 Breathing (feet on a chair)"
+  },
+  "cue": "Inhale into the ribs and belly, exhale slowly and let the ribs come down.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=9fpsEIhg9j0",
+   "channel": null,
+   "views": null
+  }
+ },
+ "Heel Slide": {
+  "pattern": "Core",
+  "muscles": "Deep core",
+  "byEquipment": {
+   "Full Gym": "Supine Heel Slide",
+   "Home Gym (Barbell + Dumbbells)": "Supine Heel Slide",
+   "Dumbbells Only": "Supine Heel Slide",
+   "Bodyweight Only": "Supine Heel Slide"
+  },
+  "cue": "Keep the low back still and breathe out as the heel slides away.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=6-anByqnKp8",
+   "channel": null,
+   "views": null
+  }
+ },
+ "Single-Leg Glute Bridge": {
+  "pattern": "Hinge",
+  "muscles": "Glutes, hamstrings",
+  "byEquipment": {
+   "Full Gym": "Single-Leg Glute Bridge (plate on hips)",
+   "Home Gym (Barbell + Dumbbells)": "Single-Leg Glute Bridge (dumbbell on hips)",
+   "Dumbbells Only": "Single-Leg Glute Bridge (dumbbell on hips)",
+   "Bodyweight Only": "Single-Leg Glute Bridge"
+  },
+  "cue": "Keep the hips level and drive through the heel.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=3NXv0Nany-Q",
+   "channel": null,
+   "views": null
+  }
+ },
+ "Bear Hold": {
+  "pattern": "Core",
+  "muscles": "Core, shoulders",
+  "byEquipment": {
+   "Full Gym": "Bear Hold (knees 2 inches off the floor)",
+   "Home Gym (Barbell + Dumbbells)": "Bear Hold (knees 2 inches off the floor)",
+   "Dumbbells Only": "Bear Hold (knees 2 inches off the floor)",
+   "Bodyweight Only": "Bear Hold (knees 2 inches off the floor)"
+  },
+  "cue": "Flat back, knees hovering, breathe steadily.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=YQF45Ag_kOg",
+   "channel": null,
+   "views": null
+  }
+ },
+ "Step-Down": {
+  "pattern": "Single leg",
+  "muscles": "Quads, glutes",
+  "byEquipment": {
+   "Full Gym": "Eccentric Step-Down (box)",
+   "Home Gym (Barbell + Dumbbells)": "Eccentric Step-Down (box)",
+   "Dumbbells Only": "Eccentric Step-Down (box)",
+   "Bodyweight Only": "Eccentric Step-Down (low step)"
+  },
+  "cue": "Lower slowly for 3 seconds with the knee tracking over the middle toes.",
+  "video": {
+   "url": "https://www.youtube.com/watch?v=UfVYtlQ-5-Q",
+   "channel": null,
+   "views": null
+  }
+ }
+}
