@@ -3718,7 +3718,7 @@ header.hero .tag-btn { color: #efe4c8; border-color: #d0c2a0; }
       if (total != null) { var tr = el("div", "pts-row pp-total"); tr.appendChild(el("span", null, "Total")); tr.appendChild(el("b", null, (Math.round(total * 10) / 10).toLocaleString())); tb.appendChild(tr); }
       g.appendChild(tb); box.appendChild(g);
     }
-    group("Kingdom Warrior", [["Daily boxes", t.boxes], ["Your three habits", t.habits], ["Step bonus", t.steps], ["Protein bonus", t.protein], ["PRs (" + (t.prs / PR_PTS) + " × " + PR_PTS + ")", t.prs]], kw);
+    group("Kingdom Warrior", [["Daily habits", t.boxes + t.habits], ["Step bonus", t.steps], ["Protein bonus", t.protein], ["PRs (" + (t.prs / PR_PTS) + " × " + PR_PTS + ")", t.prs]], kw);
     group("Weekly challenges" + (range === "week" && !cw.pre ? " · Week " + cw.n : ""), [["Family", ch.family], ["Iron", ch.iron], ["Endure", ch.endure]], ch.family + ch.iron + ch.endure);
     if (cw.pre) box.appendChild(el("p", "fnote", "Weekly challenges start Monday, November 2."));
     // PR list
@@ -4724,7 +4724,7 @@ header.hero .tag-btn { color: #efe4c8; border-color: #d0c2a0; }
       "Read the coaching cue before your first set."] },
     profile: { t: "Profile", why: "A man's motto, stats and core lift PRs.", how: [
       "Stats show the full-day streak, points this week and boxes checked today.",
-      "Points breakdown shows where a man's points come from: daily boxes, his three habits, step and protein bonuses, PRs, and the Family, Iron and Endure challenges. Switch between This week and All time. Every PR is listed with the weight or volume he hit.",
+      "Points breakdown shows where a man's points come from: daily habits, step and protein bonuses, PRs, and the Family, Iron and Endure challenges. Switch between This week and All time. Every PR is listed with the weight or volume he hit.",
       "On your own profile you can update your lift PRs. The group can see them.",
       "Progress photos only show on your own profile. Other men never see them. Share one in Rally if you choose to.",
       "Compare any two dates of your photos side by side.",
