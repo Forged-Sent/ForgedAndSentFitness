@@ -904,6 +904,30 @@ header.hero .mini:hover, header.hero .pts-btn:hover { border-color: var(--gold-2
 .id-log { display: flex; flex-direction: column; gap: 10px; border-top: 1px solid var(--line); padding-top: 12px; }
 .id-q { display: grid; place-items: center; text-align: center; }
 .id-form { display: flex; flex-direction: column; gap: 12px; }
+
+/* Tags, handles, points breakdown */
+.tag-btn { position: relative; flex: none; width: 34px; height: 34px; min-height: 0; padding: 0; border-radius: 50%; border: 1.5px solid var(--muted); background: transparent; color: var(--ink); display: inline-grid; place-items: center; cursor: pointer; }
+header.hero .tag-btn { color: #efe4c8; border-color: #d0c2a0; }
+.tag-btn svg { width: 17px; height: 17px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linejoin: round; }
+.tag-btn .tag-n { position: absolute; top: -5px; right: -6px; min-width: 18px; height: 18px; padding: 0 4px; border-radius: 9px; background: var(--hot, #d0642f); color: #fff; font: 700 11px/18px var(--f-body); display: none; }
+.tag-btn.has .tag-n { display: block; } .tag-btn.has { border-color: var(--hot, #d0642f); }
+.tg-row { width: 100%; display: grid; grid-template-columns: 34px 1fr; gap: 10px; align-items: start; padding: 10px 0; border: 0; border-bottom: 1px solid var(--line); background: none; color: var(--ink); text-align: left; cursor: pointer; font: inherit; }
+.tg-row .avatar { width: 34px; height: 34px; border-radius: 50%; object-fit: cover; background: var(--surface-2); }
+.tg-row.new { background: color-mix(in srgb, var(--accent) 10%, transparent); }
+.tg-tx { display: flex; flex-direction: column; gap: 2px; min-width: 0; } .tg-tx span { font-size: 13.5px; overflow-wrap: anywhere; } .tg-tx small { color: var(--muted); font-size: 12px; }
+.post.flash { animation: fsflash 2s ease; }
+@keyframes fsflash { 0%, 40% { background: color-mix(in srgb, var(--accent) 22%, transparent); } 100% { background: transparent; } }
+@media (prefers-reduced-motion: reduce) { .post.flash { animation: none; outline: 2px solid var(--accent); } }
+.mn-t { display: flex; flex-direction: column; } .mn-t small { color: var(--muted); font-size: 12px; }
+.rp-ment { position: relative; }
+.hd-wrap { display: flex; align-items: center; gap: 0; } .hd-wrap > span { padding: 0 10px; min-height: 48px; display: grid; place-items: center; background: var(--surface-2); border: 1px solid var(--line); border-right: 0; font-family: var(--f-body); font-size: 16px; color: var(--muted); text-transform: none; letter-spacing: 0; }
+.hd-wrap .field { flex: 1; min-width: 0; }
+.p-handle { display: block; color: var(--muted); font-size: 14px; margin-top: 2px; }
+.prof-pts { display: flex; flex-direction: column; gap: 6px; }
+.prof-pts[hidden] { display: none; }
+.pp-total span, .pp-total b { font-weight: 800 !important; } .pp-total { border-bottom-width: 2px !important; }
+.pp-pr { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 9px 0; border-bottom: 1px solid var(--line); }
+.pp-pr b { display: block; font-size: 14.5px; } .pp-pr span { font-size: 13px; color: var(--muted); } .pp-pr small { flex: none; font-family: var(--f-label); font-weight: 700; letter-spacing: .06em; color: var(--accent); font-size: 12.5px; }
 </style>
 
 <script>document.documentElement.classList.add("boot"); setTimeout(function () { document.documentElement.classList.remove("boot"); }, 9000);</script>
@@ -1189,7 +1213,7 @@ header.hero .mini:hover, header.hero .pts-btn:hover { border-color: var(--gold-2
       <div class="banner-img" id="p-banner"></div>
       <div class="p-head">
         <div class="p-avatar" id="p-avatar"></div>
-        <div class="p-id"><h1 class="p-name" id="p-name"></h1><span class="tag" id="p-you" style="margin-left:0" hidden>You</span></div>
+        <div class="p-id"><h1 class="p-name" id="p-name"></h1><span class="p-handle" id="p-handle"></span><span class="tag" id="p-you" style="margin-left:0" hidden>You</span></div>
       </div>
       <div class="p-body">
         <div class="label-caps" style="font-size:13px;color:var(--brass);margin-bottom:4px">Morning motto</div>
@@ -1203,6 +1227,7 @@ header.hero .mini:hover, header.hero .pts-btn:hover { border-color: var(--gold-2
         <div class="stat"><b id="st-today">0</b><span>Boxes today</span></div>
       </div>
     </section>
+    <section class="prof-pts" id="prof-pts" aria-label="Points breakdown"></section>
     <section aria-labelledby="h-lifts">
       <div class="section-head"><h2 class="label-caps" id="h-lifts" data-sub="Your best squat, bench, deadlift and more. The group can see these.">Core lift PRs</h2></div>
       <div class="rows" id="lifts"></div>
@@ -1245,8 +1270,10 @@ header.hero .mini:hover, header.hero .pts-btn:hover { border-color: var(--gold-2
     <section aria-labelledby="h-s-prof">
       <div class="section-head"><h2 class="label-caps" id="h-s-prof">Your profile</h2></div>
       <form class="setgrp" id="motto-form" data-form="motto">
+        <label class="flabel">Handle<span class="hd-wrap"><span aria-hidden="true">@</span><input class="field" type="text" id="s-handle" maxlength="20" autocapitalize="none" autocomplete="off" spellcheck="false" placeholder="yourname" aria-describedby="s-handle-note"></span></label>
+        <p class="note" id="s-handle-note" style="margin:-4px 0 0">How the brothers tag you in Rally. 3 to 20 letters, numbers or underscores.</p>
         <label class="flabel">Morning motto<input class="field" type="text" id="s-motto" maxlength="80" placeholder="e.g. Be strong. Lead well."></label>
-        <button class="btn" type="submit">Save motto</button>
+        <button class="btn" type="submit">Save handle and motto</button>
         <p class="note" id="s-motto-status" style="margin:0"></p>
       </form>
       <div class="sub-head"><span class="label-caps">Photos</span></div>
@@ -1511,6 +1538,8 @@ header.hero .mini:hover, header.hero .pts-btn:hover { border-color: var(--gold-2
     watchHabits: function (uid, cb) { return this.db.doc("habits/" + uid).onSnapshot(function (s) { var d = s.exists ? s.data() : null; cb((d && d.slots) || {}); }, noop); },
     saveHabits: function (uid, slots) { return this.db.doc("habits/" + uid).set({ slots: slots }); },
     watchSettings: function (uid, cb) { return this.db.doc("data/users/" + uid + "/settings").onSnapshot(function (s) { cb(s.exists ? s.data() : {}); }, noop); },
+    watchSeen: function (uid, cb) { return this.db.doc("data/users/" + uid + "/seen").onSnapshot(function (s) { cb(s.exists ? (s.data() || {}) : {}); }, noop); },
+    saveSeen: function (uid, o) { return this.db.doc("data/users/" + uid + "/seen").set({ tags: Number(o.tags) || 0 }); },
     watchOnboard: function (uid, cb) { return this.db.doc("data/users/" + uid + "/onboard").onSnapshot(function (s) { cb(s.exists ? (s.data() || {}) : {}); }, noop); },
     saveOnboard: function (uid, o) { return this.db.doc("data/users/" + uid + "/onboard").set(o); },
     saveSettings: function (uid, st) { return this.db.doc("data/users/" + uid + "/settings").set(st); },
@@ -1524,7 +1553,7 @@ header.hero .mini:hover, header.hero .pts-btn:hover { border-color: var(--gold-2
     deletePost: function (id) { return this.db.doc("posts/" + id).delete(); },
     watchLikes: function (cb) { return this.db.collection("likes").onSnapshot(function (s) { cb(s.docs.map(function (d) { var x = d.data() || {}; return { id: d.id, postId: x.postId, uid: x.uid }; })); }, noop); },
     setLike: function (postId, uid, on) { var r = this.db.doc("likes/" + postId + "_" + uid); return on ? r.set({ postId: postId, uid: uid }) : r.delete(); },
-    watchReplies: function (cb) { return this.db.collection("replies").orderBy("createdAt", "asc").limit(500).onSnapshot(function (s) { cb(s.docs.map(function (d) { var x = d.data() || {}; return { id: d.id, postId: String(x.postId || ""), uid: String(x.uid || ""), text: String(x.text || "").slice(0, 500), createdAt: Number(x.createdAt) || 0 }; })); }, noop); },
+    watchReplies: function (cb) { return this.db.collection("replies").orderBy("createdAt", "asc").limit(500).onSnapshot(function (s) { cb(s.docs.map(function (d) { var x = d.data() || {}; return { id: d.id, postId: String(x.postId || ""), uid: String(x.uid || ""), text: String(x.text || "").slice(0, 500), mentions: Array.isArray(x.mentions) ? x.mentions.slice(0, 20) : [], createdAt: Number(x.createdAt) || 0 }; })); }, noop); },
     addReply: function (r) { return this.db.collection("replies").add(r); },
     deleteReply: function (id) { return this.db.doc("replies/" + id).delete(); },
     watchIdeas: function (cb) { return this.db.collection("ideas").orderBy("createdAt", "desc").limit(200).onSnapshot(function (s) { cb(s.docs.map(function (d) { return normIdea(d.id, d.data()); }).filter(function (x) { return x.name && x.uid; })); }, noop); },
@@ -1536,11 +1565,11 @@ header.hero .mini:hover, header.hero .pts-btn:hover { border-color: var(--gold-2
         var m = {};
         s.docs.forEach(function (d) { var x = d.data() || {}; var prs = {};
           Object.keys(x.prs || {}).forEach(function (k) { var v = x.prs[k] || {}; if (Number(v.w) > 0) prs[k] = { w: Number(v.w), reps: Number(v.reps) || 1, date: String(v.date || "") }; });
-          m[d.id] = { motto: String(x.motto || ""), avatarId: String(x.avatarId || ""), bannerId: String(x.bannerId || ""), prs: prs }; });
+          m[d.id] = { motto: String(x.motto || ""), avatarId: String(x.avatarId || ""), bannerId: String(x.bannerId || ""), prs: prs, handle: validHandle(cleanHandle(x.handle)) ? cleanHandle(x.handle) : "" }; });
         cb(m);
       }, noop);
     },
-    saveProfile: function (uid, p) { return this.db.doc("profiles/" + uid).set({ motto: p.motto, avatarId: p.avatarId, bannerId: p.bannerId, prs: p.prs, updatedAt: Date.now() }); },
+    saveProfile: function (uid, p) { return this.db.doc("profiles/" + uid).set({ motto: p.motto, avatarId: p.avatarId, bannerId: p.bannerId, prs: p.prs, handle: p.handle || "", updatedAt: Date.now() }); },
     watchLifts: function (cb) {
       return this.db.collection("lifts").orderBy("order").onSnapshot(function (s) {
         cb(s.docs.map(function (d) { var x = d.data() || {}; return { id: d.id, name: String(x.name || "Lift"), order: Number(x.order) || 0 }; }));
@@ -1598,7 +1627,7 @@ header.hero .mini:hover, header.hero .pts-btn:hover { border-color: var(--gold-2
   var CUSTOM = ["c1", "c2", "c3"];
   var WATER_GOAL_OZ = 101.4, WATER_STEP = 8, WATER_SEGMENTS = 13; // 3 L = 101.4 oz; 13 x 8 oz clears it
   var PR_PTS = 25; // points per lift with a weight or volume PR (once per lift per day)
-  function normPrs(p) { p = p || {}; var list = (Array.isArray(p.list) ? p.list : []).slice(0, 20).map(function (x) { x = x || {}; return { l: String(x.l || "Lift").slice(0, 60), w: !!x.w, v: !!x.v }; }); return { n: Math.max(0, Math.min(20, Math.floor(Number(p.n) || 0))), list: list }; }
+  function normPrs(p) { p = p || {}; var list = (Array.isArray(p.list) ? p.list : []).slice(0, 20).map(function (x) { x = x || {}; return { l: String(x.l || "Lift").slice(0, 60), w: !!x.w, v: !!x.v, tw: Math.max(0, Number(x.tw) || 0), tv: Math.max(0, Number(x.tv) || 0) }; }); return { n: Math.max(0, Math.min(20, Math.floor(Number(p.n) || 0))), list: list }; }
   var MACROS = [
     { k: "kcal", label: "Calories", unit: "kcal" },
     { k: "p", label: "Protein", unit: "g" },
@@ -2199,7 +2228,7 @@ header.hero .mini:hover, header.hero .pts-btn:hover { border-color: var(--gold-2
         if (w || v) list.push({ k: k, l: moveName(t.g, p.equip).slice(0, 60), w: w, v: v, tw: t.maxW, bw: b.maxW, tv: Math.round(t.vol), bv: Math.round(b.vol) });
       });
       if (mode === "compute") { if (after) after(list); return; }
-      if (key === todayKey()) writeDay(function (r) { r.prs = { n: list.length, list: list.map(function (x) { return { l: x.l, w: x.w, v: x.v }; }) }; });
+      if (key === todayKey()) writeDay(function (r) { r.prs = { n: list.length, list: list.map(function (x) { return { l: x.l, w: x.w, v: x.v, tw: Number(x.tw) || 0, tv: Number(x.tv) || 0 }; }) }; });
       if (state.page === "workout" && !(document.activeElement && document.activeElement.tagName === "INPUT")) drawWorkoutPage(true);
       if (mode === "silent") return;
       showAwards(list, boxPts, prev !== null, after ? function () { after(list); } : null);
@@ -3549,6 +3578,161 @@ header.hero .mini:hover, header.hero .pts-btn:hover { border-color: var(--gold-2
       body.appendChild(f);
     }
   }
+  /* ---------- Handles, @ tags and the tag bell ---------- */
+  function cleanHandle(h) { return String(h || "").trim().replace(/^@+/, "").toLowerCase(); }
+  function validHandle(h) { return /^[a-z0-9_]{3,20}$/.test(h); }
+  function handleOf(uid) { var p = state.pubProfiles[uid]; return p && p.handle ? p.handle : ""; }
+  function handleTaken(h, uid) { return Object.keys(state.pubProfiles || {}).some(function (k) { return k !== uid && (state.pubProfiles[k] || {}).handle === h; }); }
+  function handleProblem(h) { if (!h) return "Pick a handle."; if (!validHandle(h)) return "Use 3 to 20 letters, numbers or underscores. No spaces."; if (handleTaken(h, state.me)) return "@" + h + " is taken. Try another."; return ""; }
+  function suggestHandle() { var n = String(((state.profs[state.me] || {}).name) || "").toLowerCase().replace(/[^a-z0-9]+/g, ""); n = n.slice(0, 16) || "brother"; var h = n, i = 2; while (handleTaken(h, state.me) && i < 99) h = n + i++; return validHandle(h) ? h : ""; }
+  function knownMen() { var ids = {}; Object.keys(state.pubProfiles || {}).forEach(function (k) { ids[k] = 1; }); Object.keys(state.profs || {}).forEach(function (k) { ids[k] = 1; }); state.checks.forEach(function (c) { ids[c.uid] = 1; }); delete ids[state.me]; return Object.keys(ids); }
+  function mentionMatches(q) {
+    q = String(q || "").toLowerCase();
+    return knownMen().map(function (id) { return { id: id, name: nameOf(id), handle: handleOf(id) }; })
+      .filter(function (x) { return x.name !== "Someone" || x.handle; })
+      .filter(function (x) { return !q || x.handle.indexOf(q) === 0 || x.name.toLowerCase().split(/\s+/).some(function (w) { return w.indexOf(q) === 0; }) || x.name.toLowerCase().indexOf(q) === 0; })
+      .sort(function (a, b) { return a.name < b.name ? -1 : 1; }).slice(0, 8);
+  }
+  // Adds an @ picker to any text box. store is the array that collects {id, label}.
+  function attachMentions(ta, listEl, store) {
+    function hide() { listEl.hidden = true; listEl.textContent = ""; }
+    ta.addEventListener("input", function () {
+      var pos = ta.selectionStart, before = ta.value.slice(0, pos), m = /(^|\s)@([^\s@]{0,30})$/.exec(before);
+      if (!m) { hide(); return; }
+      var start = m.index + m[1].length, people = mentionMatches(m[2]);
+      listEl.textContent = ""; if (!people.length) { hide(); return; }
+      people.forEach(function (p) {
+        var b = el("button"); b.type = "button";
+        var im = el("img", "avatar"); im.alt = ""; if (avatarSrc(p.id)) im.src = avatarSrc(p.id); b.appendChild(im);
+        var tx = el("span", "mn-t"); tx.appendChild(el("span", null, p.name)); if (p.handle) tx.appendChild(el("small", null, "@" + p.handle)); b.appendChild(tx);
+        b.addEventListener("pointerdown", function (ev) { ev.preventDefault(); });
+        b.addEventListener("click", function () {
+          var label = "@" + (p.handle || p.name), v = ta.value;
+          ta.value = v.slice(0, start) + label + " " + v.slice(pos);
+          store.push({ id: p.id, label: label });
+          var np = start + label.length + 1; ta.focus(); try { ta.setSelectionRange(np, np); } catch (e) {}
+          ta.dispatchEvent(new Event("input", { bubbles: true })); hide();
+        });
+        listEl.appendChild(b);
+      });
+      listEl.hidden = false;
+    });
+    ta.addEventListener("blur", function () { setTimeout(hide, 200); });
+  }
+  // Also catches @handles typed out in full without using the picker.
+  function mentionsIn(text, picked) {
+    var out = (picked || []).filter(function (m) { return text.indexOf(m.label) >= 0; }), have = {};
+    out.forEach(function (m) { have[m.id] = 1; });
+    (text.match(/@[a-z0-9_]{3,20}/gi) || []).forEach(function (tok) {
+      var h = tok.slice(1).toLowerCase(); Object.keys(state.pubProfiles || {}).forEach(function (k) { if (!have[k] && k !== state.me && (state.pubProfiles[k] || {}).handle === h) { out.push({ id: k, label: tok }); have[k] = 1; } });
+    });
+    return out.slice(0, 20);
+  }
+  function myTags() {
+    var me = state.me, out = []; if (!me) return out;
+    state.posts.forEach(function (p) { if (p.uid !== me && (p.mentions || []).some(function (m) { return m && m.id === me; })) out.push({ kind: "post", id: p.id, postId: p.id, uid: p.uid, text: p.text, at: p.createdAt }); });
+    (state.replies || []).forEach(function (r) { if (r.uid !== me && (r.mentions || []).some(function (m) { return m && m.id === me; })) out.push({ kind: "reply", id: r.id, postId: r.postId, uid: r.uid, text: r.text, at: r.createdAt }); });
+    return out.sort(function (a, b) { return b.at - a.at; });
+  }
+  function unreadTags() { var seen = (state.seen && state.seen.tags) || 0; return myTags().filter(function (t) { return t.at > seen; }).length; }
+  function drawTagBells() {
+    var n = unreadTags();
+    Array.prototype.forEach.call(document.querySelectorAll(".me-btn"), function (me) {
+      var b = me.parentNode.querySelector(".tag-btn");
+      if (!b) {
+        b = el("button", "tag-btn"); b.type = "button";
+        b.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 16V11a6 6 0 0 1 12 0v5l2 2H4z"/><path d="M10 20a2 2 0 0 0 4 0"/></svg><span class="tag-n"></span>';
+        b.addEventListener("click", openTags); me.parentNode.insertBefore(b, me);
+      }
+      b.querySelector(".tag-n").textContent = n ? (n > 9 ? "9+" : String(n)) : "";
+      b.classList.toggle("has", n > 0); b.hidden = !state.me;
+      b.setAttribute("aria-label", n ? n + " new " + (n === 1 ? "tag" : "tags") : "Tags");
+    });
+  }
+  function openTags() {
+    var old = $("cdlg"); if (old) old.remove();
+    var back = el("div", "cdlg"); back.id = "cdlg";
+    var box = el("div", "cdlg-box nw-box wp-box"); box.setAttribute("role", "dialog"); box.setAttribute("aria-modal", "true"); box.setAttribute("aria-labelledby", "tg-t");
+    var x = el("button", "dlg-x"); x.type = "button"; x.setAttribute("aria-label", "Close"); x.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>'; box.appendChild(x);
+    box.appendChild(el("span", "label-caps wp-k", "Rally"));
+    var t = el("h2", null, "Tagged you"); t.id = "tg-t"; box.appendChild(t);
+    var seen = (state.seen && state.seen.tags) || 0, list = myTags().slice(0, 30);
+    if (!list.length) box.appendChild(el("p", "fnote", "Nobody has tagged you yet. When a brother types @ and your name or handle in Rally, it shows up here."));
+    list.forEach(function (it) {
+      var r = el("button", "tg-row" + (it.at > seen ? " new" : "")); r.type = "button";
+      var im = el("img", "avatar"); im.alt = ""; if (avatarSrc(it.uid)) im.src = avatarSrc(it.uid); r.appendChild(im);
+      var tx = el("span", "tg-tx"); tx.appendChild(el("b", null, nameOf(it.uid) + (it.kind === "reply" ? " replied" : " posted"))); tx.appendChild(el("span", null, String(it.text || "").slice(0, 120))); tx.appendChild(el("small", null, timeLabel(it.at)));
+      r.appendChild(tx);
+      r.addEventListener("click", function () { back.remove(); showPost(it.postId, it.kind === "reply"); });
+      box.appendChild(r);
+    });
+    var ok = el("button", "btn", "Done"); ok.type = "button"; box.appendChild(ok);
+    function close() { back.remove(); }
+    ok.addEventListener("click", close); x.addEventListener("click", close); back.addEventListener("click", function (ev) { if (ev.target === back) close(); });
+    back.addEventListener("keydown", function (ev) { if (ev.key === "Escape") close(); });
+    back.appendChild(box); document.body.appendChild(back); ok.focus({ preventScroll: true });
+    // Mark everything as seen.
+    var latest = list.length ? list[0].at : 0;
+    if (latest > seen) { state.seen = Object.assign({}, state.seen || {}, { tags: latest }); drawTagBells(); if (B.db && state.me) B.saveSeen(state.me, state.seen).catch(noop); }
+  }
+  function showPost(postId, openReplies) {
+    go("checkin");
+    if (openReplies) { state.repliesAll = state.repliesAll || {}; state.repliesAll[postId] = true; refreshReplies(postId); }
+    setTimeout(function () {
+      var a = document.querySelector('#feed [data-post="' + postId + '"]'); if (!a) return;
+      try { a.scrollIntoView({ block: "center", behavior: "smooth" }); } catch (e) { a.scrollIntoView(); }
+      a.classList.add("flash"); setTimeout(function () { a.classList.remove("flash"); }, 2200);
+    }, 120);
+  }
+  /* ---------- Profile points breakdown ---------- */
+  function drawProfilePoints() {
+    var box = $("prof-pts"); if (!box) return;
+    var uid = state.viewUid || state.me; if (!uid) { box.hidden = true; return; }
+    box.hidden = false; box.textContent = "";
+    var range = state.profRange || "week", own = uid === state.me;
+    var hd = el("div", "section-head"); hd.appendChild(el("h2", "label-caps", "Points breakdown"));
+    var tabs = el("div", "tabs"); [["week", "This week"], ["all", "All time"]].forEach(function (r) { var b = el("button", null, r[1]); b.type = "button"; b.setAttribute("aria-pressed", String(range === r[0])); b.addEventListener("click", function () { state.profRange = r[0]; drawProfilePoints(); }); tabs.appendChild(b); });
+    hd.appendChild(tabs); box.appendChild(hd);
+    if (range === "all") watchAllChecks();
+    var ws = weekStartKey(), today = todayKey(), seen = {}, recs = [];
+    state.checks.forEach(function (c) { if (c.uid === uid) { seen[c.date] = 1; recs.push(c); } });
+    if (range === "all") (state.allChecks || []).forEach(function (c) { if (c.uid === uid && !seen[c.date]) recs.push(c); });
+    recs = recs.filter(function (c) { return c.date <= today && (range === "all" || c.date >= ws); });
+    var t = { boxes: 0, habits: 0, steps: 0, protein: 0, prs: 0 }, prList = [];
+    recs.forEach(function (c) {
+      var d = c.done || {};
+      state.tasks.forEach(function (tk) { if (d[tk.id]) t.boxes += tk.points; });
+      t.habits += customDone(d); t.steps += stepBonus(c.steps); t.protein += c.pbonus ? PROTEIN_BONUS : 0;
+      var pr = normPrs(c.prs); t.prs += pr.n * PR_PTS; pr.list.forEach(function (x) { prList.push(Object.assign({ date: c.date }, x)); });
+    });
+    // Weekly challenges
+    var ch = { family: 0, iron: 0, endure: 0 }, cw = chalWeekFor(today), lastWk = cw.pre ? 0 : cw.over ? CHAL.weeks.length : cw.n;
+    CHAL.weeks.forEach(function (w) {
+      if (w.week > lastWk || (range === "week" && w.week !== cw.n) || cw.pre) return;
+      w.challenges.forEach(function (c) { var r = chalStandings(c).filter(function (x) { return x.uid === uid; })[0]; if (r) ch[c.slot] += r.pts; });
+    });
+    var kw = t.boxes + t.habits + t.steps + t.protein + t.prs;
+    function group(title, rows, total) {
+      var g = el("div", "pp-g"); g.appendChild(el("div", "pts-h", title));
+      var tb = el("div", "pts-tbl"); rows.forEach(function (r) { var row = el("div", "pts-row"); row.appendChild(el("span", null, r[0])); row.appendChild(el("b", null, (Math.round(r[1] * 10) / 10).toLocaleString())); tb.appendChild(row); });
+      if (total != null) { var tr = el("div", "pts-row pp-total"); tr.appendChild(el("span", null, "Total")); tr.appendChild(el("b", null, (Math.round(total * 10) / 10).toLocaleString())); tb.appendChild(tr); }
+      g.appendChild(tb); box.appendChild(g);
+    }
+    group("Kingdom Warrior", [["Daily boxes", t.boxes], ["Your three habits", t.habits], ["Step bonus", t.steps], ["Protein bonus", t.protein], ["PRs (" + (t.prs / PR_PTS) + " × " + PR_PTS + ")", t.prs]], kw);
+    group("Weekly challenges" + (range === "week" && !cw.pre ? " · Week " + cw.n : ""), [["Family", ch.family], ["Iron", ch.iron], ["Endure", ch.endure]], ch.family + ch.iron + ch.endure);
+    if (cw.pre) box.appendChild(el("p", "fnote", "Weekly challenges start Monday, November 2."));
+    // PR list
+    var pg = el("div", "pp-g"); pg.appendChild(el("div", "pts-h", prList.length ? "PRs " + (range === "week" ? "this week" : "all time") : "PRs"));
+    if (!prList.length) pg.appendChild(el("p", "fnote", own ? "No PRs " + (range === "week" ? "this week" : "yet") + ". Beat your best weight or volume on a lift to earn 25 points." : "No PRs " + (range === "week" ? "this week" : "yet") + "."));
+    prList.sort(function (a, b) { return a.date < b.date ? 1 : -1; }).slice(0, 40).forEach(function (x) {
+      var r = el("div", "pp-pr"), tx = el("div");
+      tx.appendChild(el("b", null, x.l));
+      var parts = []; if (x.w) parts.push(x.tw ? "Weight PR " + fmtW(x.tw) + " lb" : "Weight PR"); if (x.v) parts.push(x.tv ? "Volume PR " + fmt(x.tv) + " lb" : "Volume PR");
+      tx.appendChild(el("span", null, parts.join(" · "))); r.appendChild(tx);
+      r.appendChild(el("small", null, shortDate(x.date) + " · +" + PR_PTS)); pg.appendChild(r);
+    });
+    box.appendChild(pg);
+  }
   function drawChallengeButtons() {
     var box = $("chal-btns"); if (!box) return; box.textContent = "";
     var cw = chalWeekFor(todayKey()), w = cw.w, ss = chalSeason(w.season);
@@ -3909,20 +4093,21 @@ header.hero .mini:hover, header.hero .pts-btn:hover { border-color: var(--gold-2
           var row = el("div", "reply"), ra = el("img", "avatar sm"); ra.alt = ""; if (avatarSrc(r.uid)) ra.src = avatarSrc(r.uid); makeLink(ra, r.uid); row.appendChild(ra);
           var rbx = el("div", "rp-body"), rh = el("div", "rp-head"), rn = el("span", "rp-name", nameOf(r.uid)); makeLink(rn, r.uid); rh.appendChild(rn); rh.appendChild(el("span", "ptime", timeLabel(r.createdAt)));
           if (r.uid === state.me) { var rd = el("button", "rp-del", "Delete"); rd.type = "button"; rd.setAttribute("aria-label", "Delete your reply"); rd.addEventListener("click", function () { confirmDelete({ title: "Delete this reply?", message: "Your reply will be removed from the thread.", yes: "Delete" }, function () { state.replies = state.replies.filter(function (x) { return x.id !== r.id; }); refreshReplies(p.id); if (B.db) B.deleteReply(r.id).catch(noop); }); }); rh.appendChild(rd); }
-          rbx.appendChild(rh); rbx.appendChild(el("p", "rp-text", r.text)); row.appendChild(rbx); rl.appendChild(row);
+          rbx.appendChild(rh); var rpt = el("p", "rp-text"); appendWithMentions(rpt, r.text, r.mentions || []); rbx.appendChild(rpt); row.appendChild(rbx); rl.appendChild(row);
         });
         if (state.replyOpen === p.id) {
           var rf = el("form", "rp-form"), ta = el("textarea", "field"); ta.id = "reply-in"; ta.rows = 2; ta.maxLength = 500; ta.placeholder = "Reply to " + nameOf(p.uid) + "\u2026"; ta.setAttribute("aria-label", "Your reply"); ta.value = state.replyDraft || "";
           ta.addEventListener("input", function () { state.replyDraft = ta.value; });
+          var rml = el("div", "mentions rp-ment"); rml.hidden = true; state.replyMents = state.replyMents || []; attachMentions(ta, rml, state.replyMents);
           var rr = el("div", "rp-btns"), cn = el("button", "mini", "Cancel"), go = el("button", "btn", "Reply"); cn.type = "button"; go.type = "submit";
           cn.addEventListener("click", function () { state.replyOpen = null; state.replyDraft = ""; refreshReplies(p.id); });
           rf.addEventListener("submit", function (ev) {
             ev.preventDefault(); var t = (state.replyDraft || "").trim().slice(0, 500); if (!t || !state.me) return;
-            var r = { postId: p.id, uid: state.me, text: t, createdAt: Date.now() };
+            var r = { postId: p.id, uid: state.me, text: t, mentions: mentionsIn(t, state.replyMents), createdAt: Date.now() }; state.replyMents = [];
             state.replies = (state.replies || []).concat([Object.assign({ id: "local_" + r.createdAt }, r)]); state.replyOpen = null; state.replyDraft = ""; refreshReplies(p.id);
             if (B.db) B.addReply(r).catch(function () { state.replies = state.replies.filter(function (x) { return x.id !== "local_" + r.createdAt; }); refreshReplies(p.id); });
           });
-          rr.appendChild(cn); rr.appendChild(go); rf.appendChild(ta); rf.appendChild(rr); rl.appendChild(rf);
+          rr.appendChild(cn); rr.appendChild(go); var rw = el("div", "mention-wrap"); rw.appendChild(ta); rw.appendChild(rml); rf.appendChild(rw); rf.appendChild(rr); rl.appendChild(rf);
         }
         box.appendChild(rl);
       }
@@ -3971,7 +4156,7 @@ header.hero .mini:hover, header.hero .pts-btn:hover { border-color: var(--gold-2
       e.appendChild(document.createTextNode("Be the first. Post your workout, a photo, or a word for a brother.")); feed.appendChild(e); return;
     }
     posts.forEach(function (p) {
-      var prof = state.profs[p.uid] || {}, art = el("article", "post");
+      var prof = state.profs[p.uid] || {}, art = el("article", "post"); art.dataset.post = p.id;
       var img = el("img", "avatar"); img.alt = ""; if (avatarSrc(p.uid)) img.src = avatarSrc(p.uid); makeLink(img, p.uid); art.appendChild(img);
       var body = el("div"), head = el("div", "pname"), pn = el("span", null, nameOf(p.uid));
       head.appendChild(pn); makeLink(pn, p.uid); head.appendChild(el("span", "ptime", timeLabel(p.createdAt))); body.appendChild(head);
@@ -4089,10 +4274,10 @@ header.hero .mini:hover, header.hero .pts-btn:hover { border-color: var(--gold-2
         var f = state.files[i], up = await B.upload(f);
         media.push({ id: up.id, type: (f.type || "").indexOf("video") === 0 ? "video" : "image" });
       }
-      var ments = state.mentions.filter(function (m) { return text.indexOf(m.label) >= 0; });
+      var ments = mentionsIn(text, state.mentions);
       await B.addPost({ uid: state.me, text: text, media: media, mentions: ments, createdAt: Date.now(), date: todayKey() });
       var ct = taskOfKind("checkin"); if (ct && !myDoc().done[ct.id]) toggle(ct.id);
-      $("post-text").value = ""; state.files = []; state.mentions = []; drawChips(); hideMentions();
+      $("post-text").value = ""; state.files = []; state.mentions.length = 0; drawChips(); hideMentions();
     } catch (e) {
       postError(state.files.length && e && e.code ? uploadErrText(e) : "Could not post. Check your connection and try again.");
     }
@@ -4121,7 +4306,7 @@ header.hero .mini:hover, header.hero .pts-btn:hover { border-color: var(--gold-2
     if (state.page !== "profile" && state.page !== "settings") state.prevPage = state.page;
     state.viewUid = uid || state.me; state.liftEdit = null; state.liftMsg = null; go("profile");
   }
-  function drawMeBtns() { Array.prototype.forEach.call(document.querySelectorAll(".me-btn"), function (b) { fillAvatar(b, state.me); }); }
+  function drawMeBtns() { Array.prototype.forEach.call(document.querySelectorAll(".me-btn"), function (b) { fillAvatar(b, state.me); }); drawTagBells(); }
   function recOf(uid, key) {
     for (var i = 0; i < state.checks.length; i++) { var c = state.checks[i]; if (c.date === key && c.uid === uid) return c; }
     return emptyRec(key);
@@ -4134,7 +4319,7 @@ header.hero .mini:hover, header.hero .pts-btn:hover { border-color: var(--gold-2
   function saveProfilePatch(patch) {
     if (!state.me || !state.canWrite) return;
     var cur = state.pubProfiles[state.me] || {};
-    var next = { motto: cur.motto || "", avatarId: cur.avatarId || "", bannerId: cur.bannerId || "", prs: cur.prs || {} };
+    var next = { motto: cur.motto || "", avatarId: cur.avatarId || "", bannerId: cur.bannerId || "", prs: cur.prs || {}, handle: cur.handle || "" };
     Object.keys(patch).forEach(function (k) { next[k] = patch[k]; });
     state.pubProfiles[state.me] = next; drawAll();
     if (B.db) writeChain = writeChain.then(function () { return B.saveProfile(state.me, next); }).catch(noop);
@@ -4251,7 +4436,7 @@ header.hero .mini:hover, header.hero .pts-btn:hover { border-color: var(--gold-2
     var bn = safeId(pp.bannerId); $("p-banner").style.backgroundImage = bn ? 'url("/_blob/' + bn + '")' : "";
     fillAvatar($("p-avatar"), uid);
     $("p-name").textContent = uid ? nameOf(uid) : "Not signed in";
-    $("p-you").hidden = !own;
+    $("p-you").hidden = !own; $("p-handle").textContent = handleOf(uid) ? "@" + handleOf(uid) : ""; drawProfilePoints();
     var m = $("p-motto");
     if (pp.motto) { m.textContent = pp.motto; m.className = "motto"; }
     else { m.textContent = own ? "No motto yet. Set it in Settings." : "No motto yet."; m.className = "motto none"; }
@@ -4514,7 +4699,8 @@ header.hero .mini:hover, header.hero .pts-btn:hover { border-color: var(--gold-2
     checkin: { t: "Rally", why: "The group thread. Show up, share wins and encourage a brother.", how: [
       "Write a post and add a photo or video if you want. Type @ to tag someone.",
       "Posting here checks your Daily Check-In box.",
-      "Tap Strong to back a brother's post, or Reply to answer him. You can delete your own replies.",
+      "Tap Strong to back a brother\'s post, or Reply to answer him. You can delete your own replies.",
+      "Type @ in a post or reply and pick a brother by name or handle to tag him. When someone tags you, the bell next to your profile picture shows a number. Tap it to see who tagged you.",
       "Workouts you share after finishing show up here with your PRs.",
       "What's shared here stays here. No judgment, no gossip."] },
     devo: { t: "Devotional", why: "Today's reading: open in prayer, read the Scripture, reflect, then act on it.", how: [
@@ -4538,13 +4724,14 @@ header.hero .mini:hover, header.hero .pts-btn:hover { border-color: var(--gold-2
       "Read the coaching cue before your first set."] },
     profile: { t: "Profile", why: "A man's motto, stats and core lift PRs.", how: [
       "Stats show the full-day streak, points this week and boxes checked today.",
+      "Points breakdown shows where a man's points come from: daily boxes, his three habits, step and protein bonuses, PRs, and the Family, Iron and Endure challenges. Switch between This week and All time. Every PR is listed with the weight or volume he hit.",
       "On your own profile you can update your lift PRs. The group can see them.",
       "Progress photos only show on your own profile. Other men never see them. Share one in Rally if you choose to.",
       "Compare any two dates of your photos side by side.",
       "The gear opens Settings."] },
     settings: { t: "Settings", why: "Set up your profile, body stats, goals and app preferences.", how: [
       "Tap a section to open it.",
-      "Your profile: photo, banner and morning motto.",
+      "Your profile: photo, banner, handle and morning motto.",
       "Service record (your birthday, weight, height and activity) and Your goal build your calorie plan. Protein is 1 g per lb of your goal weight by default.",
       "Daily targets: fine-tune calories and macros with the sliders.",
       "Appearance switches between dark, light or auto.",
@@ -4587,6 +4774,7 @@ header.hero .mini:hover, header.hero .pts-btn:hover { border-color: var(--gold-2
   var ONB = null, ONB_STEPS = ["welcome", "how", "profile", "service", "goal", "training", "three", "done"];
   var ONB_TIPS = {
     banner: ["Banner", "A wide photo across the top of your profile. Optional. Your gym, your family or your truck."],
+    handle: ["Handle", "Your @name in the app. The brothers type @ and your handle to tag you in Rally, and you get a notice on the bell by your profile picture. 3 to 20 letters, numbers or underscores."],
     motto: ["Morning motto", "A short line you live by. It shows on your profile, and every morning you read it to check your Morning Motto box for 1 point."],
     bday: ["Why your birthday", "Weekly challenges rank men against others their age: under 30, 30s, 40s, 50s and 60+. Your age is counted on the first day of each season. Only your bracket is shared, never your birthday."],
     wt: ["Weight", "Your current weight. Update it at each Sabbath weigh-in so your calorie plan stays accurate. Private to you."],
@@ -4612,7 +4800,7 @@ header.hero .mini:hover, header.hero .pts-btn:hover { border-color: var(--gold-2
   function openOnboarding(replay) {
     var b = state.settings.body || {}, p = planCfg(), pp = state.pubProfiles[state.me] || {};
     ONB = { i: 0, tip: "", replay: !!replay, msg: "", d: {
-      motto: pp.motto || "", bday: validBday(b.bday) ? b.bday : "", wt: b.wt || "", ft: b.ft || "", inch: b.inch != null && b.inch !== "" ? b.inch : "", act: String(b.act || 1.375),
+      motto: pp.motto || "", handle: pp.handle || suggestHandle(), bday: validBday(b.bday) ? b.bday : "", wt: b.wt || "", ft: b.ft || "", inch: b.inch != null && b.inch !== "" ? b.inch : "", act: String(b.act || 1.375),
       goal: b.goal || "lose", pace: String(b.pace || 1), gwt: b.gwt || "", program: p ? p.program : "Forged", equip: p ? p.equip : PLAN.META.equipmentSetups[0], rest: p ? p.rest : 0,
       three: CUSTOM.map(function (k) { return state.habits[k] || ""; }) }, done: {} };
     drawOnb();
@@ -4634,7 +4822,7 @@ header.hero .mini:hover, header.hero .pts-btn:hover { border-color: var(--gold-2
   }
   function onbSaveStep(k) {
     var d = ONB.d;
-    if (k === "profile") { if (d.motto.trim() !== ((state.pubProfiles[state.me] || {}).motto || "")) saveProfilePatch({ motto: d.motto.trim().slice(0, 80) }); ONB.done.profile = !!(d.motto.trim() || avatarSrc(state.me)); }
+    if (k === "profile") { var hh = cleanHandle(d.handle), pp1 = state.pubProfiles[state.me] || {}; if (d.motto.trim() !== (pp1.motto || "") || hh !== (pp1.handle || "")) saveProfilePatch({ motto: d.motto.trim().slice(0, 80), handle: hh }); ONB.done.profile = !!(d.motto.trim() || avatarSrc(state.me)); }
     if (k === "service" || k === "goal") { state.settings.body = onbBodyMerged(); saveSettings(); ONB.done.service = !!(validBday(d.bday) && +d.wt > 0 && +d.ft > 0); }
     if (k === "training") {
       var p = planCfg(), np = { program: d.program, equip: d.equip, rest: +d.rest, fourth: !!(p && p.fourth) };
@@ -4645,6 +4833,7 @@ header.hero .mini:hover, header.hero .pts-btn:hover { border-color: var(--gold-2
   }
   function onbGo(delta) {
     var k = ONB_STEPS[ONB.i];
+    if (delta > 0 && k === "profile") { var hp = cleanHandle(ONB.d.handle), cur0 = handleOf(state.me), bad0 = hp === cur0 && hp ? "" : handleProblem(hp); if (bad0) { ONB.msg = bad0; ONB.tip = ""; drawOnb(); var hi = $("onb-handle"); if (hi) hi.focus(); return; } ONB.d.handle = hp; }
     if (delta > 0 && ["profile", "service", "goal", "training", "three"].indexOf(k) >= 0) onbSaveStep(k);
     ONB.i = Math.max(0, Math.min(ONB_STEPS.length - 1, ONB.i + delta)); ONB.tip = ""; ONB.msg = "";
     drawOnb(); var o = $("onb-body"); if (o) o.scrollTop = 0;
@@ -4741,6 +4930,7 @@ header.hero .mini:hover, header.hero .pts-btn:hover { border-color: var(--gold-2
       bw.appendChild(bn); onbTip(bw, "banner"); body.appendChild(bw);
       if (!canUp && state.me) body.appendChild(el("p", "onb-note", "Photo uploads aren\u2019t turned on for your account in this app right now. You can add photos later in Settings. (not_granted)"));
       if (ONB.msg) body.appendChild(el("p", "onb-note", ONB.msg));
+      onbField(body, "Handle", "handle", "handle", "text", { maxlength: "20", placeholder: "yourname", autocomplete: "off", autocapitalize: "none", spellcheck: "false" });
       onbField(body, "Morning motto", "motto", "motto", "text", { maxlength: "80", placeholder: "e.g. Be strong. Lead well.", autocomplete: "off" });
       next(); back();
     } else if (k === "service") {
@@ -4794,7 +4984,7 @@ header.hero .mini:hover, header.hero .pts-btn:hover { border-color: var(--gold-2
       onbFinish();
       h("Ready for duty", "You're set");
       var b0 = state.settings.body || {}, p0 = planCfg(), t0 = state.settings.targets, pp0 = state.pubProfiles[state.me] || {}, hab = CUSTOM.filter(function (c) { return state.habits[c]; }).length;
-      var items = [["Profile and motto", !!(pp0.motto || avatarSrc(state.me))], ["Service record" + (validBday(b0.bday) ? " · " + bracketLabel(myBracketFor(b0.bday)) : ""), !!(validBday(b0.bday) && b0.wt)],
+      var items = [["Profile" + (pp0.handle ? " \u00B7 @" + pp0.handle : ""), !!(pp0.handle || pp0.motto || avatarSrc(state.me))], ["Service record" + (validBday(b0.bday) ? " · " + bracketLabel(myBracketFor(b0.bday)) : ""), !!(validBday(b0.bday) && b0.wt)],
         [t0 && t0.kcal ? fmt(t0.kcal) + " kcal · " + t0.p + " g protein" : "Daily targets", !!(t0 && t0.kcal)], [p0 ? p0.program + " · " + DAYN[p0.rest] + " Sabbath" : "Training plan", !!p0], ["Your three" + (hab ? " · " + hab : ""), hab > 0]];
       var cl2 = el("div", "onb-check"); items.forEach(function (x) { var r = el("div", "onb-ci"); r.appendChild(el("span", "bx" + (x[1] ? " done" : ""))); r.appendChild(el("span", null, x[0])); r.appendChild(el("small", null, x[1] ? "Done" : "Skipped")); cl2.appendChild(r); });
       body.appendChild(cl2); body.appendChild(el("p", "onb-note", "Anything skipped can be finished in Settings."));
@@ -5457,7 +5647,7 @@ header.hero .mini:hover, header.hero .pts-btn:hover { border-color: var(--gold-2
     var av = safeId(pp.avatarId), bn = safeId(pp.bannerId);
     $("s-av-thumb").style.backgroundImage = av ? 'url("/_blob/' + av + '")' : ""; $("s-bn-thumb").style.backgroundImage = bn ? 'url("/_blob/' + bn + '")' : "";
     $("s-av-rm").hidden = !av; $("s-bn-rm").hidden = !bn;
-    fillForm("motto", function () { $("s-motto").value = pp.motto || ""; });
+    fillForm("motto", function () { $("s-motto").value = pp.motto || ""; $("s-handle").value = pp.handle || ""; });
     fillForm("body", function () {
       var b = st.body || {};
       $("b-bday").value = validBday(b.bday) ? b.bday : ""; $("b-age").value = validBday(b.bday) ? ageOn(b.bday, todayKey()) : (b.age || ""); $("b-age").readOnly = validBday(b.bday); $("b-wt").value = b.wt || ""; $("b-ft").value = b.ft || ""; $("b-in").value = b.inch != null ? b.inch : "";
@@ -5682,9 +5872,12 @@ header.hero .mini:hover, header.hero .pts-btn:hover { border-color: var(--gold-2
       if (f && f.dataset.form === "body") renderCalc();
     });
     $("motto-form").addEventListener("submit", function (ev) {
-      ev.preventDefault(); state.dirty.motto = false;
-      saveProfilePatch({ motto: $("s-motto").value.trim().slice(0, 80) });
-      $("s-motto-status").textContent = "Motto saved.";
+      ev.preventDefault();
+      var h = cleanHandle($("s-handle").value), cur = handleOf(state.me);
+      if (h || cur) { var bad = h === cur ? "" : handleProblem(h); if (bad) { $("s-motto-status").textContent = bad; $("s-handle").focus(); return; } }
+      state.dirty.motto = false;
+      saveProfilePatch({ motto: $("s-motto").value.trim().slice(0, 80), handle: h });
+      $("s-handle").value = h; $("s-motto-status").textContent = "Saved.";
     });
     $("s-av-file").addEventListener("change", function (ev) { uploadPhoto(ev.target.files[0], "avatarId"); ev.target.value = ""; });
     $("s-bn-file").addEventListener("change", function (ev) { uploadPhoto(ev.target.files[0], "bannerId"); ev.target.value = ""; });
@@ -5742,7 +5935,7 @@ header.hero .mini:hover, header.hero .pts-btn:hover { border-color: var(--gold-2
   var allChecksSub = null;
   function watchAllChecks() {
     if (allChecksSub || !B.db) return;
-    allChecksSub = B.watchChecks("2000-01-01", function (rows) { state.allChecks = rows; if (state.range === "all") drawBoard(); });
+    allChecksSub = B.watchChecks("2000-01-01", function (rows) { state.allChecks = rows; if (state.range === "all") drawBoard(); if (state.page === "profile" && state.profRange === "all") drawProfilePoints(); });
   }
   function subscribeWindows() {
     var low = lowKey();
@@ -5796,8 +5989,7 @@ header.hero .mini:hover, header.hero .pts-btn:hover { border-color: var(--gold-2
     $("plan-cancel").addEventListener("click", function () { state.planEdit = false; drawPlan(); });
     $("plan-form").addEventListener("submit", submitPlan);
     $("composer").addEventListener("submit", submitPost);
-    $("post-text").addEventListener("input", onComposerInput);
-    $("post-text").addEventListener("blur", function () { setTimeout(hideMentions, 200); });
+    attachMentions($("post-text"), $("mention-list"), state.mentions);
     $("post-file").addEventListener("change", async function (ev) {
       var list = Array.prototype.slice.call(ev.target.files); ev.target.value = ""; postError("");
       for (var i = 0; i < list.length; i++) {
@@ -5848,6 +6040,7 @@ header.hero .mini:hover, header.hero .pts-btn:hover { border-color: var(--gold-2
         drawChallengeButtons(); if (state.page === "chal" && !(chalForm && chalForm.busy)) drawChallengePage(); loadProfiles();
       });
       B.watchProgress(state.me, function (rows) { state.progress = rows.map(normProg).filter(function (x) { return /^\d{4}-\d{2}-\d{2}$/.test(x.date); }); drawProgress(); drawToday(); });
+      B.watchSeen(state.me, function (o) { state.seen = { tags: Number(o.tags) || 0 }; drawTagBells(); });
       B.watchOnboard(state.me, function (o) {
         state.onboard = { done: !!o.done, at: Number(o.at) || 0, ordersDone: !!o.ordersDone }; state.onboardLoaded = true;
         if (state.onboard.done && ONB && !ONB.replay && ONB.i === 0) closeOnb();
@@ -5857,10 +6050,10 @@ header.hero .mini:hover, header.hero .pts-btn:hover { border-color: var(--gold-2
         state.settings = { blocked: (st && st.blocked) || {}, targets: (st && st.targets) || null, body: (st && st.body) || null, reminders: (st && st.reminders) || null, health: (st && st.health) || null, plan: (st && st.plan) || null, theme: (st && st.theme) || null, autofill: (st && st.autofill) || null, favs: (st && Array.isArray(st.favs)) ? st.favs.slice(0, 60) : [], myMeals: (st && Array.isArray(st.myMeals)) ? st.myMeals.slice(0, 30) : [], preps: (st && Array.isArray(st.preps)) ? st.preps.slice(0, 40) : [], swapAlways: (st && st.swapAlways && typeof st.swapAlways === "object") ? st.swapAlways : {}, onboard: (st && st.onboard && typeof st.onboard === "object") ? st.onboard : null }; if (state.settings.theme) applyTheme(state.settings.theme, false); state.settingsLoaded = true; drawAll(); drawFeed(); refreshHealth(); onbMaybeStart();
       });
     }
-    B.watchPosts(function (rows) { state.posts = rows; drawFeed(); loadProfiles(); });
+    B.watchPosts(function (rows) { state.posts = rows; drawFeed(); loadProfiles(); drawTagBells(); });
     // Likes only update the Strong buttons in place. Rebuilding the thread is what made the page jump.
     B.watchLikes(function (rows) { state.likes = rows; refreshLikes(); });
-    B.watchReplies(function (rows) { state.replies = rows; drawFeed(); loadProfiles(); });
+    B.watchReplies(function (rows) { state.replies = rows; drawFeed(); loadProfiles(); drawTagBells(); });
     B.watchIdeas(function (rows) { state.ideas = rows; if (state.page === "ideas" && !ideaUI.busy && ideaUI.view !== "new") drawIdeas(); loadProfiles(); });
     subscribeWindows(); drawAll(); loadProfiles();
     setInterval(function () { subscribeWindows(); drawAll(); }, 60000);
