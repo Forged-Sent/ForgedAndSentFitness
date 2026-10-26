@@ -1055,10 +1055,10 @@ header.hero .tag-btn { color: #efe4c8; border-color: #d0c2a0; }
       <form class="water-row" id="water-form" novalidate>
         <button class="btn" type="button" id="water-add" aria-label="Add 8 oz">+8</button>
         <button class="btn ghost" type="button" id="water-sub-btn" aria-label="Remove 8 oz">&minus;8</button>
-        <div class="wc-in"><input class="field" type="number" id="water-oz" min="1" max="200" step="1" inputmode="numeric" placeholder="Custom" aria-label="Custom amount in ounces" aria-describedby="water-err"><span aria-hidden="true">oz</span></div>
+        <div class="wc-in"><input class="field" type="number" id="water-oz" min="1" step="1" inputmode="numeric" placeholder="Custom" aria-label="Custom amount in ounces" aria-describedby="water-err"><span aria-hidden="true">oz</span></div>
         <button class="btn" type="submit" id="water-oz-add">Add</button>
       </form>
-      <p class="error" id="water-err" hidden>Enter between 1 and 200 oz.</p>
+      <p class="error" id="water-err" hidden>Enter how many ounces you drank.</p>
     </section>
 
     <section aria-labelledby="h-food">
@@ -6289,7 +6289,7 @@ header.hero .tag-btn { color: #efe4c8; border-color: #d0c2a0; }
     $("water-sub-btn").addEventListener("click", function () { addWater(-WATER_STEP); });
     $("water-form").addEventListener("submit", function (ev) {
       ev.preventDefault(); var inp = $("water-oz"), v = Math.round(parseFloat(inp.value));
-      if (!isFinite(v) || v < 1 || v > 200) { $("water-err").hidden = false; inp.focus(); return; }
+      if (!isFinite(v) || v < 1) { $("water-err").hidden = false; inp.focus(); return; }
       $("water-err").hidden = true; inp.value = ""; inp.blur(); addWater(v);
     });
     $("water-oz").addEventListener("input", function () { $("water-err").hidden = true; });
