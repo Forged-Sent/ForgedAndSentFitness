@@ -791,6 +791,21 @@ button.fo-item { cursor: pointer; min-height: 44px; }
 
 @media (prefers-reduced-motion: reduce) { .meter > i, .box { transition: none; } .strip { scroll-behavior: auto; } }
 @media (max-width: 380px) { h1 { font-size: 27px; } h1.pg { font-size: 26px; } .name { font-size: 16.5px; } .row { gap: 10px; } .tabbar button { font-size: 10.5px; letter-spacing: 0; padding-left: 0; padding-right: 0; } }
+
+/* Form controls: one height and width everywhere (iOS draws date and select boxes its own size otherwise). */
+input.field, select.field { height: 48px; min-height: 48px; min-width: 0; max-width: 100%; font-size: 16px; line-height: 1.2; }
+select.field { -webkit-appearance: none; appearance: none; padding-right: 38px; background-repeat: no-repeat; background-position: right 12px center; background-size: 14px 14px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238a8470' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E"); }
+input.field[type="date"], input.field[type="time"] { -webkit-appearance: none; appearance: none; display: block; width: 100%; text-align: left; }
+input.field[type="date"]::-webkit-date-and-time-value, input.field[type="time"]::-webkit-date-and-time-value { text-align: left; margin: 0; }
+input.field[type="date"]::-webkit-calendar-picker-indicator { opacity: .6; }
+.wu-line input.field { height: 44px; min-height: 44px; }
+.onb-lbl { min-height: 24px; }
+.onb-f > .field, .onb-f > select.field { width: 100%; }
+.fgrid > .flabel { justify-content: space-between; }
+.onb-row2 { align-items: stretch; }
+.onb-row2 > .onb-f { justify-content: flex-end; }
+.onb-row2 > .onb-f > .onb-lbl { margin-bottom: auto; }
 </style>
 
 <script>document.documentElement.classList.add("boot"); setTimeout(function () { document.documentElement.classList.remove("boot"); }, 9000);</script>
