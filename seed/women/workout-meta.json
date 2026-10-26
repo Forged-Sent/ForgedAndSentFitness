@@ -31,5 +31,6 @@
  "alternatesDesign": "alternates.json maps movement -> reason -> up to 4 swap movements (nearest first). Reasons: No Barbell, No Bench, No Pull-Up Bar, No Cable or Machine, Knee, Hip, Low Back, Shoulder, Elbow or Wrist, Low Impact, Pelvic Floor, Any Discomfort. Pelvic Floor replaces jumping, running and straining core work with lower-pressure options. Not medical advice.",
  "audience": "women",
  "cycleNotesNote": "cycle-notes.json holds optional cycle-phase prompts. Core and Optional day notes in workout-themes.json include one optional sentence pointing to them. They are suggestions, not rules.",
- "toggleNote": "Separate set for the sex toggle: load seed/women/* when the user selects female, and seed/* (root) for male. Same schema in both."
+ "toggleNote": "Separate set for the sex toggle: load seed/women/* when the user selects female, and seed/* (root) for male. Same schema in both.",
+ "recoveryDesign": "Recovery days (templateDay 2 and 4) need no equipment in every setup: an easy walk or jog plus floor, wall and bodyweight mobility. Their movements resolve to the same equipment-free exercise in all four setups."
 }

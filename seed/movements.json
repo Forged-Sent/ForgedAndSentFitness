@@ -1395,7 +1395,7 @@
   "pattern": "Conditioning",
   "muscles": "Heart",
   "byEquipment": {
-   "Full Gym": "Easy Aerobic (bike, rower, or treadmill)",
+   "Full Gym": "Brisk Walk or Easy Jog",
    "Home Gym (Barbell + Dumbbells)": "Brisk Walk or Easy Jog",
    "Dumbbells Only": "Brisk Walk or Easy Jog",
    "Bodyweight Only": "Brisk Walk or Easy Jog"

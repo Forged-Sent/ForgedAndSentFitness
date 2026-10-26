@@ -1395,7 +1395,7 @@
   "pattern": "Conditioning",
   "muscles": "Heart",
   "byEquipment": {
-   "Full Gym": "Easy Aerobic (bike, rower, or treadmill)",
+   "Full Gym": "Brisk Walk or Easy Jog",
    "Home Gym (Barbell + Dumbbells)": "Brisk Walk or Easy Jog",
    "Dumbbells Only": "Brisk Walk or Easy Jog",
    "Bodyweight Only": "Brisk Walk or Easy Jog"
@@ -3550,7 +3550,7 @@
   "pattern": "Mobility",
   "muscles": "Diaphragm, pelvic floor",
   "byEquipment": {
-   "Full Gym": "90/90 Breathing (feet on a bench)",
+   "Full Gym": "90/90 Breathing (feet on a chair)",
    "Home Gym (Barbell + Dumbbells)": "90/90 Breathing (feet on a chair)",
    "Dumbbells Only": "90/90 Breathing (feet on a chair)",
    "Bodyweight Only": "90/90 Breathing (feet on a chair)"
