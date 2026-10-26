@@ -806,6 +806,74 @@ input.field[type="date"]::-webkit-calendar-picker-indicator { opacity: .6; }
 .onb-row2 { align-items: stretch; }
 .onb-row2 > .onb-f { justify-content: flex-end; }
 .onb-row2 > .onb-f > .onb-lbl { margin-bottom: auto; }
+
+/* ===== Mission theme: night bars, parchment pages, brass and olive ===== */
+:root {
+  --bg: #15130f; --surface: #1f1c16; --surface-2: #2a261e; --ink: #efe4c8; --muted: #a3977a; --line: #3a3326;
+  --accent: #c29a45; --accent-ink: #15130f; --brass: #e0bb62; --hot: #d0642f; --danger: #e2766b;
+  --night: #15130f; --night-2: #1f1c16; --gold: #c29a45; --gold-2: #e0bb62; --olive: #7d8c45; --hero-ink: #f2e8cd; --hero-muted: #d0c2a0;
+}
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) { --bg: #ece3cc; --surface: #f6f0de; --surface-2: #e2d6b8; --ink: #1d1a14; --muted: #6a6150; --line: #cbbd98;
+    --accent: #5d6b2f; --accent-ink: #f6f0de; --brass: #8a6a1f; --hot: #b4532a; --danger: #a4281c; --olive: #5d6b2f; }
+}
+:root[data-theme="light"] { --bg: #ece3cc; --surface: #f6f0de; --surface-2: #e2d6b8; --ink: #1d1a14; --muted: #6a6150; --line: #cbbd98;
+  --accent: #5d6b2f; --accent-ink: #f6f0de; --brass: #8a6a1f; --hot: #b4532a; --danger: #a4281c; --olive: #5d6b2f; }
+body { background: var(--bg); }
+/* App bar */
+.appbar { flex: 0 0 auto; display: flex; align-items: center; justify-content: center; gap: 8px; padding: calc(8px + env(safe-area-inset-top, 0px)) 16px 8px; background: var(--night); color: var(--hero-ink); border-bottom: 1px solid #2a261e;
+  font-family: var(--f-label); font-weight: 700; letter-spacing: .18em; text-transform: uppercase; font-size: 12.5px; }
+.appbar svg { width: 15px; height: 17px; } .appbar svg path, .appbar svg line { fill: none; stroke: var(--gold-2); stroke-width: 9; }
+/* Hero bands on page headers */
+header.hero, .devo-head.hero { position: relative; overflow: hidden; margin: -20px -16px 0; padding: 18px 16px 20px; border-bottom: 3px solid var(--gold); color: var(--hero-ink);
+  background: linear-gradient(180deg, rgba(10,9,7,.1), rgba(10,9,7,.8)), linear-gradient(160deg, #6b5a3c 0%, #3c3324 42%, #1a1712 100%); }
+header.hero > *:not(.hero-mtn), .devo-head.hero > *:not(.hero-mtn) { position: relative; }
+.hero-mtn { position: absolute; left: 0; right: 0; bottom: 0; width: 100%; height: 62%; pointer-events: none; }
+header.hero h1, .devo-head.hero h1 { color: var(--hero-ink); }
+header.hero h1.brand, header.hero h1.pg { font-family: var(--f-label); font-weight: 800; text-transform: uppercase; letter-spacing: .02em; line-height: .95; }
+header.hero h1.brand { font-size: 38px; } header.hero h1.pg { font-size: 32px; }
+header.hero .date, header.hero .label-caps, .devo-head.hero .label-caps { color: var(--gold-2) !important; }
+header.hero .mission, header.hero p, .devo-head.hero p, .devo-head.hero .note { color: var(--hero-muted) !important; }
+header.hero .help-btn { border-color: #d0c2a0; color: #efe4c8; }
+header.hero .me-btn { border-color: var(--gold); }
+header.hero .streak { color: var(--gold-2); }
+header.hero .mini, header.hero .pts-btn { background: rgba(21,19,15,.55); color: var(--hero-ink); border-color: #6b5f45; }
+header.hero .mini:hover, header.hero .pts-btn:hover { border-color: var(--gold-2); }
+/* Day progress panel */
+.ready { margin: -32px -16px 0; background: var(--night-2); color: var(--hero-ink); padding: 12px 16px; display: flex; gap: 16px; align-items: center; }
+.ready[hidden] { display: none; }
+.rd-ring { position: relative; width: 92px; height: 92px; flex: none; }
+.rd-ring svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+.rd-ring circle { fill: none; stroke-width: 3; } .rd-bg { stroke: #3a3326; } .rd-fg { stroke: var(--gold-2); stroke-linecap: round; transition: stroke-dasharray .4s ease; }
+.rd-v { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; font-family: var(--f-label); }
+.rd-v b { font-weight: 800; font-size: 24px; line-height: 1; } .rd-v small { font-weight: 700; letter-spacing: .14em; text-transform: uppercase; font-size: 10px; color: var(--gold-2); margin-top: 2px; }
+.rd-list { list-style: none; margin: 0; padding: 0; flex: 1; display: grid; gap: 5px; font-family: var(--f-label); font-weight: 600; letter-spacing: .1em; text-transform: uppercase; font-size: 12px; }
+.rd-list li { display: flex; justify-content: space-between; } .rd-list em { font-style: normal; color: var(--gold-2); }
+@media (prefers-reduced-motion: reduce) { .rd-fg { transition: none; } }
+/* Tab bar */
+.tabbar { background: var(--night) !important; border-top: 2px solid var(--gold) !important; }
+.tabbar button { color: #9c8f6f !important; }
+.tabbar button[aria-current="page"] { color: var(--gold-2) !important; border-top-color: var(--gold-2) !important; }
+/* Primary buttons in brass */
+.btn:not(.ghost):not(.danger):not(.cdlg-yes) { background: linear-gradient(180deg, #9a823c, #6e5c27); border-color: #5a4b1e; color: #f8f0d8; }
+.btn:not(.ghost):not(.danger):not(.cdlg-yes):disabled { opacity: .55; }
+/* Cards */
+.rows .item, .board .row, .set-card > .set-open, .chal-btn, .fo-item, .onb-ci { box-shadow: 0 1px 0 rgba(0,0,0,.06); }
+/* Weekly challenges as numbered mission cards */
+.chal-grid { grid-template-columns: 1fr !important; gap: 8px !important; }
+.chal-btn { display: grid !important; grid-template-columns: 44px 1fr auto; grid-template-rows: auto auto; column-gap: 12px; row-gap: 0; align-items: center; min-height: 68px !important; padding: 10px 12px !important;
+  background: linear-gradient(90deg, rgba(15,13,10,.94) 35%, rgba(15,13,10,.55)), linear-gradient(135deg, #6b5a3c, #221d15) !important; color: var(--hero-ink) !important; border: 1px solid #3a3326 !important; border-left: 4px solid var(--gold) !important; border-top-width: 1px !important; }
+.chal-btn.chal-family { border-left-color: var(--gold-2) !important; } .chal-btn.chal-endure { border-left-color: #d0642f !important; } .chal-btn.chal-iron { border-left-color: #7d8c45 !important; }
+.chal-btn .cb-n { grid-row: 1 / span 2; width: 40px; height: 40px; border: 1.5px solid var(--gold); display: grid; place-items: center; font-family: var(--f-label); font-weight: 800; font-size: 17px; color: var(--gold-2); }
+.chal-btn .cb-slot { grid-column: 2; color: #cbb98c !important; font-size: 11px !important; }
+.chal-btn .cb-name { grid-column: 2; font-size: 18px !important; color: var(--hero-ink); }
+.chal-btn .cb-pts { grid-column: 3; grid-row: 1 / span 2; color: var(--gold-2) !important; text-align: right; }
+.chal-btn.done .cb-pts { color: #b9c97d !important; }
+/* Devotional reading */
+.devo-head.hero h1.pg { font-family: var(--f-scripture, Georgia, serif); text-transform: none; font-size: 26px; }
+.d-read { font-family: var(--f-scripture, Georgia, serif); }
+/* Footer verse on Today */
+.anchor { border-top-color: var(--gold); }
 </style>
 
 <script>document.documentElement.classList.add("boot"); setTimeout(function () { document.documentElement.classList.remove("boot"); }, 9000);</script>
@@ -834,7 +902,7 @@ input.field[type="date"]::-webkit-calendar-picker-indicator { opacity: .6; }
     setTimeout(done, 9000);
   })();
 </script>
-<div id="app"><div id="scroll">
+<div id="app"><div class="appbar" aria-hidden="true"><svg viewBox="0 0 132 150" aria-hidden="true"><path d="M66 6 122 24v44c0 38-26 64-56 76C36 132 10 106 10 68V24z"/><line x1="66" y1="34" x2="66" y2="118"/><line x1="40" y1="62" x2="92" y2="62"/></svg><span>Forged &amp; Sent</span></div><div id="scroll">
 <main>
   <!-- TODAY -->
   <div class="page" id="page-today">
@@ -843,9 +911,10 @@ input.field[type="date"]::-webkit-calendar-picker-indicator { opacity: .6; }
         <span class="date label-caps" id="today-label">&nbsp;</span>
         <span class="right"><span class="streak label-caps" id="streak"></span><button type="button" class="me-btn" data-open="me" aria-label="Your profile"></button></span>
       </div>
-      <h1 class="brand">Forged &amp; Sent</h1>
+      <h1 class="brand">Today’s Mission</h1>
       <p class="mission" id="mission"></p>
     </header>
+    <div class="ready" id="ready" hidden></div>
 
     <section aria-labelledby="h-today">
       <div class="section-head">
@@ -1749,7 +1818,7 @@ input.field[type="date"]::-webkit-calendar-picker-indicator { opacity: .6; }
     $("streak").textContent = state.tasks.length ? (s > 0 ? "Full-day streak: " + s + (s === 1 ? " day" : " days") : "Start today. Grace for yesterday.") : "";
   }
   function drawToday() {
-    drawFirstOrders();
+    drawFirstOrders(); drawReady();
     var list = $("tasks"); list.textContent = "";
     var notice = $("notice"); notice.textContent = "";
     var rec = myDoc(), done = rec.done, log = logFor(todayKey()), t = targets();
@@ -3275,6 +3344,26 @@ input.field[type="date"]::-webkit-calendar-picker-indicator { opacity: .6; }
     if (c.scoredBy === "longest_hold") return "A video of the hold, or a photo of the timer at the end.";
     return "A video of the effort, or a photo or screenshot of your timer and count.";
   }
+  function heroArt() {
+    Array.prototype.forEach.call(document.querySelectorAll("#app main .page > header, #app .devo-head"), function (h) {
+      if (h.querySelector(".hero-mtn")) return; h.classList.add("hero"); h.insertAdjacentHTML("afterbegin", '<svg class="hero-mtn" viewBox="0 0 300 120" preserveAspectRatio="none" aria-hidden="true"><path d="M0 120V70l30-22 22 14 40-38 30 26 26-18 44 40 30-20 34 24 44-30v74z" fill="#2a241b"/><path d="M0 120V92l40-14 34 10 46-24 40 22 38-12 52 18 50-16v44z" fill="#14120e"/></svg>');
+    });
+  }
+  // Day progress: boxes done today, grouped as spirit, body and brotherhood.
+  function drawReady() {
+    var box = $("ready"); if (!box) return;
+    if (!state.me || !state.tasks.length) { box.hidden = true; return; }
+    var key = todayKey(), tasks = dayTasks(key), done = myDoc().done || {}, g = { spirit: [0, 0], body: [0, 0], brother: [0, 0] };
+    tasks.forEach(function (t) { var k = t.kind === "devo" || t.id === "t_motto" ? "spirit" : t.kind === "checkin" ? "brother" : "body"; g[k][1]++; if (done[t.id]) g[k][0]++; });
+    var all = tasks.length, n = tasks.filter(function (t) { return done[t.id]; }).length, pct = all ? n / all : 0;
+    box.hidden = false; box.textContent = "";
+    var ring = el("div", "rd-ring"); ring.innerHTML = '<svg viewBox="0 0 36 36" aria-hidden="true"><circle cx="18" cy="18" r="15.5" class="rd-bg"/><circle cx="18" cy="18" r="15.5" class="rd-fg" stroke-dasharray="' + (97.4 * pct).toFixed(1) + ' 100"/></svg>';
+    var v = el("div", "rd-v"); v.appendChild(el("b", null, n + "/" + all)); v.appendChild(el("small", null, "Boxes")); ring.appendChild(v); box.appendChild(ring);
+    ring.setAttribute("role", "img"); ring.setAttribute("aria-label", n + " of " + all + " boxes done today");
+    var ul = el("ul", "rd-list");
+    [["Spirit", g.spirit[0] + " of " + g.spirit[1]], ["Body", g.body[0] + " of " + g.body[1]], ["Brotherhood", g.brother[0] + " of " + g.brother[1]], ["Week pts", String(Math.round(weekPtsOf(state.me) * 10) / 10)], ["Streak", streak(state.me) + (streak(state.me) === 1 ? " day" : " days")]].forEach(function (x) { var li = el("li"); li.appendChild(el("span", null, x[0])); li.appendChild(el("em", null, x[1])); ul.appendChild(li); });
+    box.appendChild(ul);
+  }
   function drawChallengeButtons() {
     var box = $("chal-btns"); if (!box) return; box.textContent = "";
     var cw = chalWeekFor(todayKey()), w = cw.w, ss = chalSeason(w.season);
@@ -3285,6 +3374,7 @@ input.field[type="date"]::-webkit-calendar-picker-indicator { opacity: .6; }
     w.challenges.forEach(function (c) {
       var b = el("button", "chal-btn chal-" + c.slot + (w.gauntlet ? " gaunt" : "")); b.type = "button";
       var done = chalAttempts(c.id).length > 0;
+      b.appendChild(el("span", "cb-n", pad(w.challenges.indexOf(c) + 1)));
       b.appendChild(el("span", "cb-slot", chalSlot(c.slot).label));
       b.appendChild(el("span", "cb-name", c.name.replace(/^Gauntlet:\s*/, "")));
       var mr = done ? chalMyRow(c) : null; weekPts += mr ? mr.pts : 0;
@@ -4192,6 +4282,7 @@ input.field[type="date"]::-webkit-calendar-picker-indicator { opacity: .6; }
     try { if (screen.orientation) screen.orientation.addEventListener("change", applyPortraitLock); } catch (e) {}
   }
   initPortraitLock();
+  heroArt();
   /* ---------- Page help: the (i) bubble at the top right of every page ---------- */
   var HELP = {
     today: { t: "Today", why: "Your daily mission. Each box is a habit that earns points for you on the Board.", how: [
