@@ -4478,7 +4478,10 @@ header.hero .mini:hover, header.hero .pts-btn:hover { border-color: var(--gold-2
       "Weigh-in and progress photos only show on your Sabbath.",
       "Your three: add up to three personal habits of your own. Each is worth 1 point.",
       "Your streak counts days in a row with every daily box checked."] },
-    fuel: { t: "Fuel", why: "Track what you eat and drink against your daily calorie and macro targets.", how: [
+    fuel: { t: "Fuel", why: "Track what you eat and drink against your daily calorie and macro targets.", tip: function () {
+      var t = targets(), k = t ? Number(t.kcal) || 0 : 0, pr = t ? Number(t.p) || 0 : 0, w = k ? calWindow(k) : null, ck = taskOfKind("calories"), wk2 = taskOfKind("water");
+      return "Points on Fuel: your Calories box (+" + (ck ? ck.points : 1) + ") checks when you land " + calWindowText() + (w ? ", which is " + fmt(w[0]) + " to " + fmt(w[1]) + " kcal for you" : "") + ". Hit or beat your protein" + (pr ? " (" + fmt(pr) + " g)" : "") + " while staying in that window for a +" + PROTEIN_BONUS + " protein bonus. Water at your goal checks your Water box (+" + (wk2 ? wk2.points : 1) + ").";
+    }, how: [
       "The bars at the top show calories, protein, carbs and fat for today. Adjust targets takes you to your plan in Settings.",
       "Tap the water buttons as you drink. Hitting the goal checks your water box.",
       "Under each meal, use Search, Photo, Voice or Favorites to log food. Quick add is for when you only know the numbers.",
@@ -4556,7 +4559,7 @@ header.hero .mini:hover, header.hero .pts-btn:hover { border-color: var(--gold-2
     box.appendChild(el("span", "label-caps wp-k", "How this page works"));
     var t = el("h2", null, h.t); t.id = "hp-t"; box.appendChild(t);
     box.appendChild(el("p", "help-why", h.why));
-    if (h.tip) box.appendChild(el("p", "help-tip", h.tip));
+    if (h.tip) box.appendChild(el("p", "help-tip", typeof h.tip === "function" ? h.tip() : h.tip));
     var ul = el("ul", "help-list"); h.how.forEach(function (x) { ul.appendChild(el("li", null, x)); }); box.appendChild(ul);
     var ok = el("button", "btn", "Got it"); ok.type = "button"; box.appendChild(ok);
     var prev = document.activeElement;
