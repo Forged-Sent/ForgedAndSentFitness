@@ -668,6 +668,20 @@ button.fo-item { cursor: pointer; min-height: 44px; }
 .mention { color: var(--brass); font-weight: 600; }
 .media { display: flex; flex-direction: column; gap: 8px; margin-top: 10px; }
 .media img, .media video { width: 100%; max-height: 420px; object-fit: cover; background: var(--surface-2); border: 1px solid var(--line); display: block; }
+.rx-host { position: relative; -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; border-radius: 2px; transition: background-color .2s; }
+.rx-host textarea, .rx-host input { -webkit-user-select: text; user-select: text; }
+.rx-host.rx-pressing { background: color-mix(in srgb, var(--brass) 8%, transparent); }
+.rx-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; min-height: 28px; align-items: center; }
+.rx-chip { display: inline-flex; align-items: center; gap: 4px; min-height: 28px; padding: 2px 10px; border: 1px solid var(--line); border-radius: 999px; background: var(--surface-2); color: var(--ink); font-size: 14px; font-variant-numeric: tabular-nums; cursor: pointer; }
+.rx-chip.me { border-color: var(--accent); color: var(--accent); font-weight: 700; }
+.rx-hint { font-size: 12.5px; color: var(--muted); }
+.rx-pick { position: absolute; left: 0; top: -54px; z-index: 30; display: flex; gap: 2px; padding: 5px; background: var(--bg); border: 1px solid var(--line); border-radius: 999px; box-shadow: 0 8px 24px rgb(0 0 0 / .25); }
+.rx-pick button { display: grid; justify-items: center; gap: 1px; min-width: 62px; padding: 3px 6px; background: none; border: 0; border-radius: 999px; color: var(--ink); cursor: pointer; min-height: 0; }
+.rx-pick button.on { outline: 2px solid var(--accent); }
+.rx-pick button:hover, .rx-pick button:focus-visible { background: var(--surface-2); }
+.rx-pick .e { font-size: 26px; line-height: 1.1; }
+.rx-pick .l { font-family: var(--f-label); font-weight: 600; font-size: 10.5px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+@media (prefers-reduced-motion: no-preference) { .rx-pick { animation: rx-pop .18s cubic-bezier(.2,1.3,.4,1); transform-origin: 30px 100%; } @keyframes rx-pop { from { transform: scale(.6) translateY(10px); opacity: 0; } } }
 .pactions { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; align-items: center; }
 .pactions .mini { min-height: 34px; padding: 0 9px; font-size: 12px; letter-spacing: .06em; }
 .post .media img, .post .media video { min-height: 120px; background: var(--surface); }
@@ -1599,8 +1613,9 @@ header.hero .tag-btn { color: #efe4c8; border-color: #d0c2a0; }
     addPost: function (p) { return this.db.collection("posts").add(p); },
     deletePost: function (id) { return this.db.doc("posts/" + id).delete(); },
     editPost: function (id, text, mentions) { return this.db.doc("posts/" + id).update({ text: text, mentions: mentions, editedAt: Date.now() }); },
-    watchLikes: function (cb) { return this.db.collection("likes").onSnapshot(function (s) { cb(s.docs.map(function (d) { var x = d.data() || {}; return { id: d.id, postId: x.postId, uid: x.uid }; })); }, noop); },
-    setLike: function (postId, uid, on) { var r = this.db.doc("likes/" + postId + "_" + uid); return on ? r.set({ postId: postId, uid: uid }) : r.delete(); },
+    watchLikes: function (cb) { return this.db.collection("likes").onSnapshot(function (s) { cb(s.docs.map(function (d) { var x = d.data() || {}; return { id: d.id, postId: x.postId, uid: x.uid, r: REACTS.some(function (k) { return k[0] === x.r; }) ? x.r : "strong" }; })); }, noop); },
+    // One reaction per man per post. A doc with no r is an old Strong.
+    setReact: function (postId, uid, kind) { var r = this.db.doc("likes/" + postId + "_" + uid); return kind ? r.set({ postId: postId, uid: uid, r: kind }) : r.delete(); },
     watchReplies: function (cb) { return this.db.collection("replies").orderBy("createdAt", "asc").limit(500).onSnapshot(function (s) { cb(s.docs.map(function (d) { var x = d.data() || {}; return { id: d.id, postId: String(x.postId || ""), uid: String(x.uid || ""), text: String(x.text || "").slice(0, 500), mentions: Array.isArray(x.mentions) ? x.mentions.slice(0, 20) : [], createdAt: Number(x.createdAt) || 0, editedAt: Number(x.editedAt) || 0 }; })); }, noop); },
     addReply: function (r) { return this.db.collection("replies").add(r); },
     deleteReply: function (id) { return this.db.doc("replies/" + id).delete(); },
@@ -4460,16 +4475,70 @@ header.hero .tag-btn { color: #efe4c8; border-color: #d0c2a0; }
     var blocked = state.settings.blocked || {}, n = (state.replies || []).filter(function (r) { return r.postId === postId && (r.uid === state.me || !blocked[r.uid]); }).length;
     var rb = document.querySelector('#feed [data-reply="' + postId + '"]'); if (rb) { var t = "Reply" + (n ? " " + n : ""); if (rb.textContent !== t) rb.textContent = t; rb.setAttribute("aria-expanded", String(state.replyOpen === postId)); }
   }
-  function refreshLikes() {
-    var count = {}, mine = {};
-    state.likes.forEach(function (l) { count[l.postId] = (count[l.postId] || 0) + 1; if (l.uid === state.me) mine[l.postId] = true; });
-    Array.prototype.forEach.call(document.querySelectorAll("#feed [data-like]"), function (b) {
-      var id = b.dataset.like, t = STRONG + (count[id] ? " " + count[id] : "");
-      if (b.textContent !== t) b.textContent = t;
-      b.classList.toggle("on", !!mine[id]); b.setAttribute("aria-pressed", mine[id] ? "true" : "false");
-    });
+  /* ---------- Reactions: hold a post, pick one. Body, Brotherhood, Spirit. ---------- */
+  function reactsFor(postId) {
+    var c = {}, mine = "";
+    state.likes.forEach(function (l) { if (l.postId !== postId) return; c[l.r] = (c[l.r] || 0) + 1; if (l.uid === state.me) mine = l.r; });
+    return { c: c, mine: mine };
   }
-  var STRONG = "\uD83D\uDD25 Strong";
+  function setMyReact(postId, kind) {
+    if (!state.me || !state.canWrite) return;
+    var cur = reactsFor(postId).mine, next = cur === kind ? "" : kind;
+    state.likes = state.likes.filter(function (l) { return !(l.postId === postId && l.uid === state.me); });
+    if (next) state.likes = state.likes.concat([{ id: postId + "_" + state.me, postId: postId, uid: state.me, r: next }]);
+    refreshLikes();
+    if (B.db) B.setReact(postId, state.me, next).catch(noop);
+  }
+  function fillReactChips(box, postId) {
+    var rs = reactsFor(postId), can = !!(state.me && state.canWrite); box.textContent = "";
+    REACTS.forEach(function (k) {
+      var n = rs.c[k[0]] || 0; if (!n) return;
+      var b = el("button", "rx-chip" + (rs.mine === k[0] ? " me" : ""), k[1] + " " + n); b.type = "button"; b.disabled = !can;
+      b.setAttribute("aria-label", k[2] + ", " + n + (rs.mine === k[0] ? ". You reacted. Tap to take it back." : ". Tap to add yours."));
+      b.addEventListener("click", function () { setMyReact(postId, k[0]); }); box.appendChild(b);
+    });
+    if (!box.childNodes.length && can) box.appendChild(el("span", "rx-hint", "Hold to react"));
+  }
+  function refreshLikes() {
+    Array.prototype.forEach.call(document.querySelectorAll("#feed [data-reacts]"), function (b) { fillReactChips(b, b.dataset.reacts); });
+    var pk = $("rx-pick"); if (pk) { var mine = reactsFor(pk.dataset.post).mine; Array.prototype.forEach.call(pk.children, function (b) { b.classList.toggle("on", b.dataset.r === mine); b.setAttribute("aria-checked", String(b.dataset.r === mine)); }); }
+  }
+  function closeReactPicker() { var pk = $("rx-pick"); if (pk) pk.remove(); }
+  function openReactPicker(postId, host, focusFirst, atY) {
+    closeReactPicker(); if (!state.me || !state.canWrite) return;
+    var pk = el("div", "rx-pick"); pk.id = "rx-pick"; pk.dataset.post = postId; pk.setAttribute("role", "menu"); pk.setAttribute("aria-label", "React to this post");
+    var mine = reactsFor(postId).mine;
+    REACTS.forEach(function (k) {
+      var b = el("button", mine === k[0] ? "on" : ""); b.type = "button"; b.dataset.r = k[0]; b.setAttribute("role", "menuitemradio"); b.setAttribute("aria-checked", String(mine === k[0]));
+      b.appendChild(el("span", "e", k[1])); b.appendChild(el("span", "l", k[2]));
+      b.addEventListener("click", function (ev) { ev.stopPropagation(); setMyReact(postId, k[0]); closeReactPicker(); });
+      pk.appendChild(b);
+    });
+    pk.addEventListener("keydown", function (ev) { if (ev.key === "Escape") { closeReactPicker(); try { host.focus({ preventScroll: true }); } catch (e) {} } });
+    // Float it just above the finger, so it never covers the words he pressed.
+    if (atY != null) pk.style.top = Math.max(-54, Math.round(atY - host.getBoundingClientRect().top - 72)) + "px";
+    host.appendChild(pk);
+    var r0 = pk.getBoundingClientRect(); if (r0.top < 8) pk.style.top = (parseFloat(pk.style.top || "-54") + (8 - r0.top)) + "px";
+    try { if (navigator.vibrate) navigator.vibrate(12); } catch (e) {}
+    if (focusFirst) pk.querySelector("button").focus({ preventScroll: true });
+  }
+  // Press and hold anywhere on a post's body (not on its buttons, links or video) to open the picker.
+  function attachHold(bodyEl, postId) {
+    var t = null, sx = 0, sy = 0;
+    function cancel() { if (t) { clearTimeout(t); t = null; } bodyEl.classList.remove("rx-pressing"); }
+    bodyEl.addEventListener("pointerdown", function (ev) {
+      if (ev.button > 0 || !state.me || !state.canWrite) return;
+      if (ev.target.closest("button, a, video, textarea, input, .rx-pick, .ed-form, .rp-form, [data-replies]")) return;
+      sx = ev.clientX; sy = ev.clientY; bodyEl.classList.add("rx-pressing");
+      t = setTimeout(function () { t = null; bodyEl.classList.remove("rx-pressing"); openReactPicker(postId, bodyEl, false, sy); }, 450);
+    });
+    bodyEl.addEventListener("pointermove", function (ev) { if (t && (Math.abs(ev.clientX - sx) > 10 || Math.abs(ev.clientY - sy) > 10)) cancel(); });
+    ["pointerup", "pointerleave", "pointercancel"].forEach(function (n) { bodyEl.addEventListener(n, cancel); });
+    bodyEl.addEventListener("contextmenu", function (ev) { if (!ev.target.closest("a, video, textarea, input")) ev.preventDefault(); });
+    bodyEl.addEventListener("keydown", function (ev) { if (ev.target === bodyEl && (ev.key === "Enter" || ev.key === " ")) { ev.preventDefault(); openReactPicker(postId, bodyEl, true); } });
+  }
+  document.addEventListener("pointerdown", function (ev) { if ($("rx-pick") && !ev.target.closest(".rx-pick")) closeReactPicker(); }, true);
+  window.addEventListener("scroll", closeReactPicker, true);
   // Editing your own post or reply in place. The draft lives in state so a feed refresh never loses it.
   function editBox(id, cur, maxLen, onSave, onCancel) {
     var f = el("form", "ed-form"), ta = el("textarea", "field"); ta.id = "ed-" + id; ta.rows = 3; ta.maxLength = maxLen; ta.setAttribute("aria-label", "Edit your message");
@@ -4489,6 +4558,7 @@ header.hero .tag-btn { color: #efe4c8; border-color: #d0c2a0; }
     return f;
   }
   function stopEditing() { state.editing = null; state.editDraft = null; }
+  var REACTS = [["strong", "\uD83D\uDD25", "Strong"], ["brother", "\u2764\uFE0F", "Brother"], ["praying", "\uD83D\uDE4F", "Praying"]];
   var feedSig = "", repSig = "";
   function drawFeed(force) {
     var feed = $("feed"); if (!feed) return;
@@ -4512,7 +4582,6 @@ header.hero .tag-btn { color: #efe4c8; border-color: #d0c2a0; }
     var blocked = state.settings.blocked || {};
     var posts = state.posts.filter(function (p) { return p.uid === state.me || !blocked[p.uid]; });
     var likeCount = {}, mine = {};
-    state.likes.forEach(function (l) { likeCount[l.postId] = (likeCount[l.postId] || 0) + 1; if (l.uid === state.me) mine[l.postId] = true; });
     if (!posts.length) {
       var e = el("div", "empty"); e.appendChild(el("strong", null, "No posts yet"));
       e.appendChild(document.createTextNode("Be the first. Post your workout, a photo, or a word for a brother.")); feed.appendChild(e); return;
@@ -4539,18 +4608,8 @@ header.hero .tag-btn { color: #efe4c8; border-color: #d0c2a0; }
         body.appendChild(md);
       }
       var acts = el("div", "pactions");
-      var lk = el("button", "mini" + (mine[p.id] ? " on" : ""), STRONG + (likeCount[p.id] ? " " + likeCount[p.id] : "")); lk.type = "button"; lk.setAttribute("aria-label", "Strong" + (likeCount[p.id] ? ", " + likeCount[p.id] : "")); lk.dataset.like = p.id;
-      lk.setAttribute("aria-pressed", mine[p.id] ? "true" : "false"); lk.disabled = !state.me || !state.canWrite;
-      lk.addEventListener("pointerdown", function (ev) { ev.preventDefault(); });
-      lk.addEventListener("click", function (ev) {
-        ev.preventDefault(); if (!state.me) return;
-        var on = !state.likes.some(function (l) { return l.postId === p.id && l.uid === state.me; });
-        if (on) state.likes = state.likes.concat([{ id: p.id + "_" + state.me, postId: p.id, uid: state.me }]);
-        else state.likes = state.likes.filter(function (l) { return !(l.postId === p.id && l.uid === state.me); });
-        refreshLikes();
-        if (B.db) B.setLike(p.id, state.me, on).catch(noop);
-      });
-      acts.appendChild(lk);
+      var rx = el("div", "rx-chips"); rx.dataset.reacts = p.id; fillReactChips(rx, p.id); body.appendChild(rx);
+      body.classList.add("rx-host"); body.tabIndex = 0; body.setAttribute("aria-label", nameOf(p.uid) + "'s post. Press Enter to react."); attachHold(body, p.id);
       var reps = (state.replies || []).filter(function (r) { return r.postId === p.id && (r.uid === state.me || !blocked[r.uid]); });
       var rb = el("button", "mini", "Reply" + (reps.length ? " " + reps.length : "")); rb.type = "button"; rb.disabled = !state.me || !state.canWrite;
       rb.setAttribute("aria-expanded", String(state.replyOpen === p.id));
@@ -5075,7 +5134,7 @@ header.hero .tag-btn { color: #efe4c8; border-color: #d0c2a0; }
     checkin: { t: "Rally", why: "The group thread. Show up, share wins and encourage a brother.", how: [
       "Write a post and add a photo or video if you want. Type @ to tag someone.",
       "Posting here checks your Daily Check-In box.",
-      "Tap \uD83D\uDD25 Strong to back a brother\'s post, or Reply to answer him. Tap Edit to fix your own post or reply, or Delete to remove it.",
+      "Press and hold a post to react: \uD83D\uDD25 Strong for the effort, \u2764\uFE0F Brother when you\'ve got his back, \uD83D\uDE4F Praying when he asks for prayer. Tap a reaction again to take it back. Tap Reply to answer him. Tap Edit to fix your own post or reply, or Delete to remove it.",
       "Type @ in a post or reply and pick a brother by name or handle to tag him. When someone tags you, the bell next to your profile picture shows a number. Tap it to see who tagged you.",
       "Workouts you share after finishing show up here with your PRs.",
       "What's shared here stays here. No judgment, no gossip."] },
@@ -5388,7 +5447,7 @@ header.hero .tag-btn { color: #efe4c8; border-color: #d0c2a0; }
     ["fuel", "Fuel", ["Log meals with search, photo, voice or favorites.", "Tap the water buttons as you drink.", "Your Calories box checks when you land in your window: 15% under to 10% over when losing fat, within 5% when maintaining."]],
     ["train", "Train", ["Tap Start, pray the workout prayer, then tap Amen to start the clock.", "Log reps, then weight. Finish to earn 25 points for each lift PR.", "Weekly challenges are at the top. Due Sunday 8 AM Arizona time, with photo or video proof."]],
     ["board", "Board", ["Kingdom Warrior ranks the men by points: Today, This week and All time.", "Use the menu to see top PRs on each lift.", "Tap How points work for the full breakdown."]],
-    ["checkin", "Rally", ["The group thread. Post a win, a photo or a word for a brother.", "Posting checks your Daily Check-In box. Tap Strong or Reply on a brother's post.", "Keep it real. No judgment, no gossip."]]
+    ["checkin", "Rally", ["The group thread. Post a win, a photo or a word for a brother.", "Posting checks your Daily Check-In box. Hold a brother's post to react, or tap Reply.", "Keep it real. No judgment, no gossip."]]
   ];
   var tourI = -1;
   function startTour() { tourI = 0; drawTour(); }
