@@ -876,6 +876,34 @@ header.hero .mini:hover, header.hero .pts-btn:hover { border-color: var(--gold-2
 .anchor { border-top-color: var(--gold); }
 
 .dg-pre { white-space: pre-wrap; word-break: break-word; font: 11.5px/1.45 ui-monospace, Menlo, monospace; background: var(--surface); border: 1px solid var(--line); padding: 10px; max-height: 44vh; overflow: auto; margin: 0; }
+
+/* Meal ideas */
+.id-open { width: 100%; margin-top: 12px; display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 64px; padding: 10px 14px; text-align: left; background: var(--surface); border: 1px solid var(--line); border-left: 4px solid var(--gold, var(--accent)); color: var(--ink); cursor: pointer; font: inherit; }
+.id-open-t b { display: block; font-family: var(--f-label); font-weight: 800; text-transform: uppercase; letter-spacing: .04em; font-size: 17px; }
+.id-open-t small { display: block; color: var(--muted); font-size: 13px; line-height: 1.35; margin-top: 2px; }
+#ideas-body { display: flex; flex-direction: column; gap: 12px; padding-bottom: 24px; }
+.id-head .pg { margin: 4px 0 2px; } .id-lead { margin: 0; }
+.id-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.id-chip { min-height: 36px; padding: 0 12px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); font-family: var(--f-label); font-weight: 700; letter-spacing: .06em; text-transform: uppercase; font-size: 12.5px; cursor: pointer; }
+.id-chip.on { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.id-list { display: flex; flex-direction: column; gap: 8px; }
+.id-card { display: grid; grid-template-columns: 64px 1fr 14px; gap: 12px; align-items: center; padding: 10px; background: var(--surface); border: 1px solid var(--line); color: var(--ink); text-align: left; cursor: pointer; font: inherit; }
+.id-th { width: 64px; height: 64px; background: var(--surface-2) center/cover no-repeat; border: 1px solid var(--line); display: grid; place-items: center; font-family: var(--f-label); font-weight: 800; color: var(--muted); font-size: 18px; }
+.id-tx { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.id-k { font-family: var(--f-label); font-weight: 700; letter-spacing: .1em; text-transform: uppercase; font-size: 11.5px; color: var(--brass, var(--accent)); }
+.id-n { font-family: var(--f-label); font-weight: 800; text-transform: uppercase; font-size: 17px; line-height: 1.1; }
+.id-m { font-size: 12.5px; color: var(--muted); } .id-by { font-size: 12px; color: var(--muted); }
+.id-ch { color: var(--brass, var(--accent)); font-size: 20px; }
+.id-img { width: 100%; max-height: 360px; object-fit: cover; border: 1px solid var(--line); background: var(--surface-2); }
+.id-pdf { width: 100%; text-align: center; display: grid; place-items: center; text-decoration: none; }
+.id-sub { margin: 4px 0 -4px; font-size: 12.5px; color: var(--brass, var(--accent)); }
+.id-macros { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+.id-macros div { background: var(--surface); border: 1px solid var(--line); padding: 8px 6px; text-align: center; }
+.id-macros b { display: block; font-family: var(--f-label); font-weight: 800; font-size: 18px; } .id-macros span { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; font-family: var(--f-label); font-weight: 700; }
+.id-notes { margin: 0; white-space: pre-wrap; line-height: 1.5; font-size: 14.5px; }
+.id-log { display: flex; flex-direction: column; gap: 10px; border-top: 1px solid var(--line); padding-top: 12px; }
+.id-q { display: grid; place-items: center; text-align: center; }
+.id-form { display: flex; flex-direction: column; gap: 12px; }
 </style>
 
 <script>document.documentElement.classList.add("boot"); setTimeout(function () { document.documentElement.classList.remove("boot"); }, 9000);</script>
@@ -975,6 +1003,7 @@ header.hero .mini:hover, header.hero .pts-btn:hover { border-color: var(--gold-2
       <div class="section-head"><h2 class="label-caps" id="h-food">Food log</h2><span class="nums" id="food-total"></span></div>
       <button class="btn ghost" type="button" id="copy-day">Copy a previous day</button>
       <div id="meals"></div>
+      <button type="button" class="id-open" id="ideas-open"><span class="id-open-t"><b>Meal ideas</b><small>Recipes, dinners and meal preps from the brothers. Save one or log a serving.</small></span><span class="sc-chev" aria-hidden="true">&rsaquo;</span></button>
       <p class="note">Foods you log here add up to your macros above. Only you can see them.</p>
     </section>
 
@@ -1121,6 +1150,15 @@ header.hero .mini:hover, header.hero .pts-btn:hover { border-color: var(--gold-2
     </div>
     <div class="wk-clock" id="wk-clock" hidden aria-live="off"><span class="label-caps" id="wk-clock-l">Workout time</span><b id="wk-clock-t">0:00</b></div>
     <article id="wkp-body"></article>
+  </div>
+
+  <!-- MEAL IDEAS -->
+  <div class="page" id="page-ideas" hidden>
+    <div class="pbar">
+      <button class="mini" type="button" id="ideas-back">&lsaquo; Fuel</button>
+      <span class="date label-caps">Meal ideas</span>
+    </div>
+    <article id="ideas-body"></article>
   </div>
 
   <!-- WEEKLY CHALLENGE -->
@@ -1429,7 +1467,7 @@ header.hero .mini:hover, header.hero .pts-btn:hover { border-color: var(--gold-2
       if (!t && file && /\.(jpe?g)$/i.test(file.name || "")) t = "image/jpeg";
       if (!t && file && /\.png$/i.test(file.name || "")) t = "image/png";
       if (t === "video/quicktime") { var eq = new Error("mov"); eq.code = "unsupported_type"; eq.mov = true; return Promise.reject(eq); }
-      var ok = ["image/jpeg", "image/png", "image/gif", "image/webp", "video/mp4", "video/webm"];
+      var ok = ["image/jpeg", "image/png", "image/gif", "image/webp", "video/mp4", "video/webm", "application/pdf"];
       if (ok.indexOf(t) < 0) { var et = new Error("type " + t); et.code = "unsupported_type"; return Promise.reject(et); }
       var body = file instanceof Blob ? file.slice(0, file.size, t) : file;
       var send = function () { return a.upload(body, { type: t }); };
@@ -1489,6 +1527,9 @@ header.hero .mini:hover, header.hero .pts-btn:hover { border-color: var(--gold-2
     watchReplies: function (cb) { return this.db.collection("replies").orderBy("createdAt", "asc").limit(500).onSnapshot(function (s) { cb(s.docs.map(function (d) { var x = d.data() || {}; return { id: d.id, postId: String(x.postId || ""), uid: String(x.uid || ""), text: String(x.text || "").slice(0, 500), createdAt: Number(x.createdAt) || 0 }; })); }, noop); },
     addReply: function (r) { return this.db.collection("replies").add(r); },
     deleteReply: function (id) { return this.db.doc("replies/" + id).delete(); },
+    watchIdeas: function (cb) { return this.db.collection("ideas").orderBy("createdAt", "desc").limit(200).onSnapshot(function (s) { cb(s.docs.map(function (d) { return normIdea(d.id, d.data()); }).filter(function (x) { return x.name && x.uid; })); }, noop); },
+    addIdea: function (x) { return this.db.collection("ideas").add(x); },
+    deleteIdea: function (id) { return this.db.doc("ideas/" + id).delete(); },
     report: function (postId, by, authorUid) { return this.db.collection("reports").add({ postId: postId, by: by, author: authorUid, createdAt: Date.now() }); },
     watchProfiles: function (cb) {
       return this.db.collection("profiles").onSnapshot(function (s) {
@@ -1516,7 +1557,7 @@ header.hero .mini:hover, header.hero .pts-btn:hover { border-color: var(--gold-2
           await db.doc(coll + "/" + d.id).delete();
         }
       }
-      await purge("posts", "uid"); await purge("likes", "uid"); await purge("replies", "uid"); await purge("reports", "by"); await purge("checkins", "uid");
+      await purge("posts", "uid"); await purge("likes", "uid"); await purge("replies", "uid"); await purge("ideas", "uid"); await purge("reports", "by"); await purge("checkins", "uid");
       var logs = await db.doc("data/users/" + uid + "/log").collection("days").get();
       for (var i = 0; i < logs.docs.length; i++) await db.doc("data/users/" + uid + "/log/days/" + logs.docs[i].id).delete();
       var plogs = await db.doc("data/users/" + uid + "/log").collection("photos").get();
@@ -1742,9 +1783,9 @@ header.hero .mini:hover, header.hero .pts-btn:hover { border-color: var(--gold-2
     state.page = p;
     if (p !== "workout") { closeExPicker(); closeSwap(); }
     if (p !== "fuel") { state.add = null; var fsh = document.getElementById("fsheet"); if (fsh) fsh.remove(); }
-    ["today", "fuel", "train", "board", "checkin", "profile", "settings", "devo", "workout", "video", "chal"].forEach(function (n) { $("page-" + n).hidden = n !== p; });
+    ["today", "fuel", "train", "board", "checkin", "profile", "settings", "devo", "workout", "video", "chal", "ideas"].forEach(function (n) { $("page-" + n).hidden = n !== p; });
     Array.prototype.forEach.call(document.querySelectorAll(".tabbar button"), function (b) {
-      if (b.dataset.page === (p === "workout" || p === "video" || p === "chal" ? "train" : p)) b.setAttribute("aria-current", "page"); else b.removeAttribute("aria-current");
+      if (b.dataset.page === (p === "workout" || p === "video" || p === "chal" ? "train" : p === "ideas" ? "fuel" : p)) b.setAttribute("aria-current", "page"); else b.removeAttribute("aria-current");
     });
     $("scroll").scrollTop = 0;
     if (p === "workout") startWkTick(); else if (p !== "video") { if (wkTick) saveWkNow(); stopWkTick(); cancelAllTones(); }
@@ -1754,6 +1795,7 @@ header.hero .mini:hover, header.hero .pts-btn:hover { border-color: var(--gold-2
     if (p === "workout") drawWorkoutPage(true);
     if (p === "video") drawVideoPage();
     if (p === "chal") drawChallengePage();
+    if (p === "ideas") drawIdeas();
     if (p === "checkin") drawFeed();
     if (p === "devo") { sizeDevo(); $("scroll").scrollTop = 0; devoScroll(); }
   }
@@ -1803,6 +1845,8 @@ header.hero .mini:hover, header.hero .pts-btn:hover { border-color: var(--gold-2
     $("wk-back").addEventListener("click", function () { go("train"); });
     $("vid-back").addEventListener("click", function () { go("workout"); });
     $("chal-back").addEventListener("click", function () { go("train"); });
+    $("ideas-back").addEventListener("click", function () { if (ideaUI.view !== "list") { ideaUI.view = "list"; drawIdeas(); } else go("fuel"); });
+    $("ideas-open").addEventListener("click", openIdeas);
     var colSt = {}; try { colSt = JSON.parse(localStorage.getItem("fs-collapsed") || "{}") || {}; } catch (e) { colSt = {}; }
     [["h-week", "week-list", "week"], ["h-vol", "vol-body", "vol"]].forEach(function (c) {
       var h = $(c[0]), body = $(c[1]); if (!h || !body) return;
@@ -3376,6 +3420,135 @@ header.hero .mini:hover, header.hero .pts-btn:hover { border-color: var(--gold-2
     [["Spirit", g.spirit[0] + " of " + g.spirit[1]], ["Body", g.body[0] + " of " + g.body[1]], ["Brotherhood", g.brother[0] + " of " + g.brother[1]], ["Week pts", String(Math.round(weekPtsOf(state.me) * 10) / 10)], ["Streak", streak(state.me) + (streak(state.me) === 1 ? " day" : " days")]].forEach(function (x) { var li = el("li"); li.appendChild(el("span", null, x[0])); li.appendChild(el("em", null, x[1])); ul.appendChild(li); });
     box.appendChild(ul);
   }
+  /* ---------- Meal ideas: shared recipes and meal preps ---------- */
+  var IDEA_KINDS = [["breakfast", "Breakfast"], ["lunch", "Lunch"], ["dinner", "Dinner"], ["snack", "Snack"], ["prep", "Meal prep"]];
+  var ideaUI = { view: "list", id: null, filter: "all", draft: null, msg: "", busy: false, meal: "dinner", n: 1 };
+  function normIdea(id, x) {
+    x = x || {}; var per = x.per || {};
+    var media = (Array.isArray(x.media) ? x.media : []).slice(0, 2).map(function (m) { return { id: safeId(m && m.id), type: m && m.type === "pdf" ? "pdf" : "image" }; }).filter(function (m) { return m.id; });
+    return { id: id, uid: String(x.uid || ""), name: String(x.name || "").slice(0, 80), kind: IDEA_KINDS.some(function (k) { return k[0] === x.kind; }) ? x.kind : "dinner",
+      servings: Math.max(1, Math.min(50, Math.round(Number(x.servings) || 1))), per: { kcal: Math.max(0, Math.min(5000, Math.round(Number(per.kcal) || 0))), p: Math.max(0, r1(per.p)), c: Math.max(0, r1(per.c)), f: Math.max(0, r1(per.f)) },
+      notes: String(x.notes || "").slice(0, 1500), media: media, createdAt: Number(x.createdAt) || 0 };
+  }
+  function kindLabel(k) { var f = IDEA_KINDS.filter(function (x) { return x[0] === k; })[0]; return f ? f[1] : "Meal"; }
+  function openIdeas() { ideaUI.view = "list"; ideaUI.id = null; ideaUI.msg = ""; go("ideas"); }
+  function ideaMacroLine(per) { return fmt(per.kcal) + " kcal · P " + fmtW(per.p) + " g · C " + fmtW(per.c) + " g · F " + fmtW(per.f) + " g"; }
+  function drawIdeas() {
+    var body = $("ideas-body"); if (!body) return; body.textContent = "";
+    var U = ideaUI, list = state.ideas || [];
+    var head = el("div", "id-head"), h = el("h1", "pg", U.view === "new" ? "Share a meal idea" : "Meal ideas"); head.appendChild(h); body.appendChild(head);
+    if (U.view === "list") {
+      body.appendChild(el("p", "note id-lead", "Recipes, breakfasts, dinners and meal preps from the brothers. Save one to your meal preps or log a serving."));
+      var nb = el("button", "btn", "+ Share a meal idea"); nb.type = "button"; nb.disabled = !state.me || !state.canWrite;
+      nb.addEventListener("click", function () { U.view = "new"; U.draft = { name: "", kind: "dinner", servings: "4", p: "", c: "", f: "", kcal: "", notes: "", file: null }; U.msg = ""; drawIdeas(); $("scroll").scrollTop = 0; }); body.appendChild(nb);
+      var chips = el("div", "id-chips"); [["all", "All"]].concat(IDEA_KINDS).forEach(function (k) { var b = el("button", "id-chip" + (U.filter === k[0] ? " on" : ""), k[1]); b.type = "button"; b.setAttribute("aria-pressed", String(U.filter === k[0])); b.addEventListener("click", function () { U.filter = k[0]; drawIdeas(); }); chips.appendChild(b); }); body.appendChild(chips);
+      var shown = list.filter(function (x) { return U.filter === "all" || x.kind === U.filter; });
+      if (!shown.length) { var e = el("div", "empty"); e.appendChild(el("strong", null, list.length ? "Nothing here yet" : "No meal ideas yet")); e.appendChild(document.createTextNode("Share a meal you make so the brothers can use it.")); body.appendChild(e); return; }
+      var wrap = el("div", "id-list");
+      shown.forEach(function (x) {
+        var b = el("button", "id-card"); b.type = "button";
+        var th = el("span", "id-th"), img = x.media.filter(function (m) { return m.type === "image"; })[0];
+        if (img) th.style.backgroundImage = 'url("/_blob/' + img.id + '")'; else th.textContent = x.media.length ? "PDF" : kindLabel(x.kind).charAt(0);
+        b.appendChild(th);
+        var tx = el("span", "id-tx"); tx.appendChild(el("span", "id-k", kindLabel(x.kind) + " · makes " + x.servings)); tx.appendChild(el("span", "id-n", x.name)); tx.appendChild(el("span", "id-m", "Per serving: " + ideaMacroLine(x.per))); tx.appendChild(el("span", "id-by", "From " + nameOf(x.uid)));
+        b.appendChild(tx); b.appendChild(el("span", "id-ch", "›"));
+        b.addEventListener("click", function () { U.view = "detail"; U.id = x.id; U.msg = ""; U.n = 1; drawIdeas(); $("scroll").scrollTop = 0; });
+        wrap.appendChild(b);
+      });
+      body.appendChild(wrap);
+    } else if (U.view === "detail") {
+      var x = list.filter(function (i) { return i.id === U.id; })[0];
+      if (!x) { U.view = "list"; drawIdeas(); return; }
+      h.textContent = x.name;
+      head.appendChild(el("div", "id-k", kindLabel(x.kind) + " · makes " + x.servings + (x.servings === 1 ? " serving" : " servings") + " · from " + nameOf(x.uid)));
+      x.media.forEach(function (m) {
+        if (m.type === "image") { var im = el("img", "id-img"); im.alt = "Photo of " + x.name; im.loading = "lazy"; im.src = "/_blob/" + m.id; body.appendChild(im); }
+        else { var a = el("a", "btn ghost id-pdf", "Open the recipe (PDF)"); a.href = "/_blob/" + m.id; a.target = "_blank"; a.rel = "noopener"; body.appendChild(a); }
+      });
+      var mg = el("div", "id-macros"); [["Calories", fmt(x.per.kcal)], ["Protein", fmtW(x.per.p) + " g"], ["Carbs", fmtW(x.per.c) + " g"], ["Fat", fmtW(x.per.f) + " g"]].forEach(function (k) { var c = el("div"); c.appendChild(el("b", null, k[1])); c.appendChild(el("span", null, k[0])); mg.appendChild(c); });
+      body.appendChild(el("div", "label-caps id-sub", "Per serving")); body.appendChild(mg);
+      if (x.notes) { body.appendChild(el("div", "label-caps id-sub", "How to make it")); body.appendChild(el("p", "id-notes", x.notes)); }
+      if (U.msg) body.appendChild(el("p", "ch-ok", U.msg));
+      // Save to my meal preps
+      var sv = el("button", "btn", "Save to my meal preps"); sv.type = "button"; sv.disabled = !state.me || !state.canWrite;
+      sv.addEventListener("click", function () {
+        var item = { name: x.name.slice(0, 60), s: [{ l: "1 serving", kcal: x.per.kcal, p: x.per.p, f: x.per.f, c: x.per.c }] };
+        var arr = (Array.isArray(state.settings.preps) ? state.settings.preps : []).filter(function (y) { return favKey(y && y.name) !== favKey(item.name); });
+        arr.unshift(item); state.settings.preps = arr.slice(0, 40); saveSettings();
+        U.msg = "Saved to your meal preps. Find it under Meal prep in any meal on Fuel."; drawIdeas();
+      });
+      body.appendChild(sv);
+      // Log a serving
+      var lg = el("div", "id-log"); lg.appendChild(el("div", "label-caps id-sub", "Add to today's food log"));
+      var mc = el("div", "id-chips"); MEALS.forEach(function (m) { var b = el("button", "id-chip" + (U.meal === m.k ? " on" : ""), m.label); b.type = "button"; b.setAttribute("aria-pressed", String(U.meal === m.k)); b.addEventListener("click", function () { U.meal = m.k; drawIdeas(); }); mc.appendChild(b); }); lg.appendChild(mc);
+      var q = el("div", "af-qty"), mi = el("button", "mini", "−"), qv = el("output", "field id-q", fmtW(U.n) + (U.n === 1 ? " serving" : " servings")), pl = el("button", "mini", "+");
+      mi.type = "button"; pl.type = "button"; mi.setAttribute("aria-label", "Fewer servings"); pl.setAttribute("aria-label", "More servings");
+      mi.addEventListener("click", function () { U.n = Math.max(0.5, U.n - 0.5); drawIdeas(); }); pl.addEventListener("click", function () { U.n = Math.min(10, U.n + 0.5); drawIdeas(); });
+      q.appendChild(mi); q.appendChild(qv); q.appendChild(pl); lg.appendChild(q);
+      lg.appendChild(el("p", "fnote", fmt(x.per.kcal * U.n) + " kcal · " + fmtW(x.per.p * U.n) + " g protein"));
+      var ad = el("button", "btn", "Add to " + (MEALS.filter(function (m) { return m.k === U.meal; })[0] || {}).label.toLowerCase()); ad.type = "button"; ad.disabled = !state.me || !state.canWrite;
+      ad.addEventListener("click", function () {
+        putEntries(U.meal, [entryFrom({ name: x.name.slice(0, 60), d: "Meal idea", s: [{ l: "1 serving", kcal: x.per.kcal, p: x.per.p, f: x.per.f, c: x.per.c }] }, 0, U.n, newId())]);
+        U.msg = "Added " + fmtW(U.n) + (U.n === 1 ? " serving" : " servings") + " to " + (MEALS.filter(function (m) { return m.k === U.meal; })[0] || {}).label.toLowerCase() + " today."; drawIdeas();
+      });
+      lg.appendChild(ad); body.appendChild(lg);
+      if (x.uid === state.me) {
+        var del = el("button", "btn ghost", "Delete this meal idea"); del.type = "button";
+        del.addEventListener("click", function () { confirmDelete({ title: "Delete this meal idea?", message: "“" + x.name + "” will be removed for everyone. Meal preps the brothers already saved stay with them." }, function () {
+          state.ideas = state.ideas.filter(function (i) { return i.id !== x.id; }); U.view = "list"; drawIdeas(); if (B.db) B.deleteIdea(x.id).catch(noop); x.media.forEach(function (m) { B.deleteAsset(m.id); }); }); });
+        body.appendChild(del);
+      }
+      var bk = el("button", "btn ghost", "‹ All meal ideas"); bk.type = "button"; bk.addEventListener("click", function () { U.view = "list"; drawIdeas(); }); body.appendChild(bk);
+    } else if (U.view === "new") {
+      var d = U.draft, f = el("form", "id-form"); f.noValidate = true;
+      function fld(label, key, attrs, full) { var l = el("label", "flabel" + (full ? " full" : ""), label), i = el(attrs.tag || "input", "field"); Object.keys(attrs).forEach(function (a) { if (a !== "tag") i.setAttribute(a, attrs[a]); }); i.value = d[key]; i.addEventListener("input", function () { d[key] = i.value; if (/^(p|c|f)$/.test(key)) hint(); }); l.appendChild(i); return l; }
+      f.appendChild(fld("Name", "name", { maxlength: "80", placeholder: "e.g. Chicken burrito bowls", autocomplete: "off" }, true));
+      var g1 = el("div", "fgrid");
+      var kl = el("label", "flabel", "Type"), ks = el("select", "field"); IDEA_KINDS.forEach(function (k) { var o = el("option", null, k[1]); o.value = k[0]; ks.appendChild(o); }); ks.value = d.kind; ks.addEventListener("change", function () { d.kind = ks.value; }); kl.appendChild(ks); g1.appendChild(kl);
+      g1.appendChild(fld("Servings it makes", "servings", { type: "number", min: "1", max: "50", step: "1", inputmode: "numeric" }));
+      f.appendChild(g1);
+      f.appendChild(el("div", "label-caps id-sub", "Each serving has"));
+      var g2 = el("div", "fgrid");
+      g2.appendChild(fld("Protein (g)", "p", { type: "number", min: "0", step: "any", inputmode: "decimal" }));
+      g2.appendChild(fld("Carbs (g)", "c", { type: "number", min: "0", step: "any", inputmode: "decimal" }));
+      g2.appendChild(fld("Fat (g)", "f", { type: "number", min: "0", step: "any", inputmode: "decimal" }));
+      g2.appendChild(fld("Calories", "kcal", { type: "number", min: "0", step: "any", inputmode: "numeric" }));
+      f.appendChild(g2);
+      var hn = el("p", "fnote"); f.appendChild(hn);
+      function hint() { var est = Math.round((+d.p || 0) * 4 + (+d.c || 0) * 4 + (+d.f || 0) * 9); hn.textContent = est ? "From the macros that's about " + fmt(est) + " kcal. Leave Calories blank to use that." : "Leave Calories blank and it's figured from the macros."; }
+      hint();
+      f.appendChild(fld("How to make it (optional)", "notes", { tag: "textarea", rows: "4", maxlength: "1500", placeholder: "Ingredients and steps, or a note like \"recipe in the PDF\"" }, true));
+      var pr = el("div", "ch-proof"); pr.appendChild(el("span", "flabel", "Photo or PDF (optional)"));
+      var lab = el("label", "btn ghost", d.file ? "Change file" : "Add a photo or PDF"), fi = el("input"); fi.type = "file"; fi.accept = "image/*,application/pdf"; fi.hidden = true; lab.appendChild(fi);
+      if (B.canUpload()) pr.appendChild(lab); else pr.appendChild(el("p", "fnote", "Photo and PDF uploads aren’t turned on for your account right now."));
+      if (d.file) pr.appendChild(el("span", "chip", (d.file.type === "application/pdf" ? "PDF: " : "Photo: ") + (d.file.name || "file")));
+      fi.addEventListener("change", async function () {
+        var file = fi.files && fi.files[0]; fi.value = ""; if (!file) return;
+        if (file.type === "application/pdf" || /\.pdf$/i.test(file.name || "")) { if (file.size > 20 * 1024 * 1024) { U.msg = "That PDF is over 20 MB."; drawIdeas(); return; } d.file = file.type === "application/pdf" ? file : new File([file], file.name, { type: "application/pdf" }); drawIdeas(); return; }
+        U.busy = true; U.msg = "Preparing photo…"; drawIdeas();
+        var ready = await prepShareFile(file, function (t) { U.msg = t; }); U.busy = false; U.msg = ""; if (ready) d.file = ready; drawIdeas();
+      });
+      f.appendChild(pr);
+      if (U.msg) f.appendChild(el("p", "fnote", U.msg));
+      var go2 = el("button", "btn", U.busy ? "Working…" : "Share meal idea"); go2.type = "submit"; go2.disabled = U.busy; f.appendChild(go2);
+      var cn = el("button", "btn ghost", "Cancel"); cn.type = "button"; cn.addEventListener("click", function () { U.view = "list"; U.msg = ""; drawIdeas(); }); f.appendChild(cn);
+      f.addEventListener("submit", async function (ev) {
+        ev.preventDefault(); if (U.busy) return;
+        var name = d.name.trim().slice(0, 80), sv2 = Math.round(+d.servings || 0), p = r1(+d.p || 0), c = r1(+d.c || 0), fa = r1(+d.f || 0), kc = Math.round(+d.kcal || 0) || Math.round(p * 4 + c * 4 + fa * 9);
+        if (!name) { U.msg = "Give it a name."; drawIdeas(); return; }
+        if (!(sv2 >= 1)) { U.msg = "Enter how many servings it makes."; drawIdeas(); return; }
+        if (!kc) { U.msg = "Enter the calories or macros for one serving."; drawIdeas(); return; }
+        U.busy = true; U.msg = d.file ? "Uploading…" : ""; drawIdeas();
+        var media = [];
+        try { if (d.file) { var up = await B.upload(d.file); media.push({ id: up.id, type: d.file.type === "application/pdf" ? "pdf" : "image" }); } }
+        catch (e) { U.busy = false; U.msg = uploadErrText(e); drawIdeas(); return; }
+        var doc = { uid: state.me, name: name, kind: d.kind, servings: Math.min(50, sv2), per: { kcal: Math.min(5000, kc), p: p, c: c, f: fa }, notes: d.notes.trim().slice(0, 1500), media: media, createdAt: Date.now() };
+        try { await B.addIdea(doc); } catch (e) { U.busy = false; U.msg = "That didn’t save. Check your connection and try again."; drawIdeas(); return; }
+        U.busy = false; U.view = "list"; U.filter = "all"; U.msg = ""; drawIdeas(); $("scroll").scrollTop = 0;
+      });
+      body.appendChild(f);
+    }
+  }
   function drawChallengeButtons() {
     var box = $("chal-btns"); if (!box) return; box.textContent = "";
     var cw = chalWeekFor(todayKey()), w = cw.w, ss = chalSeason(w.season);
@@ -4311,6 +4484,7 @@ header.hero .mini:hover, header.hero .pts-btn:hover { border-color: var(--gold-2
       "Under each meal, use Search, Photo, Voice or Favorites to log food. Quick add is for when you only know the numbers.",
       "Meal prep saves a meal you make often so you can log it in one tap.",
       "Copy a previous day or a single meal when you eat the same thing.",
+      "Meal ideas, under your meals, holds recipes and meal preps from the brothers. Save one or log a serving.",
       "Your Calories box checks itself when you land in your window. Losing fat: 15% under to 10% over your goal. Maintaining: within 5%. Building: within 10%.",
       "Protein bonus: hit or beat your protein target while your calories are in that window for +2 bonus points."] },
     train: { t: "Train", why: "Your training plan, today's workout and your progress over time.", how: [
@@ -4351,6 +4525,11 @@ header.hero .mini:hover, header.hero .pts-btn:hover { border-color: var(--gold-2
       "Enter your score and add a photo or video as proof. Proof is required, like a screenshot of your mile run showing distance and time. You can submit more than once. Your best attempt counts.",
       "Add your birthday in Settings \u2192 Service record so you're ranked with men your age: under 30, 30s, 40s, 50s or 60+. Your age is counted on the first day of each season.",
       "Submit by Sunday at 8:00 AM Arizona time. After that, submissions close and results are final. The most you can earn in a week is 250 points."] },
+    ideas: { t: "Meal ideas", why: "Recipes, breakfasts, dinners and meal preps the brothers share.", how: [
+      "Tap + Share a meal idea. Give it a name and type, how many servings it makes, and the protein, carbs, fat and calories for one serving.",
+      "Add a photo or a PDF of the recipe if you have one.",
+      "Open any idea to save it to your meal preps, or add servings of it to breakfast, lunch, dinner or a snack today.",
+      "You can delete ideas you shared. Meal preps the brothers already saved stay with them."] },
     video: { t: "How to do it", why: "A quick guide for one movement.", how: [
       "Tap Watch on YouTube to see the video. Come back to the app when you're done.",
       "Read the coaching cue before your first set."] },
@@ -5549,7 +5728,7 @@ header.hero .mini:hover, header.hero .pts-btn:hover { border-color: var(--gold-2
     drawDevo();
   }
   async function loadProfiles() {
-    var ids = {}; state.checks.forEach(function (c) { ids[c.uid] = true; }); state.posts.forEach(function (p) { ids[p.uid] = true; }); (state.replies || []).forEach(function (r) { ids[r.uid] = true; });
+    var ids = {}; state.checks.forEach(function (c) { ids[c.uid] = true; }); state.posts.forEach(function (p) { ids[p.uid] = true; }); (state.replies || []).forEach(function (r) { ids[r.uid] = true; }); (state.ideas || []).forEach(function (r) { ids[r.uid] = true; });
     if (state.me) ids[state.me] = true;
     Object.keys(state.pubProfiles).forEach(function (k) { ids[k] = true; });
     Object.keys(state.chalAll || {}).forEach(function (k) { ids[k] = true; });
@@ -5679,6 +5858,7 @@ header.hero .mini:hover, header.hero .pts-btn:hover { border-color: var(--gold-2
     // Likes only update the Strong buttons in place. Rebuilding the thread is what made the page jump.
     B.watchLikes(function (rows) { state.likes = rows; refreshLikes(); });
     B.watchReplies(function (rows) { state.replies = rows; drawFeed(); loadProfiles(); });
+    B.watchIdeas(function (rows) { state.ideas = rows; if (state.page === "ideas" && !ideaUI.busy && ideaUI.view !== "new") drawIdeas(); loadProfiles(); });
     subscribeWindows(); drawAll(); loadProfiles();
     setInterval(function () { subscribeWindows(); drawAll(); }, 60000);
     refreshHealth(); setInterval(refreshHealth, 300000);
