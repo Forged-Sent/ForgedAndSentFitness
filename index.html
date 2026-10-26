@@ -1348,7 +1348,14 @@ input.field[type="date"]::-webkit-calendar-picker-indicator { opacity: .6; }
     profiles: function (ids) { return this.user ? this.user.profiles(ids) : Promise.resolve({}); },
     search: function (q) { return this.user ? this.user.search(q) : Promise.resolve([]); },
     canUpload: function () { return !!(this.assets && this.assets.upload); },
-    upload: function (file) { return this.assets.upload(file); },
+    // Retries once on a passing platform hiccup, and tags every failure with its code so the message can say why.
+    upload: function (file) {
+      var a = this.assets; if (!a || !a.upload) { var e0 = new Error("Uploads are not available"); e0.code = "not_granted"; return Promise.reject(e0); }
+      return a.upload(file).catch(function (e) {
+        if (e && e.code === "store_unavailable") return new Promise(function (r) { setTimeout(r, 1200); }).then(function () { return a.upload(file); });
+        throw e;
+      });
+    },
     watchTasks: function (cb) {
       return this.db.collection("tasks").orderBy("createdAt").onSnapshot(function (s) {
         cb(s.docs.map(function (d) { var x = d.data() || {};
@@ -2033,7 +2040,7 @@ input.field[type="date"]::-webkit-calendar-picker-indicator { opacity: .6; }
         close(); go("checkin");
       } catch (e) {
         busy = false; post.disabled = false; post.textContent = "Post to Rally";
-        say(e && e.code === "quota_exceeded" ? "Storage is full. Try a smaller file." : "Could not post. Check your connection and try again.");
+        say(file && e && e.code ? uploadErrText(e) : "Could not post. Check your connection and try again.");
       }
     }
     post.addEventListener("click", function (ev) { ev.preventDefault(); send(); });
@@ -3437,7 +3444,7 @@ input.field[type="date"]::-webkit-calendar-picker-indicator { opacity: .6; }
       try {
         a.media = [];
         for (var k = 0; k < F.files.length; k++) { var up = await B.upload(F.files[k]); a.media.push({ id: up.id, type: F.files[k].type.indexOf("video") === 0 ? "video" : "image" }); }
-      } catch (e) { F.busy = false; F.msg = "The upload didn’t go through. Try again, or submit without it."; drawChallengePage(); return; }
+      } catch (e) { F.busy = false; F.msg = uploadErrText(e); drawChallengePage(); return; }
       var list = chalAttempts(c.id).concat([a]).slice(-10);
       chalForm = null; chalSave(c.id, list, "Submitted. " + (c.scoredBy === "completion" || a.mode !== "standard" ? "Well done." : "Your best attempt counts."));
     });
@@ -3801,7 +3808,7 @@ input.field[type="date"]::-webkit-calendar-picker-indicator { opacity: .6; }
       var ct = taskOfKind("checkin"); if (ct && !myDoc().done[ct.id]) toggle(ct.id);
       $("post-text").value = ""; state.files = []; state.mentions = []; drawChips(); hideMentions();
     } catch (e) {
-      postError(e && e.code === "quota_exceeded" ? "Storage is full. Try a smaller file." : "Could not post. Check your connection and try again.");
+      postError(state.files.length && e && e.code ? uploadErrText(e) : "Could not post. Check your connection and try again.");
     }
     state.posting = false; $("post-btn").disabled = false;
   }
@@ -3876,7 +3883,7 @@ input.field[type="date"]::-webkit-calendar-picker-indicator { opacity: .6; }
       await B.saveProgress(state.me, cur);
       if (old && old !== cur[pose]) B.deleteAsset(old);
       P.busy[pose] = false; P.b = key; writeDay(function () { return false; });
-    } catch (e) { P.busy[pose] = false; P.msg = "Upload failed. Check your connection and try again."; }
+    } catch (e) { P.busy[pose] = false; P.msg = uploadErrText(e); }
     drawProgress(); drawToday();
   }
   function deleteProgSet(key) {
@@ -4435,6 +4442,7 @@ input.field[type="date"]::-webkit-calendar-picker-indicator { opacity: .6; }
       var bn = el("label", "onb-bn"); var bid = safeId(pp.bannerId); if (bid) { bn.style.backgroundImage = 'url("/_blob/' + bid + '")'; bn.classList.add("has"); } else bn.textContent = "Add a banner photo";
       if (canUp) { var bfi = el("input"); bfi.type = "file"; bfi.accept = "image/*"; bfi.hidden = true; bfi.addEventListener("change", function () { onbUpload(bfi.files[0], "bannerId"); bfi.value = ""; }); bn.appendChild(bfi); }
       bw.appendChild(bn); onbTip(bw, "banner"); body.appendChild(bw);
+      if (!canUp && state.me) body.appendChild(el("p", "onb-note", "Photo uploads aren\u2019t turned on for your account in this app right now. You can add photos later in Settings. (not_granted)"));
       if (ONB.msg) body.appendChild(el("p", "onb-note", ONB.msg));
       onbField(body, "Morning motto", "motto", "motto", "text", { maxlength: "80", placeholder: "e.g. Be strong. Lead well.", autocomplete: "off" });
       next(); back();
@@ -4508,7 +4516,7 @@ input.field[type="date"]::-webkit-calendar-picker-indicator { opacity: .6; }
       var small = await compressImage(file, field === "bannerId" ? 1600 : 640, field === "bannerId" ? 900 * 1024 : 350 * 1024);
       var old = (state.pubProfiles[state.me] || {})[field], up = await B.upload(small), patch = {}; patch[field] = up.id;
       saveProfilePatch(patch); if (old) B.deleteAsset(old); ONB.msg = "Saved.";
-    } catch (e) { ONB.msg = "That photo didn’t upload. Try again, or add it later in Settings."; }
+    } catch (e) { ONB.msg = e && e.code ? uploadErrText(e) : "That photo couldn\u2019t be read. Try a JPG or PNG."; }
     if (ONB) drawOnb();
   }
   /* Tour: one card per tab over the real screen. */
@@ -5083,6 +5091,7 @@ input.field[type="date"]::-webkit-calendar-picker-indicator { opacity: .6; }
     var pp = state.pubProfiles[state.me] || {}, st = state.settings, canUp = B.canUpload();
     $("acct-name").textContent = state.me ? "Signed in as " + nameOf(state.me) + "." : "Not signed in.";
     $("s-av-label").hidden = !canUp || !state.canWrite; $("s-bn-label").hidden = !canUp || !state.canWrite;
+    if (state.me && !canUp && !$("s-photo-status").dataset.warned) { $("s-photo-status").dataset.warned = "1"; $("s-photo-status").textContent = "Photo uploads aren\u2019t turned on for your account in this app right now. Close the app fully and reopen it. If the buttons still don\u2019t show, tell Curtis (code: not_granted)."; }
     var av = safeId(pp.avatarId), bn = safeId(pp.bannerId);
     $("s-av-thumb").style.backgroundImage = av ? 'url("/_blob/' + av + '")' : ""; $("s-bn-thumb").style.backgroundImage = bn ? 'url("/_blob/' + bn + '")' : "";
     $("s-av-rm").hidden = !av; $("s-bn-rm").hidden = !bn;
@@ -5167,6 +5176,23 @@ input.field[type="date"]::-webkit-calendar-picker-indicator { opacity: .6; }
       };
     });
   }
+  // Plain-language reason an upload failed, with the code so it can be reported.
+  function uploadErrText(e) {
+    var c = (e && e.code) || "upstream_error";
+    var m = {
+      not_granted: "Photo uploads aren\u2019t turned on for your account in this app. Close the app fully, reopen it and try again. If it still fails, tell Curtis.",
+      capability_disabled: "Photo uploads aren\u2019t available in this view right now. Close the app fully, reopen it and try again.",
+      capability_removed: "Photo uploads aren\u2019t available in this view right now. Close the app fully, reopen it and try again.",
+      too_large: "That file is too big. Try a shorter video or a different photo.",
+      unsupported_type: "That file type isn\u2019t supported. Use a JPG, PNG or MP4.",
+      quota_or_state: "The app\u2019s photo storage is full right now. Tell Curtis.",
+      rate_limited: "Too many uploads at once. Wait a minute and try again.",
+      upstream_auth: "Your sign-in needs a refresh. Close the app, sign in to Claude again and retry.",
+      store_unavailable: "The upload service is having trouble. Try again in a minute.",
+      invalid_request: "That file couldn\u2019t be read. Try a different photo."
+    }[c] || "The upload didn\u2019t go through. Check your connection and try again.";
+    return m + " (" + c + ")";
+  }
   async function compressImage(file, maxDim, maxBytes) {
     var bmp;
     try { bmp = await createImageBitmap(file, { imageOrientation: "from-image" }); }
@@ -5209,7 +5235,7 @@ input.field[type="date"]::-webkit-calendar-picker-indicator { opacity: .6; }
       var patch = {}; patch[field] = up.id; saveProfilePatch(patch);
       if (old) B.deleteAsset(old);
       st.textContent = "Saved.";
-    }).catch(function () { st.textContent = "Upload failed. Try again."; });
+    }).catch(function (e) { st.textContent = uploadErrText(e); });
   }
   async function toggleHealth(k) {
     if (!HL || !state.me) return;
