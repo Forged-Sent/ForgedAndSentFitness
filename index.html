@@ -178,6 +178,12 @@ h1.brand { font-family: var(--f-stencil); font-weight: 400; letter-spacing: .03e
 .fuel-read { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin: 6px 0 10px; }
 .fuel-read .big { font-family: var(--f-label); font-weight: 700; font-size: 24.5px; line-height: 1; font-variant-numeric: tabular-nums; }
 .fuel-read .big span { color: var(--muted); font-weight: 500; font-size: 17px; }
+.water-custom { display: grid; gap: 6px; margin-top: 12px; }
+.water-custom .wc-row { display: flex; gap: 8px; }
+.water-custom .wc-in { position: relative; flex: 1 1 auto; min-width: 0; }
+.water-custom .wc-in .field { width: 100%; padding-right: 40px; }
+.water-custom .wc-in span { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); color: var(--muted); pointer-events: none; }
+.water-custom .btn { flex: none; min-width: 96px; }
 .clip { display: flex; gap: 4px; margin-bottom: 12px; }
 .clip i { flex: 1; min-width: 0; height: 30px; background: var(--surface-2); border: 1px solid var(--line); }
 .clip i.on { background: var(--accent); border-color: var(--accent); }
@@ -1050,6 +1056,14 @@ header.hero .tag-btn { color: #efe4c8; border-color: #d0c2a0; }
         <button class="btn" type="button" id="water-add">+8 oz</button>
         <button class="btn ghost" type="button" id="water-sub-btn" aria-label="Remove 8 oz">&minus;8 oz</button>
       </div>
+      <form class="water-custom" id="water-form" novalidate>
+        <label class="flabel" for="water-oz">Add a custom amount</label>
+        <div class="wc-row">
+          <div class="wc-in"><input class="field" type="number" id="water-oz" min="1" max="200" step="1" inputmode="numeric" placeholder="e.g. 20" aria-describedby="water-err"><span aria-hidden="true">oz</span></div>
+          <button class="btn" type="submit" id="water-oz-add">Add</button>
+        </div>
+        <p class="error" id="water-err" hidden>Enter between 1 and 200 oz.</p>
+      </form>
     </section>
 
     <section aria-labelledby="h-food">
@@ -2144,7 +2158,7 @@ header.hero .tag-btn { color: #efe4c8; border-color: #d0c2a0; }
     var clip = $("water-clip"); clip.textContent = "";
     for (var i = 0; i < WATER_SEGMENTS; i++) clip.appendChild(el("i", oz >= (i + 1) * WATER_STEP ? "on" : ""));
     var off = !state.me || !state.canWrite;
-    $("water-add").disabled = off; $("water-sub-btn").disabled = off || oz <= 0;
+    $("water-add").disabled = off; $("water-sub-btn").disabled = off || oz <= 0; $("water-oz").disabled = off; $("water-oz-add").disabled = off;
     drawMeals(false);
 
     if ($("tgt-read")) $("tgt-read").textContent = t && Number(t.kcal) ? fmt(Number(t.kcal)) + " kcal \u00B7 P " + fmt(Number(t.p) || 0) + " \u00B7 F " + fmt(Number(t.f) || 0) + " \u00B7 C " + fmt(Number(t.c) || 0) : "Not set yet";
@@ -4984,7 +4998,7 @@ header.hero .tag-btn { color: #efe4c8; border-color: #d0c2a0; }
       return "Points on Fuel: your Calories box (+" + (ck ? ck.points : 1) + ") checks when you land " + calWindowText() + (w ? ", which is " + fmt(w[0]) + " to " + fmt(w[1]) + " kcal for you" : "") + ". Hit or beat your protein" + (pr ? " (" + fmt(pr) + " g)" : "") + " while staying in that window for a +" + PROTEIN_BONUS + " protein bonus. Water at your goal checks your Water box (+" + (wk2 ? wk2.points : 1) + ").";
     }, how: [
       "The bars at the top show calories, protein, carbs and fat for today. Adjust targets takes you to your plan in Settings.",
-      "Tap the water buttons as you drink. Hitting the goal checks your water box.",
+      "Tap +8 oz as you drink, or type any amount (like a 20 oz bottle) and tap Add. Hitting the goal checks your water box.",
       "Under each meal, use Search, Photo, Voice or Favorites to log food. Quick add is for when you only know the numbers.",
       "Meal prep saves a meal you make often so you can log it in one tap.",
       "Copy a previous day or a single meal when you eat the same thing.",
@@ -6278,6 +6292,12 @@ header.hero .tag-btn { color: #efe4c8; border-color: #d0c2a0; }
     wireDevo();
     $("water-add").addEventListener("click", function () { addWater(WATER_STEP); });
     $("water-sub-btn").addEventListener("click", function () { addWater(-WATER_STEP); });
+    $("water-form").addEventListener("submit", function (ev) {
+      ev.preventDefault(); var inp = $("water-oz"), v = Math.round(parseFloat(inp.value));
+      if (!isFinite(v) || v < 1 || v > 200) { $("water-err").hidden = false; inp.focus(); return; }
+      $("water-err").hidden = true; inp.value = ""; inp.blur(); addWater(v);
+    });
+    $("water-oz").addEventListener("input", function () { $("water-err").hidden = true; });
     ["t-kcal", "t-p", "t-f", "t-c"].forEach(function (id) { $(id).addEventListener("input", function () { $("targets-form").dataset.dirty = "1"; updateTargetMath(); }); });
     ["t-p", "t-f", "t-c"].forEach(function (id) { $(id).addEventListener("change", function () { showTargetWarn(); }); });
     // Typed numbers drive the sliders (and the save) the same way dragging does.
