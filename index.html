@@ -2160,7 +2160,7 @@ header.hero .tag-btn { color: #efe4c8; border-color: #d0c2a0; }
         var work = e[2].filter(function (s) { return s && !s.k && Number(s.r) > 0; });
         if (!work.length) return;
         var last = work[work.length - 1];
-        if (!best || d.date > best.date) best = { date: d.date, w: parseFloat(last.w) || 0, r: Number(last.r), target: ps ? topReps(ps.target) : 0, n: ps && !/,/.test(ps.target) ? ps.n : 0, rx: e[1] };
+        if (!best || d.date > best.date) best = { date: d.date, w: parseFloat(last.w) || 0, r: Number(last.r), target: ps ? (ps.reps ? ps.reps[ps.reps.length - 1] : topReps(ps.target)) : 0, n: ps && !ps.reps ? ps.n : 0, rx: e[1] };
       });
     });
     return best;
@@ -2177,8 +2177,8 @@ header.hero .tag-btn { color: #efe4c8; border-color: #d0c2a0; }
       var bump = isLowerBody(g) ? 10 : 5;
       box.appendChild(el("span", "up", "You hit all " + L.target + " reps. Try " + (L.w + bump) + " lb today (+" + bump + ")."));
     } else {
-      var pn = parseSets(rxNow), nn = pn && !/,/.test(pn.target) ? pn.n : 0, tr = pn ? topReps(pn.target) : L.target;
-      box.appendChild(el("span", "hold", "Stay at " + L.w + " lb today and complete all " + (nn ? nn + " sets of " + tr + " reps" : "your sets and reps") + " before you go up."));
+      var pn = parseSets(rxNow), nn = pn && !pn.reps ? pn.n : 0, tr = pn ? topReps(pn.target) : L.target;
+      box.appendChild(el("span", "hold", "Stay at " + L.w + " lb today and complete all " + (pn && pn.reps ? pn.n + " sets (" + pn.reps.join(", ") + " reps)" : nn ? nn + " sets of " + tr + " reps" : "your sets and reps") + " before you go up."));
     }
     return box;
   }
@@ -2691,6 +2691,13 @@ header.hero .tag-btn { color: #efe4c8; border-color: #d0c2a0; }
     return o;
   }
   function parseSets(rx) {
+    // Ramp sets like "1 x 5, 1 x 3, 1 x 1 (heaviest set last)": one row per set, each with its own rep target.
+    var str = String(rx).replace(/\(.*$/, ""), grp = str.match(/\d+\s*x\s*\d+/gi);
+    if (grp && grp.length > 1 && /^\s*\d+\s*x\s*\d+(\s*,\s*\d+\s*x\s*\d+)+\s*$/i.test(str)) {
+      var reps = [];
+      grp.forEach(function (g) { var q = /(\d+)\s*x\s*(\d+)/i.exec(g), k = +q[1]; for (var i = 0; i < k && reps.length < 12; i++) reps.push(+q[2]); });
+      return { n: reps.length, target: reps.join(", "), reps: reps, time: false };
+    }
     var m = /^\s*(\d+)\s*x\s*([^(]+?)\s*(?:\(.*)?$/i.exec(String(rx));
     if (!m) return null; var n = +m[1]; if (n < 1 || n > 12) return null;
     return { n: n, target: m[2].trim(), time: /\b(sec|min)\b/i.test(m[2]) };
@@ -3363,7 +3370,8 @@ header.hero .tag-btn { color: #efe4c8; border-color: #d0c2a0; }
               if (on) row.classList.remove("need");
               ck.setAttribute("aria-label", lab + (on ? " logged" : " not logged yet"));
             };
-            row.appendChild(numField("sr", (isW ? "Warm-up " + wNo : lab) + (ps.time ? " seconds" : " reps"), ps.time ? "sec" : "reps", s.r, 999, function (v) { s.r = v; paintDone(); }));
+            var rph = !isW && !isX && ps.reps && ps.reps[setNo - 1] ? ps.reps[setNo - 1] + (ps.reps[setNo - 1] === 1 ? " rep" : " reps") : ps.time ? "sec" : "reps";
+            row.appendChild(numField("sr", (isW ? "Warm-up " + wNo : lab) + (ps.time ? " seconds" : " reps"), rph, s.r, 999, function (v) { s.r = v; paintDone(); }));
             if (bw) row.appendChild(el("span", "bw-tag", "Bodyweight"));
             else row.appendChild(numField("sw", (isW ? "Warm-up " + wNo : lab) + " weight in pounds", "lb", s.w, 2000, function (v) { s.w = v; paintDone(); }));
             afRows.push({ s: s, w: row.querySelector(".sw") || el("input"), r: row.querySelector(".sr"), paint: paintDone });
@@ -3391,7 +3399,7 @@ header.hero .tag-btn { color: #efe4c8; border-color: #d0c2a0; }
           var bx = el("button", "mini", "+ Add set"); bx.type = "button";
           bx.addEventListener("click", function () { a.push({ w: "", r: "", d: false, k: "x" }); saveWkNow(); redrawKeepScroll(); });
           ab.appendChild(bw); ab.appendChild(bx); ex.appendChild(ab);
-          ex.appendChild(el("span", "wc", "Target: " + ps.target + (ps.time ? "" : " reps") + " per set"));
+          ex.appendChild(el("span", "wc", ps.reps ? "Target: " + ps.reps.join(", then ") + (ps.reps[ps.reps.length - 1] === 1 ? " rep" : " reps") + ", adding weight each set" : "Target: " + ps.target + (ps.time ? "" : " reps") + " per set"));
         } else {
           var d0 = a[0], r0 = el("div", "setrow one" + (d0.d ? " ok" : "")); r0.appendChild(el("span", "sn", "Done?"));
           var ck0 = el("button", "setck-btn", "\u2713"); ck0.type = "button"; ck0.setAttribute("aria-pressed", String(!!d0.d)); ck0.setAttribute("aria-label", "Mark done");
