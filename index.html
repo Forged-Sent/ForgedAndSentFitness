@@ -677,6 +677,10 @@ button.fo-item { cursor: pointer; min-height: 44px; }
 .rp-head { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
 .rp-name { font-weight: 600; font-size: 14px; }
 .rp-text { margin: 2px 0 0; font-size: 14.5px; line-height: 1.45; white-space: pre-wrap; overflow-wrap: anywhere; }
+.rp-acts { display: flex; gap: 14px; margin-top: 2px; }
+.rp-acts .rp-del { margin-left: 0; }
+.ed-form { display: grid; gap: 8px; margin-top: 6px; }
+.ed-form textarea { width: 100%; resize: vertical; }
 .rp-del { margin-left: auto; background: none; border: 0; padding: 4px 0; color: var(--muted); font-size: 12.5px; text-decoration: underline; cursor: pointer; min-height: 0; }
 .rp-more { align-self: flex-start; }
 .rp-form { display: flex; flex-direction: column; gap: 8px; }
@@ -1589,16 +1593,18 @@ header.hero .tag-btn { color: #efe4c8; border-color: #d0c2a0; }
     watchPosts: function (cb) {
       return this.db.collection("posts").orderBy("createdAt", "desc").limit(50).onSnapshot(function (s) {
         cb(s.docs.map(function (d) { var x = d.data() || {};
-          return { id: d.id, uid: x.uid, text: String(x.text || ""), media: Array.isArray(x.media) ? x.media : [], mentions: Array.isArray(x.mentions) ? x.mentions : [], card: normCard(x.card), createdAt: Number(x.createdAt) || 0 }; }));
+          return { id: d.id, uid: x.uid, text: String(x.text || ""), media: Array.isArray(x.media) ? x.media : [], mentions: Array.isArray(x.mentions) ? x.mentions : [], card: normCard(x.card), createdAt: Number(x.createdAt) || 0, editedAt: Number(x.editedAt) || 0 }; }));
       }, noop);
     },
     addPost: function (p) { return this.db.collection("posts").add(p); },
     deletePost: function (id) { return this.db.doc("posts/" + id).delete(); },
+    editPost: function (id, text, mentions) { return this.db.doc("posts/" + id).update({ text: text, mentions: mentions, editedAt: Date.now() }); },
     watchLikes: function (cb) { return this.db.collection("likes").onSnapshot(function (s) { cb(s.docs.map(function (d) { var x = d.data() || {}; return { id: d.id, postId: x.postId, uid: x.uid }; })); }, noop); },
     setLike: function (postId, uid, on) { var r = this.db.doc("likes/" + postId + "_" + uid); return on ? r.set({ postId: postId, uid: uid }) : r.delete(); },
-    watchReplies: function (cb) { return this.db.collection("replies").orderBy("createdAt", "asc").limit(500).onSnapshot(function (s) { cb(s.docs.map(function (d) { var x = d.data() || {}; return { id: d.id, postId: String(x.postId || ""), uid: String(x.uid || ""), text: String(x.text || "").slice(0, 500), mentions: Array.isArray(x.mentions) ? x.mentions.slice(0, 20) : [], createdAt: Number(x.createdAt) || 0 }; })); }, noop); },
+    watchReplies: function (cb) { return this.db.collection("replies").orderBy("createdAt", "asc").limit(500).onSnapshot(function (s) { cb(s.docs.map(function (d) { var x = d.data() || {}; return { id: d.id, postId: String(x.postId || ""), uid: String(x.uid || ""), text: String(x.text || "").slice(0, 500), mentions: Array.isArray(x.mentions) ? x.mentions.slice(0, 20) : [], createdAt: Number(x.createdAt) || 0, editedAt: Number(x.editedAt) || 0 }; })); }, noop); },
     addReply: function (r) { return this.db.collection("replies").add(r); },
     deleteReply: function (id) { return this.db.doc("replies/" + id).delete(); },
+    editReply: function (id, text, mentions) { return this.db.doc("replies/" + id).update({ text: text, mentions: mentions, editedAt: Date.now() }); },
     watchIdeas: function (cb) { return this.db.collection("ideas").orderBy("createdAt", "desc").limit(200).onSnapshot(function (s) { cb(s.docs.map(function (d) { return normIdea(d.id, d.data()); }).filter(function (x) { return x.name && x.uid; })); }, noop); },
     addIdea: function (x) { return this.db.collection("ideas").add(x); },
     deleteIdea: function (id) { return this.db.doc("ideas/" + id).delete(); },
@@ -4417,9 +4423,19 @@ header.hero .tag-btn { color: #efe4c8; border-color: #d0c2a0; }
         if (start > 0) { var more = el("button", "mini rp-more", "View all " + reps.length + " replies"); more.type = "button"; more.addEventListener("click", function () { state.repliesAll = state.repliesAll || {}; state.repliesAll[p.id] = true; refreshReplies(p.id); }); rl.appendChild(more); }
         reps.slice(start).forEach(function (r) {
           var row = el("div", "reply"), ra = el("img", "avatar sm"); ra.alt = ""; if (avatarSrc(r.uid)) ra.src = avatarSrc(r.uid); makeLink(ra, r.uid); row.appendChild(ra);
-          var rbx = el("div", "rp-body"), rh = el("div", "rp-head"), rn = el("span", "rp-name", nameOf(r.uid)); makeLink(rn, r.uid); rh.appendChild(rn); rh.appendChild(el("span", "ptime", timeLabel(r.createdAt)));
+          var rbx = el("div", "rp-body"), rh = el("div", "rp-head"), rn = el("span", "rp-name", nameOf(r.uid)); makeLink(rn, r.uid); rh.appendChild(rn); rh.appendChild(el("span", "ptime", timeLabel(r.createdAt) + (r.editedAt ? " \u00B7 edited" : "")));
+          var edR = state.editing && state.editing.type === "reply" && state.editing.id === r.id && r.uid === state.me;
+          if (r.uid === state.me && !edR && !/^local_/.test(r.id)) { var re = el("button", "rp-del rp-edit", "Edit"); re.type = "button"; re.setAttribute("aria-label", "Edit your reply"); re.addEventListener("click", function () { state.editing = { type: "reply", id: r.id }; state.editDraft = null; refreshReplies(p.id); }); rh.appendChild(re); }
           if (r.uid === state.me) { var rd = el("button", "rp-del", "Delete"); rd.type = "button"; rd.setAttribute("aria-label", "Delete your reply"); rd.addEventListener("click", function () { confirmDelete({ title: "Delete this reply?", message: "Your reply will be removed from the thread.", yes: "Delete" }, function () { state.replies = state.replies.filter(function (x) { return x.id !== r.id; }); refreshReplies(p.id); if (B.db) B.deleteReply(r.id).catch(noop); }); }); rh.appendChild(rd); }
-          rbx.appendChild(rh); var rpt = el("p", "rp-text"); appendWithMentions(rpt, r.text, r.mentions || []); rbx.appendChild(rpt); row.appendChild(rbx); rl.appendChild(row);
+          rbx.appendChild(rh);
+          if (edR) rbx.appendChild(editBox(r.id, r.text, 500, function (t) {
+            var ments = mentionsIn(t, r.mentions || []); r.text = t; r.mentions = ments; r.editedAt = Date.now(); stopEditing(); refreshReplies(p.id);
+            if (B.db) B.editReply(r.id, t, ments).catch(function () { postError("Couldn\u2019t save your edit. Check your connection and try again."); });
+          }, function () { stopEditing(); refreshReplies(p.id); }));
+          else { var rpt = el("p", "rp-text"); appendWithMentions(rpt, r.text, r.mentions || []); rbx.appendChild(rpt); }
+          // Edit and Delete sit on their own line under the reply so the name and time never get squeezed.
+          var rbs = rh.querySelectorAll(".rp-del"); if (rbs.length && !edR) { var ra2 = el("div", "rp-acts"); Array.prototype.forEach.call(rbs, function (b) { ra2.appendChild(b); }); rbx.appendChild(ra2); } else Array.prototype.forEach.call(rbs, function (b) { b.remove(); });
+          row.appendChild(rbx); rl.appendChild(row);
         });
         if (state.replyOpen === p.id) {
           var rf = el("form", "rp-form"), ta = el("textarea", "field"); ta.id = "reply-in"; ta.rows = 2; ta.maxLength = 500; ta.placeholder = "Reply to " + nameOf(p.uid) + "\u2026"; ta.setAttribute("aria-label", "Your reply"); ta.value = state.replyDraft || "";
@@ -4448,24 +4464,44 @@ header.hero .tag-btn { color: #efe4c8; border-color: #d0c2a0; }
     var count = {}, mine = {};
     state.likes.forEach(function (l) { count[l.postId] = (count[l.postId] || 0) + 1; if (l.uid === state.me) mine[l.postId] = true; });
     Array.prototype.forEach.call(document.querySelectorAll("#feed [data-like]"), function (b) {
-      var id = b.dataset.like, t = "Strong" + (count[id] ? " " + count[id] : "");
+      var id = b.dataset.like, t = STRONG + (count[id] ? " " + count[id] : "");
       if (b.textContent !== t) b.textContent = t;
       b.classList.toggle("on", !!mine[id]); b.setAttribute("aria-pressed", mine[id] ? "true" : "false");
     });
   }
+  var STRONG = "\uD83D\uDD25 Strong";
+  // Editing your own post or reply in place. The draft lives in state so a feed refresh never loses it.
+  function editBox(id, cur, maxLen, onSave, onCancel) {
+    var f = el("form", "ed-form"), ta = el("textarea", "field"); ta.id = "ed-" + id; ta.rows = 3; ta.maxLength = maxLen; ta.setAttribute("aria-label", "Edit your message");
+    ta.value = state.editDraft != null ? state.editDraft : cur;
+    ta.addEventListener("input", function () { state.editDraft = ta.value; });
+    var err = el("p", "error"); err.hidden = true;
+    var row = el("div", "rp-btns"), cn = el("button", "mini", "Cancel"), go = el("button", "btn", "Save"); cn.type = "button"; go.type = "submit";
+    cn.addEventListener("click", onCancel);
+    f.addEventListener("submit", function (ev) {
+      ev.preventDefault(); var t = ta.value.trim().slice(0, maxLen);
+      if (!t) { err.textContent = "Write something, or delete it instead."; err.hidden = false; ta.focus(); return; }
+      onSave(t);
+    });
+    ta.addEventListener("keydown", function (ev) { if (ev.key === "Escape") { ev.stopPropagation(); onCancel(); } });
+    row.appendChild(cn); row.appendChild(go); f.appendChild(ta); f.appendChild(err); f.appendChild(row);
+    setTimeout(function () { var t = $("ed-" + id); if (t && document.activeElement !== t) { try { t.focus({ preventScroll: true }); t.setSelectionRange(t.value.length, t.value.length); } catch (e) {} } }, 0);
+    return f;
+  }
+  function stopEditing() { state.editing = null; state.editDraft = null; }
   var feedSig = "", repSig = "";
   function drawFeed(force) {
     var feed = $("feed"); if (!feed) return;
     // Skip the rebuild when nothing the thread shows has changed; just refresh the Strong buttons.
-    var sig = JSON.stringify([state.posts.map(function (p) { return p.id + ":" + p.createdAt; }), Object.keys(state.settings.blocked || {}), state.confirm || "", Object.keys(state.reported || {}), state.me || "", !!state.canWrite,
+    var sig = JSON.stringify([state.posts.map(function (p) { return p.id + ":" + p.createdAt + ":" + (p.editedAt || 0); }), state.editing && state.editing.type === "post" ? state.editing.id : "", Object.keys(state.settings.blocked || {}), state.confirm || "", Object.keys(state.reported || {}), state.me || "", !!state.canWrite,
       Object.keys(state.profs || {}).map(function (k) { return k + (state.profs[k] && state.profs[k].name || ""); }).join(",")]);
     if (!force && sig === feedSig && feed.childNodes.length) {
       refreshLikes();
-      var rsig = (state.replies || []).map(function (r) { return r.id; }).join(",");
-      if (rsig !== repSig) { repSig = rsig; state.posts.forEach(function (p) { if (!(state.replyOpen === p.id && document.activeElement && document.activeElement.id === "reply-in")) refreshReplies(p.id); }); }
+      var rsig = (state.replies || []).map(function (r) { return r.id + ":" + (r.editedAt || 0); }).join(",");
+      if (rsig !== repSig) { repSig = rsig; state.posts.forEach(function (p) { var ae = document.activeElement; if (!(ae && (ae.id === "reply-in" || /^ed-/.test(ae.id || "")) && ae.closest && ae.closest('[data-replies="' + p.id + '"]'))) refreshReplies(p.id); }); }
       return;
     }
-    repSig = (state.replies || []).map(function (r) { return r.id; }).join(",");
+    repSig = (state.replies || []).map(function (r) { return r.id + ":" + (r.editedAt || 0); }).join(",");
     feedSig = sig;
     var sc = $("scroll"), se = document.scrollingElement, keepTop = sc ? sc.scrollTop : 0, keepDoc = se ? se.scrollTop : 0;
     // Hold the height while rebuilding so the page doesn't jump to the top.
@@ -4485,8 +4521,13 @@ header.hero .tag-btn { color: #efe4c8; border-color: #d0c2a0; }
       var prof = state.profs[p.uid] || {}, art = el("article", "post"); art.dataset.post = p.id;
       var img = el("img", "avatar"); img.alt = ""; if (avatarSrc(p.uid)) img.src = avatarSrc(p.uid); makeLink(img, p.uid); art.appendChild(img);
       var body = el("div"), head = el("div", "pname"), pn = el("span", null, nameOf(p.uid));
-      head.appendChild(pn); makeLink(pn, p.uid); head.appendChild(el("span", "ptime", timeLabel(p.createdAt))); body.appendChild(head);
-      if (p.text) { var tx = el("p", "ptext"); appendWithMentions(tx, p.text, p.mentions); body.appendChild(tx); }
+      head.appendChild(pn); makeLink(pn, p.uid); head.appendChild(el("span", "ptime", timeLabel(p.createdAt) + (p.editedAt ? " \u00B7 edited" : ""))); body.appendChild(head);
+      var editingThis = state.editing && state.editing.type === "post" && state.editing.id === p.id && p.uid === state.me;
+      if (editingThis) body.appendChild(editBox(p.id, p.text, 1000, function (t) {
+        var ments = mentionsIn(t, p.mentions); p.text = t; p.mentions = ments; p.editedAt = Date.now(); stopEditing(); drawFeed(true);
+        if (B.db) B.editPost(p.id, t, ments).catch(function () { postError("Couldn\u2019t save your edit. Check your connection and try again."); });
+      }, function () { stopEditing(); drawFeed(true); }));
+      else if (p.text) { var tx = el("p", "ptext"); appendWithMentions(tx, p.text, p.mentions); body.appendChild(tx); }
       if (p.card) body.appendChild(workoutCardEl(p.card, true));
       if (p.media.length) {
         var md = el("div", "media");
@@ -4498,7 +4539,7 @@ header.hero .tag-btn { color: #efe4c8; border-color: #d0c2a0; }
         body.appendChild(md);
       }
       var acts = el("div", "pactions");
-      var lk = el("button", "mini" + (mine[p.id] ? " on" : ""), "Strong" + (likeCount[p.id] ? " " + likeCount[p.id] : "")); lk.type = "button"; lk.dataset.like = p.id;
+      var lk = el("button", "mini" + (mine[p.id] ? " on" : ""), STRONG + (likeCount[p.id] ? " " + likeCount[p.id] : "")); lk.type = "button"; lk.setAttribute("aria-label", "Strong" + (likeCount[p.id] ? ", " + likeCount[p.id] : "")); lk.dataset.like = p.id;
       lk.setAttribute("aria-pressed", mine[p.id] ? "true" : "false"); lk.disabled = !state.me || !state.canWrite;
       lk.addEventListener("pointerdown", function (ev) { ev.preventDefault(); });
       lk.addEventListener("click", function (ev) {
@@ -4536,6 +4577,10 @@ header.hero .tag-btn { color: #efe4c8; border-color: #d0c2a0; }
         no.addEventListener("click", function () { state.confirm = null; drawFeed(); });
         acts.appendChild(yes); acts.appendChild(no);
       } else if (p.uid === state.me) {
+        if (!editingThis && (p.text || !p.media.length)) {
+          var ed = el("button", "mini", "Edit"); ed.type = "button"; ed.disabled = !state.canWrite;
+          ed.addEventListener("click", function () { state.editing = { type: "post", id: p.id }; state.editDraft = null; drawFeed(true); }); acts.appendChild(ed);
+        }
         var del = el("button", "mini", "Delete"); del.type = "button";
         del.addEventListener("click", function () { state.confirm = { type: "delete", id: p.id }; drawFeed(); }); acts.appendChild(del);
       } else {
@@ -5030,7 +5075,7 @@ header.hero .tag-btn { color: #efe4c8; border-color: #d0c2a0; }
     checkin: { t: "Rally", why: "The group thread. Show up, share wins and encourage a brother.", how: [
       "Write a post and add a photo or video if you want. Type @ to tag someone.",
       "Posting here checks your Daily Check-In box.",
-      "Tap Strong to back a brother\'s post, or Reply to answer him. You can delete your own replies.",
+      "Tap \uD83D\uDD25 Strong to back a brother\'s post, or Reply to answer him. Tap Edit to fix your own post or reply, or Delete to remove it.",
       "Type @ in a post or reply and pick a brother by name or handle to tag him. When someone tags you, the bell next to your profile picture shows a number. Tap it to see who tagged you.",
       "Workouts you share after finishing show up here with your PRs.",
       "What's shared here stays here. No judgment, no gossip."] },
