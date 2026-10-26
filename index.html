@@ -566,6 +566,11 @@ button.fo-item { cursor: pointer; min-height: 44px; }
 .wk-open .wo-t { font-family: var(--f-label); font-weight: 600; font-size: 15.5px; letter-spacing: .03em; }
 .wk-open .wo-s { font-size: 12.5px; color: var(--muted); }
 .wk-open .wo-c { flex: none; font-size: 20px; color: var(--accent); line-height: 1; }
+.mv-tools { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+.mv-tools .mv-btn { flex: 1 1 140px; }
+.mv-note { color: var(--brass); }
+.mv-list { display: grid; gap: 2px; margin: 4px 0 12px; max-height: 52vh; overflow-y: auto; }
+.mv-row:disabled { cursor: default; }
 .wrow { width: 100%; display: flex; align-items: center; gap: 12px; text-align: left; min-height: 60px; padding: 8px 4px; background: transparent; border: 0; border-top: 1px solid var(--line); }
 .wrow .wd { flex: none; width: 52px; display: flex; flex-direction: column; font-family: var(--f-label); font-weight: 600; letter-spacing: .08em; text-transform: uppercase; }
 .wrow .wd small { font-size: 12px; color: var(--muted); font-weight: 500; }
@@ -1824,7 +1829,7 @@ header.hero .tag-btn { color: #efe4c8; border-color: #d0c2a0; }
   }
   function saveSettings() {
     if (!B.db || !state.me) return;
-    var st = { blocked: state.settings.blocked || {}, targets: state.settings.targets || null, body: state.settings.body || null, reminders: state.settings.reminders || null, health: state.settings.health || null, plan: state.settings.plan || null, theme: state.settings.theme || null, autofill: state.settings.autofill || null, favs: state.settings.favs || [], myMeals: state.settings.myMeals || [], preps: state.settings.preps || [], swapAlways: state.settings.swapAlways || {}, onboard: state.settings.onboard || null };
+    var st = { blocked: state.settings.blocked || {}, targets: state.settings.targets || null, body: state.settings.body || null, reminders: state.settings.reminders || null, health: state.settings.health || null, plan: state.settings.plan || null, theme: state.settings.theme || null, autofill: state.settings.autofill || null, favs: state.settings.favs || [], myMeals: state.settings.myMeals || [], preps: state.settings.preps || [], swapAlways: state.settings.swapAlways || {}, dayMoves: state.settings.dayMoves || {}, onboard: state.settings.onboard || null };
     writeChain = writeChain.then(function () { return B.saveSettings(state.me, st); }).catch(noop);
   }
 
@@ -2407,9 +2412,77 @@ header.hero .tag-btn { color: #efe4c8; border-color: #d0c2a0; }
   function planStartFor(rest) { var k = todayKey(), want = (rest + 1) % 7; for (var i = 0; i < 7; i++) { if (parseKey(k).getDay() === want) return k; k = addDays(k, 1); } return todayKey(); }
   function dayDiff(a, b) { return Math.round((parseKey(b) - parseKey(a)) / 864e5); }
   function longDate(k) { return parseKey(k).toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric" }); }
+  /* ---------- Moving days within a week ----------
+     dayMoves maps a calendar date to the plan date whose workout it now shows. Moves stay inside one Monday-Sunday week
+     and never touch the Sabbath, so every week still holds the same program days. */
+  function normMoves(x) {
+    var o = {}; if (!x || typeof x !== "object") return o;
+    Object.keys(x).forEach(function (k) { var v = x[k]; if (/^\d{4}-\d{2}-\d{2}$/.test(k) && /^\d{4}-\d{2}-\d{2}$/.test(String(v)) && mondayKey(k) === mondayKey(String(v))) o[k] = String(v); });
+    return o;
+  }
+  function dayMoves() { var m = state.settings.dayMoves; return m && typeof m === "object" ? m : {}; }
+  function planSrc(key) { var v = dayMoves()[key]; return v && mondayKey(v) === mondayKey(key) && !isWeighDay(key) && !isWeighDay(v) ? v : key; }
+  function weekHasMoves(key) { var mon = mondayKey(key); for (var i = 0; i < 7; i++) { var k = addDays(mon, i); if (planSrc(k) !== k) return true; } return false; }
+  // A week can go back to the plan's order only while every moved day is still ahead and unlogged.
+  function weekResettable(key) { var mon = mondayKey(key), any = false; for (var i = 0; i < 7; i++) { var k = addDays(mon, i); if (planSrc(k) !== k) { any = true; if (!canMoveDay(k)) return false; } } return any; }
+  function canMoveDay(key) {
+    var wf = workoutFor(key); if (!wf || !planCfg() || key < todayKey() || isWeighDay(key)) return false;
+    if (wf.kind !== "train" && wf.kind !== "off") return false;
+    var wt = taskOfKind("workout"); if (wt && recFor(key).done[wt.id]) return false;
+    var d = wkDocCache[key]; if (d && (d.startedAt || d.finishedAt || Object.keys(d.ex || {}).some(function (k) { return (d.ex[k] || []).some(function (x) { return x && (x.r !== "" || x.w !== ""); }); }))) return false;
+    return true;
+  }
+  function moveDays(a, b) {
+    var m = {}; Object.keys(dayMoves()).forEach(function (k) { m[k] = dayMoves()[k]; });
+    var sa = planSrc(a), sb = planSrc(b);
+    if (sb === a) delete m[a]; else m[a] = sb;
+    if (sa === b) delete m[b]; else m[b] = sa;
+    state.settings.dayMoves = m; saveSettings();
+  }
+  function resetWeekMoves(key) {
+    var m = {}, mon = mondayKey(key), wk7 = {}; for (var i = 0; i < 7; i++) wk7[addDays(mon, i)] = true;
+    Object.keys(dayMoves()).forEach(function (k) { if (!wk7[k]) m[k] = dayMoves()[k]; });
+    state.settings.dayMoves = m; saveSettings();
+  }
+  function openMoveDay(key) {
+    var p = planCfg(); if (!p) return;
+    var old = $("cdlg"); if (old) old.remove();
+    var back = el("div", "cdlg"); back.id = "cdlg";
+    var box = el("div", "cdlg-box nw-box mv-box"); box.setAttribute("role", "dialog"); box.setAttribute("aria-modal", "true"); box.setAttribute("aria-labelledby", "mv-t");
+    var cur = rowLabel(workoutFor(key), p), t = el("h2", null, "Move " + longDate(key).split(",")[0]); t.id = "mv-t"; box.appendChild(t);
+    box.appendChild(el("p", null, "Pick the day to trade with. " + cur.t + " goes there, and that day\u2019s session comes to " + longDate(key).split(",")[0] + ". Your Sabbath stays put."));
+    var list = el("div", "mv-list"), mon = mondayKey(key), any = false, msg = el("p", "error"); msg.hidden = true;
+    for (var i = 0; i < 7; i++) (function (k, i) {
+      if (k === key) return;
+      var wf = workoutFor(k), lb = rowLabel(wf, p), ok = canMoveDay(k);
+      var why = isWeighDay(k) ? "Sabbath" : k < todayKey() ? "Already past" : !ok ? "Already logged" : "";
+      var b = chevRow("wrow mv-row" + (ok ? "" : " dim"), lb.t, why || lb.s, ok ? "\u21C4" : "");
+      var wd = el("span", "wd"); wd.appendChild(el("small", null, DOW[i])); wd.appendChild(el("b", null, String(+k.slice(8)))); b.insertBefore(wd, b.firstChild);
+      b.disabled = !ok; b.setAttribute("aria-label", "Trade with " + longDate(k) + ": " + lb.t + (why ? ", " + why : ""));
+      if (ok) { any = true; b.addEventListener("click", function () { check(k, b); }); }
+      list.appendChild(b);
+    })(addDays(mon, i), i);
+    box.appendChild(list); box.appendChild(msg);
+    if (!any) box.appendChild(el("p", "note", "No other day this week can take it. Days that are past, logged or your Sabbath can\u2019t move."));
+    var row = el("div", "cdlg-btns"), no = el("button", "btn ghost", "Cancel"); no.type = "button"; row.appendChild(no); box.appendChild(row);
+    function close() { back.remove(); }
+    no.addEventListener("click", close);
+    back.addEventListener("click", function (ev) { if (ev.target === back) close(); });
+    back.addEventListener("keydown", function (ev) { if (ev.key === "Escape") close(); });
+    // Look at both days' logs first so a started workout is never moved out from under its sets.
+    function check(k, btn) {
+      btn.disabled = true; msg.hidden = true;
+      var look = function (d) { return wkDocCache[d] ? Promise.resolve(wkDocCache[d]) : state.me && B.db ? B.getWorkoutLog(state.me, d).then(function (r) { wkDocCache[d] = normWk(r, d); return wkDocCache[d]; }) : Promise.resolve(emptyWk(d)); };
+      Promise.all([look(key), look(k)]).then(function () {
+        if (!canMoveDay(key) || !canMoveDay(k)) { msg.textContent = "One of these days already has sets logged, so it can\u2019t move."; msg.hidden = false; btn.disabled = false; return; }
+        moveDays(key, k); close(); state.trainDay = k; drawTrain();
+      }).catch(function () { msg.textContent = "Couldn\u2019t check your log. Check your connection and try again."; msg.hidden = false; btn.disabled = false; });
+    }
+    back.appendChild(box); document.body.appendChild(back); no.focus();
+  }
   function workoutFor(key) {
     var p = planCfg(); if (!p) return null;
-    var i = dayDiff(p.start, key), list = PLAN.W[p.program];
+    var i = dayDiff(p.start, planSrc(key)), list = PLAN.W[p.program];
     if (i < 0) return { kind: "before" };
     if (i >= list.length) return { kind: "over" };
     var w = list[i], th = PLAN.T[p.program + "|" + w.templateDay] || {};
@@ -2482,6 +2555,7 @@ header.hero .tag-btn { color: #efe4c8; border-color: #d0c2a0; }
     ev.preventDefault(); if (!state.me || !state.canWrite) return;
     var p = planCfg(), d = planDraft, restart = planRestarts();
     state.settings.plan = { program: d.program, equip: d.equip, rest: d.rest, fourth: !!d.fourth, start: restart ? planStartFor(d.rest) : p.start };
+    if (restart || !p) state.settings.dayMoves = {};
     state.planEdit = false; state.trainDay = state.settings.plan.start > todayKey() ? state.settings.plan.start : todayKey(); saveSettings(); ensureStrip();
   }
   function wkSection(box, label, text) { if (!text) return; var d = el("p", "wk-sec"); d.appendChild(el("b", null, label)); d.appendChild(document.createTextNode(text)); box.appendChild(d); }
@@ -2508,6 +2582,13 @@ header.hero .tag-btn { color: #efe4c8; border-color: #d0c2a0; }
         var msg0 = wf.kind === "rest" ? "Sabbath. " + wf.w.exercises[0][1] : wf.kind === "off" ? "Rest day. Turn on the 4th training day in your plan to see an optional workout here." : wf.kind === "before" ? "Your plan starts " + longDate(p.start) + "." : "You finished all 365 days. Pick a new plan below to keep going.";
         box.appendChild(el("p", "note", msg0));
       }
+    }
+    if (wf && !off && planSrc(sel) !== sel) box.appendChild(el("p", "note mv-note", "\u21C4 Moved here from " + longDate(planSrc(sel)).split(",")[0] + "."));
+    if (wf && !off) {
+      var mr = el("div", "mv-tools");
+      if (canMoveDay(sel)) { var mb = el("button", "btn ghost mv-btn", "\u21C4 Move day"); mb.type = "button"; mb.addEventListener("click", function () { openMoveDay(sel); }); mr.appendChild(mb); }
+      if (weekResettable(sel)) { var rb0 = el("button", "btn ghost mv-btn", "Reset week"); rb0.type = "button"; rb0.addEventListener("click", function () { confirmDelete({ title: "Reset this week?", message: "Every day this week goes back to the plan\u2019s order. Days you already logged keep what you logged.", yes: "Reset week" }, function () { resetWeekMoves(sel); drawTrain(); }); }); mr.appendChild(rb0); }
+      if (mr.childNodes.length) box.appendChild(mr);
     }
     drawOwnWorkouts(box, sel, isToday, off);
   }
@@ -2660,7 +2741,7 @@ header.hero .tag-btn { color: #efe4c8; border-color: #d0c2a0; }
     var wkTask = taskOfKind("workout"), mon = mondayKey(sel), today = todayKey();
     for (var i = 0; i < 7; i++) (function (key, i) {
       var wf = workoutFor(key), lb = rowLabel(wf, p), done = wkTask && recFor(key).done[wkTask.id];
-      var b = chevRow("wrow" + (key === today ? " is-today" : "") + (key === sel ? " is-sel" : "") + (done ? " done" : "") + (lb.dim ? " dim" : ""), lb.t, (key === today ? "Today · " : "") + lb.s, done ? "✓" : (wf.kind === "train" ? "›" : ""));
+      var b = chevRow("wrow" + (key === today ? " is-today" : "") + (key === sel ? " is-sel" : "") + (done ? " done" : "") + (lb.dim ? " dim" : ""), lb.t, (key === today ? "Today · " : "") + (planSrc(key) !== key ? "Moved · " : "") + lb.s, done ? "✓" : (wf.kind === "train" ? "›" : ""));
       var wd = el("span", "wd"); wd.appendChild(el("small", null, DOW[i])); wd.appendChild(el("b", null, String(+key.slice(8)))); b.insertBefore(wd, b.firstChild);
       b.setAttribute("aria-label", longDate(key) + ": " + lb.t);
       b.addEventListener("click", function () { state.trainDay = key; if (wf.kind === "train") openWorkout(key); else drawTrain(); });
@@ -4853,6 +4934,7 @@ header.hero .tag-btn { color: #efe4c8; border-color: #d0c2a0; }
       "Pick your program, equipment and Sabbath day in Workout plan.",
       "Tap a day on the calendar to see its workout, then open it to start.",
       "Use + to add your own separate workout to any day.",
+      "Schedule got wonky? Tap a day, then Move day, and pick another day this week to trade with. Your Sabbath stays put, and days you've already logged can't move. Reset week puts it back.",
       "Your week and Training volume show what you've lifted each day. The line across the bars is your running total for the week.",
       "Steps works the same way, with a short line on each day for that day's goal."] },
     workout: { t: "Workout", why: "Log a workout set by set while you train.", how: [
@@ -6229,7 +6311,7 @@ header.hero .tag-btn { color: #efe4c8; border-color: #d0c2a0; }
         drawToday(); onbMaybeStart();
       });
       B.watchSettings(state.me, function (st) {
-        state.settings = { blocked: (st && st.blocked) || {}, targets: (st && st.targets) || null, body: (st && st.body) || null, reminders: (st && st.reminders) || null, health: (st && st.health) || null, plan: (st && st.plan) || null, theme: (st && st.theme) || null, autofill: (st && st.autofill) || null, favs: (st && Array.isArray(st.favs)) ? st.favs.slice(0, 60) : [], myMeals: (st && Array.isArray(st.myMeals)) ? st.myMeals.slice(0, 30) : [], preps: (st && Array.isArray(st.preps)) ? st.preps.slice(0, 40) : [], swapAlways: (st && st.swapAlways && typeof st.swapAlways === "object") ? st.swapAlways : {}, onboard: (st && st.onboard && typeof st.onboard === "object") ? st.onboard : null }; if (state.settings.theme) applyTheme(state.settings.theme, false); state.settingsLoaded = true; drawAll(); drawFeed(); refreshHealth(); onbMaybeStart();
+        state.settings = { blocked: (st && st.blocked) || {}, targets: (st && st.targets) || null, body: (st && st.body) || null, reminders: (st && st.reminders) || null, health: (st && st.health) || null, plan: (st && st.plan) || null, theme: (st && st.theme) || null, autofill: (st && st.autofill) || null, favs: (st && Array.isArray(st.favs)) ? st.favs.slice(0, 60) : [], myMeals: (st && Array.isArray(st.myMeals)) ? st.myMeals.slice(0, 30) : [], preps: (st && Array.isArray(st.preps)) ? st.preps.slice(0, 40) : [], swapAlways: (st && st.swapAlways && typeof st.swapAlways === "object") ? st.swapAlways : {}, dayMoves: normMoves(st && st.dayMoves), onboard: (st && st.onboard && typeof st.onboard === "object") ? st.onboard : null }; if (state.settings.theme) applyTheme(state.settings.theme, false); state.settingsLoaded = true; drawAll(); drawFeed(); refreshHealth(); onbMaybeStart();
       });
     }
     B.watchPosts(function (rows) { state.posts = rows; drawFeed(); loadProfiles(); drawTagBells(); });
