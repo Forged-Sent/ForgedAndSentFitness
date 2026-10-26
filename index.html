@@ -1680,6 +1680,10 @@ header.hero .mini:hover, header.hero .pts-btn:hover { border-color: var(--gold-2
     var t = state.healthToday; if (!t || !healthOn(k)) return false;
     return k === "steps" ? t.steps != null : k === "weight" ? t.weightLb != null : true;
   }
+  // Calorie box window by goal: losing fat 15% under to 10% over, maintaining within 5%, building within 10%.
+  var CAL_WINDOWS = { lose: [0.15, 0.10], maintain: [0.05, 0.05], build: [0.10, 0.10] };
+  function calWindow(tk) { var g = ((state.settings || {}).body || {}).goal, w = CAL_WINDOWS[g] || CAL_WINDOWS.build; return [Math.round(tk * (1 - w[0])), Math.round(tk * (1 + w[1]))]; }
+  function calWindowText() { var g = ((state.settings || {}).body || {}).goal; return g === "lose" ? "15% under to 10% over your goal" : g === "maintain" ? "within 5% of your goal" : "within 10% of your goal"; }
   function derive(rec, log) {
     var wt = taskOfKind("water");
     if (wt) { if (log.water >= WATER_GOAL_OZ) rec.done[wt.id] = true; else delete rec.done[wt.id]; }
@@ -1690,7 +1694,7 @@ header.hero .mini:hover, header.hero .pts-btn:hover { border-color: var(--gold-2
     var hw = taskOfKind("weigh"); if (hw && isWeighDay(rec.date) && healthHave("weight")) { if (state.healthToday.weightLb > 0) rec.done[hw.id] = true; else delete rec.done[hw.id]; }
     var hk = taskOfKind("workout"); if (hk && healthHave("workouts") && state.healthToday.workouts > 0) rec.done[hk.id] = true;
     var ct = taskOfKind("calories"), t = targets(), tk = t ? Number(t.kcal) || 0 : 0;
-    if (ct) { if (tk > 0 && log.kcal >= 0.9 * tk && log.kcal <= 1.1 * tk) rec.done[ct.id] = true; else delete rec.done[ct.id]; }
+    if (ct) { var cw = calWindow(tk); if (tk > 0 && log.kcal >= cw[0] && log.kcal <= cw[1]) rec.done[ct.id] = true; else delete rec.done[ct.id]; }
   }
   // fn(rec, log) edits today's shared record and private log; return true from fn if it changed the log.
   function writeDay(fn) {
@@ -1852,7 +1856,7 @@ header.hero .mini:hover, header.hero .pts-btn:hover { border-color: var(--gold-2
       var sub = tk.sub || "";
       if (isDevo) { var dv = devoToday(); sub = done[tk.id] ? "Read today" : (dv ? dv.e.ref + ". Tap to open today's reading" : "Tap to open today's reading"); }
       else if (tk.kind === "water") sub = Math.round(log.water) + " of " + Math.round(WATER_GOAL_OZ) + " oz. Log it in Fuel";
-      else if (tk.kind === "calories") sub = t && Number(t.kcal) ? fmt(log.kcal) + " of " + fmt(Number(t.kcal)) + " kcal. Log it in Fuel" : "Set your targets in Fuel";
+      else if (tk.kind === "calories") sub = t && Number(t.kcal) ? (function () { var w = calWindow(Number(t.kcal)); return fmt(log.kcal) + " of " + fmt(Number(t.kcal)) + " kcal. Checks at " + fmt(w[0]) + "\u2013" + fmt(w[1]); })() : "Set your targets in Fuel";
       else if (tk.kind === "workout") sub = done[tk.id] ? "Finished in Train" : "Checks itself when you finish a workout";
       else if (tk.kind === "checkin") sub = done[tk.id] ? "Posted today" : "Post in the check-in thread";
       else if (tk.kind === "photos") { var pc = normProg(progFor(todayKey()) || {}), nd = POSES.filter(function (p) { return pc[p[0]]; }).length; sub = done[tk.id] ? "Front, side and rear saved" : nd ? nd + " of 3 taken. Tap to finish" : "Front, side and rear. Tap to take them"; }
@@ -4301,7 +4305,7 @@ header.hero .mini:hover, header.hero .pts-btn:hover { border-color: var(--gold-2
       "Under each meal, use Search, Photo, Voice or Favorites to log food. Quick add is for when you only know the numbers.",
       "Meal prep saves a meal you make often so you can log it in one tap.",
       "Copy a previous day or a single meal when you eat the same thing.",
-      "Your calories box checks itself when you land within 10% of your goal."] },
+      "Your Calories box checks itself when you land in your window. Losing fat: 15% under to 10% over your goal. Maintaining: within 5%. Building: within 10%."] },
     train: { t: "Train", why: "Your training plan, today's workout and your progress over time.", how: [
       "This week's challenges: three buttons at the top for the Family, Iron and Endure challenges. Tap one to see what it is, then submit your result there.",
       "Pick your program, equipment and Sabbath day in Workout plan.",
@@ -4400,7 +4404,7 @@ header.hero .mini:hover, header.hero .pts-btn:hover { border-color: var(--gold-2
     act: ["Activity level", "How active you are in a normal week, counting workouts and your job. It sets how many calories you burn beyond resting. When in doubt, pick the lower one."],
     pace: ["Pace", "How fast to lose weight. Steady is 0.5 lb a week, Standard 1 lb, Aggressive 1.5 lb. Faster means fewer calories. Standard works for most men."],
     gwt: ["Goal weight", "The weight you're working toward. Your protein target is 1 g per pound of it, so a 205 lb goal means 205 g of protein a day. Leave it blank to use your current weight."],
-    targets: ["Your daily targets", "The calories, protein, carbs and fat you track on Fuel. Your Calories box checks when you land within 10% of the calorie goal. Fine-tune them anytime in Settings."],
+    targets: ["Your daily targets", "The calories, protein, carbs and fat you track on Fuel. Your Calories box checks when you land in your window: losing fat, 15% under to 10% over; maintaining, within 5%; building, within 10%. Fine-tune them anytime in Settings."],
     program: ["Which program?", "Forged builds strength with heavy, simple lifts. Built adds muscle size. Engine builds conditioning. Warrior trains athletic, combat-ready fitness. You can switch anytime in Train."],
     equip: ["Equipment", "What you have to train with. Workouts and swaps use moves that fit your gear."],
     rest: ["Sabbath day", "Your rest day. Weigh-in and progress photos happen that day, and your step goal drops to 7,000."],
@@ -4626,7 +4630,7 @@ header.hero .mini:hover, header.hero .pts-btn:hover { border-color: var(--gold-2
   /* Tour: one card per tab over the real screen. */
   var TOUR = [
     ["today", "Today", ["Tap a box when it's done. Boxes with an arrow open first, like the devotional, your motto and your steps.", "Some boxes fill themselves from Fuel, Train and Rally.", "Steps: 10,000 a day (7,000 on your Sabbath), plus bonus points past 10,000."]],
-    ["fuel", "Fuel", ["Log meals with search, photo, voice or favorites.", "Tap the water buttons as you drink.", "Your Calories box checks when you land within 10% of your goal."]],
+    ["fuel", "Fuel", ["Log meals with search, photo, voice or favorites.", "Tap the water buttons as you drink.", "Your Calories box checks when you land in your window: 15% under to 10% over when losing fat, within 5% when maintaining."]],
     ["train", "Train", ["Tap Start, pray the workout prayer, then tap Amen to start the clock.", "Log reps, then weight. Finish to earn 25 points for each lift PR.", "Weekly challenges are at the top. Due Sunday 8 AM Arizona time, with photo or video proof."]],
     ["board", "Board", ["Kingdom Warrior ranks the men by points: Today, This week and All time.", "Use the menu to see top PRs on each lift.", "Tap How points work for the full breakdown."]],
     ["checkin", "Rally", ["The group thread. Post a win, a photo or a word for a brother.", "Posting checks your Daily Check-In box. Tap Strong or Reply on a brother's post.", "Keep it real. No judgment, no gossip."]]
