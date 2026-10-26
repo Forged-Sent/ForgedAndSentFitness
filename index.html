@@ -516,6 +516,17 @@ button.fo-item { cursor: pointer; min-height: 44px; }
 .vchart .vl { fill: var(--muted); font-size: 11px; text-anchor: middle; letter-spacing: .06em; text-transform: uppercase; }
 .vchart .vl.today { fill: var(--ink); font-weight: 700; }
 .vchart .vg { stroke: var(--line); stroke-width: 1; }
+.vchart .vb.short { opacity: .55; }
+.vchart .vgoal { stroke: var(--ink); stroke-width: 1.5; stroke-dasharray: 3 2; pointer-events: none; }
+.vchart .vtrend { fill: none; stroke: var(--hot); stroke-width: 2; stroke-linejoin: round; pointer-events: none; }
+.vchart .vtrend-dot { fill: var(--hot); pointer-events: none; }
+.vchart .vtrend-t { fill: var(--hot); font-size: 11px; font-weight: 700; letter-spacing: .04em; font-variant-numeric: tabular-nums; }
+.wk-last { display: block; margin-top: 6px; padding: 8px 10px; border-left: 3px solid var(--brass); background: color-mix(in srgb, var(--brass) 10%, transparent); font-size: 13px; line-height: 1.4; }
+.wk-last b { display: block; font-family: var(--f-label); letter-spacing: .06em; text-transform: uppercase; font-size: 11.5px; color: var(--muted); margin-right: 4px; }
+.wk-last .up { display: block; font-weight: 700; color: var(--accent); }
+.wk-last .hold { display: block; color: var(--muted); }
+.setrow.need { outline: 2px solid var(--danger); outline-offset: 2px; }
+.fix-list { margin: 6px 0 12px; padding-left: 18px; font-size: 14px; line-height: 1.5; }
 .wk-sec { margin: 12px 0 0; font-size: 13px; line-height: 1.5; }
 .wk-sec b { display: block; font-family: var(--f-label); font-weight: 600; font-size: 13px; letter-spacing: .12em; text-transform: uppercase; color: var(--brass, #b08d57); margin-bottom: 2px; }
 .wx { display: flex; flex-direction: column; gap: 2px; padding: 10px 0; border-top: 1px dashed var(--line); }
@@ -1080,6 +1091,11 @@ header.hero .tag-btn { color: #efe4c8; border-color: #d0c2a0; }
     <section aria-labelledby="h-vol" id="vol-sec" hidden>
       <div class="section-head"><h2 class="label-caps" id="h-vol">Training volume</h2></div>
       <div id="vol-body"></div>
+    </section>
+
+    <section aria-labelledby="h-steps" id="steps-sec" hidden>
+      <div class="section-head"><h2 class="label-caps" id="h-steps">Steps</h2></div>
+      <div id="steps-body"></div>
     </section>
 
     <section aria-labelledby="h-plan">
@@ -2114,6 +2130,91 @@ header.hero .tag-btn { color: #efe4c8; border-color: #d0c2a0; }
     (root.sessions || []).forEach(function (x) { add(normExtra(x.extra).map(function (y) { return [y.g, y.rx]; }), x.ex); });
     return out;
   }
+  /* ---------- Last time: last working set and a weight recommendation ---------- */
+  var wkHist = null, wkHistBusy = false;
+  function loadWkHist(force) {
+    if (wkHistBusy || (wkHist && !force) || !state.me || !B.db || !B.listWorkouts) return;
+    wkHistBusy = true;
+    B.listWorkouts(state.me).then(function (docs) { wkHist = docs || []; wkHistBusy = false; if (state.page === "workout") drawWorkoutPage(); }).catch(function () { wkHistBusy = false; });
+  }
+  // Every exercise logged in one day's record: [movement, prescription, sets].
+  function exEntriesOf(root, key) {
+    var out = [], wf = workoutFor(key);
+    var planned = (wf && wf.kind === "train" && wf.w ? wf.w.exercises : []).map(function (e, i) { return [effMove(root, i, e[0]), e[1]]; });
+    planned.concat(normExtra(root.extra).map(function (x) { return [x.g, x.rx]; })).forEach(function (e, i) { if (Array.isArray(root.ex[i])) out.push([e[0], e[1], root.ex[i]]); });
+    (root.sessions || []).forEach(function (x) { normExtra(x.extra).forEach(function (y, i) { if (Array.isArray(x.ex[i])) out.push([y.g, y.rx, x.ex[i]]); }); });
+    return out;
+  }
+  // Reps the last working set aims for: the top of a range ("8-10" is 10), or the last set of a ramp ("5, 1 x 3, 1 x 1" is 1).
+  function topReps(target) { var m = String(target || "").match(/\d+/g); return m ? Number(m[m.length - 1]) : 0; }
+  function isLowerBody(g) { var m = PLAN.M[g] || {}; return ["Squat", "Hinge", "Single leg"].indexOf(m.pattern) >= 0; }
+  // The most recent earlier day this movement was logged. Working sets are the program's sets: warm-ups and added sets are left out.
+  function lastWorking(g, key) {
+    if (!wkHist) return null; var gk = String(g).trim().toLowerCase(), best = null;
+    wkHist.forEach(function (d) {
+      if (!d || !d.date || d.date >= key || (best && d.date <= best.date)) return;
+      var root = normWk(d, d.date);
+      exEntriesOf(root, d.date).forEach(function (e) {
+        if (String(e[0]).trim().toLowerCase() !== gk) return;
+        var ps = parseSets(e[1]); if (ps && ps.time) return;
+        var work = e[2].filter(function (s) { return s && !s.k && Number(s.r) > 0; });
+        if (!work.length) return;
+        var last = work[work.length - 1];
+        if (!best || d.date > best.date) best = { date: d.date, w: parseFloat(last.w) || 0, r: Number(last.r), target: ps ? topReps(ps.target) : 0, rx: e[1] };
+      });
+    });
+    return best;
+  }
+  function lastTimeEl(g, key, rxNow, weighted) {
+    var L = lastWorking(g, key); if (!L) return null;
+    var box = el("span", "wk-last"), when = parseKey(L.date).toLocaleDateString(undefined, { month: "short", day: "numeric" });
+    box.appendChild(el("b", null, "Last time \u00B7 " + when));
+    box.appendChild(document.createTextNode((weighted && L.w ? L.w + " lb \u00D7 " : "") + L.r + " reps on your last working set"));
+    if (!weighted || !L.w || !L.target) return box;
+    var deload = /deload/i.test(String(rxNow || ""));
+    if (deload) { box.appendChild(el("span", "hold", "Deload week. Stay at " + L.w + " lb or a little lighter and move well.")); return box; }
+    if (L.r >= L.target) {
+      var bump = isLowerBody(g) ? 10 : 5;
+      box.appendChild(el("span", "up", "You hit all " + L.target + " reps. Try " + (L.w + bump) + " lb today (+" + bump + ")."));
+    } else box.appendChild(el("span", "hold", "Stay at " + L.w + " lb and get all " + L.target + " reps before you go up."));
+    return box;
+  }
+  // Sets that keep a workout from finishing: reps or weight missing.
+  function workoutFixes(exList, rec, p) {
+    var fixes = [], blanks = [];
+    exList.forEach(function (e, idx) {
+      var ps = parseSets(e[1]), a = rec.ex[idx]; if (!ps || !Array.isArray(a)) return;
+      var mg = e[2] ? e[0] : effMove(rec, idx, e[0]), name = moveName(mg, p.equip), bw = ps.time || !needsWeight(mg, p.equip), setNo = 0, wNo = 0;
+      a.forEach(function (s, j) {
+        var lab = s.k === "w" ? "Warm-up " + (++wNo) : "Set " + (++setNo), hasR = Number(s.r) > 0, hasW = s.w !== "" && s.w != null;
+        if (hasR && (bw || hasW)) return;
+        var id = idx + "-" + j;
+        if (!hasR && (bw || !hasW)) { (s.k ? fixes : blanks).push({ id: id, t: name + ", " + lab + ": " + (s.k ? "enter it or remove it" : "nothing entered") }); return; }
+        fixes.push({ id: id, t: name + ", " + lab + ": " + (hasR ? "add the weight" : "add the " + (ps.time ? "seconds" : "reps")) });
+      });
+    });
+    return { fixes: fixes, blanks: blanks };
+  }
+  function openFixes(chk, onFinish) {
+    var old = $("cdlg"); if (old) old.remove();
+    var back = el("div", "cdlg"); back.id = "cdlg";
+    var box = el("div", "cdlg-box nw-box"); box.setAttribute("role", "dialog"); box.setAttribute("aria-modal", "true"); box.setAttribute("aria-labelledby", "fx-t");
+    var hard = chk.fixes.length > 0, list = hard ? chk.fixes : chk.blanks;
+    var t = el("h2", null, hard ? "Fix " + (list.length === 1 ? "this set" : "these sets") + " first" : "Some sets are blank"); t.id = "fx-t"; box.appendChild(t);
+    box.appendChild(el("p", null, hard ? "Every set needs reps and weight before you finish. The sets to fix are outlined in red." : "These sets have nothing entered. Fill them in if you did them, or finish without them."));
+    var ul = el("ul", "fix-list"); list.slice(0, 8).forEach(function (x) { ul.appendChild(el("li", null, x.t)); }); if (list.length > 8) ul.appendChild(el("li", null, "and " + (list.length - 8) + " more")); box.appendChild(ul);
+    var row = el("div", "cdlg-btns"), go1 = el("button", "btn" + (hard ? "" : " ghost"), hard ? "Fix it" : "Go back"); go1.type = "button"; row.appendChild(go1);
+    if (!hard) { var fin = el("button", "btn", "Finish anyway"); fin.type = "button"; fin.addEventListener("click", function () { back.remove(); onFinish(); }); row.appendChild(fin); }
+    box.appendChild(row); back.appendChild(box);
+    function mark() {
+      back.remove(); var first = null;
+      list.forEach(function (x) { var r = document.querySelector('#wkp-body .setrow[data-fix="' + x.id + '"]'); if (r) { r.classList.add("need"); if (!first) first = r; } });
+      if (first) { first.scrollIntoView({ block: "center", behavior: "smooth" }); var f = first.querySelector("input"); if (f) setTimeout(function () { try { f.focus({ preventScroll: true }); } catch (e) {} }, 350); }
+    }
+    go1.addEventListener("click", mark);
+    back.addEventListener("keydown", function (ev) { if (ev.key === "Escape") mark(); });
+    document.body.appendChild(back); go1.focus();
+  }
   /* ---------- Share a finished workout to Rally ---------- */
   function workoutShareInfo(key, root, sess, w) {
     var src = sess || root, p = planCfg() || {}, keys = {}, exCount = 0, vol = sess ? volOf(sess, key, true) : volOf(root, key);
@@ -2500,21 +2601,56 @@ header.hero .tag-btn { color: #efe4c8; border-color: #d0c2a0; }
     a.appendChild(el("span", null, lastTotal ? (total >= lastTotal ? "\u25B2 " : "\u25BC ") + fmtVol(Math.abs(total - lastTotal)) + " lb vs last week" : "No volume logged last week"));
     b.appendChild(el("small", null, longDate(sel).split(",")[0])); b.appendChild(el("b", null, fmtVol(selV) + " lb")); b.appendChild(el("span", null, selV ? "Selected day" : "Nothing logged"));
     st.appendChild(a); st.appendChild(b); body.appendChild(st);
-    var W = 320, H = 170, top = 22, bot = 24, ph = H - top - bot, max = Math.max.apply(null, v), step = max > 20000 ? 5000 : max > 8000 ? 2000 : max > 3000 ? 1000 : 500, ymax = Math.max(step, Math.ceil(max / step) * step);
-    var svg = svgEl("svg", { "class": "vchart", viewBox: "0 0 " + W + " " + H, role: "img", "aria-label": "Volume per day this week in pounds" });
+    body.appendChild(weekChart({ keys: keys, v: v, sel: sel, today: today, unit: "lb", none: "no volume", aria: "Volume per day this week in pounds, with a line for the running week total" }));
+    body.appendChild(el("p", "note", "Bars are each day. The line is your running total for the week. Volume is weight \u00D7 reps for logged work sets. Warm-ups, timed holds and bodyweight sets with no weight are not counted."));
+  }
+  // Bars for each day of the week plus a line for the running week total (on its own scale, so it always fits).
+  function weekChart(o) {
+    var keys = o.keys, v = o.v, sel = o.sel, today = o.today, goals = o.goals || null;
+    var W = 320, H = 182, top = 30, bot = 24, ph = H - top - bot, max = Math.max.apply(null, v.concat(goals || [0]));
+    var step = max > 20000 ? 5000 : max > 8000 ? 2000 : max > 3000 ? 1000 : 500, ymax = Math.max(step, Math.ceil(max / step) * step);
+    var svg = svgEl("svg", { "class": "vchart", viewBox: "0 0 " + W + " " + H, role: "img", "aria-label": o.aria });
     svg.appendChild(svgEl("line", { "class": "vg", x1: 0, x2: W, y1: top + ph, y2: top + ph }));
-    var bw = 28, gap = (W - 7 * bw) / 7;
+    var bw = 28, gap = (W - 7 * bw) / 7, cx = function (i) { return gap / 2 + i * (bw + gap) + bw / 2; };
     keys.forEach(function (k, i) {
-      var x = gap / 2 + i * (bw + gap), h = v[i] ? Math.max(3, v[i] / ymax * ph) : 3, y = top + ph - h;
-      var r = svgEl("rect", { "class": "vb" + (v[i] ? "" : " zero") + (k === sel ? " sel" : ""), x: x, y: y, width: bw, height: h, rx: 0 });
-      var t = svgEl("title", {}); t.textContent = longDate(k) + ": " + (v[i] ? v[i].toLocaleString() + " lb" : "no volume"); r.appendChild(t);
+      var x = cx(i) - bw / 2, h = v[i] ? Math.max(3, v[i] / ymax * ph) : 3, y = top + ph - h;
+      var met = goals && v[i] >= goals[i];
+      var r = svgEl("rect", { "class": "vb" + (v[i] ? "" : " zero") + (goals && v[i] && !met ? " short" : "") + (k === sel ? " sel" : ""), x: x, y: y, width: bw, height: h, rx: 0 });
+      var t = svgEl("title", {}); t.textContent = longDate(k) + ": " + (v[i] ? v[i].toLocaleString() + " " + o.unit : o.none) + (goals ? " (goal " + goals[i].toLocaleString() + ")" : ""); r.appendChild(t);
       r.addEventListener("click", function () { state.trainDay = k; drawTrain(); });
       svg.appendChild(r);
+      if (goals) { var gy = top + ph - goals[i] / ymax * ph; svg.appendChild(svgEl("line", { "class": "vgoal", x1: x - 3, x2: x + bw + 3, y1: gy, y2: gy })); }
       if (v[i]) { var tx = svgEl("text", { "class": "vt", x: x + bw / 2, y: y - 5 }); tx.textContent = fmtVol(v[i]); svg.appendChild(tx); }
       var lb = svgEl("text", { "class": "vl" + (k === today ? " today" : ""), x: x + bw / 2, y: H - 8 }); lb.textContent = DOW[i]; svg.appendChild(lb);
     });
-    body.appendChild(svg);
-    body.appendChild(el("p", "note", "Volume is weight \u00D7 reps for logged work sets. Warm-ups, timed holds and bodyweight sets with no weight are not counted."));
+    // Running total through today (or the whole week for past weeks).
+    var cum = [], run = 0; keys.forEach(function (k, i) { if (k <= today) { run += v[i] || 0; cum.push(run); } });
+    if (run > 0 && cum.length) {
+      var cy = function (c) { return top + ph - c / run * (ph - 4); }, pts = cum.map(function (c, i) { return cx(i) + "," + cy(c); }).join(" ");
+      svg.appendChild(svgEl("polyline", { "class": "vtrend", points: pts }));
+      cum.forEach(function (c, i) { svg.appendChild(svgEl("circle", { "class": "vtrend-dot", cx: cx(i), cy: cy(c), r: 3 })); });
+      var li = cum.length - 1, lx = cx(li), lt = svgEl("text", { "class": "vtrend-t", x: Math.min(W - 2, Math.max(2, lx)), y: 12, "text-anchor": li >= 5 ? "end" : li <= 1 ? "start" : "middle" });
+      lt.textContent = "Week " + fmtVol(run); svg.appendChild(lt);
+    }
+    return svg;
+  }
+  /* ---------- Weekly steps chart ---------- */
+  function drawStepsChart(sel) {
+    var sec = $("steps-sec"), body = $("steps-body"); if (!sec) return; sec.hidden = false;
+    var mon = mondayKey(sel), today = todayKey(), prev = addDays(mon, -7), keys = [], pkeys = [];
+    for (var i = 0; i < 7; i++) { keys.push(addDays(mon, i)); pkeys.push(addDays(prev, i)); }
+    var stepsOf = function (k) { return Math.max(0, Math.round(Number(recFor(k).steps) || 0)); };
+    var v = keys.map(stepsOf), total = v.reduce(function (a, b) { return a + b; }, 0), lastTotal = pkeys.map(stepsOf).reduce(function (a, b) { return a + b; }, 0);
+    var goals = keys.map(stepGoal), hit = keys.filter(function (k, i) { return k <= today && v[i] >= goals[i]; }).length, past = keys.filter(function (k) { return k <= today; }).length, selV = stepsOf(sel);
+    body.textContent = "";
+    var st = el("div", "vstats"), a = el("div", "vstat"), b = el("div", "vstat");
+    a.appendChild(el("small", null, "This week")); a.appendChild(el("b", null, total.toLocaleString() + " steps"));
+    a.appendChild(el("span", null, lastTotal ? (total >= lastTotal ? "\u25B2 " : "\u25BC ") + Math.abs(total - lastTotal).toLocaleString() + " vs last week" : "No steps logged last week"));
+    b.appendChild(el("small", null, longDate(sel).split(",")[0])); b.appendChild(el("b", null, selV.toLocaleString() + " steps"));
+    b.appendChild(el("span", null, "Goal " + stepGoal(sel).toLocaleString() + " \u00B7 " + hit + " of " + past + " days hit"));
+    st.appendChild(a); st.appendChild(b); body.appendChild(st);
+    body.appendChild(weekChart({ keys: keys, v: v, sel: sel, today: today, unit: "steps", none: "no steps logged", goals: goals, aria: "Steps per day this week with each day's goal and a line for the running week total" }));
+    body.appendChild(el("p", "note", "Bars are each day. The short line across each bar is that day\u2019s goal (" + STEPS_GOAL.toLocaleString() + ", or " + STEPS_GOAL_SABBATH.toLocaleString() + " on your Sabbath). The rising line is your running total for the week. Log steps on Today."));
   }
   function drawWeek(sel) {
     var sec = $("week-sec"), list = $("week-list"), p = planCfg(); list.textContent = ""; sec.hidden = !p; if (!p) return;
@@ -3168,7 +3304,7 @@ header.hero .tag-btn { color: #efe4c8; border-color: #d0c2a0; }
     if (!force && document.activeElement && document.activeElement.tagName === "INPUT" && body.contains(document.activeElement)) return;
     var sid = state.wkSid || null, S = !!sid;
     if (!wk || wk.key !== key || (wk.sid || null) !== sid) { wk = { key: key, sid: sid, root: null, rec: null, loaded: false, timers: {} }; loadWk(key); }
-    body.textContent = ""; $("wkp-date").textContent = longDate(key); paintClock();
+    body.textContent = ""; $("wkp-date").textContent = longDate(key); paintClock(); loadWkHist();
     if (S && wk.loaded && !wk.rec) { body.appendChild(el("p", "note", "This workout was deleted.")); return; }
     if (!S && (!wf || wf.kind !== "train")) { body.appendChild(el("p", "note", "No workout on this day.")); return; }
     var off = !state.me || !state.canWrite, isToday = key === todayKey(), rec = wk.rec || (S ? normSession({ id: sid }) : emptyWk(key));
@@ -3206,12 +3342,14 @@ header.hero .tag-btn { color: #efe4c8; border-color: #d0c2a0; }
       if (swp0) ex.appendChild(el("span", "sw-note", "Swapped from " + moveName(origG, p.equip) + (swp0.why ? " \u00B7 " + swp0.why : "")));
       ex.appendChild(el("span", "wr", e[1]));
       var c = moveCue(mg); if (c) ex.appendChild(el("span", "wc", c));
+      if (ps && !ps.time && (live || (isToday && !done))) { var lt0 = lastTimeEl(mg, key, e[1], needsWeight(mg, p.equip)); if (lt0) ex.appendChild(lt0); }
       if (live) {
         var a = setsOf(idx, ps);
         if (ps) {
           var setNo = 0, wNo = 0, afRows = [];
           a.forEach(function (s, j) {
             var isW = s.k === "w", isX = s.k === "x", row = el("div", "setrow" + (s.d ? " ok" : "")), lab = isW ? "W" + (++wNo) : "Set " + (++setNo);
+            row.dataset.fix = idx + "-" + j;
             row.appendChild(el("span", "sn", lab));
             var ck = el("span", "setck", "\u2713");
             // Lights up on its own once the set has reps (or time) and weight. Not tappable.
@@ -3219,6 +3357,7 @@ header.hero .tag-btn { color: #efe4c8; border-color: #d0c2a0; }
             var paintDone = function () {
               var on = Number(s.r) > 0 && (ps.time || bw || s.w !== ""); s.d = on;
               row.className = "setrow" + (on ? " ok" : ""); ck.classList.toggle("on", on);
+              if (on) row.classList.remove("need");
               ck.setAttribute("aria-label", lab + (on ? " logged" : " not logged yet"));
             };
             row.appendChild(numField("sr", (isW ? "Warm-up " + wNo : lab) + (ps.time ? " seconds" : " reps"), ps.time ? "sec" : "reps", s.r, 999, function (v) { s.r = v; paintDone(); }));
@@ -3271,12 +3410,18 @@ header.hero .tag-btn { color: #efe4c8; border-color: #d0c2a0; }
     if (editing) { var lk2 = el("button", "btn lk-btn", "Lock workout"); lk2.type = "button"; lk2.disabled = off; lk2.addEventListener("click", function () { lockWorkout(key); }); body.appendChild(lk2); }
     else if (isToday && live && !done) {
       var fb = el("button", "btn", "Finish workout"); fb.type = "button"; fb.disabled = off;
-      fb.addEventListener("click", function () {
+      var finishNow = function () {
         if (wk && wk.rec) wk.rec.finishedAt = Date.now(); saveWkNow(); if (!S) { var wt = taskOfKind("workout"); if (wt && !recFor(key).done[wt.id]) previewWorkout(); } drawWorkoutPage(true);
         if (wk && wk.root) {
           var info = workoutShareInfo(key, wk.root, S ? wk.rec : null, w);
           awardPRs(key, wk.root, 0, function (list) { openShare(info, list.filter(function (x) { return info.keys[x.k]; })); });
         }
+        wkHist = null;
+      };
+      fb.addEventListener("click", function () {
+        var chk = wk && wk.rec ? workoutFixes(exList, wk.rec, p) : { fixes: [], blanks: [] };
+        if (chk.fixes.length || chk.blanks.length) { openFixes(chk, finishNow); return; }
+        finishNow();
       }); body.appendChild(fb);
     }
     if (S && wk.loaded && !off) {
@@ -3961,7 +4106,7 @@ header.hero .tag-btn { color: #efe4c8; border-color: #d0c2a0; }
     $("day-note").textContent = pr.n ? "PR bonus: +" + bonusOf(r) + " pts (" + pr.list.map(function (x) { return x.l + (x.w && x.v ? " weight and volume" : x.w ? " weight" : " volume"); }).join(", ") + ")" : (planCfg() ? "" : "Pick a workout plan below and your workouts will show up here.");
     var off = !state.me || !state.canWrite;
     $("cal-today").hidden = isToday && stripWeekIndex() === STRIP_BACK;
-    drawDayWorkout(sel, !!done, isToday, off); drawWeek(sel); drawVolume(sel); drawPlan();
+    drawDayWorkout(sel, !!done, isToday, off); drawWeek(sel); drawVolume(sel); drawStepsChart(sel); drawPlan();
   }
 
   /* ---------- Board ---------- */
@@ -4697,13 +4842,16 @@ header.hero .tag-btn { color: #efe4c8; border-color: #d0c2a0; }
       "Pick your program, equipment and Sabbath day in Workout plan.",
       "Tap a day on the calendar to see its workout, then open it to start.",
       "Use + to add your own separate workout to any day.",
-      "Your week and Training volume show what you've lifted, day by day and in total."] },
+      "Your week and Training volume show what you've lifted each day. The line across the bars is your running total for the week.",
+      "Steps works the same way, with a short line on each day for that day's goal."] },
     workout: { t: "Workout", why: "Log a workout set by set while you train.", how: [
       "Tap Start workout. Pray the workout prayer, then tap Amen to start the clock.",
       "Warm-ups go round by round. Enter reps, and weight where the lift needs it.",
       "A set's check lights up once you've entered it. Rest timers count down and beep at the end.",
       "Tap an exercise name to see how to do it. Tap Alternate to swap it if you lack the equipment or have an injury.",
       "Use + Add exercise for anything extra.",
+      "Each lift shows your last working set from the last time you did it. If you hit every rep, it suggests going up 5 lb (upper body) or 10 lb (lower body). Warm-ups and added sets don't count.",
+      "Before you finish, every set needs reps and weight. If one is missing, you'll see which set to fix. Blank sets you skipped can be left out.",
       "Finish workout locks it and awards 25 points for each lift with a weight or volume PR. Then you can share it to Rally or save it as an image to text a buddy.",
       "Need to fix something? Tap Unlock to edit, then Lock when you're done."] },
     board: { t: "Board", why: "See where the brothers stand. Use the menu at the top to switch between the Kingdom Warrior board and the top lift PRs.", tip: "To understand how everything is scored, tap How points work next to Standings.", how: [
