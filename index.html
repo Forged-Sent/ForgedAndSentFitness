@@ -566,6 +566,14 @@ button.fo-item { cursor: pointer; min-height: 44px; }
 .wk-open .wo-t { font-family: var(--f-label); font-weight: 600; font-size: 15.5px; letter-spacing: .03em; }
 .wk-open .wo-s { font-size: 12.5px; color: var(--muted); }
 .wk-open .wo-c { flex: none; font-size: 20px; color: var(--accent); line-height: 1; }
+.md-box { text-align: center; align-items: center; }
+.md-box h2 { font-size: 26px; letter-spacing: .06em; }
+.md-seal { width: 64px; height: 64px; margin: 0 auto 4px; display: grid; place-items: center; border: 3px solid var(--brass); color: var(--brass); font-size: 30px; font-weight: 700; transform: rotate(-4deg); }
+@media (prefers-reduced-motion: no-preference) { .md-seal { animation: md-stamp .45s cubic-bezier(.2,1.4,.4,1) both; } @keyframes md-stamp { from { transform: scale(1.8) rotate(-12deg); opacity: 0; } to { transform: scale(1) rotate(-4deg); opacity: 1; } } }
+.md-text { font-size: 17px; line-height: 1.45; font-weight: 600; margin: 0; }
+.md-q { margin: 4px 0 0; padding: 10px 14px; border-left: 3px solid var(--brass); text-align: left; }
+.md-q p { margin: 0; font-style: italic; }
+.md-q cite { display: block; margin-top: 4px; font-style: normal; font-size: 12.5px; letter-spacing: .1em; text-transform: uppercase; color: var(--brass); }
 .mv-tools { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
 .mv-tools .mv-btn { flex: 1 1 140px; }
 .mv-note { color: var(--brass); }
@@ -1806,8 +1814,10 @@ header.hero .tag-btn { color: #efe4c8; border-color: #d0c2a0; }
     var cp = normPrs(cur.prs), rec = { date: date, uid: uid, done: {}, prs: cp, steps: normSteps(cur.steps), pbonus: !!cur.pbonus };
     Object.keys(cur.done || {}).forEach(function (k) { rec.done[k] = true; });
     var log = { date: date, water: cl.water, kcal: cl.kcal, p: cl.p, f: cl.f, c: cl.c, meals: cloneMeals(cl.meals) };
+    var wasAll = allBoxesDone(cur.done);
     var logChanged = !!fn(rec, log);
     derive(rec, log);
+    if (!wasAll && allBoxesDone(rec.done)) celebrateSoon();
     var found = false;
     state.checks = state.checks.map(function (c) { if (c.date === date && c.uid === uid) { found = true; return rec; } return c; });
     if (!found) state.checks.push(rec);
@@ -1816,6 +1826,58 @@ header.hero .tag-btn { color: #efe4c8; border-color: #d0c2a0; }
     drawAll();
     if (logChanged) dayLogDirty = true;
     if (B.db) flushDay();
+  }
+  /* ---------- Mission complete: every box checked today ---------- */
+  var MISSION_DONE = [
+    ["Every box checked. You showed up for God, your family and your brothers today. That is what a man does.", "Be on the alert. Stand firm in the faith. Be men of courage. Be strong.", "1 Corinthians 16:13"],
+    ["Mission complete. You didn\u2019t negotiate with yourself today. You did the work. Stand tall.", "No, I discipline my body and make it my slave.", "1 Corinthians 9:27"],
+    ["All of it, done. Discipline won today, and you led from the front.", "Whatever you do, work at it with your whole being, for the Lord and not for men.", "Colossians 3:23"],
+    ["Full effort, every box. The iron is getting sharper. Keep swinging the hammer.", "As iron sharpens iron, so one man sharpens another.", "Proverbs 27:17"],
+    ["You kept your word to yourself today. A man who keeps the small promises can be trusted with the big ones.", "Whoever is faithful with very little will also be faithful with much.", "Luke 16:10"],
+    ["No excuses. No shortcuts. Your family gets a better man because of the way you fought today.", "Let us not grow weary in well-doing, for in due time we will reap a harvest, if we do not give up.", "Galatians 6:9"],
+    ["You trained the body, fed the spirit and stood with your brothers. Outstanding work, warrior.", "Well done, good and faithful servant!", "Matthew 25:21"],
+    ["The hard thing is done, and you did it. Strong today, stronger tomorrow.", "Be strong and courageous. Do not be afraid; do not be discouraged, for the LORD your God is with you wherever you go.", "Joshua 1:9"]
+  ];
+  function allBoxesDone(done) {
+    done = done || {}; var tasks = dayTasks(todayKey()), slots = filledSlots();
+    if (!tasks.length) return false;
+    return tasks.every(function (t) { return done[t.id]; }) && slots.every(function (k) { return done[k]; });
+  }
+  var celebrated = "";
+  function celebrateSoon() {
+    var k = todayKey(); if (celebrated === k) return;
+    var seenKey = "fs-mission-" + (state.me || "") + "-" + k;
+    try { if (localStorage.getItem(seenKey)) { celebrated = k; return; } } catch (e) {}
+    celebrated = k;
+    // Wait for any open popup (awards, share, prayer) to close first, so this one isn't lost behind it.
+    var tries = 0;
+    function wait() {
+      if ($("cdlg") || $("wkpray") || document.querySelector(".cdlg")) { if (++tries < 200) setTimeout(wait, 600); return; }
+      if (todayKey() !== k || !allBoxesDone(myDoc().done)) return;
+      try { localStorage.setItem(seenKey, "1"); } catch (e) {}
+      openMissionDone();
+    }
+    setTimeout(wait, 500);
+  }
+  function openMissionDone() {
+    var old = $("cdlg"); if (old) old.remove();
+    var i = Math.abs(dayDiff("2026-01-01", todayKey())) % MISSION_DONE.length, m = MISSION_DONE[i];
+    var tasks = dayTasks(todayKey()), n = tasks.length + filledSlots().length, sk = streak(state.me);
+    var back = el("div", "cdlg"); back.id = "cdlg";
+    var box = el("div", "cdlg-box nw-box md-box"); box.setAttribute("role", "dialog"); box.setAttribute("aria-modal", "true"); box.setAttribute("aria-labelledby", "md-t");
+    box.appendChild(el("div", "md-seal", "\u2714\uFE0E"));
+    box.appendChild(el("span", "label-caps wp-k", n + " of " + n + " boxes"));
+    var t = el("h2", null, "Mission complete"); t.id = "md-t"; box.appendChild(t);
+    box.appendChild(el("p", "md-text", m[0]));
+    var q = el("blockquote", "md-q"); q.appendChild(el("p", null, "\u201C" + m[1] + "\u201D")); q.appendChild(el("cite", null, m[2])); box.appendChild(q);
+    if (sk > 1) box.appendChild(el("p", "fnote", sk + " days in a row. Hold the line tomorrow."));
+    else box.appendChild(el("p", "fnote", "Hold the line tomorrow."));
+    var yes = el("button", "btn", "Onward"); yes.type = "button"; box.appendChild(yes);
+    function close() { back.remove(); }
+    yes.addEventListener("click", close);
+    back.addEventListener("click", function (ev) { if (ev.target === back) close(); });
+    back.addEventListener("keydown", function (ev) { if (ev.key === "Escape") { ev.stopPropagation(); close(); } });
+    back.appendChild(box); document.body.appendChild(back); yes.focus({ preventScroll: true });
   }
   function toggle(key) { writeDay(function (r) { if (r.done[key]) delete r.done[key]; else r.done[key] = true; }); }
   function addWater(delta) { writeDay(function (r, l) { l.water = Math.max(0, l.water + delta); return true; }); }
