@@ -1447,10 +1447,10 @@ header.hero .mini:hover, header.hero .pts-btn:hover { border-color: var(--gold-2
     watchChecks: function (low, cb) {
       return this.db.collection("checkins").where("date", ">=", low).onSnapshot(function (s) {
         cb(s.docs.map(function (d) { var x = d.data() || {}; var p = x.prs || {};
-          return { date: x.date, uid: x.uid, done: x.done || {}, prs: normPrs(p), steps: normSteps(x.steps) }; }));
+          return { date: x.date, uid: x.uid, done: x.done || {}, prs: normPrs(p), steps: normSteps(x.steps), pbonus: !!x.pbonus }; }));
       }, noop);
     },
-    saveDay: function (rec) { return this.db.doc("checkins/" + rec.date + "_" + rec.uid).set({ date: rec.date, uid: rec.uid, done: rec.done, prs: rec.prs, steps: normSteps(rec.steps) }); },
+    saveDay: function (rec) { return this.db.doc("checkins/" + rec.date + "_" + rec.uid).set({ date: rec.date, uid: rec.uid, done: rec.done, prs: rec.prs, steps: normSteps(rec.steps), pbonus: !!rec.pbonus }); },
     watchLogs: function (uid, low, cb) {
       return this.db.doc("data/users/" + uid + "/log").collection("days").where("date", ">=", low).onSnapshot(function (s) {
         cb(s.docs.map(function (d) { var x = d.data() || {};
@@ -1655,7 +1655,7 @@ header.hero .mini:hover, header.hero .pts-btn:hover { border-color: var(--gold-2
   function myDoc() { return recFor(todayKey()); }
   function customDone(done) { var n = 0; CUSTOM.forEach(function (k) { if (done && done[k]) n++; }); return n; }
   function stdDone(done) { var n = 0; state.tasks.forEach(function (t) { if (done && done[t.id]) n++; }); return n; }
-  function bonusOf(rec) { var p = rec.prs || {}; return (Number(p.n) || 0) * PR_PTS + stepBonus(rec.steps); }
+  function bonusOf(rec) { var p = rec.prs || {}; return (Number(p.n) || 0) * PR_PTS + stepBonus(rec.steps) + (rec.pbonus ? PROTEIN_BONUS : 0); }
   function pointsOf(rec) {
     var done = rec.done || {}; var p = customDone(done) + bonusOf(rec);
     state.tasks.forEach(function (t) { if (done[t.id]) p += t.points; });
@@ -1681,6 +1681,7 @@ header.hero .mini:hover, header.hero .pts-btn:hover { border-color: var(--gold-2
     return k === "steps" ? t.steps != null : k === "weight" ? t.weightLb != null : true;
   }
   // Calorie box window by goal: losing fat 15% under to 10% over, maintaining within 5%, building within 10%.
+  var PROTEIN_BONUS = 2; // bonus points for hitting your protein target while staying in your calorie window
   var CAL_WINDOWS = { lose: [0.15, 0.10], maintain: [0.05, 0.05], build: [0.10, 0.10] };
   function calWindow(tk) { var g = ((state.settings || {}).body || {}).goal, w = CAL_WINDOWS[g] || CAL_WINDOWS.build; return [Math.round(tk * (1 - w[0])), Math.round(tk * (1 + w[1]))]; }
   function calWindowText() { var g = ((state.settings || {}).body || {}).goal; return g === "lose" ? "15% under to 10% over your goal" : g === "maintain" ? "within 5% of your goal" : "within 10% of your goal"; }
@@ -1695,13 +1696,16 @@ header.hero .mini:hover, header.hero .pts-btn:hover { border-color: var(--gold-2
     var hk = taskOfKind("workout"); if (hk && healthHave("workouts") && state.healthToday.workouts > 0) rec.done[hk.id] = true;
     var ct = taskOfKind("calories"), t = targets(), tk = t ? Number(t.kcal) || 0 : 0;
     if (ct) { var cw = calWindow(tk); if (tk > 0 && log.kcal >= cw[0] && log.kcal <= cw[1]) rec.done[ct.id] = true; else delete rec.done[ct.id]; }
+    // Protein bonus: protein at or above target, and calories inside the window.
+    var tp = t ? Number(t.p) || 0 : 0, cw2 = calWindow(tk);
+    rec.pbonus = !!(tk > 0 && tp > 0 && log.p >= tp && log.kcal >= cw2[0] && log.kcal <= cw2[1]);
   }
   // fn(rec, log) edits today's shared record and private log; return true from fn if it changed the log.
   function writeDay(fn) {
     if (!state.me || !state.canWrite) return;
     var date = todayKey(), uid = state.me;
     var cur = recFor(date), cl = logFor(date);
-    var cp = normPrs(cur.prs), rec = { date: date, uid: uid, done: {}, prs: cp, steps: normSteps(cur.steps) };
+    var cp = normPrs(cur.prs), rec = { date: date, uid: uid, done: {}, prs: cp, steps: normSteps(cur.steps), pbonus: !!cur.pbonus };
     Object.keys(cur.done || {}).forEach(function (k) { rec.done[k] = true; });
     var log = { date: date, water: cl.water, kcal: cl.kcal, p: cl.p, f: cl.f, c: cl.c, meals: cloneMeals(cl.meals) };
     var logChanged = !!fn(rec, log);
@@ -1856,7 +1860,7 @@ header.hero .mini:hover, header.hero .pts-btn:hover { border-color: var(--gold-2
       var sub = tk.sub || "";
       if (isDevo) { var dv = devoToday(); sub = done[tk.id] ? "Read today" : (dv ? dv.e.ref + ". Tap to open today's reading" : "Tap to open today's reading"); }
       else if (tk.kind === "water") sub = Math.round(log.water) + " of " + Math.round(WATER_GOAL_OZ) + " oz. Log it in Fuel";
-      else if (tk.kind === "calories") sub = t && Number(t.kcal) ? (function () { var w = calWindow(Number(t.kcal)); return fmt(log.kcal) + " of " + fmt(Number(t.kcal)) + " kcal. Checks at " + fmt(w[0]) + "\u2013" + fmt(w[1]); })() : "Set your targets in Fuel";
+      else if (tk.kind === "calories") sub = t && Number(t.kcal) ? (function () { var w = calWindow(Number(t.kcal)); var pb = recFor(todayKey()).pbonus; return fmt(log.kcal) + " of " + fmt(Number(t.kcal)) + " kcal. Checks at " + fmt(w[0]) + "\u2013" + fmt(w[1]) + (pb ? ". Protein bonus +" + PROTEIN_BONUS + " earned" : Number(t.p) ? ". Hit " + fmt(Number(t.p)) + " g protein too for +" + PROTEIN_BONUS : ""); })() : "Set your targets in Fuel";
       else if (tk.kind === "workout") sub = done[tk.id] ? "Finished in Train" : "Checks itself when you finish a workout";
       else if (tk.kind === "checkin") sub = done[tk.id] ? "Posted today" : "Post in the check-in thread";
       else if (tk.kind === "photos") { var pc = normProg(progFor(todayKey()) || {}), nd = POSES.filter(function (p) { return pc[p[0]]; }).length; sub = done[tk.id] ? "Front, side and rear saved" : nd ? nd + " of 3 taken. Tap to finish" : "Front, side and rear. Tap to take them"; }
@@ -1951,7 +1955,7 @@ header.hero .mini:hover, header.hero .pts-btn:hover { border-color: var(--gold-2
       row.appendChild(head);
       var bar = el("div", "mbar");
       if (tgt) {
-        if (m.k === "kcal") { var band = el("i", "band"); band.style.left = (90 / 120 * 100) + "%"; band.style.width = (20 / 120 * 100) + "%"; bar.appendChild(band); }
+        if (m.k === "kcal") { var cwb = calWindow(100), band = el("i", "band"); band.style.left = (cwb[0] / 120 * 100) + "%"; band.style.width = ((cwb[1] - cwb[0]) / 120 * 100) + "%"; bar.appendChild(band); }
         var pct = Math.min(120, 100 * val / tgt), fill = el("b"); fill.style.width = (Math.min(100, pct) / 120 * 100) + "%"; bar.appendChild(fill);
         // Only the part past the goal turns orange.
         if (pct > 100) { var ov = el("b", "over"); ov.style.left = (100 / 120 * 100) + "%"; ov.style.width = ((pct - 100) / 120 * 100) + "%"; bar.appendChild(ov); }
@@ -1959,7 +1963,8 @@ header.hero .mini:hover, header.hero .pts-btn:hover { border-color: var(--gold-2
       }
       row.appendChild(bar); wrap.appendChild(row);
     });
-    $("macros-note").textContent = t ? "The line is your target. For calories, the shaded zone is 90 to 110 percent, which checks your Calories box." : "Tap Adjust targets to set your daily calories and macros.";
+    var pbx = recFor(todayKey()).pbonus;
+    $("macros-note").textContent = t ? "The line is your target. For calories, the shaded zone (" + calWindowText() + ") checks your Calories box. Hit your protein while staying in that zone for +" + PROTEIN_BONUS + " bonus points." + (pbx ? " Protein bonus earned today." : "") : "Tap Adjust targets to set your daily calories and macros.";
 
     var oz = log.water;
     var rd = $("water-read"); rd.textContent = ""; rd.appendChild(document.createTextNode(String(Math.round(oz))));
@@ -3615,6 +3620,7 @@ header.hero .mini:hover, header.hero .pts-btn:hover { border-color: var(--gold-2
     if (daily.length) group("Daily boxes", daily.map(function (t) { return [t.title, pt(t.points)]; }).concat([["Your three habits", "+1 pt each"]]),
       "All daily boxes plus your three habits is " + fmt(dsum + 3) + " points a day. Check every daily box and the day counts toward your full-day streak.");
     if (weekly.length) group("Sabbath boxes (" + DAYN[sabbathDow()] + ")", weekly.map(function (t) { return [t.title, pt(t.points)]; }), "These only show on your Sabbath and don't affect your streak.");
+    group("Protein bonus", [["Hit or beat your protein target", "+" + PROTEIN_BONUS + " pts"], ["While calories stay in your window", calWindowText()]], "Counted for the day once both are true. Go over the calorie window and the bonus drops off until you're back in it.");
     group("Step bonus", [["Steps box goal", fmt(STEPS_GOAL) + " (" + fmt(STEPS_GOAL_SABBATH) + " on Sabbath)"], ["Each 1,000 steps from 10,000 to 15,000", "+1 pt"], ["Each 1,000 steps after 15,000", "+0.5 pt"]],
       "Example: 18,000 steps earns the Steps box, plus 5 bonus points for 10k to 15k and 1.5 for 15k to 18k.");
     group("Personal records", [["Weight PR or volume PR on a lift", "+" + PR_PTS + " pts"]], "Awarded when you finish a workout. Each lift earns it once a day, even if you hit both a weight and a volume PR.");
@@ -3678,7 +3684,7 @@ header.hero .mini:hover, header.hero .pts-btn:hover { border-color: var(--gold-2
     var arr = Object.keys(people).map(function (k) { return people[k]; });
     arr.sort(function (a, b) { return (scoreOf(b) - scoreOf(a)) || (b.weekPts - a.weekPts) || (b.todayPts - a.todayPts); });
     $("tab-today").setAttribute("aria-pressed", String(range === "today")); $("tab-week").setAttribute("aria-pressed", String(isWeek)); $("tab-all").setAttribute("aria-pressed", String(isAll));
-    $("board-note").textContent = isAll ? (state.allChecks ? "Every point since each man joined. Faithfulness over time." : "Loading all-time points\u2026") : isWeek ? "Week runs Monday to Sunday. Points come from boxes, your habits, step bonuses and PR bonuses. Push each other, and carry the man who is behind." : "Resets at midnight. Encourage the man next to you.";
+    $("board-note").textContent = isAll ? (state.allChecks ? "Every point since each man joined. Faithfulness over time." : "Loading all-time points\u2026") : isWeek ? "Week runs Monday to Sunday. Points come from boxes, your habits, step and protein bonuses, and PR bonuses. Push each other, and carry the man who is behind." : "Resets at midnight. Encourage the man next to you.";
     if (!arr.length || !state.tasks.length) {
       var e = el("div", "empty"); e.appendChild(el("strong", null, "No standings yet"));
       e.appendChild(document.createTextNode("Standings appear once there are tasks and someone checks one off.")); board.appendChild(e); return;
@@ -4305,7 +4311,8 @@ header.hero .mini:hover, header.hero .pts-btn:hover { border-color: var(--gold-2
       "Under each meal, use Search, Photo, Voice or Favorites to log food. Quick add is for when you only know the numbers.",
       "Meal prep saves a meal you make often so you can log it in one tap.",
       "Copy a previous day or a single meal when you eat the same thing.",
-      "Your Calories box checks itself when you land in your window. Losing fat: 15% under to 10% over your goal. Maintaining: within 5%. Building: within 10%."] },
+      "Your Calories box checks itself when you land in your window. Losing fat: 15% under to 10% over your goal. Maintaining: within 5%. Building: within 10%.",
+      "Protein bonus: hit or beat your protein target while your calories are in that window for +2 bonus points."] },
     train: { t: "Train", why: "Your training plan, today's workout and your progress over time.", how: [
       "This week's challenges: three buttons at the top for the Family, Iron and Endure challenges. Tap one to see what it is, then submit your result there.",
       "Pick your program, equipment and Sabbath day in Workout plan.",
@@ -4323,7 +4330,7 @@ header.hero .mini:hover, header.hero .pts-btn:hover { border-color: var(--gold-2
     board: { t: "Board", why: "See where the brothers stand. Use the menu at the top to switch between the Kingdom Warrior board and the top lift PRs.", tip: "To understand how everything is scored, tap How points work next to Standings.", how: [
       "Kingdom Warrior is the main board. It isn't about who lifts the most. It rewards the man who shows up faithfully every day in spirit, body and brotherhood: the devotional and motto, training, steps and fuel, and checking in on his brothers.",
       "The Board always opens on Kingdom Warrior. Switch between Today, This week and All time. The week runs Monday to Sunday. All time adds up every point since a man joined.",
-      "Points come from your boxes, your three habits, step bonuses and PRs.",
+      "Points come from your boxes, your three habits, step and protein bonuses, and PRs.",
       "Pick a lift from the menu to see who holds the heaviest PR on it, with reps and the date. Men at the same weight share a rank. Pick Kingdom Warrior to come back to the points.",
       "Lift PRs come from what each man logs on his profile.",
       "Tap a man to see his profile. Use the Board to push each other, and to find the man who needs encouraging."] },
