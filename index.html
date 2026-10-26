@@ -928,6 +928,11 @@ header.hero .tag-btn { color: #efe4c8; border-color: #d0c2a0; }
 .pp-total span, .pp-total b { font-weight: 800 !important; } .pp-total { border-bottom-width: 2px !important; }
 .pp-pr { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 9px 0; border-bottom: 1px solid var(--line); }
 .pp-pr b { display: block; font-size: 14.5px; } .pp-pr span { font-size: 13px; color: var(--muted); } .pp-pr small { flex: none; font-family: var(--f-label); font-weight: 700; letter-spacing: .06em; color: var(--accent); font-size: 12.5px; }
+
+.rng-line { display: grid; grid-template-columns: minmax(0, 1fr) 96px; gap: 12px; align-items: center; }
+.rng-numw { position: relative; display: block; }
+.rng-numw .rng-num { height: 44px; min-height: 44px; padding-right: 26px; text-align: right; font-variant-numeric: tabular-nums; }
+.rng-numw span { text-transform: none; letter-spacing: 0; font-family: var(--f-body); position: absolute; right: 10px; top: 50%; transform: translateY(-50%); color: var(--muted); font-size: 14px; pointer-events: none; }
 </style>
 
 <script>document.documentElement.classList.add("boot"); setTimeout(function () { document.documentElement.classList.remove("boot"); }, 9000);</script>
@@ -1354,11 +1359,11 @@ header.hero .tag-btn { color: #efe4c8; border-color: #d0c2a0; }
       <form class="tform" id="targets-form" data-form="targets" style="padding:0">
         <label class="full">Calorie goal<input class="field" type="number" id="t-kcal" min="0" max="10000" step="any" inputmode="numeric"></label>
         <div class="rng-row full"><div class="rng-top"><span class="rng-l">Protein</span><span class="rng-v" id="t-p-v"></span></div>
-          <input class="rng" type="range" id="t-p" min="0" max="400" step="1" aria-label="Protein grams"></div>
+          <div class="rng-line"><input class="rng" type="range" id="t-p" min="0" max="400" step="1" aria-label="Protein grams"><label class="rng-numw"><input class="field rng-num" type="number" id="t-p-n" min="0" max="400" step="1" inputmode="numeric" aria-label="Protein grams, type a number"><span aria-hidden="true">g</span></label></div></div>
         <div class="rng-row full"><div class="rng-top"><span class="rng-l">Carbs</span><span class="rng-v" id="t-c-v"></span></div>
-          <input class="rng" type="range" id="t-c" min="0" max="700" step="1" aria-label="Carb grams"></div>
+          <div class="rng-line"><input class="rng" type="range" id="t-c" min="0" max="700" step="1" aria-label="Carb grams"><label class="rng-numw"><input class="field rng-num" type="number" id="t-c-n" min="0" max="700" step="1" inputmode="numeric" aria-label="Carb grams, type a number"><span aria-hidden="true">g</span></label></div></div>
         <div class="rng-row full"><div class="rng-top"><span class="rng-l">Fat</span><span class="rng-v" id="t-f-v"></span></div>
-          <input class="rng" type="range" id="t-f" min="0" max="250" step="1" aria-label="Fat grams"></div>
+          <div class="rng-line"><input class="rng" type="range" id="t-f" min="0" max="250" step="1" aria-label="Fat grams"><label class="rng-numw"><input class="field rng-num" type="number" id="t-f-n" min="0" max="250" step="1" inputmode="numeric" aria-label="Fat grams, type a number"><span aria-hidden="true">g</span></label></div></div>
         <p class="note full" id="t-math" style="margin:0"></p>
         <div class="t-warn full" id="t-warn" role="alert" hidden>
           <b>Your calorie goal will change</b>
@@ -1368,7 +1373,7 @@ header.hero .tag-btn { color: #efe4c8; border-color: #d0c2a0; }
         <button class="btn full" type="submit" id="t-save">Save targets</button>
         <p class="note full" id="t-status" style="margin:0"></p>
       </form>
-      <p class="note">Private to you. Slide to adjust, or let Your goal and calorie plan fill them in. Protein and carbs are 4 kcal per gram, fat is 9.</p>
+      <p class="note">Private to you. Slide or type the grams to adjust, or let Your goal and calorie plan fill them in. Protein and carbs are 4 kcal per gram, fat is 9.</p>
     </section>
 
     <section aria-labelledby="h-s-rem">
@@ -2074,6 +2079,7 @@ header.hero .tag-btn { color: #efe4c8; border-color: #d0c2a0; }
       var g = v[x[0]], kc = g * x[1], r = $("t-" + x[0]);
       $("t-" + x[0] + "-v").textContent = g + " g \u00B7 " + fmt(kc) + " kcal" + (m ? " \u00B7 " + Math.round(kc / m * 100) + "%" : "");
       r.style.setProperty("--pct", (g / Number(r.max) * 100) + "%");
+      var nb = $("t-" + x[0] + "-n"); if (nb && document.activeElement !== nb) nb.value = g;
     });
     $("t-math").textContent = m ? "Your macros add up to " + fmt(m) + " kcal" + (v.k ? (Math.abs(m - v.k) <= TGT_TOL ? ", matching your calorie goal." : " (" + (m > v.k ? fmt(m - v.k) + " over" : fmt(v.k - m) + " under") + " your " + fmt(v.k) + " kcal goal).") : ".") : "Slide to set your daily protein, carbs and fat.";
     if (!$("t-warn").hidden) showTargetWarn();
@@ -5960,6 +5966,12 @@ header.hero .tag-btn { color: #efe4c8; border-color: #d0c2a0; }
     $("water-sub-btn").addEventListener("click", function () { addWater(-WATER_STEP); });
     ["t-kcal", "t-p", "t-f", "t-c"].forEach(function (id) { $(id).addEventListener("input", function () { $("targets-form").dataset.dirty = "1"; updateTargetMath(); }); });
     ["t-p", "t-f", "t-c"].forEach(function (id) { $(id).addEventListener("change", function () { showTargetWarn(); }); });
+    // Typed numbers drive the sliders (and the save) the same way dragging does.
+    ["t-p", "t-f", "t-c"].forEach(function (id) {
+      var nb = $(id + "-n"), r = $(id);
+      nb.addEventListener("input", function () { var v = Math.max(0, Math.min(Number(r.max), Math.round(Number(nb.value) || 0))); r.value = v; $("targets-form").dataset.dirty = "1"; updateTargetMath(); });
+      nb.addEventListener("change", function () { nb.value = r.value; showTargetWarn(); });
+    });
     function saveTargets() {
       var t = { kcal: Math.max(0, Number($("t-kcal").value) || 0), p: Math.max(0, Number($("t-p").value) || 0), f: Math.max(0, Number($("t-f").value) || 0), c: Math.max(0, Number($("t-c").value) || 0) };
       state.settings.targets = t; state.dirty.targets = false; saveSettings();
