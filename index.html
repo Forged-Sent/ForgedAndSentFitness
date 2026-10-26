@@ -3514,6 +3514,41 @@ details.targets[open] summary::after { content: "\2212"; }
     var d = new Date(ms), t = d.toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" });
     return dkey(d) === todayKey() ? "Today " + t : d.toLocaleDateString(undefined, { month: "short", day: "numeric" }) + " " + t;
   }
+  // Replies render per post so opening, posting or deleting a reply never rebuilds the thread.
+  function fillReplies(box, p) {
+    box.textContent = ""; var blocked = state.settings.blocked || {};
+    var reps = (state.replies || []).filter(function (r) { return r.postId === p.id && (r.uid === state.me || !blocked[r.uid]); });
+    if (reps.length || state.replyOpen === p.id) {
+        var rl = el("div", "replies"), showAll = state.repliesAll && state.repliesAll[p.id], start = showAll ? 0 : Math.max(0, reps.length - 3);
+        if (start > 0) { var more = el("button", "mini rp-more", "View all " + reps.length + " replies"); more.type = "button"; more.addEventListener("click", function () { state.repliesAll = state.repliesAll || {}; state.repliesAll[p.id] = true; refreshReplies(p.id); }); rl.appendChild(more); }
+        reps.slice(start).forEach(function (r) {
+          var row = el("div", "reply"), ra = el("img", "avatar sm"); ra.alt = ""; if (avatarSrc(r.uid)) ra.src = avatarSrc(r.uid); makeLink(ra, r.uid); row.appendChild(ra);
+          var rbx = el("div", "rp-body"), rh = el("div", "rp-head"), rn = el("span", "rp-name", nameOf(r.uid)); makeLink(rn, r.uid); rh.appendChild(rn); rh.appendChild(el("span", "ptime", timeLabel(r.createdAt)));
+          if (r.uid === state.me) { var rd = el("button", "rp-del", "Delete"); rd.type = "button"; rd.setAttribute("aria-label", "Delete your reply"); rd.addEventListener("click", function () { confirmDelete({ title: "Delete this reply?", message: "Your reply will be removed from the thread.", yes: "Delete" }, function () { state.replies = state.replies.filter(function (x) { return x.id !== r.id; }); refreshReplies(p.id); if (B.db) B.deleteReply(r.id).catch(noop); }); }); rh.appendChild(rd); }
+          rbx.appendChild(rh); rbx.appendChild(el("p", "rp-text", r.text)); row.appendChild(rbx); rl.appendChild(row);
+        });
+        if (state.replyOpen === p.id) {
+          var rf = el("form", "rp-form"), ta = el("textarea", "field"); ta.id = "reply-in"; ta.rows = 2; ta.maxLength = 500; ta.placeholder = "Reply to " + nameOf(p.uid) + "\u2026"; ta.setAttribute("aria-label", "Your reply"); ta.value = state.replyDraft || "";
+          ta.addEventListener("input", function () { state.replyDraft = ta.value; });
+          var rr = el("div", "rp-btns"), cn = el("button", "mini", "Cancel"), go = el("button", "btn", "Reply"); cn.type = "button"; go.type = "submit";
+          cn.addEventListener("click", function () { state.replyOpen = null; state.replyDraft = ""; refreshReplies(p.id); });
+          rf.addEventListener("submit", function (ev) {
+            ev.preventDefault(); var t = (state.replyDraft || "").trim().slice(0, 500); if (!t || !state.me) return;
+            var r = { postId: p.id, uid: state.me, text: t, createdAt: Date.now() };
+            state.replies = (state.replies || []).concat([Object.assign({ id: "local_" + r.createdAt }, r)]); state.replyOpen = null; state.replyDraft = ""; refreshReplies(p.id);
+            if (B.db) B.addReply(r).catch(function () { state.replies = state.replies.filter(function (x) { return x.id !== "local_" + r.createdAt; }); refreshReplies(p.id); });
+          });
+          rr.appendChild(cn); rr.appendChild(go); rf.appendChild(ta); rf.appendChild(rr); rl.appendChild(rf);
+        }
+        box.appendChild(rl);
+      }
+  }
+  function refreshReplies(postId) {
+    var p = state.posts.filter(function (x) { return x.id === postId; })[0]; if (!p) return;
+    var box = document.querySelector('#feed [data-replies="' + postId + '"]'); if (box) fillReplies(box, p);
+    var blocked = state.settings.blocked || {}, n = (state.replies || []).filter(function (r) { return r.postId === postId && (r.uid === state.me || !blocked[r.uid]); }).length;
+    var rb = document.querySelector('#feed [data-reply="' + postId + '"]'); if (rb) { var t = "Reply" + (n ? " " + n : ""); if (rb.textContent !== t) rb.textContent = t; rb.setAttribute("aria-expanded", String(state.replyOpen === postId)); }
+  }
   function refreshLikes() {
     var count = {}, mine = {};
     state.likes.forEach(function (l) { count[l.postId] = (count[l.postId] || 0) + 1; if (l.uid === state.me) mine[l.postId] = true; });
@@ -3523,13 +3558,19 @@ details.targets[open] summary::after { content: "\2212"; }
       b.classList.toggle("on", !!mine[id]); b.setAttribute("aria-pressed", mine[id] ? "true" : "false");
     });
   }
-  var feedSig = "";
+  var feedSig = "", repSig = "";
   function drawFeed(force) {
     var feed = $("feed"); if (!feed) return;
     // Skip the rebuild when nothing the thread shows has changed; just refresh the Strong buttons.
-    var sig = JSON.stringify([state.posts.map(function (p) { return p.id + ":" + p.createdAt; }), (state.replies || []).map(function (r) { return r.id; }), Object.keys(state.settings.blocked || {}), state.replyOpen || "", state.confirm || "", Object.keys(state.reported || {}), Object.keys(state.repliesAll || {}), state.me || "", !!state.canWrite,
+    var sig = JSON.stringify([state.posts.map(function (p) { return p.id + ":" + p.createdAt; }), Object.keys(state.settings.blocked || {}), state.confirm || "", Object.keys(state.reported || {}), state.me || "", !!state.canWrite,
       Object.keys(state.profs || {}).map(function (k) { return k + (state.profs[k] && state.profs[k].name || ""); }).join(",")]);
-    if (!force && sig === feedSig && feed.childNodes.length) { refreshLikes(); return; }
+    if (!force && sig === feedSig && feed.childNodes.length) {
+      refreshLikes();
+      var rsig = (state.replies || []).map(function (r) { return r.id; }).join(",");
+      if (rsig !== repSig) { repSig = rsig; state.posts.forEach(function (p) { if (!(state.replyOpen === p.id && document.activeElement && document.activeElement.id === "reply-in")) refreshReplies(p.id); }); }
+      return;
+    }
+    repSig = (state.replies || []).map(function (r) { return r.id; }).join(",");
     feedSig = sig;
     var sc = $("scroll"), se = document.scrollingElement, keepTop = sc ? sc.scrollTop : 0, keepDoc = se ? se.scrollTop : 0;
     // Hold the height while rebuilding so the page doesn't jump to the top.
@@ -3577,7 +3618,13 @@ details.targets[open] summary::after { content: "\2212"; }
       var reps = (state.replies || []).filter(function (r) { return r.postId === p.id && (r.uid === state.me || !blocked[r.uid]); });
       var rb = el("button", "mini", "Reply" + (reps.length ? " " + reps.length : "")); rb.type = "button"; rb.disabled = !state.me || !state.canWrite;
       rb.setAttribute("aria-expanded", String(state.replyOpen === p.id));
-      rb.addEventListener("click", function () { state.replyOpen = state.replyOpen === p.id ? null : p.id; drawFeed(); if (state.replyOpen) setTimeout(function () { var t = $("reply-in"); if (t) try { t.focus({ preventScroll: true }); } catch (e) {} }, 0); });
+      rb.dataset.reply = p.id;
+      rb.addEventListener("click", function () {
+        var prev = state.replyOpen; state.replyOpen = prev === p.id ? null : p.id; state.replyDraft = prev === p.id ? state.replyDraft : "";
+        if (prev && prev !== p.id) refreshReplies(prev);
+        refreshReplies(p.id);
+        if (state.replyOpen) setTimeout(function () { var t = $("reply-in"); if (t) try { t.focus({ preventScroll: true }); } catch (e) {} }, 0);
+      });
       acts.appendChild(rb);
       var cf = state.confirm && state.confirm.id === p.id ? state.confirm.type : null;
       if (cf) {
@@ -3606,31 +3653,7 @@ details.targets[open] summary::after { content: "\2212"; }
         bl.addEventListener("click", function () { state.confirm = { type: "block", id: p.id }; drawFeed(); }); acts.appendChild(bl);
       }
       body.appendChild(acts);
-      // Replies
-      if (reps.length || state.replyOpen === p.id) {
-        var rl = el("div", "replies"), showAll = state.repliesAll && state.repliesAll[p.id], start = showAll ? 0 : Math.max(0, reps.length - 3);
-        if (start > 0) { var more = el("button", "mini rp-more", "View all " + reps.length + " replies"); more.type = "button"; more.addEventListener("click", function () { state.repliesAll = state.repliesAll || {}; state.repliesAll[p.id] = true; drawFeed(); }); rl.appendChild(more); }
-        reps.slice(start).forEach(function (r) {
-          var row = el("div", "reply"), ra = el("img", "avatar sm"); ra.alt = ""; if (avatarSrc(r.uid)) ra.src = avatarSrc(r.uid); makeLink(ra, r.uid); row.appendChild(ra);
-          var rbx = el("div", "rp-body"), rh = el("div", "rp-head"), rn = el("span", "rp-name", nameOf(r.uid)); makeLink(rn, r.uid); rh.appendChild(rn); rh.appendChild(el("span", "ptime", timeLabel(r.createdAt)));
-          if (r.uid === state.me) { var rd = el("button", "rp-del", "Delete"); rd.type = "button"; rd.setAttribute("aria-label", "Delete your reply"); rd.addEventListener("click", function () { confirmDelete({ title: "Delete this reply?", message: "Your reply will be removed from the thread.", yes: "Delete" }, function () { state.replies = state.replies.filter(function (x) { return x.id !== r.id; }); drawFeed(); if (B.db) B.deleteReply(r.id).catch(noop); }); }); rh.appendChild(rd); }
-          rbx.appendChild(rh); rbx.appendChild(el("p", "rp-text", r.text)); row.appendChild(rbx); rl.appendChild(row);
-        });
-        if (state.replyOpen === p.id) {
-          var rf = el("form", "rp-form"), ta = el("textarea", "field"); ta.id = "reply-in"; ta.rows = 2; ta.maxLength = 500; ta.placeholder = "Reply to " + nameOf(p.uid) + "\u2026"; ta.setAttribute("aria-label", "Your reply"); ta.value = state.replyDraft || "";
-          ta.addEventListener("input", function () { state.replyDraft = ta.value; });
-          var rr = el("div", "rp-btns"), cn = el("button", "mini", "Cancel"), go = el("button", "btn", "Reply"); cn.type = "button"; go.type = "submit";
-          cn.addEventListener("click", function () { state.replyOpen = null; state.replyDraft = ""; drawFeed(); });
-          rf.addEventListener("submit", function (ev) {
-            ev.preventDefault(); var t = (state.replyDraft || "").trim().slice(0, 500); if (!t || !state.me) return;
-            var r = { postId: p.id, uid: state.me, text: t, createdAt: Date.now() };
-            state.replies = (state.replies || []).concat([Object.assign({ id: "local_" + r.createdAt }, r)]); state.replyOpen = null; state.replyDraft = ""; drawFeed();
-            if (B.db) B.addReply(r).catch(function () { state.replies = state.replies.filter(function (x) { return x.id !== "local_" + r.createdAt; }); drawFeed(); });
-          });
-          rr.appendChild(cn); rr.appendChild(go); rf.appendChild(ta); rf.appendChild(rr); rl.appendChild(rf);
-        }
-        body.appendChild(rl);
-      }
+      var rbox = el("div", "rp-wrap"); rbox.dataset.replies = p.id; body.appendChild(rbox); fillReplies(rbox, p);
       art.appendChild(body); feed.appendChild(art);
     });
   }
