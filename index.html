@@ -78,6 +78,8 @@ html.rot-r body { transform-origin: 0 0; transform: rotate(90deg) translateY(-10
 @keyframes sp-track { to { opacity: 1; letter-spacing: .08em; } }
 @keyframes sp-fade { to { opacity: 1; } }
 @media (prefers-reduced-motion: reduce) { #splash *, #splash { animation-duration: .01s !important; animation-delay: 0s !important; transition: none; } }
+html.boot #app { visibility: hidden; }
+html.boot body { background: #1b1f17; }
 #app { position: absolute; inset: 0; display: flex; flex-direction: column; overflow: hidden; }
 #scroll { flex: 1 1 auto; min-height: 0; overflow-y: auto; overflow-x: hidden; overscroll-behavior: contain; -webkit-overflow-scrolling: touch;
   padding: 20px max(16px, env(safe-area-inset-right, 0px)) 28px max(16px, env(safe-area-inset-left, 0px)); }
@@ -791,6 +793,7 @@ button.fo-item { cursor: pointer; min-height: 44px; }
 @media (max-width: 380px) { h1 { font-size: 27px; } h1.pg { font-size: 26px; } .name { font-size: 16.5px; } .row { gap: 10px; } .tabbar button { font-size: 10.5px; letter-spacing: 0; padding-left: 0; padding-right: 0; } }
 </style>
 
+<script>document.documentElement.classList.add("boot"); setTimeout(function () { document.documentElement.classList.remove("boot"); }, 9000);</script>
 <div id="splash" aria-label="Forged and Sent is loading" role="img">
   <svg class="sp-emb" viewBox="0 0 132 150" aria-hidden="true">
     <path class="sp-fill" d="M66 6 122 24v44c0 38-26 64-56 76C36 132 10 106 10 68V24z"/>
@@ -1366,6 +1369,8 @@ button.fo-item { cursor: pointer; min-height: 44px; }
     watchHabits: function (uid, cb) { return this.db.doc("habits/" + uid).onSnapshot(function (s) { var d = s.exists ? s.data() : null; cb((d && d.slots) || {}); }, noop); },
     saveHabits: function (uid, slots) { return this.db.doc("habits/" + uid).set({ slots: slots }); },
     watchSettings: function (uid, cb) { return this.db.doc("data/users/" + uid + "/settings").onSnapshot(function (s) { cb(s.exists ? s.data() : {}); }, noop); },
+    watchOnboard: function (uid, cb) { return this.db.doc("data/users/" + uid + "/onboard").onSnapshot(function (s) { cb(s.exists ? (s.data() || {}) : {}); }, noop); },
+    saveOnboard: function (uid, o) { return this.db.doc("data/users/" + uid + "/onboard").set(o); },
     saveSettings: function (uid, st) { return this.db.doc("data/users/" + uid + "/settings").set(st); },
     watchPosts: function (cb) {
       return this.db.collection("posts").orderBy("createdAt", "desc").limit(50).onSnapshot(function (s) {
@@ -4276,8 +4281,15 @@ button.fo-item { cursor: pointer; min-height: 44px; }
     three: ["Your three", "Personal habits only you check off, like reading or praying with your wife. Each is worth 1 point a day. Change them anytime on Today."]
   };
   var ONB_IDEAS = ["Read 10 pages", "Stretch 10 min", "No sugar", "Lights out by 10", "Pray with my wife", "No phone first hour"];
-  function onbNeeded() { return !!(state.me && state.settingsLoaded && !(state.settings.onboard && state.settings.onboard.done)); }
-  function onbMaybeStart() { if (ONB || !onbNeeded()) return; if ($("splash")) { setTimeout(onbMaybeStart, 400); return; } openOnboarding(); }
+  function onbDone() { return !!((state.onboard && state.onboard.done) || (state.settings.onboard && state.settings.onboard.done)); }
+  function onbNeeded() { return !!(state.me && state.settingsLoaded && state.onboardLoaded && !onbDone()); }
+  function unboot() { document.documentElement.classList.remove("boot"); }
+  // Opens setup behind the loading screen, so the app never shows first. Then reveals whatever is ready.
+  function onbMaybeStart() {
+    if (!state.me || !state.settingsLoaded || !state.onboardLoaded) return;
+    if (!ONB && onbNeeded()) openOnboarding();
+    unboot();
+  }
   function openOnboarding(replay) {
     var b = state.settings.body || {}, p = planCfg(), pp = state.pubProfiles[state.me] || {};
     ONB = { i: 0, tip: "", replay: !!replay, msg: "", d: {
@@ -4288,7 +4300,10 @@ button.fo-item { cursor: pointer; min-height: 44px; }
   }
   function closeOnb() { ONB = null; var o = $("onb"); if (o) o.remove(); }
   function onbFinish() {
-    state.settings.onboard = { done: true, at: (state.settings.onboard && state.settings.onboard.at) || Date.now() }; saveSettings();
+    if (onbDone() && state.onboard && state.onboard.done) return;
+    state.onboard = { done: true, at: Date.now(), ordersDone: !!(state.onboard && state.onboard.ordersDone) };
+    state.settings.onboard = { done: true, at: state.onboard.at }; saveSettings();
+    if (B.db && state.me) B.saveOnboard(state.me, state.onboard).catch(noop);
   }
   function onbBodyMerged() {
     var d = ONB.d, b = Object.assign({}, state.settings.body || {});
@@ -4456,6 +4471,7 @@ button.fo-item { cursor: pointer; min-height: 44px; }
       body.appendChild(ic2);
       next(); back();
     } else if (k === "done") {
+      onbFinish();
       h("Ready for duty", "You're set");
       var b0 = state.settings.body || {}, p0 = planCfg(), t0 = state.settings.targets, pp0 = state.pubProfiles[state.me] || {}, hab = CUSTOM.filter(function (c) { return state.habits[c]; }).length;
       var items = [["Profile and motto", !!(pp0.motto || avatarSrc(state.me))], ["Service record" + (validBday(b0.bday) ? " · " + bracketLabel(myBracketFor(b0.bday)) : ""), !!(validBday(b0.bday) && b0.wt)],
@@ -4516,9 +4532,9 @@ button.fo-item { cursor: pointer; min-height: 44px; }
   }
   function drawFirstOrders() {
     var box = $("first-orders"); if (!box) return; box.textContent = "";
-    var ob = state.settings.onboard; if (!state.me || !ob || !ob.done || ob.ordersDone) { box.hidden = true; return; }
+    var ob = state.onboard && state.onboard.done ? state.onboard : state.settings.onboard; if (!state.me || !ob || !ob.done || ob.ordersDone) { box.hidden = true; return; }
     var list = firstOrders(), n = list.filter(function (x) { return x[1]; }).length;
-    if (n === list.length) { box.hidden = true; state.settings.onboard = Object.assign({}, ob, { ordersDone: true }); saveSettings(); return; }
+    if (n === list.length) { box.hidden = true; state.onboard = Object.assign({}, ob, { done: true, ordersDone: true }); if (B.db && state.me) B.saveOnboard(state.me, state.onboard).catch(noop); return; }
     box.hidden = false;
     box.appendChild(el("div", "onb-k", "First orders · " + n + " of " + list.length));
     list.forEach(function (x) {
@@ -5410,8 +5426,9 @@ button.fo-item { cursor: pointer; min-height: 44px; }
     go(first);
 
     var ok = await B.init();
-    if (!ok) { drawAll(); return; }
+    if (!ok) { drawAll(); unboot(); return; }
     var id = await B.identity(); state.me = id.id; state.canWrite = id.canWrite;
+    if (!state.me) unboot();
     if (!B.canUpload()) $("attach-label").hidden = true;
     B.watchTasks(function (rows) { state.tasks = rows; drawAll(); });
     B.watchProfiles(function (map) { state.pubProfiles = map; drawAll(); loadProfiles(); });
@@ -5427,6 +5444,11 @@ button.fo-item { cursor: pointer; min-height: 44px; }
         drawChallengeButtons(); if (state.page === "chal" && !(chalForm && chalForm.busy)) drawChallengePage(); loadProfiles();
       });
       B.watchProgress(state.me, function (rows) { state.progress = rows.map(normProg).filter(function (x) { return /^\d{4}-\d{2}-\d{2}$/.test(x.date); }); drawProgress(); drawToday(); });
+      B.watchOnboard(state.me, function (o) {
+        state.onboard = { done: !!o.done, at: Number(o.at) || 0, ordersDone: !!o.ordersDone }; state.onboardLoaded = true;
+        if (state.onboard.done && ONB && !ONB.replay && ONB.i === 0) closeOnb();
+        drawToday(); onbMaybeStart();
+      });
       B.watchSettings(state.me, function (st) {
         state.settings = { blocked: (st && st.blocked) || {}, targets: (st && st.targets) || null, body: (st && st.body) || null, reminders: (st && st.reminders) || null, health: (st && st.health) || null, plan: (st && st.plan) || null, theme: (st && st.theme) || null, autofill: (st && st.autofill) || null, favs: (st && Array.isArray(st.favs)) ? st.favs.slice(0, 60) : [], myMeals: (st && Array.isArray(st.myMeals)) ? st.myMeals.slice(0, 30) : [], preps: (st && Array.isArray(st.preps)) ? st.preps.slice(0, 40) : [], swapAlways: (st && st.swapAlways && typeof st.swapAlways === "object") ? st.swapAlways : {}, onboard: (st && st.onboard && typeof st.onboard === "object") ? st.onboard : null }; if (state.settings.theme) applyTheme(state.settings.theme, false); state.settingsLoaded = true; drawAll(); drawFeed(); refreshHealth(); onbMaybeStart();
       });
