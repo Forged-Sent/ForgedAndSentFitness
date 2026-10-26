@@ -1769,6 +1769,8 @@ header.hero .tag-btn { color: #efe4c8; border-color: #d0c2a0; }
     var hp = taskOfKind("photos"); if (hp) { if (isWeighDay(rec.date) && progDone(rec.date)) rec.done[hp.id] = true; else delete rec.done[hp.id]; }
     var hw = taskOfKind("weigh"); if (hw && isWeighDay(rec.date) && healthHave("weight")) { if (state.healthToday.weightLb > 0) rec.done[hw.id] = true; else delete rec.done[hw.id]; }
     var hk = taskOfKind("workout"); if (hk && healthHave("workouts") && state.healthToday.workouts > 0) rec.done[hk.id] = true;
+    // On the Sabbath, rest is the workout: the box checks itself.
+    if (hk && isWeighDay(rec.date)) rec.done[hk.id] = true;
     var ct = taskOfKind("calories"), t = targets(), tk = t ? Number(t.kcal) || 0 : 0;
     if (ct) { var cw = calWindow(tk); if (tk > 0 && log.kcal >= cw[0] && log.kcal <= cw[1]) rec.done[ct.id] = true; else delete rec.done[ct.id]; }
     // Protein bonus: protein at or above target, and calories inside the window.
@@ -1906,8 +1908,16 @@ header.hero .tag-btn { color: #efe4c8; border-color: #d0c2a0; }
     var s = streak();
     $("streak").textContent = state.tasks.length ? (s > 0 ? "Full-day streak: " + s + (s === 1 ? " day" : " days") : "Start today. Grace for yesterday.") : "";
   }
+  var SABBATH_REST = "Sabbath rest. Checked for you. Rest is part of the training: your body rebuilds and gets stronger, and God made the day for it. \u201CThe Sabbath was made for man.\u201D Mark 2:27";
+  var sabbathSynced = "";
+  // Make sure the Sabbath workout box is saved (and counted on the Board) even if nothing else is logged today.
+  function syncSabbath() {
+    var k = todayKey(), hk = taskOfKind("workout");
+    if (!hk || !state.me || !state.canWrite || !state.settingsLoaded || sabbathSynced === k || !isWeighDay(k)) return;
+    sabbathSynced = k; if (!myDoc().done[hk.id]) writeDay(function () { return false; });
+  }
   function drawToday() {
-    drawFirstOrders(); drawReady();
+    drawFirstOrders(); drawReady(); setTimeout(syncSabbath, 0);
     var list = $("tasks"); list.textContent = "";
     var notice = $("notice"); notice.textContent = "";
     var rec = myDoc(), done = rec.done, log = logFor(todayKey()), t = targets();
@@ -1939,7 +1949,7 @@ header.hero .tag-btn { color: #efe4c8; border-color: #d0c2a0; }
       if (isDevo) { var dv = devoToday(); sub = done[tk.id] ? "Read today" : (dv ? dv.e.ref + ". Tap to open today's reading" : "Tap to open today's reading"); }
       else if (tk.kind === "water") sub = Math.round(log.water) + " of " + Math.round(WATER_GOAL_OZ) + " oz. Log it in Fuel";
       else if (tk.kind === "calories") sub = t && Number(t.kcal) ? (function () { var w = calWindow(Number(t.kcal)); var pb = recFor(todayKey()).pbonus; return fmt(log.kcal) + " of " + fmt(Number(t.kcal)) + " kcal. Checks at " + fmt(w[0]) + "\u2013" + fmt(w[1]) + (pb ? ". Protein bonus +" + PROTEIN_BONUS + " earned" : Number(t.p) ? ". Hit " + fmt(Number(t.p)) + " g protein too for +" + PROTEIN_BONUS : ""); })() : "Set your targets in Fuel";
-      else if (tk.kind === "workout") sub = done[tk.id] ? "Finished in Train" : "Checks itself when you finish a workout";
+      else if (tk.kind === "workout") sub = isWeighDay(todayKey()) ? SABBATH_REST : done[tk.id] ? "Finished in Train" : "Checks itself when you finish a workout";
       else if (tk.kind === "checkin") sub = done[tk.id] ? "Posted today" : "Post in the check-in thread";
       else if (tk.kind === "photos") { var pc = normProg(progFor(todayKey()) || {}), nd = POSES.filter(function (p) { return pc[p[0]]; }).length; sub = done[tk.id] ? "Front, side and rear saved" : nd ? nd + " of 3 taken. Tap to finish" : "Front, side and rear. Tap to take them"; }
       else if (tk.kind === "weigh") sub = done[tk.id] ? "Weighed in this week" : "Your weekly weigh-in, every Sabbath. Step on the scale and tap to check.";
@@ -4668,7 +4678,8 @@ header.hero .tag-btn { color: #efe4c8; border-color: #d0c2a0; }
       "Steps: tap to log them. The goal is 10,000 (7,000 on your Sabbath). Past 10,000 you earn 1 bonus point per 1,000 up to 15,000, then half a point per 1,000.",
       "Weigh-in and progress photos only show on your Sabbath.",
       "Your three: add up to three personal habits of your own. Each is worth 1 point.",
-      "Your streak counts days in a row with every daily box checked."] },
+      "Your streak counts days in a row with every daily box checked.",
+      "On your Sabbath the Workout box checks itself. Rest is part of the training."] },
     fuel: { t: "Fuel", why: "Track what you eat and drink against your daily calorie and macro targets.", tip: function () {
       var t = targets(), k = t ? Number(t.kcal) || 0 : 0, pr = t ? Number(t.p) || 0 : 0, w = k ? calWindow(k) : null, ck = taskOfKind("calories"), wk2 = taskOfKind("water");
       return "Points on Fuel: your Calories box (+" + (ck ? ck.points : 1) + ") checks when you land " + calWindowText() + (w ? ", which is " + fmt(w[0]) + " to " + fmt(w[1]) + " kcal for you" : "") + ". Hit or beat your protein" + (pr ? " (" + fmt(pr) + " g)" : "") + " while staying in that window for a +" + PROTEIN_BONUS + " protein bonus. Water at your goal checks your Water box (+" + (wk2 ? wk2.points : 1) + ").";
@@ -5042,7 +5053,7 @@ header.hero .tag-btn { color: #efe4c8; border-color: #d0c2a0; }
     return [
       ["Read today's devotional", mine.some(function (c) { return dv && c.done[dv.id]; }), function () { openDevo(); }],
       ["Introduce yourself in Rally", state.posts.some(function (p) { return p.uid === me; }), function () { go("checkin"); setTimeout(function () { var t = $("post-text"); if (t) try { t.focus({ preventScroll: true }); } catch (e) {} }, 60); }],
-      ["Log your first workout or steps", mine.some(function (c) { return (wk && c.done[wk.id]) || c.steps > 0; }), function () { go("train"); }],
+      ["Log your first workout or steps", mine.some(function (c) { return (wk && c.done[wk.id] && !isWeighDay(c.date)) || c.steps > 0; }), function () { go("train"); }],
       ["First Sabbath: weigh-in and photos", mine.some(function (c) { return (wg && c.done[wg.id]) || (ph && c.done[ph.id]); }) || (state.progress || []).length > 0, null]
     ];
   }
