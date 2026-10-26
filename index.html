@@ -874,6 +874,8 @@ header.hero .mini:hover, header.hero .pts-btn:hover { border-color: var(--gold-2
 .d-read { font-family: var(--f-scripture, Georgia, serif); }
 /* Footer verse on Today */
 .anchor { border-top-color: var(--gold); }
+
+.dg-pre { white-space: pre-wrap; word-break: break-word; font: 11.5px/1.45 ui-monospace, Menlo, monospace; background: var(--surface); border: 1px solid var(--line); padding: 10px; max-height: 44vh; overflow: auto; margin: 0; }
 </style>
 
 <script>document.documentElement.classList.add("boot"); setTimeout(function () { document.documentElement.classList.remove("boot"); }, 9000);</script>
@@ -1218,6 +1220,7 @@ header.hero .mini:hover, header.hero .pts-btn:hover { border-color: var(--gold-2
           <label class="btn ghost" id="s-bn-label">Banner<input type="file" id="s-bn-file" accept="image/*" hidden></label>
           <button class="btn ghost" type="button" id="s-bn-rm">Remove</button></div>
         <p class="note" id="s-photo-status" style="margin:0">Photos are visible to the group. Large photos are resized automatically.</p>
+        <button class="btn ghost" type="button" id="test-diag" style="width:100%;min-height:40px">Photos not uploading? Run upload check</button>
       </div>
     </section>
 
@@ -4667,6 +4670,71 @@ header.hero .mini:hover, header.hero .pts-btn:hover { border-color: var(--gold-2
       box.appendChild(r);
     });
   }
+  /* ---------- Photo upload diagnostic (Settings > Testing) ---------- */
+  async function runPhotoDiag() {
+    var out = { at: new Date().toISOString(), version: "v120", ua: navigator.userAgent, steps: [] };
+    function step(name, data) { out.steps.push(Object.assign({ step: name }, data)); paint(); }
+    function errOf(e) { return { ok: false, code: (e && e.code) || "(none)", message: String((e && e.message) || e || "").slice(0, 300), name: e && e.name ? String(e.name) : "" }; }
+    var dlg = el("div", "cdlg"); dlg.id = "cdlg";
+    var box = el("div", "cdlg-box nw-box wp-box"); box.setAttribute("role", "dialog"); box.setAttribute("aria-modal", "true"); box.setAttribute("aria-labelledby", "dg-t");
+    var t = el("h2", null, "Photo upload diagnostic"); t.id = "dg-t"; box.appendChild(t);
+    var note = el("p", "fnote", "Running tests… Keep this screen open."); box.appendChild(note);
+    var pre = el("pre", "dg-pre"); box.appendChild(pre);
+    var cp = el("button", "btn ghost", "Copy results"); cp.type = "button"; cp.disabled = true; box.appendChild(cp);
+    var cl = el("button", "btn", "Close"); cl.type = "button"; box.appendChild(cl);
+    cl.addEventListener("click", function () { dlg.remove(); });
+    cp.addEventListener("click", function () { try { navigator.clipboard.writeText(JSON.stringify(out, null, 1)); cp.textContent = "Copied"; } catch (e) { cp.textContent = "Select and copy the text above"; } });
+    dlg.appendChild(box); var old = $("cdlg"); if (old) old.remove(); document.body.appendChild(dlg);
+    function paint() { pre.textContent = out.steps.map(function (s) { var k = Object.keys(s).filter(function (x) { return x !== "step"; }); return s.step + ": " + k.map(function (x) { return x + "=" + (typeof s[x] === "object" ? JSON.stringify(s[x]) : s[x]); }).join(" · "); }).join("\n"); }
+    var c = window.claude, A = null, U = null;
+    // 1. Who is viewing
+    try { U = c && c.use ? await c.use("user") : null; } catch (e) { U = null; }
+    var who = { userCapability: !!U };
+    if (U) {
+      try { var me = await U.me(); who.id = me.id; who.isOwner = me.isOwner; who.canEdit = me.canEdit; } catch (e) { who.meError = errOf(e).code; }
+      try { who.canAssetsWrite = await U.can("assets.write"); } catch (e) { who.canAssetsWrite = "err:" + errOf(e).code; }
+      try { who.canDataWrite = await U.can("data.write"); } catch (e) { who.canDataWrite = "err:" + errOf(e).code; }
+      try { var pr = who.id ? await U.profiles([who.id]) : null; if (pr && pr[who.id]) who.guest = !!pr[who.id].guest; } catch (e) {}
+    }
+    step("viewer", who);
+    // 2. Is the assets capability granted to this view
+    try { A = c && c.use ? await c.use("assets") : null; } catch (e) { A = null; step("assets.use", errOf(e)); }
+    step("assets.capability", { granted: !!A, methods: A ? Object.keys(A).join(",") : "" });
+    // 3. Upload tests
+    var made = [];
+    async function tryUp(label, blob, opts) {
+      if (!A) { step(label, { skipped: "no assets capability" }); return; }
+      var t0 = Date.now();
+      try { var r = await (opts ? A.upload(blob, opts) : A.upload(blob)); made.push(r.id); step(label, { ok: true, id: r.id, type: r.contentType, bytes: r.sizeBytes, ms: Date.now() - t0 }); }
+      catch (e) { step(label, Object.assign(errOf(e), { blobType: blob && blob.type, blobSize: blob && blob.size, ms: Date.now() - t0 })); }
+    }
+    var png = Uint8Array.from(atob("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg=="), function (ch) { return ch.charCodeAt(0); });
+    await tryUp("upload.png.blob", new Blob([png], { type: "image/png" }));
+    await tryUp("upload.png.typed", new Blob([png], { type: "image/png" }), { type: "image/png" });
+    var jpg = null;
+    try { var cv = document.createElement("canvas"); cv.width = 32; cv.height = 32; var cx = cv.getContext("2d"); cx.fillStyle = "#5d6b2f"; cx.fillRect(0, 0, 32, 32); jpg = await new Promise(function (r) { cv.toBlob(r, "image/jpeg", 0.8); }); }
+    catch (e) { step("canvas.jpeg", errOf(e)); }
+    step("canvas.jpeg", { made: !!jpg, type: jpg && jpg.type, bytes: jpg && jpg.size });
+    if (jpg) {
+      await tryUp("upload.jpeg.blob", jpg);
+      await tryUp("upload.jpeg.typed", jpg.slice(0, jpg.size, "image/jpeg"), { type: "image/jpeg" });
+      await tryUp("upload.jpeg.file", new File([jpg], "test.jpg", { type: "image/jpeg" }));
+    }
+    await tryUp("upload.text", new Blob(["forged and sent diagnostic"], { type: "text/plain" }), { type: "text/plain" });
+    // 4. Listing and clean-up
+    if (A) {
+      try { var ls = await A.list(); step("assets.list", { ok: true, mine: (ls.assets || []).length, usage: ls.usage ? JSON.stringify(ls.usage) : "" }); } catch (e) { step("assets.list", errOf(e)); }
+      for (var i = 0; i < made.length; i++) { try { await A.delete(made[i]); step("cleanup", { ok: true, id: made[i] }); } catch (e) { step("cleanup", Object.assign(errOf(e), { id: made[i] })); } }
+    }
+    // 5. Can this view load photos other men uploaded
+    var other = null; Object.keys(state.pubProfiles || {}).some(function (k) { var a = safeId((state.pubProfiles[k] || {}).avatarId); if (a && k !== state.me) { other = a; return true; } return false; });
+    if (other) { try { var res = await fetch("/_blob/" + other, { method: "GET", cache: "no-store" }); step("view.otherPhoto", { status: res.status, type: res.headers.get("content-type") || "" }); } catch (e) { step("view.otherPhoto", errOf(e)); } }
+    else step("view.otherPhoto", { skipped: "no other profile photo to test" });
+    // 6. Save the report so Curtis's builder can read it
+    try { if (B.db && state.me) { await B.db.doc("diag/" + state.me).set({ at: Date.now(), report: JSON.stringify(out).slice(0, 60000) }); step("report.saved", { ok: true }); } else step("report.saved", { ok: false, why: "not signed in" }); }
+    catch (e) { step("report.saved", errOf(e)); }
+    note.textContent = "Done. The results were saved for Curtis. You can also copy them and text them."; cp.disabled = false;
+  }
   function confirmDelete(o, onYes) {
     var old = $("cdlg"); if (old) old.remove();
     var back = el("div", "cdlg"); back.id = "cdlg";
@@ -5403,6 +5471,7 @@ header.hero .mini:hover, header.hero .pts-btn:hover { border-color: var(--gold-2
     $("test-go").addEventListener("click", function () { var v = $("test-date").value; if (!/^\d{4}-\d{2}-\d{2}$/.test(v)) return; try { localStorage.setItem("fs-test-date", v === dkey(new Date()) ? "" : v); } catch (e) {} location.reload(); });
     $("test-off").addEventListener("click", function () { try { localStorage.removeItem("fs-test-date"); } catch (e) {} location.reload(); });
     if (TEST_DATE) { var tb = el("button", "test-banner", "Test mode: " + longDate(TEST_DATE) + ". Tap to go back to the real date."); tb.type = "button"; tb.addEventListener("click", function () { try { localStorage.removeItem("fs-test-date"); } catch (e) {} location.reload(); }); document.body.appendChild(tb); }
+    $("test-diag").addEventListener("click", runPhotoDiag);
     $("test-sound").addEventListener("click", function () { unlockAudio(); setTimeout(function () { if (!playBeepEl(0)) playTones(null, 3); }, 250); });
     [["s-af-w", "w"], ["s-af-r", "r"]].forEach(function (c) {
       $(c[0]).addEventListener("change", function () { var a = afPrefs(); a[c[1]] = this.checked; state.settings.autofill = a; if (state.me && state.canWrite) saveSettings(); });
