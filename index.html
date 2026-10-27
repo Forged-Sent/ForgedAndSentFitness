@@ -1079,6 +1079,17 @@ header.hero .me-btn { border-color:#e87328; }
 .onb-shield path, .onb-shield line { stroke:#f17b32; }
 .board .row { background:var(--surface-2); margin:6px 0; border:1px solid var(--line); padding:10px; }
 .post { background:var(--surface-2); border:1px solid var(--line); margin:8px 0; padding:12px; }
+
+.muscle-card { background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:14px;margin:14px 0; }
+.muscle-map svg { display:block;width:100%;max-width:320px;margin:auto; }
+.rec-dialog { position:fixed;inset:0;z-index:400;background:#101214;color:#fff;display:flex;flex-direction:column;padding:max(16px,env(safe-area-inset-top)) 16px max(16px,env(safe-area-inset-bottom));gap:10px; }
+.rec-view { position:relative;flex:1;min-height:0;background:#000;border-radius:8px;overflow:hidden; }
+.rec-view video { width:100%;height:100%;object-fit:contain; }
+.rec-overlay { position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;text-align:center;pointer-events:none;text-shadow:0 2px 5px #000;font-size:24px; }
+.rec-overlay strong { font-size:80px;color:#f17b32;line-height:1; }
+.rec-actions { display:flex;gap:8px;justify-content:center;flex-wrap:wrap; }
+:root { --forged-mountain: url("mountain.jpg"); }
+
 </style>
 
 <script>document.documentElement.classList.add("boot"); setTimeout(function () { document.documentElement.classList.remove("boot"); }, 9000);</script>
@@ -3196,11 +3207,53 @@ header.hero .me-btn { border-color:#e87328; }
   var vidCur = null;
   function moveVideo(g) { var m = PLAN.M[g]; return m && /^[A-Za-z0-9_-]{11}$/.test(m.vid || "") ? m.vid : ""; }
   function openVideo(g, shown) { vidCur = { g: g, shown: shown }; go("video"); }
+
+  function muscleDiagram(label) {
+    var wrap=el("div","muscle-card"); wrap.appendChild(el("h2","section-head","Muscles worked"));
+    var names=String(label).toLowerCase(), groups=[{re:/quad|thigh/,id:"leg"},{re:/glute|hip/,id:"hip"},{re:/chest|pec/,id:"chest"},{re:/shoulder|delt/,id:"shoulder"},{re:/bicep|tricep|arms|forearm/,id:"arm"},{re:/core|abs|abdom/,id:"core"},{re:/back|lat|trap/,id:"back"},{re:/hamstring/,id:"ham"},{re:/calf|calves/,id:"calf"}];
+    var active=groups.filter(function(g){return g.re.test(names);}).map(function(g){return g.id;});
+    var svg='<svg viewBox="0 0 260 200" role="img" aria-label="Approximate muscle regions: '+String(label).replace(/[&<>"']/g,'')+'"><g fill="none" stroke="#aba9a4" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">';
+    [65,195].forEach(function(x){svg+='<circle cx="'+x+'" cy="20" r="12"/><path d="M'+(x-11)+' 36 L'+(x-23)+' 52 L'+(x-30)+' 92 M'+(x+11)+' 36 L'+(x+23)+' 52 L'+(x+30)+' 92 M'+(x-11)+' 36 L'+(x-12)+' 91 L'+(x-24)+' 155 L'+(x-27)+' 185 M'+(x+11)+' 36 L'+(x+12)+' 91 L'+(x+24)+' 155 L'+(x+27)+' 185 M'+(x-12)+' 91 L'+x+' 105 L'+(x+12)+' 91"/>';});svg+='</g>';
+    function mark(x,y,w,h){svg+='<ellipse cx="'+x+'" cy="'+y+'" rx="'+w+'" ry="'+h+'" fill="#f17b32" opacity=".85"/>';}
+    if(active.indexOf("chest")>=0){mark(59,52,7,6);mark(71,52,7,6);} if(active.indexOf("core")>=0)mark(65,73,7,12);
+    if(active.indexOf("shoulder")>=0){[43,87,173,217].forEach(function(x){mark(x,43,5,6);});} if(active.indexOf("arm")>=0){[40,90,170,220].forEach(function(x){mark(x,65,4,11);});}
+    if(active.indexOf("back")>=0)mark(195,58,12,14); if(active.indexOf("hip")>=0){mark(189,97,6,6);mark(201,97,6,6);}
+    if(active.indexOf("leg")>=0){mark(57,121,5,17);mark(73,121,5,17);} if(active.indexOf("ham")>=0){mark(187,121,5,17);mark(203,121,5,17);} if(active.indexOf("calf")>=0){mark(182,166,4,10);mark(208,166,4,10);} svg+='</svg>';
+    if(active.length){var d=el("div","muscle-map");d.innerHTML=svg;wrap.appendChild(d);wrap.appendChild(el("p","note","Front                                  Back"));}
+    wrap.appendChild(el("p",null,String(label)));wrap.appendChild(el("p","note","Illustration shows approximate muscle regions; see the movement instructions for details."));return wrap;
+  }
+
+
+  // Camera recordings remain local until the user attaches and submits them.
+  async function recordVideo(timed, onFile) {
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia || !window.MediaRecorder) { alert("In-app recording is not supported here. You can record with your phone and attach the video."); return; }
+    var panel=el("div","rec-dialog");panel.setAttribute("role","dialog");panel.setAttribute("aria-modal","true");panel.setAttribute("aria-label","Record video");
+    var head=el("div","section-head");head.appendChild(el("h2",null,timed?"Record timed challenge":"Record video"));var close=el("button","mini","Cancel");close.type="button";head.appendChild(close);panel.appendChild(head);
+    var view=el("div","rec-view"), video=el("video");video.autoplay=true;video.muted=true;video.playsInline=true;view.appendChild(video);var overlay=el("div","rec-overlay");view.appendChild(overlay);panel.appendChild(view);
+    var info=el("p","note","Camera preview only. Nothing is shared until you submit it.");panel.appendChild(info);
+    var controls=el("div","rec-actions"), start=el("button","btn","Start 10-second countdown"), stop=el("button","btn ghost","Stop and attach");start.type=stop.type="button";stop.hidden=true;controls.appendChild(start);controls.appendChild(stop);panel.appendChild(controls);document.body.appendChild(panel);
+    var stream=null, rec=null, chunks=[], timer=null, limit=null, cancelled=false, stopped=false;
+    function clean(){clearInterval(timer);clearTimeout(limit);if(stream)stream.getTracks().forEach(function(t){t.stop();});panel.remove();}
+    close.addEventListener("click",function(){cancelled=true;if(rec && rec.state!=="inactive")rec.stop();clean();});
+    try { stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:"user"},audio:true}); if(cancelled){stream.getTracks().forEach(function(t){t.stop();});return;} video.srcObject=stream; }
+    catch(e) {info.textContent="Camera or microphone access was unavailable. Check permissions, or attach a video recorded on your phone.";start.disabled=true;return;}
+    start.addEventListener("click",function(){start.disabled=true;unlockAudio();var left=10;overlay.innerHTML="<strong>10</strong><span>Get into position</span>";
+      timer=setInterval(function(){left--;if(left>0){overlay.innerHTML="<strong>"+left+"</strong><span>Get into position</span>";return;}clearInterval(timer);
+        try {rec=new MediaRecorder(stream);rec.ondataavailable=function(e){if(e.data&&e.data.size)chunks.push(e.data);};rec.onerror=function(){info.textContent="Recording failed. Try recording with your phone and attaching the video.";};
+          rec.onstop=async function(){if(cancelled)return;var mime=rec.mimeType||"video/webm", blob=new Blob(chunks,{type:mime});clean();if(!blob.size){alert("The recording was empty. Try again.");return;}var ext=mime.indexOf("mp4")>=0?".mp4":".webm";var file=new File([blob],"recording"+ext,{type:mime});await onFile(file);};rec.start();stop.hidden=false;start.hidden=true;
+          var started=Date.now();if(timed){var n=3;overlay.innerHTML="<strong>3</strong><span>Challenge starts in</span>";playTones(null,3);timer=setInterval(function(){n--;if(n>0)overlay.innerHTML="<strong>"+n+"</strong><span>Challenge starts in</span>";else{clearInterval(timer);started=Date.now();overlay.textContent="Recording · 0:00"; timer=setInterval(function(){overlay.textContent="Recording · "+fmtElapsed(Date.now()-started);},1000);}},1000);}else{overlay.textContent="Recording · 0:00";timer=setInterval(function(){overlay.textContent="Recording · "+fmtElapsed(Date.now()-started);},1000);}limit=setTimeout(function(){if(rec&&rec.state!=="inactive")rec.stop();},180000);
+        } catch(e){info.textContent="Recording could not start on this device. Try attaching a video instead.";start.hidden=false;start.disabled=false;}
+      },1000);
+    });
+    stop.addEventListener("click",function(){if(stopped)return;stopped=true;stop.disabled=true;clearInterval(timer);clearTimeout(limit);if(rec && rec.state!=="inactive")rec.stop();});
+  }
+
   function drawVideoPage() {
     var body = $("vid-body"); body.textContent = ""; if (!vidCur) return;
     var m = PLAN.M[vidCur.g] || {}, id = moveVideo(vidCur.g);
     body.appendChild(el("h1", "pg", vidCur.shown));
     var meta = [m.pattern, m.muscles].filter(Boolean).join(" \u00B7 "); if (meta) body.appendChild(el("p", "vmeta", meta));
+    if (m.muscles) body.appendChild(muscleDiagram(m.muscles));
     if (id) {
       var a = el("a", "vlink", "\u25B6  Watch on YouTube"); a.href = "https://www.youtube.com/watch?v=" + id; a.target = "_blank"; a.rel = "noopener noreferrer"; body.appendChild(a);
       if (m.vch) body.appendChild(el("p", "vmeta", "Video by " + m.vch + " on YouTube."));
@@ -3405,6 +3458,13 @@ header.hero .me-btn { border-color:#e87328; }
   function effSwap(rec, idx, g) {
     var t = rec && rec.swaps && rec.swaps[idx]; if (t && PLAN.M[t.g]) return t.g === g ? null : t;
     var a = swapAlways()[g]; if (a && PLAN.M[a.g] && !(rec && rec.swaps && rec.swaps[idx])) return a;
+    if (rec && rec.finishedAt) return null;
+    var areas = ((state.settings.body || {}).injuries || []), options = (ALT.alternates || {})[g] || {};
+    for (var i=0; i<areas.length; i++) { var reason=areas[i], choices=options[reason] || [];
+      for (var j=0; j<choices.length; j++) { var candidate=choices[j], conflicts=(ALT.alternates || {})[candidate] || {};
+        if (PLAN.M[candidate] && !areas.some(function (x) { return x !== reason && !!(conflicts[x] || []).length; })) return {g:candidate, why:"Suggested for " + reason, automatic:true};
+      }
+    }
     return null;
   }
   function effMove(rec, idx, g) { var s = effSwap(rec, idx, g); return s ? s.g : g; }
@@ -3680,11 +3740,13 @@ header.hero .me-btn { border-color:#e87328; }
     if (live && !editing) body.appendChild(el("p", "note", "Started " + new Date(rec.startedAt).toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" }) + ". Log each set, then rest."));
     if (S && !normExtra(rec.extra).length) body.appendChild(el("p", "note", isToday ? "Add your first exercise from the library or enter your own." : "No exercises were logged."));
     if ((S ? isToday && wk.loaded : live) && !off) { var axb = el("button", "btn ghost wk-addex", "+ Add exercise"); axb.type = "button"; axb.addEventListener("click", function () { saveWkNow(); openExPicker(); }); body.appendChild(axb); }
+    if (((state.settings.body || {}).injuries || []).length) body.appendChild(el("p", "note", "Your selected limitations may adjust some exercises using existing alternatives. Not every movement has a mapped option. Review your workout with a qualified clinician and stop if pain increases."));
     drawWarmup(body, w, th, rec, live && !S, off);
     var exBase = w.exercises.length, exList = w.exercises.concat(normExtra(rec.extra).map(function (x) { return [x.g, x.rx, true, x.rest]; }));
     exList.forEach(function (e, idx) {
       var ex = el("div", "wx" + (e[2] ? " wx-add" : "")), ps = parseSets(e[1]);
       var origG = e[0], swp0 = !e[2] ? effSwap(rec, idx, origG) : null, mg = swp0 ? swp0.g : origG;
+      if (swp0 && swp0.automatic && live && wk.loaded) { rec.swaps = normSwaps(rec.swaps); rec.swaps[idx] = {g:swp0.g, why:swp0.why}; saveWkNow(); }
       var shownName = moveName(mg, p.equip), top = el("div", "wx-top");
       if (moveVideo(mg)) {
         var nb = el("button", "wn wlink"); nb.type = "button"; nb.setAttribute("aria-label", "Watch how to do " + shownName);
@@ -3696,6 +3758,7 @@ header.hero .me-btn { border-color:#e87328; }
         swb.addEventListener("click", function () { saveWkNow(); openSwap(idx, origG); }); top.appendChild(swb);
       }
       ex.appendChild(top);
+      if (swp0 && swp0.automatic) ex.appendChild(el("p", "note", "Suggested alternative, not a safety guarantee. Stop if painful; review with a clinician."));
       if (swp0) ex.appendChild(el("span", "sw-note", "Swapped from " + moveName(origG, p.equip) + (swp0.why ? " \u00B7 " + swp0.why : "")));
       ex.appendChild(el("span", "wr", e[1]));
       var c = moveCue(mg); if (c) ex.appendChild(el("span", "wc", c));
@@ -4410,7 +4473,7 @@ header.hero .me-btn { border-color:#e87328; }
         var ready = await prepShareFile(file, function (t) { F.msg = t; var p = document.getElementById("ch-msg"); if (p) p.textContent = t; });
         if (ready) F.files.push(ready); F.busy = false; drawChallengePage();
       });
-      if (F.files.length < 3) pr.appendChild(lab);
+      if (F.files.length < 3) { pr.appendChild(lab); var rb=el("button","btn ghost","Record video");rb.type="button";rb.addEventListener("click",function(){recordVideo(c.scoredBy === "fastest_time" || c.scoredBy === "longest_hold" || c.scoredBy === "most_rounds",async function(file){F.busy=true;F.msg="Preparing video…";drawChallengePage();var ready=await prepShareFile(file,function(t){F.msg=t;var q=$("ch-msg");if(q)q.textContent=t;});if(ready)F.files.push(ready);F.busy=false;drawChallengePage();});});pr.appendChild(rb); }
       var chips = el("div", "chips");
       F.files.forEach(function (fl, k) { var ch = el("span", "chip", (fl.type.indexOf("video") === 0 ? "Video: " : "Photo: ") + (fl.name || "file")); var x = el("button", "mini", "✕"); x.type = "button"; x.setAttribute("aria-label", "Remove " + (fl.name || "file")); x.addEventListener("click", function () { F.files.splice(k, 1); drawChallengePage(); }); ch.appendChild(x); chips.appendChild(ch); });
       pr.appendChild(chips); form.appendChild(pr);
@@ -5411,7 +5474,7 @@ header.hero .me-btn { border-color:#e87328; }
     ONB = { i: 0, tip: "", replay: !!replay, msg: "", d: {
       motto: pp.motto || "", handle: pp.handle || suggestHandle(), bday: validBday(b.bday) ? b.bday : "", wt: b.wt || "", ft: b.ft || "", inch: b.inch != null && b.inch !== "" ? b.inch : "", act: String(b.act || 1.375),
       goal: b.goal || "lose", pace: String(b.pace || 1), gwt: b.gwt || "", program: p ? p.program : "Forged", equip: p ? p.equip : PLAN.META.equipmentSetups[0], rest: p ? p.rest : 0,
-      three: CUSTOM.map(function (k) { return state.habits[k] || ""; }) }, done: {} };
+      injuries: Array.isArray(b.injuries) ? b.injuries.slice() : [], injuryNote: b.injuryNote || "", three: CUSTOM.map(function (k) { return state.habits[k] || ""; }) }, done: {} };
     drawOnb();
   }
   function closeOnb() { ONB = null; var o = $("onb"); if (o) o.remove(); }
@@ -5434,6 +5497,7 @@ header.hero .me-btn { border-color:#e87328; }
     if (k === "profile") { var hh = cleanHandle(d.handle), pp1 = state.pubProfiles[state.me] || {}; if (d.motto.trim() !== (pp1.motto || "") || hh !== (pp1.handle || "")) saveProfilePatch({ motto: d.motto.trim().slice(0, 80), handle: hh }); ONB.done.profile = !!(d.motto.trim() || avatarSrc(state.me)); }
     if (k === "service" || k === "goal") { state.settings.body = onbBodyMerged(); saveSettings(); ONB.done.service = !!(validBday(d.bday) && +d.wt > 0 && +d.ft > 0); }
     if (k === "training") {
+      state.settings.body = onbBodyMerged(); state.settings.body.injuries = d.injuries.slice(); state.settings.body.injuryNote = String(d.injuryNote || "").slice(0, 300);
       var p = planCfg(), np = { program: d.program, equip: d.equip, rest: +d.rest, fourth: !!(p && p.fourth) };
       np.start = p && p.rest === np.rest ? p.start : planStartFor(np.rest);
       state.settings.plan = np; saveSettings(); ensureStrip(); ONB.done.training = true;
@@ -5579,6 +5643,10 @@ header.hero .me-btn { border-color:#e87328; }
       var ec = el("div", "onb-chips"); PLAN.META.equipmentSetups.forEach(function (e) { var b = el("button", "onb-chip" + (d.equip === e ? " on" : ""), e); b.type = "button"; b.setAttribute("aria-pressed", String(d.equip === e)); b.addEventListener("click", function () { d.equip = e; drawOnb(); }); ec.appendChild(b); });
       ew.appendChild(ec); body.appendChild(ew);
       onbField(body, "Your Sabbath day", "rest", "rest", "select", { options: DAYN.map(function (n2, i) { return [String(i), n2]; }) });
+      var il = el("div", "onb-f"); il.appendChild(el("span", "onb-lbl", "Permanent injuries or limitations (optional)"));
+      il.appendChild(el("p", "onb-note", "Select affected areas. Existing alternatives may be suggested automatically where available; they are not a medical assessment. Stop if pain increases and ask a qualified clinician about your limitations."));
+      var ic = el("div", "onb-chips"); ["Knee", "Hip", "Low Back", "Shoulder", "Elbow or Wrist"].forEach(function (area) { var b = el("button", "onb-chip" + (d.injuries.indexOf(area) >= 0 ? " on" : ""), area); b.type = "button"; b.setAttribute("aria-pressed", String(d.injuries.indexOf(area) >= 0)); b.addEventListener("click", function () { var i=d.injuries.indexOf(area); if(i>=0)d.injuries.splice(i,1); else d.injuries.push(area); drawOnb(); }); ic.appendChild(b); }); il.appendChild(ic);
+      var nt = el("textarea", "field"); nt.placeholder = "Optional notes (private)"; nt.maxLength=300; nt.value=d.injuryNote; nt.addEventListener("input",function(){ d.injuryNote=nt.value; }); il.appendChild(nt); body.appendChild(il);
       next(); back();
     } else if (k === "three") {
       h("Step 6 of 7", "Your three");
@@ -6204,7 +6272,7 @@ header.hero .me-btn { border-color:#e87328; }
     renderCalc(); drawChallengeButtons();
   }
   function readBody() {
-    return { bday: validBday($("b-bday").value) ? $("b-bday").value : "", age: +$("b-age").value || 0, ft: +$("b-ft").value || 0, inch: +$("b-in").value || 0, wt: +$("b-wt").value || 0, gwt: +$("b-gwt").value || 0,
+    return { injuries: ((state.settings.body || {}).injuries || []).slice(), injuryNote: (state.settings.body || {}).injuryNote || "", bday: validBday($("b-bday").value) ? $("b-bday").value : "", age: +$("b-age").value || 0, ft: +$("b-ft").value || 0, inch: +$("b-in").value || 0, wt: +$("b-wt").value || 0, gwt: +$("b-gwt").value || 0,
       act: +$("b-act").value || 1.375, goal: $("b-goal").value, pace: +$("b-pace").value || 1, prot: +$("b-prot").value || 1, fat: +$("b-fat").value || 25, bmr: +$("b-bmr").value || 0 };
   }
   function calcPlan(b) {
@@ -6250,6 +6318,14 @@ header.hero .me-btn { border-color:#e87328; }
     var afp = afPrefs(); [["s-af-w", "w"], ["s-af-r", "r"]].forEach(function (c) { var x = $(c[0]); if (x) { x.checked = afp[c[1]]; x.disabled = !state.me || !state.canWrite; } });
     if (state.page !== "settings") return;
     var pp = state.pubProfiles[state.me] || {}, st = state.settings, canUp = B.canUpload();
+    var target = $("h-s-wk-body"); if (target && !$('injury-settings')) {
+      var box=el("div","onb-f"); box.id="injury-settings"; box.appendChild(el("h3",null,"Injuries or limitations"));
+      box.appendChild(el("p","note","Private. Selected areas use existing suggested alternatives where available. Alternatives are not guaranteed safe. Stop if painful; consult a clinician."));
+      var chips=el("div","onb-chips"); ["Knee","Hip","Low Back","Shoulder","Elbow or Wrist"].forEach(function(area){var b=el("button","onb-chip",area); b.type="button"; b.dataset.injury=area; b.addEventListener("click",function(){var body=Object.assign({},state.settings.body||{}), a=Array.isArray(body.injuries)?body.injuries.slice():[], i=a.indexOf(area);if(i>=0)a.splice(i,1);else a.push(area);body.injuries=a;state.settings.body=body;saveSettings();drawSettings();});chips.appendChild(b);});box.appendChild(chips);
+      var note=el("textarea","field");note.id="injury-settings-note";note.placeholder="Optional private notes";note.maxLength=300;note.addEventListener("change",function(){var body=Object.assign({},state.settings.body||{});body.injuryNote=note.value;state.settings.body=body;saveSettings();});box.appendChild(note);target.appendChild(box);
+    }
+    if ($("injury-settings")) { var ar=(st.body&&st.body.injuries)||[]; Array.prototype.forEach.call($("injury-settings").querySelectorAll("[data-injury]"),function(b){var on=ar.indexOf(b.dataset.injury)>=0;b.classList.toggle("on",on);b.setAttribute("aria-pressed",String(on));b.disabled=!state.me||!state.canWrite;}); var nt=$("injury-settings-note");if(document.activeElement!==nt)nt.value=(st.body&&st.body.injuryNote)||""; }
+
     $("acct-name").textContent = state.me ? "Signed in as " + nameOf(state.me) + "." : "Not signed in.";
     $("s-av-label").hidden = !canUp || !state.canWrite; $("s-bn-label").hidden = !canUp || !state.canWrite;
     if (state.me && !canUp && !$("s-photo-status").dataset.warned) { $("s-photo-status").dataset.warned = "1"; $("s-photo-status").textContent = "Photo uploads aren\u2019t turned on for your account in this app right now. Close the app fully and reopen it. If the buttons still don\u2019t show, tell Curtis (code: not_granted)."; }
@@ -6610,6 +6686,7 @@ header.hero .me-btn { border-color:#e87328; }
     $("plan-cancel").addEventListener("click", function () { state.planEdit = false; drawPlan(); });
     $("plan-form").addEventListener("submit", submitPlan);
     $("composer").addEventListener("submit", submitPost);
+    var rbtn=el("button","btn ghost","Record video");rbtn.type="button";rbtn.addEventListener("click",function(){if(state.files.length>=4){postError("Up to 4 files per post.");return;}recordVideo(false,async function(file){postError("Preparing video…");var ready=await prepShareFile(file,postError);if(ready)state.files.push(ready);postError(ready?"":"Video could not be prepared.");drawChips();});});$("attach-label").parentNode.insertBefore(rbtn,$("post-btn"));
     attachMentions($("post-text"), $("mention-list"), state.mentions);
     $("post-file").addEventListener("change", async function (ev) {
       var list = Array.prototype.slice.call(ev.target.files); ev.target.value = ""; postError("");
