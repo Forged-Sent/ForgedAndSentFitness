@@ -3897,6 +3897,7 @@ header.hero .me-btn { border-color:#e87328; }
     var editing = !!wk.editing && done, locked = done && !editing && wk.loaded, live = editing || (isToday && started && !done);
     body.appendChild(el("div", "wk-meta", S ? "Your own workout" : "Week " + w.week + " \u00B7 Day " + w.day + (w.minutes ? " \u00B7 " + w.minutes + " min" : "")));
     body.appendChild(el("h1", "pg", w.title));
+    if (!S && !locked) coachSection(body, COACH_LABEL + "\u2019s notes", th.notes, true);
     if (locked) { drawLockedSummary(body, { key: key, rec: rec, w: w, S: S, off: off }); return; }
     if (editing) {
       var eb = el("div", "lk-edit"), et = el("span"); et.appendChild(el("b", null, "Editing")); et.appendChild(document.createTextNode("This workout was finished. Lock it when you\u2019re done."));
@@ -4000,7 +4001,7 @@ header.hero .me-btn { border-color:#e87328; }
       }
       body.appendChild(ex);
     });
-    coachSection(body, "Cool-down", th.finisher, false); coachSection(body, COACH_LABEL + "\u2019s notes", th.notes, true);
+    coachSection(body, "Cool-down", th.finisher, false);
     if (editing) { var lk2 = el("button", "btn lk-btn", "Lock workout"); lk2.type = "button"; lk2.disabled = off; lk2.addEventListener("click", function () { lockWorkout(key); }); body.appendChild(lk2); }
     else if (isToday && live && !done) {
       var fb = el("button", "btn", "Finish workout"); fb.type = "button"; fb.disabled = off;
