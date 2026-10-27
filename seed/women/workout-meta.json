@@ -33,5 +33,5 @@
  "cycleNotesNote": "cycle-notes.json holds optional cycle-phase prompts. Core and Optional day notes in workout-themes.json include one optional sentence pointing to them. They are suggestions, not rules.",
  "toggleNote": "Separate set for the sex toggle: load seed/women/* when the user selects female, and seed/* (root) for male. Same schema in both.",
  "recoveryDesign": "Recovery days (templateDay 2 and 4) need no equipment in every setup: an easy walk or jog plus floor, wall and bodyweight mobility. Their movements resolve to the same equipment-free exercise in all four setups.",
- "coachingDesign": "Day-level warm-up, finisher and coaching notes are written for a first-time gym goer in a personal trainer voice (purpose, RPE and RIR explained, rest times, progression, deload, soreness, scaling). Each movement also has a long-form howTo (Setup, Move, Watch for, Tip) next to its short cue. General coaching, not medical advice."
+ "coachingDesign": "Day-level warm-up, finisher and coaching notes are written for a first-time gym goer in a personal trainer voice (purpose, RPE and RIR explained, rest times, progression, deload, soreness, scaling). Each movement also has a long-form howTo (Setup, Move, Watch for, Tip) next to its short cue. General coaching, not medical advice. Each day also has a separate purpose field explaining what the day is for."
 }
