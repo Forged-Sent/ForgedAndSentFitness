@@ -1081,6 +1081,31 @@ header.hero .me-btn { border-color:#e87328; }
 .post { background:var(--surface-2); border:1px solid var(--line); margin:8px 0; padding:12px; }
 
 .howto { margin-top: 8px; }
+.ex-thumb { position: relative; flex: none; width: 62px; height: 62px; padding: 2px; border-radius: 8px; border: 1px solid var(--line); background: var(--surface-2); display: grid; place-items: center; cursor: pointer; overflow: hidden; }
+.ex-thumb .mm-svg { width: 58px; height: auto; display: block; }
+.ex-thumb .mm-body { stroke-width: 3; }
+.ex-thumb .mm-m { stroke-width: 1.6; }
+.ex-thumb .pl { position: absolute; right: 3px; bottom: 3px; width: 18px; height: 18px; border-radius: 50%; background: var(--accent); color: var(--accent-ink); font-size: 9px; display: grid; place-items: center; }
+.ex-thumb-g { font-family: var(--f-label); font-weight: 800; font-size: 22px; color: var(--accent); }
+.wx-top .wlink { flex: 1 1 auto; min-width: 0; text-align: left; }
+.vd-tabs { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 4px; margin: 12px 0; padding: 3px; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; }
+.vd-tabs button { font-family: var(--f-label); font-weight: 700; font-size: 13px; letter-spacing: .1em; text-transform: uppercase; padding: 9px 4px; min-height: 0; border: 0; border-radius: 6px; background: none; color: var(--muted); cursor: pointer; }
+.vd-tabs button[aria-selected="true"] { background: var(--surface-2); color: var(--accent); }
+.vd-card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius, 8px); padding: 14px; margin: 14px 0; scroll-margin-top: 64px; }
+.muscle-card { scroll-margin-top: 64px; }
+.vd-play { position: relative; display: grid; place-items: center; aspect-ratio: 16 / 9; border-radius: 8px; background: linear-gradient(135deg, var(--surface-2), var(--bg)); text-decoration: none; color: var(--ink); }
+.vd-pb { width: 64px; height: 44px; border-radius: 12px; background: #e5483b; color: #fff; display: grid; place-items: center; font-size: 20px; }
+.vd-play small { position: absolute; left: 10px; bottom: 8px; color: var(--muted); font-size: 12.5px; }
+.vd-coach { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+.vd-badge { flex: none; width: 40px; height: 44px; }
+.vd-badge svg { width: 40px; height: 44px; display: block; }
+.vd-badge .gb-s { fill: var(--surface-2); stroke: var(--accent); stroke-width: 2; }
+.vd-badge .gb-t { font-family: var(--f-label); font-weight: 800; font-size: 18px; fill: var(--ink); }
+.vd-coach b { display: block; font-family: var(--f-label); font-weight: 800; font-size: 18px; letter-spacing: .04em; text-transform: uppercase; }
+.vd-coach small { color: var(--muted); font-size: 13px; }
+.vd-cue { margin: 0 0 10px; font-size: 14.5px; }
+.vd-cue b { color: var(--accent); font-family: var(--f-label); letter-spacing: .08em; text-transform: uppercase; font-size: 13px; }
+.vd-q { margin: 12px 0 0; padding-left: 10px; border-left: 3px solid var(--accent); font-style: italic; color: var(--muted); font-size: 14px; }
 .howto h2 { margin: 14px 0 6px; }
 .howto.fold summary, .coach-sec summary { cursor: pointer; list-style: none; font-family: var(--f-label); font-weight: 700; font-size: 13.5px; letter-spacing: .1em; text-transform: uppercase; color: var(--brass); padding: 6px 0; }
 .howto.fold summary::-webkit-details-marker, .coach-sec summary::-webkit-details-marker { display: none; }
@@ -3235,7 +3260,7 @@ header.hero .me-btn { border-color:#e87328; }
   }
   var vidCur = null;
   function moveVideo(g) { var m = PLAN.M[g]; return m && /^[A-Za-z0-9_-]{11}$/.test(m.vid || "") ? m.vid : ""; }
-  function openVideo(g, shown) { vidCur = { g: g, shown: shown }; go("video"); }
+  function openVideo(g, shown, tab) { vidCur = { g: g, shown: shown, tab: tab || "m" }; go("video"); }
 
   /* Muscle map: front and back line-art figures with worked muscles filled in.
      musclesSvg(text) -> { svg, front: [names], back: [names], any } . Pure string output, no DOM. */
@@ -3350,20 +3375,43 @@ header.hero .me-btn { border-color:#e87328; }
     inp.click();
   }
 
+  var GIDEON_BADGE = '<svg viewBox="0 0 40 44" aria-hidden="true"><path d="M20 2 37 8v14c0 11-8 18-17 20C11 40 3 33 3 22V8z" class="gb-s"/><text x="20" y="28" text-anchor="middle" class="gb-t">G</text></svg>';
   function drawVideoPage() {
     var body = $("vid-body"); body.textContent = ""; if (!vidCur) return;
     var m = PLAN.M[vidCur.g] || {}, id = moveVideo(vidCur.g);
     body.appendChild(el("h1", "pg", vidCur.shown));
     var meta = [m.pattern, m.muscles].filter(Boolean).join(" \u00B7 "); if (meta) body.appendChild(el("p", "vmeta", meta));
-    if (m.muscles) body.appendChild(muscleDiagram(m.muscles));
+    var secs = [], tabs = el("div", "vd-tabs"); tabs.setAttribute("role", "tablist");
+    function sec(k, label, node) { if (!node) return; node.dataset.sec = k; secs.push([k, label, node]); }
+    if (m.muscles) sec("m", "Muscles", muscleDiagram(m.muscles));
+    var vc = el("div", "vd-card"); vc.appendChild(el("h2", "mm-h", "Watch how to do it"));
     if (id) {
-      var a = el("a", "vlink", "\u25B6  Watch on YouTube"); a.href = "https://www.youtube.com/watch?v=" + id; a.target = "_blank"; a.rel = "noopener noreferrer"; body.appendChild(a);
-      if (m.vch) body.appendChild(el("p", "vmeta", "Video by " + m.vch + " on YouTube."));
-      if (vidCur.shown !== vidCur.g) body.appendChild(el("p", "vmeta", "This video demonstrates the " + vidCur.g + ". Your version today is the " + vidCur.shown + "."));
-    } else body.appendChild(el("p", "note", "No video for this one yet."));
-    if (m.cue) { var c = el("p", "wk-sec"); c.appendChild(el("b", null, "Coaching cue")); c.appendChild(document.createTextNode(m.cue)); body.appendChild(c); }
-    if (m.howTo) body.appendChild(howToEl(m.howTo, false));
+      var a = el("a", "vd-play"); a.href = "https://www.youtube.com/watch?v=" + id; a.target = "_blank"; a.rel = "noopener noreferrer"; a.setAttribute("aria-label", "Watch on YouTube" + (m.vch ? ", video by " + m.vch : ""));
+      a.appendChild(el("span", "vd-pb", "\u25B6\uFE0E")); a.appendChild(el("small", null, "Opens YouTube" + (m.vch ? " \u00B7 " + m.vch : ""))); vc.appendChild(a);
+      if (vidCur.shown !== vidCur.g) vc.appendChild(el("p", "vmeta", "This video demonstrates the " + vidCur.g + ". Your version today is the " + vidCur.shown + "."));
+    } else vc.appendChild(el("p", "note", "No video for this one yet."));
+    sec("v", "Video", vc);
+    if (m.howTo || m.cue) {
+      var cc = el("div", "vd-card"), hd = el("div", "vd-coach"), bd = el("span", "vd-badge"); bd.innerHTML = GIDEON_BADGE; hd.appendChild(bd);
+      var nm = el("span"); nm.appendChild(el("b", null, COACH_LABEL)); nm.appendChild(el("small", null, "How to do it")); hd.appendChild(nm); cc.appendChild(hd);
+      if (m.cue) { var cq = el("p", "vd-cue"); cq.appendChild(el("b", null, "Cue ")); cq.appendChild(document.createTextNode(m.cue)); cc.appendChild(cq); }
+      if (m.howTo) { var dl = el("dl", "howto-dl"); howToParts(m.howTo).forEach(function (x) { if (x[0]) dl.appendChild(el("dt", null, x[0])); dl.appendChild(el("dd", null, x[1])); }); cc.appendChild(dl); }
+      cc.appendChild(el("p", "vd-q", "\u201CThe LORD is with you, O mighty man of valor.\u201D Judges 6:12"));
+      sec("c", "Coach", cc);
+    }
+    if (secs.length > 1) {
+      secs.forEach(function (x) {
+        var b = el("button", null, x[1]); b.type = "button"; b.setAttribute("role", "tab"); b.dataset.tab = x[0]; b.setAttribute("aria-selected", String(x[0] === vidCur.tab));
+        b.addEventListener("click", function () { Array.prototype.forEach.call(tabs.children, function (y) { y.setAttribute("aria-selected", String(y === b)); }); vidCur.tab = x[0]; x[2].scrollIntoView({ behavior: "smooth", block: "start" }); });
+        tabs.appendChild(b);
+      });
+      body.appendChild(tabs);
+    }
+    secs.forEach(function (x) { body.appendChild(x[2]); });
+    var want = secs.filter(function (x) { return x[0] === vidCur.tab; })[0];
+    if (want && want !== secs[0]) setTimeout(function () { want[2].scrollIntoView({ block: "start" }); }, 0);
   }
+
   // "Setup: ... Move: ... Watch for: ... Tip: ..." -> labeled steps from the coach.
   function howToParts(t) {
     var re = /(Setup|Move|Watch for|Tip|Breathe|Breathing|Scale it|Progress):\s*/g, out = [], m, last = null, idx = 0; t = String(t || "");
@@ -3867,13 +3915,19 @@ header.hero .me-btn { border-color:#e87328; }
       var origG = e[0], swp0 = !e[2] ? effSwap(rec, idx, origG) : null, mg = swp0 ? swp0.g : origG;
       if (swp0 && swp0.automatic && live && wk.loaded) { rec.swaps = normSwaps(rec.swaps); rec.swaps[idx] = {g:swp0.g, why:swp0.why}; saveWkNow(); }
       var shownName = moveName(mg, p.equip), top = el("div", "wx-top");
-      if (moveVideo(mg)) {
-        var nb = el("button", "wn wlink"); nb.type = "button"; nb.setAttribute("aria-label", "Watch how to do " + shownName);
-        nb.appendChild(el("span", "pl", "\u25B6\uFE0E")); nb.appendChild(el("span", null, shownName));
+      var mInfo = PLAN.M[mg] || {};
+      if (mInfo.muscles || moveVideo(mg) || mInfo.howTo) {
+        // Muscle thumbnail: glance at the target, tap for muscles, video and Coach Gideon.
+        var th0 = el("button", "ex-thumb"); th0.type = "button"; th0.setAttribute("aria-label", "Muscles, video and coaching for " + shownName);
+        var mr0 = mInfo.muscles ? MUSCLE_MAP.render(mInfo.muscles) : null;
+        if (mr0 && mr0.any) th0.innerHTML = mr0.svg; else th0.appendChild(el("span", "ex-thumb-g", "G"));
+        if (moveVideo(mg)) th0.appendChild(el("span", "pl", "\u25B6\uFE0E"));
+        th0.addEventListener("click", function () { saveWkNow(); openVideo(mg, shownName); }); top.appendChild(th0);
+        var nb = el("button", "wn wlink"); nb.type = "button"; nb.setAttribute("aria-label", "Open " + shownName); nb.appendChild(el("span", null, shownName));
         nb.addEventListener("click", function () { saveWkNow(); openVideo(mg, shownName); }); top.appendChild(nb);
       } else top.appendChild(el("span", "wn", shownName));
       if (!e[2] && !S && isToday && !off && wk.loaded && ALT.alternates && ALT.alternates[origG]) {
-        var swb = el("button", "mini sw-btn", "\u21C4 Alternate"); swb.type = "button"; swb.setAttribute("aria-label", "Choose an alternate for " + shownName);
+        var swb = el("button", "mini sw-btn", "\u21C4 Alt"); swb.type = "button"; swb.setAttribute("aria-label", "Choose an alternate for " + shownName);
         swb.addEventListener("click", function () { saveWkNow(); openSwap(idx, origG); }); top.appendChild(swb);
       }
       ex.appendChild(top);
