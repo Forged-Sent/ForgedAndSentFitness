@@ -1111,7 +1111,7 @@ header.hero .me-btn { border-color:#e87328; }
     function start() {
       if (started) return; started = true; t0 = Date.now(); sp.classList.add("go");
       var reduce = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
-      setTimeout(done, reduce ? 900 : 3000);
+      setTimeout(done, reduce ? 1500 : 5000);
     }
     if (document.visibilityState === "hidden") document.addEventListener("visibilitychange", function () { if (document.visibilityState !== "hidden") start(); });
     else start();
