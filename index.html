@@ -6617,9 +6617,24 @@ header.hero .me-btn { border-color:#e87328; }
     });
     $("test-date").value = TEST_DATE || dkey(new Date());
     $("test-date").addEventListener("input", function () { this.dataset.touched = "1"; });
-    $("test-go").addEventListener("click", function () { var v = $("test-date").value; if (!/^\d{4}-\d{2}-\d{2}$/.test(v)) return; try { localStorage.setItem("fs-test-date", v === dkey(new Date()) ? "" : v); } catch (e) {} location.reload(); });
-    $("test-off").addEventListener("click", function () { try { localStorage.removeItem("fs-test-date"); } catch (e) {} location.reload(); });
-    if (TEST_DATE) { var tb = el("button", "test-banner", "Test mode: " + longDate(TEST_DATE) + ". Tap to go back to the real date."); tb.type = "button"; tb.addEventListener("click", function () { try { localStorage.removeItem("fs-test-date"); } catch (e) {} location.reload(); }); document.body.appendChild(tb); }
+    // Switch the pretend date right away. A page reload doesn't always happen inside the Claude app,
+    // which left the old test date showing, so the app redraws in place instead.
+    function setTestDate(v) {
+      v = v && v !== dkey(new Date()) ? v : "";
+      try { if (v) localStorage.setItem("fs-test-date", v); else localStorage.removeItem("fs-test-date"); } catch (e) {}
+      TEST_DATE = v; $("test-date").value = v || dkey(new Date());
+      state.trainDay = todayKey(); state.wkDay = null; stripBuilt = false;
+      var old = document.querySelector(".test-banner"); if (old) old.remove(); paintTestBanner();
+      drawAll(); go("today");
+    }
+    function paintTestBanner() {
+      if (!TEST_DATE) return;
+      var tb = el("button", "test-banner", "Test mode: " + longDate(TEST_DATE) + ". Tap to go back to the real date."); tb.type = "button";
+      tb.addEventListener("click", function () { setTestDate(""); }); document.body.appendChild(tb);
+    }
+    $("test-go").addEventListener("click", function () { var v = $("test-date").value; if (!/^\d{4}-\d{2}-\d{2}$/.test(v)) return; setTestDate(v); });
+    $("test-off").addEventListener("click", function () { setTestDate(""); });
+    paintTestBanner();
     $("test-diag").addEventListener("click", runPhotoDiag);
     $("test-sound").addEventListener("click", function () { unlockAudio(); setTimeout(function () { if (!playBeepEl(0)) playTones(null, 3); }, 250); });
     [["s-af-w", "w"], ["s-af-r", "r"]].forEach(function (c) {
