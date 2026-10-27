@@ -1400,7 +1400,7 @@ header.hero .me-btn { border-color:#e87328; }
       <section class="d-sec"><h2 class="d-lbl">Act</h2><p id="d-act"></p></section>
       <div class="devo-end">
         <p class="note" id="devo-hint" style="margin:0"></p>
-        <button class="btn" type="button" id="devo-read" disabled>Scroll to the bottom to mark read</button>
+        <button class="btn" type="button" id="devo-read" disabled>Scroll to the bottom to say Amen</button>
       </div>
     </article>
   </div>
@@ -2214,10 +2214,10 @@ header.hero .me-btn { border-color:#e87328; }
     var dt = devoTask(), b = $("devo-read"), hint = $("devo-hint");
     if (!dt) return;
     var done = !!myDoc().done[dt.id], off = !state.me || !state.canWrite;
-    if (done) { b.textContent = "Read today. Undo"; b.className = "btn ghost"; b.disabled = off; hint.textContent = "Your Daily Devotional box is checked."; return; }
+    if (done) { b.textContent = "Amen. Undo"; b.className = "btn ghost"; b.disabled = off; hint.textContent = "Your Daily Devotional box is checked."; return; }
     b.className = "btn";
     b.disabled = off || !devoReached;
-    b.textContent = devoReached ? "Mark as read" : "Scroll to the bottom to mark read";
+    b.textContent = devoReached ? "Amen" : "Scroll to the bottom to say Amen";
     hint.textContent = !state.me ? "Sign in to check off the devotional." : (!state.canWrite ? "You have view-only access." : (devoReached ? "You made it to the end." : "Read it all the way through."));
   }
   function drawDevo() {
@@ -5740,7 +5740,7 @@ header.hero .me-btn { border-color:#e87328; }
       "What's shared here stays here. No judgment, no gossip."] },
     devo: { t: "Devotional", why: "Today's reading: open in prayer, read the Scripture, reflect, then act on it.", how: [
       "Read all the way to the bottom. The button unlocks once you get there.",
-      "Tap Mark read to check your devotional box.",
+      "Tap Amen at the bottom to check your devotional box.",
       "Each month has a theme. The reading changes every day of the year."] },
     chal: { t: "Weekly challenge", why: "One of this week's three challenges: what it is, what counts, how it's scored, and where you submit your result.", how: [
       "Family is about leading your home in faith. Complete it for 50 points.",
