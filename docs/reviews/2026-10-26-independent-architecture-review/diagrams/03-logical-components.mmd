@@ -1,0 +1,38 @@
+flowchart LR
+  subgraph features[app/lib/features]
+    today[today]
+    devotion[devotion]
+    prayer[prayer]
+    habits[habits]
+    train[train]
+    nutrition[nutrition]
+    groups[groups]
+    feed[feed]
+    challenges[challenges]
+    profile[profile/settings]
+  end
+  subgraph core[app/lib/core]
+    authc[auth]
+    db[db: Drift schema + DAOs]
+    syncc[sync: outbox, pull, state machine]
+    net[network: Supabase wrapper]
+    flags[flags]
+    log[logging]
+    design[design tokens]
+    routing[routing]
+  end
+  dom[packages/fs_domain]
+  contracts[(contracts/: ruleset schema,<br/>content schema, golden fixtures)]
+  today -->|api.dart| habits
+  today -->|api.dart| devotion
+  today -->|api.dart| train
+  challenges -->|api.dart| train
+  feed -->|api.dart| groups
+  prayer -->|api.dart| groups
+  features --> core
+  features --> dom
+  syncc --> net
+  syncc --> db
+  dom -.validated by.-> contracts
+  classDef rule fill:#fff3cd,stroke:#b8860b
+  class dom,contracts rule

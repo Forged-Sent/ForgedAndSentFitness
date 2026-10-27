@@ -1,0 +1,25 @@
+%% Logical components and allowed dependencies (informal UML component view)
+flowchart TB
+  subgraph App[Flutter app]
+    subgraph F[features]
+      today[today] ; wx[workout_experience] ; dev[devotion/journal] ; train[train] ; nutr[nutrition] ; health[health]
+      feed[feed] ; prayer[prayer] ; chal[challenges] ; proof[proof] ; board[board] ; groups[groups/onboarding] ; settings[settings/account]
+    end
+    subgraph C[core]
+      auth[auth] ; fbw[firebase] ; db[(Drift db)] ; sync[sync/outbox] ; content[content] ; log[logging] ; flags[flags] ; routing[routing]
+    end
+    dom[[packages/fs_domain - experience, training, scoring preview, time, privacy]]
+  end
+  subgraph Server[Cloud Functions - TypeScript]
+    mem[membership] ; sc[scoring] ; pf[proof] ; nt[notify] ; mod[moderation] ; nu[nutrition proxy] ; acct[account] ; cnt[content publish]
+  end
+  contracts[(contracts - JSON schemas + golden fixtures)]
+  F --> C
+  F --> dom
+  wx -->|workout state events| train
+  chal -->|api.dart| proof
+  sync --> fbw
+  sync --> db
+  dom -. validated by .-> contracts
+  sc -. validated by .-> contracts
+  fbw --> Server

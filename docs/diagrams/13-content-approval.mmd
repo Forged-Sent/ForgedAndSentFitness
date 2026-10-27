@@ -1,0 +1,14 @@
+%% Content approval workflow (UML activity, informal)
+flowchart LR
+  A[Author edits content/ sources] --> B[fs_content validate: schema, references, scripture text, inclusive variants, license metadata]
+  B -->|fail| A
+  B -->|pass| C[Package draft vN + review packet]
+  C --> D{Reviewer types required}
+  D --> E[Theology reviewer approves]
+  D --> F[Fitness reviewer approves]
+  E & F --> G[approved.yaml signed by humans - protected zone]
+  G --> H[Publish Function: checks approvals + license != unknown]
+  H --> I[Storage content/pkg/vN + Firestore manifest]
+  I --> J[Apps download; runs pin version]
+  J --> K[Retire old version when unused]
+  X[AI agent] -. may flag issues only .-> C

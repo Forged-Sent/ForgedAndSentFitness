@@ -1,0 +1,51 @@
+requirementDiagram
+  requirement FS_MISSION {
+    id: FS0
+    text: "Help men grow in faith, fitness and brotherhood without reducing faith to points"
+    risk: high
+    verifymethod: inspection
+  }
+  requirement FS_PRIV {
+    id: FS1
+    text: "Private data is visible only to its owner unless explicitly scoped"
+    risk: high
+    verifymethod: test
+  }
+  requirement FS_INTEG {
+    id: FS2
+    text: "Competition results are server-authoritative, reproducible and auditable"
+    risk: high
+    verifymethod: test
+  }
+  requirement FS_OFF {
+    id: FS3
+    text: "Personal training and habit records work fully offline without loss"
+    risk: high
+    verifymethod: test
+  }
+  requirement FS_DISC {
+    id: FS4
+    text: "Daily discipleship loop with private reflection and scoped prayer"
+    risk: medium
+    verifymethod: demonstration
+  }
+  element RLS_matrix_tests {
+    type: "pgTAP suite"
+  }
+  element Scoring_golden_fixtures {
+    type: "contract tests"
+  }
+  element Outbox_property_tests {
+    type: "Dart tests"
+  }
+  element Pilot_feedback {
+    type: "pilot survey"
+  }
+  FS_MISSION - contains -> FS_PRIV
+  FS_MISSION - contains -> FS_INTEG
+  FS_MISSION - contains -> FS_OFF
+  FS_MISSION - contains -> FS_DISC
+  RLS_matrix_tests - verifies -> FS_PRIV
+  Scoring_golden_fixtures - verifies -> FS_INTEG
+  Outbox_property_tests - verifies -> FS_OFF
+  Pilot_feedback - verifies -> FS_DISC

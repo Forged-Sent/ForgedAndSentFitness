@@ -1,0 +1,605 @@
+# Forged & Sent requirements (source of truth). Validated by tools/validate_architecture.py.
+# type: functional | quality | security | privacy | offline | operational | process
+# status: approved (human-approved direction) | proposed | open (blocked on an OD-xx)
+# verification: test ids defined in docs/requirements/test-catalog.yaml
+version: 1
+requirements:
+  # ---- Access & tenancy ----
+  - id: FS-ACC-001
+    type: security
+    text: A member shall not read or write any document of a group in which he does not hold an active membership.
+    acceptance: Rules test denies reads of groups/B/** to an active member of group A only.
+    components: [firebase/firestore.rules, firebase/storage.rules]
+    adr: [ADR-0004, ADR-0018]
+    verification: [TC-001]
+    status: approved
+  - id: FS-ACC-002
+    type: security
+    text: Membership and role documents shall be writable only by Cloud Functions (Admin SDK).
+    acceptance: Rules test denies client create/update/delete on groups/{gid}/members/{uid} for every role.
+    components: [firebase/firestore.rules, functions/src/membership]
+    adr: [ADR-0004]
+    verification: [TC-016]
+    status: approved
+  - id: FS-ACC-003
+    type: security
+    text: Joining a group shall require a valid, unexpired, single-use or bounded-use invite redeemed through a callable Function.
+    acceptance: Expired or exhausted invite returns failed-precondition; no membership written.
+    components: [functions/src/membership]
+    adr: [ADR-0004]
+    verification: [TC-017]
+    status: approved
+  - id: FS-ACC-004
+    type: security
+    text: All Firebase client access shall require App Check in staging and production.
+    acceptance: Requests without a valid App Check token are rejected when enforcement is on.
+    components: [app/lib/core/firebase, firebase project config]
+    adr: [ADR-0003]
+    verification: [TC-018]
+    status: open
+    open_decision: OD-19
+  - id: FS-ACC-005
+    type: security
+    text: Organization membership shall grant no access to member data in its groups.
+    acceptance: Rules test denies an org admin read of a group journal, nutrition log or private prayer.
+    components: [firebase/firestore.rules]
+    adr: [ADR-0004]
+    verification: [TC-019]
+    status: approved
+  - id: FS-ACC-006
+    type: privacy
+    text: Account deletion and data export shall cover every user-keyed document and Storage object listed in docs/architecture/02-data-architecture-firestore.md.
+    acceptance: Deletion sweep test finds zero documents/objects keyed by the deleted uid outside anonymized finalized snapshots; export bundle contains every listed collection.
+    components: [functions/src/account]
+    adr: [ADR-0003]
+    verification: [TC-014]
+    status: approved
+  # ---- Privacy (faith, health) ----
+  - id: FS-PRV-001
+    type: privacy
+    text: Journal entries (reflections, personal prayers, confessions) shall be readable and writable only by their owner.
+    acceptance: Rules tests deny leader, member, org admin and other users; no Function reads journal content for scoring or notifications.
+    components: [firebase/firestore.rules, functions]
+    adr: [ADR-0012]
+    verification: [TC-002]
+    status: approved
+  - id: FS-PRV-002
+    type: privacy
+    text: Prayer requests shall be visible only to the audience chosen by the author (private, partners, leaders, group), and the audience shall be editable only by the author.
+    acceptance: Rules tests per audience value; query without matching constraint is denied.
+    components: [firebase/firestore.rules]
+    adr: [ADR-0012]
+    verification: [TC-020]
+    status: approved
+  - id: FS-PRV-003
+    type: privacy
+    text: Fasting plans, nutrition logs, body metrics, progress photos and health samples shall default to private and require an explicit per-item share.
+    acceptance: Rules tests deny non-owners; sharing creates a separate shared document.
+    components: [firebase/firestore.rules, firebase/storage.rules]
+    adr: [ADR-0011, ADR-0012]
+    verification: [TC-021]
+    status: approved
+  - id: FS-PRV-004
+    type: privacy
+    text: No scoring input, ruleset field or analytics event shall reference the content, length or quality of a prayer or reflection.
+    acceptance: Ruleset JSON Schema has no field capable of referencing journal fields; Functions scoring code has no import of journal paths (static check).
+    components: [contracts/ruleset.schema.json, functions/src/scoring]
+    adr: [ADR-0012]
+    verification: [TC-022]
+    status: approved
+  - id: FS-PRV-005
+    type: privacy
+    text: Push notification payloads shall contain no prayer, journal, nutrition, health or proof content.
+    acceptance: Payload snapshot tests for every notification type.
+    components: [functions/src/notify]
+    adr: [ADR-0012]
+    verification: [TC-023]
+    status: approved
+  - id: FS-PRV-006
+    type: privacy
+    text: Crash reports and logs shall be redacted of faith, health, nutrition and proof data.
+    acceptance: Logger redaction unit test; no Crashlytics custom keys with user content.
+    components: [app/lib/core/logging]
+    adr: [ADR-0016]
+    verification: [TC-024]
+    status: proposed
+  # ---- Offline ----
+  - id: FS-OFF-001
+    type: offline
+    text: Every logged set shall be committed to the device database before the UI confirms it.
+    acceptance: Integration test kills the app immediately after a set is confirmed; on restart the set is present.
+    components: [app/lib/core/db, app/lib/features/train]
+    adr: [ADR-0006]
+    verification: [TC-003]
+    status: approved
+  - id: FS-OFF-002
+    type: offline
+    text: An in-progress workout shall be resumable after process death or device restart.
+    acceptance: ResumeSessionGuard offers resume; elapsed and rest timers recomputed from wall-clock anchors.
+    components: [app/lib/features/train]
+    adr: [ADR-0006]
+    verification: [TC-003]
+    status: approved
+  - id: FS-OFF-003
+    type: offline
+    text: Each locally created fact shall synchronize to Firestore exactly once regardless of retries, restarts or multiple devices.
+    acceptance: Outbox test with injected failures produces one server document per fact id.
+    components: [app/lib/core/sync]
+    adr: [ADR-0006]
+    verification: [TC-003, TC-004]
+    status: approved
+  - id: FS-OFF-004
+    type: offline
+    text: No queued change shall be discarded without explicit user action.
+    acceptance: Permanent failures move to needs_attention and are visible; property test with random failures.
+    components: [app/lib/core/sync]
+    adr: [ADR-0006]
+    verification: [TC-025]
+    status: approved
+  - id: FS-OFF-005
+    type: offline
+    text: Previously downloaded programs, today's devotional content and the user's history shall be usable without connectivity, including on first launch with bundled content.
+    acceptance: Airplane-mode E2E from fresh install with bundled package.
+    components: [app/lib/features/train, app/lib/features/devotion]
+    adr: [ADR-0006, ADR-0007]
+    verification: [TC-026]
+    status: approved
+  - id: FS-OFF-006
+    type: offline
+    text: Server-only actions (final standings, proof review, invites, deletion) shall show a pending state offline and never appear completed until acknowledged.
+    acceptance: Widget tests for pending states.
+    components: [app/lib/core/sync]
+    adr: [ADR-0006]
+    verification: [TC-027]
+    status: approved
+  - id: FS-OFF-007
+    type: offline
+    text: A workout session shall be editable on only one device at a time (lease); takeover preserves the other device's local copy.
+    acceptance: Two-device simulation test.
+    components: [app/lib/features/train, firebase/firestore.rules]
+    adr: [ADR-0006]
+    verification: [TC-028]
+    status: approved
+  - id: FS-OFF-008
+    type: offline
+    text: Day boundaries and deadlines shall use the member's IANA time zone for local dates and the season's IANA time zone with server time for deadlines.
+    acceptance: Time-zone matrix test (Phoenix no-DST, DST zones, travel across zones, deadline edges).
+    components: [packages/fs_domain/time, functions/src/scoring]
+    adr: [ADR-0009]
+    verification: [TC-013]
+    status: approved
+  # ---- Devotional Workout Experience Engine ----
+  - id: FS-DWE-001
+    type: functional
+    text: The user shall choose an experience mode per day or as a default; full devotional before workout, after workout, rest prompts during workout, split day at scheduled times, workout only, devotional only.
+    acceptance: Engine unit tests cover all six modes.
+    components: [packages/fs_domain/experience]
+    adr: [ADR-0008]
+    verification: [TC-029]
+    status: approved
+  - id: FS-DWE-002
+    type: functional
+    text: Changing the experience mode or timing shall never erase completed stages.
+    acceptance: Engine test switches mode mid-day; completed stage states and timestamps are unchanged.
+    components: [packages/fs_domain/experience]
+    adr: [ADR-0008]
+    verification: [TC-012]
+    status: approved
+  - id: FS-DWE-003
+    type: security
+    text: The engine shall never present reading or text input during an active set or timed exertion interval.
+    acceptance: Engine denies text stages while workout state is active_set or timed_interval; widget test asserts no input fields in rest prompts.
+    components: [packages/fs_domain/experience, app/lib/features/workout_experience]
+    adr: [ADR-0008]
+    verification: [TC-030]
+    status: approved
+  - id: FS-DWE-004
+    type: functional
+    text: Rest prompts shall appear only when remaining rest is at least 20 seconds, be dismissible in one tap and never pause or alter the rest timer.
+    acceptance: Engine and widget tests.
+    components: [packages/fs_domain/experience]
+    adr: [ADR-0008]
+    verification: [TC-030]
+    status: approved
+  - id: FS-DWE-005
+    type: functional
+    text: Experience templates shall be versioned content; a day's run shall pin the template version used.
+    acceptance: Publishing a new template version does not alter an in-progress run.
+    components: [packages/fs_domain/experience, tools/fs_content]
+    adr: [ADR-0007, ADR-0008]
+    verification: [TC-031]
+    status: approved
+  - id: FS-DWE-006
+    type: privacy
+    text: Reflection and prayer stages shall write only to the owner's journal unless the user explicitly shares an item.
+    acceptance: Rules and engine tests.
+    components: [packages/fs_domain/experience, firebase/firestore.rules]
+    adr: [ADR-0012]
+    verification: [TC-002]
+    status: approved
+  - id: FS-DWE-007
+    type: functional
+    text: Stage completion criteria shall be opened, acknowledged or completed; never minimum reading time, scroll position or word count.
+    acceptance: Template schema forbids such criteria.
+    components: [contracts/experience-template.schema.json]
+    adr: [ADR-0008]
+    verification: [TC-032]
+    status: approved
+  # ---- Training ----
+  - id: FS-TRN-001
+    type: functional
+    text: Programs shall be generated from versioned templates and reproduce the 1,460 prototype day rows exactly (with intensity restored) before any template change.
+    acceptance: Equivalence test passes.
+    components: [tools/fs_content]
+    adr: [ADR-0007]
+    verification: [TC-033]
+    status: approved
+  - id: FS-TRN-002
+    type: functional
+    text: The displayed prescription shall include intensity (RPE/RIR) and deload status.
+    acceptance: Golden schedule test for deload weeks.
+    components: [packages/fs_domain/training]
+    adr: [ADR-0007]
+    verification: [TC-033]
+    status: approved
+  - id: FS-TRN-003
+    type: functional
+    text: Members shall choose three lifting days with changes effective from the next plan week (prototype v158/v162 behavior), warned for back-to-back days.
+    acceptance: Legacy golden fixture parity.
+    components: [packages/fs_domain/training]
+    adr: [ADR-0001]
+    verification: [TC-034]
+    status: approved
+  - id: FS-TRN-004
+    type: functional
+    text: Exercise substitutions shall use the approved equipment and injury alternates with the disclaimer shown on injury swaps.
+    acceptance: Substitution graph tests.
+    components: [packages/fs_domain/training]
+    adr: [ADR-0007]
+    verification: [TC-035]
+    status: approved
+  - id: FS-TRN-005
+    type: functional
+    text: Personal records shall be keyed by movement variant and computed from logged sets (e1RM), recomputable from history.
+    acceptance: Equipment switch does not create a PR.
+    components: [packages/fs_domain/training]
+    adr: [ADR-0009]
+    verification: [TC-036]
+    status: approved
+  - id: FS-TRN-006
+    type: functional
+    text: A session shall store a snapshot of its prescription so history survives program revisions.
+    acceptance: Program revision leaves past session display unchanged.
+    components: [packages/fs_domain/training]
+    adr: [ADR-0007]
+    verification: [TC-031]
+    status: approved
+  # ---- Competition ----
+  - id: FS-CMP-001
+    type: security
+    text: Points, ledger entries, standings and snapshots shall be written only by Cloud Functions.
+    acceptance: Rules tests deny client writes to ledger, standings, snapshots.
+    components: [firebase/firestore.rules, functions/src/scoring]
+    adr: [ADR-0005]
+    verification: [TC-037]
+    status: approved
+  - id: FS-CMP-002
+    type: functional
+    text: Repeated or duplicated fact submissions shall not create duplicate points.
+    acceptance: Retry storm (100 duplicate submits and duplicate trigger deliveries) yields one ledger entry per fact and rule version.
+    components: [functions/src/scoring]
+    adr: [ADR-0005]
+    verification: [TC-004]
+    status: approved
+  - id: FS-CMP-003
+    type: functional
+    text: Score corrections shall be recorded as adjustment ledger entries with actor, reason and approver; nothing is edited in place.
+    acceptance: Audit query lists every adjustment with actor and reason.
+    components: [functions/src/scoring]
+    adr: [ADR-0005]
+    verification: [TC-005]
+    status: approved
+  - id: FS-CMP-004
+    type: functional
+    text: Changing a ruleset shall not alter finalized weeks or seasons.
+    acceptance: Publish ruleset v2 after finalizing week 3; week 3 snapshot hash unchanged.
+    components: [functions/src/scoring]
+    adr: [ADR-0005]
+    verification: [TC-006]
+    status: approved
+  - id: FS-CMP-005
+    type: functional
+    text: Team scores shall be normalized so team size alone does not determine rank.
+    acceptance: Property test; two teams with identical per-member performance and sizes 3 and 9 receive equal scores.
+    components: [functions/src/scoring]
+    adr: [ADR-0009]
+    verification: [TC-007]
+    status: open
+    open_decision: OD-02
+  - id: FS-CMP-006
+    type: functional
+    text: Approved alternates shall score according to their configured tier mapping and published multipliers.
+    acceptance: Alternate attempt scores equal tier formula; unapproved alternate is rejected.
+    components: [functions/src/scoring]
+    adr: [ADR-0009]
+    verification: [TC-008]
+    status: open
+    open_decision: OD-03
+  - id: FS-CMP-007
+    type: functional
+    text: Physical challenges shall offer two difficulty tiers with published point differences.
+    acceptance: Challenge config validation requires both tiers or an explicit single-tier reason.
+    components: [contracts/ruleset.schema.json]
+    adr: [ADR-0009]
+    verification: [TC-038]
+    status: approved
+  - id: FS-CMP-008
+    type: functional
+    text: Attempts shall be accepted only between opensAt and closesAt plus grace using server request time; later offline attempts go to review.
+    acceptance: Rules test with request.time beyond the window denies create; late flag set by Function.
+    components: [firebase/firestore.rules, functions/src/scoring]
+    adr: [ADR-0009]
+    verification: [TC-013]
+    status: open
+    open_decision: OD-13
+  - id: FS-CMP-009
+    type: functional
+    text: Weekly missions shall offer variants that do not assume marriage or children and shall never require images of family members.
+    acceptance: Content validator rejects missions lacking an inclusive variant.
+    components: [tools/fs_content]
+    adr: [ADR-0013]
+    verification: [TC-039]
+    status: approved
+  - id: FS-CMP-010
+    type: functional
+    text: Seasons shall be configurable data; practice seasons produce no permanent standings.
+    acceptance: Practice season snapshot flagged practice and excluded from history views.
+    components: [functions/src/scoring]
+    adr: [ADR-0019]
+    verification: [TC-040]
+    status: approved
+  - id: FS-CMP-011
+    type: functional
+    text: Scoring shall not reward unsafe volume; workout participation, steps and PR points are capped per day and week.
+    acceptance: Cap tests.
+    components: [functions/src/scoring]
+    adr: [ADR-0009]
+    verification: [TC-041]
+    status: open
+    open_decision: OD-20
+  - id: FS-CMP-012
+    type: functional
+    text: Faith participation points (if any) shall be boolean participation only, capped, with weights from an approved ruleset.
+    acceptance: Ruleset schema test; zero when weights unset.
+    components: [contracts/ruleset.schema.json]
+    adr: [ADR-0012]
+    verification: [TC-022]
+    status: open
+    open_decision: OD-01
+  - id: FS-CMP-013
+    type: functional
+    text: Review and appeal workflow shall record reviewer decisions and appeal outcomes with reasons; finalized results change only through adjustments.
+    acceptance: Appeal reopens to under_appeal; resolution writes adjustment and new snapshot version.
+    components: [functions/src/scoring]
+    adr: [ADR-0005]
+    verification: [TC-042]
+    status: approved
+  - id: FS-CMP-014
+    type: functional
+    text: The schema shall contain no cash prize, wager or paid-entry fields.
+    acceptance: Ruleset schema test.
+    components: [contracts/ruleset.schema.json]
+    adr: [ADR-0009]
+    verification: [TC-038]
+    status: approved
+  # ---- Proof ----
+  - id: FS-PRF-001
+    type: functional
+    text: Users shall record video or photo proof with the device camera inside the app.
+    acceptance: Device test on iOS and Android.
+    components: [app/lib/features/proof]
+    adr: [ADR-0010]
+    verification: [TC-043]
+    status: approved
+  - id: FS-PRF-002
+    type: offline
+    text: Captured proof shall be saved to app-private storage and recorded locally before any upload begins.
+    acceptance: Integration test asserts file and local record exist before the upload task starts.
+    components: [app/lib/features/proof]
+    adr: [ADR-0010]
+    verification: [TC-009]
+    status: approved
+  - id: FS-PRF-003
+    type: functional
+    text: Users shall preview, replace, retry and submit proof, and export a copy to Photos/Gallery only by explicit action.
+    acceptance: Widget and device tests.
+    components: [app/lib/features/proof]
+    adr: [ADR-0010]
+    verification: [TC-043]
+    status: approved
+  - id: FS-PRF-004
+    type: security
+    text: Uploaded proof shall be readable only by its owner and the group's authorized reviewers; no long-lived bearer download URLs shall be issued for proof.
+    acceptance: Storage rules tests; static check forbids getDownloadURL in proof code; signed URL TTL ≤ 15 minutes.
+    components: [firebase/storage.rules, functions/src/proof]
+    adr: [ADR-0010]
+    verification: [TC-010]
+    status: approved
+  - id: FS-PRF-005
+    type: functional
+    text: Admins shall configure per challenge whether proof is none, optional or required, and its media types.
+    acceptance: Config validation and client enforcement tests.
+    components: [contracts/ruleset.schema.json]
+    adr: [ADR-0010]
+    verification: [TC-044]
+    status: approved
+  - id: FS-PRF-006
+    type: privacy
+    text: Uploaded proof shall be deleted after the retention period; the hash and review decision are retained.
+    acceptance: Scheduled job test.
+    components: [functions/src/proof]
+    adr: [ADR-0010]
+    verification: [TC-045]
+    status: open
+    open_decision: OD-06
+  - id: FS-PRF-007
+    type: security
+    text: Proof uploads shall be limited by size, duration and content type, and image EXIF location shall be stripped.
+    acceptance: Storage rules tests; client compression test.
+    components: [firebase/storage.rules, app/lib/features/proof]
+    adr: [ADR-0010]
+    verification: [TC-046]
+    status: approved
+  # ---- Nutrition & health ----
+  - id: FS-NUT-001
+    type: functional
+    text: Users shall log meals, macros and hydration with food search through a provider abstraction.
+    acceptance: Provider contract tests with a fake provider.
+    components: [app/lib/features/nutrition, functions/src/nutrition]
+    adr: [ADR-0011]
+    verification: [TC-047]
+    status: approved
+  - id: FS-NUT-002
+    type: functional
+    text: Nutrition points shall reward logging and hydration participation only and never a calorie deficit, low intake or weight loss.
+    acceptance: Logging 600 kcal/day earns no more than logging 2,400 kcal/day; below-floor days earn no complete-day credit.
+    components: [functions/src/scoring]
+    adr: [ADR-0011]
+    verification: [TC-011]
+    status: open
+    open_decision: OD-04
+  - id: FS-NUT-006
+    type: privacy
+    text: Fasting shall be opt-in with a safety screen, private by default and unscored.
+    acceptance: Rules and scoring tests.
+    components: [app/lib/features/nutrition]
+    adr: [ADR-0011, ADR-0012]
+    verification: [TC-021]
+    status: approved
+  - id: FS-HLT-001
+    type: privacy
+    text: Health data shall be read only with per-type user consent, stored as daily aggregates with source provenance and deduplicated by platform record id.
+    acceptance: Dedupe tests; consent record required.
+    components: [app/lib/features/health]
+    adr: [ADR-0011]
+    verification: [TC-048]
+    status: approved
+  # ---- Community ----
+  - id: FS-COM-001
+    type: functional
+    text: Members shall post, comment and react within their group with report and block; blocks are enforced server-side.
+    acceptance: Rules and Function tests.
+    components: [app/lib/features/feed, functions/src/moderation]
+    adr: [ADR-0004]
+    verification: [TC-049]
+    status: approved
+  - id: FS-COM-004
+    type: functional
+    text: Members shall create, update and close prayer requests and record that they prayed.
+    acceptance: Feature tests.
+    components: [app/lib/features/prayer]
+    adr: [ADR-0012]
+    verification: [TC-020]
+    status: approved
+  - id: FS-COM-005
+    type: operational
+    text: Reports shall enter a moderation queue visible to group leaders with escalation to platform owners and recorded actions.
+    acceptance: Moderation flow test.
+    components: [functions/src/moderation]
+    adr: [ADR-0004]
+    verification: [TC-050]
+    status: open
+    open_decision: OD-17
+  - id: FS-COM-006
+    type: security
+    text: Direct and group messaging shall not exist until a messaging safety ADR is accepted.
+    acceptance: Rules deny conversations paths.
+    components: [firebase/firestore.rules]
+    adr: [ADR-0017]
+    verification: [TC-015]
+    status: approved
+  # ---- Family & youth ----
+  - id: FS-FAM-001
+    type: functional
+    text: The profile and domain model shall not require gender, marital status or children.
+    acceptance: Schema review and onboarding test.
+    components: [contracts, app/lib/features/onboarding]
+    adr: [ADR-0013]
+    verification: [TC-051]
+    status: approved
+  - id: FS-FAM-002
+    type: security
+    text: Household and guardian collections shall be denied to all clients until the households feature is approved; household membership shall never grant access to journals, health, messages or prayer requests.
+    acceptance: Rules tests on reserved paths.
+    components: [firebase/firestore.rules]
+    adr: [ADR-0013]
+    verification: [TC-015]
+    status: approved
+  - id: FS-FAM-003
+    type: security
+    text: Accounts shall be 18+ (attested) until a youth ADR is accepted.
+    acceptance: Onboarding test; callable rejects join without attestation.
+    components: [functions/src/membership]
+    adr: [ADR-0013]
+    verification: [TC-052]
+    status: approved
+  # ---- Content ----
+  - id: FS-CNT-001
+    type: process
+    text: A content package shall not publish without license metadata and recorded human approvals.
+    acceptance: Publish gate test.
+    components: [tools/fs_content]
+    adr: [ADR-0007]
+    verification: [TC-053]
+    status: approved
+  - id: FS-CNT-002
+    type: process
+    text: Devotional publication beyond the private pilot shall require resolved rights.
+    acceptance: Package license field not "unknown".
+    components: [tools/fs_content]
+    adr: [ADR-0007]
+    verification: [TC-053]
+    status: open
+    open_decision: OD-11
+  # ---- Parity ----
+  - id: FS-PAR-001
+    type: process
+    text: The prototype shall be preserved unchanged at tag prototype-v162 as an executable behavioral reference.
+    acceptance: Tag exists; CI forbids edits to index.html, versions/ on feature branches without label legacy-change.
+    components: [index.html, versions/]
+    adr: [ADR-0001]
+    verification: [TC-054]
+    status: approved
+  # ---- Operations & quality ----
+  - id: FS-OPS-001
+    type: operational
+    text: Development, staging and production shall be separate Firebase projects with budget alerts.
+    acceptance: Project inventory and alert configuration documented and checked.
+    components: [firebase project config]
+    adr: [ADR-0014]
+    verification: [TC-055]
+    status: approved
+  - id: FS-OPS-005
+    type: operational
+    text: Scheduled Firestore exports shall run daily to a restricted bucket and a restore shall be rehearsed before the pilot.
+    acceptance: Restore drill record.
+    components: [firebase project config]
+    adr: [ADR-0003]
+    verification: [TC-056]
+    status: approved
+  - id: FS-QLT-001
+    type: quality
+    text: Every PR shall pass formatting, static analysis, unit tests, rules tests and architecture validators.
+    acceptance: Required CI checks configured on main.
+    components: [.github/workflows]
+    adr: [ADR-0015]
+    verification: [TC-057]
+    status: approved
+  - id: FS-DEV-001
+    type: process
+    text: Protected-zone files shall change only in PRs labelled contract-change that reference an ADR and receive two human approvals; no agent merges.
+    acceptance: Zone guard CI check; branch protection.
+    components: [tools/check_zones.sh, .github/CODEOWNERS]
+    adr: [ADR-0015]
+    verification: [TC-058]
+    status: approved

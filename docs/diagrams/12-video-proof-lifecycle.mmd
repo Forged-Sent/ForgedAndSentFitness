@@ -1,0 +1,20 @@
+%% Video proof lifecycle (UML state machine, informal)
+stateDiagram-v2
+  [*] --> Captured: in-app camera, app-private file
+  Captured --> Recorded: local Drift record written
+  Recorded --> Replaced: user re-records
+  Replaced --> Recorded
+  Recorded --> Exported: explicit Save to Photos (copy only)
+  Exported --> Recorded
+  Recorded --> Queued: user submits
+  Queued --> Uploading: online
+  Uploading --> Queued: interrupted (resume or restart)
+  Uploading --> Uploaded: storage rules ok
+  Uploaded --> Attached: attempt.proofIds updated
+  Attached --> InReview
+  InReview --> Approved
+  InReview --> Rejected
+  Approved --> Retained: until appeal window + retention (OD-06)
+  Rejected --> Retained
+  Retained --> Purged: scheduled purge, hash + decision kept
+  Purged --> [*]

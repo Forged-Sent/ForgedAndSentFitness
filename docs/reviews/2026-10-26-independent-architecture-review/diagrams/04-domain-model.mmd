@@ -1,0 +1,36 @@
+classDiagram
+  direction LR
+  class Member { userId; displayName; tz; birthYear }
+  class Group { id; tz; settings }
+  class Membership { role; state }
+  class PrayerRequest { scope; status }
+  class HabitDefinition { kind; scored; cadence }
+  class HabitCheckin { localDate; source; performedAt }
+  class ProgramVersion { slug; version }
+  class SessionTemplate { templateDay; slots }
+  class Enrollment { startDate; restDow; equipment }
+  class WorkoutSession { state; leaseDevice; revision }
+  class SetEntry { kind; load; reps; seconds }
+  class MovementVariant { equipmentSetup }
+  class PersonalRecord { metric; value }
+  class Ruleset { version; body }
+  class ChallengeInstance { state; opensAt; closesAt }
+  class ChallengeAttempt { mode; value; performedAt; receivedAt }
+  class ScoreEvent { points; ruleVersion; supersedes }
+  Group "1" o-- "*" Membership
+  Member "1" o-- "*" Membership
+  Group "1" o-- "*" PrayerRequest
+  Group "1" o-- "*" HabitDefinition
+  HabitDefinition "1" --> "*" HabitCheckin
+  ProgramVersion "1" *-- "*" SessionTemplate
+  Enrollment --> ProgramVersion : pins
+  Member "1" o-- "*" WorkoutSession
+  WorkoutSession "1" *-- "*" SetEntry
+  SetEntry --> MovementVariant
+  PersonalRecord --> MovementVariant : keyed by
+  ChallengeInstance --> Ruleset : pins
+  ChallengeInstance "1" o-- "*" ChallengeAttempt
+  ScoreEvent --> Ruleset : evaluated with
+  ScoreEvent ..> HabitCheckin : derived from
+  ScoreEvent ..> WorkoutSession : derived from
+  ScoreEvent ..> ChallengeAttempt : derived from

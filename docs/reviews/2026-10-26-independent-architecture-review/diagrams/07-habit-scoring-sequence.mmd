@@ -1,0 +1,22 @@
+sequenceDiagram
+  autonumber
+  actor M as Member
+  participant UI as Today UI
+  participant DB as Drift
+  participant SY as Sync engine
+  participant RPC as submit_checkin()
+  participant EV as evaluate_checkin()
+  participant LG as score_event ledger
+  participant ST as standings view
+  M->>UI: Tap "Water 3 L" (or auto from water entries)
+  UI->>DB: INSERT habit_checkin(id=v7, local_date, tz, source) + outbox item
+  UI-->>M: Checked (provisional points shown greyed)
+  SY->>RPC: submit_checkin(id, habit, local_date, tz, source, performed_at)
+  RPC->>RPC: verify membership, date window (server now in tz)
+  RPC->>RPC: INSERT ... ON CONFLICT DO NOTHING  (retry & 2nd-device safe)
+  RPC->>EV: evaluate(checkin, season.ruleset_version)
+  EV->>LG: INSERT score_event UNIQUE(source,id,rule_version,kind)
+  LG-->>ST: view recomputes (or trigger updates summary row)
+  RPC-->>SY: {checkin_id, points, rule_version}
+  SY->>DB: mark synced, store authoritative points
+  Note over RPC,LG: Spiritual practices are not scored (CP-8). Only participation aggregates.

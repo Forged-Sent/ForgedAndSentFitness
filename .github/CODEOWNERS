@@ -1,0 +1,14 @@
+# Protected zones need both developers (ADR-0015). Replace the second handle when known.
+# Second developer's GitHub handle: TODO (add it next to @sfcsmithc-afk on each line below).
+/docs/adr/                     @sfcsmithc-afk
+/docs/requirements/            @sfcsmithc-afk
+/contracts/                    @sfcsmithc-afk
+/firebase/                     @sfcsmithc-afk
+/functions/src/scoring/        @sfcsmithc-afk
+/content/**/approved.yaml      @sfcsmithc-afk
+/AGENTS.md                     @sfcsmithc-afk
+/CLAUDE.md                     @sfcsmithc-afk
+/.claude/                      @sfcsmithc-afk
+/.agents/                      @sfcsmithc-afk
+/index.html                    @sfcsmithc-afk
+/versions/                     @sfcsmithc-afk

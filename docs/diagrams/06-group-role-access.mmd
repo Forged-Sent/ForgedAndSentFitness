@@ -1,0 +1,29 @@
+%% Group and role access model (informal)
+flowchart TB
+  subgraph Private[Owner-only]
+    J[Journal / personal prayers]
+    N[Nutrition, fasting, body, health]
+    W[Workout sessions detail]
+  end
+  subgraph Scoped[Audience-scoped]
+    PRq[Prayer request: private / partners / leaders / group]
+    Part[Partner shares]
+  end
+  subgraph Group[Group-visible]
+    Feed[Posts, comments, reactions]
+    Std[Standings, snapshots, approved activity]
+    Mem[Member list]
+  end
+  subgraph Restricted[Role-restricted]
+    Rev[Attempts + proof - reviewers via signed URL]
+    Rep[Reports, moderation - leaders]
+  end
+  Owner((Owner)) --> Private & Scoped & Group
+  Member((Member)) --> Group
+  Member -->|if in audience| PRq
+  Partner((Partner)) --> Part
+  Leader((Leader)) --> Group & Rep
+  Leader -. aggregates only .-> Std
+  Reviewer((Reviewer)) --> Rev
+  Org((Org admin - future)) -. no member data .-> Group
+  HH((Household - future, inactive)) -. nothing by default .-> Private

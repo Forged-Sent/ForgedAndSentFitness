@@ -1,0 +1,18 @@
+%% Team scoring activity (UML activity, informal)
+flowchart TD
+  A[Fact accepted: session finished / checkin / approved attempt / mission] --> B[Load season + pinned ruleset vN]
+  B --> C{Practice season?}
+  C -- yes --> C1[Write to practice ledger only]
+  C -- no --> D[Evaluate component points with caps]
+  D --> E[Ledger create-if-absent: id = sourceType_sourceId_vN_kind]
+  E --> F{Already existed?}
+  F -- yes --> Z[Stop: idempotent]
+  F -- no --> G[Enqueue standings recompute for member + team]
+  G --> H[memberWeekly = min of sum and weeklyCap]
+  H --> I[teamWeekly = sum of memberWeekly / enrolled members]
+  I --> J[Write standings docs with component breakdown]
+  J --> K{Week review_until passed?}
+  K -- yes --> L[Finalize: snapshot with SHA-256, challenge finalized]
+  K -- no --> M[Live provisional standings]
+  L --> N{Appeal filed?}
+  N -- yes --> O[Adjustment ledger entry + snapshot vN+1]

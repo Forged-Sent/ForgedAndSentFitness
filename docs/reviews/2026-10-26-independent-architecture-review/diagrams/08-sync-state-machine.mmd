@@ -1,0 +1,20 @@
+stateDiagram-v2
+  [*] --> Pending: local write committed
+  Pending --> InFlight: online and next_attempt_at <= now
+  InFlight --> Synced: 2xx ack (or idempotent duplicate)
+  InFlight --> Backoff: network / 5xx / 429
+  InFlight --> AuthRefresh: 401
+  AuthRefresh --> Pending: token refreshed
+  AuthRefresh --> NeedsAttention: refresh failed (signed out)
+  Backoff --> Pending: delay elapsed (2s → 5min, full jitter)
+  InFlight --> Conflict: 409 (stale revision / lease lost)
+  Conflict --> NeedsAttention: keep local copy, show resolution
+  InFlight --> NeedsAttention: 4xx validation / 403
+  NeedsAttention --> Pending: user edits & retries
+  NeedsAttention --> Discarded: user discards (explicit only)
+  Synced --> [*]
+  Discarded --> [*]
+  note right of NeedsAttention
+    Never dropped silently.
+    Visible in a "Not sent yet" tray.
+  end note

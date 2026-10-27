@@ -1,0 +1,26 @@
+%% Offline synchronization sequence (UML sequence, informal)
+sequenceDiagram
+  autonumber
+  participant OB as Outbox (Drift)
+  participant FS as Firestore SDK (local cache + queue)
+  participant SR as Firestore server + rules
+  participant FN as Cloud Function trigger
+  OB->>FS: write doc with deterministic id (status written_local)
+  Note over FS: offline - write queued locally
+  FS-->>SR: connectivity restored, flush queue
+  SR->>SR: rules: owner, shape, request.time window
+  alt accepted
+    SR-->>FS: ack
+    FS-->>OB: snapshot hasPendingWrites=false (acknowledged)
+    SR->>FN: onDocumentCreated (at-least-once)
+    FN->>SR: ledger create-if-absent (deterministic id)
+  else permission-denied on create-only path
+    SR-->>FS: reject, local write rolled back
+    FS-->>OB: error
+    OB->>SR: read doc
+    alt exists with same payloadHash
+      OB->>OB: acknowledged (duplicate retry)
+    else
+      OB->>OB: needs_attention (visible to user)
+    end
+  end

@@ -1,0 +1,60 @@
+%% Domain/class model (conceptual UML class diagram)
+classDiagram
+  direction LR
+  class User { uid; tz; adultAttestedAt }
+  class Group { gid; tz; settings }
+  class Membership { role; state }
+  class Organization { oid }
+  class Household { hid; inactive }
+  class ExperienceTemplate { id; version; stages }
+  class ExperiencePlan { mode; schedule }
+  class ExperienceRun { localDate; templateVersion }
+  class StageState { state; at }
+  class JournalEntry { private }
+  class ProgramTemplate { slug; version }
+  class Enrollment { liftDaysHistory; equipment; restDow }
+  class WorkoutSession { state; lease; revision }
+  class SetEntry { load; reps; seconds }
+  class MovementVariant { equipmentSetup }
+  class PersonalRecord { metric; value }
+  class Season { tz; ruleset; practice }
+  class Team
+  class SeasonEnrollment { baselines; teamId? }
+  class Challenge { tiers; alternates; proofPolicy; window }
+  class Mission { variants }
+  class Attempt { tier; value; performedAt; receivedAt; status }
+  class Proof { path; sha256; state }
+  class Ruleset { version; immutable }
+  class LedgerEntry { points; kind; rulesetVersion }
+  class Standing { breakdown }
+  class Snapshot { hash; version }
+  class PrayerRequest { audience; audienceUids }
+  class Report
+  User "1" o-- "*" Membership
+  Group "1" o-- "*" Membership
+  Organization "0..1" o-- "*" Group
+  Household "0..1" .. "*" User : grants nothing by default
+  User "1" o-- "*" ExperienceRun
+  ExperienceRun --> ExperienceTemplate : pins
+  ExperienceRun "1" *-- "*" StageState
+  User "1" o-- "*" JournalEntry
+  User --> ExperiencePlan
+  Enrollment --> ProgramTemplate : pins
+  User "1" o-- "*" WorkoutSession
+  WorkoutSession "1" *-- "*" SetEntry
+  SetEntry --> MovementVariant
+  PersonalRecord --> MovementVariant
+  Group "1" o-- "*" Season
+  Season --> Ruleset : pins
+  Season "1" o-- "*" Team
+  Season "1" o-- "*" SeasonEnrollment
+  Season "1" o-- "*" Challenge
+  Season "1" o-- "*" Mission
+  Challenge "1" o-- "*" Attempt
+  Attempt "1" o-- "0..3" Proof
+  LedgerEntry ..> Attempt : derived
+  LedgerEntry ..> WorkoutSession : derived
+  Standing ..> LedgerEntry : projection
+  Snapshot ..> Standing : frozen
+  Group "1" o-- "*" PrayerRequest
+  Group "1" o-- "*" Report

@@ -1,0 +1,28 @@
+sequenceDiagram
+  autonumber
+  actor M as Member
+  participant UI as Train UI / ViewModel
+  participant D as fs_domain
+  participant DB as Drift (SQLite)
+  participant SY as Sync engine
+  participant API as Supabase RPC
+  participant PG as Postgres
+  M->>UI: Start today's session
+  UI->>D: resolve(enrollment, date, equipment, limitations)
+  D-->>UI: prescription snapshot (sets, reps, RPE, swaps)
+  UI->>DB: INSERT workout_session(in_progress, lease=device, uuid v7)
+  loop each set
+    M->>UI: enter load / reps
+    UI->>DB: UPDATE set_entry (commit immediately, no debounce)
+    UI->>UI: start rest timer from rest_started_at (wall clock)
+  end
+  Note over UI,DB: App killed or offline → ResumeSessionGuard restores in_progress on launch
+  M->>UI: Finish
+  UI->>D: validate sets (missing reps/load) + provisional PRs (same rules as server)
+  UI->>DB: session.state = finished, enqueue finish_session(id, revision)
+  SY->>API: finish_session(id, rev, payload)  [when online, retry w/ backoff]
+  API->>PG: upsert session + sets (ON CONFLICT id), evaluate PRs, insert score_event (unique key)
+  PG-->>API: {accepted, prs, score_events}
+  API-->>SY: ack
+  SY->>DB: mark synced, store server PRs and points
+  DB-->>UI: stream update → "PR confirmed" (or provisional → corrected)

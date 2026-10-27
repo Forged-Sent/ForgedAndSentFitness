@@ -1,0 +1,16 @@
+%% Firestore document hierarchy (informal; path containment, not relational FKs)
+flowchart LR
+  U[users/uid] --> US[settings/*] & UJ[journal/* - owner only] & UD[days/localDate] & USS[sessions/sessionId] & UF[foodEntries/*] & UH[healthDays/*] & UP[prs/*]
+  G[groups/gid] --> GM[members/uid - Functions only]
+  G --> GI[invites/*] & GP[posts/*] & GPR[prayerRequests/*] & GR[reports/*] & GC[checkins/uid_habit_date] & GPa[partnerships/*]
+  GP --> GPC[comments/*] & GPX[reactions/uid]
+  GPR --> GPRU[updates/*] & GPRP[prayed/uid]
+  G --> S[seasons/sid]
+  S --> ST[teams/*] & SE[enrollments/uid] & SC[challenges/cid] & SM[missions/mid] & SL[ledger/* - Functions only] & SS[standings/* - Functions only] & SN[snapshots/* - Functions only]
+  SC --> SA[attempts/attemptId] --> SAR[reviews/*]
+  R[rulesets/id - immutable]
+  C[content/pkg/versions/v]
+  O[organizations/oid - future]
+  H[households/hid - reserved, denied]
+  S -. pins .-> R
+  SA -. proof objects .-> STOR[(Storage proof/gid/sid/cid/uid/attemptId/*)]

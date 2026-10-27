@@ -1,0 +1,31 @@
+[embed] CHAL at index.html L1845: identical to seed/weekly-challenges.json
+[embed] STANDARDS at index.html L1846: identical to seed/movement-standards.json
+[embed] DEVOS at index.html L1847: identical to seed/devotionals.json
+[embed] ALT at index.html L2749: identical to seed/alternates.json
+[embed] PLAN at L2748: PLAN.W identical to seed/workouts.json? False
+[embed] seed exercise prescriptions containing RPE/RIR: 2562; in embedded PLAN: 0
+[embed] Forged wk1 day1 ['Back Squat', '3 x 5'] vs wk4 (deload) day1 ['Back Squat', '3 x 5'] -> deload indistinguishable: True
+[workouts] Forged: 365 materialized days, 260 distinct day bodies, unresolved movements=0, warm-ups repeating a movement=13
+[workouts] Built: 365 materialized days, 260 distinct day bodies, unresolved movements=0, warm-ups repeating a movement=13
+[workouts] Engine: 365 materialized days, 260 distinct day bodies, unresolved movements=0, warm-ups repeating a movement=20
+[workouts] Warrior: 365 materialized days, 266 distinct day bodies, unresolved movements=0, warm-ups repeating a movement=0
+[workouts] distinct free-text prescription formats: 32 (parsed by regex at runtime)
+[workouts] Forged week 1 block 1: ['Back Squat', '3 x 5 (RPE 7)']
+[workouts] Forged week 2 block 1: ['Back Squat', '3 x 3 (RPE 8)']
+[workouts] Forged week 3 block 1: ['Back Squat', '1 x 5, 1 x 3, 1 x 1 (RPE 9, heaviest set last)']
+[workouts] Forged week 4 block 1: ['Back Squat', '3 x 5 (RPE 6, deload)']
+[workouts] Forged week 5 block 2: ['Pause Squat', '3 x 5 (RPE 7)']
+[devos] entries=366 distinct refs=366 has Feb 29=True
+[devos] words per entry excluding the verse: mean 57, min 41, max 82; fields: ['act', 'prayer', 'ref', 'reflect', 'text'] (no translation/source/version field)
+[chal] scoring.status='proposed' weekRunsTo='Sunday 11:59 PM' (code deadline: Sunday 08:00 Arizona) soloBracketScores=100
+[chal] family challenges=52; mention wife=13; mention kids/child=9; mention family/household=30
+[chal] scoredBy counts: {('family', 'completion'): 52, ('iron', 'fastest_time'): 40, ('endure', 'fastest_time'): 44, ('endure', 'most_rounds'): 2, ('iron', 'longest_hold'): 6, ('endure', 'greatest_distance'): 5, ('iron', 'most_reps'): 5, ('endure', 'most_reps'): 1, ('iron', 'highest_total'): 1}
+[chal] w12-family: Ask forgiveness from a family member you have wronged. No excuses and no 'but'. | record: Mark complete with a short note or photo
+[chal] w20-family: Fast from one meal or one screen habit and spend that time praying for your family. Choose the screen fast if a meal fast is not wise for you. | record: Mark complete with a short note or photo
+[chal] w50-family: Choose someone in need as a family and give to them anonymously. | record: Mark complete with a short note or photo
+[chal] Mile trial, leader 6:30, man 14:00 standard -> 46 pts; logging a 'brisk 1 mile walk' scaled attempt too -> 50 pts
+[points] daily box points=10 (+3 custom habits); devotional=2/day = 14/week; one PR=25
+[points] manual steps 200,000 (UI max) -> step bonus 97.5 pts in one day; 18,000 -> 6.5
+[points] prs.n capped at 20 by normPrs -> max PR points/day = 500
+[rules] collections with rules: ['chsubs', 'habits', 'lifts', 'profiles', 'tasks']
+[rules] shared collections used by code WITHOUT rules: ['checkins', 'diag', 'ideas', 'likes', 'posts', 'replies', 'reports']

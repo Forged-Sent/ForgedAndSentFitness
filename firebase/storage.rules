@@ -1,0 +1,47 @@
+rules_version = '2';
+// Forged & Sent: Cloud Storage rules (DRAFT, Phase 0). Protected zone (ADR-0015).
+// Proof media is never served via getDownloadURL (ADR-0010); reviewers use short-lived signed URLs from a Function.
+service firebase.storage {
+  match /b/{bucket}/o {
+    function signedIn() { return request.auth != null; }
+    function memberDoc(gid) { return /databases/(default)/documents/groups/$(gid)/members/$(request.auth.uid); }
+    function isActiveMember(gid) {
+      return signedIn() && firestore.exists(memberDoc(gid)) && firestore.get(memberDoc(gid)).data.state == 'active';
+    }
+
+    match /{allPaths=**} { allow read, write: if false; }
+
+    // Challenge proof (FS-PRF-004, FS-PRF-007). At most 2 Firestore documents per evaluation (one here).
+    match /proof/{gid}/{sid}/{cid}/{uid}/{attemptId}/{fileId} {
+      allow read: if signedIn() && request.auth.uid == uid;   // reviewers: signed URL via Function, audited
+      allow create: if signedIn() && request.auth.uid == uid && isActiveMember(gid)
+        && ((request.resource.contentType.matches('video/(mp4|quicktime)') && request.resource.size < 200 * 1024 * 1024)
+            || (request.resource.contentType.matches('image/(jpeg|png|heic)') && request.resource.size < 15 * 1024 * 1024));
+      allow update: if false;
+      allow delete: if signedIn() && request.auth.uid == uid;
+    }
+
+    // Group feed media: members of the group read; author writes own path.
+    match /group-media/{gid}/{uid}/{fileId} {
+      allow read: if isActiveMember(gid);
+      allow create: if signedIn() && request.auth.uid == uid && isActiveMember(gid)
+        && request.resource.contentType.matches('image/(jpeg|png|heic|webp)') && request.resource.size < 15 * 1024 * 1024;
+      allow delete: if signedIn() && request.auth.uid == uid;
+    }
+
+    // Avatars: any signed-in user may read (names/avatars shown in shared groups); owner writes.
+    match /avatars/{uid}/{fileId} {
+      allow read: if signedIn();
+      allow write: if signedIn() && request.auth.uid == uid
+        && request.resource.contentType.matches('image/(jpeg|png|webp)') && request.resource.size < 2 * 1024 * 1024;
+    }
+
+    // Owner-only private media (progress photos, exports).
+    match /private/{uid}/{allPaths=**} {
+      allow read, write: if signedIn() && request.auth.uid == uid;
+    }
+
+    // Published content packages: read-only to signed-in users; written by the publish Function.
+    match /content/{allPaths=**} { allow read: if signedIn(); allow write: if false; }
+  }
+}

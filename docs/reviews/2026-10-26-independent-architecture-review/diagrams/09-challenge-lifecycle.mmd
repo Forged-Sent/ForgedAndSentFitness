@@ -1,0 +1,18 @@
+stateDiagram-v2
+  [*] --> Draft
+  Draft --> Scheduled: leader publishes (ruleset pinned)
+  Scheduled --> Open: opens_at (server clock, group tz)
+  Open --> Closed: closes_at
+  Closed --> InReview: grace period ended
+  InReview --> InReview: review decisions / needs_info
+  InReview --> Finalized: review_until reached or all reviewed → snapshot + hash
+  Finalized --> UnderAppeal: appeal filed within window
+  UnderAppeal --> Finalized: adjustment events + new snapshot
+  Scheduled --> Draft: unpublish (no attempts yet)
+  Open --> Cancelled: leader cancels (audited)
+  Cancelled --> [*]
+  Finalized --> [*]
+  note right of Open
+    Attempts accepted if received_at <= closes_at + grace
+    and performed_at within window.
+  end note

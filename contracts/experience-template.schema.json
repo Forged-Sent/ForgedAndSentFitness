@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://forgedandsent.app/contracts/experience-template.schema.json",
+  "title": "Devotional Workout Experience Template",
+  "description": "Completion criteria may never be time-on-screen, scroll position or word count (FS-DWE-007). Faith stages are never allowed during exertion (FS-DWE-003).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["id", "version", "stages"],
+  "properties": {
+    "id": { "type": "string" },
+    "version": { "type": "integer", "minimum": 1 },
+    "stages": {
+      "type": "array", "maxItems": 20,
+      "items": {
+        "type": "object", "additionalProperties": false,
+        "required": ["id", "type", "anchor", "completion", "safety"],
+        "properties": {
+          "id": { "type": "string" },
+          "type": { "enum": ["scripture", "reflection", "prayer", "application", "workout", "rest_prompt", "accountability_share", "cooldown"] },
+          "contentRef": { "type": "string" },
+          "anchor": { "enum": ["before_workout", "after_workout", "during_rest", "at_time", "standalone"] },
+          "atTime": { "type": "string", "pattern": "^[0-2][0-9]:[0-5][0-9]$" },
+          "optional": { "type": "boolean" },
+          "completion": { "enum": ["opened", "acknowledged", "completed_workout"] },
+          "safety": {
+            "type": "object", "additionalProperties": false, "required": ["noReadingDuringExertion"],
+            "properties": { "noReadingDuringExertion": { "type": "boolean" }, "minRestSecondsRemaining": { "type": "integer", "minimum": 20 } }
+          }
+        }
+      }
+    }
+  }
+}

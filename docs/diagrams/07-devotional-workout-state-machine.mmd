@@ -1,0 +1,21 @@
+%% Experience Engine: stage state machine (UML state machine, informal)
+stateDiagram-v2
+  [*] --> Pending: run materialized (template vN pinned)
+  Pending --> Available: anchor satisfied AND safety ok
+  Pending --> SkippedByPlan: mode excludes stage
+  Available --> InProgress: user opens
+  Available --> SkippedByUser: user skips
+  Available --> Deferred: user postpones / mode change
+  Deferred --> Available: anchor re-satisfied
+  InProgress --> Suspended: workout enters active_set or timed_interval
+  Suspended --> InProgress: resting or finished
+  InProgress --> Completed: criteria met (opened / acknowledged / completed_workout)
+  Completed --> [*]
+  SkippedByPlan --> Pending: replan includes stage
+  note right of Completed
+    Terminal. Replanning never changes it (FS-DWE-002).
+  end note
+  note right of Suspended
+    No reading or typing during exertion (FS-DWE-003).
+    Rest prompts only when resting with at least 20 s left.
+  end note

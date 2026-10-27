@@ -1,0 +1,19 @@
+%% Future household / youth separation model (informal; INACTIVE until a new ADR)
+flowchart TB
+  subgraph Active[Active today]
+    Adult[Adult account] --> AG[Adult group membership]
+  end
+  subgraph Reserved[Reserved - rules deny all client access]
+    HH[households/hid]
+    GL[guardianLinks/id]
+    YA[Youth account - feature flag off]
+    YG[Youth group - separate moderation]
+  end
+  Adult -. future link .-> HH
+  HH -. grants NOTHING by default .-> Adult
+  GL -. guardian consent required .-> YA
+  YA -. never in adult groups .-> YG
+  Adult -->|explicit per-item share only| Share[Shared item]
+  HH -.->|can read only| Share
+  classDef res fill:#eee,stroke:#999,stroke-dasharray: 4 3
+  class HH,GL,YA,YG res

@@ -1,5 +1,9 @@
 # Forged & Sent
 
+> **Production architecture (2026-10-27):** the production app is being built in **Flutter + Firebase**. Start with
+> [`docs/architecture/README.md`](docs/architecture/README.md) and [`AGENTS.md`](AGENTS.md). This page describes the
+> **prototype**, which is kept unchanged as the behavioral reference (ADR-0001).
+
 A men's fitness and accountability app for the Forged in Faith men's group. Men follow a shared daily checklist, track food, water and training, post check-ins, and compete on weekly standings. The foundation is 1 Corinthians 16:13-14 and the Great Commission (Matthew 28:19): care for the body so a man can lead his family and do kingdom work.
 
 **Status: working prototype, not yet store-ready.** It runs today as a [claude.ai Artifact](https://claude.ai) (a private hosted page). It does **not** run as a plain static site, because its database, user identity and file storage come from the claude.ai runtime (`window.claude`). See "Running it" and "Path to the App Store and Google Play".

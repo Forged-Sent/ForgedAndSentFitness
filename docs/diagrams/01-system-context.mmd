@@ -1,0 +1,29 @@
+%% C4-inspired system context (informal). Forged & Sent, Firebase architecture.
+flowchart LR
+  member([Member - adult man])
+  leader([Group leader])
+  reviewer([Proof reviewer])
+  creviewer([Content reviewer - pastor/elder, fitness])
+  admin([Platform admin])
+  subgraph FS[Forged & Sent]
+    app[Flutter app - iOS / Android]
+    fb[Firebase backend - Auth, Firestore, Functions, Storage, FCM, App Check]
+  end
+  hk[(Apple HealthKit)]
+  hc[(Android Health Connect)]
+  nut[[Nutrition provider API - OD-07]]
+  idp[[Sign in with Apple / Google]]
+  stores[[App Store / Google Play / App Distribution / TestFlight]]
+  bible[[Scripture source - BSB public domain]]
+  member --> app
+  leader --> app
+  reviewer --> app
+  creviewer -->|approve content packages| fb
+  admin -->|rulesets, content, ops| fb
+  app <-->|SDK, rules-checked| fb
+  app <-->|on-device, consented| hk
+  app <-->|on-device, consented| hc
+  fb -->|server-side proxy| nut
+  app --> idp
+  bible -->|build-time import| fb
+  stores --> app

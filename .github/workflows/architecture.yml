@@ -1,0 +1,41 @@
+name: architecture-and-rules
+on:
+  pull_request:
+  push:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.12' }
+      - run: pip install pyyaml==6.0.2
+      - name: Architecture validator (ADRs, requirements, matrix, schemas, bans, skills mirror)
+        run: python3 tools/validate_architecture.py
+      - name: Protected-zone guard
+        if: github.event_name == 'pull_request'
+        env:
+          PR_LABELS: ${{ join(github.event.pull_request.labels.*.name, ',') }}
+          PR_BODY: ${{ github.event.pull_request.body }}
+        run: bash tools/check_zones.sh origin/${{ github.base_ref }}
+      - uses: actions/setup-node@v4
+        with: { node-version: '22' }
+      - name: Render Mermaid diagrams
+        run: |
+          npx -y @mermaid-js/mermaid-cli@11.4.2 --version
+          for f in docs/diagrams/*.mmd; do npx -y @mermaid-js/mermaid-cli@11.4.2 -i "$f" -o "/tmp/$(basename "$f" .mmd).svg"; done
+  rules-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: '22' }
+      - uses: actions/setup-java@v4
+        with: { distribution: 'temurin', java-version: '21' }
+      - run: npm --prefix firebase install
+      - name: Firestore + Storage rules tests (emulator)
+        run: npm --prefix firebase test

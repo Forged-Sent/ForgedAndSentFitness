@@ -1,0 +1,293 @@
+# Test catalog. status: written (exists in repo) | partially written | planned. Not 'passing' unless CI shows it.
+version: 1
+tests:
+  - id: TC-001
+    title: "Member cannot access another group's private data"
+    level: rules
+    location: "firebase/tests/rules/isolation.test.mjs"
+    status: written
+  - id: TC-002
+    title: "Leader cannot read private journal entries without explicit authorization"
+    level: rules
+    location: "firebase/tests/rules/privacy.test.mjs"
+    status: written
+  - id: TC-003
+    title: "Offline workout logs survive restart and synchronize once"
+    level: integration
+    location: "app/integration_test/offline_workout_test.dart"
+    status: planned
+  - id: TC-004
+    title: "Repeated submissions cannot duplicate points"
+    level: unit+rules
+    location: "functions/test/scoring.idempotency.test.ts; firebase/tests/rules/scoring.test.mjs"
+    status: 'partially written (rules part)'
+  - id: TC-005
+    title: "Score adjustments remain auditable"
+    level: unit
+    location: "functions/test/scoring.adjustments.test.ts"
+    status: planned
+  - id: TC-006
+    title: "Changing a rule does not silently rewrite finalized seasons"
+    level: unit
+    location: "functions/test/scoring.finalize.test.ts"
+    status: planned
+  - id: TC-007
+    title: "Team score normalization behaves fairly across sizes"
+    level: property
+    location: "packages/fs_domain/test/scoring/normalization_test.dart"
+    status: planned
+  - id: TC-008
+    title: "Approved injury alternatives follow configured scoring"
+    level: unit
+    location: "packages/fs_domain/test/scoring/alternates_test.dart"
+    status: planned
+  - id: TC-009
+    title: "Challenge proof is saved locally before upload"
+    level: integration
+    location: "app/integration_test/proof_capture_test.dart"
+    status: planned
+  - id: TC-010
+    title: "Private videos cannot be accessed by unauthorized users"
+    level: rules
+    location: "firebase/tests/rules/storage.test.mjs"
+    status: written
+  - id: TC-011
+    title: "Nutrition logging cannot reward under-eating"
+    level: unit
+    location: "packages/fs_domain/test/scoring/nutrition_test.dart"
+    status: planned
+  - id: TC-012
+    title: "Changing devotional timing does not erase progress"
+    level: unit
+    location: "packages/fs_domain/test/experience/replan_test.dart"
+    status: planned
+  - id: TC-013
+    title: "Time zones and season deadlines handled consistently"
+    level: unit+rules
+    location: "packages/fs_domain/test/time/; firebase/tests/rules/scoring.test.mjs"
+    status: 'partially written (rules part)'
+  - id: TC-014
+    title: "Deletion/export covers all applicable data"
+    level: integration
+    location: "functions/test/account.deletion.test.ts"
+    status: planned
+  - id: TC-015
+    title: "Family/youth and messaging boundaries inactive until approved"
+    level: rules
+    location: "firebase/tests/rules/reserved.test.mjs"
+    status: written
+  - id: TC-016
+    title: "Clients cannot write membership or roles"
+    level: rules
+    location: "firebase/tests/rules/isolation.test.mjs"
+    status: written
+  - id: TC-017
+    title: "Invite redemption rules (expiry, uses)"
+    level: unit
+    location: "functions/test/membership.test.ts"
+    status: planned
+  - id: TC-018
+    title: "App Check enforced"
+    level: manual
+    location: "staging checklist"
+    status: planned
+  - id: TC-019
+    title: "Organization grants no member data"
+    level: rules
+    location: "firebase/tests/rules/reserved.test.mjs"
+    status: written
+  - id: TC-020
+    title: "Prayer audience enforcement"
+    level: rules
+    location: "firebase/tests/rules/privacy.test.mjs"
+    status: written
+  - id: TC-021
+    title: "Private-by-default personal data"
+    level: rules
+    location: "firebase/tests/rules/privacy.test.mjs"
+    status: written
+  - id: TC-022
+    title: "Ruleset cannot reference faith content; zero faith points when unset"
+    level: static+unit
+    location: "tools/validate_architecture.py --ruleset; functions/test"
+    status: planned
+  - id: TC-023
+    title: "Push payloads contain no private content"
+    level: unit
+    location: "functions/test/notify.test.ts"
+    status: planned
+  - id: TC-024
+    title: "Log redaction"
+    level: unit
+    location: "app/test/core/logging_test.dart"
+    status: planned
+  - id: TC-025
+    title: "Outbox never drops changes"
+    level: property
+    location: "app/test/core/sync/outbox_property_test.dart"
+    status: planned
+  - id: TC-026
+    title: "Airplane-mode first launch"
+    level: e2e
+    location: "app/integration_test/airplane_first_launch_test.dart"
+    status: planned
+  - id: TC-027
+    title: "Pending states for server-only actions"
+    level: widget
+    location: "app/test/core/sync/pending_widget_test.dart"
+    status: planned
+  - id: TC-028
+    title: "Single-device session lease"
+    level: integration+rules
+    location: "app/integration_test; firebase/tests/rules/privacy.test.mjs"
+    status: planned
+  - id: TC-029
+    title: "Experience engine modes"
+    level: unit
+    location: "packages/fs_domain/test/experience/modes_test.dart"
+    status: planned
+  - id: TC-030
+    title: "No reading/typing during exertion; rest prompt rules"
+    level: unit+widget
+    location: "packages/fs_domain/test/experience/safety_test.dart"
+    status: planned
+  - id: TC-031
+    title: "Pinned template and prescription snapshots"
+    level: unit
+    location: "packages/fs_domain/test"
+    status: planned
+  - id: TC-032
+    title: "Template schema forbids time/scroll/word-count criteria"
+    level: static
+    location: "tools/validate_architecture.py --schemas"
+    status: written
+  - id: TC-033
+    title: "Program generator equivalence with 1,460 seed rows"
+    level: unit
+    location: "tools/fs_content/test/equivalence_test.dart"
+    status: planned
+  - id: TC-034
+    title: "Lift-day selection parity with prototype"
+    level: golden
+    location: "contracts/golden/legacy/lift_days.json"
+    status: planned
+  - id: TC-035
+    title: "Substitution graph validity"
+    level: unit
+    location: "tools/fs_content/test"
+    status: planned
+  - id: TC-036
+    title: "Equipment switch creates no PR"
+    level: unit
+    location: "packages/fs_domain/test/training/pr_test.dart"
+    status: planned
+  - id: TC-037
+    title: "Clients cannot write ledger/standings/snapshots"
+    level: rules
+    location: "firebase/tests/rules/scoring.test.mjs"
+    status: written
+  - id: TC-038
+    title: "Ruleset schema: two tiers, no prize fields"
+    level: static
+    location: "tools/validate_architecture.py --schemas"
+    status: written
+  - id: TC-039
+    title: "Mission inclusive variants validator"
+    level: static
+    location: "tools/fs_content validate"
+    status: planned
+  - id: TC-040
+    title: "Practice seasons excluded from history"
+    level: unit
+    location: "functions/test"
+    status: planned
+  - id: TC-041
+    title: "Caps on workouts, steps, PRs"
+    level: unit
+    location: "packages/fs_domain/test/scoring/caps_test.dart"
+    status: planned
+  - id: TC-042
+    title: "Review and appeal flow"
+    level: unit
+    location: "functions/test"
+    status: planned
+  - id: TC-043
+    title: "Camera capture, preview, replace, export"
+    level: device
+    location: "manual + integration"
+    status: planned
+  - id: TC-044
+    title: "Proof policy config enforcement"
+    level: unit
+    location: "packages/fs_domain/test"
+    status: planned
+  - id: TC-045
+    title: "Proof retention deletion job"
+    level: unit
+    location: "functions/test/proof.retention.test.ts"
+    status: planned
+  - id: TC-046
+    title: "Upload size/type limits; EXIF stripped"
+    level: rules+unit
+    location: "firebase/tests/rules/storage.test.mjs"
+    status: 'written (rules part)'
+  - id: TC-047
+    title: "Nutrition provider contract"
+    level: unit
+    location: "functions/test/nutrition.provider.test.ts"
+    status: planned
+  - id: TC-048
+    title: "Health dedupe and consent"
+    level: unit
+    location: "app/test/features/health"
+    status: planned
+  - id: TC-049
+    title: "Feed, report, block enforcement"
+    level: rules+unit
+    location: "firebase/tests/rules/privacy.test.mjs"
+    status: 'partially written'
+  - id: TC-050
+    title: "Moderation queue flow"
+    level: unit
+    location: "functions/test"
+    status: planned
+  - id: TC-051
+    title: "No gender/marital/child required fields"
+    level: static
+    location: "tools/validate_architecture.py --schemas"
+    status: planned
+  - id: TC-052
+    title: "18+ attestation"
+    level: unit
+    location: "functions/test/membership.test.ts"
+    status: planned
+  - id: TC-053
+    title: "Content publish gate"
+    level: unit
+    location: "tools/fs_content/test"
+    status: planned
+  - id: TC-054
+    title: "Prototype preserved"
+    level: static
+    location: "tools/check_zones.sh"
+    status: written
+  - id: TC-055
+    title: "Environments and budget alerts"
+    level: manual
+    location: "ops checklist"
+    status: planned
+  - id: TC-056
+    title: "Backup restore drill"
+    level: manual
+    location: "ops runbook"
+    status: planned
+  - id: TC-057
+    title: "CI gates"
+    level: ci
+    location: ".github/workflows/architecture.yml"
+    status: written
+  - id: TC-058
+    title: "Protected-zone guard"
+    level: static
+    location: "tools/check_zones.sh"
+    status: written

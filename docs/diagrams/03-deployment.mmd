@@ -1,0 +1,26 @@
+%% Deployment view (informal)
+flowchart LR
+  subgraph Dev[Developer machines]
+    cc[Claude Code] ; cx[Codex] ; ide[IDE + Flutter]
+  end
+  gh[GitHub - main, feature branches, Actions CI]
+  subgraph P1[Firebase project: dev - shared]
+    d1[Auth] ; d2[Firestore] ; d3[Functions] ; d4[Storage]
+  end
+  subgraph P2[Firebase project: staging]
+    s1[Auth] ; s2[Firestore] ; s3[Functions] ; s4[Storage]
+  end
+  subgraph P3[Firebase project: prod]
+    p1[Auth] ; p2[Firestore - location OD-15] ; p3[Functions] ; p4[Storage] ; p5[(Daily export bucket)]
+  end
+  dist[[App Distribution / TestFlight / Play internal]]
+  phones[[Tester and member phones]]
+  Dev --> gh
+  gh -->|merge to main: rules, indexes, functions| P1
+  gh -->|rc tag| P2
+  gh -->|release tag + approval| P3
+  gh -->|build lanes| dist --> phones
+  phones <--> P1
+  phones <--> P2
+  phones <--> P3
+  p2 --> p5

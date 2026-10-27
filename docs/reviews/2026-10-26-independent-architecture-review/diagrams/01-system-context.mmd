@@ -1,0 +1,28 @@
+flowchart LR
+  member([Member<br/>men's group participant])
+  leader([Group leader])
+  admin([Platform admin<br/>content + ops])
+  reviewer([Content reviewer<br/>pastor/elder, fitness reviewer])
+  subgraph FS[Forged & Sent system]
+    app[Mobile app<br/>iOS / Android]
+    be[Backend<br/>Supabase + functions]
+  end
+  hk[(Apple HealthKit)]
+  hc[(Android Health Connect)]
+  apns[[APNs / FCM]]
+  idp[[Sign in with Apple / Google]]
+  food[[USDA FDC / Open Food Facts]]
+  bible[[Scripture text source<br/>BSB public domain]]
+  stores[[App Store / Google Play]]
+  member --> app
+  leader --> app
+  admin --> be
+  reviewer -->|approves content packages| be
+  app <--> be
+  app <-->|on-device read| hk
+  app <-->|on-device read| hc
+  be --> apns --> app
+  app --> idp
+  be --> food
+  bible -->|imported at build time| be
+  stores --> app

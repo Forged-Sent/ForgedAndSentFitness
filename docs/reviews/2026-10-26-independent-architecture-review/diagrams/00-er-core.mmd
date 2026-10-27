@@ -1,0 +1,45 @@
+erDiagram
+  PROFILE ||--o{ GROUP_MEMBERSHIP : has
+  GROUP ||--o{ GROUP_MEMBERSHIP : includes
+  GROUP ||--o{ GROUP_INVITE : issues
+  PROFILE ||--o{ ACCOUNTABILITY_PARTNER : pairs
+  GROUP ||--o{ PRAYER_REQUEST : scopes
+  PROFILE ||--o{ PRAYER_REQUEST : authors
+  PRAYER_REQUEST ||--o{ PRAYER_UPDATE : has
+  PRAYER_REQUEST ||--o{ PRAYER_COMMITMENT : receives
+  PROFILE ||--o{ REFLECTION_ENTRY : writes
+  CONTENT_PACKAGE ||--o{ DEVOTIONAL : contains
+  PROFILE ||--o{ DEVOTIONAL_COMPLETION : records
+  DEVOTIONAL ||--o{ DEVOTIONAL_COMPLETION : "completed as"
+  GROUP ||--o{ HABIT_DEFINITION : defines
+  HABIT_DEFINITION ||--o{ HABIT_CHECKIN : "checked by"
+  PROFILE ||--o{ HABIT_CHECKIN : makes
+  MOVEMENT ||--o{ MOVEMENT_VARIANT : "resolved as"
+  MOVEMENT_VARIANT ||--o{ SUBSTITUTION : "from/to"
+  CONTENT_PACKAGE ||--o{ PROGRAM_ENROLLMENT : "pinned by"
+  PROFILE ||--o{ PROGRAM_ENROLLMENT : enrolls
+  PROGRAM_ENROLLMENT ||--o{ SCHEDULE_OVERRIDE : adjusts
+  PROFILE ||--o{ WORKOUT_SESSION : performs
+  WORKOUT_SESSION ||--o{ SESSION_EXERCISE : contains
+  SESSION_EXERCISE ||--o{ SET_ENTRY : logs
+  MOVEMENT_VARIANT ||--o{ SESSION_EXERCISE : "done as"
+  MOVEMENT_VARIANT ||--o{ PERSONAL_RECORD : "PR keyed by"
+  PROFILE ||--o{ FOOD_ENTRY : logs
+  PROFILE ||--o{ HEALTH_SAMPLE : imports
+  RULESET ||--o{ SEASON : governs
+  GROUP ||--o{ SEASON : runs
+  SEASON ||--o{ SEASON_ENROLLMENT : enrolls
+  SEASON ||--o{ TEAM : has
+  SEASON ||--o{ CHALLENGE_INSTANCE : schedules
+  CHALLENGE_INSTANCE ||--o{ CHALLENGE_ATTEMPT : receives
+  CHALLENGE_ATTEMPT ||--o{ EVIDENCE_OBJECT : proves
+  CHALLENGE_ATTEMPT ||--o{ REVIEW_DECISION : reviewed
+  PROFILE ||--o{ SCORE_EVENT : earns
+  SCORE_EVENT ||--o{ SCORE_ADJUSTMENT : corrected
+  CHALLENGE_INSTANCE ||--o{ STANDINGS_SNAPSHOT : finalizes
+  GROUP ||--o{ POST : contains
+  POST ||--o{ COMMENT : has
+  POST ||--o{ REACTION : has
+  POST ||--o{ MEDIA_OBJECT : attaches
+  GROUP ||--o{ REPORT : receives
+  REPORT ||--o{ MODERATION_ACTION : resolves

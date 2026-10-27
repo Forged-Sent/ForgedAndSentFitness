@@ -1,0 +1,26 @@
+%% Offline workout logging sequence (UML sequence, informal)
+sequenceDiagram
+  autonumber
+  actor M as Member
+  participant UI as Train UI
+  participant EX as Experience engine
+  participant D as fs_domain training
+  participant DB as Drift
+  participant OB as Outbox
+  M->>UI: Start guided workout (mode full_after)
+  UI->>D: resolve schedule (enrollment, lift days, date)
+  D-->>UI: prescription snapshot with RPE and deload
+  UI->>DB: insert session in_progress, lease, uuid v7
+  UI->>EX: WorkoutStateChanged(warming_up)
+  loop each set
+    M->>UI: enter load and reps
+    UI->>DB: update set (committed before UI confirms)
+    UI->>EX: WorkoutStateChanged(resting, remaining)
+    EX-->>UI: optional rest prompt (no input, dismissible)
+  end
+  Note over UI,DB: App killed -> ResumeSessionGuard restores session from Drift
+  M->>UI: Finish
+  UI->>DB: session finished, revision 1
+  UI->>OB: enqueue set users/uid/sessions/id and create checkin fact
+  UI->>EX: WorkoutStateChanged(finished)
+  EX-->>UI: after-workout stages now available

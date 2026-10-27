@@ -1,0 +1,24 @@
+%% Challenge submission and verification sequence (UML sequence, informal)
+sequenceDiagram
+  autonumber
+  actor M as Member
+  participant App as App (proof module)
+  participant ST as Cloud Storage
+  participant FS as Firestore
+  participant FN as Functions
+  actor R as Reviewer
+  M->>App: Choose tier (standard/foundation) or approved alternate
+  M->>App: Record video with in-app camera
+  App->>App: save to app-private storage + local proof record
+  App->>FS: create attempt (uid, tier, value, performedAt) - rules check window by request.time
+  App->>ST: resumable upload proof/gid/sid/cid/uid/attemptId/file
+  ST->>ST: rules: owner path, size, type, active member
+  App->>FS: attach proofIds to attempt (owner, status submitted)
+  FS->>FN: onAttemptWritten
+  FN->>FS: set status in_review if proofPolicy required or sampled
+  R->>FN: getProofPlaybackUrl(attemptId)
+  FN->>FN: check reviewer role, audit log
+  FN-->>R: signed URL valid 15 min or less
+  R->>FN: reviewAttempt(approve or reject, reason)
+  FN->>FS: reviews/*, status approved
+  FN->>FS: ledger create-if-absent, recompute standings

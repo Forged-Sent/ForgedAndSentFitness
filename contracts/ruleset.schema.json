@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://forgedandsent.app/contracts/ruleset.schema.json",
+  "title": "Forged & Sent scoring ruleset (immutable per version)",
+  "description": "Inputs are FACT KINDS only. No field may reference journal, prayer or reflection content (FS-PRV-004). No prize, wager or entry-fee fields (FS-CMP-014).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["id", "version", "approvedBy", "approvedAt", "weeklyCap", "components", "teamNormalization", "tiers"],
+  "properties": {
+    "id": { "type": "string" },
+    "version": { "type": "integer", "minimum": 1 },
+    "approvedBy": { "type": "array", "items": { "type": "string" }, "minItems": 1 },
+    "approvedAt": { "type": "string", "format": "date-time" },
+    "effectiveWeek": { "type": "integer", "minimum": 1 },
+    "weeklyCap": { "type": "number", "minimum": 0 },
+    "teamNormalization": { "enum": ["mean_per_enrolled_member", "mean_top_n", "participation_weighted_mean"] },
+    "topN": { "type": "integer", "minimum": 1 },
+    "graceMinutes": { "type": "integer", "minimum": 0, "maximum": 1440 },
+    "tiers": {
+      "type": "object", "additionalProperties": false, "required": ["standard", "foundation"],
+      "properties": {
+        "standard": { "type": "object", "required": ["multiplier"], "properties": { "multiplier": { "type": "number", "minimum": 0, "maximum": 1 } }, "additionalProperties": false },
+        "foundation": { "type": "object", "required": ["multiplier"], "properties": { "multiplier": { "type": "number", "minimum": 0, "maximum": 1 } }, "additionalProperties": false }
+      }
+    },
+    "components": {
+      "type": "array",
+      "items": {
+        "type": "object", "additionalProperties": false,
+        "required": ["kind", "fact", "points", "dailyCap", "weeklyCap"],
+        "properties": {
+          "kind": { "enum": ["workout_participation", "physical_challenge", "personal_improvement", "mission", "pr", "steps", "nutrition_participation", "hydration", "faith_participation"] },
+          "fact": { "enum": ["session_finished", "attempt_approved", "retest_attempt", "mission_completion", "pr_derived", "health_steps", "meals_logged", "hydration_met", "devotion_completed"] },
+          "points": { "type": "number", "minimum": 0 },
+          "dailyCap": { "type": "number", "minimum": 0 },
+          "weeklyCap": { "type": "number", "minimum": 0 },
+          "sourceAllowList": { "type": "array", "items": { "enum": ["healthkit", "health_connect", "manual", "system"] } },
+          "thresholds": { "type": "array", "items": { "type": "number" } }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,28 @@
+flowchart LR
+  M([Member])
+  L([Group leader])
+  P([Accountability partner])
+  subgraph S[Forged & Sent]
+    uc1((Read today's Scripture))
+    uc2((Write private reflection))
+    uc3((Request / update prayer))
+    uc4((Pray for a brother))
+    uc5((Complete daily habits))
+    uc6((Run a workout offline))
+    uc7((Swap exercise for injury/equipment))
+    uc8((Log food and water))
+    uc9((Submit challenge attempt))
+    uc10((Encourage / post / react))
+    uc11((Report content))
+    uc12((Invite / remove members))
+    uc13((Configure season and habits))
+    uc14((Review evidence))
+    uc15((Moderate reports))
+    uc16((View partner check-in))
+    uc17((Export / delete my data))
+  end
+  M --- uc1 & uc2 & uc3 & uc4 & uc5 & uc6 & uc7 & uc8 & uc9 & uc10 & uc11 & uc17
+  L --- uc12 & uc13 & uc14 & uc15
+  P --- uc16 & uc4
+  uc6 -. includes .-> uc7
+  uc9 -. extends .-> uc6

@@ -1,0 +1,37 @@
+flowchart TB
+  subgraph Device[Member device]
+    ui[Flutter UI<br/>views + view models]
+    domain[fs_domain<br/>pure Dart rules]
+    drift[(SQLite / Drift<br/>WAL, outbox)]
+    sync[Sync engine]
+    hlth[Health adapter<br/>health plugin]
+    notif[Local notifications]
+    ui --> domain
+    ui --> drift
+    sync <--> drift
+    hlth --> drift
+    notif -.-> ui
+  end
+  subgraph Supabase[Supabase project per env: dev / staging / prod]
+    auth[Auth]
+    rest[PostgREST + RPC]
+    rt[Realtime<br/>feed screen only]
+    store[(Storage<br/>private buckets)]
+    edge[Edge Functions<br/>push, media ingest, food proxy]
+    pg[(PostgreSQL<br/>RLS, scoring functions,<br/>pg_cron finalize)]
+    rest --> pg
+    rt --> pg
+    edge --> pg
+  end
+  worker[Stage B: domain worker<br/>finalization, media, fan-out]
+  cdn[Stage B: video transcoding / CDN]
+  ci[GitHub Actions<br/>tests, migrations, builds]
+  sync <-->|HTTPS JWT| rest
+  ui <-->|signed URLs| store
+  ui --> auth
+  ui -. websocket .-> rt
+  edge --> fcm[[FCM / APNs]]
+  worker -.-> pg
+  worker -.-> cdn
+  ci -->|supabase db push| pg
+  ci -->|fastlane / store upload| stores[[TestFlight / Play internal]]
