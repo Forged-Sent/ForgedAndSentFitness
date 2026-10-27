@@ -1080,6 +1080,7 @@ header.hero .me-btn { border-color:#e87328; }
 .board .row { background:var(--surface-2); margin:6px 0; border:1px solid var(--line); padding:10px; }
 .post { background:var(--surface-2); border:1px solid var(--line); margin:8px 0; padding:12px; }
 
+.ch-save { justify-self:start; margin-top:4px; }
 .ch-proof-btns { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
 .ch-proof-btns .btn { min-width:0; }
 .ch-proof-pre { opacity:.75; }
@@ -3973,6 +3974,41 @@ header.hero .me-btn { border-color:#e87328; }
   }
   /* ---------- Weekly challenges (Family, Iron, Endure) ---------- */
   var chalCur = null, chalForm = null;
+  /* ---------- Proof kept on this phone ----------
+     A recorded clip from the camera hand-off isn't saved to Photos, so if an upload fails it could be lost.
+     Every proof file is copied to this phone's app storage (IndexedDB) until the submission goes through,
+     and a Save to my phone button writes a copy to Files/Photos through the downloads capability. */
+  var proofDb = null;
+  function proofOpen() {
+    if (proofDb) return proofDb;
+    proofDb = new Promise(function (res, rej) {
+      try { var r = indexedDB.open("fs-proof", 1); r.onupgradeneeded = function () { r.result.createObjectStore("clips"); }; r.onsuccess = function () { res(r.result); }; r.onerror = function () { rej(r.error); }; } catch (e) { rej(e); }
+    }); proofDb.catch(function () { proofDb = null; }); return proofDb;
+  }
+  function proofKey(id) { return (state.me || "me") + "|" + id; }
+  function proofKeep(id, files) {
+    return proofOpen().then(function (db) { return new Promise(function (res) {
+      try { var tx = db.transaction("clips", "readwrite"), st = tx.objectStore("clips");
+        if (files.length) st.put({ at: Date.now(), files: files.map(function (f) { return { name: f.name || "proof", type: f.type || "", blob: f }; }) }, proofKey(id)); else st.delete(proofKey(id));
+        tx.oncomplete = function () { res(true); }; tx.onerror = function () { res(false); }; } catch (e) { res(false); }
+    }); }).catch(function () { return false; });
+  }
+  function proofLoad(id) {
+    return proofOpen().then(function (db) { return new Promise(function (res) {
+      try { var q = db.transaction("clips").objectStore("clips").get(proofKey(id)); q.onsuccess = function () { res(q.result || null); }; q.onerror = function () { res(null); }; } catch (e) { res(null); }
+    }); }).catch(function () { return null; });
+  }
+  var proofChecked = {};
+  function proofSaveToPhone(F) {
+    if (!B.downloads) return;
+    var vids = F.files.filter(function (f) { return (f.type || "").indexOf("video") === 0; }), list = vids.length ? vids : F.files;
+    (function next(i) {
+      if (i >= list.length) { F.msg = "Saved to your phone. If the upload fails, you can upload it from there."; drawChallengePage(); return; }
+      var f = list[i], ext = /mp4/.test(f.type) ? ".mp4" : /quicktime|mov/.test(f.type) ? ".mov" : /webm/.test(f.type) ? ".webm" : /png/.test(f.type) ? ".png" : /jpe?g/.test(f.type) ? ".jpg" : "";
+      B.downloads.save({ filename: "forged-and-sent-" + String(chalCur || "proof") + (list.length > 1 ? "-" + (i + 1) : "") + ext, data: f })
+        .then(function () { next(i + 1); }).catch(function () { F.msg = "Not saved to your phone. It\u2019s still kept in the app until you submit."; drawChallengePage(); });
+    })(0);
+  }
   var CH_MODES = ["Row", "Bike", "Swim"];
   function chalWeekFor(key) {
     var start = (CHAL.assumptions && CHAL.assumptions.week1Start) || "2026-11-02";
@@ -4518,6 +4554,14 @@ header.hero .me-btn { border-color:#e87328; }
     if (!state.me || !state.canWrite) { sub.appendChild(el("p", "fnote", "Sign in to submit.")); body.appendChild(sub); return; }
     if (c.scoredBy === "completion" && at.length) { if (state.chalMsg) { sub.appendChild(el("p", "ch-ok", state.chalMsg)); state.chalMsg = ""; } body.appendChild(sub); return; }
     if (!chalForm) chalForm = { mode: "standard", v: "", x: "", m: CH_MODES[0], note: "", files: [], busy: false, msg: "" };
+    if (!proofChecked[c.id] && !chalForm.files.length) {
+      proofChecked[c.id] = true;
+      proofLoad(c.id).then(function (rec) {
+        if (!rec || !rec.files || !rec.files.length || chalCur !== c.id || !chalForm || chalForm.files.length) return;
+        chalForm.files = rec.files.map(function (x) { try { return new File([x.blob], x.name, { type: x.type }); } catch (e) { var b = x.blob; b.name = x.name; return b; } });
+        chalForm.msg = "Your unsent proof was kept on this phone. Submit when you\u2019re ready."; drawChallengePage();
+      });
+    }
     var F = chalForm, form = el("form", "ch-form"); form.noValidate = true;
     // Version picker
     var modes = [["standard", "Standard"]]; if (c.alternate) modes.push(["alternate", "Alternate"]); if (c.scaleDown) modes.push(["scaled", "Scaled"]);
@@ -4552,12 +4596,14 @@ header.hero .me-btn { border-color:#e87328; }
         var file = fi.files && fi.files[0]; fi.value = ""; if (!file || F.files.length >= 3) return;
         F.busy = true; F.msg = ""; drawChallengePage();
         var ready = await prepShareFile(file, function (t) { F.msg = t; var p = document.getElementById("ch-msg"); if (p) p.textContent = t; });
-        if (ready) F.files.push(ready); F.busy = false; drawChallengePage();
+        if (ready) { F.files.push(ready); proofKeep(c.id, F.files); } F.busy = false; drawChallengePage();
       });
-      if (F.files.length < 3) { var pbs=el("div","ch-proof-btns"); pbs.appendChild(lab); pr.appendChild(pbs); var rb=el("button","btn ghost","\u23FA Record video");rb.type="button";rb.addEventListener("click",function(){recordVideo(c.scoredBy === "fastest_time" || c.scoredBy === "longest_hold" || c.scoredBy === "most_rounds",async function(file){F.busy=true;F.msg="Preparing video…";drawChallengePage();var ready=await prepShareFile(file,function(t){F.msg=t;var q=$("ch-msg");if(q)q.textContent=t;});if(ready){F.files.push(ready);F.msg="";}F.busy=false;drawChallengePage();});});pbs.appendChild(rb); }
+      if (F.files.length < 3) { var pbs=el("div","ch-proof-btns"); pbs.appendChild(lab); pr.appendChild(pbs); var rb=el("button","btn ghost","\u23FA Record video");rb.type="button";rb.addEventListener("click",function(){recordVideo(c.scoredBy === "fastest_time" || c.scoredBy === "longest_hold" || c.scoredBy === "most_rounds",async function(file){F.busy=true;F.msg="Preparing video…";drawChallengePage();var ready=await prepShareFile(file,function(t){F.msg=t;var q=$("ch-msg");if(q)q.textContent=t;});if(ready){F.files.push(ready);F.msg=B.downloads?"Tip: tap Save to my phone to keep a copy in case the upload fails.":"";proofKeep(c.id,F.files);}F.busy=false;drawChallengePage();});});pbs.appendChild(rb); }
       var chips = el("div", "chips");
-      F.files.forEach(function (fl, k) { var ch = el("span", "chip", (fl.type.indexOf("video") === 0 ? "Video: " : "Photo: ") + (fl.name || "file")); var x = el("button", "mini", "✕"); x.type = "button"; x.setAttribute("aria-label", "Remove " + (fl.name || "file")); x.addEventListener("click", function () { F.files.splice(k, 1); drawChallengePage(); }); ch.appendChild(x); chips.appendChild(ch); });
-      pr.appendChild(chips); form.appendChild(pr);
+      F.files.forEach(function (fl, k) { var ch = el("span", "chip", (fl.type.indexOf("video") === 0 ? "Video: " : "Photo: ") + (fl.name || "file")); var x = el("button", "mini", "✕"); x.type = "button"; x.setAttribute("aria-label", "Remove " + (fl.name || "file")); x.addEventListener("click", function () { F.files.splice(k, 1); proofKeep(c.id, F.files); drawChallengePage(); }); ch.appendChild(x); chips.appendChild(ch); });
+      pr.appendChild(chips);
+      if (F.files.length && B.downloads) { var svb = el("button", "mini ch-save", "\u2B07 Save to my phone"); svb.type = "button"; svb.disabled = F.busy; svb.addEventListener("click", function () { proofSaveToPhone(F); }); pr.appendChild(svb); }
+      form.appendChild(pr);
     }
     if (!canUp) form.appendChild(el("p", "error", "Photo and video uploads aren\u2019t available here, and proof is required to submit. Try again from your phone."));
     var msg = el("p", "fnote", F.msg); msg.id = "ch-msg"; msg.setAttribute("aria-live", "polite"); form.appendChild(msg);
@@ -4576,9 +4622,9 @@ header.hero .me-btn { border-color:#e87328; }
       try {
         a.media = [];
         for (var k = 0; k < F.files.length; k++) { var up = await B.upload(F.files[k]); a.media.push({ id: up.id, type: F.files[k].type.indexOf("video") === 0 ? "video" : "image" }); }
-      } catch (e) { F.busy = false; F.msg = uploadErrText(e); drawChallengePage(); return; }
+      } catch (e) { F.busy = false; F.msg = uploadErrText(e) + " Your proof is still kept on this phone" + (B.downloads ? ". Tap Save to my phone to keep a copy, or try again." : ". Try again."); proofKeep(c.id, F.files); drawChallengePage(); return; }
       var list = chalAttempts(c.id).concat([a]).slice(-10);
-      chalForm = null; chalSave(c.id, list, "Submitted. " + (c.scoredBy === "completion" || a.mode !== "standard" ? "Well done." : "Your best attempt counts."));
+      proofKeep(c.id, []); chalForm = null; chalSave(c.id, list, "Submitted. " + (c.scoredBy === "completion" || a.mode !== "standard" ? "Well done." : "Your best attempt counts."));
     });
     sub.appendChild(form); body.appendChild(sub);
     if (state.chalMsg) { var ok = el("p", "ch-ok", state.chalMsg); sub.insertBefore(ok, form); state.chalMsg = ""; }
