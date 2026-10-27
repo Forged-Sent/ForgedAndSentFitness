@@ -1114,15 +1114,21 @@ header.hero .me-btn { border-color:#e87328; }
 .howto-dl { margin: 0; display: grid; grid-template-columns: auto 1fr; gap: 6px 12px; font-size: 14.5px; line-height: 1.45; }
 .howto-dl dt { font-family: var(--f-label); font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--ink); white-space: nowrap; }
 .howto-dl dd { margin: 0; color: var(--muted); min-width: 0; }
+.gb-open { width: 100%; }
+.gb-box .vd-coach { margin-bottom: 4px; }
+.gb-p { margin: 0; font-size: 15px; line-height: 1.5; }
+.gb-box { position: relative; max-height: 86vh; overflow-y: auto; }
 .coach-big { margin: 14px 0 6px; padding: 0 12px 4px; border: 1px solid var(--line); border-left: 3px solid var(--accent); border-radius: var(--radius, 8px); background: var(--surface); }
-.coach-big > summary { display: flex; align-items: center; gap: 10px; padding: 12px 0 !important; color: var(--ink) !important; }
+.coach-big > summary { display: flex; align-items: center; gap: 8px; padding: 8px 0 !important; color: var(--ink) !important; }
 .coach-big > summary::before { content: none !important; }
 .coach-big > summary::after { content: "+"; margin-left: auto; color: var(--accent); font-size: 22px; font-family: var(--f-label); }
 .coach-big[open] > summary::after { content: "\2212"; }
 .coach-big .cb-t { display: grid; gap: 1px; }
-.coach-big .cb-t b { font-family: var(--f-label); font-weight: 800; font-size: 19px; letter-spacing: .04em; text-transform: uppercase; color: var(--ink); }
+.coach-big .cb-t b { font-family: var(--f-label); font-weight: 800; font-size: 15.5px; letter-spacing: .04em; text-transform: uppercase; color: var(--ink); }
 .coach-big .cb-t small { font-family: var(--f-body); font-size: 12.5px; letter-spacing: 0; text-transform: none; color: var(--muted); font-weight: 400; }
-.coach-big p { font-size: 15.5px; }
+.coach-big p { font-size: 14.5px; }
+.coach-big .vd-badge, .coach-big .vd-badge svg { width: 28px; height: 31px; }
+.coach-big > summary::after { font-size: 18px; }
 .ld-sub { display: block; font-family: var(--f-body); font-size: 13px; font-weight: 400; letter-spacing: 0; text-transform: none; color: var(--muted); margin: 2px 0 6px; }
 .ld-chips { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)) ; gap: 6px; align-items: center; }
 .ld-chip { min-width: 0; padding: 10px 0; min-height: 0; border: 1px solid var(--line); border-radius: 8px; background: var(--surface-2); color: var(--ink); font-family: var(--f-label); font-weight: 700; font-size: 14px; letter-spacing: .04em; text-transform: uppercase; cursor: pointer; }
@@ -1273,6 +1279,8 @@ header.hero .me-btn { border-color:#e87328; }
       <p class="note chal-sub" id="chal-sub"></p>
       <div class="chal-grid" id="chal-btns"></div>
     </section>
+
+    <button class="btn ghost gb-open" type="button" id="gym-basics">New to the gym? Start here</button>
 
     <section aria-labelledby="h-cal">
       <div class="section-head"><h2 class="label-caps" id="h-cal">Calendar</h2></div>
@@ -2950,10 +2958,30 @@ header.hero .me-btn { border-color:#e87328; }
     state.planEdit = false; state.trainDay = state.settings.plan.start > todayKey() ? state.settings.plan.start : todayKey(); saveSettings(); ensureStrip();
   }
   // Long coaching text folds away so the workout stays easy to scan; short text shows as before.
+  // The "New to the gym?" basics are the same on every day, so they live behind one button on Train instead.
+  var GYM_BASICS_RE = /New to the gym\?[\s\S]*?(?=Rest \d|Rest is|Rest days|$)/;
+  function gymBasicsText() { var src = ""; Object.keys(PLAN.T).some(function (k) { var m = GYM_BASICS_RE.exec((PLAN.T[k] || {}).notes || ""); if (m) { src = m[0].trim(); return true; } return false; }); return src; }
+  function withoutGymBasics(t) { return String(t || "").replace(GYM_BASICS_RE, "").replace(/\s{2,}/g, " ").trim(); }
+  function openGymBasics() {
+    var old = $("cdlg"); if (old) old.remove();
+    var back = el("div", "cdlg"); back.id = "cdlg";
+    var box = el("div", "cdlg-box nw-box gb-box"); box.setAttribute("role", "dialog"); box.setAttribute("aria-modal", "true"); box.setAttribute("aria-labelledby", "gb-t");
+    var x = el("button", "dlg-x"); x.type = "button"; x.setAttribute("aria-label", "Close"); x.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>'; box.appendChild(x);
+    var hd = el("div", "vd-coach"), bd = el("span", "vd-badge"); bd.innerHTML = GIDEON_BADGE; hd.appendChild(bd);
+    var nm = el("span"); nm.appendChild(el("b", null, COACH_LABEL)); nm.appendChild(el("small", null, "New to the gym? Start here")); hd.appendChild(nm); box.appendChild(hd);
+    var t = gymBasicsText().replace(/^New to the gym\?\s*/, "");
+    t.split(/(?<=[.?!])\s+(?=(?:A set|RPE|Stopping|Choose|Form beats))/).forEach(function (para) { box.appendChild(el("p", "gb-p", para)); });
+    var ok = el("button", "btn", "Got it"); ok.type = "button"; box.appendChild(ok);
+    function close() { back.remove(); }
+    x.addEventListener("click", close); ok.addEventListener("click", close);
+    back.addEventListener("click", function (ev) { if (ev.target === back) close(); });
+    back.addEventListener("keydown", function (ev) { if (ev.key === "Escape") close(); });
+    back.appendChild(box); document.body.appendChild(back); ok.focus({ preventScroll: true });
+  }
   function coachSection(box, label, text, fold, big) {
     if (!text) return; if (String(text).length < 220 && !fold) { wkSection(box, label, text); return; }
     var d = el("details", "coach-sec" + (big ? " coach-big" : "")), sm = el("summary");
-    if (big) { var bg = el("span", "vd-badge"); bg.innerHTML = GIDEON_BADGE; sm.appendChild(bg); var tt = el("span", "cb-t"); tt.appendChild(el("b", null, label)); tt.appendChild(el("small", null, "Read before you start")); sm.appendChild(tt); } else sm.textContent = label;
+    if (big) { var bg = el("span", "vd-badge"); bg.innerHTML = GIDEON_BADGE; sm.appendChild(bg); var tt = el("span", "cb-t"); tt.appendChild(el("b", null, label)); sm.appendChild(tt); } else sm.textContent = label;
     d.appendChild(sm);
     // New paragraph at each topic the coach moves to: a "Label:" or "Question?" lead, or rest, progress, deload and form talk.
     var starts = /^(\w[\w ]{0,22}[?:]|Rest \d|To progress|Every fourth|Form beats|Choose a weight|Sleep \d|If something hurts)/, paras = [], cur = [];
@@ -2986,7 +3014,6 @@ header.hero .me-btn { border-color:#e87328; }
       if (wf.kind === "train") {
         var ob = chevRow("wk-open", wf.w.title, wf.w.sessionType + (wf.w.minutes ? " \u00B7 " + wf.w.minutes + " min" : "") + " \u00B7 Tap to open", "\u203A");
         ob.addEventListener("click", function () { openWorkout(sel); }); box.appendChild(ob);
-        coachSection(box, COACH_LABEL + "\u2019s Workout Guidance", wf.th && wf.th.notes, true, true);
       } else {
         var msg0 = wf.kind === "rest" ? "Sabbath. " + wf.w.exercises[0][1] : wf.kind === "off" ? "Rest day. Turn on the 4th training day in your plan to see an optional workout here." : wf.kind === "before" ? "Your plan starts " + longDate(p.start) + "." : "You finished all 365 days. Pick a new plan below to keep going.";
         box.appendChild(el("p", "note", msg0));
@@ -3975,7 +4002,7 @@ header.hero .me-btn { border-color:#e87328; }
     var editing = !!wk.editing && done, locked = done && !editing && wk.loaded, live = editing || (isToday && started && !done);
     body.appendChild(el("div", "wk-meta", S ? "Your own workout" : "Week " + w.week + " \u00B7 Day " + w.day + (w.minutes ? " \u00B7 " + w.minutes + " min" : "")));
     body.appendChild(el("h1", "pg", w.title));
-    if (!S && !locked) coachSection(body, COACH_LABEL + "\u2019s Workout Guidance", th.notes, true, true);
+    if (!S && !locked) coachSection(body, COACH_LABEL + "\u2019s Workout Guidance", withoutGymBasics(th.notes), true, true);
     if (locked) { drawLockedSummary(body, { key: key, rec: rec, w: w, S: S, off: off }); return; }
     if (editing) {
       var eb = el("div", "lk-edit"), et = el("span"); et.appendChild(el("b", null, "Editing")); et.appendChild(document.createTextNode("This workout was finished. Lock it when you\u2019re done."));
@@ -7009,6 +7036,7 @@ header.hero .me-btn { border-color:#e87328; }
     DAYN.forEach(function (n, i) { var o = el("option", null, n); o.value = String(i); $("plan-rest").appendChild(o); });
     $("plan-equip").addEventListener("change", function () { planDraft.equip = $("plan-equip").value; drawPlanForm(); });
     $("plan-rest").addEventListener("change", function () { planDraft.rest = +$("plan-rest").value; planDraft.lifts = planDraft.lifts.filter(function (d) { return d !== planDraft.rest; }); drawPlanForm(); });
+    $("gym-basics").addEventListener("click", openGymBasics);
     $("plan-fourth").addEventListener("change", function () { planDraft.fourth = $("plan-fourth").checked; });
     $("plan-cancel").addEventListener("click", function () { state.planEdit = false; drawPlan(); });
     $("plan-form").addEventListener("submit", submitPlan);
