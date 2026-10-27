@@ -1081,8 +1081,12 @@ header.hero .me-btn { border-color:#e87328; }
 .post { background:var(--surface-2); border:1px solid var(--line); margin:8px 0; padding:12px; }
 
 .muscle-card { background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:14px;margin:14px 0; }
-.muscle-map svg { display:block;width:100%;max-width:320px;margin:auto; }
-.muscle-figs { display:grid; grid-template-columns:1fr 1fr; text-align:center; max-width:320px; margin:4px auto 0; font-size:12.5px; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); }
+.muscle-map .mm-svg { display:block; width:100%; max-width:360px; height:auto; margin:auto; }
+.mm-h { margin:0 0 6px; font-family:var(--f-body); font-size:20px; font-weight:700; letter-spacing:0; text-transform:none; color:var(--ink); }
+.mm-body { fill:none; stroke:var(--ink); stroke-opacity:.78; stroke-width:1.8; stroke-linejoin:round; }
+.mm-m { fill:none; stroke:var(--muted); stroke-opacity:.75; stroke-width:1.1; stroke-linejoin:round; }
+.mm-m.on { fill:var(--accent); stroke:var(--brass); stroke-opacity:1; }
+.mm-labs { display:grid; grid-template-columns:1fr 1fr; gap:8px; text-align:center; font-weight:700; font-size:16px; max-width:360px; margin:2px auto 0; }
 
 </style>
 
@@ -3202,20 +3206,109 @@ header.hero .me-btn { border-color:#e87328; }
   function moveVideo(g) { var m = PLAN.M[g]; return m && /^[A-Za-z0-9_-]{11}$/.test(m.vid || "") ? m.vid : ""; }
   function openVideo(g, shown) { vidCur = { g: g, shown: shown }; go("video"); }
 
+  /* Muscle map: front and back line-art figures with worked muscles filled in.
+     musclesSvg(text) -> { svg, front: [names], back: [names], any } . Pure string output, no DOM. */
+  var MUSCLE_MAP = (function () {
+    // Muscle text from the library -> regions.
+    var TERMS = [
+      [/\b(full|whole) body\b/, ["trapF", "delt", "pec", "abs", "oblique", "bicep", "forearm", "quad", "adductor", "shin", "trap", "rdelt", "lat", "upback", "erector", "tricep", "forearmB", "glute", "ham", "calf"]],
+      [/\blegs?\b/, ["quad", "ham", "glute", "calf"]],
+      [/\bquad/, ["quad"]], [/\bglute|\bhips?\b/, ["glute"]], [/\bhamstring/, ["ham"]], [/\bcal(f|ves)|\bankle|\bsoleus/, ["calf", "shin"]],
+      [/\bchest|\bpec/, ["pec"]], [/\brear delt/, ["rdelt"]], [/\b(front|side) delt/, ["delt"]], [/\bshoulder/, ["delt", "rdelt"]],
+      [/\btricep/, ["tricep"]], [/\bbicep|\bbrachialis/, ["bicep"]], [/\bforearm|\bgrip/, ["forearm", "forearmB"]],
+      [/\bcore\b/, ["abs", "oblique"]], [/\babs\b|\babdom/, ["abs"]], [/\boblique/, ["oblique"]],
+      [/\blats?\b/, ["lat"]], [/\b(upper|mid) back|\brhomboid/, ["upback"]], [/\btrap/, ["trap", "trapF"]],
+      [/\bspin|\berector|\blow(er)? back/, ["erector"]], [/^back$/, ["lat", "upback", "erector"]],
+      [/\badductor|\bgroin/, ["adductor"]], [/\bhip flexor/, ["hipflex"]]
+    ];
+    var NAMES = { trapF: "Traps", delt: "Shoulders", pec: "Chest", abs: "Abs", oblique: "Obliques", bicep: "Biceps", forearm: "Forearms", quad: "Quadriceps", adductor: "Adductors", hipflex: "Hip flexors", shin: "Shins",
+      trap: "Traps", rdelt: "Rear delts", lat: "Lats", upback: "Upper back", erector: "Lower back", tricep: "Triceps", forearmB: "Forearms", glute: "Glutes", ham: "Hamstrings", calf: "Calves" };
+    var FRONT = ["trapF", "delt", "pec", "abs", "oblique", "bicep", "forearm", "hipflex", "quad", "adductor", "shin"];
+    var BACK = ["trap", "rdelt", "upback", "lat", "erector", "tricep", "forearmB", "glute", "ham", "calf"];
+  
+    function regionsFor(text) {
+      var on = {};
+      String(text || "").toLowerCase().split(/[,;/]| and /).forEach(function (part) {
+        part = part.trim(); if (!part) return;
+        TERMS.forEach(function (t) { if (t[0].test(part)) t[1].forEach(function (r) { on[r] = true; }); });
+      });
+      // "Back" alone shouldn't light shoulders etc.; "upper back" handled above.
+      return on;
+    }
+    // Catmull-Rom through points -> smooth cubic path.
+    function smooth(pts, closed) {
+      var p = pts.slice(); if (closed) { p.unshift(pts[pts.length - 1]); p.push(pts[0], pts[1]); } else { p.unshift(pts[0]); p.push(pts[pts.length - 1]); }
+      var d = "M" + p[1][0] + " " + p[1][1];
+      for (var i = 1; i < p.length - 2; i++) {
+        var a = p[i - 1], b = p[i], c = p[i + 1], e = p[i + 2];
+        var c1x = b[0] + (c[0] - a[0]) / 6, c1y = b[1] + (c[1] - a[1]) / 6, c2x = c[0] - (e[0] - b[0]) / 6, c2y = c[1] - (e[1] - b[1]) / 6;
+        d += "C" + c1x.toFixed(1) + " " + c1y.toFixed(1) + " " + c2x.toFixed(1) + " " + c2y.toFixed(1) + " " + c[0] + " " + c[1];
+      }
+      return d + (closed ? "Z" : "");
+    }
+    function mirror(pts) { return pts.map(function (q) { return [200 - q[0], q[1]]; }); }
+    // Half the body outline, left side, top of neck to crotch.
+    var HALF = [[90, 50], [88, 60], [72, 66], [56, 71], [45, 82], [41, 100], [39, 120], [36, 140], [32, 160], [29, 178], [26, 192], [29, 203], [37, 205], [41, 194], [41, 182], [46, 162], [51, 142], [55, 124], [60, 108], [64, 126], [67, 148], [70, 168], [67, 188], [63, 212], [62, 240], [65, 266], [68, 288], [66, 312], [67, 336], [71, 360], [72, 374], [64, 388], [70, 395], [86, 393], [87, 378], [89, 356], [91, 330], [92, 308], [93, 290], [95, 262], [97, 234], [100, 208]];
+    function outline() { var r = mirror(HALF).reverse(); return smooth(HALF.concat(r.slice(1, r.length - 1)), true); }
+    function shape(pts) { return smooth(pts, true); }
+    function both(pts) { return [shape(pts), shape(mirror(pts))]; }
+    // Front muscles (left side; mirrored for the right).
+    var F = {
+      trapF: both([[89, 58], [80, 63], [68, 67], [76, 69], [88, 66]]),
+      delt: both([[66, 70], [54, 74], [45, 86], [44, 102], [50, 106], [56, 92], [64, 80]]),
+      pec: both([[98, 74], [80, 72], [66, 80], [61, 96], [68, 108], [84, 110], [98, 104]]),
+      bicep: both([[56, 100], [49, 108], [45, 124], [47, 138], [53, 136], [57, 120], [60, 106]]),
+      forearm: both([[46, 140], [39, 152], [34, 170], [33, 182], [39, 182], [44, 166], [50, 146]]),
+      abs: [].concat.apply([], [[110, 128], [130, 148], [150, 168]].map(function (y) { return both([[98, y[0]], [89, y[0] + 1], [88, y[1] - 2], [98, y[1] - 2]]); })).concat([shape([[89, 112], [88, 126], [98, 126], [111, 126], [112, 112], [100, 110]]), shape([[89, 170], [92, 188], [100, 196], [108, 188], [111, 170], [100, 168]])]),
+      oblique: both([[85, 112], [74, 118], [70, 140], [72, 162], [80, 174], [86, 166], [85, 140]]),
+      hipflex: both([[82, 178], [76, 186], [80, 196], [90, 198], [92, 190]]),
+      quad: [].concat(both([[72, 192], [64, 214], [64, 244], [68, 270], [76, 278], [78, 250], [76, 214]]), both([[84, 196], [78, 218], [78, 250], [82, 272], [88, 274], [90, 246], [89, 214]]), both([[92, 246], [88, 262], [90, 280], [96, 278], [97, 258]]))
+      , adductor: both([[93, 202], [90, 222], [93, 242], [98, 238], [99, 212]]),
+      shin: both([[72, 300], [69, 322], [71, 348], [76, 358], [80, 340], [80, 312]])
+    };
+    var Fdeco = [both([[86, 286], [80, 290], [82, 296], [90, 296], [91, 289]])]; // kneecaps
+    // Back muscles.
+    var B = {
+      trap: [shape([[100, 52], [90, 58], [72, 67], [86, 74], [92, 96], [100, 118], [108, 96], [114, 74], [128, 67], [110, 58]])],
+      rdelt: both([[68, 70], [54, 74], [45, 86], [44, 102], [50, 106], [58, 90], [70, 80]]),
+      upback: both([[90, 78], [76, 80], [66, 88], [72, 102], [88, 104], [96, 98]]),
+      lat: both([[70, 104], [64, 116], [68, 140], [76, 160], [88, 166], [92, 140], [92, 110], [82, 106]]),
+      erector: both([[96, 120], [92, 140], [92, 170], [95, 182], [99, 178], [99, 140]]),
+      tricep: both([[56, 100], [48, 108], [44, 124], [46, 138], [53, 137], [58, 120], [61, 106]]),
+      forearmB: both([[46, 140], [39, 152], [34, 170], [33, 182], [39, 182], [44, 166], [50, 146]]),
+      glute: both([[98, 178], [82, 176], [68, 186], [64, 204], [72, 220], [88, 224], [99, 214]]),
+      ham: [].concat(both([[72, 224], [66, 244], [68, 270], [74, 284], [82, 280], [82, 250], [80, 228]]), both([[86, 228], [84, 252], [86, 280], [92, 284], [96, 262], [96, 236]])),
+      calf: [].concat(both([[72, 296], [67, 314], [70, 334], [78, 340], [82, 318], [80, 300]]), both([[84, 298], [83, 320], [86, 338], [92, 334], [93, 314], [90, 300]]))
+    };
+    var Bdeco = [];
+    function figure(dx, map, deco, on) {
+      var g = '<g transform="translate(' + dx + ' 0)">';
+      g += '<path class="mm-body" d="' + outline() + '"/>';
+      g += '<ellipse class="mm-body" cx="100" cy="30" rx="16" ry="20"/>';
+      Object.keys(map).forEach(function (k) { map[k].forEach(function (d) { g += '<path class="mm-m' + (on[k] ? " on" : "") + '" d="' + d + '"/>'; }); });
+      deco.forEach(function (ds) { ds.forEach(function (d) { g += '<path class="mm-m" d="' + d + '"/>'; }); });
+      return g + "</g>";
+    }
+    function render(text) {
+      var on = regionsFor(text), fr = FRONT.filter(function (k) { return on[k]; }), bk = BACK.filter(function (k) { return on[k]; });
+      var rear = /rear delt/i.test(String(text)) && !/\bshoulder/i.test(String(text));
+      var uniq = function (a) { var seen = {}; return a.map(function (k) { return k === "rdelt" && !rear ? "Shoulders" : NAMES[k]; }).filter(function (n) { if (seen[n]) return false; seen[n] = 1; return true; }); };
+      var svg = '<svg class="mm-svg" viewBox="0 0 420 405" role="img" aria-label="Muscles worked: ' + String(text).replace(/[&<>"']/g, "") + '">' + figure(4, F, Fdeco, on) + figure(216, B, Bdeco, on) + "</svg>";
+      return { svg: svg, front: uniq(fr), back: uniq(bk), any: fr.length + bk.length > 0 };
+    }
+    return { render: render };
+  })();
   function muscleDiagram(label) {
-    var wrap=el("div","muscle-card"); wrap.appendChild(el("h2","label-caps","Muscles worked"));
-    var names=String(label).toLowerCase(), groups=[{re:/quad|thigh/,id:"leg"},{re:/glute|hip/,id:"hip"},{re:/chest|pec/,id:"chest"},{re:/shoulder|delt/,id:"shoulder"},{re:/bicep|tricep|arms|forearm/,id:"arm"},{re:/core|abs|abdom/,id:"core"},{re:/back|lat|trap/,id:"back"},{re:/hamstring/,id:"ham"},{re:/calf|calves/,id:"calf"}];
-    var active=groups.filter(function(g){return g.re.test(names);}).map(function(g){return g.id;});
-    var svg='<svg viewBox="0 0 260 200" role="img" aria-label="Approximate muscle regions: '+String(label).replace(/[&<>"']/g,'')+'"><g fill="none" stroke="#aba9a4" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">';
-    [65,195].forEach(function(x){svg+='<circle cx="'+x+'" cy="20" r="12"/><path d="M'+(x-11)+' 36 L'+(x-23)+' 52 L'+(x-30)+' 92 M'+(x+11)+' 36 L'+(x+23)+' 52 L'+(x+30)+' 92 M'+(x-11)+' 36 L'+(x-12)+' 91 L'+(x-24)+' 155 L'+(x-27)+' 185 M'+(x+11)+' 36 L'+(x+12)+' 91 L'+(x+24)+' 155 L'+(x+27)+' 185 M'+(x-12)+' 91 L'+x+' 105 L'+(x+12)+' 91"/>';});svg+='</g>';
-    function mark(x,y,w,h){svg+='<ellipse cx="'+x+'" cy="'+y+'" rx="'+w+'" ry="'+h+'" fill="#f17b32" opacity=".85"/>';}
-    if(active.indexOf("chest")>=0){mark(59,52,7,6);mark(71,52,7,6);} if(active.indexOf("core")>=0)mark(65,73,7,12);
-    if(active.indexOf("shoulder")>=0){[43,87,173,217].forEach(function(x){mark(x,43,5,6);});} if(active.indexOf("arm")>=0){[40,90,170,220].forEach(function(x){mark(x,65,4,11);});}
-    if(active.indexOf("back")>=0)mark(195,58,12,14); if(active.indexOf("hip")>=0){mark(189,97,6,6);mark(201,97,6,6);}
-    if(active.indexOf("leg")>=0){mark(57,121,5,17);mark(73,121,5,17);} if(active.indexOf("ham")>=0){mark(187,121,5,17);mark(203,121,5,17);} if(active.indexOf("calf")>=0){mark(182,166,4,10);mark(208,166,4,10);} svg+='</svg>';
-    if(active.length){var d=el("div","muscle-map");d.innerHTML=svg;wrap.appendChild(d);var fl=el("div","muscle-figs");fl.appendChild(el("span",null,"Front"));fl.appendChild(el("span",null,"Back"));wrap.appendChild(fl);}
-    wrap.appendChild(el("p",null,String(label)));wrap.appendChild(el("p","note","Illustration shows approximate muscle regions; see the movement instructions for details."));return wrap;
+    var wrap = el("div", "muscle-card"); wrap.appendChild(el("h2", "mm-h", "Muscles worked"));
+    var r = MUSCLE_MAP.render(label);
+    if (r.any) {
+      var d = el("div", "muscle-map"); d.innerHTML = r.svg; wrap.appendChild(d);
+      var lb = el("div", "mm-labs"); lb.appendChild(el("span", null, r.front.join(", "))); lb.appendChild(el("span", null, r.back.join(", "))); wrap.appendChild(lb);
+    } else wrap.appendChild(el("p", null, String(label)));
+    wrap.appendChild(el("p", "note", "Shows the main muscle groups. Front on the left, back on the right."));
+    return wrap;
   }
+
 
 
   // Opens the phone's own camera to record a video. A claude.ai page can't run the camera itself,
