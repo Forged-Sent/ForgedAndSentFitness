@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 # One-time GitHub setup for the planning workflow (docs/planning/09-planning-hub-spec.md §7).
 # Needs: gh CLI authenticated with admin rights on the repo. Safe to re-run (labels are upserted).
+# Windows: use tools/planning/bootstrap_github.ps1 instead (PowerShell; no bash or Python needed).
+# Windows: use tools/planning/bootstrap_github.ps1 instead (PowerShell, no Python needed).
 set -euo pipefail
 REPO="${1:-sfcsmithc-afk/ForgedAndSentFitness}"
 python3 - "$REPO" <<'PY'

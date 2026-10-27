@@ -186,7 +186,7 @@ Problem: … / Proposal: …                     Chad · 27 Oct · Architecture
 | H0 | Hub v4 page: ideas, statuses, votes, rulings with links, per-person history, owner list, dashboard, workshop W01–W12, ratify, JSON and Markdown export | Claude | **Done.** Published to the existing Blueprint link (votes and comments carried over; the database was empty) |
 | H1 | Repo side: decision log (seeded with the 27 Oct direction), validator checks, zone guard + CODEOWNERS on the log, issue forms, labels, import tool, ADR-0020, AGENTS.md decision guard | Claude | **Done on branch `arch/planning-hub`** (not pushed) |
 | H2 | Push both branches; open the Phase 0 PR | Owners | To do |
-| H3 | Run `tools/planning/bootstrap_github.sh` (labels); add the second handle to CODEOWNERS; enable branch protection (`tools/planning/branch-protection.json`) | Owners | To do (about 15 minutes) |
+| H3 | Run `tools/planning/bootstrap_github.ps1` on Windows (or `bootstrap_github.sh` on macOS/Linux) to create the labels; add the second handle to CODEOWNERS; enable branch protection (`tools/planning/branch-protection.json`) | Owners | To do (about 15 minutes) |
 | H4 | Share the hub: Chad invites the second owner (and friends) by email as Editor, then sets **Who decides** | Chad | To do |
 | H5 | First workshop session: rule W12, W01, W02 and W07; ratify the aligned D items; export → import → PR | Both owners | To do |
 | H6 | Weekly: export after any rulings; one PR; paste DEC ids back into the rulings | Owners | Ongoing |
