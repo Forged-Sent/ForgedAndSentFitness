@@ -1171,6 +1171,29 @@ header.hero .me-btn { border-color:#e87328; }
 .coach-sec p b { color: var(--ink); font-weight: 600; }
 .coach-sec p { margin: 6px 0; font-size: 14.5px; line-height: 1.5; color: var(--muted); }
 .ch-save { justify-self:start; margin-top:4px; }
+.ch-rec { display: flex; flex-direction: column; gap: 10px; }
+.ch-rec-btn { display: flex; align-items: center; justify-content: center; gap: 14px; width: 100%; min-height: 84px; padding: 0 16px; background: transparent; border: 2px solid var(--accent); border-radius: var(--radius, 4px); color: var(--accent); font-family: var(--f-display); font-weight: 700; font-size: 19px; letter-spacing: .05em; text-transform: uppercase; white-space: nowrap; cursor: pointer; }
+.ch-rec-btn svg { width: 30px; height: 20px; fill: currentColor; flex: none; }
+.ch-rec-btn:active { background: var(--surface-2); }
+.ch-rec-btn:disabled { opacity: .5; }
+.ch-rec-cap { margin: 0; }
+.ch-up-link { align-self: flex-start; min-height: 40px; display: inline-flex; align-items: center; font-family: var(--f-label); font-weight: 700; font-size: 13px; letter-spacing: .08em; text-transform: uppercase; color: var(--ink); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+.chip.ch-got { border-color: var(--accent); }
+.ch-mark { display: flex; align-items: center; gap: 10px; padding: 12px 14px; border: 1px solid var(--accent); border-radius: var(--radius, 4px); background: color-mix(in srgb, var(--accent) 12%, transparent); font-family: var(--f-label); font-weight: 700; font-size: 13.5px; letter-spacing: .1em; text-transform: uppercase; color: var(--ink); }
+.ch-mark svg { width: 16px; height: 18px; flex: none; fill: none; stroke: var(--accent); stroke-width: 1.6; stroke-linejoin: round; }
+.ch-mark.has { border-color: var(--brass, var(--accent)); }
+.ch-vers { display: flex; gap: 8px; }
+.ch-vers button { flex: 1 1 0; min-height: 54px; border: 1px solid var(--line); border-radius: var(--radius, 4px); background: var(--surface-2); color: var(--muted); font-family: var(--f-label); font-weight: 700; font-size: 16px; letter-spacing: .04em; cursor: pointer; }
+.ch-vers button[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.ch-bigrow { display: flex; align-items: flex-end; gap: 10px; }
+.ch-bigl { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; gap: 6px; }
+.ch-bigcap { font-family: var(--f-label); font-weight: 700; font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); }
+.ch-big { width: 100%; min-width: 0; height: 80px; box-sizing: border-box; border: 2px solid var(--accent); border-radius: var(--radius, 4px); background: var(--surface-2); color: var(--ink); font-family: var(--f-display); font-weight: 700; font-size: 40px; text-align: center; font-variant-numeric: tabular-nums; }
+.ch-big::placeholder { color: var(--muted); opacity: .7; }
+.ch-colon { flex: none; padding-bottom: 20px; font-family: var(--f-display); font-weight: 700; font-size: 32px; color: var(--muted); }
+.ch-sw { width: 100%; min-height: 56px; border: 2px solid var(--accent); border-radius: var(--radius, 4px); background: transparent; color: var(--accent); font-family: var(--f-label); font-weight: 700; font-size: 16px; letter-spacing: .1em; text-transform: uppercase; cursor: pointer; }
+.ch-sw.run { background: var(--accent); color: var(--accent-ink); }
+.ch-form > .btn[type="submit"] { min-height: 60px; font-size: 17px; }
 .ch-proof-btns { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
 .ch-proof-btns .btn { min-width:0; }
 .ch-proof-pre { opacity:.75; }
@@ -4870,52 +4893,80 @@ header.hero .me-btn { border-color:#e87328; }
       });
     }
     var F = chalForm, form = el("form", "ch-form"); form.noValidate = true;
-    // Version picker
+    var timed = c.scoredBy === "fastest_time" || c.scoredBy === "longest_hold";
+    // 1. Proof first: a big Record card, with Upload as the second way in. (Family runs on his honor: no proof.)
+    var canUp = B.canUpload();
+    if (!isFam) {
+      var pc = el("section", "ch-sec ch-rec");
+      if (canUp) {
+        var rb = el("button", "ch-rec-btn"); rb.type = "button"; rb.disabled = F.busy || F.files.length >= 3;
+        rb.innerHTML = '<svg viewBox="0 0 24 16" aria-hidden="true"><rect x="0" y="1" width="16" height="14" rx="3"/><path d="M17 6l7-4v12l-7-4z"/></svg>';
+        rb.appendChild(el("span", null, F.files.length ? "Record another take" : "Record your attempt"));
+        rb.addEventListener("click", function () { recordVideo(timed || c.scoredBy === "most_rounds", async function (file) { F.busy = true; F.msg = "Preparing video…"; drawChallengePage(); var ready = await prepShareFile(file, function (t) { F.msg = t; var q = $("ch-msg"); if (q) q.textContent = t; }); if (ready) { F.files.push(ready); F.msg = B.downloads ? "Tip: tap Save to my phone to keep a copy in case the upload fails." : ""; proofKeep(c.id, F.files); } F.busy = false; drawChallengePage(); }); });
+        pc.appendChild(rb);
+        pc.appendChild(el("p", "fnote ch-rec-cap", "Film it here, then log your result below. The video is your proof."));
+        var lab = el("label", "ch-up-link", F.files.length ? "Or upload another photo or video" : "Or upload a photo or video");
+        var fi = el("input"); fi.type = "file"; fi.accept = "image/*,video/*"; fi.hidden = true; lab.appendChild(fi);
+        fi.addEventListener("change", async function () {
+          var file = fi.files && fi.files[0]; fi.value = ""; if (!file || F.files.length >= 3) return;
+          F.busy = true; F.msg = ""; drawChallengePage();
+          var ready = await prepShareFile(file, function (t) { F.msg = t; var p = document.getElementById("ch-msg"); if (p) p.textContent = t; });
+          if (ready) { F.files.push(ready); proofKeep(c.id, F.files); } F.busy = false; drawChallengePage();
+        });
+        if (F.files.length < 3) { pc.appendChild(lab); pc.appendChild(el("p", "fnote ch-rec-cap", "Uploading instead? " + chalProofTip(c))); }
+        if (F.files.length) {
+          var chips = el("div", "chips");
+          F.files.forEach(function (fl, k) { var ch = el("span", "chip ch-got", "✓ " + (fl.type.indexOf("video") === 0 ? "Video: " : "Photo: ") + (fl.name || "file")); var x = el("button", "mini", "✕"); x.type = "button"; x.setAttribute("aria-label", "Remove " + (fl.name || "file")); x.addEventListener("click", function () { F.files.splice(k, 1); proofKeep(c.id, F.files); drawChallengePage(); }); ch.appendChild(x); chips.appendChild(ch); });
+          pc.appendChild(chips);
+          if (B.downloads) { var svb = el("button", "mini ch-save", "⬇ Save to my phone"); svb.type = "button"; svb.disabled = F.busy; svb.addEventListener("click", function () { proofSaveToPhone(F); }); pc.appendChild(svb); }
+        }
+      } else pc.appendChild(el("p", "error", "Photo and video uploads aren’t available here, and proof is required to submit. Try again from your phone."));
+      body.appendChild(pc);
+    }
+    // 2. Where he stands: first attempt sets his mark, after that he has a number to beat.
+    var ranked0 = !isFam && F.mode === "standard", best0 = ranked0 ? chalBest(c, "standard") : null;
+    var mark = el("div", "ch-mark" + (best0 ? " has" : ""));
+    mark.innerHTML = '<svg viewBox="0 0 16 18" aria-hidden="true"><path d="M2 17V1.5M2 2h11l-2.5 4L13 10H2"/></svg>';
+    mark.appendChild(el("span", null, isFam ? "On your honor. " + CHAL.scoring.family.completionPoints + " points for doing it." : !ranked0 ? (F.mode === "alternate" ? "Alternate" : "Scaled") + ": a flat " + CHAL.scoring.scaled.completionPoints + " points for completing it." : best0 ? "Your best: " + chalResultText(c, best0) + ". Beat it." : "First attempt. This sets your mark."));
+    form.appendChild(mark);
+    // 3. Version, as big buttons
     var modes = [["standard", "Standard"]]; if (c.alternate) modes.push(["alternate", "Alternate"]); if (c.scaleDown) modes.push(["scaled", "Scaled"]);
-    if (!modes.some(function (m) { return m[0] === F.mode; })) F.mode = "standard";
     if (isFam) { modes = [["standard", "Standard"]]; F.mode = "standard"; }
+    if (!modes.some(function (m) { return m[0] === F.mode; })) F.mode = "standard";
     if (modes.length > 1) {
-      form.appendChild(el("span", "flabel", "Which version did you do?"));
-      var tabs = el("div", "tabs big ch-tabs"); tabs.setAttribute("role", "group"); tabs.setAttribute("aria-label", "Version");
+      var tabs = el("div", "ch-vers"); tabs.setAttribute("role", "group"); tabs.setAttribute("aria-label", "Which version did you do?");
       modes.forEach(function (m) { var b = el("button", null, m[1]); b.type = "button"; b.setAttribute("aria-pressed", String(F.mode === m[0])); b.addEventListener("click", function () { F.mode = m[0]; drawChallengePage(); }); tabs.appendChild(b); });
       form.appendChild(tabs);
     }
+    // 4. The result, in big boxes
     var needsScore = c.scoredBy !== "completion" && F.mode === "standard";
-    function inp(label, key, ph, mode) { var l = el("label", "flabel", label), i = el("input", "field"); i.type = "text"; i.inputMode = mode || "decimal"; i.placeholder = ph; i.value = F[key]; i.autocomplete = "off"; i.addEventListener("input", function () { F[key] = i.value; }); l.appendChild(i); form.appendChild(l); return i; }
+    function bigBox(label, key, ph, mode, id) { var l = el("label", "ch-bigl"), cap = el("span", "ch-bigcap", label), i = el("input", "ch-big"); i.type = "text"; i.inputMode = mode || "numeric"; i.placeholder = ph; i.value = F[key] || ""; i.autocomplete = "off"; if (id) i.id = id; i.setAttribute("aria-label", label);
+      i.addEventListener("input", function () { F[key] = i.value; }); l.appendChild(cap); l.appendChild(i); return l; }
     if (needsScore) {
-      if (c.scoredBy === "fastest_time") inp("Your time (min:sec)", "v", "e.g. 4:32", "text");
-      else if (c.scoredBy === "longest_hold") inp("Hold time (min:sec)", "v", "e.g. 1:45", "text");
-      else if (c.scoredBy === "most_reps") inp("Reps", "v", "e.g. 42", "numeric");
-      else if (c.scoredBy === "most_rounds") { var rw = el("div", "fgrid"); form.appendChild(rw); inp("Rounds", "v", "e.g. 6", "numeric"); inp("Extra reps", "x", "e.g. 12", "numeric"); }
+      var bx = el("div", "ch-bigrow");
+      if (timed) {
+        if (F.v && !F.mm && !F.ss) { var pv0 = parseClock(F.v); if (pv0 > 0) { F.mm = String(Math.floor(pv0 / 60)); F.ss = pad(pv0 % 60); } }
+        bx.appendChild(bigBox("Min", "mm", "0", "numeric", "ch-mm")); bx.appendChild(el("span", "ch-colon", ":")); bx.appendChild(bigBox("Sec", "ss", "00", "numeric", "ch-ss"));
+        form.appendChild(bx);
+        // Stopwatch: counts up and fills the boxes. Tap again to stop.
+        if (!F.sw) F.sw = { run: false, t0: 0 };
+        var swb = el("button", "ch-sw" + (F.sw.run ? " run" : "")); swb.type = "button"; swb.id = "ch-swb";
+        swb.textContent = F.sw.run ? "■ Stop timer" : (F.mm || F.ss ? "▶ Start over" : "▶ Start timer");
+        swb.addEventListener("click", function () {
+          if (F.sw.run) { F.sw.run = false; clearInterval(chalSwInt); chalSwInt = null; swPaint(); drawChallengePage(); return; }
+          unlockAudio(); F.sw = { run: true, t0: Date.now() }; F.mm = "0"; F.ss = "00"; drawChallengePage();
+        });
+        form.appendChild(swb);
+        if (F.sw.run && !chalSwInt) chalSwInt = setInterval(swPaint, 250);
+      } else if (c.scoredBy === "most_reps") { bx.appendChild(bigBox("Reps", "v", "0")); form.appendChild(bx); }
+      else if (c.scoredBy === "most_rounds") { bx.appendChild(bigBox("Rounds", "v", "0")); bx.appendChild(el("span", "ch-colon", "+")); bx.appendChild(bigBox("Extra reps", "x", "0")); form.appendChild(bx); }
       else if (c.scoredBy === "greatest_distance") {
-        inp("Distance (miles)", "v", "e.g. 2.4");
-        if (chalByMode(c) && F.mode === "standard") { var ml = el("label", "flabel", "Mode"), msel = el("select", "field"); CH_MODES.forEach(function (m) { var o = el("option", null, m); o.value = m; msel.appendChild(o); }); msel.value = F.m; msel.addEventListener("change", function () { F.m = msel.value; }); ml.appendChild(msel); form.appendChild(ml); }
-      } else inp("Total score", "v", "e.g. 120", "numeric");
-    } else form.appendChild(el("p", "fnote", isFam ? "On your honor: mark it complete only when you\u2019ve done what it says. " + CHAL.scoring.family.completionPoints + " points." : (F.mode === "alternate" ? "Alternate" : "Scaled") + " earns a flat " + CHAL.scoring.scaled.completionPoints + " points, so no score is needed."));
-    var nl = el("label", "flabel", "Note (optional)"), ni = el("textarea", "field"); ni.maxLength = 300; ni.rows = 2; ni.value = F.note; ni.placeholder = c.scoredBy === "completion" ? "What did you do? How did it go?" : "Anything worth sharing";
-    ni.addEventListener("input", function () { F.note = ni.value; }); nl.appendChild(ni); form.appendChild(nl);
-    // Proof
-    var canUp = B.canUpload();
-    if (canUp && !isFam) {
-      var pr = el("div", "ch-proof");
-      pr.appendChild(el("span", "flabel", "Proof (required)"));
-      pr.appendChild(el("p", "fnote ch-proof-tip", chalProofTip(c)));
-      var lab = el("label", "btn ghost", F.files.length ? "Upload another" : "Upload");
-      var fi = el("input"); fi.type = "file"; fi.accept = "image/*,video/*"; fi.hidden = true; lab.appendChild(fi);
-      fi.addEventListener("change", async function () {
-        var file = fi.files && fi.files[0]; fi.value = ""; if (!file || F.files.length >= 3) return;
-        F.busy = true; F.msg = ""; drawChallengePage();
-        var ready = await prepShareFile(file, function (t) { F.msg = t; var p = document.getElementById("ch-msg"); if (p) p.textContent = t; });
-        if (ready) { F.files.push(ready); proofKeep(c.id, F.files); } F.busy = false; drawChallengePage();
-      });
-      if (F.files.length < 3) { var pbs=el("div","ch-proof-btns"); pbs.appendChild(lab); pr.appendChild(pbs); var rb=el("button","btn ghost","\u23FA Record video");rb.type="button";rb.addEventListener("click",function(){recordVideo(c.scoredBy === "fastest_time" || c.scoredBy === "longest_hold" || c.scoredBy === "most_rounds",async function(file){F.busy=true;F.msg="Preparing video…";drawChallengePage();var ready=await prepShareFile(file,function(t){F.msg=t;var q=$("ch-msg");if(q)q.textContent=t;});if(ready){F.files.push(ready);F.msg=B.downloads?"Tip: tap Save to my phone to keep a copy in case the upload fails.":"";proofKeep(c.id,F.files);}F.busy=false;drawChallengePage();});});pbs.appendChild(rb); }
-      var chips = el("div", "chips");
-      F.files.forEach(function (fl, k) { var ch = el("span", "chip", (fl.type.indexOf("video") === 0 ? "Video: " : "Photo: ") + (fl.name || "file")); var x = el("button", "mini", "✕"); x.type = "button"; x.setAttribute("aria-label", "Remove " + (fl.name || "file")); x.addEventListener("click", function () { F.files.splice(k, 1); proofKeep(c.id, F.files); drawChallengePage(); }); ch.appendChild(x); chips.appendChild(ch); });
-      pr.appendChild(chips);
-      if (F.files.length && B.downloads) { var svb = el("button", "mini ch-save", "\u2B07 Save to my phone"); svb.type = "button"; svb.disabled = F.busy; svb.addEventListener("click", function () { proofSaveToPhone(F); }); pr.appendChild(svb); }
-      form.appendChild(pr);
+        bx.appendChild(bigBox("Miles", "v", "0.0", "decimal")); form.appendChild(bx);
+        if (chalByMode(c)) { var ml = el("label", "flabel", "Mode"), msel = el("select", "field"); CH_MODES.forEach(function (m) { var o = el("option", null, m); o.value = m; msel.appendChild(o); }); msel.value = F.m; msel.addEventListener("change", function () { F.m = msel.value; }); ml.appendChild(msel); form.appendChild(ml); }
+      } else { bx.appendChild(bigBox("Total", "v", "0")); form.appendChild(bx); }
     }
-    if (!canUp && !isFam) form.appendChild(el("p", "error", "Photo and video uploads aren\u2019t available here, and proof is required to submit. Try again from your phone."));
+    var nl = el("label", "flabel", "Notes (optional)"), ni = el("textarea", "field"); ni.maxLength = 300; ni.rows = 2; ni.value = F.note; ni.placeholder = isFam ? "What did you do? How did it go?" : "Anything to share about your attempt?";
+    ni.addEventListener("input", function () { F.note = ni.value; }); nl.appendChild(ni); form.appendChild(nl);
     var msg = el("p", "fnote", F.msg); msg.id = "ch-msg"; msg.setAttribute("aria-live", "polite"); form.appendChild(msg);
     var go2 = el("button", "btn", F.busy ? "Working…" : c.scoredBy === "completion" ? "Mark complete" : "Submit result"); go2.type = "submit"; go2.disabled = F.busy || (!canUp && !isFam); form.appendChild(go2);
     form.addEventListener("submit", async function (ev) {
@@ -4924,8 +4975,10 @@ header.hero .me-btn { border-color:#e87328; }
       if (!isFam && !F.files.length) { F.msg = "Add a photo or video as proof. A screenshot from your watch or app works."; drawChallengePage(); return; }
       var a = { mode: F.mode, at: nowDate().getTime(), note: F.note.trim().slice(0, 300) };
       if (needsScore) {
-        var v = c.scoredBy === "fastest_time" || c.scoredBy === "longest_hold" ? parseClock(F.v) : Number(String(F.v).replace(/,/g, ""));
-        if (!(v > 0)) { F.msg = c.scoredBy === "fastest_time" || c.scoredBy === "longest_hold" ? "Enter your time as min:sec, like 4:32." : "Enter your result as a number."; drawChallengePage(); return; }
+        if (F.sw && F.sw.run) { F.msg = "Stop the timer first."; drawChallengePage(); return; }
+        var mm0 = String(F.mm || "").trim(), ss0 = String(F.ss || "").trim();
+        var v = timed ? ((/^\d*$/.test(mm0) && /^\d{0,2}$/.test(ss0) && +ss0 < 60) ? (+mm0 || 0) * 60 + (+ss0 || 0) : NaN) : Number(String(F.v).replace(/,/g, ""));
+        if (!(v > 0)) { F.msg = timed ? "Enter your time in the Min and Sec boxes (seconds 0 to 59), or use the timer." : "Enter your result as a number."; drawChallengePage(); return; }
         a.v = v; if (c.scoredBy === "most_rounds") a.x = Math.max(0, Math.floor(Number(F.x) || 0)); if (chalByMode(c)) a.m = F.m;
       }
       F.busy = true; F.msg = F.files.length ? "Uploading…" : ""; drawChallengePage();
@@ -4938,6 +4991,13 @@ header.hero .me-btn { border-color:#e87328; }
     });
     sub.appendChild(form); body.appendChild(sub);
     if (state.chalMsg) { var ok = el("p", "ch-ok", state.chalMsg); sub.insertBefore(ok, form); state.chalMsg = ""; }
+  }
+  var chalSwInt = null;
+  function swPaint() {
+    var F = chalForm; if (!F || !F.sw) { clearInterval(chalSwInt); chalSwInt = null; return; }
+    if (F.sw.run) { var s = Math.floor((Date.now() - F.sw.t0) / 1000); F.mm = String(Math.floor(s / 60)); F.ss = pad(s % 60); }
+    var a = $("ch-mm"), b = $("ch-ss"); if (!a || !b) { if (!F.sw.run) { clearInterval(chalSwInt); chalSwInt = null; } return; }
+    a.value = F.mm; b.value = F.ss;
   }
   function chalSave(id, attempts, msg) {
     var subs = Object.assign({}, chalSubs()); if (attempts.length) subs[id] = { attempts: attempts }; else delete subs[id];
