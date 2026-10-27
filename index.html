@@ -1759,23 +1759,35 @@ header.hero .me-btn { border-color:#e87328; }
     profiles: function (ids) { return this.user ? this.user.profiles(ids) : Promise.resolve({}); },
     search: function (q) { return this.user ? this.user.search(q) : Promise.resolve([]); },
     canUpload: function () { return !!(this.assets && this.assets.upload); },
-    // Retries once on a passing platform hiccup, and tags every failure with its code so the message can say why.
-    upload: function (file) {
-      var a = this.assets; if (!a || !a.upload) { var e0 = new Error("Uploads are not available"); e0.code = "not_granted"; return Promise.reject(e0); }
+    // Retries once on a passing platform hiccup, and tags every failure with its code, which side refused it,
+    // and what was sent, so the message can say why. Every failure is also logged to uplog/<id> for the builder.
+    upload: async function (file) {
+      var self = this, a = this.assets, info = { name: String((file && file.name) || "").slice(0, 80), origType: String((file && file.type) || ""), origBytes: file ? file.size : 0 };
+      function fail(e, src, t, body) {
+        e = e || new Error("upload failed"); if (!e.code) e.code = "upstream_error"; e.src = src; e.sentType = t || ""; e.sentBytes = body ? body.size : 0;
+        try { if (self.db && state.me) self.db.doc("uplog/" + state.me).set({ at: Date.now(), code: e.code, src: src, msg: String(e.message || "").slice(0, 300), sentType: e.sentType, sentBytes: e.sentBytes, name: info.name, origType: info.origType, origBytes: info.origBytes, ua: navigator.userAgent.slice(0, 300), v: APP_VERSION }).catch(noop); } catch (x) {}
+        throw e;
+      }
+      if (!a || !a.upload) { var e0 = new Error("Uploads are not available"); e0.code = "not_granted"; return fail(e0, "app"); }
       // Send a plain Blob with an exact media type, so the store never has to guess from an iPhone file name or alias.
       var t = String((file && file.type) || "").toLowerCase().split(";")[0].trim();
       if (t === "image/jpg" || t === "image/pjpeg") t = "image/jpeg";
       if (!t && file && /\.(jpe?g)$/i.test(file.name || "")) t = "image/jpeg";
       if (!t && file && /\.png$/i.test(file.name || "")) t = "image/png";
-      if (t === "video/quicktime") { var eq = new Error("mov"); eq.code = "unsupported_type"; eq.mov = true; return Promise.reject(eq); }
+      if (t === "video/quicktime") { var eq = new Error("mov"); eq.code = "unsupported_type"; eq.mov = true; return fail(eq, "app", t, file); }
       var ok = ["image/jpeg", "image/png", "image/gif", "image/webp", "video/mp4", "video/webm", "application/pdf"];
-      if (ok.indexOf(t) < 0) { var et = new Error("type " + t); et.code = "unsupported_type"; return Promise.reject(et); }
+      // Any other photo format the phone can show (HEIC and the like, or no type at all) is redrawn as a JPEG first.
+      if (ok.indexOf(t) < 0 && file && (t.indexOf("image/") === 0 || !t)) {
+        try { file = await compressImage(file, 2048, 2 * 1024 * 1024); t = "image/jpeg"; } catch (x) {}
+      }
+      if (ok.indexOf(t) < 0) { var et = new Error("type " + (t || "(none)")); et.code = "unsupported_type"; return fail(et, "app", t, file); }
       var body = file instanceof Blob ? file.slice(0, file.size, t) : file;
       var send = function () { return a.upload(body, { type: t }); };
-      return send().catch(function (e) {
-        if (e && e.code === "store_unavailable") return new Promise(function (r) { setTimeout(r, 1200); }).then(send);
-        throw e;
-      });
+      try { return await send(); }
+      catch (e) {
+        if (e && e.code === "store_unavailable") { await new Promise(function (r) { setTimeout(r, 1200); }); try { return await send(); } catch (e2) { return fail(e2, "claude.ai", t, body); } }
+        return fail(e, "claude.ai", t, body);
+      }
     },
     watchTasks: function (cb) {
       return this.db.collection("tasks").orderBy("createdAt").onSnapshot(function (s) {
@@ -6276,9 +6288,10 @@ header.hero .me-btn { border-color:#e87328; }
       box.appendChild(r);
     });
   }
+  var APP_VERSION = "v169";
   /* ---------- Photo upload diagnostic (Settings > Testing) ---------- */
   async function runPhotoDiag() {
-    var out = { at: new Date().toISOString(), version: "v120", ua: navigator.userAgent, steps: [] };
+    var out = { at: new Date().toISOString(), version: APP_VERSION, ua: navigator.userAgent, steps: [] };
     function step(name, data) { out.steps.push(Object.assign({ step: name }, data)); paint(); }
     function errOf(e) { return { ok: false, code: (e && e.code) || "(none)", message: String((e && e.message) || e || "").slice(0, 300), name: e && e.name ? String(e.name) : "" }; }
     var dlg = el("div", "cdlg"); dlg.id = "cdlg";
@@ -6336,7 +6349,23 @@ header.hero .me-btn { border-color:#e87328; }
     var other = null; Object.keys(state.pubProfiles || {}).some(function (k) { var a = safeId((state.pubProfiles[k] || {}).avatarId); if (a && k !== state.me) { other = a; return true; } return false; });
     if (other) { try { var res = await fetch("/_blob/" + other, { method: "GET", cache: "no-store" }); step("view.otherPhoto", { status: res.status, type: res.headers.get("content-type") || "" }); } catch (e) { step("view.otherPhoto", errOf(e)); } }
     else step("view.otherPhoto", { skipped: "no other profile photo to test" });
-    // 6. Save the report so Curtis's builder can read it
+    // 6. One of his own photos, through the same steps a Rally post uses
+    var real = await new Promise(function (res) {
+      var row = el("div", "cdlg-btns"), pick = el("button", "btn", "Test one of my photos"), skip = el("button", "btn ghost", "Skip"); pick.type = skip.type = "button";
+      var fi = el("input"); fi.type = "file"; fi.accept = "image/*"; fi.hidden = true;
+      note.textContent = "Last step: pick any photo from your phone. It is uploaded, checked and removed.";
+      pick.addEventListener("click", function () { fi.click(); }); skip.addEventListener("click", function () { row.remove(); res(null); });
+      fi.addEventListener("change", function () { var f = fi.files && fi.files[0]; row.remove(); res(f || null); });
+      row.appendChild(skip); row.appendChild(pick); row.appendChild(fi); box.insertBefore(row, pre);
+    });
+    if (real) {
+      step("photo.picked", { name: real.name, type: real.type || "(none)", bytes: real.size });
+      var small = null; try { small = await compressImage(real, 2048, 2 * 1024 * 1024); step("photo.converted", { ok: true, type: small.type, bytes: small.size }); } catch (e) { step("photo.converted", errOf(e)); }
+      try { var ru = await B.upload(small || real); step("photo.upload", { ok: true, id: ru.id, type: ru.contentType, bytes: ru.sizeBytes }); if (A) { try { await A.delete(ru.id); } catch (e) {} } }
+      catch (e) { step("photo.upload", Object.assign(errOf(e), { src: e.src, sentType: e.sentType, sentBytes: e.sentBytes })); }
+    } else step("photo.picked", { skipped: true });
+    note.textContent = "Saving the results…";
+    // 7. Save the report so Curtis's builder can read it
     try { if (B.db && state.me) { await B.db.doc("diag/" + state.me).set({ at: Date.now(), report: JSON.stringify(out).slice(0, 60000) }); step("report.saved", { ok: true }); } else step("report.saved", { ok: false, why: "not signed in" }); }
     catch (e) { step("report.saved", errOf(e)); }
     note.textContent = "Done. The results were saved for Curtis. You can also copy them and text them."; cp.disabled = false;
@@ -6974,7 +7003,8 @@ header.hero .me-btn { border-color:#e87328; }
       store_unavailable: "The upload service is having trouble. Try again in a minute.",
       invalid_request: "That file couldn\u2019t be read. Try a different photo."
     }[c] || "The upload didn\u2019t go through. Check your connection and try again.";
-    return m + " (" + c + ")";
+    var kb = e && e.sentBytes ? Math.max(1, Math.round(e.sentBytes / 1024)) + " KB" : "";
+    return m + " (" + [c, e && e.src ? "refused by " + e.src : "", e && e.sentType, kb].filter(Boolean).join(" \u00B7 ") + ")";
   }
   async function compressImage(file, maxDim, maxBytes) {
     var bmp;
