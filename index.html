@@ -1082,13 +1082,7 @@ header.hero .me-btn { border-color:#e87328; }
 
 .muscle-card { background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:14px;margin:14px 0; }
 .muscle-map svg { display:block;width:100%;max-width:320px;margin:auto; }
-.rec-dialog { position:fixed;inset:0;z-index:400;background:#101214;color:#fff;display:flex;flex-direction:column;padding:max(16px,env(safe-area-inset-top)) 16px max(16px,env(safe-area-inset-bottom));gap:10px; }
-.rec-view { position:relative;flex:1;min-height:0;background:#000;border-radius:8px;overflow:hidden; }
-.rec-view video { width:100%;height:100%;object-fit:contain; }
-.rec-overlay { position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;text-align:center;pointer-events:none;text-shadow:0 2px 5px #000;font-size:24px; }
-.rec-overlay strong { font-size:80px;color:#f17b32;line-height:1; }
-.rec-actions { display:flex;gap:8px;justify-content:center;flex-wrap:wrap; }
-:root { --forged-mountain: url("mountain.jpg"); }
+.muscle-figs { display:grid; grid-template-columns:1fr 1fr; text-align:center; max-width:320px; margin:4px auto 0; font-size:12.5px; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); }
 
 </style>
 
@@ -1464,7 +1458,7 @@ header.hero .me-btn { border-color:#e87328; }
     </section>
 
     <section aria-labelledby="h-s-wk">
-      <div class="section-head"><h2 class="label-caps" id="h-s-wk" data-sub="Auto-fill weight and reps while you log sets.">Workout logging</h2></div>
+      <div class="section-head"><h2 class="label-caps" id="h-s-wk" data-sub="Auto-fill, plus injuries or limitations.">Workout logging</h2></div>
       <label class="sw-row"><span>Auto-fill weight</span><input type="checkbox" role="switch" class="switch" id="s-af-w"></label>
       <label class="sw-row"><span>Auto-fill reps</span><input type="checkbox" role="switch" class="switch" id="s-af-r"></label>
       <p class="note">When on, what you enter for a set fills in the empty sets below it for that exercise. Warm-up sets are skipped, and you can still change any set.</p>
@@ -3209,7 +3203,7 @@ header.hero .me-btn { border-color:#e87328; }
   function openVideo(g, shown) { vidCur = { g: g, shown: shown }; go("video"); }
 
   function muscleDiagram(label) {
-    var wrap=el("div","muscle-card"); wrap.appendChild(el("h2","section-head","Muscles worked"));
+    var wrap=el("div","muscle-card"); wrap.appendChild(el("h2","label-caps","Muscles worked"));
     var names=String(label).toLowerCase(), groups=[{re:/quad|thigh/,id:"leg"},{re:/glute|hip/,id:"hip"},{re:/chest|pec/,id:"chest"},{re:/shoulder|delt/,id:"shoulder"},{re:/bicep|tricep|arms|forearm/,id:"arm"},{re:/core|abs|abdom/,id:"core"},{re:/back|lat|trap/,id:"back"},{re:/hamstring/,id:"ham"},{re:/calf|calves/,id:"calf"}];
     var active=groups.filter(function(g){return g.re.test(names);}).map(function(g){return g.id;});
     var svg='<svg viewBox="0 0 260 200" role="img" aria-label="Approximate muscle regions: '+String(label).replace(/[&<>"']/g,'')+'"><g fill="none" stroke="#aba9a4" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">';
@@ -3219,33 +3213,17 @@ header.hero .me-btn { border-color:#e87328; }
     if(active.indexOf("shoulder")>=0){[43,87,173,217].forEach(function(x){mark(x,43,5,6);});} if(active.indexOf("arm")>=0){[40,90,170,220].forEach(function(x){mark(x,65,4,11);});}
     if(active.indexOf("back")>=0)mark(195,58,12,14); if(active.indexOf("hip")>=0){mark(189,97,6,6);mark(201,97,6,6);}
     if(active.indexOf("leg")>=0){mark(57,121,5,17);mark(73,121,5,17);} if(active.indexOf("ham")>=0){mark(187,121,5,17);mark(203,121,5,17);} if(active.indexOf("calf")>=0){mark(182,166,4,10);mark(208,166,4,10);} svg+='</svg>';
-    if(active.length){var d=el("div","muscle-map");d.innerHTML=svg;wrap.appendChild(d);wrap.appendChild(el("p","note","Front                                  Back"));}
+    if(active.length){var d=el("div","muscle-map");d.innerHTML=svg;wrap.appendChild(d);var fl=el("div","muscle-figs");fl.appendChild(el("span",null,"Front"));fl.appendChild(el("span",null,"Back"));wrap.appendChild(fl);}
     wrap.appendChild(el("p",null,String(label)));wrap.appendChild(el("p","note","Illustration shows approximate muscle regions; see the movement instructions for details."));return wrap;
   }
 
 
-  // Camera recordings remain local until the user attaches and submits them.
-  async function recordVideo(timed, onFile) {
-    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia || !window.MediaRecorder) { alert("In-app recording is not supported here. You can record with your phone and attach the video."); return; }
-    var panel=el("div","rec-dialog");panel.setAttribute("role","dialog");panel.setAttribute("aria-modal","true");panel.setAttribute("aria-label","Record video");
-    var head=el("div","section-head");head.appendChild(el("h2",null,timed?"Record timed challenge":"Record video"));var close=el("button","mini","Cancel");close.type="button";head.appendChild(close);panel.appendChild(head);
-    var view=el("div","rec-view"), video=el("video");video.autoplay=true;video.muted=true;video.playsInline=true;view.appendChild(video);var overlay=el("div","rec-overlay");view.appendChild(overlay);panel.appendChild(view);
-    var info=el("p","note","Camera preview only. Nothing is shared until you submit it.");panel.appendChild(info);
-    var controls=el("div","rec-actions"), start=el("button","btn","Start 10-second countdown"), stop=el("button","btn ghost","Stop and attach");start.type=stop.type="button";stop.hidden=true;controls.appendChild(start);controls.appendChild(stop);panel.appendChild(controls);document.body.appendChild(panel);
-    var stream=null, rec=null, chunks=[], timer=null, limit=null, cancelled=false, stopped=false;
-    function clean(){clearInterval(timer);clearTimeout(limit);if(stream)stream.getTracks().forEach(function(t){t.stop();});panel.remove();}
-    close.addEventListener("click",function(){cancelled=true;if(rec && rec.state!=="inactive")rec.stop();clean();});
-    try { stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:"user"},audio:true}); if(cancelled){stream.getTracks().forEach(function(t){t.stop();});return;} video.srcObject=stream; }
-    catch(e) {info.textContent="Camera or microphone access was unavailable. Check permissions, or attach a video recorded on your phone.";start.disabled=true;return;}
-    start.addEventListener("click",function(){start.disabled=true;unlockAudio();var left=10;overlay.innerHTML="<strong>10</strong><span>Get into position</span>";
-      timer=setInterval(function(){left--;if(left>0){overlay.innerHTML="<strong>"+left+"</strong><span>Get into position</span>";return;}clearInterval(timer);
-        try {rec=new MediaRecorder(stream);rec.ondataavailable=function(e){if(e.data&&e.data.size)chunks.push(e.data);};rec.onerror=function(){info.textContent="Recording failed. Try recording with your phone and attaching the video.";};
-          rec.onstop=async function(){if(cancelled)return;var mime=rec.mimeType||"video/webm", blob=new Blob(chunks,{type:mime});clean();if(!blob.size){alert("The recording was empty. Try again.");return;}var ext=mime.indexOf("mp4")>=0?".mp4":".webm";var file=new File([blob],"recording"+ext,{type:mime});await onFile(file);};rec.start();stop.hidden=false;start.hidden=true;
-          var started=Date.now();if(timed){var n=3;overlay.innerHTML="<strong>3</strong><span>Challenge starts in</span>";playTones(null,3);timer=setInterval(function(){n--;if(n>0)overlay.innerHTML="<strong>"+n+"</strong><span>Challenge starts in</span>";else{clearInterval(timer);started=Date.now();overlay.textContent="Recording · 0:00"; timer=setInterval(function(){overlay.textContent="Recording · "+fmtElapsed(Date.now()-started);},1000);}},1000);}else{overlay.textContent="Recording · 0:00";timer=setInterval(function(){overlay.textContent="Recording · "+fmtElapsed(Date.now()-started);},1000);}limit=setTimeout(function(){if(rec&&rec.state!=="inactive")rec.stop();},180000);
-        } catch(e){info.textContent="Recording could not start on this device. Try attaching a video instead.";start.hidden=false;start.disabled=false;}
-      },1000);
-    });
-    stop.addEventListener("click",function(){if(stopped)return;stopped=true;stop.disabled=true;clearInterval(timer);clearTimeout(limit);if(rec && rec.state!=="inactive")rec.stop();});
+  // Opens the phone's own camera to record a video. A claude.ai page can't run the camera itself,
+  // but a file picker with capture= hands off to the camera app and returns the clip. Nothing is shared until he submits.
+  function recordVideo(timed, onFile) {
+    var inp = document.createElement("input"); inp.type = "file"; inp.accept = "video/*"; inp.setAttribute("capture", "environment");
+    inp.addEventListener("change", function () { var f = inp.files && inp.files[0]; if (f) onFile(f); });
+    inp.click();
   }
 
   function drawVideoPage() {
@@ -3758,8 +3736,8 @@ header.hero .me-btn { border-color:#e87328; }
         swb.addEventListener("click", function () { saveWkNow(); openSwap(idx, origG); }); top.appendChild(swb);
       }
       ex.appendChild(top);
-      if (swp0 && swp0.automatic) ex.appendChild(el("p", "note", "Suggested alternative, not a safety guarantee. Stop if painful; review with a clinician."));
       if (swp0) ex.appendChild(el("span", "sw-note", "Swapped from " + moveName(origG, p.equip) + (swp0.why ? " \u00B7 " + swp0.why : "")));
+      if (swp0 && (swp0.automatic || /^Suggested for /.test(swp0.why || ""))) ex.appendChild(el("p", "note", "Suggested alternative, not a safety guarantee. Stop if painful; review with a clinician."));
       ex.appendChild(el("span", "wr", e[1]));
       var c = moveCue(mg); if (c) ex.appendChild(el("span", "wc", c));
       if (ps && !ps.time && (live || (isToday && !done))) { var lt0 = lastTimeEl(mg, key, e[1], needsWeight(mg, p.equip)); if (lt0) ex.appendChild(lt0); }
