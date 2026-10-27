@@ -3881,7 +3881,6 @@ header.hero .me-btn { border-color:#e87328; }
       if (swp0 && (swp0.automatic || /^Suggested for /.test(swp0.why || ""))) ex.appendChild(el("p", "note", "Suggested alternative, not a safety guarantee. Stop if painful; review with a clinician."));
       ex.appendChild(el("span", "wr", e[1]));
       var c = moveCue(mg); if (c) ex.appendChild(el("span", "wc", c));
-      var ht = (PLAN.M[mg] || {}).howTo; if (ht && (live || (isToday && !done))) ex.appendChild(howToEl(ht, true));
       if (ps && !ps.time && (live || (isToday && !done))) { var lt0 = lastTimeEl(mg, key, e[1], needsWeight(mg, p.equip)); if (lt0) ex.appendChild(lt0); }
       if (live) {
         var a = setsOf(idx, ps);
