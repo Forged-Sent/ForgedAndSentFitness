@@ -675,6 +675,7 @@ button.fo-item { cursor: pointer; min-height: 44px; }
 .fast-q { margin: 6px 0 0; padding: 10px 4px 0; border-top: 1px solid var(--line); text-align: center; }
 .fast-q p { margin: 0; font-family: var(--f-scripture); font-style: italic; }
 .fast-q cite { display: block; margin-top: 4px; font-style: normal; font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: var(--brass); }
+.fast-sab { border-bottom: 1px solid var(--line); padding-bottom: 10px; }
 .fast-plan { margin-top: 10px; border: 1px solid var(--line); }
 .fast-plan summary { cursor: pointer; padding: 12px 14px; font-family: var(--f-label); font-weight: 600; font-size: 13.5px; letter-spacing: .08em; text-transform: uppercase; list-style: none; display: flex; justify-content: space-between; gap: 8px; }
 .fast-plan summary::-webkit-details-marker { display: none; }
@@ -2067,16 +2068,23 @@ header.hero .me-btn { border-color:#e87328; }
       var dt = parseKey(d), isOn = isFastDay(d), b = el("button", "fast-day" + (isOn ? " on" : "")); b.type = "button"; b.disabled = off;
       b.appendChild(el("small", null, FAST_DOW[dt.getDay()])); b.appendChild(el("b", null, String(dt.getDate())));
       b.setAttribute("aria-pressed", String(isOn)); b.setAttribute("aria-label", longDate(d) + (isOn ? ", fast day" : ""));
-      b.addEventListener("click", function () { setFastDay(d, !isFastDay(d)); });
+      b.addEventListener("click", function () { state.fastOpen = true; setFastDay(d, !isFastDay(d)); });
       days.appendChild(b);
     })(addDays(k, i));
     inner.appendChild(days);
-    inner.appendChild(el("div", "label-caps fast-l", "Repeat every week"));
+    // Most common recurring fast: his Sabbath. One switch, easy to turn off when life changes.
+    var sd = sabbathDow(), sabOn = (f.weekly || []).indexOf(sd) >= 0;
+    var srow = el("label", "sw-row fast-row fast-sab"), stx = el("span"); stx.appendChild(el("b", null, "Fast every Sabbath"));
+    stx.appendChild(el("small", null, sabOn ? "Every " + FAST_DOWN[sd] + " is a fast day. Turn this off anytime." : "Make your Sabbath (" + FAST_DOWN[sd] + ") a fast day every week."));
+    var ssw = el("input", "switch"); ssw.type = "checkbox"; ssw.setAttribute("role", "switch"); ssw.id = "fast-sabbath"; ssw.checked = sabOn; ssw.disabled = off;
+    ssw.addEventListener("change", function () { state.fastOpen = true; setFastWeekly(sd, ssw.checked); });
+    srow.appendChild(stx); srow.appendChild(ssw); inner.insertBefore(srow, inner.firstChild);
+    inner.appendChild(el("div", "label-caps fast-l", "Repeat every week (tap a day to turn it on or off)"));
     var wk = el("div", "fast-week");
     [1, 2, 3, 4, 5, 6, 0].forEach(function (d) {
       var isOn = (f.weekly || []).indexOf(d) >= 0, b = el("button", "rchip" + (isOn ? " on" : ""), FAST_DOW[d]); b.type = "button"; b.disabled = off;
       b.setAttribute("aria-pressed", String(isOn)); b.setAttribute("aria-label", "Fast every " + FAST_DOWN[d]);
-      b.addEventListener("click", function () { setFastWeekly(d, !isOn); }); wk.appendChild(b);
+      b.addEventListener("click", function () { state.fastOpen = true; setFastWeekly(d, !isOn); }); wk.appendChild(b);
     });
     inner.appendChild(wk);
     inner.appendChild(el("p", "note", "On a fast day your Calories box checks itself and there\u2019s no protein bonus. The brothers see a small Fasting tag by your name on the Board that day, so they can pray for you. Your food log stays private."));
