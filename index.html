@@ -526,6 +526,16 @@ button.fo-item { cursor: pointer; min-height: 44px; }
 .vchart .vgoal { stroke: var(--ink); stroke-width: 1.5; stroke-dasharray: 3 2; pointer-events: none; }
 .vchart .vtrend { fill: none; stroke: var(--hot); stroke-width: 2; stroke-linejoin: round; pointer-events: none; }
 .vchart .vtrend-dot { fill: var(--hot); pointer-events: none; }
+.wt-tabs { margin-bottom: 10px; }
+.wchart .wline { fill: none; stroke: var(--accent); stroke-width: 2.5; stroke-linejoin: round; stroke-linecap: round; pointer-events: none; }
+.wchart .wdot { fill: var(--bg, var(--surface)); stroke: var(--accent); stroke-width: 2; }
+.wchart .wdot.now { fill: var(--hot, var(--accent)); stroke: var(--hot, var(--accent)); }
+.wchart .wy { fill: var(--muted); font-size: 10.5px; text-anchor: end; font-variant-numeric: tabular-nums; }
+.wchart .wv { fill: var(--muted); font-size: 10.5px; text-anchor: middle; font-variant-numeric: tabular-nums; }
+.wchart .wnow { fill: var(--hot, var(--accent)); font-family: var(--f-label); font-size: 14px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.wchart .wgoal-t { fill: var(--muted); font-size: 10.5px; letter-spacing: .06em; text-transform: uppercase; }
+.wchart .wx { text-transform: none; letter-spacing: 0; }
+.vstat .wt-goal { display: block; margin-top: 2px; }
 .vchart .vtrend-t { fill: var(--hot); font-size: 11px; font-weight: 700; letter-spacing: .04em; font-variant-numeric: tabular-nums; }
 .wk-last { display: block; margin-top: 6px; padding: 8px 10px; border-left: 3px solid var(--brass); background: color-mix(in srgb, var(--brass) 10%, transparent); font-size: 13px; line-height: 1.4; }
 .wk-last b { display: block; font-family: var(--f-label); letter-spacing: .06em; text-transform: uppercase; font-size: 11.5px; color: var(--muted); margin-right: 4px; }
@@ -1335,6 +1345,11 @@ header.hero .me-btn { border-color:#e87328; }
       <div id="steps-body"></div>
     </section>
 
+    <section aria-labelledby="h-wt" id="wt-sec">
+      <div class="section-head"><h2 class="label-caps" id="h-wt">Weekly weight</h2></div>
+      <div id="wt-body"></div>
+    </section>
+
     <section aria-labelledby="h-plan">
       <div class="section-head"><h2 class="label-caps" id="h-plan">Workout plan</h2></div>
       <div id="plan-summary"></div>
@@ -1790,6 +1805,8 @@ header.hero .me-btn { border-color:#e87328; }
     saveChal: function (uid, d) { return this.db.doc("chsubs/" + uid).set({ subs: d.subs || {}, br: d.br || "", updatedAt: Date.now() }); },
     watchProgress: function (uid, cb) { return this.db.doc("data/users/" + uid + "/log").collection("photos").onSnapshot(function (s) { cb(s.docs.map(function (d) { var x = d.data() || {}; if (!x.date) x.date = d.id; return x; })); }, noop); },
     saveProgress: function (uid, x) { return this.db.doc("data/users/" + uid + "/log").collection("photos").doc(x.date).set({ date: x.date, front: x.front || "", side: x.side || "", rear: x.rear || "" }); },
+    watchWeights: function (uid, cb) { return this.db.doc("data/users/" + uid + "/weights").onSnapshot(function (s) { cb(s.exists ? ((s.data() || {}).w || {}) : {}); }, noop); },
+    saveWeights: function (uid, w) { return this.db.doc("data/users/" + uid + "/weights").set({ w: w, updatedAt: Date.now() }); },
     deleteProgress: function (uid, date) { return this.db.doc("data/users/" + uid + "/log").collection("photos").doc(date).delete(); },
     getWorkoutLog: function (uid, date) { return this.db.doc("data/users/" + uid + "/log").collection("workouts").doc(date).get().then(function (s) { return s.exists ? s.data() : null; }); },
     saveWorkoutLog: function (uid, rec) { return this.db.doc("data/users/" + uid + "/log").collection("workouts").doc(rec.date).set(rec); },
@@ -2270,7 +2287,7 @@ header.hero .me-btn { border-color:#e87328; }
     $("ideas-back").addEventListener("click", function () { if (ideaUI.view !== "list") { ideaUI.view = "list"; drawIdeas(); } else go("fuel"); });
     $("ideas-open").addEventListener("click", openIdeas);
     var colSt = {}; try { colSt = JSON.parse(localStorage.getItem("fs-collapsed") || "{}") || {}; } catch (e) { colSt = {}; }
-    [["h-week", "week-list", "week"], ["h-vol", "vol-body", "vol"]].forEach(function (c) {
+    [["h-week", "week-list", "week"], ["h-vol", "vol-body", "vol"], ["h-steps", "steps-body", "steps"], ["h-wt", "wt-body", "wt"]].forEach(function (c) {
       var h = $(c[0]), body = $(c[1]); if (!h || !body) return;
       var label = h.textContent, btn = el("button", "sec-toggle"), chev = el("span", "mt-chev"); btn.type = "button"; btn.setAttribute("aria-controls", c[1]);
       btn.appendChild(chev); btn.appendChild(el("span", null, label)); h.textContent = ""; h.appendChild(btn);
@@ -2339,7 +2356,7 @@ header.hero .me-btn { border-color:#e87328; }
       else if (tk.kind === "workout") sub = isWeighDay(todayKey()) ? SABBATH_REST : done[tk.id] ? "Finished in Train" : "Checks itself when you finish a workout";
       else if (tk.kind === "checkin") sub = done[tk.id] ? "Posted today" : "Post in the check-in thread";
       else if (tk.kind === "photos") { var pc = normProg(progFor(todayKey()) || {}), nd = POSES.filter(function (p) { return pc[p[0]]; }).length; sub = done[tk.id] ? "Front, side and rear saved" : nd ? nd + " of 3 taken. Tap to finish" : "Front, side and rear. Tap to take them"; }
-      else if (tk.kind === "weigh") sub = done[tk.id] ? "Weighed in this week" : "Your weekly weigh-in, every Sabbath. Step on the scale and tap to check.";
+      else if (tk.kind === "weigh") { var wv = weights()[todayKey()]; sub = wv ? fmtLb(wv) + " lb. Tap to update" : done[tk.id] ? "Weighed in this week. Tap to add your weight" : "Your weekly weigh-in, every Sabbath. Step on the scale and tap to log your weight."; }
       if (tk.kind === "steps") { var rs = recFor(todayKey()), sn = normSteps(rs.steps), sb = stepBonus(sn), sg = stepGoal(todayKey());
         sub = sn ? fmt(sn) + " of " + fmt(sg) + " steps" + (sb ? ", +" + fmtW(sb) + " bonus" : "") + (hAuto ? ", from your health data" : ". Tap to update") : "Goal " + fmt(sg) + " steps today. Tap to log your steps"; }
       else if (hAuto) sub = "Weigh-in found in your health data";
@@ -2348,9 +2365,9 @@ header.hero .me-btn { border-color:#e87328; }
       b.appendChild(txt);
       b.appendChild(el("span", "pts", "+" + tk.points + (tk.points === 1 ? " pt" : " pts")));
       if (isDevo || tk.id === "t_motto") b.appendChild(el("span", "chev", "›"));
-      if (tk.kind === "photos" || (tk.kind === "steps" && !hAuto)) b.appendChild(el("span", "chev", "\u203A"));
+      if (tk.kind === "photos" || (tk.kind === "steps" && !hAuto) || (tk.kind === "weigh" && !hAuto)) b.appendChild(el("span", "chev", "\u203A"));
       if (tk.kind === "steps" && !hAuto) { b.removeAttribute("aria-readonly"); b.classList.remove("auto"); b.disabled = !state.me || !state.canWrite; }
-      b.addEventListener("click", function () { if (isDevo) openDevo(); else if (tk.kind === "photos") openProgress(); else if (tk.kind === "steps") { if (!hAuto) openSteps(); } else if (tk.id === "t_motto") openMotto(tk.id); else if (!auto) toggle(tk.id); });
+      b.addEventListener("click", function () { if (isDevo) openDevo(); else if (tk.kind === "photos") openProgress(); else if (tk.kind === "steps") { if (!hAuto) openSteps(); } else if (tk.id === "t_motto") openMotto(tk.id); else if (tk.kind === "weigh" && !hAuto) openWeigh(); else if (!auto) toggle(tk.id); });
       li.appendChild(b); list.appendChild(li);
     });
     var wt = taskOfKind("weigh");
@@ -4921,7 +4938,7 @@ header.hero .me-btn { border-color:#e87328; }
     $("day-note").textContent = pr.n ? "PR bonus: +" + bonusOf(r) + " pts (" + pr.list.map(function (x) { return x.l + (x.w && x.v ? " weight and volume" : x.w ? " weight" : " volume"); }).join(", ") + ")" : (planCfg() ? "" : "Pick a workout plan below and your workouts will show up here.");
     var off = !state.me || !state.canWrite;
     $("cal-today").hidden = isToday && stripWeekIndex() === STRIP_BACK;
-    drawDayWorkout(sel, !!done, isToday, off); drawWeek(sel); drawVolume(sel); drawStepsChart(sel); drawPlan();
+    drawDayWorkout(sel, !!done, isToday, off); drawWeek(sel); drawVolume(sel); drawStepsChart(sel); drawWeightChart(); drawPlan();
   }
 
   /* ---------- Board ---------- */
@@ -5667,6 +5684,103 @@ header.hero .me-btn { border-color:#e87328; }
     back.addEventListener("keydown", function (ev) { if (ev.key === "Escape") { ev.stopPropagation(); close(); } });
     back.appendChild(box); document.body.appendChild(back); box.querySelector(".btn").focus({ preventScroll: true });
   }
+  /* ---------- Weekly weigh-ins (private to each man) ---------- */
+  function normLb(n) { n = Math.round(Number(n) * 10) / 10; return n >= 50 && n <= 700 ? n : 0; }
+  function fmtLb(n) { return (Math.round(n * 10) / 10).toFixed(1).replace(/\.0$/, ""); }
+  function normWeights(m) { var o = {}; if (m && typeof m === "object") Object.keys(m).forEach(function (k) { var v = normLb(m[k]); if (/^\d{4}-\d{2}-\d{2}$/.test(k) && v) o[k] = v; }); return o; }
+  function weights() { return state.weights || {}; }
+  function lastWeighIn(before) { var ks = Object.keys(weights()).filter(function (k) { return k < before; }).sort(); return ks.length ? ks[ks.length - 1] : ""; }
+  function saveWeight(key, lb) {
+    if (!state.me || !state.canWrite) return;
+    var w = {}; Object.keys(weights()).forEach(function (k) { w[k] = weights()[k]; });
+    if (lb) w[key] = lb; else delete w[key];
+    state.weights = w;
+    // The newest weigh-in also becomes the weight in his Service record, so his calorie plan stays current.
+    var ks = Object.keys(w).sort(), latest = ks.length ? w[ks[ks.length - 1]] : 0, body = state.settings.body;
+    if (latest && body && typeof body === "object" && body.wt !== latest) { var nb = {}; Object.keys(body).forEach(function (k) { nb[k] = body[k]; }); nb.wt = latest; state.settings.body = nb; saveSettings(); }
+    if (B.db) writeChain = writeChain.then(function () { return B.saveWeights(state.me, w); }).catch(noop);
+    drawToday(); if (!$("page-train").hidden) drawWeightChart();
+  }
+  function openWeigh() {
+    var old = $("cdlg"); if (old) old.remove();
+    var key = todayKey(), cur = weights()[key] || 0, pk = lastWeighIn(key), prev = pk ? weights()[pk] : 0;
+    var back = el("div", "cdlg"); back.id = "cdlg";
+    var box = el("form", "cdlg-box nw-box"); box.setAttribute("role", "dialog"); box.setAttribute("aria-modal", "true"); box.setAttribute("aria-labelledby", "wi-t"); box.noValidate = true;
+    var t = el("h2", null, "Sabbath weigh-in"); t.id = "wi-t"; box.appendChild(t);
+    box.appendChild(el("p", null, "Step on the scale, then enter what it reads. Your weight is private. Only you see it, on your Weekly weight chart in Train."));
+    var lb = el("label", "flabel", "Weight (lb)"), inp = el("input", "field"); inp.type = "number"; inp.min = "50"; inp.max = "700"; inp.step = "0.1"; inp.inputMode = "decimal"; inp.id = "wi-n"; inp.value = cur ? fmtLb(cur) : ""; inp.placeholder = prev ? "Last time " + fmtLb(prev) : "e.g. 205.4";
+    lb.appendChild(inp); box.appendChild(lb);
+    var pv = el("p", "fnote"); pv.setAttribute("aria-live", "polite"); box.appendChild(pv);
+    function paint() { var n = normLb(inp.value), d = n && prev ? Math.round((n - prev) * 10) / 10 : 0;
+      pv.textContent = !inp.value ? "" : !n ? "Enter a weight between 50 and 700 lb." : prev ? (d === 0 ? "Same as " : (d < 0 ? "\u25BC " : "\u25B2 ") + fmtLb(Math.abs(d)) + " lb since ") + shortDate(pk) + "." : "Your first weigh-in. This starts your chart."; }
+    inp.addEventListener("input", paint); paint();
+    var row = el("div", "cdlg-btns"), no = el("button", "btn ghost", cur ? "Clear" : "Cancel"), yes = el("button", "btn", "Save weight"); no.type = "button"; yes.type = "submit";
+    row.appendChild(no); row.appendChild(yes); box.appendChild(row); back.appendChild(box);
+    function close() { back.remove(); }
+    function commit(n) { saveWeight(key, n); writeDay(function (r) { var hw = taskOfKind("weigh"); if (hw) { if (n) r.done[hw.id] = true; else delete r.done[hw.id]; } }); }
+    no.addEventListener("click", function () { close(); if (cur) commit(0); });
+    back.addEventListener("click", function (ev) { if (ev.target === back) close(); });
+    back.addEventListener("keydown", function (ev) { if (ev.key === "Escape") { ev.stopPropagation(); close(); } });
+    box.addEventListener("submit", function (ev) { ev.preventDefault(); var n = normLb(inp.value); if (!n) { paint(); inp.focus(); return; } close(); commit(n); });
+    document.body.appendChild(back); setTimeout(function () { try { inp.focus(); } catch (e) {} }, 0);
+  }
+  var WT_RANGES = [["month", "Month", 31], ["year", "Year", 365], ["all", "All", 0]];
+  function drawWeightChart() {
+    var sec = $("wt-sec"), body = $("wt-body"); if (!sec || !body) return;
+    var rg = state.wtRange; if (!rg) { try { rg = localStorage.getItem("fs-wt-range"); } catch (e) {} }
+    if (!WT_RANGES.some(function (r) { return r[0] === rg; })) rg = "month"; state.wtRange = rg;
+    var today = todayKey(), W = weights(), all = Object.keys(W).filter(function (k) { return k <= today; }).sort().map(function (k) { return { k: k, v: W[k] }; });
+    var days = WT_RANGES.filter(function (r) { return r[0] === rg; })[0][2];
+    var from = days ? addDays(today, -(days - 1)) : (all.length ? all[0].k : today);
+    var pts = all.filter(function (p) { return p.k >= from; }), cur = all.length ? all[all.length - 1] : null;
+    body.textContent = "";
+    var tabs = el("div", "tabs wt-tabs"); tabs.setAttribute("role", "group"); tabs.setAttribute("aria-label", "Weight chart range");
+    WT_RANGES.forEach(function (r) { var b = el("button", null, r[1]); b.type = "button"; b.setAttribute("aria-pressed", String(rg === r[0]));
+      b.addEventListener("click", function () { state.wtRange = r[0]; try { localStorage.setItem("fs-wt-range", r[0]); } catch (e) {} drawWeightChart(); }); tabs.appendChild(b); });
+    body.appendChild(tabs);
+    var gw = state.settings.body && normLb(state.settings.body.gwt);
+    var st = el("div", "vstats"), a = el("div", "vstat"), b2 = el("div", "vstat");
+    a.appendChild(el("small", null, "Current weight")); a.appendChild(el("b", null, cur ? fmtLb(cur.v) + " lb" : "\u2014"));
+    a.appendChild(el("span", null, cur ? "Weighed in " + shortDate(cur.k) : "No weigh-ins yet"));
+    var rl = rg === "month" ? "Past month" : rg === "year" ? "Past year" : "All time";
+    b2.appendChild(el("small", null, rl));
+    if (pts.length > 1) { var d = Math.round((pts[pts.length - 1].v - pts[0].v) * 10) / 10;
+      b2.appendChild(el("b", null, (d < 0 ? "\u2212" : d > 0 ? "+" : "") + fmtLb(Math.abs(d)) + " lb")); b2.appendChild(el("span", null, "since " + shortDate(pts[0].k))); }
+    else { b2.appendChild(el("b", null, "\u2014")); b2.appendChild(el("span", null, pts.length ? "One weigh-in so far" : "Nothing in this range")); }
+    if (gw && cur) { var tg = Math.round((cur.v - gw) * 10) / 10; b2.appendChild(el("span", "wt-goal", "Goal " + fmtLb(gw) + " lb \u00B7 " + (tg === 0 ? "goal reached" : fmtLb(Math.abs(tg)) + " to " + (tg > 0 ? "lose" : "gain")))); }
+    st.appendChild(a); st.appendChild(b2); body.appendChild(st);
+    if (!pts.length) {
+      body.appendChild(el("p", "note", cur ? "No weigh-ins in this range. Your last one was " + shortDate(cur.k) + ". Tap All to see it." : "Your chart starts with your first Sabbath weigh-in. On your Sabbath, tap Weekly weigh-in on Today and enter your weight."));
+      return;
+    }
+    body.appendChild(weightSvg(pts, from, today, gw));
+    body.appendChild(el("p", "note", "One point for each Sabbath weigh-in. The number at the end of the line is your current weight" + (gw ? "; the dashed line is your goal" : "") + ". Your weight is private. Only you see this chart."));
+  }
+  function weightSvg(pts, from, to, gw) {
+    var W = 320, H = 196, L = 36, R = 14, T = 26, Bm = 24, pw = W - L - R, ph = H - T - Bm;
+    var t0 = parseKey(from).getTime(), t1 = Math.max(parseKey(to).getTime(), t0 + 864e5), vs = pts.map(function (p) { return p.v; });
+    var lo = Math.min.apply(null, vs), hi = Math.max.apply(null, vs);
+    var showGoal = gw && gw >= lo - 10 && gw <= hi + 10; if (showGoal) { lo = Math.min(lo, gw); hi = Math.max(hi, gw); }
+    var pad = Math.max(1.5, (hi - lo) * 0.15); lo = Math.floor(lo - pad); hi = Math.ceil(hi + pad);
+    var x = function (k) { return L + (parseKey(k).getTime() - t0) / (t1 - t0) * pw; }, y = function (v) { return T + (hi - v) / (hi - lo) * ph; };
+    var svg = svgEl("svg", { "class": "vchart wchart", viewBox: "0 0 " + W + " " + H, role: "img", "aria-label": "Weekly weight from " + shortDate(pts[0].k) + " to " + shortDate(pts[pts.length - 1].k) + ", now " + fmtLb(pts[pts.length - 1].v) + " pounds" });
+    [hi, (hi + lo) / 2, lo].forEach(function (v) { var gy = y(v); svg.appendChild(svgEl("line", { "class": "vg", x1: L, x2: W - R, y1: gy, y2: gy }));
+      var tx = svgEl("text", { "class": "wy", x: L - 6, y: gy + 4 }); tx.textContent = fmtLb(Math.round(v)); svg.appendChild(tx); });
+    if (showGoal) { var gy = y(gw); svg.appendChild(svgEl("line", { "class": "vgoal", x1: L, x2: W - R, y1: gy, y2: gy })); var gt = svgEl("text", { "class": "wgoal-t", x: L + 4, y: gy - 4 }); gt.textContent = "Goal " + fmtLb(gw); svg.appendChild(gt); }
+    svg.appendChild(svgEl("polyline", { "class": "wline", points: pts.map(function (p) { return x(p.k) + "," + y(p.v); }).join(" ") }));
+    var few = pts.length <= 6, dense = pts.length > 16;
+    pts.forEach(function (p, i) {
+      var last = i === pts.length - 1, c = svgEl("circle", { "class": "wdot" + (last ? " now" : ""), cx: x(p.k), cy: y(p.v), r: last ? 5 : dense ? 1.6 : 3.2 });
+      var tt = svgEl("title", {}); tt.textContent = longDate(p.k) + ": " + fmtLb(p.v) + " lb"; c.appendChild(tt); svg.appendChild(c);
+      if (few && !last) { var vt = svgEl("text", { "class": "wv", x: x(p.k), y: y(p.v) - 8 }); vt.textContent = fmtLb(p.v); svg.appendChild(vt); }
+    });
+    var lp = pts[pts.length - 1], lx = x(lp.k), ly = y(lp.v), nt = svgEl("text", { "class": "wnow", x: Math.min(W - 2, lx), y: Math.max(14, ly - 11), "text-anchor": lx > W - 40 ? "end" : "middle" });
+    nt.textContent = fmtLb(lp.v) + " lb"; svg.appendChild(nt);
+    // Date labels: start, middle and end of the range.
+    var span = (t1 - t0) / 864e5, fmtX = function (ms) { var d = new Date(ms); return span > 400 ? d.toLocaleDateString(undefined, { month: "short", year: "2-digit" }) : d.toLocaleDateString(undefined, { month: "short", day: span > 60 ? undefined : "numeric" }); };
+    [[t0, "start"], [(t0 + t1) / 2, "middle"], [t1, "end"]].forEach(function (q) { var tx = svgEl("text", { "class": "vl wx", x: L + (q[0] - t0) / (t1 - t0) * pw, y: H - 6, "text-anchor": q[1] }); tx.textContent = fmtX(q[0]); svg.appendChild(tx); });
+    return svg;
+  }
   function openSteps() {
     var old = $("cdlg"); if (old) old.remove();
     var key = todayKey(), cur = normSteps(recFor(key).steps), goal = stepGoal(key);
@@ -5761,7 +5875,9 @@ header.hero .me-btn { border-color:#e87328; }
       "Use + to add your own separate workout to any day.",
       "Schedule got wonky? Tap a day, then Move day, and pick another day this week to trade with. Your Sabbath stays put, and days you've already logged can't move. Reset week puts it back.",
       "Your week and Training volume show what you've lifted each day. The line across the bars is your running total for the week.",
-      "Steps works the same way, with a short line on each day for that day's goal."] },
+      "Steps works the same way, with a short line on each day for that day's goal.",
+      "Weekly weight charts your Sabbath weigh-ins. Pick Month, Year or All. Your current weight is always the number at the end of the line, and only you can see it.",
+      "Tap a section's title to fold it away or open it again."] },
     workout: { t: "Workout", why: "Log a workout set by set while you train.", how: [
       "Tap Start workout. Pray the workout prayer, then tap Amen to start the clock.",
       "Warm-ups go round by round. Enter reps, and weight where the lift needs it.",
@@ -6915,6 +7031,7 @@ header.hero .me-btn { border-color:#e87328; }
       var t = await HL.readToday();
       state.healthToday = { steps: t.steps == null ? null : Number(t.steps), weightLb: t.weightLb == null ? null : Number(t.weightLb), workouts: Number(t.workouts) || 0 };
     } catch (e) { return; }
+    var hwl = normLb(state.healthToday.weightLb); if (hwl && isWeighDay(todayKey()) && healthHave("weight") && weights()[todayKey()] !== hwl) saveWeight(todayKey(), hwl);
     var cur = myDoc().done, probe = { done: {} }; Object.keys(cur).forEach(function (k) { probe.done[k] = true; });
     derive(probe, logFor(todayKey()));
     var a = Object.keys(cur).sort().join(), b = Object.keys(probe.done).sort().join();
@@ -7175,6 +7292,7 @@ header.hero .me-btn { border-color:#e87328; }
         drawChallengeButtons(); if (state.page === "chal" && !(chalForm && chalForm.busy)) drawChallengePage(); loadProfiles();
       });
       B.watchProgress(state.me, function (rows) { state.progress = rows.map(normProg).filter(function (x) { return /^\d{4}-\d{2}-\d{2}$/.test(x.date); }); drawProgress(); drawToday(); });
+      B.watchWeights(state.me, function (m) { state.weights = normWeights(m); drawToday(); if (!$("page-train").hidden) drawWeightChart(); });
       B.watchSeen(state.me, function (o) { state.seen = { tags: Number(o.tags) || 0 }; drawTagBells(); });
       B.watchOnboard(state.me, function (o) {
         state.onboard = { done: !!o.done, at: Number(o.at) || 0, ordersDone: !!o.ordersDone }; state.onboardLoaded = true;
