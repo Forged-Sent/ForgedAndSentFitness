@@ -755,6 +755,20 @@ button.fo-item { cursor: pointer; min-height: 44px; }
 .stat{padding:12px 6px;text-align:center;border-right:1px solid var(--line)}
 .stat:last-child{border-right:0}
 .stats .stat:nth-child(2n){border-right:0}
+.fr-box { max-height: 88vh; overflow-y: auto; }
+.fr-k { margin: 0; font-family: var(--f-label); font-weight: 700; font-size: 12px; letter-spacing: .12em; text-transform: uppercase; color: var(--brass, var(--accent)); }
+.fr-sec { border-top: 1px solid var(--line); padding-top: 10px; margin-top: 10px; display: flex; flex-direction: column; gap: 6px; }
+.fr-h { font-family: var(--f-label); font-weight: 700; font-size: 12.5px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+.fr-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.fr-st { flex: none; font-family: var(--f-label); font-weight: 700; font-size: 13px; color: var(--muted); } .fr-st.ok { color: var(--accent); }
+.fr-note { margin: 0; font-style: italic; color: var(--ink); }
+.fr-grid { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 8px; }
+.fr-stat { border: 1px solid var(--line); border-radius: var(--radius, 4px); padding: 8px; text-align: center; }
+.fr-stat b { display: block; font-family: var(--f-label); font-size: 21px; } .fr-stat span { font-size: 10.5px; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; }
+.fr-row .mini { flex: none; white-space: nowrap; }
+.fr-gid { margin: 0; padding: 10px 12px; border-left: 3px solid var(--brass, var(--accent)); background: var(--surface); line-height: 1.5; } .fr-gid.empty { color: var(--muted); font-size: 14px; }
+.mini.on, .btn.on { border-color: var(--accent); color: var(--accent); }
+.fr-li .fr-open { border-style: dashed; } .fr-ic { flex: none; width: 28px; text-align: center; font-size: 20px; color: var(--brass, var(--accent)); }
 .bp { display: flex; flex-direction: column; gap: 6px; }
 .bp-list { display: flex; flex-direction: column; gap: 4px; }
 .bp-hit, .bp-pick { display: flex; align-items: center; gap: 10px; width: 100%; min-height: 52px; padding: 6px 10px; border: 1px solid var(--line); border-radius: var(--radius, 4px); background: var(--surface); color: var(--ink); text-align: left; cursor: pointer; }
@@ -1774,6 +1788,7 @@ header.hero .me-btn { border-color:#e87328; }
       if (!r || typeof r !== "object") throw new Error("bad");
       return { name: String(r.name || text).slice(0, 60), kcal: n(r.kcal, 5000), p: n(r.p, 500), f: n(r.f, 500), c: n(r.c, 1000) };
     },
+    coach: async function (prompt) { if (!this.sample) throw new Error("unavailable"); var r = await this.sample(prompt, { modelTier: "default" }); return String((r && r.text) || "").trim(); },
     canPhoto: function () { return !!(this.sample && this.sampleImages); },
     estimatePhoto: async function (file, hint) {
       if (!this.canPhoto()) throw new Error("unavailable");
@@ -2266,7 +2281,7 @@ header.hero .me-btn { border-color:#e87328; }
   }
   function saveSettings() {
     if (!B.db || !state.me) return;
-    var st = { blocked: state.settings.blocked || {}, targets: state.settings.targets || null, body: state.settings.body || null, reminders: state.settings.reminders || null, health: state.settings.health || null, plan: state.settings.plan || null, theme: state.settings.theme || null, autofill: state.settings.autofill || null, favs: state.settings.favs || [], myMeals: state.settings.myMeals || [], preps: state.settings.preps || [], swapAlways: state.settings.swapAlways || {}, dayMoves: state.settings.dayMoves || {}, fast: state.settings.fast || null, onboard: state.settings.onboard || null };
+    var st = { blocked: state.settings.blocked || {}, targets: state.settings.targets || null, body: state.settings.body || null, reminders: state.settings.reminders || null, health: state.settings.health || null, plan: state.settings.plan || null, theme: state.settings.theme || null, autofill: state.settings.autofill || null, favs: state.settings.favs || [], myMeals: state.settings.myMeals || [], preps: state.settings.preps || [], swapAlways: state.settings.swapAlways || {}, dayMoves: state.settings.dayMoves || {}, fast: state.settings.fast || null, onboard: state.settings.onboard || null, freport: state.settings.freport || {}, junior: state.settings.junior || {} };
     writeChain = writeChain.then(function () { return B.saveSettings(state.me, st); }).catch(noop);
   }
 
@@ -2374,6 +2389,75 @@ header.hero .me-btn { border-color:#e87328; }
     if (!hk || !state.me || !state.canWrite || !state.settingsLoaded || sabbathSynced === k || !isWeighDay(k)) return;
     sabbathSynced = k; if (!myDoc().done[hk.id]) writeDay(function () { return false; });
   }
+  /* ---------- Family report (each Sabbath) and the weekly junior challenge ---------- */
+  var JUNIOR = ["Take a 15-minute walk together. Each of you names one thing you're thankful for.", "Pray together before bed one night. Let your kid pray first.", "Veterans Day week: make a thank-you card together and give it to a veteran.", "Build something together: a fort, a model, or a Lego build. Let them lead.", "Make a gratitude list together and post it on the fridge.", "Cook one meal together. They pick the dish.", "Memorize Proverbs 27:17 together and say it at dinner.", "Do 20 push-ups together, any style. Count out loud.", "Read the Christmas story together in Luke 2.", "Look back at the year together: name three things God did for your family.", "Pray together for the year ahead and write one goal each.", "Write a note to Mom together and hide it where she'll find it.", "Serve a neighbor together: rake leaves, take out bins, or bring a treat.", "Read one chapter of a Gospel together and ask what Jesus did.", "Play catch or shoot hoops for 20 minutes with no phones.", "Give each kid one job to do with you this week, and do it side by side.", "Have a 10-minute talk: ask what's been hard this week, then just listen.", "Go outside at night and look at the stars. Read Psalm 19:1 together.", "Race each other: sprint, crawl or hop. Laugh more than you win.", "Pick one family rule together and write it on the fridge.", "Plank together. See who can hold it longest.", "Read the Easter story together in Luke 24 and talk about why the empty tomb matters.", "Take turns praying for each person in the family by name.", "Fix or clean something in the house together.", "Let your kid teach you something they're good at.", "Go on a hike or long walk and pray at the halfway point.", "Give away a toy, book or clothes together to someone who needs it.", "Write down three things you love about each other.", "Do a family workout: 3 rounds of 10 squats, 10 jumping jacks and a 20-second plank.", "Ask Grandma or Grandpa a question about their faith together.", "Wash the car or bikes together.", "Memorial Day week: visit a memorial or flag and pray for families who lost someone.", "Memorize Joshua 1:9 together.", "Plan a family movie or game night and let them choose.", "Bake something and deliver it to a friend.", "Go to bed early one night and read together instead of screens.", "Plant something together and water it each day this week.", "Bike ride or scooter together around the neighborhood.", "Tell your kid a story about a time God helped you.", "Make breakfast for Mom together.", "Do 50 jumping jacks together every day for 3 days.", "Draw or write what you each want to be known for.", "Pray over a meal together and let your kid lead it.", "Throw, kick or hit a ball together for 20 minutes.", "Clean your kid's room together. Work, then celebrate.", "Write a letter to a missionary or a soldier together.", "Read Psalm 23 together and talk about what a shepherd does.", "Learn one new skill together: tie a knot, change a tire or check the oil.", "Do a no-screens hour together. Play a board or card game.", "Ask your kid how you can pray for them, then pray right then.", "Walk the dog or take a walk and pick up trash along the way.", "Do wall sits together. Talk until one of you quits."];
+  function juniorFor(n) { return JUNIOR[(n - 1) % JUNIOR.length] || ""; }
+  function juniorDone(n) { return !!(state.settings.junior || {})[n]; }
+  function setJuniorDone(n, v) { var j = Object.assign({}, state.settings.junior || {}); if (v) j[n] = true; else delete j[n]; state.settings.junior = j; saveSettings(); drawAll(); if (state.page === "chal") drawChallengePage(); }
+  function reportWeek() { var end = todayKey(), start = addDays(end, -6), cw = chalWeekFor(end); return { start: start, end: end, cw: cw, key: end }; }
+  function reportStats(rw) {
+    var wkT = taskOfKind("workout"), dvT = devoTask(), o = { planned: 0, workouts: 0, devos: 0, fasts: 0 };
+    for (var i = 0; i < 7; i++) { var k = addDays(rw.start, i), r = recFor(k), wf = workoutFor(k);
+      if (wf && wf.kind === "train") o.planned++;
+      if (wkT && r.done[wkT.id] && !isWeighDay(k)) o.workouts++;
+      if (dvT && r.done[dvT.id]) o.devos++;
+      if (r.fast) o.fasts++; }
+    var fam = !rw.cw.pre && rw.cw.w ? rw.cw.w.challenges.filter(function (c) { return c.slot === "family"; })[0] : null, att = fam ? chalAttempts(fam.id) : [];
+    o.fam = fam; o.famDone = !!att.length; o.famNote = att.length ? (att[att.length - 1].note || "") : "";
+    o.junior = rw.cw.pre ? "" : juniorFor(rw.cw.n); o.juniorDone = !rw.cw.pre && juniorDone(rw.cw.n);
+    return o;
+  }
+  function reportRange(rw) { return shortDate(rw.start) + " \u2013 " + shortDate(rw.end); }
+  function reportText(rw, st, saved) {
+    var L = ["Forged & Sent \u00B7 Family report", "Week of " + reportRange(rw), ""];
+    if (st.fam) { L.push("Family challenge: " + st.fam.name + (st.famDone ? " \u2014 done \u2713" : " \u2014 not done this week")); if (st.famNote) L.push("\u201C" + st.famNote + "\u201D"); }
+    if (st.junior) L.push("With the kids: " + st.junior + (st.juniorDone ? " \u2014 done \u2713" : ""));
+    L.push(""); L.push("This week: " + st.workouts + (st.planned ? " of " + st.planned : "") + " workouts \u00B7 " + st.devos + " of 7 devotionals" + (st.fasts ? " \u00B7 " + st.fasts + (st.fasts === 1 ? " fast day" : " fast days") : ""));
+    if (saved.line) { L.push(""); L.push(saved.line); }
+    if (saved.gideon) { L.push(""); L.push("Coach Gideon: " + saved.gideon); }
+    return L.join("\n");
+  }
+  function openFamilyReport() {
+    var old = $("cdlg"); if (old) old.remove();
+    var rw = reportWeek(), st = reportStats(rw), fr = state.settings.freport || {}, saved = Object.assign({ line: "", gideon: "" }, fr[rw.key] || {});
+    function keep() { var f = Object.assign({}, state.settings.freport || {}); f[rw.key] = { line: saved.line.slice(0, 400), gideon: saved.gideon.slice(0, 800) }; var ks = Object.keys(f).sort(); while (ks.length > 12) delete f[ks.shift()]; state.settings.freport = f; saveSettings(); }
+    var back = el("div", "cdlg"); back.id = "cdlg";
+    var box = el("div", "cdlg-box nw-box fr-box"); box.setAttribute("role", "dialog"); box.setAttribute("aria-modal", "true"); box.setAttribute("aria-labelledby", "fr-t");
+    box.appendChild(el("p", "fr-k", "Family report \u00B7 Week of " + reportRange(rw)));
+    var t = el("h2", null, "Your week, for your family"); t.id = "fr-t"; box.appendChild(t);
+    box.appendChild(el("p", "fnote", "Only you see this until you share it. It leaves out your weight, food, points and posts."));
+    function sec(title) { var d = el("div", "fr-sec"); d.appendChild(el("div", "fr-h", title)); box.appendChild(d); return d; }
+    if (st.fam) { var f1 = sec("Family challenge"); var r1 = el("div", "fr-row"); r1.appendChild(el("b", null, st.fam.name)); r1.appendChild(el("span", "fr-st" + (st.famDone ? " ok" : ""), st.famDone ? "\u2713 Done" : "Not done")); f1.appendChild(r1); if (st.famNote) f1.appendChild(el("p", "fr-note", "\u201C" + st.famNote + "\u201D")); }
+    if (st.junior) { var f2 = sec("With the kids"); var r2 = el("div", "fr-row"); r2.appendChild(el("span", null, st.junior)); var jb = el("button", "mini" + (st.juniorDone ? " on" : ""), st.juniorDone ? "\u2713 Done" : "Mark done"); jb.type = "button"; jb.addEventListener("click", function () { setJuniorDone(rw.cw.n, !st.juniorDone); openFamilyReport(); }); r2.appendChild(jb); f2.appendChild(r2); }
+    var f3 = sec("This week"), gr = el("div", "fr-grid");
+    [[st.workouts + (st.planned ? "/" + st.planned : ""), "Workouts"], [st.devos + "/7", "Devotionals"], [String(st.fasts), st.fasts === 1 ? "Fast day" : "Fast days"]].forEach(function (x) { var c = el("div", "fr-stat"); c.appendChild(el("b", null, x[0])); c.appendChild(el("span", null, x[1])); gr.appendChild(c); });
+    f3.appendChild(gr);
+    var f4 = sec("From you"), ta = el("textarea", "field"); ta.rows = 3; ta.maxLength = 400; ta.value = saved.line; ta.placeholder = "This week I\u2019m grateful for\u2026  /  Pray for me in\u2026"; ta.setAttribute("aria-label", "Your line for the family");
+    ta.addEventListener("input", function () { saved.line = ta.value; }); ta.addEventListener("change", keep); f4.appendChild(ta);
+    var f5 = sec("From Coach Gideon (optional)"), gp = el("p", "fr-gid", saved.gideon || "Coach Gideon can read your week and write a word of encouragement and one area to focus on next week."); if (!saved.gideon) gp.classList.add("empty"); f5.appendChild(gp);
+    var gb = el("button", "btn ghost", saved.gideon ? "Write it again" : "Ask Coach Gideon"); gb.type = "button"; gb.disabled = !B.sample; f5.appendChild(gb);
+    if (!B.sample) f5.appendChild(el("p", "fnote", "Coach Gideon isn\u2019t available here right now."));
+    gb.addEventListener("click", async function () {
+      gb.disabled = true; gb.textContent = "Coach Gideon is writing\u2026";
+      var p = "You are Coach Gideon, a Christian men's coach in the app Forged & Sent. Write to one man about his week, in 3 to 4 short sentences, plain and direct, warm but not soft. First encourage him about something specific he did. Then give him exactly one area to focus on next week, framed as a concrete action. No Bible quotes, no emojis, no hashtags, no greeting or sign-off. Plain text only." +
+        "\nHis week (" + reportRange(rw) + "): workouts " + st.workouts + (st.planned ? " of " + st.planned + " planned" : "") + "; devotionals " + st.devos + " of 7; fasting days " + st.fasts + "." +
+        (st.fam ? " Family challenge \u201C" + st.fam.name + "\u201D (" + st.fam.description + "): " + (st.famDone ? "done" : "not done") + (st.famNote ? "; his note: \u201C" + st.famNote + "\u201D" : "") + "." : "") +
+        (st.junior ? " Kids challenge \u201C" + st.junior + "\u201D: " + (st.juniorDone ? "done" : "not done") + "." : "") +
+        (saved.line ? " What he wrote for his family: \u201C" + saved.line.slice(0, 400) + "\u201D." : "") +
+        ((state.pubProfiles[state.me] || {}).motto ? " His creed: \u201C" + state.pubProfiles[state.me].motto + "\u201D." : "");
+      try { var txt = await B.coach(p); saved.gideon = txt.replace(/\s+/g, " ").slice(0, 800); keep(); openFamilyReport(); }
+      catch (e) { gb.disabled = false; gb.textContent = "Ask Coach Gideon"; gp.textContent = "Coach Gideon couldn\u2019t write right now. Try again in a minute."; }
+    });
+    var row = el("div", "cdlg-btns"), cl = el("button", "btn ghost", "Close"), sh = el("button", "btn", "Share with my family"); cl.type = sh.type = "button";
+    row.appendChild(cl); row.appendChild(sh); box.appendChild(row);
+    function close() { keep(); back.remove(); }
+    cl.addEventListener("click", close); back.addEventListener("click", function (ev) { if (ev.target === back) close(); });
+    back.addEventListener("keydown", function (ev) { if (ev.key === "Escape") { ev.stopPropagation(); close(); } });
+    sh.addEventListener("click", function () { keep(); var txt = reportText(rw, st, saved);
+      if (navigator.share) navigator.share({ title: "Family report", text: txt }).catch(noop);
+      else { try { navigator.clipboard.writeText(txt).then(function () { sh.textContent = "Copied. Paste it in a text."; }); } catch (e) {} } });
+    back.appendChild(box); document.body.appendChild(back);
+  }
   function drawToday() {
     drawFirstOrders(); drawReady(); setTimeout(syncSabbath, 0); setTimeout(syncFast, 0);
     var list = $("tasks"); list.textContent = "";
@@ -2425,6 +2509,12 @@ header.hero .me-btn { border-color:#e87328; }
       b.addEventListener("click", function () { if (isDevo) openDevo(); else if (tk.kind === "photos") openProgress(); else if (tk.kind === "steps") { if (!hAuto) openSteps(); } else if (tk.id === "t_motto") openMotto(tk.id); else if (tk.kind === "weigh" && !hAuto) openWeigh(); else if (!auto) toggle(tk.id); });
       li.appendChild(b); list.appendChild(li);
     });
+    if (isWeighDay(todayKey()) && state.me) {
+      var fli = el("li", "item fr-li"), fb = el("button", "hit fr-open"); fb.type = "button";
+      fb.appendChild(el("span", "fr-ic", "\u2709")); var ftx = el("span", "txt"); ftx.appendChild(el("span", "name", "Family report"));
+      ftx.appendChild(el("span", "sub", ((state.settings.freport || {})[todayKey()] ? "Ready. Tap to review and share" : "Your week, ready to share with your family"))); fb.appendChild(ftx); fb.appendChild(el("span", "chev", "\u203A"));
+      fb.addEventListener("click", openFamilyReport); fli.appendChild(fb); list.appendChild(fli);
+    }
     var wt = taskOfKind("weigh");
     if (wt && !isWeighDay(todayKey())) {
       var nx = 0; while (nx < 7 && !isWeighDay(addDays(todayKey(), nx))) nx++;
@@ -4820,6 +4910,13 @@ header.hero .me-btn { border-color:#e87328; }
     req.appendChild(tbl);
     if (c.scripture) req.appendChild(el("p", "ch-scr", c.scripture));
     body.appendChild(req);
+    if (c.scoredBy === "completion" && juniorFor(w.week)) {
+      var jr = el("section", "ch-sec"); jr.appendChild(el("h2", "label-caps", "With the kids this week"));
+      jr.appendChild(el("p", null, juniorFor(w.week)));
+      var jd = juniorDone(w.week), jbt = el("button", "btn ghost" + (jd ? " on" : ""), jd ? "\u2713 We did it" : "Mark done"); jbt.type = "button"; jbt.disabled = !state.me || !state.canWrite;
+      jbt.addEventListener("click", function () { setJuniorDone(w.week, !juniorDone(w.week)); }); jr.appendChild(jbt);
+      jr.appendChild(el("p", "fnote", "A simple challenge to do with your kids. No points. It shows on your Family report.")); body.appendChild(jr);
+    }
     // Versions
     var isFam = c.scoredBy === "completion";
     var ver = el("section", "ch-sec"); ver.appendChild(el("h2", "label-caps", isFam ? "What to do" : "Ways to complete it"));
@@ -7520,7 +7617,7 @@ header.hero .me-btn { border-color:#e87328; }
         drawToday(); onbMaybeStart();
       });
       B.watchSettings(state.me, function (st) {
-        state.settings = { blocked: (st && st.blocked) || {}, targets: (st && st.targets) || null, body: (st && st.body) || null, reminders: (st && st.reminders) || null, health: (st && st.health) || null, plan: (st && st.plan) || null, theme: (st && st.theme) || null, autofill: (st && st.autofill) || null, favs: (st && Array.isArray(st.favs)) ? st.favs.slice(0, 60) : [], myMeals: (st && Array.isArray(st.myMeals)) ? st.myMeals.slice(0, 30) : [], preps: (st && Array.isArray(st.preps)) ? st.preps.slice(0, 40) : [], swapAlways: (st && st.swapAlways && typeof st.swapAlways === "object") ? st.swapAlways : {}, dayMoves: normMoves(st && st.dayMoves), fast: normFast(st && st.fast), onboard: (st && st.onboard && typeof st.onboard === "object") ? st.onboard : null }; if (state.settings.theme) applyTheme(state.settings.theme, false); state.settingsLoaded = true; drawAll(); drawFeed(); refreshHealth(); onbMaybeStart();
+        state.settings = { blocked: (st && st.blocked) || {}, targets: (st && st.targets) || null, body: (st && st.body) || null, reminders: (st && st.reminders) || null, health: (st && st.health) || null, plan: (st && st.plan) || null, theme: (st && st.theme) || null, autofill: (st && st.autofill) || null, favs: (st && Array.isArray(st.favs)) ? st.favs.slice(0, 60) : [], myMeals: (st && Array.isArray(st.myMeals)) ? st.myMeals.slice(0, 30) : [], preps: (st && Array.isArray(st.preps)) ? st.preps.slice(0, 40) : [], swapAlways: (st && st.swapAlways && typeof st.swapAlways === "object") ? st.swapAlways : {}, dayMoves: normMoves(st && st.dayMoves), fast: normFast(st && st.fast), onboard: (st && st.onboard && typeof st.onboard === "object") ? st.onboard : null, freport: (st && st.freport && typeof st.freport === "object") ? st.freport : {}, junior: (st && st.junior && typeof st.junior === "object") ? st.junior : {} }; if (state.settings.theme) applyTheme(state.settings.theme, false); state.settingsLoaded = true; drawAll(); drawFeed(); refreshHealth(); onbMaybeStart();
       });
     }
     B.watchPosts(function (rows) { state.posts = rows; drawFeed(); loadProfiles(); drawTagBells(); });
