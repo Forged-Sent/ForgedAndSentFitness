@@ -1114,6 +1114,22 @@ header.hero .me-btn { border-color:#e87328; }
 .howto-dl { margin: 0; display: grid; grid-template-columns: auto 1fr; gap: 6px 12px; font-size: 14.5px; line-height: 1.45; }
 .howto-dl dt { font-family: var(--f-label); font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--ink); white-space: nowrap; }
 .howto-dl dd { margin: 0; color: var(--muted); min-width: 0; }
+.coach-big { margin: 14px 0 6px; padding: 0 12px 4px; border: 1px solid var(--line); border-left: 3px solid var(--accent); border-radius: var(--radius, 8px); background: var(--surface); }
+.coach-big > summary { display: flex; align-items: center; gap: 10px; padding: 12px 0 !important; color: var(--ink) !important; }
+.coach-big > summary::before { content: none !important; }
+.coach-big > summary::after { content: "+"; margin-left: auto; color: var(--accent); font-size: 22px; font-family: var(--f-label); }
+.coach-big[open] > summary::after { content: "\2212"; }
+.coach-big .cb-t { display: grid; gap: 1px; }
+.coach-big .cb-t b { font-family: var(--f-label); font-weight: 800; font-size: 19px; letter-spacing: .04em; text-transform: uppercase; color: var(--ink); }
+.coach-big .cb-t small { font-family: var(--f-body); font-size: 12.5px; letter-spacing: 0; text-transform: none; color: var(--muted); font-weight: 400; }
+.coach-big p { font-size: 15.5px; }
+.ld-sub { display: block; font-family: var(--f-body); font-size: 13px; font-weight: 400; letter-spacing: 0; text-transform: none; color: var(--muted); margin: 2px 0 6px; }
+.ld-chips { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)) ; gap: 6px; align-items: center; }
+.ld-chip { min-width: 0; padding: 10px 0; min-height: 0; border: 1px solid var(--line); border-radius: 8px; background: var(--surface-2); color: var(--ink); font-family: var(--f-label); font-weight: 700; font-size: 14px; letter-spacing: .04em; text-transform: uppercase; cursor: pointer; }
+.ld-chip.on { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.ld-chip.sab { opacity: .45; cursor: default; text-decoration: line-through; }
+.ld-count { grid-column: 1 / -1; font-size: 13px; color: var(--muted); }
+.ld-count.ok { color: var(--accent); }
 .coach-sec { margin-top: 12px; border-top: 1px solid var(--line); padding-top: 6px; }
 .coach-sec p b { color: var(--ink); font-weight: 600; }
 .coach-sec p { margin: 6px 0; font-size: 14.5px; line-height: 1.5; color: var(--muted); }
@@ -1299,6 +1315,7 @@ header.hero .me-btn { border-color:#e87328; }
         <div class="pinfo" id="plan-info" aria-live="polite"></div>
         <label class="flabel">Equipment<select class="field" id="plan-equip"></select></label>
         <label class="flabel">Your Sabbath day<select class="field" id="plan-rest"></select></label>
+        <div class="flabel">Your lifting days<span class="ld-sub">Pick 3. The days between are recovery.</span><div class="ld-chips" id="plan-lifts" role="group" aria-label="Lifting days"></div></div>
         <label class="pcheck"><input type="checkbox" id="plan-fourth"><span>Add the optional 4th training day</span></label>
         <p class="note" id="plan-start"></p>
         <div class="tools"><button class="btn" type="submit" id="plan-save">Start plan</button><button class="btn ghost" type="button" id="plan-cancel">Cancel</button></div>
@@ -2796,9 +2813,34 @@ header.hero .me-btn { border-color:#e87328; }
     }
     back.appendChild(box); document.body.appendChild(back); no.focus();
   }
+  /* ---------- Lifting days ----------
+     A plan week runs from the day after the Sabbath to the Sabbath. Each week holds the same 7 plan days
+     (A, recovery, B, recovery, C, optional, Sabbath). He picks which 3 weekdays get A, B and C; the other days take
+     recovery, recovery and the optional day in week order. A change applies from the next plan week, so the week
+     he is in keeps the days he already locked in (Move day is for shifting this week). */
+  function defaultLiftDays(rest) { return [1, 3, 5].map(function (o) { return (rest + o) % 7; }); }
+  function normLiftDays(a, rest) {
+    var o = []; (Array.isArray(a) ? a : []).forEach(function (d) { d = Number(d); if (d >= 0 && d <= 6 && d !== rest && o.indexOf(d) < 0) o.push(d); });
+    return o.length === 3 ? o.sort(function (x, y) { return ((x - rest + 6) % 7) - ((y - rest + 6) % 7); }) : defaultLiftDays(rest);
+  }
+  function planWeekStart(p, key) { var d = dayDiff(p.start, key); return addDays(p.start, Math.floor(d / 7) * 7); }
+  function liftDaysOn(p, key) {
+    var arr = Array.isArray(p.lifts) ? p.lifts : [], ws = planWeekStart(p, key), cur = null;
+    arr.forEach(function (x) { if (x && x.from <= ws && (!cur || x.from >= cur.from)) cur = x; });
+    return normLiftDays(cur ? cur.days : null, p.rest);
+  }
+  function planIndex(p, key) {
+    var d = dayDiff(p.start, key); if (d < 0) return d;
+    var wi = Math.floor(d / 7), off = d - wi * 7, dow = (p.rest + 1 + off) % 7;
+    if (off === 6) return wi * 7 + 6;
+    var lifts = liftDaysOn(p, key), li = lifts.indexOf(dow), others = [];
+    if (li >= 0) return wi * 7 + [0, 2, 4][li];
+    for (var k = 1; k <= 6; k++) { var dd = (p.rest + k) % 7; if (lifts.indexOf(dd) < 0) others.push(dd); }
+    return wi * 7 + [1, 3, 5][others.indexOf(dow)];
+  }
   function workoutFor(key) {
     var p = planCfg(); if (!p) return null;
-    var i = dayDiff(p.start, planSrc(key)), list = PLAN.W[p.program];
+    var i = planIndex(p, planSrc(key)), list = PLAN.W[p.program];
     if (i < 0) return { kind: "before" };
     if (i >= list.length) return { kind: "over" };
     var w = list[i], th = PLAN.T[p.program + "|" + w.templateDay] || {};
@@ -2839,14 +2881,36 @@ header.hero .me-btn { border-color:#e87328; }
       box.appendChild(b);
     });
     renderProgramInfo($("plan-info"), planDraft.program, planDraft.equip);
+    drawLiftChips($("plan-lifts"), planDraft, function () { drawPlanForm(); });
     var restart = planRestarts();
-    $("plan-start").textContent = restart ? "Day 1 starts " + longDate(planStartFor(planDraft.rest)) + ". Your Sabbath is " + DAYN[planDraft.rest] + ", and the plan builds around it." : "Changes keep your current start date.";
+    var p0 = planCfg(), liftNote = "";
+    if (!restart && p0 && planDraft.lifts.length === 3) {
+      var nowDays = liftDaysOn(p0, todayKey()).join(","), want = normLiftDays(planDraft.lifts, planDraft.rest).join(",");
+      if (nowDays !== want) liftNote = " New lifting days start " + longDate(nextPlanWeek(p0)).split(",").slice(0, 2).join(",") + ". This week stays as it is; use Move day to shift it.";
+    }
+    $("plan-start").textContent = (restart ? "Day 1 starts " + longDate(planStartFor(planDraft.rest)) + ". Your Sabbath is " + DAYN[planDraft.rest] + ", and the plan builds around it." : "Changes keep your current start date.") + liftNote;
     $("plan-save").textContent = planCfg() ? "Save plan" : "Start plan";
-    $("plan-save").disabled = !state.me || !state.canWrite;
+    $("plan-save").disabled = !state.me || !state.canWrite || planDraft.lifts.length !== 3;
+  }
+  function nextPlanWeek(p) { var t = todayKey(); return t < p.start ? p.start : addDays(planWeekStart(p, t), 7); }
+  function liftsLabel(days) { return days.map(function (d) { return DAYN[d].slice(0, 3); }).join(", "); }
+  // Weekday chips: tap to pick exactly 3 lifting days. The Sabbath can't be one.
+  function drawLiftChips(box, draft, onChange) {
+    box.textContent = "";
+    for (var k = 1; k <= 7; k++) (function (d) {
+      var isS = d === +draft.rest, on = draft.lifts.indexOf(d) >= 0, b = el("button", "ld-chip" + (on ? " on" : "") + (isS ? " sab" : ""), DAYN[d].slice(0, 3)); b.type = "button";
+      b.setAttribute("aria-pressed", String(on)); b.disabled = isS; if (isS) b.title = "Sabbath";
+      b.addEventListener("click", function () {
+        var i = draft.lifts.indexOf(d); if (i >= 0) draft.lifts.splice(i, 1); else { if (draft.lifts.length >= 3) draft.lifts.shift(); draft.lifts.push(d); }
+        onChange();
+      });
+      box.appendChild(b);
+    })((+draft.rest + k) % 7);
+    var n = draft.lifts.length; box.appendChild(el("span", "ld-count" + (n === 3 ? " ok" : ""), n === 3 ? "\u2713 3 days" : "Pick " + (3 - n) + " more"));
   }
   function openPlanEdit() {
     var p = planCfg();
-    planDraft = p ? { program: p.program, equip: p.equip, rest: p.rest, fourth: !!p.fourth } : { program: "Forged", equip: PLAN.META.equipmentSetups[0], rest: 0, fourth: false };
+    planDraft = p ? { program: p.program, equip: p.equip, rest: p.rest, fourth: !!p.fourth, lifts: liftDaysOn(p, nextPlanWeek(p)) } : { program: "Forged", equip: PLAN.META.equipmentSetups[0], rest: 0, fourth: false, lifts: defaultLiftDays(0) };
     $("plan-equip").value = planDraft.equip; $("plan-rest").value = String(planDraft.rest); $("plan-fourth").checked = planDraft.fourth;
     state.planEdit = true; drawPlan();
   }
@@ -2858,7 +2922,8 @@ header.hero .me-btn { border-color:#e87328; }
       var row = el("div", "psum");
       row.appendChild(el("span", "pn", p.program + " \u00B7 " + PLAN.META.programs[p.program]));
       var i = dayDiff(p.start, todayKey());
-      row.appendChild(el("span", "sub", p.equip + " \u00B7 Sabbath " + DAYN[p.rest] + (p.fourth ? " \u00B7 4th day on" : "")));
+      row.appendChild(el("span", "sub", p.equip + " \u00B7 Lifting " + liftsLabel(liftDaysOn(p, todayKey())) + " \u00B7 Sabbath " + DAYN[p.rest] + (p.fourth ? " \u00B7 4th day on" : "")));
+      var nxt = liftDaysOn(p, nextPlanWeek(p)); if (nxt.join(",") !== liftDaysOn(p, todayKey()).join(",")) row.appendChild(el("span", "sub", "From " + longDate(nextPlanWeek(p)).split(",").slice(0, 2).join(",") + ": lifting " + liftsLabel(nxt)));
       row.appendChild(el("span", "sub", i < 0 ? "Day 1 starts " + longDate(p.start) : i >= PLAN.W[p.program].length ? "Plan complete" : "Today is day " + (i + 1) + " of " + PLAN.W[p.program].length));
       var ab = el("button", "btn ghost", state.planAbout ? "Hide plan details" : "About this plan"); ab.type = "button"; ab.setAttribute("aria-expanded", String(!!state.planAbout));
       ab.addEventListener("click", function () { state.planAbout = !state.planAbout; drawPlan(); }); row.appendChild(ab);
@@ -2870,14 +2935,26 @@ header.hero .me-btn { border-color:#e87328; }
   function submitPlan(ev) {
     ev.preventDefault(); if (!state.me || !state.canWrite) return;
     var p = planCfg(), d = planDraft, restart = planRestarts();
-    state.settings.plan = { program: d.program, equip: d.equip, rest: d.rest, fourth: !!d.fourth, start: restart ? planStartFor(d.rest) : p.start };
+    if (d.lifts.length !== 3) return;
+    var np = { program: d.program, equip: d.equip, rest: d.rest, fourth: !!d.fourth, start: restart ? planStartFor(d.rest) : p.start }, nd = normLiftDays(d.lifts, d.rest);
+    if (restart || !p) np.lifts = [{ from: np.start, days: nd }];
+    else {
+      // Keep every week so far as it was; the new days take over from the next plan week.
+      var nw = nextPlanWeek(p), keep = (Array.isArray(p.lifts) ? p.lifts : [{ from: p.start, days: liftDaysOn(p, todayKey()) }]).filter(function (x) { return x && x.from < nw; });
+      if (!keep.length) keep = [{ from: p.start, days: liftDaysOn(p, todayKey()) }];
+      if (keep[keep.length - 1].days.join(",") !== nd.join(",")) keep.push({ from: nw, days: nd });
+      np.lifts = keep;
+    }
+    state.settings.plan = np;
     if (restart || !p) state.settings.dayMoves = {};
     state.planEdit = false; state.trainDay = state.settings.plan.start > todayKey() ? state.settings.plan.start : todayKey(); saveSettings(); ensureStrip();
   }
   // Long coaching text folds away so the workout stays easy to scan; short text shows as before.
-  function coachSection(box, label, text, fold) {
+  function coachSection(box, label, text, fold, big) {
     if (!text) return; if (String(text).length < 220 && !fold) { wkSection(box, label, text); return; }
-    var d = el("details", "coach-sec"); d.appendChild(el("summary", null, label));
+    var d = el("details", "coach-sec" + (big ? " coach-big" : "")), sm = el("summary");
+    if (big) { var bg = el("span", "vd-badge"); bg.innerHTML = GIDEON_BADGE; sm.appendChild(bg); var tt = el("span", "cb-t"); tt.appendChild(el("b", null, label)); tt.appendChild(el("small", null, "Read before you start")); sm.appendChild(tt); } else sm.textContent = label;
+    d.appendChild(sm);
     // New paragraph at each topic the coach moves to: a "Label:" or "Question?" lead, or rest, progress, deload and form talk.
     var starts = /^(\w[\w ]{0,22}[?:]|Rest \d|To progress|Every fourth|Form beats|Choose a weight|Sleep \d|If something hurts)/, paras = [], cur = [];
     String(text).split(/(?<=[.?!])\s+/).forEach(function (sn) { if (cur.length && starts.test(sn)) { paras.push(cur.join(" ")); cur = []; } cur.push(sn); });
@@ -2909,6 +2986,7 @@ header.hero .me-btn { border-color:#e87328; }
       if (wf.kind === "train") {
         var ob = chevRow("wk-open", wf.w.title, wf.w.sessionType + (wf.w.minutes ? " \u00B7 " + wf.w.minutes + " min" : "") + " \u00B7 Tap to open", "\u203A");
         ob.addEventListener("click", function () { openWorkout(sel); }); box.appendChild(ob);
+        coachSection(box, COACH_LABEL + "\u2019s Workout Guidance", wf.th && wf.th.notes, true, true);
       } else {
         var msg0 = wf.kind === "rest" ? "Sabbath. " + wf.w.exercises[0][1] : wf.kind === "off" ? "Rest day. Turn on the 4th training day in your plan to see an optional workout here." : wf.kind === "before" ? "Your plan starts " + longDate(p.start) + "." : "You finished all 365 days. Pick a new plan below to keep going.";
         box.appendChild(el("p", "note", msg0));
@@ -3897,7 +3975,7 @@ header.hero .me-btn { border-color:#e87328; }
     var editing = !!wk.editing && done, locked = done && !editing && wk.loaded, live = editing || (isToday && started && !done);
     body.appendChild(el("div", "wk-meta", S ? "Your own workout" : "Week " + w.week + " \u00B7 Day " + w.day + (w.minutes ? " \u00B7 " + w.minutes + " min" : "")));
     body.appendChild(el("h1", "pg", w.title));
-    if (!S && !locked) coachSection(body, COACH_LABEL + "\u2019s notes", th.notes, true);
+    if (!S && !locked) coachSection(body, COACH_LABEL + "\u2019s Workout Guidance", th.notes, true, true);
     if (locked) { drawLockedSummary(body, { key: key, rec: rec, w: w, S: S, off: off }); return; }
     if (editing) {
       var eb = el("div", "lk-edit"), et = el("span"); et.appendChild(el("b", null, "Editing")); et.appendChild(document.createTextNode("This workout was finished. Lock it when you\u2019re done."));
@@ -5571,7 +5649,8 @@ header.hero .me-btn { border-color:#e87328; }
       "Protein bonus: hit or beat your protein target while your calories are in that window for +2 bonus points."] },
     train: { t: "Train", why: "Your training plan, today's workout and your progress over time.", how: [
       "This week's challenges: three buttons at the top for the Family, Iron and Endure challenges. Tap one to see what it is, then submit your result there.",
-      "Pick your program, equipment and Sabbath day in Workout plan.",
+      "Pick your program, equipment, Sabbath day and your 3 lifting days in Workout plan. New lifting days start the next week; the week you\u2019re in stays as it is (use Move day to shift it).",
+      "Coach Gideon\u2019s Workout Guidance sits under each day\u2019s workout and at the top of the workout. Read it before you start.",
       "Tap a day on the calendar to see its workout, then open it to start.",
       "Use + to add your own separate workout to any day.",
       "Schedule got wonky? Tap a day, then Move day, and pick another day this week to trade with. Your Sabbath stays put, and days you've already logged can't move. Reset week puts it back.",
@@ -5699,7 +5778,7 @@ header.hero .me-btn { border-color:#e87328; }
     var b = state.settings.body || {}, p = planCfg(), pp = state.pubProfiles[state.me] || {};
     ONB = { i: 0, tip: "", replay: !!replay, msg: "", d: {
       motto: pp.motto || "", handle: pp.handle || suggestHandle(), bday: validBday(b.bday) ? b.bday : "", wt: b.wt || "", ft: b.ft || "", inch: b.inch != null && b.inch !== "" ? b.inch : "", act: String(b.act || 1.375),
-      goal: b.goal || "lose", pace: String(b.pace || 1), gwt: b.gwt || "", program: p ? p.program : "Forged", equip: p ? p.equip : PLAN.META.equipmentSetups[0], rest: p ? p.rest : 0,
+      goal: b.goal || "lose", pace: String(b.pace || 1), gwt: b.gwt || "", program: p ? p.program : "Forged", equip: p ? p.equip : PLAN.META.equipmentSetups[0], rest: p ? p.rest : 0, lifts: p ? liftDaysOn(p, todayKey()) : defaultLiftDays(0),
       injuries: Array.isArray(b.injuries) ? b.injuries.slice() : [], injuryNote: b.injuryNote || "", three: CUSTOM.map(function (k) { return state.habits[k] || ""; }) }, done: {} };
     drawOnb();
   }
@@ -5726,6 +5805,9 @@ header.hero .me-btn { border-color:#e87328; }
       state.settings.body = onbBodyMerged(); state.settings.body.injuries = d.injuries.slice(); state.settings.body.injuryNote = String(d.injuryNote || "").slice(0, 300);
       var p = planCfg(), np = { program: d.program, equip: d.equip, rest: +d.rest, fourth: !!(p && p.fourth) };
       np.start = p && p.rest === np.rest ? p.start : planStartFor(np.rest);
+      var ldays = normLiftDays(d.lifts, np.rest);
+      if (p && p.start === np.start && Array.isArray(p.lifts)) { var nw = nextPlanWeek(p), keep = p.lifts.filter(function (x) { return x && x.from < nw; }); if (!keep.length || keep[keep.length - 1].days.join(",") !== ldays.join(",")) keep.push({ from: keep.length ? nw : np.start, days: ldays }); np.lifts = keep; }
+      else np.lifts = [{ from: np.start, days: ldays }];
       state.settings.plan = np; saveSettings(); ensureStrip(); ONB.done.training = true;
     }
     if (k === "three") { var slots = {}; CUSTOM.forEach(function (c, i) { var t = String(d.three[i] || "").trim().slice(0, 60); if (t) slots[c] = t; }); saveHabits(slots); ONB.done.three = Object.keys(slots).length > 0; }
@@ -5870,6 +5952,9 @@ header.hero .me-btn { border-color:#e87328; }
       var ec = el("div", "onb-chips"); PLAN.META.equipmentSetups.forEach(function (e) { var b = el("button", "onb-chip" + (d.equip === e ? " on" : ""), e); b.type = "button"; b.setAttribute("aria-pressed", String(d.equip === e)); b.addEventListener("click", function () { d.equip = e; drawOnb(); }); ec.appendChild(b); });
       ew.appendChild(ec); body.appendChild(ew);
       onbField(body, "Your Sabbath day", "rest", "rest", "select", { options: DAYN.map(function (n2, i) { return [String(i), n2]; }) });
+      var lw = el("div", "onb-f"); lw.appendChild(el("span", "onb-lbl", "Your lifting days"));
+      lw.appendChild(el("p", "onb-note", "Pick the 3 days you\u2019ll lift, like Monday, Wednesday and Friday. The days between are recovery. You can pick new days for a future week in Train \u2192 Workout plan; to shift a day in the week you\u2019re in, use Move day."));
+      var lc = el("div", "ld-chips"); d.lifts = (d.lifts || []).filter(function (x) { return x !== +d.rest; }); drawLiftChips(lc, { rest: +d.rest, lifts: d.lifts }, function () { drawOnb(); }); lw.appendChild(lc); body.appendChild(lw);
       var il = el("div", "onb-f"); il.appendChild(el("span", "onb-lbl", "Permanent injuries or limitations (optional)"));
       il.appendChild(el("p", "onb-note", "Select affected areas. Existing alternatives may be suggested automatically where available; they are not a medical assessment. Stop if pain increases and ask a qualified clinician about your limitations."));
       var ic = el("div", "onb-chips"); ["Knee", "Hip", "Low Back", "Shoulder", "Elbow or Wrist"].forEach(function (area) { var b = el("button", "onb-chip" + (d.injuries.indexOf(area) >= 0 ? " on" : ""), area); b.type = "button"; b.setAttribute("aria-pressed", String(d.injuries.indexOf(area) >= 0)); b.addEventListener("click", function () { var i=d.injuries.indexOf(area); if(i>=0)d.injuries.splice(i,1); else d.injuries.push(area); drawOnb(); }); ic.appendChild(b); }); il.appendChild(ic);
@@ -6923,7 +7008,7 @@ header.hero .me-btn { border-color:#e87328; }
     PLAN.META.equipmentSetups.forEach(function (n) { var o = el("option", null, n); o.value = n; $("plan-equip").appendChild(o); });
     DAYN.forEach(function (n, i) { var o = el("option", null, n); o.value = String(i); $("plan-rest").appendChild(o); });
     $("plan-equip").addEventListener("change", function () { planDraft.equip = $("plan-equip").value; drawPlanForm(); });
-    $("plan-rest").addEventListener("change", function () { planDraft.rest = +$("plan-rest").value; drawPlanForm(); });
+    $("plan-rest").addEventListener("change", function () { planDraft.rest = +$("plan-rest").value; planDraft.lifts = planDraft.lifts.filter(function (d) { return d !== planDraft.rest; }); drawPlanForm(); });
     $("plan-fourth").addEventListener("change", function () { planDraft.fourth = $("plan-fourth").checked; });
     $("plan-cancel").addEventListener("click", function () { state.planEdit = false; drawPlan(); });
     $("plan-form").addEventListener("submit", submitPlan);
