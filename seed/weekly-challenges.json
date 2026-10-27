@@ -3,8 +3,8 @@
   "version": 1,
   "source": "Google Sheet: Forged and Sent Weekly Challenges",
   "assumptions": {
-    "week1Start": "2026-11-02",
-    "note": "Veterans Day lands in Week 2 and Memorial Day in Week 31 when Week 1 starts Monday Nov 2 2026. Move holiday weeks if the start date changes."
+    "week1Start": "2026-10-26",
+    "note": "Week 1 starts Monday Oct 26 2026 (moved up from Nov 2). Veterans Day lands in Week 3 and Memorial Day in Week 32, so the holiday challenge sets were swapped into those weeks. Move holiday weeks if the start date changes."
   },
   "slots": [
     {
@@ -244,75 +244,6 @@
       "week": 2,
       "season": 1,
       "gauntlet": false,
-      "holiday": "veterans_day",
-      "challenges": [
-        {
-          "slot": "family",
-          "name": "Honor a Veteran",
-          "description": "Veterans Day week (Nov 11). Thank a veteran in person with your family; ask to hear part of their story and give them a hand-written card.",
-          "target": 1,
-          "unit": "done",
-          "points": 50,
-          "scoredBy": "completion",
-          "equipment": "None",
-          "scaleDown": "Send a card or make a call",
-          "scripture": "John 15:13",
-          "record": "Mark complete with a short note or photo",
-          "alternate": null,
-          "id": "w02-family"
-        },
-        {
-          "slot": "iron",
-          "name": "Eleven-Eleven",
-          "description": "Veterans Day week. Complete 5 rounds of 11 squats; 11 push-ups and 11 sit-ups (165 reps) in honor of those who served.",
-          "target": 165,
-          "unit": "reps",
-          "points": 100,
-          "scoredBy": "fastest_time",
-          "equipment": "None",
-          "scaleDown": "99 reps (3 rounds)",
-          "record": "Total reps and total time",
-          "alternate": {
-            "description": "5 rounds of 11 box squats; 11 incline push-ups and 11 dead bugs (165 reps).",
-            "target": 165,
-            "unit": "reps",
-            "helpsWith": [
-              "Knee",
-              "Wrist",
-              "Low back"
-            ]
-          },
-          "id": "w02-iron"
-        },
-        {
-          "slot": "endure",
-          "name": "Ruck for a Vet",
-          "description": "Veterans Day week. Cover 3 miles carrying a 10 lb pack and dedicate it to a veteran you know by name; text him afterward.",
-          "target": 3,
-          "unit": "mi",
-          "points": 100,
-          "scoredBy": "fastest_time",
-          "equipment": "Backpack",
-          "scaleDown": "2 miles with no pack",
-          "record": "Distance and total time",
-          "alternate": {
-            "description": "Cover 3 miles on flat ground with no pack.",
-            "target": 3,
-            "unit": "mi",
-            "helpsWith": [
-              "Low back",
-              "Shoulder",
-              "Hip"
-            ]
-          },
-          "id": "w02-endure"
-        }
-      ]
-    },
-    {
-      "week": 3,
-      "season": 1,
-      "gauntlet": false,
       "holiday": null,
       "challenges": [
         {
@@ -376,6 +307,75 @@
             ]
           },
           "id": "w03-endure"
+        }
+      ]
+    },
+    {
+      "week": 3,
+      "season": 1,
+      "gauntlet": false,
+      "holiday": "veterans_day",
+      "challenges": [
+        {
+          "slot": "family",
+          "name": "Honor a Veteran",
+          "description": "Veterans Day week (Nov 11). Thank a veteran in person with your family; ask to hear part of their story and give them a hand-written card.",
+          "target": 1,
+          "unit": "done",
+          "points": 50,
+          "scoredBy": "completion",
+          "equipment": "None",
+          "scaleDown": "Send a card or make a call",
+          "scripture": "John 15:13",
+          "record": "Mark complete with a short note or photo",
+          "alternate": null,
+          "id": "w02-family"
+        },
+        {
+          "slot": "iron",
+          "name": "Eleven-Eleven",
+          "description": "Veterans Day week. Complete 5 rounds of 11 squats; 11 push-ups and 11 sit-ups (165 reps) in honor of those who served.",
+          "target": 165,
+          "unit": "reps",
+          "points": 100,
+          "scoredBy": "fastest_time",
+          "equipment": "None",
+          "scaleDown": "99 reps (3 rounds)",
+          "record": "Total reps and total time",
+          "alternate": {
+            "description": "5 rounds of 11 box squats; 11 incline push-ups and 11 dead bugs (165 reps).",
+            "target": 165,
+            "unit": "reps",
+            "helpsWith": [
+              "Knee",
+              "Wrist",
+              "Low back"
+            ]
+          },
+          "id": "w02-iron"
+        },
+        {
+          "slot": "endure",
+          "name": "Ruck for a Vet",
+          "description": "Veterans Day week. Cover 3 miles carrying a 10 lb pack and dedicate it to a veteran you know by name; text him afterward.",
+          "target": 3,
+          "unit": "mi",
+          "points": 100,
+          "scoredBy": "fastest_time",
+          "equipment": "Backpack",
+          "scaleDown": "2 miles with no pack",
+          "record": "Distance and total time",
+          "alternate": {
+            "description": "Cover 3 miles on flat ground with no pack.",
+            "target": 3,
+            "unit": "mi",
+            "helpsWith": [
+              "Low back",
+              "Shoulder",
+              "Hip"
+            ]
+          },
+          "id": "w02-endure"
         }
       ]
     },
@@ -2253,6 +2253,75 @@
       "week": 31,
       "season": 3,
       "gauntlet": false,
+      "holiday": null,
+      "challenges": [
+        {
+          "slot": "family",
+          "name": "Open Books",
+          "description": "Review your finances with your wife and choose one family gift or act of generosity together.",
+          "target": 1,
+          "unit": "done",
+          "points": 50,
+          "scoredBy": "completion",
+          "equipment": "None",
+          "scaleDown": "Review one month",
+          "scripture": "2 Corinthians 9:7",
+          "record": "Mark complete with a short note or photo",
+          "alternate": null,
+          "id": "w32-family"
+        },
+        {
+          "slot": "iron",
+          "name": "Heavy Carry 400",
+          "description": "Carry two 35 lb weights for 400 yards total.",
+          "target": 400,
+          "unit": "yd",
+          "points": 100,
+          "scoredBy": "fastest_time",
+          "equipment": "Heavy weights",
+          "scaleDown": "200 yd",
+          "record": "Distance and total time",
+          "alternate": {
+            "description": "Carry a backpack with about 20 lb for 400 yards.",
+            "target": 400,
+            "unit": "yd",
+            "helpsWith": [
+              "Wrist",
+              "Grip",
+              "Low back"
+            ]
+          },
+          "id": "w32-iron"
+        },
+        {
+          "slot": "endure",
+          "name": "Stair Climb 50",
+          "description": "Climb 50 flights of stairs.",
+          "target": 50,
+          "unit": "flights",
+          "points": 100,
+          "scoredBy": "fastest_time",
+          "equipment": "Stairs",
+          "scaleDown": "25 flights",
+          "record": "Flights and total time",
+          "alternate": {
+            "description": "Cover as much distance as possible in 30 minutes walking on flat ground.",
+            "target": 30,
+            "unit": "min",
+            "helpsWith": [
+              "Knee",
+              "Hip",
+              "Ankle"
+            ]
+          },
+          "id": "w32-endure"
+        }
+      ]
+    },
+    {
+      "week": 32,
+      "season": 3,
+      "gauntlet": false,
       "holiday": "memorial_day",
       "challenges": [
         {
@@ -2325,75 +2394,6 @@
             ]
           },
           "id": "w31-endure"
-        }
-      ]
-    },
-    {
-      "week": 32,
-      "season": 3,
-      "gauntlet": false,
-      "holiday": null,
-      "challenges": [
-        {
-          "slot": "family",
-          "name": "Open Books",
-          "description": "Review your finances with your wife and choose one family gift or act of generosity together.",
-          "target": 1,
-          "unit": "done",
-          "points": 50,
-          "scoredBy": "completion",
-          "equipment": "None",
-          "scaleDown": "Review one month",
-          "scripture": "2 Corinthians 9:7",
-          "record": "Mark complete with a short note or photo",
-          "alternate": null,
-          "id": "w32-family"
-        },
-        {
-          "slot": "iron",
-          "name": "Heavy Carry 400",
-          "description": "Carry two 35 lb weights for 400 yards total.",
-          "target": 400,
-          "unit": "yd",
-          "points": 100,
-          "scoredBy": "fastest_time",
-          "equipment": "Heavy weights",
-          "scaleDown": "200 yd",
-          "record": "Distance and total time",
-          "alternate": {
-            "description": "Carry a backpack with about 20 lb for 400 yards.",
-            "target": 400,
-            "unit": "yd",
-            "helpsWith": [
-              "Wrist",
-              "Grip",
-              "Low back"
-            ]
-          },
-          "id": "w32-iron"
-        },
-        {
-          "slot": "endure",
-          "name": "Stair Climb 50",
-          "description": "Climb 50 flights of stairs.",
-          "target": 50,
-          "unit": "flights",
-          "points": 100,
-          "scoredBy": "fastest_time",
-          "equipment": "Stairs",
-          "scaleDown": "25 flights",
-          "record": "Flights and total time",
-          "alternate": {
-            "description": "Cover as much distance as possible in 30 minutes walking on flat ground.",
-            "target": 30,
-            "unit": "min",
-            "helpsWith": [
-              "Knee",
-              "Hip",
-              "Ankle"
-            ]
-          },
-          "id": "w32-endure"
         }
       ]
     },
