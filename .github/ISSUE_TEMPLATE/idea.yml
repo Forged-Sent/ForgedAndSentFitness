@@ -1,0 +1,26 @@
+name: Idea, concern or alternative
+description: Propose a feature, improvement, architecture alternative, concern or question (same fields as the Planning Hub)
+title: "[Idea] "
+labels: ["idea", "status:new"]
+body:
+  - type: dropdown
+    id: type
+    attributes: { label: Type, options: [Feature, Improvement, Architecture alternative, Concern, Question] }
+    validations: { required: true }
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Impact
+      description: Architecture, data-contract, security or long-term behavior changes need an ADR if approved.
+      options: [Product behavior, "Architecture / data / security", Small or cosmetic]
+    validations: { required: true }
+  - type: textarea
+    id: problem
+    attributes: { label: Problem or reason, description: "What's wrong or missing, and for whom?" }
+    validations: { required: true }
+  - type: textarea
+    id: proposal
+    attributes: { label: Proposal, description: Options and trade-offs help the owners decide. }
+  - type: input
+    id: hub_id
+    attributes: { label: Planning Hub id (if it started there), placeholder: "I-xxxx" }

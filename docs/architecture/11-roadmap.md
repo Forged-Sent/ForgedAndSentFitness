@@ -1,5 +1,7 @@
 # 11 · Implementation roadmap (vertical slices)
 
+> **2026-10-27 update (proposed, workshop W02):** `docs/planning/05-mvp-roadmap-milestones.md` regroups these phases into milestones M1–M5 so real people use the app sooner. M1 = Phases 1+2, M2 = Phase 4, M3 = Phase 5, M4 = Phase 3 + health, M5 = Phase 6. The phase gates below still apply.
+
 There are no calendar dates on purpose. Each phase exits only when its gate passes and its approvals are recorded. "Approval" means a named human decision recorded in a PR.
 
 ## Changes to the suggested order, and why

@@ -23,6 +23,7 @@ Statuses: Proposed · Accepted · Rejected · Superseded. A decision is Accepted
 | [ADR-0017](ADR-0017-messaging-boundary.md) | Messaging boundary | Accepted |  |
 | [ADR-0018](ADR-0018-authorization-source-membership-documents-claims-optional.md) | Authorization source: membership documents (claims optional cache) | Proposed |  |
 | [ADR-0019](ADR-0019-configurable-seasons-and-practice-competitions.md) | Configurable seasons and practice competitions | Accepted | Supersedes Blueprint D27 recommendation |
+| [ADR-0020](ADR-0020-planning-hub-blueprint-for-discussion-github-authoritative.md) | Planning hub: Blueprint page for discussion and voting; GitHub decision log authoritative | Proposed | Decides W12 |
 
 ## Rejected or superseded proposals from earlier work
 

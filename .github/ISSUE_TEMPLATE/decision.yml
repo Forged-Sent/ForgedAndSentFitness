@@ -1,0 +1,40 @@
+name: Owner decision record
+description: Record an owner ruling from the Planning Hub so it can enter docs/planning/decision-log.yaml
+title: "[Decision] "
+labels: ["decision"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        A ruling becomes **binding** only when its entry in `docs/planning/decision-log.yaml` (and an ADR, if it's architectural) is merged with **both owners' approval**. AI agents read only the merged file.
+  - type: input
+    id: hub_id
+    attributes: { label: Planning Hub id, placeholder: "W01, D03 or I-xxxx" }
+    validations: { required: true }
+  - type: dropdown
+    id: status
+    attributes: { label: Status, options: [Approved, Deferred, Rejected, Implemented, Needs decision, Discussing] }
+    validations: { required: true }
+  - type: textarea
+    id: context
+    attributes: { label: Context }
+  - type: textarea
+    id: decision
+    attributes: { label: Decision (chosen option) }
+    validations: { required: true }
+  - type: textarea
+    id: rationale
+    attributes: { label: Rationale }
+    validations: { required: true }
+  - type: input
+    id: decided_by
+    attributes: { label: Decided by (GitHub handles) }
+  - type: checkboxes
+    id: follow_up
+    attributes:
+      label: Follow-up
+      options:
+        - label: Decision-log entry added (DEC-####) in a PR labeled contract-change
+        - label: ADR written or updated (architecture, data-contract or security decisions)
+        - label: Requirement (FS-*) and test (TC-*) added or updated
+        - label: Development task opened (if approved for build)

@@ -28,6 +28,8 @@ Run `git diff --stat <base>...HEAD`, `python3 tools/validate_architecture.py` an
    - No reading or typing during exertion.
    - No incentives for volume, under-eating or disclosure.
 6. **Decisions:**
+   - Read `docs/planning/decision-log.yaml`. Any change that contradicts an `approved` or `implemented` DEC entry → **BLOCK** and ask for an amendment proposal that cites the DEC id. Never accept a silent reversal.
+   - The diff must not touch `decision-log.yaml` unless the PR is a human-owned `contract-change`.
    - Only Accepted ADRs bind.
-   - Anything relying on a Proposed ADR or an Open OD → ESCALATE.
+   - Anything relying on a Proposed ADR, an Open OD or an unruled workshop item (W01–W12) → ESCALATE.
 7. **Size and scope:** one FS id, ≤ ~400 changed lines, tests included.

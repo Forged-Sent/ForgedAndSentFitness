@@ -1,0 +1,19 @@
+%% Planning hub system context (C4-inspired, informal)
+flowchart LR
+  O1([Owner 1]) & O2([Owner 2]) --> HUB
+  F([Invited friends]) --> HUB
+  HUB[Planning Hub page<br/>claude.ai artifact: ideas, votes, comments, rulings, dashboard] -- Export JSON --> IMP[tools/planning/import_hub_export.py]
+  HUB -- prefilled issue links --> ISS
+  IMP --> LOG[(docs/planning/decision-log.yaml<br/>+ hub-snapshots/*.json)]
+  subgraph GH[GitHub repository: authoritative]
+    LOG
+    ADR[(docs/adr)]
+    REQ[(docs/requirements)]
+    ISS[Issues: idea, decision, task]
+    PR[Pull requests + CODEOWNERS + CI gates]
+  end
+  LOG --> AG[Claude Code and Codex agents<br/>read-only on decisions]
+  ADR --> AG
+  REQ --> AG
+  AG --> PR
+  PR -- validator, zone guard, decision guard --> LOG

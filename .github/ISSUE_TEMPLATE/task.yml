@@ -1,0 +1,32 @@
+name: Development task
+description: A buildable slice of an approved decision (backlog item)
+title: "[Task] "
+labels: ["task", "status:ready"]
+body:
+  - type: input
+    id: hub_id
+    attributes: { label: Planning Hub id }
+  - type: input
+    id: dec
+    attributes: { label: Decision log id, placeholder: DEC-0014 }
+    validations: { required: true }
+  - type: input
+    id: requirement
+    attributes: { label: Requirement id, placeholder: FS-TRN-007 }
+    validations: { required: true }
+  - type: textarea
+    id: context
+    attributes: { label: Context }
+  - type: textarea
+    id: decision
+    attributes: { label: What was decided }
+  - type: textarea
+    id: acceptance
+    attributes: { label: Acceptance criteria and verification (TC ids) }
+    validations: { required: true }
+  - type: input
+    id: paths
+    attributes: { label: Declared paths (one implementer per branch), placeholder: "app/lib/features/train/**" }
+  - type: dropdown
+    id: milestone
+    attributes: { label: Milestone, options: [M1, M2, M3, M4, M5, Later] }

@@ -1,0 +1,22 @@
+%% Functional decomposition: five product domains and the facts they exchange (informal)
+flowchart LR
+  subgraph Core[Daily core]
+    TRN[Fitness and training<br/>programs, logging, progression, PRs]
+    FTH[Faith and discipleship<br/>devotionals, Scripture, prayer, reflection]
+    DWE{{Experience Engine<br/>before, after, rest prompts, split day, one-only}}
+  end
+  NUT[Nutrition and wellness<br/>food, hydration, health import, private fasting]
+  COM[Community and fellowship<br/>group, partners, feed, prayer requests]
+  CMP[Team challenges and missions<br/>seasons, tiers, alternates, proof, standings]
+  CNT[(Versioned content<br/>programs, movements, devotionals, missions)]
+  CNT --> TRN
+  CNT --> FTH
+  CNT --> CMP
+  TRN -- workout state --> DWE
+  FTH -- stages --> DWE
+  DWE -- session completed, stage completed --> CMP
+  NUT -- meal logged, hydration met --> CMP
+  TRN -- completion post if opted in --> COM
+  FTH -- prayer request, chosen audience --> COM
+  COM -- team and partner audiences --> CMP
+  FTH -. journal and prayer content never leave the owner .-x CMP

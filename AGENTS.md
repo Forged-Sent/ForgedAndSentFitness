@@ -4,11 +4,11 @@
 
 ## What this repository is
 
-A **faith-centered devotional workout and brotherhood platform**: individual growth, team accountability, safe fitness competition, private spiritual development, and later expansion into family and church communities.
+A **fitness platform built around Christian discipleship** (DEC-0012). Structured training, workout tracking, progress, nutrition, health and team challenges are the core pillars. Devotionals, Scripture, prayer, reflection, service and group accountability are woven through them (Experience Engine, ADR-0008). The first audience is an adult men's group; wives, families, other communities and, much later, youth come with their own designs.
 
 | Path | What | Status |
 |---|---|---|
-| `index.html`, `versions/`, `seed/`, `dev/` | Prototype (claude.ai Artifact). **Frozen behavioral reference. Do not edit** without label `legacy-change` | Preserved |
+| `index.html`, `versions/`, `seed/`, `dev/` | Prototype (claude.ai Artifact). An **independent visual and functional reference** that may keep evolving (DEC-0011). Agents don't edit it without the label `legacy-change`, and it never defines production requirements | Preserved |
 | `docs/architecture/` | **Source of truth** for the production architecture (Flutter + Firebase) | Accepted |
 | `docs/adr/` | Decisions. Only `Accepted` ADRs bind you. `Proposed` = do not implement without approval | Protected |
 | `docs/requirements/` | `requirements.yaml` (FS-* ids), `test-catalog.yaml` (TC-*), `open-decisions.md` (OD-*) | Protected |
@@ -16,17 +16,26 @@ A **faith-centered devotional workout and brotherhood platform**: individual gro
 | `contracts/` | JSON Schemas and golden fixtures shared by Dart and TypeScript | Protected |
 | `firebase/` | `firestore.rules`, `storage.rules`, `firestore.indexes.json`, rules tests | Protected (rules, indexes) |
 | `app/`, `packages/fs_domain/`, `functions/`, `tools/` | Production code (created from Phase 1) | — |
+| `docs/planning/` | Product brief, decision register, workshop, roadmap, Planning Hub spec. **`decision-log.yaml` is the owners' binding decision record** | Protected (decision log) |
 | `docs/reviews/` | Historical independent review. **Superseded in part**: its Supabase recommendation is rejected (ADR-0003) | Historical |
 
 ## Precedence when documents disagree
 
 1. Human instruction in the task.
-2. Accepted ADRs.
-3. `docs/requirements/requirements.yaml`.
-4. `docs/architecture/*`.
-5. Everything else.
+2. Owner decisions in `docs/planning/decision-log.yaml` (status `approved` or `implemented`).
+3. Accepted ADRs.
+4. `docs/requirements/requirements.yaml`.
+5. `docs/architecture/*` and `docs/planning/*`.
+6. Everything else (including the Planning Hub page and the HTML prototype).
 
 If two sources still conflict: **stop, and escalate in the PR description**. Never pick one silently.
+
+## Approved decisions: never reverse them silently
+
+1. **Before any task**, read `docs/planning/decision-log.yaml`.
+2. If the task, a reviewer comment or your own judgment conflicts with an entry whose status is `approved` or `implemented`: **stop**. Don't implement the conflicting part. Write an **amendment proposal** in the PR description (or an issue labeled `amendment`) that cites the DEC id, the evidence, the alternatives and the consequences. The owners decide.
+3. You may never edit the decision log, change an ADR status, or record a ruling on the Planning Hub. The zone guard blocks the file; CODEOWNERS requires both owners.
+4. A prototype change (`legacy-change`) or a hub vote is **not** a requirement until it appears in the decision log.
 
 ## Approved technology (do not substitute)
 
@@ -52,7 +61,7 @@ If two sources still conflict: **stop, and escalate in the PR description**. Nev
 
 ## Protected zones (single writer; label `contract-change` + `ADR-####` in the PR body + 2 human approvals)
 
-`docs/adr/` · `docs/requirements/` · `contracts/` · `firebase/firestore.rules` · `firebase/storage.rules` · `firebase/firestore.indexes.json` · `functions/src/scoring/` · `content/**/approved.yaml`
+`docs/adr/` · `docs/requirements/` · `docs/planning/decision-log.yaml` · `contracts/` · `firebase/firestore.rules` · `firebase/storage.rules` · `firebase/firestore.indexes.json` · `functions/src/scoring/` · `content/**/approved.yaml`
 
 If your task needs a change there and doesn't say so: **stop and write a proposal in the PR description.**
 

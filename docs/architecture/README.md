@@ -34,3 +34,5 @@
 - **Open (OD-xx):** a parameter a human must set. It lives in rulesets or config, never hard-coded.
 
 **Validation:** `python3 tools/validate_architecture.py` runs in CI on every PR.
+
+**Planning package (27 Oct 2026):** `docs/planning/`: the product brief, owner decision workshop, staged growth, milestones and Planning Hub spec. Owner decisions are recorded in `docs/planning/decision-log.yaml`, which takes precedence over this folder (AGENTS.md).

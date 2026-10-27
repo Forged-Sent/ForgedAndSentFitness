@@ -114,6 +114,41 @@ if a.exists() or c.exists():
     fs_c = {k: v for k, v in tc.items() if k.startswith("fs-")}
     if fs_a != fs_c: err("project skills differ between .agents/skills and .claude/skills (run tools/sync_skills.py)")
 
+# 10. Owner decision log (docs/planning/decision-log.yaml): the binding record agents must not reverse
+dl = R / "docs/planning/decision-log.yaml"
+if dl.exists():
+    d = yaml.safe_load(dl.read_text()) or {}
+    if d.get("schema") != "fs-decision-log/1": err("decision-log.yaml: schema must be fs-decision-log/1")
+    seen = {}
+    KINDS = {"product", "architecture", "data-contract", "security", "process", "content"}
+    STATUSES = {"approved", "deferred", "rejected", "implemented", "superseded"}
+    for e in d.get("decisions") or []:
+        i = e.get("id", "?")
+        if not re.fullmatch(r"DEC-\d{4}", str(i)): err(f"decision-log: bad id {i}")
+        if i in seen: err(f"decision-log: duplicate id {i}")
+        seen[i] = e
+        if e.get("kind") not in KINDS: err(f"{i}: kind must be one of {sorted(KINDS)}")
+        if e.get("status") not in STATUSES: err(f"{i}: status must be one of {sorted(STATUSES)}")
+        if not e.get("title"): err(f"{i}: missing title")
+        if not e.get("decided_by"): err(f"{i}: decided_by is empty")
+        if e.get("status") in ("approved", "rejected", "deferred", "implemented") and not str(e.get("rationale", "")).strip(): err(f"{i}: a {e.get('status')} decision needs a rationale")
+        links = e.get("links") or {}
+        for a in links.get("adr") or []:
+            if a not in adrs: err(f"{i}: unknown ADR {a}")
+        if e.get("kind") in ("architecture", "data-contract", "security") and e.get("status") in ("approved", "implemented") and not links.get("adr"):
+            err(f"{i}: an approved {e.get('kind')} decision must cite an ADR")
+        if e.get("status") == "implemented" and not links.get("prs"): err(f"{i}: implemented needs at least one PR in links.prs")
+        if e.get("ratified") is True and any(str(w) == "project-owners" for w in e.get("decided_by") or []):
+            err(f"{i}: ratified decisions must name the owners' GitHub handles in decided_by")
+        h = e.get("history") or []
+        if not h: err(f"{i}: history must have at least one entry")
+        if h and h[-1].get("status") != e.get("status"): err(f"{i}: last history entry ({h[-1].get('status')}) does not match status ({e.get('status')}); record every change in history")
+    for i, e in seen.items():
+        if e.get("status") == "superseded":
+            s = e.get("superseded_by")
+            if s not in seen: err(f"{i}: superseded without a valid superseded_by")
+    notes.append(f"decision log: {len(seen)} owner decisions ({sum(1 for e in seen.values() if e.get('ratified'))} ratified)")
+
 for n in notes: print("•", n)
 if errors:
     print(f"\n{len(errors)} problem(s):"); [print("  ✗", e) for e in errors]; sys.exit(1)

@@ -2,6 +2,7 @@
 # Second developer's GitHub handle: TODO (add it next to @sfcsmithc-afk on each line below).
 /docs/adr/                     @sfcsmithc-afk
 /docs/requirements/            @sfcsmithc-afk
+/docs/planning/decision-log.yaml @sfcsmithc-afk
 /contracts/                    @sfcsmithc-afk
 /firebase/                     @sfcsmithc-afk
 /functions/src/scoring/        @sfcsmithc-afk

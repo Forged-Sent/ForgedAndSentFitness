@@ -1,0 +1,177 @@
+# Forged & Sent owner decision log: the AUTHORITATIVE record of decisions made by the project owners.
+# - Protected: both owners approve every change (CODEOWNERS, label contract-change). AI agents never edit this file.
+# - Agents read it before every task. A conflict with an approved/implemented entry => stop and propose an amendment.
+# - Entries come from the Planning Hub export (tools/planning/import_hub_export.py) or are written by an owner.
+# - ratified: false = stated by the owners but not yet merged with both approvals. Becomes true in the merge PR.
+# Schema: docs/planning/09-planning-hub-spec.md §5.2. Validated by tools/validate_architecture.py.
+schema: fs-decision-log/1
+decisions:
+- id: DEC-0001
+  title: Flutter/Dart for native iOS and Android
+  kind: architecture
+  status: approved
+  ratified: false
+  decided_at: '2026-10-27'
+  decided_by: [project-owners]
+  source: {brief: 'Approved product direction 2026-10-27 §2A', hub: D02}
+  outcome: Flutter/Dart; no React Native, no native-per-platform.
+  rationale: Stated as approved direction by the owners.
+  links: {adr: [ADR-0002], requirements: [], issues: [], prs: []}
+  history:
+  - {at: '2026-10-27', status: approved, by: project-owners, note: Stated in the approved product direction brief}
+- id: DEC-0002
+  title: Firebase as the managed production backend (not Supabase)
+  kind: architecture
+  status: approved
+  ratified: false
+  decided_at: '2026-10-27'
+  decided_by: [project-owners]
+  source: {brief: 'Approved product direction 2026-10-27 §2A', hub: D03}
+  outcome: Firebase Auth, Firestore, Cloud Functions, Cloud Storage, notifications and distribution services.
+  rationale: "Owners: 'Do not replace Firebase with Supabase merely because another proposal recommended it.' A reversal needs evidence, alternatives and a proposed ADR."
+  links: {adr: [ADR-0003], requirements: [], issues: [], prs: []}
+  history:
+  - {at: '2026-10-27', status: approved, by: project-owners, note: Stated in the approved product direction brief}
+- id: DEC-0003
+  title: Shared cloud environments; emulators optional; no personal servers
+  kind: architecture
+  status: approved
+  ratified: false
+  decided_at: '2026-10-27'
+  decided_by: [project-owners]
+  source: {brief: 'Approved product direction 2026-10-27 §2A'}
+  outcome: Separate dev, staging and prod Firebase environments both developers and testers can reach. No dependency on either developer's personal Linux server.
+  rationale: Stated as approved direction by the owners.
+  links: {adr: [ADR-0014], requirements: [], issues: [], prs: []}
+  history:
+  - {at: '2026-10-27', status: approved, by: project-owners, note: Stated in the approved product direction brief}
+- id: DEC-0004
+  title: Offline-first modular monolith with typed repositories
+  kind: architecture
+  status: approved
+  ratified: false
+  decided_at: '2026-10-27'
+  decided_by: [project-owners]
+  source: {brief: 'Approved product direction 2026-10-27 §2A', hub: D04}
+  outcome: Durable local storage with a sync outbox; a modular monolith, not microservices; typed repository interfaces; independently testable business logic.
+  rationale: Stated as approved direction by the owners.
+  links: {adr: [ADR-0006], requirements: [], issues: [], prs: []}
+  history:
+  - {at: '2026-10-27', status: approved, by: project-owners, note: Stated in the approved product direction brief}
+- id: DEC-0005
+  title: Devotional Workout Experience Engine
+  kind: architecture
+  status: approved
+  ratified: false
+  decided_at: '2026-10-27'
+  decided_by: [project-owners]
+  source: {brief: 'Approved product direction 2026-10-27 §2B', hub: D08}
+  outcome: "Versioned engine independent of navigation. Placements: full devotional before, full after, short prompts during rest, separate times of day, workout-only or devotional-only. Never require reading or typing during exertion. Private reflections stay private unless explicitly shared."
+  rationale: Stated as approved direction by the owners.
+  links: {adr: [ADR-0008], requirements: [], issues: [], prs: []}
+  history:
+  - {at: '2026-10-27', status: approved, by: project-owners, note: Stated in the approved product direction brief}
+- id: DEC-0006
+  title: Team competition is primary; server-authoritative, auditable scoring
+  kind: architecture
+  status: approved
+  ratified: false
+  decided_at: '2026-10-27'
+  decided_by: [project-owners]
+  source: {brief: 'Approved product direction 2026-10-27 §2C', hub: D24}
+  outcome: "Team seasons with normalized team scores; individual participation and personal growth; two difficulty levels; approved alternates; one or two non-workout missions a week; immutable ledger with corrective entries; rule versioning; season finalization; review and appeal."
+  rationale: Stated as approved direction by the owners. Scoring must not reward unsafe exercise, dishonesty, excessive training, restriction or disclosure of spiritual information.
+  links: {adr: [ADR-0005, ADR-0009], requirements: [], issues: [], prs: []}
+  history:
+  - {at: '2026-10-27', status: approved, by: project-owners, note: Stated in the approved product direction brief}
+- id: DEC-0007
+  title: Faith participation may earn bounded points; weights open
+  kind: product
+  status: approved
+  ratified: false
+  decided_at: '2026-10-27'
+  decided_by: [project-owners]
+  source: {brief: 'Approved product direction 2026-10-27 §2C', hub: D09}
+  outcome: Participation (completion) only, never content or perceived quality of prayers or reflections. Point weights to be decided (Planning Hub W04, OD-01).
+  rationale: Stated as approved direction by the owners.
+  links: {adr: [ADR-0012], requirements: [], issues: [], prs: []}
+  history:
+  - {at: '2026-10-27', status: approved, by: project-owners, note: "Principle approved; weights open"}
+- id: DEC-0008
+  title: Video proof supported in the first challenge-capable release
+  kind: product
+  status: approved
+  ratified: false
+  decided_at: '2026-10-27'
+  decided_by: [project-owners]
+  source: {brief: 'Approved product direction 2026-10-27 §2D', hub: D19}
+  outcome: Video capture and submission are required capabilities. Whether a given challenge requires video is configurable (Planning Hub W05).
+  rationale: Stated as approved direction by the owners.
+  links: {adr: [ADR-0010], requirements: [], issues: [], prs: []}
+  history:
+  - {at: '2026-10-27', status: approved, by: project-owners, note: Stated in the approved product direction brief}
+- id: DEC-0009
+  title: Nutrition tracking is in the product with bounded participation points
+  kind: product
+  status: approved
+  ratified: false
+  decided_at: '2026-10-27'
+  decided_by: [project-owners]
+  source: {brief: 'Approved product direction 2026-10-27 §2E', hub: D30}
+  outcome: Meals, macros, hydration and history through a proven provider. Bounded participation points; never reward under-eating or deficits.
+  rationale: Stated as approved direction by the owners.
+  links: {adr: [ADR-0011], requirements: [], issues: [], prs: []}
+  history:
+  - {at: '2026-10-27', status: approved, by: project-owners, note: Stated in the approved product direction brief}
+- id: DEC-0010
+  title: Adult pilot first; families and youth later with their own design
+  kind: product
+  status: approved
+  ratified: false
+  decided_at: '2026-10-27'
+  decided_by: [project-owners]
+  source: {brief: 'Approved product direction 2026-10-27 §2', hub: D29}
+  outcome: The private adult men's group first. Spouses, families, other groups and churches later. Youth only after its own privacy, moderation, consent and messaging design is approved.
+  rationale: Stated as approved direction by the owners.
+  links: {adr: [ADR-0013], requirements: [], issues: [], prs: []}
+  history:
+  - {at: '2026-10-27', status: approved, by: project-owners, note: Stated in the approved product direction brief}
+- id: DEC-0011
+  title: Keep the HTML prototype as an independent reference
+  kind: process
+  status: approved
+  ratified: false
+  decided_at: '2026-10-27'
+  decided_by: [project-owners]
+  source: {brief: 'Reconciliation brief and planning brief 2026-10-27', hub: D01}
+  outcome: The prototype is not deleted and not the production foundation. It may keep evolving as a visual and functional reference; changes carry the legacy-change label and become requirements only through a hub decision.
+  rationale: "Owners: 'Do not delete it'; 'can continue evolving independently as a visual and functional reference'."
+  links: {adr: [ADR-0001], requirements: [], issues: [], prs: []}
+  history:
+  - {at: '2026-10-27', status: approved, by: project-owners, note: Stated in both 27 Oct briefs}
+- id: DEC-0012
+  title: "Product framing: a fitness platform built around Christian discipleship"
+  kind: product
+  status: approved
+  ratified: false
+  decided_at: '2026-10-27'
+  decided_by: [project-owners]
+  source: {brief: 'Planning brief 2026-10-27 (Collaborative Planning Hub requirement)'}
+  outcome: Training, progress, nutrition and food tracking, health integration and challenges are core pillars. Discipleship (devotionals, Scripture, prayer, reflection, service, accountability, workout-specific faith content) is integrated throughout. Not a Bible-study app with optional fitness.
+  rationale: Stated by the owners; refines the earlier 'faith-centered devotional workout platform' wording.
+  links: {adr: [], requirements: [], issues: [], prs: []}
+  history:
+  - {at: '2026-10-27', status: approved, by: project-owners, note: Stated in the planning brief}
+- id: DEC-0013
+  title: A collaborative planning hub before substantial agent development
+  kind: process
+  status: approved
+  ratified: false
+  decided_at: '2026-10-27'
+  decided_by: [project-owners]
+  source: {brief: 'Planning brief 2026-10-27', hub: W12}
+  outcome: "Required: idea submission, advisory voting, discussion, decision alternatives, statuses, owner decisions with rationale, traceability, change history, a progress dashboard and portable exports. The platform choice itself is W12 (recommended: hybrid, ADR-0020 proposed)."
+  rationale: Stated by the owners as a first-class requirement.
+  links: {adr: [], requirements: [], issues: [], prs: []}
+  history:
+  - {at: '2026-10-27', status: approved, by: project-owners, note: Stated in the planning brief}

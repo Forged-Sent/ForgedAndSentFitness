@@ -1,0 +1,15 @@
+# Labels for the planning workflow. Install with tools/planning/bootstrap_github.sh (needs gh auth with repo admin).
+- { name: idea, color: "8a6a1e", description: "Proposed idea, concern or alternative" }
+- { name: decision, color: "4e5a3a", description: "Owner decision record" }
+- { name: task, color: "2c5a7a", description: "Development task from an approved decision" }
+- { name: amendment, color: "9b2f22", description: "Proposal to change an approved decision (agents use this instead of reversing)" }
+- { name: "status:new", color: "c9cebf", description: "Submitted, no response yet" }
+- { name: "status:discussing", color: "d9e7f0", description: "Being discussed" }
+- { name: "status:needs-decision", color: "f6e6c4", description: "Ready for an owner ruling" }
+- { name: "status:approved", color: "dcebd9", description: "Approved by an owner (binding once in decision-log.yaml)" }
+- { name: "status:deferred", color: "d9e7f0", description: "Not now; revisit trigger in the rationale" }
+- { name: "status:rejected", color: "f4dad5", description: "Ruled no" }
+- { name: "status:ready", color: "2f6b3a", description: "Ready for development" }
+- { name: "status:implemented", color: "2f6b3a", description: "Merged and verified" }
+- { name: contract-change, color: "9b2f22", description: "Touches a protected zone; ADR ref + 2 owner approvals" }
+- { name: legacy-change, color: "5b6352", description: "Changes the HTML prototype (never a requirement by itself)" }

@@ -1,0 +1,16 @@
+%% Planning workflow: idea to verified software (UML state machine, informal)
+stateDiagram-v2
+  [*] --> New: idea submitted (hub or GitHub issue)
+  New --> Discussing: comments, votes, author starts discussion
+  Discussing --> NeedsDecision: options clear; author or owner marks ready
+  NeedsDecision --> Approved: owner rules yes, with rationale
+  NeedsDecision --> Deferred: owner rules not now, with revisit trigger
+  NeedsDecision --> Rejected: owner rules no, with rationale
+  Deferred --> Discussing: trigger met; owner reopens
+  Approved --> Recorded: DEC entry (+ ADR if architectural) merged with both owners' approval
+  Recorded --> Backlog: task issue with FS id, TC ids, declared paths
+  Backlog --> Implemented: PR merged (one implementer, reviewers, gates green)
+  Implemented --> Verified: acceptance tests pass; DEC status implemented with PR link
+  Verified --> [*]
+  Recorded --> Amendment: an agent or person finds a conflict
+  Amendment --> NeedsDecision: amendment proposal (never a silent reversal)

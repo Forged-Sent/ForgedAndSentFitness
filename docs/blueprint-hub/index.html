@@ -1,8 +1,9 @@
-<title>Forged &amp; Sent Blueprint</title>
+<title>Forged &amp; Sent Planning Hub</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=Saira+Condensed:wght@500;600;700&display=swap">
 <script src="https://cdn.jsdelivr.net/npm/marked@12.0.2/marked.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11.4.1/dist/mermaid.min.js"></script>
 <style>
 /* Layout: one long, anchored working document. Sticky section bar on top; decisions are the operable core.
    Identity borrowed from the prototype's "Forged Iron" theme: iron-olive ground, brass accent, Saira + IBM Plex. */
@@ -170,9 +171,44 @@ textarea { width: 100%; min-height: 64px; padding: 8px 10px; border: 1px solid v
 .slist { display: grid; gap: 10px; }
 .sug { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 14px; display: grid; gap: 6px; }
 
+/* Planning hub v4 */
+.pill.st-new { background: var(--sunk); color: var(--muted); }
+.pill.st-discussing, .pill.st-deferred { background: var(--info-soft); color: var(--info); }
+.pill.st-needs_decision { background: var(--warn-soft); color: var(--warn); }
+.pill.st-approved, .pill.st-implemented { background: var(--ok-soft); color: var(--ok); }
+.pill.st-implemented { outline: 1px solid var(--ok); }
+.pill.st-rejected { background: var(--bad-soft); color: var(--bad); }
+.outcome.st-approved, .outcome.st-implemented { background: var(--ok-soft); }
+.outcome.st-discussing, .outcome.st-needs_decision, .outcome.st-new { background: var(--sunk); }
+.pre { white-space: pre-line; }
+.pill { white-space: nowrap; }
+.small { font-size: .8rem; }
+.links { display: flex; flex-wrap: wrap; gap: 6px; }
+.lk { font: 500 .76rem/1 var(--mono); padding: 4px 7px; border: 1px solid var(--line); border-radius: 3px; text-decoration: none; color: var(--ink); background: var(--surface); }
+a.lk:hover { border-color: var(--brass); }
+.grid5 { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 8px; }
+.grid5 input, .editor input[type="text"] { width: 100%; padding: 6px 8px; border: 1px solid var(--line); border-radius: var(--r); background: var(--surface); }
+details.editor > summary { cursor: pointer; font-weight: 600; font-size: .88rem; }
+details.editor[open] > summary { margin-bottom: 8px; }
+details.hist-d > summary { font-size: .82rem; }
+a.btn { text-decoration: none; display: inline-block; }
+.dash { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; margin-top: 22px; }
+.dash .panel ul { margin: 0; padding-left: 1.1em; display: grid; gap: 5px; font-size: .9rem; }
+.dash .panel h3 { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
+.dash .panel h3 small { font: 500 .78rem/1 var(--body); color: var(--muted); }
+.flow { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; font-size: .86rem; margin-top: 6px; }
+.flow span { padding: 5px 9px; border: 1px solid var(--line); border-radius: 99px; background: var(--surface); }
+.flow i { color: var(--muted); font-style: normal; }
+.iform { display: grid; gap: 10px; }
+.iform input[type="text"], .iform select { padding: 8px 10px; border: 1px solid var(--line); border-radius: var(--r); background: var(--bg); width: 100%; }
+.idea h4 { font-size: 1.15rem; }
+.votes .fbtn[aria-pressed="true"] { background: var(--brass); border-color: var(--brass); color: var(--bg); }
+.owners .row input.gh { padding: 5px 8px; border: 1px solid var(--line); border-radius: var(--r); background: var(--surface); max-width: 200px; }
+
 /* Diagrams and review */
 .diagram { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 14px; overflow-x: auto; }
-pre.mermaid { margin: 0; background: transparent; }
+pre.mermaid { margin: 0; background: transparent; white-space: pre; font: .78rem/1.4 var(--mono); }
+pre.mermaid[data-processed] { white-space: normal; font: inherit; }
 .review-body { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 18px 20px; overflow-x: auto; }
 .review-body h1 { font-size: 2rem; margin-top: 1em; } .review-body h2 { margin-top: 1.4em; } .review-body h3 { margin-top: 1.2em; }
 .review-body p, .review-body li { max-width: 80ch; }
@@ -189,9 +225,9 @@ html { scroll-behavior: smooth; }
 
 <header class="top">
   <div class="wrap">
-    <div class="brand">Forged <b>&amp;</b> Sent · Blueprint</div>
+    <div class="brand">Forged <b>&amp;</b> Sent · Planning Hub</div>
     <nav class="sections" aria-label="Sections">
-      <a href="#overview">Overview</a><a href="#decisions">Decisions</a><a href="#suggestions">Suggestions</a><a href="#plan">The plan</a><a href="#scoring">Scoring</a><a href="#faith">Faith</a><a href="#roadmap">Roadmap</a><a href="#risks">Risks</a><a href="#data">Data &amp; privacy</a><a href="#diagrams">Diagrams</a><a href="#ai">AI setup</a><a href="#glossary">Glossary</a><a href="#review">Full review</a>
+      <a href="#overview">Overview</a><a href="#dashboard">Dashboard</a><a href="#decisions">Workshop &amp; decisions</a><a href="#ideas">Ideas</a><a href="#plan">The plan</a><a href="#scoring">Scoring</a><a href="#faith">Faith</a><a href="#roadmap">Roadmap</a><a href="#risks">Risks</a><a href="#data">Data &amp; privacy</a><a href="#diagrams">Diagrams</a><a href="#ai">AI setup</a><a href="#glossary">Glossary</a><a href="#review">Full review</a>
     </nav>
   </div>
 </header>
@@ -200,23 +236,56 @@ html { scroll-behavior: smooth; }
 <!-- OVERVIEW -->
 <section class="sec hero" id="overview">
   <div class="wrap">
-    <div class="eyebrow">Architecture · reconciled with the approved direction · repository b66e93e (v162) · 27 Oct 2026</div>
-    <h1>Build the real house from the sketch.</h1>
-    <p class="lede">Forged &amp; Sent is a faith-centered devotional workout and brotherhood platform. The production app is being built in Flutter on Firebase. The prototype keeps its content and its lessons. This page records every decision, how each one was reconciled with the approved direction on 27 Oct, what is still open, and what each of us thinks.</p>
-    <div class="eli5" style="margin-top:18px">Think of the prototype as a detailed sketch of a house that people have already lived in for a few days. We keep the furniture (the content and the lessons learned) and pour a real foundation on Firebase: private prayers and health data stay private, devotions and workouts fit together however each man prefers, and only the referee writes the score.</div>
-    <div class="panel" style="margin-top:18px"><div class="eyebrow">Reconciled 27 Oct 2026</div><p>Each of the 35 decisions now carries its reconciliation with the approved direction: <b>Aligned</b>, <b>Improvement</b>, <b>Conflict</b> (resolved in favor of the approved direction), <b>Open</b> (needs a human decision) or <b>Superseded</b>. Changed recommendations: Firebase (D03), integrated devotional workouts (D08), participation-only faith points (D09), configurable video proof (D18–D19), two difficulty tiers (D20), team-first boards (D24), practice seasons (D27), bounded nutrition points (D30), Crashlytics (D35). The full matrix lives in the repository at <code>docs/architecture/00-reconciliation-matrix.md</code>.</p></div>
+    <div class="eyebrow">Planning Hub · v4 · 27 Oct 2026 · architecture on branches arch/firebase-reconciliation + arch/planning-hub</div>
+    <h1>Decide together. Build what we decided.</h1>
+    <p class="lede">Forged &amp; Sent is a <b>fitness platform built around Christian discipleship</b>. Training, progress, nutrition, health and team challenges are the core pillars, and devotionals, Scripture, prayer, reflection and accountability run through all of them. This hub is where the two of us, and the friends we invite, propose ideas, weigh the options, vote and record decisions before and during the build. It's for planning only; it isn't the app.</p>
+    <div class="eli5" style="margin-top:18px">Think of the prototype as a detailed sketch of a house that people have already lived in for a few days. We keep the furniture (the content and the lessons learned) and pour a real foundation on Firebase. This page is the job-site table where we lay out the plans and argue about them. GitHub is the signed set of drawings the builders, including the AI tools, have to follow.</div>
+    <div class="flow" aria-label="How an idea becomes software"><span>Idea</span><i>→</i><span>Discussion</span><i>→</i><span>Vote</span><i>→</i><span>Owner decision</span><i>→</i><span>Decision log / ADR (GitHub)</span><i>→</i><span>Backlog issue</span><i>→</i><span>Implementation (PR)</span><i>→</i><span>Verification</span></div>
+    <div class="banner" id="conn" hidden></div>
+  </div>
+</section>
+
+<!-- DASHBOARD -->
+<section class="sec" id="dashboard">
+  <div class="wrap">
+    <div class="sec-head"><div class="eyebrow">Progress</div><h2>Dashboard</h2>
+      <p class="muted">What's blocking, what's waiting on you, what's new, and what's ready to build. Click any item to jump to it.</p></div>
     <div class="stats" aria-live="polite">
-      <div class="stat"><b id="st-decided">0</b><span>of <span id="st-total">0</span> decisions settled</span><div class="bar"><i id="st-bar"></i></div></div>
-      <div class="stat"><b id="st-block">0</b><span>blocking decisions still open</span></div>
+      <div class="stat"><b id="st-decided">0</b><span>of <span id="st-total">0</span> decisions ruled</span><div class="bar"><i id="st-bar"></i></div></div>
+      <div class="stat"><b id="st-block">0</b><span>blocking, not yet decided</span></div>
+      <div class="stat"><b id="st-mine">–</b><span>waiting for your vote</span></div>
+      <div class="stat"><b id="st-ideas">0</b><span>ideas submitted</span></div>
+      <div class="stat"><b id="st-git">0</b><span>rulings not yet in GitHub</span></div>
+      <div class="stat"><b id="st-ready">0</b><span>ready for development</span></div>
       <div class="stat"><b id="st-people">0</b><span>people have weighed in</span></div>
-      <div class="stat"><b id="st-mine">–</b><span>decisions waiting on you</span></div>
     </div>
     <div class="people" id="people"></div>
-    <div class="banner" id="conn" hidden></div>
-    <div class="grid3" style="margin-top:28px">
-      <div class="panel"><div class="eyebrow">1 · Read</div><p>Each decision has a plain-words explanation, the technical detail, and options with trade-offs. The recommended option is marked.</p></div>
-      <div class="panel"><div class="eyebrow">2 · Weigh in</div><p>Pick the option you prefer and leave a note. Your picks save automatically, everyone can see them, and only you can change them. Use <b>Comment</b> for a back-and-forth thread.</p></div>
-      <div class="panel"><div class="eyebrow">3 · Settle</div><p>Editors record the final call with a reason. Every change is kept in the decision's history. <b>Export</b> downloads everything as a file.</p></div>
+    <div class="dash">
+      <div class="panel"><h3>Blocking, not decided <small>owners</small></h3><ul id="dl-block"></ul></div>
+      <div class="panel"><h3>Waiting for your vote <small>you</small></h3><ul id="dl-mine"></ul></div>
+      <div class="panel"><h3>New ideas <small>anyone</small></h3><ul id="dl-new"></ul></div>
+      <div class="panel"><h3>Needs an owner decision <small>owners</small></h3><ul id="dl-needs"></ul></div>
+      <div class="panel"><h3>Ruled, not yet in GitHub <small>owners</small></h3><ul id="dl-git"></ul><p class="muted small">Export, run <code>tools/planning/import_hub_export.py</code>, open a PR, then add the DEC id to the ruling.</p></div>
+      <div class="panel"><h3>Ready for development <small>builders</small></h3><ul id="dl-ready"></ul></div>
+    </div>
+    <div class="panel" id="ratify" style="margin-top:16px" hidden>
+      <h3>Ratify the aligned decisions</h3>
+      <p><b id="ratify-n">0</b> architecture decisions were reconciled as aligned with the direction you approved on 27 Oct and need no further choice (for example D01 rebuild, D02 Flutter, D03 Firebase). Ratifying records an <i>Approved</i> ruling for each, with the reconciliation as the reason. They still need to go into the GitHub decision log.</p>
+      <div class="row"><button class="btn" type="button" id="ratify-btn">Ratify these</button><span class="saved" id="ratify-msg" role="status"></span></div>
+    </div>
+    <div class="grid2" style="margin-top:16px">
+      <div class="panel owners"><h3>Who decides</h3><div id="owners-list"></div>
+        <details class="more" id="owners-ed" hidden><summary>Set the project owners (page owner only)</summary>
+          <p class="muted small">Tick the two project owners and add their GitHub handles. Only their rulings count on this page, and the handles go into the decision log.</p>
+          <div id="owners-body" style="display:grid;gap:6px"></div>
+          <div class="row"><button class="btn" type="button" id="owners-save">Save owners</button><span class="saved" id="owners-msg" role="status"></span></div></details>
+        <p class="muted small">Votes are advice, not approval. Anyone with access can vote, comment and add ideas. Only the owners rule, and a ruling becomes binding on the code only when it's merged into <code>docs/planning/decision-log.yaml</code> with both owners' approval.</p></div>
+      <div class="panel"><h3>Statuses</h3><div class="tbl"><table><thead><tr><th>Status</th><th>Meaning</th><th>Set by</th></tr></thead><tbody id="st-defs"></tbody></table></div></div>
+    </div>
+    <div class="row" style="margin-top:16px">
+      <button class="btn ghost exp-json" type="button">Export everything (JSON)</button>
+      <button class="btn ghost copy-md" type="button">Copy summary (Markdown)</button>
+      <span class="saved" role="status"></span>
     </div>
   </div>
 </section>
@@ -224,8 +293,8 @@ html { scroll-behavior: smooth; }
 <!-- DECISIONS -->
 <section class="sec" id="decisions">
   <div class="wrap">
-    <div class="sec-head"><div class="eyebrow">The register</div><h2>Decisions to make</h2>
-      <p class="muted">Blocking decisions (brass edge) must be settled before building starts. Recommendations come from the review; none of them are final until the group agrees.</p></div>
+    <div class="sec-head"><div class="eyebrow">The register</div><h2>Owner workshop and architecture decisions</h2>
+      <p class="muted">W01–W12 are the product decisions only the owners can make; each has a recommended default so work can proceed. D01–D35 are the architecture decisions, reconciled on 27 Oct. Blocking items (brass edge) must be ruled before the milestone that needs them. Recommendations are advice; nothing is final until an owner rules and it's recorded in GitHub.</p></div>
     <div class="filters" role="group" aria-label="Filter decisions">
       <div class="seg" id="f-area"></div>
       <select id="f-status" aria-label="Status filter">
@@ -237,27 +306,33 @@ html { scroll-behavior: smooth; }
     <div id="dwrap"></div>
     <div class="empty" id="dnone" hidden>No decisions match these filters.</div>
     <div class="row" style="margin-top:22px">
-      <button class="btn ghost" type="button" id="exp-json">Export everything (JSON)</button>
-      <button class="btn ghost" type="button" id="copy-md">Copy decision summary</button>
-      <span class="saved" id="exp-msg" role="status"></span>
+      <button class="btn ghost exp-json" type="button">Export everything (JSON)</button>
+      <button class="btn ghost copy-md" type="button">Copy summary (Markdown)</button>
+      <span class="saved" role="status"></span>
     </div>
   </div>
 </section>
 
-<!-- SUGGESTIONS -->
-<section class="sec" id="suggestions">
+<!-- IDEAS -->
+<section class="sec" id="ideas">
   <div class="wrap">
-    <div class="sec-head"><div class="eyebrow">Your ideas</div><h2>Suggestions</h2>
-      <p class="muted">Anything missing? Add a suggestion: a feature, a rule, a concern, a better option. Editors can mark it Adopted, Needs discussion or Declined.</p></div>
+    <div class="sec-head"><div class="eyebrow">Anyone can propose</div><h2>Ideas, concerns and alternatives</h2>
+      <p class="muted">Propose a feature, an improvement, an architecture alternative, a concern or a question. Others vote and comment. When it's ready, the author marks it <b>Ready for decision</b> and an owner rules. If it's approved and touches architecture, data, security or long-term behavior, it also gets an ADR.</p></div>
     <div class="grid2">
-      <form class="panel sform" id="sform">
-        <h3>Add a suggestion</h3>
-        <input type="text" id="s-title" maxlength="140" placeholder="Short title, e.g. 'Let wives join prayer requests'" aria-label="Suggestion title" required>
-        <select id="s-area" aria-label="Area"></select>
-        <textarea id="s-body" maxlength="2000" placeholder="What and why. Examples help."></textarea>
-        <div class="row"><button class="btn" type="submit" id="s-add">Add suggestion</button><span class="saved" id="s-msg" role="status"></span></div>
+      <form class="panel iform" id="iform">
+        <h3>Add an idea</h3>
+        <input type="text" id="i-title" maxlength="140" placeholder="Short title, e.g. 'Let wives join prayer requests'" aria-label="Idea title" required>
+        <div class="grid2" style="gap:8px"><select id="i-type" aria-label="Type"></select><select id="i-area" aria-label="Area"><option value="general">General</option></select></div>
+        <select id="i-impact" aria-label="Impact"></select>
+        <textarea id="i-problem" maxlength="2000" placeholder="The problem or reason: what's wrong or missing, and for whom?" aria-label="Problem"></textarea>
+        <textarea id="i-proposal" maxlength="2000" placeholder="Your proposal. Options and trade-offs help the owners decide." aria-label="Proposal"></textarea>
+        <div class="row"><button class="btn" type="submit">Add idea</button><span class="saved" id="i-msg" role="status"></span></div>
       </form>
-      <div class="slist" id="slist"><div class="empty">No suggestions yet. Add the first one with the form.</div></div>
+      <div style="display:grid;gap:10px;align-content:start">
+        <div class="filters" style="margin:0"><select id="if-status" aria-label="Idea status filter"><option value="open">Open ideas</option><option value="all">All ideas</option><option value="closed">Decided</option><option value="new">New</option><option value="discussing">Discussing</option><option value="needs_decision">Needs decision</option><option value="approved">Approved</option><option value="deferred">Deferred</option><option value="rejected">Rejected</option><option value="implemented">Implemented</option></select>
+          <select id="if-type" aria-label="Idea type filter"><option value="all">All types</option></select><span class="saved" id="i-count"></span></div>
+        <div class="dlist" id="ilist"><div class="empty">No ideas yet. Use the form to add the first one.</div></div>
+      </div>
     </div>
   </div>
 </section>
@@ -352,24 +427,22 @@ html { scroll-behavior: smooth; }
 <!-- ROADMAP -->
 <section class="sec" id="roadmap">
   <div class="wrap">
-    <div class="sec-head"><div class="eyebrow">Migration</div><h2>Roadmap in vertical slices</h2>
-      <p class="muted">Each phase ends with a test that must pass before the next starts. No dates on purpose: dates come after the blocking decisions.</p></div>
+    <div class="sec-head"><div class="eyebrow">Proposed sequence (W02)</div><h2>Five milestones, each used by real people</h2>
+      <p class="muted">The men start using the app at M2, before competition exists. Each milestone ends with a test that must pass. No dates on purpose: dates come after the blocking decisions. Detail: <code>docs/planning/05-mvp-roadmap-milestones.md</code>.</p></div>
     <div class="tbl"><table>
-      <thead><tr><th>Phase</th><th>What gets built</th><th>Done when</th></tr></thead>
+      <thead><tr><th>Milestone</th><th>Who uses it</th><th>What gets built</th><th>Done when</th></tr></thead>
       <tbody>
-        <tr><td>0 · Reconciliation</td><td>This page and the repository architecture: decisions, ADRs, requirements, diagrams, security rules drafts, agent guidance</td><td>Owners approve; open blocking items triaged</td></tr>
-        <tr><td>1 · Flutter + Firebase foundation</td><td>App shell, three Firebase environments, sign-in, invites and groups, security rules, CI, test builds through App Distribution and TestFlight</td><td>Two testers join one group; group B can't see group A (automated test)</td></tr>
-        <tr><td>2 · Offline devotional workout</td><td>One guided workout with flexible devotional timing, set logging, crash recovery, private reflections, sync</td><td>Airplane-mode workout survives an app kill and syncs exactly once; changing timing keeps progress</td></tr>
-        <tr><td>3 · Training and nutrition</td><td>All four programs generated from templates, swaps, PRs, history, food search through a provider, hydration, private fasting</td><td>Generated programs match today's 1,460 days exactly</td></tr>
-        <tr><td>4 · Brotherhood</td><td>Feed, prayer requests with chosen audiences, partners, notifications, moderation, account deletion and export</td><td>Privacy and app-store checklists pass</td></tr>
-        <tr><td>5 · Competition</td><td>Teams, weekly missions, two difficulty levels, alternates, video proof, server scoring, normalized boards, review and appeals (practice seasons first)</td><td>A practice season runs end to end; results can be re-run to the same fingerprint</td></tr>
-        <tr><td>6 · Adult pilot</td><td>The men's group on the real app with a real season</td><td>2+ weeks with no lost data, within budget</td></tr>
-        <tr><td>7 · Broader release</td><td>Apple Health and Health Connect, leader tools, scaling, family and youth design (inactive until approved)</td><td>Store health declarations approved</td></tr>
+        <tr><td><b>0 · Plan</b></td><td>The two of us</td><td>Architecture, ADRs, requirements, this hub, the GitHub decision log</td><td>Both owners merge the branches; W01, W02, W07 and W12 ruled</td></tr>
+        <tr><td><b>M1 · Train with purpose</b></td><td>Owners + 3 testers</td><td>Sign-in, onboarding (level, equipment, lift days), Today, guided offline workout (Forged program), devotional before, after, in rests, or alone, private journal, faithfulness calendar, history and PRs</td><td>Both owners use it daily for 2 weeks; an airplane-mode workout survives an app kill and syncs exactly once</td></tr>
+        <tr><td><b>M2 · Brotherhood</b> (pilot alpha)</td><td>The men's group</td><td>Invites, group, encouragement feed, prayer requests with chosen audiences, partners, reminders, report/block/moderation, account deletion and export</td><td>4 weeks meeting the W11 targets; app-store safety checklist passes</td></tr>
+        <tr><td><b>M3 · Practice season</b></td><td>The men, in teams</td><td>Teams, weekly challenge (Standard/Foundation + alternates), 1 mission a week, video proof with review and appeal, server scoring, team standings</td><td>A 4-week practice season runs end to end; results re-run to the same fingerprint; retrospective with the pastor</td></tr>
+        <tr><td><b>M4 · Fuel &amp; recover</b></td><td>The men</td><td>Food log through a provider, hydration, steps from Health, bounded nutrition points, the other three programs</td><td>No client API keys; under-eating never rewarded (test); 1,460-day program match</td></tr>
+        <tr><td><b>M5 · First real season</b></td><td>The men; store reviewers</td><td>Prod hardening, restore drill, privacy policy, store listings, the real season</td><td>Security gate passes; 2+ weeks with zero data loss; owners say go</td></tr>
       </tbody></table></div>
     <div class="grid3" style="margin-top:22px">
-      <div class="panel"><div class="eyebrow">Pilot (release 1)</div><ul class="clean"><li>Sign-in, one group, invites, roles</li><li>Offline workouts with swaps and timers</li><li>Habits + server scoring + one board</li><li>Devotional + private reflection</li><li>Prayer requests with privacy levels</li><li>Feed with photos; report and block</li><li>Reminders; water and simple food log</li><li>Account deletion and export</li></ul></div>
-      <div class="panel"><div class="eyebrow">Release 2</div><ul class="clean"><li>Teams, missions and video-proof challenges with review</li><li>Accountability partners, push</li><li>Apple Health / Health Connect</li><li>Weekly group study prompts</li><li>Scripture memory</li><li>Leader settings in the app</li><li>Private fasting and progress photos</li></ul></div>
-      <div class="panel"><div class="eyebrow">Later or not yet</div><ul class="clean"><li>Multiple groups and churches; teams</li><li>Reading-plan library, translation choice</li><li>Chat and DMs (need a safety design)</li><li>AI meal photos or AI coach</li><li>Spouses, families, women's groups, youth (model ready, switched off)</li><li>Public cross-church rankings</li><li>Payments</li></ul></div>
+      <div class="panel"><div class="eyebrow">MVP = M1 + M2</div><p>A man can open the app at the gym with no signal, do today's program workout with the devotional where he wants it, write a private reflection, see his progress, and know his brothers are encouraging and praying with him.</p></div>
+      <div class="panel"><div class="eyebrow">After beta feedback</div><ul class="clean"><li>Scripture memorization</li><li>Workout-specific faith content library</li><li>Private fasting</li><li>More equipment profiles</li><li>Leader settings in the app</li></ul></div>
+      <div class="panel"><div class="eyebrow">Later or not yet</div><ul class="clean"><li>Multiple churches, leagues, admin console (Stage 2)</li><li>Households for couples and families (Stage 2, own design)</li><li>Youth (Stage 3+, own design)</li><li>Direct messages (need a safety design)</li><li>AI coach over private data (not planned)</li><li>Payments</li></ul></div>
     </div>
   </div>
 </section>
@@ -618,7 +691,7 @@ flowchart TB
       <div class="panel"><div class="eyebrow">Reviewer · read-only</div><h3>Security &amp; privacy reviewer</h3><p>Runs the lock tests and checks anything touching prayer, health, photos, deletion or notifications.</p></div>
       <div class="panel"><div class="eyebrow">Writes tests only</div><h3>Test engineer</h3><p>Fills missing tests after a change. If a test finds a bug, it reports it rather than fixing app code.</p></div>
     </div>
-    <div class="panel" style="margin-top:16px"><h3>Rules every agent follows</h3><ul class="clean"><li>One requirement per change, small enough to review (about 400 lines)</li><li>Database design, scoring rules and content approvals are protected zones: two human approvals, plus an automatic guard</li><li>AI never approves theology or merges code</li><li>The same instructions and skills for Claude Code and Codex: add a feature, change Firestore or the rules, change scoring rules, validate content, handle proof media, review architecture, review security</li><li>Roles: Flutter implementer, Firebase backend, content engineer, release engineer (builders); architecture, security and faith-content reviewers (read-only); test engineer (tests only)</li></ul></div>
+    <div class="panel" style="margin-top:16px"><h3>Rules every agent follows</h3><ul class="clean"><li>One requirement per change, small enough to review (about 400 lines)</li><li>Database design, scoring rules and content approvals are protected zones: two human approvals, plus an automatic guard</li><li>AI never approves theology or merges code</li><li><b>Decision guard:</b> agents read the GitHub decision log before every task. If a task conflicts with an approved decision, they stop and propose an amendment for the owners; they can't edit the log (the guard blocks it)</li><li>Start small: four roles are active in M1 (an implementer, the architecture and security reviewers, the test engineer); the others switch on when their first task appears</li><li>The same instructions and skills for Claude Code and Codex: add a feature, change Firestore or the rules, change scoring rules, validate content, handle proof media, review architecture, review security</li><li>Roles: Flutter implementer, Firebase backend, content engineer, release engineer (builders); architecture, security and faith-content reviewers (read-only); test engineer (tests only)</li></ul></div>
   </div>
 </section>
 
@@ -642,9 +715,9 @@ flowchart TB
 
 <footer>
   <div class="wrap" style="display:grid;gap:8px">
-    <p><b>Where this page keeps data.</b> Everyone's picks, notes and suggestions are saved with this page and shared with the people it's shared with. Each person's entries can only be changed by that person. Final decisions can only be recorded by editors, and every change is kept in history. Use Export to download a full copy.</p>
-    <p><b>Who can do what.</b> Viewers and commenters can read and comment. To pick options and add notes, a person needs Contributor access (or Editor if invited by email from outside the organization). Editors can also record final decisions.</p>
-    <p>The source of truth is the repository branch <code>arch/firebase-reconciliation</code>: <code>docs/architecture/</code>, <code>docs/adr/</code>, <code>docs/requirements/</code>. This page’s source is in <code>docs/blueprint-hub/</code>.</p>
+    <p><b>Where this page keeps data.</b> Votes, notes, ideas and rulings are saved with this page and shared with the people it's shared with. Each person's own entries (votes, ideas, history) can only be changed by that person. Rulings count only from the owners listed on the Dashboard. Use Export to download everything as JSON, then commit it to the repository with <code>tools/planning/import_hub_export.py</code>.</p>
+    <p><b>Who can do what.</b> Viewers and commenters can read and comment. Voting and adding ideas needs Contributor access (or an Editor invite by email from outside the organization). Owners rule.</p>
+    <p><b>Authoritative record:</b> <code>docs/planning/decision-log.yaml</code> and <code>docs/adr/</code> in the repository, on branches <code>arch/firebase-reconciliation</code> and <code>arch/planning-hub</code> until merged. This page's source is <code>docs/blueprint-hub/</code>; its spec is <code>docs/planning/09-planning-hub-spec.md</code>.</p>
   </div>
 </footer>
 
@@ -652,6 +725,7 @@ flowchart TB
 /* Decision register content. Static: what each decision is, its options and the review's recommendation.
    What people pick, note and finally decide lives in the shared database, not here. */
 var AREAS = {
+  workshop: { label: "Owner workshop", blurb: "Product decisions that belong to the owners. Each has a recommended default so work can proceed." },
   foundation: { label: "Foundations", blurb: "How the app is built. These are hard to change later." },
   faith: { label: "Faith & discipleship", blurb: "How Scripture, prayer and accountability work, and what is never turned into points." },
   competition: { label: "Competition & proof", blurb: "Points, challenges, proof and fairness." },
@@ -687,7 +761,7 @@ var DECISIONS = [
   detail: "Approved direction (27 Oct): Firebase Auth, Firestore, Cloud Functions, Storage, FCM, App Check, App Distribution. The review had preferred Supabase (4.41 vs 3.28); its integrity goals are met on Firebase with Functions-only ledger writes, deterministic ids, a rules test matrix in CI and daily exports (ADR-0003). Original note: Supabase scores 4.41 vs Firebase 3.28. Postgres + Row Level Security handles groups, roles, private prayer and an auditable scoring ledger with transactions. Firebase wins only on built-in offline sync and lower ops, and its per-read billing punishes broad queries (the prototype pattern ~ $630/month at 1,000 users on Firestore). Offline for personal records is handled on the phone (see D04).",
   options: [
     { k: "supabase", label: "Supabase (managed PostgreSQL)", pros: "Strong privacy rules, honest scoring, SQL reports, easy exit", cons: "Offline sync is built by us (small for this app)" },
-    { k: "firebase", label: "Firebase / Firestore", pros: "Offline sync built in; very low operations", cons: "Weak fit for groups, roles and score integrity; per-read costs; harder to leave" },
+    { k: "firebase", label: "Firebase / Firestore (approved)", pros: "Offline sync built in; very low operations; one vendor for sign-in, data, files and push", cons: "Per-read costs reward careful queries; group and score integrity rely on tested rules and Functions-only writes; harder to leave" },
     { k: "custom", label: "Our own server + PostgreSQL", pros: "Total control", cons: "Too much plumbing for two people" }
   ], rec: "firebase", why: "Approved product decision. The privacy and scoring risks are handled with Firebase controls, not by switching platforms." },
 
@@ -1013,6 +1087,10 @@ var DECISIONS = [
 
 /* Glossary for non-developers */
 var GLOSSARY = [
+  ["Planning Hub", "This page: where ideas, votes and owner rulings happen. It's advisory. The repository's decision log is the binding record."],
+  ["Decision log (DEC-####)", "docs/planning/decision-log.yaml in the repository: every owner decision with who, when, why and links. Both owners approve changes; AI agents can't edit it."],
+  ["Ruling", "An owner's recorded decision on this page: status, chosen option, reason and links."],
+  ["Workshop item (W##)", "One of the 12 product decisions only the owners can make."],
   ["Prototype", "The current working app inside claude.ai. A test version to learn what people want."],
   ["Backend / server", "The computer in the cloud that stores everyone's data and enforces the rules, like a referee."],
   ["Database", "Organized storage for the app's information: workouts, posts, scores."],
@@ -1272,16 +1350,212 @@ var RISKS = [
   ["R15","m","Reports go nowhere and are readable by every member; family challenges invite photos of wives and children.","Problems get reported but nobody is assigned; kids' photos are in the feed."]
 ];
 
+/* Owner decision workshop W01–W12 (docs/planning/03-decision-workshop.md). Option keys are stable: votes reference them. */
+var WORKSHOP = [
+{ id: "W01", area: "workshop", blocking: true, refs: "Needed by M1 · OD-21",
+  title: "What does a man open the app for each day?",
+  eli5: "When a man opens the app in the morning, what's the first thing he sees? This shapes the home screen, the reminders and how the devotional fits around his workout.",
+  detail: "The default is a training-first Today screen: today's workout, with the devotional placed where he chose (before, after, short prompts during rest, or at another time), and the faithfulness calendar below it. The calendar default is 2 grace days a week, with no shaming when a streak ends. Choosing B changes the Today screen and the onboarding order, but not the architecture.",
+  options: [
+    { k: "training", label: "Training-first Today, devotional placed by his chosen mode", pros: "Matches 'fitness platform built around discipleship'; one daily rhythm", cons: "Men who come mainly for the devotional take one extra tap" },
+    { k: "devotional", label: "Devotional-first Today", pros: "Puts Scripture first in the day", cons: "Training can feel secondary; doesn't fit the product framing" },
+    { k: "dashboard", label: "Equal tiles for workout, devotion, food and team", pros: "Everything visible at once", cons: "No daily rhythm; more design work" }
+  ], rec: "training", why: "Training is the daily core and discipleship runs through it. The Experience Engine already places the devotional where each man wants it." },
+
+{ id: "W02", area: "workshop", blocking: true, refs: "Needed by M1 · OD-04 timing",
+  title: "Which pillars are in the first release the men use?",
+  eli5: "We can't build everything at once. Do the men start using a smaller app soon and get more each month, or wait until it's all done?",
+  detail: "Staged plan: M1 training and devotion (owners and testers), M2 the brotherhood features (pilot alpha with the men), M3 challenges with video proof (practice season), M4 nutrition and health. Nutrition points are approved, but they can only count once nutrition logging ships in M4.",
+  options: [
+    { k: "staged", label: "Staged: training + devotion → brotherhood → challenges → nutrition", pros: "The men are using it after two milestones; feedback early", cons: "Challenges and nutrition come later than the prototype shows" },
+    { k: "all", label: "Everything before anyone uses it", pros: "One big launch", cons: "Months more without real feedback" },
+    { k: "challenges", label: "Challenges first", pros: "That's where the prototype's energy is", cons: "Hardest subsystem first, with no daily habit loop under it" }
+  ], rec: "staged", why: "It validates the core habit loop with real men soonest. The architecture is the same whichever order you choose." },
+
+{ id: "W03", area: "workshop", blocking: false, refs: "Needed by M3 · OD-22",
+  title: "Are accountability teams the same as competition teams?",
+  eli5: "In a group of 20 men, do the 4 guys you pray with also make up your challenge team, or are those different groups?",
+  detail: "Default: one persistent team of 3–6 men that also acts as the default prayer and accountability audience. A leader can reshuffle teams between seasons. Weekly missions default to 1 a week (OD-22); mission evidence is optional and never requires family members' faces. Option B can be added later without migrating data.",
+  options: [
+    { k: "same", label: "One persistent team (competition + accountability)", pros: "Simple; teammates know each other", cons: "Less flexible in large groups" },
+    { k: "separate", label: "Separate accountability circles + season teams", pros: "Flexible at scale", cons: "Two concepts to explain and build" },
+    { k: "season", label: "Season teams only; partners handle accountability", pros: "Fresh teams each season", cons: "Accountability resets often" }
+  ], rec: "same", why: "With 10–30 men, two kinds of subgroup is overhead. Starting with one doesn't block adding circles later." },
+
+{ id: "W04", area: "workshop", blocking: false, refs: "Needed by M3 exit · OD-01 · ADR-0012",
+  title: "How visible and how heavy is faith participation in scoring?",
+  eli5: "You've agreed faith habits can earn a few team points. How many, and does anyone see who earned them? (Matthew 6: don't practice righteousness to be seen.)",
+  detail: "Default: 1 point per day for completing that day's devotional stages, at most 5 a week, about 10% of a team's weekly maximum, counted only in the team total and never on an individual board. Points come from completion, never from what anyone wrote or prayed. It's a ruleset parameter, so it can change between seasons. Recommendation: hold a short retrospective with the pastor after the practice season.",
+  options: [
+    { k: "team_bool", label: "Boolean participation, team total only, capped", pros: "Encourages the habit without ranking anyone's spirituality", cons: "Some men may still feel it as scorekeeping" },
+    { k: "zero", label: "No faith points; recognition only", pros: "Safest on perception", cons: "Loses a gentle motivator you wanted" },
+    { k: "equal", label: "Weighted equal to workouts", pros: "Strong incentive", cons: "Checkbox devotion; comparison" }
+  ], rec: "team_bool", why: "It keeps the approved principle (participation, never content) and the Matthew 6 guardrail." },
+
+{ id: "W05", area: "workshop", blocking: false, refs: "Needed by M3 · OD-06 · ADR-0010",
+  title: "How much proof culture do we want?",
+  eli5: "Video proof is in. But do we ask for video on everything, or only on the big weekly challenge?",
+  detail: "Default: one weekly proof challenge requires video. Workouts and missions are honor-based, with random spot checks. Proof is deleted 30 days after the appeal window closes. Two leaders review proof, never their own team's. Expected cost is about $1/month at 100 users.",
+  options: [
+    { k: "weekly", label: "Video for the weekly proof challenge only; honor + spot checks otherwise", pros: "Integrity where it matters; low friction", cons: "Some honor-system risk on daily items" },
+    { k: "all", label: "Video for every scored physical activity", pros: "Strongest integrity", cons: "Men skip rather than film; heavy review load" },
+    { k: "optional", label: "Honor only; video optional", pros: "Easiest", cons: "Recreates the prototype's trust problem" }
+  ], rec: "weekly", why: "It uses the approved video capability without making filming the price of taking part." },
+
+{ id: "W06", area: "workshop", blocking: true, refs: "Needed by M2 · OD-05, OD-09, OD-17",
+  title: "Who sees prayer requests and faith participation, and who moderates?",
+  eli5: "When a man writes a prayer request, who sees it by default? Can leaders see who did their devotions? Who handles a report?",
+  detail: "Defaults:\n- A new prayer request goes to my team; the author changes the audience per request (private, partner, team, leaders, group).\n- Leaders see faith participation as aggregates only.\n- Moderation: leaders respond within 24 h and owners escalate within 72 h, with one named incident contact.\n\nApple guideline 1.2 requires report, block and timely moderation for user-generated content.",
+  options: [
+    { k: "team_agg", label: "Team default · leaders see aggregates · leaders moderate, owners escalate", pros: "Meaningful audience; no surveillance", cons: "Leaders can't follow up individually without being told" },
+    { k: "private_agg", label: "Private default · aggregates · same moderation", pros: "Maximum privacy", cons: "Few requests get shared; less burden-bearing" },
+    { k: "group_member", label: "Whole-group default · per-member leader view (with consent)", pros: "Most visibility", cons: "Men self-censor; a privacy risk" }
+  ], rec: "team_agg", why: "Galatians 6:2 needs someone to see the burden. The team is small enough to be safe." },
+
+{ id: "W07", area: "workshop", blocking: true, refs: "Needed by M1 · ADR-0007",
+  title: "Which training content ships first?",
+  eli5: "The prototype has four year-long programs. Do we launch with one polished program, or all four?",
+  detail: "Default: the Forged program (365 days, verified against the prototype), plus a quick or custom log for travel and other gyms. The other three programs follow in M4. Equipment profiles at launch: full gym, home dumbbells, bodyweight.",
+  options: [
+    { k: "forged", label: "Forged program + quick/custom log", pros: "One program to verify; fast to the pilot", cons: "Less choice at first" },
+    { k: "all4", label: "All four programs", pros: "Full choice", cons: "1,460 days to verify and review before M1" },
+    { k: "new", label: "A new simplified starter program", pros: "Cleaner content", cons: "Loses tested prototype programming" }
+  ], rec: "forged", why: "It's the shortest path to men training on the real app, without throwing away tested content." },
+
+{ id: "W08", area: "workshop", blocking: true, refs: "Needed by M1 content freeze · OD-10, OD-11",
+  title: "Who approves content, and what are the devotional rights?",
+  eli5: "Someone with pastoral standing should sign off on the devotionals, and someone who knows training should check the workouts. We also need to know where each devotional came from.",
+  detail: "Default: name one pastor or elder and one fitness reviewer now, and record the provenance of each of the 366 devotionals before the pilot (written by you, AI-assisted, or third-party). Rights must be settled before public release. That blocks release, not the pilot.",
+  options: [
+    { k: "named", label: "Name a pastor/elder + fitness reviewer; record provenance now", pros: "Pilot proceeds; real review", cons: "Asks something of two volunteers" },
+    { k: "owners", label: "Owners review everything", pros: "Fastest", cons: "Weaker theological and safety review" },
+    { k: "licensed", label: "Replace devotionals with a licensed source", pros: "Clear rights", cons: "Cost; loses your voice" }
+  ], rec: "named", why: "Content is the voice of the app. Review protects the men and you." },
+
+{ id: "W09", area: "workshop", blocking: false, refs: "Needed by M5 · OD-16",
+  title: "What's the money model and monthly budget ceiling?",
+  eli5: "Is this a free ministry tool, donation-supported, or paid for churches later? And at what monthly cost do we get an alert?",
+  detail: "Default: free ministry, with a $25/month budget alert during the pilot (expected cost $0–5). Revisit at Stage 2. The model affects ESV, Open Food Facts and food-provider terms.",
+  options: [
+    { k: "free", label: "Free ministry + budget alert", pros: "Simple; easiest licensing", cons: "Owners fund it" },
+    { k: "donate", label: "Donations", pros: "Shared support", cons: "Payment provider; store rules" },
+    { k: "paid", label: "Paid tier for churches (Stage 2+)", pros: "Funds growth", cons: "Licensing, billing, support obligations" }
+  ], rec: "free", why: "The pilot costs almost nothing, and revenue questions can wait for Stage 2." },
+
+{ id: "W10", area: "workshop", blocking: false, refs: "Before Stage 2 · ADR-0013",
+  title: "When and how do wives, families and youth come in?",
+  eli5: "Wives will want in. Do they join their own groups like the men, or do we build shared family accounts first? And when, if ever, do kids come in?",
+  detail: "Default: women's groups first, as ordinary adult groups (nothing in the model assumes male). Households (couples, families) come at Stage 2 with their own design; household membership never unlocks private data. Youth not before Stage 3, and only with its own ADR covering guardian consent, no messaging and moderation.",
+  options: [
+    { k: "groups_first", label: "Women's groups first; households Stage 2; youth Stage 3+", pros: "No new privacy model until needed", cons: "Couples can't share challenges at first" },
+    { k: "couples", label: "Couples together at Stage 1", pros: "Families engaged early", cons: "Needs the household design now" },
+    { k: "youth", label: "Youth with families", pros: "Whole-family ministry", cons: "Large legal, consent and moderation scope" }
+  ], rec: "groups_first", why: "It reaches wives quickly with zero new access semantics. The model is already ready for households." },
+
+{ id: "W11", area: "workshop", blocking: true, refs: "Needed by M2 · OD-12",
+  title: "What does pilot success look like?",
+  eli5: "Before the men start, agree what 'it worked' means, so we measure the right things and know when to start a real season.",
+  detail: "Default:\n- A 4-week pilot alpha after M2: at least 70% of members complete at least 3 workouts a week, and at least 50% engage with a devotional stage at least 4 days a week.\n- Zero lost workouts; cost within budget.\n- A qualitative review by the owners and the pastor.\n- A practice season after M3. The first real season date is set only after it passes.",
+  options: [
+    { k: "default", label: "Workouts ≥3/wk for 70%; devotion ≥4 days/wk for 50%; zero data loss", pros: "Measures the habit loop", cons: "Targets may need tuning" },
+    { k: "qual", label: "Qualitative review only", pros: "No tracking", cons: "Harder to decide go/no-go" },
+    { k: "custom", label: "Our own targets (explain in a note)", pros: "Fits your group", cons: "—" }
+  ], rec: "default", why: "Clear exit criteria keep the pilot honest. Analytics events carry counts, never content." },
+
+{ id: "W12", area: "workshop", blocking: true, refs: "Needed now · ADR-0020 (proposed) · AP-11",
+  title: "Where do we plan and decide together, and how does the prototype relate?",
+  eli5: "We need one place to suggest ideas and vote, and one official record that the coding tools must follow. This page is the first; GitHub is the second.",
+  detail: "Default: a hybrid.\n- This Planning Hub is for ideas, discussion and votes.\n- A ruling becomes authoritative only when it's recorded in docs/planning/decision-log.yaml (and an ADR when architectural), merged with both owners' approval.\n- AI agents read only the repository record and can't change it.\n- The prototype keeps evolving independently with the legacy-change label; a prototype change becomes a requirement only through a hub decision.",
+  options: [
+    { k: "hybrid", label: "Hybrid: this hub to discuss and vote; GitHub decision log authoritative", pros: "Friendly discussion + durable, enforceable record", cons: "Two places; export step at decision time" },
+    { k: "github", label: "GitHub only (issues, discussions, project board)", pros: "One place; free; native traceability", cons: "Voting and plain-words explanations are clunky for non-developers" },
+    { k: "portal", label: "Build our own portal on Firebase", pros: "Fully custom", cons: "A second product to build and secure; weeks of work" }
+  ], rec: "hybrid", why: "It's the smallest setup that gives real collaboration, reliable persistence and a record agents can be held to." }
+];
+
 (function () {
   "use strict";
   var $ = function (id) { return document.getElementById(id); };
   function el(tag, cls, text) { var e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; }
-  var STATUS = { open: "Open", leaning: "Leaning", agreed: "Agreed", rejected: "Rejected", deferred: "Deferred" };
-  var SETTLED = { agreed: 1, rejected: 1, deferred: 1 };
-  var S = { db: null, user: null, comments: null, downloads: null, me: null, canWrite: true, canEdit: false, writeBlocked: false,
-            outcomes: {}, people: {}, mine: { picks: {}, suggestions: [] }, minePending: 0, profiles: {}, cards: {},
-            filter: { area: "all", status: "all", block: false, q: "" } };
-  var decById = {}; DECISIONS.forEach(function (d) { decById[d.id] = d; });
+  var REPO = "https://github.com/sfcsmithc-afk/ForgedAndSentFitness";
+  var ST = {
+    new: ["New", "Submitted; nobody has responded yet."],
+    discussing: ["Discussing", "Being talked through; questions still open."],
+    needs_decision: ["Needs decision", "Options are clear; the owners are asked to rule."],
+    approved: ["Approved", "An owner ruled yes with a reason. Authoritative once recorded in GitHub (decision log / ADR)."],
+    deferred: ["Deferred", "Good, but not now. The reason names when to revisit."],
+    rejected: ["Rejected", "The owners ruled no, with a reason."],
+    implemented: ["Implemented", "Built, merged (PR linked) and verified."]
+  };
+  /* Primary ADR per decision, from docs/architecture/00-reconciliation-matrix.md (summary table). */
+  var ADR_FOR = { D01: "ADR-0001", D02: "ADR-0002", D03: "ADR-0003", D04: "ADR-0006", D05: "ADR-0004", D06: "ADR-0007", D07: "ADR-0015", D08: "ADR-0008", D09: "ADR-0012", D10: "ADR-0011",
+    D12: "ADR-0004", D13: "ADR-0013", D15: "ADR-0007", D17: "ADR-0005", D18: "ADR-0010", D19: "ADR-0010", D20: "ADR-0009", D21: "ADR-0009", D22: "ADR-0009", D23: "ADR-0009", D24: "ADR-0009",
+    D25: "ADR-0009", D26: "ADR-0009", D27: "ADR-0019", D28: "ADR-0001", D29: "ADR-0013", D30: "ADR-0011", D31: "ADR-0011", D32: "ADR-0017", D35: "ADR-0016", W04: "ADR-0012", W05: "ADR-0010", W10: "ADR-0013", W12: "ADR-0020" };
+  var TERMINAL = { approved: 1, deferred: 1, rejected: 1, implemented: 1 };
+  var IDEA_TYPES = { feature: "Feature", improvement: "Improvement", alternative: "Architecture alternative", concern: "Concern", question: "Question" };
+  var IMPACT = { product: "Product behavior", architecture: "Architecture / data / security", minor: "Small or cosmetic" };
+  var ALL = WORKSHOP.concat(DECISIONS);
+  var byId = {}; ALL.forEach(function (d) { byId[d.id] = d; });
+  var S = { db: null, user: null, comments: null, downloads: null, me: null, canEdit: false, canWrite: true, writeBlocked: false, pageOwner: false,
+            votes: {}, mineVotes: { picks: {}, ideaVotes: {} }, ideas: {}, mineIdeas: [], logs: {}, mineLog: [], owners: { ids: [], github: {} },
+            profiles: {}, cards: {}, pend: { votes: 0, ideas: 0, log: 0 }, timers: {},
+            filter: { area: "all", status: "all", block: false, q: "" }, ifilter: { status: "open", type: "all" }, ideasDirty: false };
+
+  /* ---------- Helpers ---------- */
+  function nameOf(id) { var p = S.profiles[id]; return (p && p.name) || (id === S.me ? "You" : "Someone"); }
+  function avatarOf(id) { var p = S.profiles[id]; return p && p.avatarUrl; }
+  function fmtDate(t) { try { return new Date(t).toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" }); } catch (e) { return ""; } }
+  function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
+  function ownersSet() { return S.owners.ids && S.owners.ids.length > 0; }
+  function isOfficial(u) { return ownersSet() ? S.owners.ids.indexOf(u) >= 0 : true; }
+  function amOwner() { return !!S.me && !S.writeBlocked && (ownersSet() ? S.owners.ids.indexOf(S.me) >= 0 : (S.canEdit || S.pageOwner)); }
+  function canVote() { return !!S.db && !!S.me && S.canWrite && !S.writeBlocked; }
+  function allEntries() { var out = []; Object.keys(S.logs).forEach(function (u) { (S.logs[u] || []).forEach(function (e) { out.push(Object.assign({ by: u }, e)); }); }); return out; }
+  function rulingFor(key) {
+    var best = null; Object.keys(S.logs).forEach(function (u) { if (!isOfficial(u)) return; (S.logs[u] || []).forEach(function (e) { if (e.item === key && e.act === "rule" && (!best || e.at > best.at)) best = Object.assign({ by: u }, e); }); });
+    return best;
+  }
+  function historyFor(key) { return allEntries().filter(function (e) { return e.item === key; }).sort(function (a, b) { return b.at - a.at; }); }
+  function allIdeas() { var out = []; Object.keys(S.ideas).forEach(function (u) { (S.ideas[u] || []).forEach(function (x) { out.push({ uid: u, x: x, key: "I-" + x.id }); }); }); return out; }
+  function ideaByKey(key) { var f = allIdeas().filter(function (i) { return i.key === key; }); return f[0] || null; }
+  function statusOf(key) { var r = rulingFor(key); if (r) return r.status; if (byId[key]) return "needs_decision"; var i = ideaByKey(key); return (i && i.x.stage) || "new"; }
+  function titleOf(key) { if (byId[key]) return byId[key].title; var i = ideaByKey(key); return i ? i.x.title : key; }
+  function picksFor(did) { var out = []; Object.keys(S.votes).forEach(function (u) { var p = ((S.votes[u] || {}).picks || {})[did]; if (p) out.push({ uid: u, p: p }); }); return out; }
+  function ideaVotesFor(key) { var out = []; Object.keys(S.votes).forEach(function (u) { var v = ((S.votes[u] || {}).ideaVotes || {})[key]; if (v && v.v) out.push({ uid: u, v: v }); }); return out; }
+  function pill(status) { var s = ST[status] || ST.new; var p = el("span", "pill st-" + status, s[0]); p.title = s[1]; return p; }
+  function linkFor(kind, v) {
+    v = (v || "").trim(); if (!v) return null;
+    if (/^https?:\/\//.test(v)) return v;
+    if (kind === "issue" || kind === "pr") { var n = v.replace(/^#/, ""); if (/^\d+$/.test(n)) return REPO + (kind === "pr" ? "/pull/" : "/issues/") + n; }
+    if (kind === "adr" && /^ADR-\d{4}$/i.test(v)) return REPO + "/tree/main/docs/adr";
+    if (kind === "dec" && /^DEC-\d{4}$/i.test(v)) return REPO + "/blob/main/docs/planning/decision-log.yaml";
+    if (kind === "fs" && /^FS-[A-Z]+-\d{3}$/i.test(v)) return REPO + "/blob/main/docs/requirements/requirements.yaml";
+    return null;
+  }
+  var LINK_LABEL = { dec: "Decision log", adr: "ADR", fs: "Requirement", issue: "Issue", pr: "PR" };
+  function linksRow(links) {
+    var row = el("div", "links"); links = links || {}; var any = false;
+    ["dec", "adr", "fs", "issue", "pr"].forEach(function (k) { var v = links[k]; if (!v) return; any = true; var href = linkFor(k, v); var a = el(href ? "a" : "span", "lk", LINK_LABEL[k] + ": " + v); if (href) { a.href = href; a.target = "_blank"; a.rel = "noopener"; } row.appendChild(a); });
+    return any ? row : null;
+  }
+  function ghUrl(template, key, title, fields) {
+    var q = ["template=" + encodeURIComponent(template), "title=" + encodeURIComponent("[" + key + "] " + title)];
+    Object.keys(fields).forEach(function (f) { if (fields[f]) q.push(encodeURIComponent(f) + "=" + encodeURIComponent(String(fields[f]).slice(0, 900))); });
+    return REPO + "/issues/new?" + q.join("&");
+  }
+  function ghButton(key, label) {
+    var a = el("a", "btn ghost", label || "Open in GitHub"); a.target = "_blank"; a.rel = "noopener";
+    a.addEventListener("click", function () {
+      var r = rulingFor(key), d = byId[key], i = ideaByKey(key), ch = d && r ? d.options.filter(function (o) { return o.k === r.outcome; })[0] : null;
+      var tpl = r && (r.status === "approved") && !(r.links && r.links.issue) ? "task.yml" : "decision.yml";
+      a.href = ghUrl(tpl, key, titleOf(key), {
+        hub_id: key, status: r ? ST[r.status][0] : ST[statusOf(key)][0],
+        context: d ? d.eli5 : (i ? (i.x.problem || "") + (i.x.proposal ? "\n\nProposal: " + i.x.proposal : "") : ""),
+        decision: ch ? ch.label : (r && r.outcome) || "", rationale: r ? r.rationale : "", decided_by: r ? (S.owners.github[r.by] || nameOf(r.by)) : ""
+      });
+    });
+    a.href = REPO + "/issues/new/choose"; return a;
+  }
 
   /* ---------- Static content ---------- */
   RISKS.forEach(function (r) {
@@ -1290,7 +1564,10 @@ var RISKS = [
     tr.appendChild(el("td", null, r[2])); tr.appendChild(el("td", "muted", r[3])); $("risk-body").appendChild(tr);
   });
   GLOSSARY.forEach(function (g) { $("gloss").appendChild(el("dt", null, g[0])); $("gloss").appendChild(el("dd", null, g[1])); });
-  Object.keys(AREAS).forEach(function (k) { var o = el("option", null, AREAS[k].label); o.value = k; $("s-area").appendChild(o); });
+  Object.keys(AREAS).forEach(function (k) { if (k === "workshop") return; var o = el("option", null, AREAS[k].label); o.value = k; $("i-area").appendChild(o); });
+  Object.keys(IDEA_TYPES).forEach(function (k) { var o = el("option", null, IDEA_TYPES[k]); o.value = k; $("i-type").appendChild(o); var o2 = o.cloneNode(true); $("if-type").appendChild(o2); });
+  Object.keys(IMPACT).forEach(function (k) { var o = el("option", null, IMPACT[k]); o.value = k; $("i-impact").appendChild(o); });
+  (function () { var tb = $("st-defs"); Object.keys(ST).forEach(function (k) { var tr = el("tr"); var td = el("td"); td.appendChild(pill(k)); tr.appendChild(td); tr.appendChild(el("td", null, ST[k][1])); tr.appendChild(el("td", "muted", TERMINAL[k] ? "Owners" : k === "new" ? "Anyone (on submit)" : k === "implemented" ? "Owners" : "Author or owners")); tb.appendChild(tr); }); })();
 
   /* ---------- Decision cards ---------- */
   function areaButtons() {
@@ -1300,29 +1577,30 @@ var RISKS = [
       b.addEventListener("click", function () { S.filter.area = a[0]; Array.prototype.forEach.call(seg.children, function (x) { x.setAttribute("aria-pressed", "false"); }); b.setAttribute("aria-pressed", "true"); applyFilters(); });
       seg.appendChild(b);
     });
+    Object.keys(ST).forEach(function (k) { var o = el("option", null, ST[k][0]); o.value = "s:" + k; $("f-status").appendChild(o); });
   }
   function buildCards() {
     var wrap = $("dwrap");
     Object.keys(AREAS).forEach(function (ak) {
       var head = el("div", "area-head"); head.id = "area-" + ak; head.appendChild(el("h3", null, AREAS[ak].label)); head.appendChild(el("span", "muted", AREAS[ak].blurb));
       var list = el("div", "dlist"); wrap.appendChild(head); wrap.appendChild(list);
-      DECISIONS.filter(function (d) { return d.area === ak; }).forEach(function (d) { list.appendChild(buildCard(d)); });
+      ALL.filter(function (d) { return d.area === ak; }).forEach(function (d) { list.appendChild(buildCard(d)); });
     });
   }
   function buildCard(d) {
     var c = el("article", "dcard" + (d.blocking ? " blocking" : "")); c.id = "d-" + d.id; c.setAttribute("data-comment-target", "");
     var top = el("div", "dtop"); top.appendChild(el("span", "did", d.id));
     if (d.blocking) top.appendChild(el("span", "pill block", "Blocking"));
-    var st = el("span", "pill st-open", "Open"); top.appendChild(st);
+    var st = el("span", "pill"); top.appendChild(st);
     top.appendChild(el("span", "did", d.refs || ""));
     c.appendChild(top);
     c.appendChild(el("h4", null, d.title));
     c.appendChild(el("div", "eli5", d.eli5));
-    var det = el("details", "more"); det.appendChild(el("summary", null, "Technical detail")); det.appendChild(el("p", "muted", d.detail)); c.appendChild(det);
+    var det = el("details", "more"); det.appendChild(el("summary", null, "Technical detail")); det.appendChild(el("p", "muted pre", d.detail)); c.appendChild(det);
     var opts = el("div", "opts"); opts.setAttribute("role", "radiogroup"); opts.setAttribute("aria-label", "Your preferred option for " + d.id);
     var optEls = {};
     d.options.forEach(function (o) {
-      var lab = el("label", "opt" + (o.k === d.rec ? " rec" : "")); var r = el("input"); r.type = "radio"; r.name = "pick-" + d.id; r.value = o.k; r.id = "pick-" + d.id + "-" + o.k;
+      var lab = el("label", "opt" + (o.k === d.rec ? " rec" : "")); var r = el("input"); r.type = "radio"; r.name = "pick-" + d.id; r.value = o.k;
       var mid = el("div"); var ol = el("div", "ol", o.label); if (o.k === d.rec) ol.appendChild(el("span", "tag-rec", "Recommended")); mid.appendChild(ol);
       var pc = el("div", "pc"); var p1 = el("span"); p1.appendChild(el("em", null, "For: ")); p1.appendChild(document.createTextNode(o.pros)); pc.appendChild(p1);
       var p2 = el("span"); p2.appendChild(el("em", null, "Against: ")); p2.appendChild(document.createTextNode(o.cons)); pc.appendChild(p2); mid.appendChild(pc);
@@ -1336,210 +1614,357 @@ var RISKS = [
     var rc = (typeof RECON !== "undefined" && RECON[d.id]) || null;
     if (rc) { var rp = el("div", "recon"); var rh = el("div", "dtop"); rh.appendChild(el("span", "pill rc-" + rc[0].split(" ")[0].toLowerCase(), "Reconciled: " + rc[0])); if (rc[2] && rc[2] !== "No") rh.appendChild(el("span", "pill block", "Needs approval: " + rc[2])); if (rc[3]) rh.appendChild(el("span", "did", rc[3])); rp.appendChild(rh); rp.appendChild(el("p", null, rc[1])); c.appendChild(rp); }
     var outcome = el("div", "outcome"); outcome.hidden = true; c.appendChild(outcome);
-
     var foot = el("div", "dfoot");
     var nl = el("label", "muted"); nl.style.fontSize = ".82rem"; nl.textContent = "Your note (saved automatically, visible to everyone)"; nl.htmlFor = "note-" + d.id;
     var ta = el("textarea"); ta.id = "note-" + d.id; ta.maxLength = 2000; ta.placeholder = "Your reasoning, a concern, or a better option";
     var tmr = null; ta.addEventListener("input", function () { clearTimeout(tmr); tmr = setTimeout(function () { setPick(d.id, { note: ta.value.trim() }); }, 900); });
     ta.addEventListener("blur", function () { clearTimeout(tmr); setPick(d.id, { note: ta.value.trim() }); });
     var row = el("div", "row");
-    var disc = el("label"); disc.style.fontSize = ".86rem"; var cb = el("input"); cb.type = "checkbox"; cb.id = "disc-" + d.id; disc.appendChild(cb); disc.appendChild(document.createTextNode(" Flag for discussion"));
+    var disc = el("label"); disc.style.fontSize = ".86rem"; var cb = el("input"); cb.type = "checkbox"; disc.appendChild(cb); disc.appendChild(document.createTextNode(" Flag for discussion"));
     cb.addEventListener("change", function () { setPick(d.id, { discuss: cb.checked }); });
-    var cmt = el("button", "btn ghost", "Comment"); cmt.type = "button"; cmt.hidden = true;
-    cmt.addEventListener("click", function () { openComment(c, cmt); });
-    var link = el("button", "btn ghost", "Copy link"); link.type = "button";
-    link.addEventListener("click", function () { copyText(location.href.split("#")[0] + "#d-" + d.id, link); });
+    var cmt = el("button", "btn ghost cmt", "Comment"); cmt.type = "button"; cmt.hidden = true; cmt.addEventListener("click", function () { openComment(c); });
+    var link = el("button", "btn ghost", "Copy link"); link.type = "button"; link.addEventListener("click", function () { copyText(location.href.split("#")[0] + "#d-" + d.id, link); });
     var saved = el("span", "saved"); saved.setAttribute("role", "status");
-    row.appendChild(disc); row.appendChild(cmt); row.appendChild(link); row.appendChild(saved);
+    row.appendChild(disc); row.appendChild(cmt); row.appendChild(link); row.appendChild(ghButton(d.id)); row.appendChild(saved);
     foot.appendChild(nl); foot.appendChild(ta); foot.appendChild(row);
     var notes = el("div", "notes"); foot.appendChild(notes);
-    var ed = el("div", "editor"); ed.hidden = true; foot.appendChild(ed);
+    var ed = el("details", "editor"); ed.hidden = true; foot.appendChild(ed);
+    var hist = el("details", "more hist-d"); hist.appendChild(el("summary", null, "History")); var hl = el("div", "hist"); hist.appendChild(hl); foot.appendChild(hist);
     c.appendChild(foot);
-    S.cards[d.id] = { root: c, status: st, opts: optEls, outcome: outcome, note: ta, discuss: cb, notes: notes, editor: ed, saved: saved, comment: cmt };
+    S.cards[d.id] = { root: c, status: st, opts: optEls, outcome: outcome, note: ta, discuss: cb, notes: notes, editor: ed, saved: saved, hist: hl };
     return c;
   }
-  function buildEditor(d) {
-    var k = S.cards[d.id], ed = k.editor; ed.textContent = ""; ed.hidden = !S.canEdit; if (!S.canEdit) return;
-    ed.appendChild(el("b", null, "Record the group's decision (editors)"));
-    var l1 = el("label", null, "Status"); var ss = el("select"); ss.id = "ed-st-" + d.id; Object.keys(STATUS).forEach(function (s) { var o = el("option", null, STATUS[s]); o.value = s; ss.appendChild(o); }); l1.appendChild(ss);
-    var l2 = el("label", null, "Chosen option"); var so = el("select"); so.id = "ed-op-" + d.id; var o0 = el("option", null, "None yet"); o0.value = ""; so.appendChild(o0);
-    d.options.forEach(function (o) { var x = el("option", null, o.label); x.value = o.k; so.appendChild(x); }); var oc = el("option", null, "Something else (explain in the reason)"); oc.value = "other"; so.appendChild(oc); l2.appendChild(so);
-    var l3 = el("label", null, "Reason (shown to everyone)"); var rt = el("textarea"); rt.id = "ed-why-" + d.id; rt.maxLength = 2000; l3.appendChild(rt);
-    var row = el("div", "row"); var b = el("button", "btn", "Save decision"); b.type = "button"; var msg = el("span", "saved"); msg.setAttribute("role", "status"); row.appendChild(b); row.appendChild(msg);
-    var cur = S.outcomes[d.id] || {}; ss.value = cur.status || "open"; so.value = cur.chosen || ""; rt.value = cur.rationale || "";
-    b.addEventListener("click", function () { saveOutcome(d.id, ss.value, so.value, rt.value.trim(), b, msg); });
-    var row2 = el("div", "grid2"); row2.appendChild(l1); row2.appendChild(l2); ed.appendChild(row2); ed.appendChild(l3); ed.appendChild(row);
-    var hist = el("div", "hist"); hist.id = "hist-" + d.id; ed.appendChild(hist);
-  }
-
-  /* ---------- Rendering dynamic parts ---------- */
-  function nameOf(id) { var p = S.profiles[id]; return (p && p.name) || (id === S.me ? "You" : "Someone"); }
-  function avatarOf(id) { var p = S.profiles[id]; return p && p.avatarUrl; }
-  function picksFor(did) {
-    var out = []; Object.keys(S.people).forEach(function (uid) { var p = (S.people[uid].picks || {})[did]; if (p) out.push({ uid: uid, p: p }); });
-    return out;
+  function ruleEditor(key, options, box, onSaved) {
+    box.textContent = "";
+    box.appendChild(el("summary", null, "Record an owner ruling"));
+    var cur = rulingFor(key) || {};
+    var g = el("div", "grid2");
+    var l1 = el("label", null, "Status"); var ss = el("select"); Object.keys(ST).forEach(function (s) { var o = el("option", null, ST[s][0]); o.value = s; ss.appendChild(o); }); l1.appendChild(ss); g.appendChild(l1);
+    var so = null;
+    if (options) { var l2 = el("label", null, "Chosen option"); so = el("select"); var o0 = el("option", null, "None"); o0.value = ""; so.appendChild(o0); options.forEach(function (o) { var x = el("option", null, o.label); x.value = o.k; so.appendChild(x); }); var oc = el("option", null, "Something else (explain in the reason)"); oc.value = "other"; so.appendChild(oc); l2.appendChild(so); g.appendChild(l2); }
+    box.appendChild(g);
+    var l3 = el("label", null, "Reason (required for Approved, Deferred, Rejected and Implemented)"); var rt = el("textarea"); rt.maxLength = 2000; l3.appendChild(rt); box.appendChild(l3);
+    var lg = el("div", "grid5"); var inputs = {};
+    [["dec", "Decision log id", "DEC-0014"], ["adr", "ADR", "ADR-0020"], ["fs", "Requirement", "FS-TRN-007"], ["issue", "GitHub issue", "#12 or URL"], ["pr", "Pull request", "#34 or URL"]].forEach(function (f) {
+      var l = el("label", null, f[1]); var i = el("input"); i.type = "text"; i.maxLength = 200; i.placeholder = f[2]; l.appendChild(i); lg.appendChild(l); inputs[f[0]] = i;
+    });
+    box.appendChild(lg);
+    ss.value = cur.status || statusOf(key); if (so) so.value = cur.outcome || ""; rt.value = cur.rationale || "";
+    Object.keys(inputs).forEach(function (k) { inputs[k].value = (cur.links || {})[k] || ""; });
+    if (!cur.links && ADR_FOR[key]) inputs.adr.value = ADR_FOR[key];
+    var row = el("div", "row"); var b = el("button", "btn", "Save ruling"); b.type = "button"; var msg = el("span", "saved"); msg.setAttribute("role", "status"); row.appendChild(b); row.appendChild(msg); box.appendChild(row);
+    box.appendChild(el("p", "muted small", "A ruling here is advisory until it's recorded in docs/planning/decision-log.yaml through a PR both owners approve. Agents read only that file."));
+    b.addEventListener("click", function () {
+      var status = ss.value, why = rt.value.trim(), links = {};
+      Object.keys(inputs).forEach(function (k) { var v = inputs[k].value.trim(); if (v) links[k] = v; });
+      if (TERMINAL[status] && !why) { msg.textContent = "Add the reason first."; rt.focus(); return; }
+      if (status === "implemented" && !links.pr) { msg.textContent = "Implemented needs the pull request."; inputs.pr.focus(); return; }
+      appendLog([{ id: uid(), at: Date.now(), item: key, act: "rule", status: status, outcome: so ? so.value : "", rationale: why, links: links }], msg, onSaved);
+    });
   }
   function refreshCard(d) {
     var k = S.cards[d.id]; if (!k) return;
-    var oc = S.outcomes[d.id] || null, status = (oc && oc.status) || "open";
-    k.status.className = "pill st-" + status; k.status.textContent = STATUS[status] || "Open";
+    var r = rulingFor(d.id), status = r ? r.status : "needs_decision";
+    k.status.className = "pill st-" + status; k.status.textContent = ST[status][0]; k.status.title = ST[status][1];
     var picks = picksFor(d.id);
     d.options.forEach(function (o) {
       var oe = k.opts[o.k], who = picks.filter(function (x) { return x.p.opt === o.k; });
       oe.tally.textContent = ""; if (who.length) { oe.tally.appendChild(el("b", null, String(who.length))); who.slice(0, 5).forEach(function (x) { var src = avatarOf(x.uid); if (src) { var im = el("img"); im.src = src; im.alt = ""; im.title = nameOf(x.uid); oe.tally.appendChild(im); } }); oe.tally.title = who.map(function (x) { return nameOf(x.uid); }).join(", "); }
-      oe.lab.classList.toggle("chosen", !!(oc && oc.chosen === o.k && SETTLED[status]));
+      oe.lab.classList.toggle("chosen", !!(r && r.outcome === o.k && TERMINAL[status]));
     });
-    var my = S.mine.picks[d.id] || {};
-    d.options.forEach(function (o) { var r = k.opts[o.k].radio; r.checked = my.opt === o.k; r.disabled = !S.me || !S.canWrite || S.writeBlocked; });
+    var my = S.mineVotes.picks[d.id] || {};
+    d.options.forEach(function (o) { var rr = k.opts[o.k].radio; rr.checked = my.opt === o.k; rr.disabled = !canVote(); });
     if (document.activeElement !== k.note) k.note.value = my.note || "";
-    k.note.disabled = !S.me || !S.canWrite || S.writeBlocked; k.discuss.disabled = k.note.disabled; k.discuss.checked = !!my.discuss;
-    // Others' notes
+    k.note.disabled = !canVote(); k.discuss.disabled = !canVote(); k.discuss.checked = !!my.discuss;
     k.notes.textContent = "";
     picks.filter(function (x) { return x.uid !== S.me && (x.p.note || x.p.discuss); }).sort(function (a, b) { return (b.p.at || 0) - (a.p.at || 0); }).forEach(function (x) {
       var n = el("div", "note"); var opt = d.options.filter(function (o) { return o.k === x.p.opt; })[0];
       n.appendChild(el("span", "who", nameOf(x.uid) + (opt ? " · prefers: " + opt.label : "") + (x.p.discuss ? " · wants to discuss" : "")));
       if (x.p.note) n.appendChild(el("span", null, x.p.note)); k.notes.appendChild(n);
     });
-    // Outcome
-    if (oc && status !== "open") {
-      k.outcome.hidden = false; k.outcome.className = "outcome st-" + status; k.outcome.textContent = "";
-      var chosen = d.options.filter(function (o) { return o.k === oc.chosen; })[0];
-      var t = el("b", null, (STATUS[status] || "") + (chosen ? ": " + chosen.label : oc.chosen === "other" ? ": another approach" : ""));
-      k.outcome.appendChild(t); if (oc.rationale) k.outcome.appendChild(el("span", null, oc.rationale));
-      k.outcome.appendChild(el("span", "hist", "Recorded by " + nameOf(oc.by) + (oc.at ? " · " + new Date(oc.at).toLocaleString() : "")));
-    } else k.outcome.hidden = true;
-    var h = $("hist-" + d.id); if (h) { h.textContent = ""; ((oc && oc.history) || []).slice(-6).reverse().forEach(function (x) { h.appendChild(el("div", null, new Date(x.at).toLocaleDateString() + " · " + nameOf(x.by) + " set " + (STATUS[x.status] || x.status) + (x.chosen ? " (" + x.chosen + ")" : ""))); }); }
+    renderOutcome(k.outcome, r, d.options);
+    var ed = k.editor; ed.hidden = !amOwner();
+    if (amOwner() && !ed.contains(document.activeElement) && !ed.open) ruleEditor(d.id, d.options, ed);
+    renderHistory(k.hist, d.id, d.options);
   }
-  function refreshAll() { DECISIONS.forEach(refreshCard); refreshStats(); refreshSuggestions(); applyFilters(); }
-  function refreshStats() {
-    var settled = DECISIONS.filter(function (d) { var o = S.outcomes[d.id]; return o && SETTLED[o.status]; }).length;
-    var blockOpen = DECISIONS.filter(function (d) { var o = S.outcomes[d.id]; return d.blocking && !(o && SETTLED[o.status]); }).length;
-    $("st-decided").textContent = settled; $("st-total").textContent = DECISIONS.length; $("st-bar").style.width = Math.round(100 * settled / DECISIONS.length) + "%";
-    $("st-block").textContent = blockOpen;
-    var ids = Object.keys(S.people).filter(function (u) { var p = S.people[u]; return Object.keys(p.picks || {}).length || (p.suggestions || []).length; });
-    $("st-people").textContent = ids.length;
-    $("st-mine").textContent = S.me ? String(DECISIONS.filter(function (d) { var o = S.outcomes[d.id]; return !(o && SETTLED[o.status]) && !(S.mine.picks[d.id] && S.mine.picks[d.id].opt); }).length) : "–";
-    var pp = $("people"); pp.textContent = ""; ids.forEach(function (u) { var ch = el("span", "chip"); var src = avatarOf(u); if (src) { var im = el("img"); im.src = src; im.alt = ""; ch.appendChild(im); } ch.appendChild(document.createTextNode(nameOf(u))); pp.appendChild(ch); });
+  function renderOutcome(box, r, options) {
+    if (!r) { box.hidden = true; return; }
+    box.hidden = false; box.className = "outcome st-" + r.status; box.textContent = "";
+    var ch = options ? options.filter(function (o) { return o.k === r.outcome; })[0] : null;
+    box.appendChild(el("b", null, ST[r.status][0] + (ch ? ": " + ch.label : r.outcome === "other" ? ": another approach" : "")));
+    if (r.rationale) box.appendChild(el("span", "pre", r.rationale));
+    var lr = linksRow(r.links); if (lr) box.appendChild(lr);
+    var who = nameOf(r.by) + (S.owners.github[r.by] ? " (@" + S.owners.github[r.by] + ")" : "");
+    box.appendChild(el("span", "hist", "Ruled by " + who + " · " + fmtDate(r.at) + (ownersSet() ? "" : " · owner list not set yet") + (TERMINAL[r.status] && !(r.links && r.links.dec) ? " · not yet in the GitHub decision log" : "")));
   }
+  function renderHistory(box, key, options) {
+    box.textContent = ""; var h = historyFor(key);
+    if (!h.length) { box.appendChild(el("div", null, "No history yet.")); return; }
+    h.slice(0, 40).forEach(function (e) {
+      var ch = options && e.outcome ? options.filter(function (o) { return o.k === e.outcome; })[0] : null;
+      var t = fmtDate(e.at) + " · " + nameOf(e.by) + " ";
+      if (e.act === "rule") t += "ruled " + (ST[e.status] || ST.new)[0] + (ch ? " (" + ch.label + ")" : "") + (e.rationale ? ": " + e.rationale : "") + (isOfficial(e.by) ? "" : " [not an owner: ignored]");
+      else if (e.act === "submit") t += "submitted the idea";
+      else if (e.act === "stage") t += "moved it to " + (ST[e.status] || ST.new)[0];
+      else if (e.act === "edit") t += "edited the idea";
+      else if (e.act === "withdraw") t += "withdrew the idea";
+      else t += e.act;
+      box.appendChild(el("div", null, t));
+    });
+  }
+  function refreshAll() { ALL.forEach(refreshCard); applyFilters(); renderIdeas(); renderDashboard(); renderOwners(); }
   function applyFilters() {
     var f = S.filter, q = f.q.toLowerCase(), shown = 0;
-    DECISIONS.forEach(function (d) {
-      var o = S.outcomes[d.id], settled = !!(o && SETTLED[o.status]), my = S.mine.picks[d.id] || {};
+    ALL.forEach(function (d) {
+      var st = statusOf(d.id), settled = !!TERMINAL[st], my = S.mineVotes.picks[d.id] || {};
       var anyDiscuss = picksFor(d.id).some(function (x) { return x.p.discuss; });
-      var ok = (f.area === "all" || d.area === f.area) && (!f.block || d.blocking)
-        && (f.status === "all" || (f.status === "open" && !settled) || (f.status === "settled" && settled) || (f.status === "mine" && !settled && !my.opt) || (f.status === "discuss" && anyDiscuss))
+      var fs = f.status, ok = (f.area === "all" || d.area === f.area) && (!f.block || d.blocking)
+        && (fs === "all" || (fs === "open" && !settled) || (fs === "settled" && settled) || (fs === "mine" && !settled && !my.opt) || (fs === "discuss" && anyDiscuss) || (fs.indexOf("s:") === 0 && st === fs.slice(2)))
         && (!q || (d.id + " " + d.title + " " + d.eli5 + " " + d.detail + " " + d.options.map(function (x) { return x.label; }).join(" ")).toLowerCase().indexOf(q) >= 0);
       S.cards[d.id].root.hidden = !ok; if (ok) shown++;
     });
-    Object.keys(AREAS).forEach(function (ak) { var any = DECISIONS.some(function (d) { return d.area === ak && !S.cards[d.id].root.hidden; }); var h = $("area-" + ak); h.hidden = !any; h.nextSibling.hidden = !any; });
+    Object.keys(AREAS).forEach(function (ak) { var any = ALL.some(function (d) { return d.area === ak && !S.cards[d.id].root.hidden; }); var h = $("area-" + ak); h.hidden = !any; h.nextSibling.hidden = !any; });
     $("dnone").hidden = shown > 0;
   }
 
+  /* ---------- Ideas ---------- */
+  $("iform").addEventListener("submit", function (ev) {
+    ev.preventDefault();
+    var t = $("i-title").value.trim(); if (!t) { $("i-msg").textContent = "Add a short title first."; $("i-title").focus(); return; }
+    if (!canVote()) { $("i-msg").textContent = "Submitting ideas needs Contributor access (or an Editor invite from outside the organization)."; return; }
+    if (S.mineIdeas.length >= 80) { $("i-msg").textContent = "You've reached 80 ideas. Withdraw a few first."; return; }
+    var id = uid(), now = Date.now();
+    var x = { id: id, type: $("i-type").value, title: t.slice(0, 140), area: $("i-area").value, impact: $("i-impact").value, problem: $("i-problem").value.trim().slice(0, 2000), proposal: $("i-proposal").value.trim().slice(0, 2000), stage: "new", at: now, upd: now };
+    S.mineIdeas = S.mineIdeas.concat([x]); S.ideas[S.me] = S.mineIdeas;
+    ["i-title", "i-problem", "i-proposal"].forEach(function (k) { $(k).value = ""; });
+    saveIdeas($("i-msg")); appendLog([{ id: uid(), at: now, item: "I-" + id, act: "submit" }], null);
+    refreshAll();
+  });
+  $("if-status").addEventListener("change", function () { S.ifilter.status = this.value; renderIdeas(true); });
+  $("if-type").addEventListener("change", function () { S.ifilter.type = this.value; renderIdeas(true); });
+  $("ilist").addEventListener("focusout", function () { setTimeout(function () { if (S.ideasDirty && !$("ilist").contains(document.activeElement)) renderIdeas(true); }, 50); });
+  function setIdeaStage(x, stage) {
+    S.mineIdeas = S.mineIdeas.map(function (y) { return y.id === x.id ? Object.assign({}, y, { stage: stage, upd: Date.now() }) : y; }); S.ideas[S.me] = S.mineIdeas;
+    saveIdeas(null); appendLog([{ id: uid(), at: Date.now(), item: "I-" + x.id, act: "stage", status: stage }], null); refreshAll();
+  }
+  function renderIdeas(force) {
+    var box = $("ilist");
+    if (!force && box.contains(document.activeElement)) { S.ideasDirty = true; return; }
+    S.ideasDirty = false; box.textContent = "";
+    var list = allIdeas().map(function (i) { return Object.assign(i, { status: statusOf(i.key) }); });
+    var f = S.ifilter;
+    var shown = list.filter(function (i) { return (f.type === "all" || i.x.type === f.type) && (f.status === "all" || (f.status === "open" && !TERMINAL[i.status]) || (f.status === "closed" && TERMINAL[i.status]) || i.status === f.status); });
+    shown.sort(function (a, b) { return (b.x.upd || b.x.at || 0) - (a.x.upd || a.x.at || 0); });
+    $("i-count").textContent = list.length ? shown.length + " of " + list.length + " ideas" : "";
+    if (!shown.length) { box.appendChild(el("div", "empty", list.length ? "No ideas match this filter." : "No ideas yet. Use the form to add the first one.")); return; }
+    shown.forEach(function (i) { box.appendChild(ideaCard(i)); });
+  }
+  function ideaCard(i) {
+    var x = i.x, key = i.key, c = el("article", "dcard idea"); c.id = "i-" + x.id; c.setAttribute("data-comment-target", "");
+    var top = el("div", "dtop"); top.appendChild(el("span", "did", key)); top.appendChild(pill(i.status)); top.appendChild(el("span", "pill", IDEA_TYPES[x.type] || "Idea"));
+    if (AREAS[x.area]) top.appendChild(el("span", "pill", AREAS[x.area].label));
+    if (x.impact === "architecture") top.appendChild(el("span", "pill block", "Needs ADR if approved"));
+    c.appendChild(top); c.appendChild(el("h4", null, x.title));
+    if (x.problem) { var p = el("p", "pre"); p.appendChild(el("b", null, "Problem or reason: ")); p.appendChild(document.createTextNode(x.problem)); c.appendChild(p); }
+    if (x.proposal) { var q = el("p", "pre"); q.appendChild(el("b", null, "Proposal: ")); q.appendChild(document.createTextNode(x.proposal)); c.appendChild(q); }
+    c.appendChild(el("span", "hist", nameOf(i.uid) + " · " + fmtDate(x.at) + " · " + (IMPACT[x.impact] || "")));
+    var r = rulingFor(key); var out = el("div", "outcome"); renderOutcome(out, r, null); c.appendChild(out);
+    var vrow = el("div", "row votes"); var vs = ideaVotesFor(key), mine = (S.mineVotes.ideaVotes[key] || {}).v;
+    [["up", "Support"], ["unsure", "Unsure"], ["down", "Oppose"]].forEach(function (v) {
+      var who = vs.filter(function (z) { return z.v.v === v[0]; });
+      var b = el("button", "fbtn", v[1] + (who.length ? " · " + who.length : "")); b.type = "button"; b.setAttribute("aria-pressed", String(mine === v[0])); b.disabled = !canVote() || !!TERMINAL[i.status];
+      b.title = who.map(function (z) { return nameOf(z.uid); }).join(", ") || "No votes yet";
+      b.addEventListener("click", function () { setIdeaVote(key, mine === v[0] ? "" : v[0]); });
+      vrow.appendChild(b);
+    });
+    c.appendChild(vrow);
+    var row = el("div", "row");
+    if (S.comments) { var cm = el("button", "btn ghost", "Comment"); cm.type = "button"; cm.addEventListener("click", function () { openComment(c); }); row.appendChild(cm); }
+    var cl = el("button", "btn ghost", "Copy link"); cl.type = "button"; cl.addEventListener("click", function () { copyText(location.href.split("#")[0] + "#i-" + x.id, cl); }); row.appendChild(cl);
+    row.appendChild(ghButton(key));
+    if (i.uid === S.me && canVote() && !r) {
+      if (x.stage === "new") { var b1 = el("button", "btn ghost", "Start discussion"); b1.type = "button"; b1.addEventListener("click", function () { setIdeaStage(x, "discussing"); }); row.appendChild(b1); }
+      if (x.stage !== "needs_decision") { var b2 = el("button", "btn ghost", "Ready for decision"); b2.type = "button"; b2.addEventListener("click", function () { setIdeaStage(x, "needs_decision"); }); row.appendChild(b2); }
+      var wd = el("button", "btn ghost", "Withdraw"); wd.type = "button"; wd.addEventListener("click", function () {
+        if (wd.dataset.arm !== "1") { wd.dataset.arm = "1"; wd.textContent = "Tap again to withdraw"; setTimeout(function () { wd.dataset.arm = ""; wd.textContent = "Withdraw"; }, 3000); return; }
+        S.mineIdeas = S.mineIdeas.filter(function (y) { return y.id !== x.id; }); S.ideas[S.me] = S.mineIdeas; saveIdeas(null); appendLog([{ id: uid(), at: Date.now(), item: key, act: "withdraw" }], null); refreshAll();
+      }); row.appendChild(wd);
+    }
+    c.appendChild(row);
+    if (amOwner()) { var ed = el("details", "editor"); ruleEditor(key, null, ed); c.appendChild(ed); }
+    var hd = el("details", "more hist-d"); hd.appendChild(el("summary", null, "History")); var hl = el("div", "hist"); renderHistory(hl, key, null); hd.appendChild(hl); c.appendChild(hd);
+    return c;
+  }
+
+  /* ---------- Dashboard ---------- */
+  function dashList(id, items, empty) {
+    var ul = $(id); ul.textContent = "";
+    if (!items.length) { ul.appendChild(el("li", "muted", empty)); return; }
+    items.slice(0, 8).forEach(function (it) {
+      var li = el("li"); var a = el("a", null, it.key + " · " + it.title); a.href = it.href; li.appendChild(a);
+      if (it.note) li.appendChild(el("span", "muted", " · " + it.note)); ul.appendChild(li);
+    });
+    if (items.length > 8) ul.appendChild(el("li", "muted", "+ " + (items.length - 8) + " more"));
+  }
+  function renderDashboard() {
+    var formal = ALL.map(function (d) { return { key: d.id, title: d.title, href: "#d-" + d.id, d: d, status: statusOf(d.id), r: rulingFor(d.id) }; });
+    var ideas = allIdeas().map(function (i) { return { key: i.key, title: i.x.title, href: "#i-" + i.x.id, i: i, status: statusOf(i.key), r: rulingFor(i.key) }; });
+    var everything = formal.concat(ideas);
+    var settled = formal.filter(function (f) { return TERMINAL[f.status]; }).length;
+    var blocking = formal.filter(function (f) { return f.d.blocking && !TERMINAL[f.status]; });
+    var waiting = S.me ? formal.filter(function (f) { return !TERMINAL[f.status] && !((S.mineVotes.picks[f.key] || {}).opt); })
+      .concat(ideas.filter(function (x) { return x.status === "needs_decision" && !(S.mineVotes.ideaVotes[x.key] || {}).v; })) : [];
+    var fresh = ideas.filter(function (x) { return x.status === "new"; });
+    var needs = ideas.filter(function (x) { return x.status === "needs_decision"; }).concat(formal.filter(function (f) { return f.d.area === "workshop" && !TERMINAL[f.status]; }));
+    var toGit = everything.filter(function (x) { return x.r && TERMINAL[x.r.status] && !(x.r.links && x.r.links.dec); });
+    var ready = everything.filter(function (x) { return x.r && x.r.status === "approved" && x.r.links && x.r.links.issue; });
+    $("st-decided").textContent = settled; $("st-total").textContent = formal.length; $("st-bar").style.width = Math.round(100 * settled / formal.length) + "%";
+    $("st-block").textContent = blocking.length; $("st-mine").textContent = S.me ? String(waiting.length) : "–";
+    $("st-ideas").textContent = ideas.length; $("st-git").textContent = toGit.length; $("st-ready").textContent = ready.length;
+    dashList("dl-block", blocking.map(function (x) { return Object.assign(x, { note: (x.d.refs || "").split(" · ")[0] }); }), "Nothing blocking is undecided.");
+    dashList("dl-mine", waiting, S.me ? "You've weighed in on everything open." : "Sign in to see what's waiting on you.");
+    dashList("dl-new", fresh.map(function (x) { return Object.assign(x, { note: nameOf(x.i.uid) }); }), "No new ideas.");
+    dashList("dl-needs", needs, "Nothing is waiting on an owner ruling.");
+    dashList("dl-git", toGit.map(function (x) { return Object.assign(x, { note: ST[x.r.status][0] }); }), "Every ruling has a decision-log id.");
+    dashList("dl-ready", ready.map(function (x) { return Object.assign(x, { note: x.r.links.issue }); }), "Nothing approved with an issue yet.");
+    var people = {}; Object.keys(S.votes).forEach(function (u) { var v = S.votes[u] || {}; if (Object.keys(v.picks || {}).length || Object.keys(v.ideaVotes || {}).length) people[u] = 1; });
+    Object.keys(S.ideas).forEach(function (u) { if ((S.ideas[u] || []).length) people[u] = 1; });
+    $("st-people").textContent = Object.keys(people).length;
+    var pp = $("people"); pp.textContent = ""; Object.keys(people).forEach(function (u) { var ch = el("span", "chip"); var src = avatarOf(u); if (src) { var im = el("img"); im.src = src; im.alt = ""; ch.appendChild(im); } ch.appendChild(document.createTextNode(nameOf(u) + (isOfficial(u) && ownersSet() ? " · owner" : ""))); pp.appendChild(ch); });
+    var rb = $("ratify"); rb.hidden = !amOwner();
+    var pending = ratifiable(); $("ratify-n").textContent = pending.length; $("ratify-btn").disabled = !pending.length;
+  }
+  function ratifiable() { return DECISIONS.filter(function (d) { var rc = RECON[d.id]; return rc && rc[2] === "No" && !rulingFor(d.id); }); }
+  $("ratify-btn").addEventListener("click", function () {
+    var b = this, list = ratifiable(); if (!list.length || !amOwner()) return;
+    if (b.dataset.arm !== "1") { b.dataset.arm = "1"; b.textContent = "Confirm: record " + list.length + " rulings"; setTimeout(function () { b.dataset.arm = ""; b.textContent = "Ratify these"; }, 5000); return; }
+    b.dataset.arm = ""; b.textContent = "Ratify these";
+    var now = Date.now();
+    appendLog(list.map(function (d, n) { return { id: uid(), at: now + n, item: d.id, act: "rule", status: "approved", outcome: d.rec, rationale: "Ratified: aligned with the approved direction of 27 Oct 2026 (docs/architecture/00-reconciliation-matrix.md). " + RECON[d.id][1], links: ADR_FOR[d.id] ? { adr: ADR_FOR[d.id] } : {} }; }), $("ratify-msg"));
+  });
+
+  /* ---------- Owners ---------- */
+  function knownPeople() { var ids = {}; [S.votes, S.ideas, S.logs].forEach(function (m) { Object.keys(m).forEach(function (u) { ids[u] = 1; }); }); (S.owners.ids || []).forEach(function (u) { ids[u] = 1; }); if (S.me) ids[S.me] = 1; return Object.keys(ids); }
+  function renderOwners() {
+    var box = $("owners-list"); box.textContent = "";
+    var ids = S.owners.ids || [];
+    box.appendChild(el("p", null, ids.length ? "Project owners: " + ids.map(function (u) { return nameOf(u) + (S.owners.github[u] ? " (@" + S.owners.github[u] + ")" : ""); }).join(", ") + ". Only their rulings count." : "The owner list isn't set yet, so any editor's ruling counts. The page owner should set it below."));
+    var ed = $("owners-ed"); ed.hidden = !S.pageOwner; if (!S.pageOwner || ed.contains(document.activeElement)) return;
+    var body = $("owners-body"); body.textContent = "";
+    knownPeople().forEach(function (u) {
+      var row = el("div", "row"); var lab = el("label"); var cb = el("input"); cb.type = "checkbox"; cb.checked = ids.indexOf(u) >= 0; cb.dataset.u = u; lab.appendChild(cb); lab.appendChild(document.createTextNode(" " + nameOf(u) + (u === S.me ? " (you)" : "")));
+      var gh = el("input"); gh.type = "text"; gh.placeholder = "GitHub handle"; gh.maxLength = 39; gh.value = S.owners.github[u] || ""; gh.dataset.u = u; gh.className = "gh";
+      row.appendChild(lab); row.appendChild(gh); body.appendChild(row);
+    });
+  }
+  $("owners-save").addEventListener("click", function () {
+    if (!S.db || !S.pageOwner) return;
+    var ids = [], gh = {};
+    $("owners-body").querySelectorAll("input[type=checkbox]").forEach(function (cb) { if (cb.checked) ids.push(cb.dataset.u); });
+    $("owners-body").querySelectorAll("input.gh").forEach(function (i) { var v = i.value.trim().replace(/^@/, ""); if (v) gh[i.dataset.u] = v; });
+    if (S.me && ids.length && ids.indexOf(S.me) < 0) { $("owners-msg").textContent = "Include yourself, or you'll lose the ability to rule."; return; }
+    $("owners-msg").textContent = "Saving…";
+    S.db.doc("config/owners").set({ ids: ids, github: gh, updatedAt: Date.now() }).then(function () { $("owners-msg").textContent = "Saved"; }, function () { $("owners-msg").textContent = "Not saved. Only the page owner can change this."; });
+  });
+
   /* ---------- Writes ---------- */
-  var mineChain = Promise.resolve(), mineTimer = null;
+  var chains = { votes: Promise.resolve(), ideas: Promise.resolve(), log: Promise.resolve() };
+  function write(kind, path, bodyFn, msgEl, delay, done) {
+    if (!S.db || !S.me) return; if (msgEl) msgEl.textContent = "Saving…";
+    clearTimeout(S.timers[kind]);
+    S.timers[kind] = setTimeout(function () {
+      S.timers[kind] = null; S.pend[kind]++;
+      var body = bodyFn();
+      chains[kind] = chains[kind].then(function () { return S.db.doc(path).set(body); })
+        .then(function () { S.pend[kind]--; if (msgEl) msgEl.textContent = "Saved"; if (done) done(); })
+        .catch(function (e) { S.pend[kind]--; handleWriteError(e, msgEl); });
+    }, delay);
+  }
   function setPick(did, patch) {
-    if (!S.db || !S.me || S.writeBlocked) return;
-    var cur = Object.assign({}, S.mine.picks[did] || {}), changed = false;
+    if (!canVote()) return;
+    var cur = Object.assign({}, S.mineVotes.picks[did] || {}), changed = false;
     Object.keys(patch).forEach(function (k) { if (cur[k] !== patch[k]) { cur[k] = patch[k]; changed = true; } });
     if (!changed) return;
-    cur.at = Date.now(); S.mine.picks[did] = cur; S.people[S.me] = S.mine; refreshCard(decById[did]); refreshStats();
-    queueMine(S.cards[did].saved);
+    cur.at = Date.now(); S.mineVotes.picks[did] = cur; S.votes[S.me] = S.mineVotes; refreshCard(byId[did]); renderDashboard();
+    saveVotes(S.cards[did].saved);
   }
-  function queueMine(msgEl) {
-    if (msgEl) msgEl.textContent = "Saving…";
-    clearTimeout(mineTimer);
-    mineTimer = setTimeout(function () {
-      mineTimer = null; S.minePending++;
-      var body = { picks: S.mine.picks, suggestions: S.mine.suggestions, updatedAt: Date.now() };
-      mineChain = mineChain.then(function () { return S.db.doc("votes/" + S.me).set(body); })
-        .then(function () { S.minePending--; if (msgEl) msgEl.textContent = "Saved"; })
-        .catch(function (e) { S.minePending--; handleWriteError(e, msgEl); });
-    }, 500);
+  function setIdeaVote(key, v) {
+    if (!canVote()) return;
+    if (v) S.mineVotes.ideaVotes[key] = { v: v, at: Date.now() }; else delete S.mineVotes.ideaVotes[key];
+    S.votes[S.me] = S.mineVotes; renderIdeas(true); renderDashboard(); saveVotes(null);
+  }
+  function saveVotes(msgEl) { write("votes", "votes/" + S.me, function () { return { picks: S.mineVotes.picks, ideaVotes: S.mineVotes.ideaVotes, updatedAt: Date.now() }; }, msgEl, 500); }
+  function saveIdeas(msgEl) { write("ideas", "ideas/" + S.me, function () { return { items: S.mineIdeas, updatedAt: Date.now() }; }, msgEl, 200); }
+  function appendLog(entries, msgEl, done) {
+    if (!S.db || !S.me || S.writeBlocked) { if (msgEl) msgEl.textContent = "Not saved: no write access."; return; }
+    S.mineLog = S.mineLog.concat(entries).slice(-600); S.logs[S.me] = S.mineLog; refreshAll();
+    write("log", "log/" + S.me, function () { return { entries: S.mineLog, updatedAt: Date.now() }; }, msgEl, 100, done);
   }
   function handleWriteError(e, msgEl) {
     var code = e && e.code;
-    if (code === "invalid_argument") { S.writeBlocked = true; showConn("You can read this page but not save picks. Ask the owner for Contributor access (or Editor if you're outside the organization).", "warn"); refreshAll(); }
-    else if (code === "quota_exceeded") { if (msgEl) msgEl.textContent = "Storage is full. Ask the owner to export and clear old data."; }
+    if (code === "invalid_argument" || code === "permission_denied" || code === "not_granted") { S.writeBlocked = true; showConn("You can read this page but not save. Ask the owner for Contributor access (or an Editor invite if you're outside the organization).", "warn"); refreshAll(); }
+    else if (code === "quota_exceeded") { if (msgEl) msgEl.textContent = "Storage is full. Ask the owner to export and archive."; }
     else if (msgEl) msgEl.textContent = "Not saved. Check your connection and try again.";
-  }
-  function saveOutcome(did, status, chosen, rationale, btn, msg) {
-    if (!S.db || !S.canEdit) return;
-    var cur = S.outcomes[did] || {}, hist = (cur.history || []).slice(-30);
-    var entry = { status: status, chosen: chosen || "", rationale: rationale, by: S.me, at: Date.now() };
-    hist.push({ status: status, chosen: chosen || "", by: S.me, at: entry.at });
-    var body = Object.assign({}, entry, { history: hist });
-    btn.disabled = true; msg.textContent = "Saving…";
-    S.db.doc("decisions/" + did).set(body).then(function () { msg.textContent = "Saved"; btn.disabled = false; })
-      .catch(function (e) { btn.disabled = false; msg.textContent = e && e.code === "invalid_argument" ? "Only editors can record decisions." : "Not saved. Try again."; });
-  }
-
-  /* ---------- Suggestions ---------- */
-  $("sform").addEventListener("submit", function (ev) {
-    ev.preventDefault();
-    var t = $("s-title").value.trim(); if (!t) { $("s-msg").textContent = "Add a short title first."; $("s-title").focus(); return; }
-    if (!S.db || !S.me || S.writeBlocked) { $("s-msg").textContent = "Saving suggestions needs Contributor access on this page."; return; }
-    if (S.mine.suggestions.length >= 60) { $("s-msg").textContent = "You've reached 60 suggestions. Combine a few first."; return; }
-    S.mine.suggestions = S.mine.suggestions.concat([{ id: "s" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6), title: t.slice(0, 140), body: $("s-body").value.trim().slice(0, 2000), area: $("s-area").value, at: Date.now() }]);
-    S.people[S.me] = S.mine; $("s-title").value = ""; $("s-body").value = ""; refreshSuggestions(); queueMine($("s-msg"));
-  });
-  function refreshSuggestions() {
-    var all = []; Object.keys(S.people).forEach(function (u) { (S.people[u].suggestions || []).forEach(function (s) { all.push({ uid: u, s: s }); }); });
-    all.sort(function (a, b) { return (b.s.at || 0) - (a.s.at || 0); });
-    var box = $("slist"); box.textContent = "";
-    if (!all.length) { box.appendChild(el("div", "empty", "No suggestions yet. Add the first one with the form.")); return; }
-    all.forEach(function (x) {
-      var s = x.s, oc = S.outcomes["S_" + s.id] || {}, c = el("div", "sug"); c.setAttribute("data-comment-target", "");
-      var top = el("div", "dtop"); top.appendChild(el("span", "pill", (AREAS[s.area] || {}).label || "General"));
-      var stMap = { adopted: ["agreed", "Adopted"], discuss: ["leaning", "Needs discussion"], declined: ["rejected", "Declined"] }, sm = stMap[oc.status];
-      top.appendChild(el("span", "pill st-" + (sm ? sm[0] : "open"), sm ? sm[1] : "New")); c.appendChild(top);
-      c.appendChild(el("b", null, s.title)); if (s.body) c.appendChild(el("p", null, s.body));
-      c.appendChild(el("span", "hist", nameOf(x.uid) + " · " + new Date(s.at).toLocaleDateString()));
-      var row = el("div", "row");
-      if (S.comments) { var cm = el("button", "btn ghost", "Comment"); cm.type = "button"; cm.addEventListener("click", function () { openComment(c, cm); }); row.appendChild(cm); }
-      if (S.canEdit) ["adopted", "discuss", "declined"].forEach(function (k) { var b = el("button", "btn ghost", stMap[k][1]); b.type = "button"; b.addEventListener("click", function () { S.db.doc("decisions/S_" + s.id).set({ status: k, by: S.me, at: Date.now(), suggestion: true }).catch(function () {}); }); row.appendChild(b); });
-      if (x.uid === S.me && S.canWrite && !S.writeBlocked) { var del = el("button", "btn ghost", "Remove"); del.type = "button"; del.addEventListener("click", function () { S.mine.suggestions = S.mine.suggestions.filter(function (y) { return y.id !== s.id; }); S.people[S.me] = S.mine; refreshSuggestions(); queueMine(null); }); row.appendChild(del); }
-      if (row.children.length) c.appendChild(row);
-      box.appendChild(c);
-    });
   }
 
   /* ---------- Comments, copy, export ---------- */
-  function openComment(target, btn) {
+  function openComment(target) {
     if (!S.comments) return;
-    S.comments.openComposer({ element: target }).catch(function (e) { if (e && (e.code === "unavailable" || e.code === "not_granted")) { S.comments = null; document.querySelectorAll(".dcard .dfoot .btn.ghost").forEach(function (b) { if (b.textContent === "Comment") b.hidden = true; }); } });
+    S.comments.openComposer({ element: target }).catch(function (e) { if (e && (e.code === "unavailable" || e.code === "not_granted")) { S.comments = null; document.querySelectorAll(".cmt").forEach(function (b) { b.hidden = true; }); } });
   }
   function copyText(t, btn) {
     var orig = btn.textContent;
     try { navigator.clipboard.writeText(t).then(function () { btn.textContent = "Copied"; setTimeout(function () { btn.textContent = orig; }, 1500); }, function () { fallbackCopy(t, btn, orig); }); } catch (e) { fallbackCopy(t, btn, orig); }
   }
   function fallbackCopy(t, btn, orig) { var ta = el("textarea"); ta.value = t; ta.style.position = "fixed"; ta.style.opacity = "0"; document.body.appendChild(ta); ta.select(); var ok = false; try { ok = document.execCommand("copy"); } catch (e) {} ta.remove(); btn.textContent = ok ? "Copied" : "Copy failed"; setTimeout(function () { btn.textContent = orig; }, 1500); }
+  function rulingOut(r, options) {
+    if (!r) return null; var ch = options ? options.filter(function (o) { return o.k === r.outcome; })[0] : null;
+    return { status: r.status, outcome: r.outcome || "", outcomeLabel: ch ? ch.label : "", rationale: r.rationale || "", by: r.by, byName: nameOf(r.by), github: S.owners.github[r.by] || "", official: isOfficial(r.by), at: new Date(r.at).toISOString(), links: r.links || {} };
+  }
+  function histOut(key) { return historyFor(key).map(function (e) { return { at: new Date(e.at).toISOString(), by: e.by, byName: nameOf(e.by), act: e.act, status: e.status || "", outcome: e.outcome || "", rationale: e.rationale || "", links: e.links || {}, official: isOfficial(e.by) }; }); }
+  function exportData() {
+    var people = {}; knownPeople().forEach(function (u) { people[u] = nameOf(u); });
+    var items = ALL.map(function (d) {
+      var picks = picksFor(d.id), votes = {}; d.options.forEach(function (o) { votes[o.k] = picks.filter(function (p) { return p.p.opt === o.k; }).length; });
+      return { id: d.id, kind: d.area === "workshop" ? "workshop" : "decision", area: d.area, title: d.title, blocking: !!d.blocking, refs: d.refs || "", status: statusOf(d.id), recommended: d.rec,
+        options: d.options.map(function (o) { return { key: o.k, label: o.label }; }), votes: votes,
+        voters: picks.map(function (p) { return { id: p.uid, name: nameOf(p.uid), option: p.p.opt || "", note: p.p.note || "", discuss: !!p.p.discuss, at: p.p.at ? new Date(p.p.at).toISOString() : "" }; }),
+        reconciliation: RECON[d.id] ? { class: RECON[d.id][0], disposition: RECON[d.id][1], approval: RECON[d.id][2], refs: RECON[d.id][3] } : null,
+        ruling: rulingOut(rulingFor(d.id), d.options), history: histOut(d.id) };
+    }).concat(allIdeas().map(function (i) {
+      var vs = ideaVotesFor(i.key);
+      return { id: i.key, kind: "idea", area: i.x.area, title: i.x.title, type: i.x.type, impact: i.x.impact, problem: i.x.problem, proposal: i.x.proposal, author: i.uid, authorName: nameOf(i.uid), createdAt: new Date(i.x.at).toISOString(), status: statusOf(i.key),
+        votes: { up: vs.filter(function (z) { return z.v.v === "up"; }).length, unsure: vs.filter(function (z) { return z.v.v === "unsure"; }).length, down: vs.filter(function (z) { return z.v.v === "down"; }).length },
+        voters: vs.map(function (z) { return { id: z.uid, name: nameOf(z.uid), vote: z.v.v, at: new Date(z.v.at).toISOString() }; }),
+        ruling: rulingOut(rulingFor(i.key), null), history: histOut(i.key) };
+    }));
+    return { schema: "fs-planning-hub-export/1", exportedAt: new Date().toISOString(), source: "Forged & Sent Planning Hub", repository: REPO,
+      owners: (S.owners.ids || []).map(function (u) { return { id: u, name: nameOf(u), github: S.owners.github[u] || "" }; }), people: people, items: items };
+  }
   function summaryMd() {
-    var lines = ["# Forged & Sent decisions (" + new Date().toLocaleDateString() + ")", ""];
-    Object.keys(AREAS).forEach(function (ak) {
-      lines.push("## " + AREAS[ak].label, "");
-      DECISIONS.filter(function (d) { return d.area === ak; }).forEach(function (d) {
-        var o = S.outcomes[d.id] || {}, ch = d.options.filter(function (x) { return x.k === o.chosen; })[0], picks = picksFor(d.id);
-        var tally = d.options.map(function (x) { return x.label.split(" (")[0] + ": " + picks.filter(function (p) { return p.p.opt === x.k; }).length; }).join("; ");
-        lines.push("- **" + d.id + " " + d.title + "** — " + (STATUS[o.status] || "Open") + (ch ? ": " + ch.label : "") + (o.rationale ? ". " + o.rationale : "") + (d.blocking ? " _(blocking)_" : ""));
-        lines.push("  - Votes: " + tally);
+    var data = exportData(), lines = ["# Forged & Sent planning summary (" + new Date().toLocaleDateString() + ")", ""];
+    [["workshop", "Owner workshop"], ["decision", "Architecture decisions"], ["idea", "Ideas"]].forEach(function (g) {
+      lines.push("## " + g[1], "");
+      data.items.filter(function (x) { return x.kind === g[0]; }).forEach(function (x) {
+        var r = x.ruling;
+        lines.push("- **" + x.id + " " + x.title + "** — " + ST[x.status][0] + (r && r.outcomeLabel ? ": " + r.outcomeLabel : "") + (r && r.rationale ? ". " + r.rationale : "") + (x.blocking ? " _(blocking)_" : ""));
+        if (x.options) lines.push("  - Votes: " + x.options.map(function (o) { return o.label.split(" (")[0] + ": " + x.votes[o.key]; }).join("; "));
+        else lines.push("  - Votes: support " + x.votes.up + ", unsure " + x.votes.unsure + ", oppose " + x.votes.down);
       });
       lines.push("");
     });
     return lines.join("\n");
   }
-  $("copy-md").addEventListener("click", function () { copyText(summaryMd(), $("copy-md")); });
-  $("exp-json").addEventListener("click", function () {
-    var people = {}; Object.keys(S.people).forEach(function (u) { people[u] = { name: nameOf(u), picks: S.people[u].picks || {}, suggestions: S.people[u].suggestions || [] }; });
-    var data = { exportedAt: new Date().toISOString(), source: "Forged & Sent Blueprint", reviewCommit: "a71efab",
-      decisions: DECISIONS.map(function (d) { return { id: d.id, area: d.area, title: d.title, blocking: d.blocking, refs: d.refs, recommended: d.rec, options: d.options.map(function (o) { return { key: o.k, label: o.label }; }), outcome: S.outcomes[d.id] || null }; }),
-      suggestionOutcomes: Object.keys(S.outcomes).filter(function (k) { return k.indexOf("S_") === 0; }).reduce(function (m, k) { m[k] = S.outcomes[k]; return m; }, {}),
-      people: people };
-    if (!S.downloads) { copyText(JSON.stringify(data, null, 2), $("exp-json")); $("exp-msg").textContent = "Downloads aren't available here, so the JSON was copied to your clipboard."; return; }
-    S.downloads.save({ filename: "forged-and-sent-decisions-" + new Date().toISOString().slice(0, 10) + ".json", data: JSON.stringify(data, null, 2) })
-      .then(function () { $("exp-msg").textContent = "Saved."; }).catch(function (e) { $("exp-msg").textContent = e && e.code === "declined" ? "Download cancelled." : "Couldn't save the file here. Try Copy decision summary instead."; });
-  });
+  function doExport(btn, msg) {
+    var json = JSON.stringify(exportData(), null, 2);
+    if (!S.downloads) { copyText(json, btn); msg.textContent = "Downloads aren't available here, so the JSON was copied to your clipboard."; return; }
+    S.downloads.save({ filename: "forged-and-sent-planning-" + new Date().toISOString().slice(0, 10) + ".json", data: json })
+      .then(function () { msg.textContent = "Saved. Commit it with tools/planning/import_hub_export.py."; }).catch(function (e) { msg.textContent = e && e.code === "declined" ? "Download cancelled." : "Couldn't save the file here. Try Copy summary instead."; });
+  }
+  document.querySelectorAll(".exp-json").forEach(function (b) { b.addEventListener("click", function () { doExport(b, b.parentNode.querySelector(".saved")); }); });
+  document.querySelectorAll(".copy-md").forEach(function (b) { b.addEventListener("click", function () { copyText(summaryMd(), b); }); });
 
-  /* ---------- Lazy content: schema and full review ---------- */
+  /* ---------- Lazy content ---------- */
   $("schema-d").addEventListener("toggle", function () { if (!this.open || this.dataset.done) return; this.dataset.done = "1"; fetch("firestore.rules").then(function (r) { return r.text(); }).then(function (t) { $("schema-pre").textContent = t; }).catch(function () { $("schema-pre").textContent = "The rules file couldn't be loaded here."; }); });
   $("review-d").addEventListener("toggle", function () {
     if (!this.open || this.dataset.done) return; this.dataset.done = "1";
@@ -1549,11 +1974,20 @@ var RISKS = [
       box.querySelectorAll("a[href^='http']").forEach(function (a) { a.target = "_blank"; a.rel = "noopener"; });
     }).catch(function () { $("review-body").textContent = "The full review couldn't be loaded here."; });
   });
+  function renderMermaid() {
+    if (!window.mermaid) return;
+    try {
+      var dark = document.documentElement.getAttribute("data-theme") === "dark" || (document.documentElement.getAttribute("data-theme") !== "light" && window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches);
+      window.mermaid.initialize({ startOnLoad: false, theme: dark ? "dark" : "neutral", securityLevel: "strict", fontFamily: "IBM Plex Sans, system-ui, sans-serif" });
+      window.mermaid.run({ querySelector: "pre.mermaid" }).catch(function () {});
+    } catch (e) {}
+  }
 
   /* ---------- Navigation ---------- */
   function goHash() {
     var h = (location.hash || "").slice(1); if (!h) return;
-    if (/^d-D\d+$/.test(h)) { S.filter = { area: "all", status: "all", block: false, q: "" }; $("f-status").value = "all"; $("f-q").value = ""; $("f-block").setAttribute("aria-pressed", "false"); applyFilters(); }
+    if (/^d-[DW]\d+$/.test(h)) { S.filter = { area: "all", status: "all", block: false, q: "" }; $("f-status").value = "all"; $("f-q").value = ""; $("f-block").setAttribute("aria-pressed", "false"); applyFilters(); }
+    if (/^i-/.test(h)) { S.ifilter.status = "all"; $("if-status").value = "all"; renderIdeas(true); }
     var t = document.getElementById(h); if (t) setTimeout(function () { t.scrollIntoView({ block: "start" }); }, 30);
   }
   window.addEventListener("hashchange", goHash);
@@ -1565,48 +1999,47 @@ var RISKS = [
   $("f-status").addEventListener("change", function () { S.filter.status = this.value; applyFilters(); });
   $("f-block").addEventListener("click", function () { S.filter.block = !S.filter.block; this.setAttribute("aria-pressed", String(S.filter.block)); applyFilters(); });
   $("f-q").addEventListener("input", function () { S.filter.q = this.value.trim(); applyFilters(); });
-
   function showConn(t, kind) { var b = $("conn"); b.hidden = !t; b.textContent = t || ""; if (kind) b.setAttribute("data-kind", kind); else b.removeAttribute("data-kind"); }
 
   /* ---------- Boot ---------- */
-  areaButtons(); buildCards(); refreshAll(); goHash();
+  areaButtons(); buildCards(); refreshAll(); goHash(); renderMermaid();
   showConn("Connecting to the shared register…");
   var profTimer = null, profBusy = false;
   function loadProfiles() {
     clearTimeout(profTimer);
     profTimer = setTimeout(function () {
-      if (!S.user || profBusy) return; var ids = {};
-      Object.keys(S.people).forEach(function (u) { ids[u] = 1; }); Object.keys(S.outcomes).forEach(function (k) { var o = S.outcomes[k]; if (o.by) ids[o.by] = 1; (o.history || []).forEach(function (h) { if (h.by) ids[h.by] = 1; }); }); if (S.me) ids[S.me] = 1;
-      var list = Object.keys(ids).filter(function (x) { return !S.profiles[x]; }); if (!list.length) return;
+      if (!S.user || profBusy) return;
+      var list = knownPeople().filter(function (x) { return !S.profiles[x]; }); if (!list.length) return;
       profBusy = true; S.user.profiles(list).then(function (m) { Object.assign(S.profiles, m || {}); profBusy = false; refreshAll(); }, function () { profBusy = false; });
     }, 150);
   }
+  function adoptMine(kind, server) {
+    if (!S.me || S.timers[kind] || S.pend[kind]) return;
+    if (kind === "votes") S.mineVotes = { picks: Object.assign({}, (server && server.picks) || {}), ideaVotes: Object.assign({}, (server && server.ideaVotes) || {}) };
+    if (kind === "ideas") S.mineIdeas = ((server && server.items) || []).slice();
+    if (kind === "log") S.mineLog = ((server && server.entries) || []).slice();
+  }
+  function obj(x) { return (x && typeof x === "object") ? x : {}; }
   (async function () {
     var c = window.claude;
-    if (!c || !c.use) { showConn("Read-only copy: voting, notes and decisions work when this page is opened on claude.ai.", "warn"); return; }
+    if (!c || !c.use) { showConn("Read-only copy: voting, ideas and rulings work when this page is opened on claude.ai.", "warn"); return; }
     var r = await Promise.all([c.use("db"), c.use("user"), c.use("comments"), c.use("downloads")]);
     S.db = r[0]; S.user = r[1]; S.comments = r[2]; S.downloads = r[3];
-    if (S.comments) document.querySelectorAll(".dcard .dfoot .btn.ghost").forEach(function (b) { if (b.textContent === "Comment") b.hidden = false; });
+    if (S.comments) document.querySelectorAll(".cmt").forEach(function (b) { b.hidden = false; });
     if (S.user) {
-      try { S.me = await S.user.id(); } catch (e) { S.me = null; }
-      try { S.canEdit = !!(await S.user.canEdit()); } catch (e) { S.canEdit = false; }
+      try { var me = await S.user.me(); S.me = me.id || null; S.canEdit = !!me.canEdit; S.pageOwner = !!me.isOwner; } catch (e) { S.me = null; }
       try { var cw = await S.user.can("data.write"); S.canWrite = cw !== false; } catch (e) { S.canWrite = true; }
     }
-    if (!S.db) { showConn("The shared register isn't available in this view. You can read everything; sign in on claude.ai to vote.", "warn"); refreshAll(); return; }
-    if (!S.me) showConn("Sign in to claude.ai to pick options and add notes. You can read everything now.", "warn");
-    else if (!S.canWrite) showConn("You have view access: you can read everything and comment. Ask the owner for Contributor access to vote.", "warn");
+    if (!S.db) { showConn("The shared register isn't available in this view. You can read everything; open it on claude.ai to take part.", "warn"); refreshAll(); return; }
+    if (!S.me) showConn("Sign in to claude.ai to vote, add ideas and comment. You can read everything now.", "warn");
+    else if (!S.canWrite) showConn("You have view access: you can read and comment. Ask the owner for Contributor access to vote and add ideas.", "warn");
     else showConn("");
-    DECISIONS.forEach(buildEditor);
-    S.db.collection("decisions").onSnapshot(function (snap) {
-      var m = {}; snap.docs.forEach(function (d) { m[d.id] = d.data() || {}; }); S.outcomes = m;
-      DECISIONS.forEach(function (d) { var ss = $("ed-st-" + d.id), so = $("ed-op-" + d.id), rt = $("ed-why-" + d.id), o = m[d.id] || {}; if (ss && document.activeElement !== ss) ss.value = o.status || "open"; if (so && document.activeElement !== so) so.value = o.chosen || ""; if (rt && document.activeElement !== rt) rt.value = o.rationale || ""; });
-      refreshAll(); loadProfiles();
-    }, function () { showConn("Live updates stopped. Reload the page to reconnect.", "warn"); });
-    S.db.collection("votes").onSnapshot(function (snap) {
-      var m = {}; snap.docs.forEach(function (d) { var x = d.data() || {}; m[d.id] = { picks: (x.picks && typeof x.picks === "object") ? x.picks : {}, suggestions: Array.isArray(x.suggestions) ? x.suggestions : [] }; });
-      if (S.me) { if (m[S.me] && !mineTimer && !S.minePending) { S.mine = { picks: Object.assign({}, m[S.me].picks), suggestions: m[S.me].suggestions.slice() }; } m[S.me] = S.mine; }
-      S.people = m; refreshAll(); loadProfiles();
-    }, function () { showConn("Live updates stopped. Reload the page to reconnect.", "warn"); });
+    function sub(col, fn) { S.db.collection(col).onSnapshot(function (snap) { fn(snap); refreshAll(); loadProfiles(); }, function () { showConn("Live updates stopped. Reload the page to reconnect.", "warn"); }); }
+    sub("votes", function (snap) { var m = {}; snap.docs.forEach(function (d) { var x = obj(d.data()); m[d.id] = { picks: obj(x.picks), ideaVotes: obj(x.ideaVotes) }; }); if (S.me) { adoptMine("votes", m[S.me]); m[S.me] = S.mineVotes; } S.votes = m; });
+    sub("ideas", function (snap) { var m = {}; snap.docs.forEach(function (d) { var x = obj(d.data()); m[d.id] = Array.isArray(x.items) ? x.items : []; }); if (S.me) { adoptMine("ideas", { items: m[S.me] }); m[S.me] = S.mineIdeas; } S.ideas = m; });
+    sub("log", function (snap) { var m = {}; snap.docs.forEach(function (d) { var x = obj(d.data()); m[d.id] = Array.isArray(x.entries) ? x.entries : []; }); if (S.me) { adoptMine("log", { entries: m[S.me] }); m[S.me] = S.mineLog; } S.logs = m; });
+    sub("config", function (snap) { snap.docs.forEach(function (d) { if (d.id === "owners") { var x = obj(d.data()); S.owners = { ids: Array.isArray(x.ids) ? x.ids : [], github: obj(x.github) }; } }); });
   })();
 })();
+
 </script>

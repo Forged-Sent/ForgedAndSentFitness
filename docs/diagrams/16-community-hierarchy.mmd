@@ -1,0 +1,21 @@
+%% Community hierarchy with activation stage (conceptual UML class diagram)
+classDiagram
+  direction TB
+  class Member { account; no required gender, marital or child fields }
+  class Group { tenant and privacy boundary; Day 1 }
+  class Membership { role member or leader; written by Functions }
+  class Team { 3 to 6 members; persistent per W03; M3 }
+  class Partner { 2 members; prayer and accountability audience; M2 }
+  class Season { ruleset version; practice flag; M3 }
+  class Organization { church; admin metadata only; grants no data; Stage 2 }
+  class League { cross-group season; standings only; Stage 2 }
+  class Household { separate entity; grants only explicit shares; reserved }
+  Member "1" -- "*" Membership
+  Membership "*" -- "1" Group
+  Organization "0..1" o-- "*" Group
+  Group "1" *-- "*" Team
+  Group "1" *-- "*" Season
+  Group "1" *-- "*" Partner
+  Team "*" -- "*" Member
+  League "*" -- "*" Group
+  Household "0..*" -- "*" Member

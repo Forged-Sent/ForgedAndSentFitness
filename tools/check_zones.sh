@@ -3,7 +3,7 @@
 # CI:   PR_LABELS="..." PR_BODY="..." tools/check_zones.sh origin/main
 # Hook: tools/check_zones.sh --hook  (reads Claude Code PreToolUse JSON on stdin; exit 2 blocks)
 set -euo pipefail
-ZONES='^(docs/adr/|docs/requirements/|contracts/|firebase/firestore\.rules|firebase/storage\.rules|firebase/firestore\.indexes\.json|functions/src/scoring/|content/.*/approved\.yaml)'
+ZONES='^(docs/adr/|docs/requirements/|docs/planning/decision-log\.yaml|contracts/|firebase/firestore\.rules|firebase/storage\.rules|firebase/firestore\.indexes\.json|functions/src/scoring/|content/.*/approved\.yaml)'
 LEGACY='^(index\.html|versions/|seed/)'
 if [[ "${1:-}" == "--hook" ]]; then
   path=$(python3 -c 'import json,sys; d=json.load(sys.stdin); print((d.get("tool_input") or {}).get("file_path",""))')
