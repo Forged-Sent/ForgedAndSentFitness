@@ -751,9 +751,18 @@ button.fo-item { cursor: pointer; min-height: 44px; }
 .p-body{padding:14px 16px 18px}
 .motto{margin:0;font-family:var(--f-scripture);font-style:italic;font-weight:400;font-size:16.5px;line-height:1.45;text-wrap:balance}
 .motto.none{color:var(--muted);font-style:normal;font-size:14px;font-family:var(--f-body)}
-.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border:1px solid var(--line)}
+.stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));border:1px solid var(--line)}
 .stat{padding:12px 6px;text-align:center;border-right:1px solid var(--line)}
 .stat:last-child{border-right:0}
+.stats .stat:nth-child(2n){border-right:0}
+.bp { display: flex; flex-direction: column; gap: 6px; }
+.bp-list { display: flex; flex-direction: column; gap: 4px; }
+.bp-hit, .bp-pick { display: flex; align-items: center; gap: 10px; width: 100%; min-height: 52px; padding: 6px 10px; border: 1px solid var(--line); border-radius: var(--radius, 4px); background: var(--surface); color: var(--ink); text-align: left; cursor: pointer; }
+.bp-pick { border-color: var(--accent); cursor: default; }
+.bp-hit .avatar, .bp-pick .avatar { width: 36px; height: 36px; flex: none; }
+.bp-tx { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.bp-tx b { font-weight: 600; } .bp-tx small { color: var(--muted); font-size: 12.5px; }
+.stats .stat:nth-child(-n+2){border-bottom:1px solid var(--line)}
 .stat b{display:block;font-family:var(--f-label);font-weight:700;font-size:23px;line-height:1;font-variant-numeric:tabular-nums}
 .stat span{font-family:var(--f-label);font-weight:600;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
 .lift{border-bottom:1px solid var(--line);padding:12px 4px;display:flex;flex-direction:column;gap:8px}
@@ -1522,8 +1531,10 @@ header.hero .me-btn { border-color:#e87328; }
         <div class="stat"><b id="st-streak">0</b><span>Full-day streak</span></div>
         <div class="stat"><b id="st-week">0</b><span>Week pts</span></div>
         <div class="stat"><b id="st-today">0</b><span>Boxes today</span></div>
+        <div class="stat"><b id="st-recruits">0</b><span>Brothers recruited</span></div>
       </div>
     </section>
+    <button class="btn ghost" type="button" id="p-invite" style="width:100%" hidden>Invite a brother</button>
     <section class="prof-pts" id="prof-pts" aria-label="Points breakdown"></section>
     <section aria-labelledby="h-lifts">
       <div class="section-head"><h2 class="label-caps" id="h-lifts" data-sub="Your best squat, bench, deadlift and more. The group can see these.">Core lift PRs</h2></div>
@@ -1573,6 +1584,7 @@ header.hero .me-btn { border-color:#e87328; }
         <button class="btn" type="submit">Save handle and creed</button>
         <p class="note" id="s-motto-status" style="margin:0"></p>
       </form>
+      <div class="setgrp" id="s-invite"></div>
       <div class="sub-head"><span class="label-caps">Photos</span></div>
       <div class="setgrp">
         <div class="thumb-row"><span class="thumb" id="s-av-thumb"></span>
@@ -1886,11 +1898,12 @@ header.hero .me-btn { border-color:#e87328; }
         var m = {};
         s.docs.forEach(function (d) { var x = d.data() || {}; var prs = {};
           Object.keys(x.prs || {}).forEach(function (k) { var v = x.prs[k] || {}; if (Number(v.w) > 0) prs[k] = { w: Number(v.w), reps: Number(v.reps) || 1, date: String(v.date || "") }; });
-          m[d.id] = { motto: String(x.motto || ""), avatarId: String(x.avatarId || ""), bannerId: String(x.bannerId || ""), prs: prs, handle: validHandle(cleanHandle(x.handle)) ? cleanHandle(x.handle) : "" }; });
+          m[d.id] = { motto: String(x.motto || ""), avatarId: String(x.avatarId || ""), bannerId: String(x.bannerId || ""), prs: prs, handle: validHandle(cleanHandle(x.handle)) ? cleanHandle(x.handle) : "",
+            invitedBy: /^[A-Za-z0-9_-]{1,80}$/.test(String(x.invitedBy || "")) && x.invitedBy !== d.id ? String(x.invitedBy) : "", invitedAt: /^\d{4}-\d{2}-\d{2}$/.test(String(x.invitedAt || "")) ? String(x.invitedAt) : "" }; });
         cb(m);
       }, noop);
     },
-    saveProfile: function (uid, p) { return this.db.doc("profiles/" + uid).set({ motto: p.motto, avatarId: p.avatarId, bannerId: p.bannerId, prs: p.prs, handle: p.handle || "", updatedAt: Date.now() }); },
+    saveProfile: function (uid, p) { return this.db.doc("profiles/" + uid).set({ motto: p.motto, avatarId: p.avatarId, bannerId: p.bannerId, prs: p.prs, handle: p.handle || "", invitedBy: p.invitedBy || "", invitedAt: p.invitedAt || "", updatedAt: Date.now() }); },
     watchLifts: function (cb) {
       return this.db.collection("lifts").orderBy("order").onSnapshot(function (s) {
         cb(s.docs.map(function (d) { var x = d.data() || {}; return { id: d.id, name: String(x.name || "Lift"), order: Number(x.order) || 0 }; }));
@@ -4737,14 +4750,15 @@ header.hero .me-btn { border-color:#e87328; }
       if (w.week > lastWk || (range === "week" && w.week !== cw.n) || cw.pre) return;
       w.challenges.forEach(function (c) { var r = chalStandings(c).filter(function (x) { return x.uid === uid; })[0]; if (r) ch[c.slot] += r.pts; });
     });
-    var kw = t.boxes + t.habits + t.steps + t.protein + t.prs;
+    var rcN = recruitsOf(uid).filter(function (r) { return r.at <= today && (range === "all" || r.at >= ws); }).length, rcPts = rcN * RECRUIT_PTS;
+    var kw = t.boxes + t.habits + t.steps + t.protein + t.prs + rcPts;
     function group(title, rows, total) {
       var g = el("div", "pp-g"); g.appendChild(el("div", "pts-h", title));
       var tb = el("div", "pts-tbl"); rows.forEach(function (r) { var row = el("div", "pts-row"); row.appendChild(el("span", null, r[0])); row.appendChild(el("b", null, (Math.round(r[1] * 10) / 10).toLocaleString())); tb.appendChild(row); });
       if (total != null) { var tr = el("div", "pts-row pp-total"); tr.appendChild(el("span", null, "Total")); tr.appendChild(el("b", null, (Math.round(total * 10) / 10).toLocaleString())); tb.appendChild(tr); }
       g.appendChild(tb); box.appendChild(g);
     }
-    group("Kingdom Warrior", [["Daily habits", t.boxes + t.habits], ["Step bonus", t.steps], ["Protein bonus", t.protein], ["PRs (" + (t.prs / PR_PTS) + " × " + PR_PTS + ")", t.prs]], kw);
+    group("Kingdom Warrior", [["Daily habits", t.boxes + t.habits], ["Step bonus", t.steps], ["Protein bonus", t.protein], ["PRs (" + (t.prs / PR_PTS) + " × " + PR_PTS + ")", t.prs], ["Brothers recruited (" + rcN + " × " + RECRUIT_PTS + ")", rcPts]], kw);
     group("Weekly challenges" + (range === "week" && !cw.pre ? " · Week " + cw.n : ""), [["Family", ch.family], ["Iron", ch.iron], ["Endure", ch.endure]], ch.family + ch.iron + ch.endure);
     if (cw.pre) box.appendChild(el("p", "fnote", "Weekly challenges start Monday, November 2."));
     // PR list
@@ -5066,6 +5080,7 @@ header.hero .me-btn { border-color:#e87328; }
     group("Step bonus", [["Steps box goal", fmt(STEPS_GOAL) + " (" + fmt(STEPS_GOAL_SABBATH) + " on Sabbath)"], ["Each 1,000 steps from 10,000 to 15,000", "+1 pt"], ["Each 1,000 steps after 15,000", "+0.5 pt"]],
       "Example: 18,000 steps earns the Steps box, plus 5 bonus points for 10k to 15k and 1.5 for 15k to 18k.");
     group("Personal records", [["Weight PR or volume PR on a lift", "+" + PR_PTS + " pts"]], "Awarded when you finish a workout. Each lift earns it once a day, even if you hit both a weight and a volume PR.");
+    group("Sent", [["A brother you invited joins", "+" + RECRUIT_PTS + " pts"]], "Counts when he finishes setup and picks you under \u201CWho invited you?\u201D It goes on the day he joins, in that week and all time. Your profile shows how many brothers you\u2019ve brought in.");
     b.appendChild(el("p", "fnote", "Today shows points earned today. This week adds up Monday through Sunday, then resets. All time adds up every point since a man joined."));
   }
   function boardPicker() {
@@ -5122,6 +5137,11 @@ header.hero .me-btn { border-color:#e87328; }
       (state.allChecks || []).forEach(function (c) { if (!seen[c.date + "_" + c.uid]) rows.push(c); });
       rows.forEach(function (c) { if (c.date > today) return; var p = person(c.uid), v = pointsOf(c); p.allPts += v; if (v > 0) p.days[c.date] = true; });
     }
+    // Sent: 50 points to the brother who invited each man, on the day that man joined.
+    Object.keys(state.pubProfiles || {}).forEach(function (id) {
+      var x = state.pubProfiles[id] || {}; if (!x.invitedBy || x.invitedBy === id || !x.invitedAt || x.invitedAt > today) return;
+      var p = person(x.invitedBy); if (x.invitedAt >= ws) p.weekPts += RECRUIT_PTS; if (x.invitedAt === today) p.todayPts += RECRUIT_PTS; p.allPts += RECRUIT_PTS;
+    });
     function scoreOf(p) { return isAll ? p.allPts : isWeek ? p.weekPts : p.todayPts; }
     var arr = Object.keys(people).map(function (k) { return people[k]; });
     arr.sort(function (a, b) { return (scoreOf(b) - scoreOf(a)) || (b.weekPts - a.weekPts) || (b.todayPts - a.todayPts); });
@@ -5499,12 +5519,55 @@ header.hero .me-btn { border-color:#e87328; }
   function weekPtsOf(uid) {
     var ws = weekStartKey(), n = 0;
     state.checks.forEach(function (c) { if (c.uid === uid && c.date >= ws) n += pointsOf(c); });
-    return n;
+    return n + recruitPts(uid, ws, todayKey());
+  }
+  /* ---------- Sent: brothers recruited ----------
+     A new man names who invited him when he finishes setup. That brother gets RECRUIT_PTS on the Board,
+     dated the day the new man joined, so it counts toward that week and all time. It can be set once. */
+  var RECRUIT_PTS = 50, APP_LINK = "https://claude.ai/artifact/EYpRzKzZD4w8gwH6M7B33a";
+  function recruitsOf(uid) { var out = []; Object.keys(state.pubProfiles || {}).forEach(function (id) { var x = state.pubProfiles[id] || {}; if (x.invitedBy === uid && id !== uid && x.invitedAt) out.push({ uid: id, at: x.invitedAt }); }); return out; }
+  function recruitPts(uid, from, to) { return recruitsOf(uid).filter(function (r) { return (!from || r.at >= from) && r.at <= to; }).length * RECRUIT_PTS; }
+  function inviterChoices() { return Object.keys(state.pubProfiles || {}).filter(function (id) { return id !== state.me && handleOf(id); }).map(function (id) { return [id, "@" + handleOf(id) + " \u00B7 " + nameOf(id)]; }).sort(function (a, b) { return a[1].localeCompare(b[1]); }); }
+  // Search the brothers by name (handle shown small) and pick one. onPick(uid or "").
+  function brotherPicker(box, cur, onPick) {
+    var wrap = el("div", "bp"); box.appendChild(wrap);
+    function chosen(uid) {
+      wrap.textContent = "";
+      var row = el("div", "bp-pick"), im = el("img", "avatar"); im.alt = ""; if (avatarSrc(uid)) im.src = avatarSrc(uid); row.appendChild(im);
+      var tx = el("div", "bp-tx"); tx.appendChild(el("b", null, nameOf(uid))); if (handleOf(uid)) tx.appendChild(el("small", null, "@" + handleOf(uid))); row.appendChild(tx);
+      var ch = el("button", "mini", "Change"); ch.type = "button"; ch.addEventListener("click", function () { onPick(""); search(""); }); row.appendChild(ch);
+      wrap.appendChild(row);
+    }
+    function search(q) {
+      wrap.textContent = "";
+      var inp = el("input", "field"); inp.type = "search"; inp.placeholder = "Search brothers by name"; inp.autocomplete = "off"; inp.value = q; inp.setAttribute("aria-label", "Search brothers by name");
+      var list = el("div", "bp-list"); list.setAttribute("role", "listbox"); wrap.appendChild(inp); wrap.appendChild(list);
+      function paint() {
+        list.textContent = ""; var v = inp.value.trim().toLowerCase().replace(/^@/, "");
+        var ids = Object.keys(state.pubProfiles || {}).filter(function (id) { return id !== state.me; });
+        var hits = v ? ids.filter(function (id) { return nameOf(id).toLowerCase().indexOf(v) >= 0 || (handleOf(id) || "").toLowerCase().indexOf(v) >= 0; }) : [];
+        hits.sort(function (a, b) { return nameOf(a).localeCompare(nameOf(b)); }).slice(0, 8).forEach(function (id) {
+          var b = el("button", "bp-hit"); b.type = "button"; b.setAttribute("role", "option");
+          var im = el("img", "avatar"); im.alt = ""; if (avatarSrc(id)) im.src = avatarSrc(id); b.appendChild(im);
+          var tx = el("span", "bp-tx"); tx.appendChild(el("b", null, nameOf(id))); if (handleOf(id)) tx.appendChild(el("small", null, "@" + handleOf(id))); b.appendChild(tx);
+          b.addEventListener("click", function () { onPick(id); chosen(id); }); list.appendChild(b);
+        });
+        if (v && !hits.length) list.appendChild(el("p", "fnote", "No brother by that name yet."));
+      }
+      inp.addEventListener("input", paint); paint();
+    }
+    if (cur) chosen(cur); else search("");
+  }
+  function setInviter(uid) { var cur = state.pubProfiles[state.me] || {}; if (cur.invitedBy || !uid || uid === state.me) return; saveProfilePatch({ invitedBy: uid, invitedAt: todayKey() }); }
+  function inviteBrother(btn) {
+    var h = handleOf(state.me), txt = "Join me on Forged & Sent, the app our men use to train, pray and stay accountable. Open " + APP_LINK + " and when you set up, search my name, " + nameOf(state.me) + ", under \u201CWho invited you?\u201D" + ".";
+    if (navigator.share) { navigator.share({ title: "Forged & Sent", text: txt }).catch(noop); return; }
+    try { navigator.clipboard.writeText(txt).then(function () { if (btn) btn.textContent = "Invite copied. Paste it in a text."; }); } catch (e) { if (btn) btn.textContent = "Couldn\u2019t copy. Share the app link: " + APP_LINK; }
   }
   function saveProfilePatch(patch) {
     if (!state.me || !state.canWrite) return;
     var cur = state.pubProfiles[state.me] || {};
-    var next = { motto: cur.motto || "", avatarId: cur.avatarId || "", bannerId: cur.bannerId || "", prs: cur.prs || {}, handle: cur.handle || "" };
+    var next = { motto: cur.motto || "", avatarId: cur.avatarId || "", bannerId: cur.bannerId || "", prs: cur.prs || {}, handle: cur.handle || "", invitedBy: cur.invitedBy || "", invitedAt: cur.invitedAt || "" };
     Object.keys(patch).forEach(function (k) { next[k] = patch[k]; });
     state.pubProfiles[state.me] = next; drawAll();
     if (B.db) writeChain = writeChain.then(function () { return B.saveProfile(state.me, next); }).catch(noop);
@@ -5630,6 +5693,8 @@ header.hero .me-btn { border-color:#e87328; }
     $("st-streak").textContent = uid ? streak(uid) : 0;
     $("st-week").textContent = uid ? weekPtsOf(uid) : 0;
     $("st-today").textContent = uid ? boxesOf(recOf(uid, todayKey())) : 0;
+    $("st-recruits").textContent = uid ? recruitsOf(uid).length : 0;
+    var ib = $("p-invite"); if (ib) ib.hidden = !own;
     drawLifts(false);
   }
   function drawLifts(force) {
@@ -6064,6 +6129,7 @@ header.hero .me-btn { border-color:#e87328; }
   /* ---------- First-time setup: wizard, info bubbles, tour and first orders ---------- */
   var ONB = null, ONB_STEPS = ["welcome", "how", "profile", "service", "goal", "training", "three", "done"];
   var ONB_TIPS = {
+    invited: ["Who invited you?", "Pick the brother who brought you in. He gets 50 points on the Board when you finish setup. Skip it if you found the app on your own. You can only set this once."],
     banner: ["Banner", "A wide photo across the top of your profile. Optional. Your gym, your family or your truck."],
     handle: ["Handle", "Your @name in the app. The brothers type @ and your handle to tag you in Rally, and you get a notice on the bell by your profile picture. 3 to 20 letters, numbers or underscores."],
     motto: ["My Creed", "A short line you live by. It shows on your profile, and every morning you read it to check your My Creed box for 1 point."],
@@ -6100,6 +6166,7 @@ header.hero .me-btn { border-color:#e87328; }
   function onbFinish() {
     if (onbDone() && state.onboard && state.onboard.done) return;
     state.onboard = { done: true, at: Date.now(), ordersDone: !!(state.onboard && state.onboard.ordersDone) };
+    if (ONB && ONB.d && ONB.d.inviter) setInviter(ONB.d.inviter);
     state.settings.onboard = { done: true, at: state.onboard.at }; saveSettings();
     if (B.db && state.me) B.saveOnboard(state.me, state.onboard).catch(noop);
   }
@@ -6228,6 +6295,10 @@ header.hero .me-btn { border-color:#e87328; }
       if (ONB.msg) body.appendChild(el("p", "onb-note", ONB.msg));
       onbField(body, "Handle", "handle", "handle", "text", { maxlength: "20", placeholder: "yourname", autocomplete: "off", autocapitalize: "none", spellcheck: "false" });
       onbField(body, "My Creed", "motto", "motto", "text", { maxlength: "80", placeholder: "e.g. Be strong. Lead well.", autocomplete: "off" });
+      if (inviterChoices().length && !(pp && pp.invitedBy)) {
+        var iw = el("div", "onb-f"); iw.appendChild(onbLabel("Who invited you? (optional)", "invited"));
+        brotherPicker(iw, ONB.d.inviter || "", function (id) { ONB.d.inviter = id; }); onbTip(iw, "invited"); body.appendChild(iw);
+      }
       next(); back();
     } else if (k === "service") {
       h("Step 3 of 7", "Service record");
@@ -6968,8 +7039,26 @@ header.hero .me-btn { border-color:#e87328; }
     if (off) off.disabled = !TEST_DATE;
     if (st) st.textContent = TEST_DATE ? "Test date on: " + longDate(TEST_DATE) + "." : "Using the real date. Pick a date to test with.";
   }
+  function drawInviteSettings() {
+    var box = $("s-invite"); if (!box) return; box.textContent = "";
+    var me = state.pubProfiles[state.me] || {};
+    box.appendChild(el("div", "label-caps", "Sent"));
+    if (me.invitedBy) box.appendChild(el("p", "note", "Invited by " + nameOf(me.invitedBy) + ". He earned " + RECRUIT_PTS + " points when you joined."));
+    else if (state.me && state.canWrite) {
+      if (inviterChoices().length) {
+        var pick = "";
+        box.appendChild(el("span", "flabel", "Who invited you?"));
+        brotherPicker(box, "", function (id) { pick = id; sv.disabled = !id; });
+        var sv = el("button", "btn ghost", "Save"); sv.type = "button"; sv.disabled = true; sv.addEventListener("click", function () { if (pick) { setInviter(pick); drawInviteSettings(); } }); box.appendChild(sv);
+        box.appendChild(el("p", "note", "Pick the man who brought you in. He gets " + RECRUIT_PTS + " points. You can only set this once."));
+      }
+    }
+    var n = recruitsOf(state.me).length;
+    box.appendChild(el("p", "note", n ? "You\u2019ve brought in " + n + (n === 1 ? " brother" : " brothers") + " (+" + (n * RECRUIT_PTS) + " points)." : "Bring a man in. When he sets up and picks you under \u201CWho invited you?\u201D you get " + RECRUIT_PTS + " points on the Board."));
+    var ib = el("button", "btn", "Invite a brother"); ib.type = "button"; ib.addEventListener("click", function () { inviteBrother(ib); }); box.appendChild(ib);
+  }
   function drawSettings() {
-    paintTestCtl();
+    paintTestCtl(); drawInviteSettings();
     var afp = afPrefs(); [["s-af-w", "w"], ["s-af-r", "r"]].forEach(function (c) { var x = $(c[0]); if (x) { x.checked = afp[c[1]]; x.disabled = !state.me || !state.canWrite; } });
     if (state.page !== "settings") return;
     var pp = state.pubProfiles[state.me] || {}, st = state.settings, canUp = B.canUpload();
@@ -7224,6 +7313,7 @@ header.hero .me-btn { border-color:#e87328; }
     $("test-off").addEventListener("click", function () { setTestDate(""); });
     paintTestBanner();
     $("test-diag").addEventListener("click", runPhotoDiag);
+    $("p-invite").addEventListener("click", function () { inviteBrother($("p-invite")); });
     $("test-sound").addEventListener("click", function () { unlockAudio(); setTimeout(function () { if (!playBeepEl(0)) playTones(null, 3); }, 250); });
     [["s-af-w", "w"], ["s-af-r", "r"]].forEach(function (c) {
       $(c[0]).addEventListener("change", function () { var a = afPrefs(); a[c[1]] = this.checked; state.settings.autofill = a; if (state.me && state.canWrite) saveSettings(); });
