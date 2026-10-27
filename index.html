@@ -4336,13 +4336,15 @@ header.hero .me-btn { border-color:#e87328; }
     if (!state.me || !state.tasks.length) { box.hidden = true; return; }
     var key = todayKey(), tasks = dayTasks(key), done = myDoc().done || {}, g = { spirit: [0, 0], body: [0, 0], brother: [0, 0] };
     tasks.forEach(function (t) { var k = t.kind === "devo" || t.id === "t_motto" ? "spirit" : t.kind === "checkin" ? "brother" : "body"; g[k][1]++; if (done[t.id]) g[k][0]++; });
-    var all = tasks.length, n = tasks.filter(function (t) { return done[t.id]; }).length, pct = all ? n / all : 0;
+    // His own three habits count toward the ring too, so it matches Today's boxes.
+    var mine3 = filledSlots(), m3 = mine3.filter(function (k) { return done[k]; }).length;
+    var all = tasks.length + mine3.length, n = tasks.filter(function (t) { return done[t.id]; }).length + m3, pct = all ? n / all : 0;
     box.hidden = false; box.textContent = "";
     var ring = el("div", "rd-ring"); ring.innerHTML = '<svg viewBox="0 0 36 36" aria-hidden="true"><circle cx="18" cy="18" r="15.5" class="rd-bg"/><circle cx="18" cy="18" r="15.5" class="rd-fg" stroke-dasharray="' + (97.4 * pct).toFixed(1) + ' 100"/></svg>';
     var v = el("div", "rd-v"); v.appendChild(el("b", null, n + "/" + all)); v.appendChild(el("small", null, "Boxes")); ring.appendChild(v); box.appendChild(ring);
     ring.setAttribute("role", "img"); ring.setAttribute("aria-label", n + " of " + all + " boxes done today");
     var ul = el("ul", "rd-list");
-    [["Spirit", g.spirit[0] + " of " + g.spirit[1]], ["Body", g.body[0] + " of " + g.body[1]], ["Brotherhood", g.brother[0] + " of " + g.brother[1]], ["Week pts", String(Math.round(weekPtsOf(state.me) * 10) / 10)], ["Streak", streak(state.me) + (streak(state.me) === 1 ? " day" : " days")]].forEach(function (x) { var li = el("li"); li.appendChild(el("span", null, x[0])); li.appendChild(el("em", null, x[1])); ul.appendChild(li); });
+    [["Spirit", g.spirit[0] + " of " + g.spirit[1]], ["Body", g.body[0] + " of " + g.body[1]], ["Brotherhood", g.brother[0] + " of " + g.brother[1]]].concat(mine3.length ? [["Your three", m3 + " of " + mine3.length]] : []).concat([ ["Week pts", String(Math.round(weekPtsOf(state.me) * 10) / 10)], ["Streak", streak(state.me) + (streak(state.me) === 1 ? " day" : " days")]]).forEach(function (x) { var li = el("li"); li.appendChild(el("span", null, x[0])); li.appendChild(el("em", null, x[1])); ul.appendChild(li); });
     box.appendChild(ul);
   }
   /* ---------- Meal ideas: shared recipes and meal preps ---------- */
