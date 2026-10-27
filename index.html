@@ -1431,7 +1431,7 @@ header.hero .me-btn { border-color:#e87328; }
           <label class="btn ghost" id="attach-label">Photo or video<input type="file" id="post-file" accept="image/*,video/*" multiple hidden></label>
           <button class="btn" type="submit" id="post-btn">Post</button>
         </div>
-        <p class="note" style="margin:0">Keep it real. No judgment, no gossip. What is shared here stays here. Posting here checks your Daily Check-In box.</p>
+        <p class="note" style="margin:0">Keep it real. No judgment, no gossip. What is shared here stays here. Posting here checks your Rally Call box.</p>
       </form>
     </section>
     <section aria-labelledby="h-feed">
@@ -1513,7 +1513,7 @@ header.hero .me-btn { border-color:#e87328; }
         <div class="p-id"><h1 class="p-name" id="p-name"></h1><span class="p-handle" id="p-handle"></span><span class="tag" id="p-you" style="margin-left:0" hidden>You</span></div>
       </div>
       <div class="p-body">
-        <div class="label-caps" style="font-size:13px;color:var(--brass);margin-bottom:4px">Morning motto</div>
+        <div class="label-caps" style="font-size:13px;color:var(--brass);margin-bottom:4px">My Creed</div>
         <blockquote class="motto" id="p-motto"></blockquote>
       </div>
     </section>
@@ -1569,8 +1569,8 @@ header.hero .me-btn { border-color:#e87328; }
       <form class="setgrp" id="motto-form" data-form="motto">
         <label class="flabel">Handle<span class="hd-wrap"><span aria-hidden="true">@</span><input class="field" type="text" id="s-handle" maxlength="20" autocapitalize="none" autocomplete="off" spellcheck="false" placeholder="yourname" aria-describedby="s-handle-note"></span></label>
         <p class="note" id="s-handle-note" style="margin:-4px 0 0">How the brothers tag you in Rally. 3 to 20 letters, numbers or underscores.</p>
-        <label class="flabel">Morning motto<input class="field" type="text" id="s-motto" maxlength="80" placeholder="e.g. Be strong. Lead well."></label>
-        <button class="btn" type="submit">Save handle and motto</button>
+        <label class="flabel">My Creed<input class="field" type="text" id="s-motto" maxlength="80" placeholder="e.g. Be strong. Lead well."></label>
+        <button class="btn" type="submit">Save handle and creed</button>
         <p class="note" id="s-motto-status" style="margin:0"></p>
       </form>
       <div class="sub-head"><span class="label-caps">Photos</span></div>
@@ -1686,7 +1686,7 @@ header.hero .me-btn { border-color:#e87328; }
 
     <section aria-labelledby="h-s-safe">
       <div class="section-head"><h2 class="label-caps" id="h-s-safe" data-sub="What the group sees, and who you have blocked.">Privacy and safety</h2></div>
-      <p class="note" style="margin-top:0">Keep it real. No judgment, no gossip. What is shared here stays here. Your food, water, targets and body stats are private. The group sees your checked boxes, points, PRs, motto and posts.</p>
+      <p class="note" style="margin-top:0">Keep it real. No judgment, no gossip. What is shared here stays here. Your food, water, targets and body stats are private. The group sees your checked boxes, points, PRs, creed and posts.</p>
       <div class="sub-head"><span class="label-caps">Blocked</span></div>
       <div id="blocked-list"></div>
       <p class="note" id="blocked-empty">You have not blocked anyone.</p>
@@ -2392,17 +2392,17 @@ header.hero .me-btn { border-color:#e87328; }
       txt.appendChild(nm);
       var sub = tk.sub || "";
       if (isDevo) { var dv = devoToday(); sub = done[tk.id] ? "Read today" : (dv ? dv.e.ref + ". Tap to open today's reading" : "Tap to open today's reading"); }
-      else if (tk.kind === "water") sub = Math.round(log.water) + " of " + Math.round(WATER_GOAL_OZ) + " oz. Log it in Fuel";
+      else if (tk.kind === "water") sub = Math.round(log.water) + " of " + Math.round(WATER_GOAL_OZ) + " oz (3 L). Log it in Fuel";
       else if (tk.kind === "calories" && isFastDay(todayKey())) sub = "Fasting today. Checked for you.";
       else if (tk.kind === "calories") sub = t && Number(t.kcal) ? (function () { var w = calWindow(Number(t.kcal)); var pb = recFor(todayKey()).pbonus; return fmt(log.kcal) + " of " + fmt(Number(t.kcal)) + " kcal. Checks at " + fmt(w[0]) + "\u2013" + fmt(w[1]) + (pb ? ". Protein bonus +" + PROTEIN_BONUS + " earned" : Number(t.p) ? ". Hit " + fmt(Number(t.p)) + " g protein too for +" + PROTEIN_BONUS : ""); })() : "Set your targets in Fuel";
       else if (tk.kind === "workout") sub = isWeighDay(todayKey()) ? SABBATH_REST : done[tk.id] ? "Finished in Train" : "Checks itself when you finish a workout";
-      else if (tk.kind === "checkin") sub = done[tk.id] ? "Posted today" : "Post in the check-in thread";
+      else if (tk.kind === "checkin") sub = done[tk.id] ? "Posted in Rally today" : "Post in Rally to answer the call";
       else if (tk.kind === "photos") { var pc = normProg(progFor(todayKey()) || {}), nd = POSES.filter(function (p) { return pc[p[0]]; }).length; sub = done[tk.id] ? "Front, side and rear saved" : nd ? nd + " of 3 taken. Tap to finish" : "Front, side and rear. Tap to take them"; }
       else if (tk.kind === "weigh") { var wv = weights()[todayKey()]; sub = wv ? fmtLb(wv) + " lb. Tap to update" : done[tk.id] ? "Weighed in this week. Tap to add your weight" : "Your weekly weigh-in, every Sabbath. Step on the scale and tap to log your weight."; }
       if (tk.kind === "steps") { var rs = recFor(todayKey()), sn = normSteps(rs.steps), sb = stepBonus(sn), sg = stepGoal(todayKey());
         sub = sn ? fmt(sn) + " of " + fmt(sg) + " steps" + (sb ? ", +" + fmtW(sb) + " bonus" : "") + (hAuto ? ", from your health data" : ". Tap to update") : "Goal " + fmt(sg) + " steps today. Tap to log your steps"; }
       else if (hAuto) sub = "Weigh-in found in your health data";
-      if (tk.id === "t_motto") { var mm = (state.pubProfiles[state.me] || {}).motto; sub = done[tk.id] ? "Read today" : mm ? "Tap to read your motto" : "Set your motto in Settings"; }
+      if (tk.id === "t_motto") { var mm = (state.pubProfiles[state.me] || {}).motto; sub = done[tk.id] ? "Read today" : mm ? "Tap to read your creed" : "Set your creed in Settings"; }
       if (sub) txt.appendChild(el("span", "sub", sub));
       b.appendChild(txt);
       b.appendChild(el("span", "pts", "+" + tk.points + (tk.points === 1 ? " pt" : " pts")));
@@ -5624,7 +5624,7 @@ header.hero .me-btn { border-color:#e87328; }
     $("p-you").hidden = !own; $("p-handle").textContent = handleOf(uid) ? "@" + handleOf(uid) : ""; drawProfilePoints();
     var m = $("p-motto");
     if (pp.motto) { m.textContent = pp.motto; m.className = "motto"; }
-    else { m.textContent = own ? "No motto yet. Set it in Settings." : "No motto yet."; m.className = "motto none"; }
+    else { m.textContent = own ? "No creed yet. Set it in Settings." : "No creed yet."; m.className = "motto none"; }
     drawProgress();
     var lsub = document.querySelector('[aria-controls="h-lifts-body"] small'); if (lsub) lsub.textContent = own ? "Your best squat, bench, deadlift and more. The group can see these." : "His best squat, bench, deadlift and more.";
     $("st-streak").textContent = uid ? streak(uid) : 0;
@@ -5758,7 +5758,7 @@ header.hero .me-btn { border-color:#e87328; }
     var back = el("div", "cdlg"); back.id = "cdlg";
     var box = el("div", "cdlg-box nw-box wp-box"); box.setAttribute("role", "dialog"); box.setAttribute("aria-modal", "true"); box.setAttribute("aria-labelledby", "mo-t");
     box.appendChild(el("span", "label-caps wp-k", "Start the day"));
-    var t = el("h2", null, "Morning motto"); t.id = "mo-t"; box.appendChild(t);
+    var t = el("h2", null, "My Creed"); t.id = "mo-t"; box.appendChild(t);
     function close() { back.remove(); }
     if (mm) {
       box.appendChild(el("p", "mo-text", "\u201C" + mm + "\u201D"));
@@ -5767,8 +5767,8 @@ header.hero .me-btn { border-color:#e87328; }
       yes.addEventListener("click", function () { close(); if (!isDone) writeDay(function (r) { r.done[id] = true; }); });
       if (isDone) { var un = el("button", "btn ghost", "Mark not done"); un.type = "button"; box.appendChild(un); un.addEventListener("click", function () { close(); writeDay(function (r) { delete r.done[id]; }); }); }
     } else {
-      box.appendChild(el("p", null, "You haven\u2019t set a morning motto yet. Write one in your profile and it will show here every morning."));
-      var go2 = el("button", "btn", "Set my motto"); go2.type = "button"; box.appendChild(go2);
+      box.appendChild(el("p", null, "You haven\u2019t set your creed yet. Write one in your profile and it will show here every morning."));
+      var go2 = el("button", "btn", "Set my creed"); go2.type = "button"; box.appendChild(go2);
       go2.addEventListener("click", function () { close(); openSettingsSection("h-s-prof"); setTimeout(function () { var f = $("s-motto"); if (f) try { f.focus({ preventScroll: true }); } catch (e) {} }, 400); });
       var cl = el("button", "btn ghost", "Close"); cl.type = "button"; box.appendChild(cl); cl.addEventListener("click", close);
     }
@@ -5939,8 +5939,8 @@ header.hero .me-btn { border-color:#e87328; }
   /* ---------- Page help: the (i) bubble at the top right of every page ---------- */
   var HELP = {
     today: { t: "Today", why: "Your daily mission. Each box is a habit that earns points for you on the Board.", how: [
-      "Tap a box when you've done it. Boxes with an arrow open something first, like the devotional, your motto or your steps.",
-      "Some boxes check themselves: calories and water from Fuel, the workout from Train, and the check-in when you post in Rally.",
+      "Tap a box when you've done it. Boxes with an arrow open something first, like the devotional, your creed or your steps.",
+      "Some boxes check themselves: calories and water from Fuel, the workout from Train, and Rally Call when you post in Rally.",
       "Steps: tap to log them. The goal is 10,000 (7,000 on your Sabbath). Past 10,000 you earn 1 bonus point per 1,000 up to 15,000, then half a point per 1,000.",
       "Weigh-in and progress photos only show on your Sabbath.",
       "Your three: add up to three personal habits of your own. Each is worth 1 point.",
@@ -5981,7 +5981,7 @@ header.hero .me-btn { border-color:#e87328; }
       "Finish workout locks it and awards 25 points for each lift with a weight or volume PR. Then you can share it to Rally or save it as an image to text a buddy.",
       "Need to fix something? Tap Unlock to edit, then Lock when you're done."] },
     board: { t: "Board", why: "See where the brothers stand. Use the menu at the top to switch between the Kingdom Warrior board and the top lift PRs.", tip: "To understand how everything is scored, tap How points work next to Standings.", how: [
-      "Kingdom Warrior is the main board. It isn't about who lifts the most. It rewards the man who shows up faithfully every day in spirit, body and brotherhood: the devotional and motto, training, steps and fuel, and checking in on his brothers.",
+      "Kingdom Warrior is the main board. It isn't about who lifts the most. It rewards the man who shows up faithfully every day in spirit, body and brotherhood: the devotional and creed, training, steps and fuel, and answering the Rally Call for his brothers.",
       "The Board always opens on Kingdom Warrior. Switch between Today, This week and All time. The week runs Monday to Sunday. All time adds up every point since a man joined.",
       "Points come from your boxes, your three habits, step and protein bonuses, and PRs.",
       "Pick a lift from the menu to see who holds the heaviest PR on it, with reps and the date. Men at the same weight share a rank. Pick Kingdom Warrior to come back to the points.",
@@ -5989,7 +5989,7 @@ header.hero .me-btn { border-color:#e87328; }
       "Tap a man to see his profile. Use the Board to push each other, and to find the man who needs encouraging."] },
     checkin: { t: "Rally", why: "The group thread. Show up, share wins and encourage a brother.", how: [
       "Write a post and add a photo or video if you want. Type @ to tag someone.",
-      "Posting here checks your Daily Check-In box.",
+      "Posting here checks your Rally Call box.",
       "Press and hold a post to react: \uD83D\uDD25 Strong for the effort, \u2764\uFE0F Brother when you\'ve got his back. Tap a reaction again to take it back. Tap Reply to answer him. Tap Edit to fix your own post or reply, or Delete to remove it.",
       "Type @ in a post or reply and pick a brother by name or handle to tag him. When someone tags you, the bell next to your profile picture shows a number. Tap it to see who tagged you.",
       "Workouts you share after finishing show up here with your PRs.",
@@ -6013,7 +6013,7 @@ header.hero .me-btn { border-color:#e87328; }
     video: { t: "How to do it", why: "A quick guide for one movement.", how: [
       "Tap Watch on YouTube to see the video. Come back to the app when you're done.",
       "Read the coaching cue before your first set."] },
-    profile: { t: "Profile", why: "A man's motto, stats and core lift PRs.", how: [
+    profile: { t: "Profile", why: "A man's creed, stats and core lift PRs.", how: [
       "Stats show the full-day streak, points this week and boxes checked today.",
       "Points breakdown shows where a man's points come from: daily habits, step and protein bonuses, PRs, and the Family, Iron and Endure challenges. Switch between This week and All time. Every PR is listed with the weight or volume he hit.",
       "On your own profile you can update your lift PRs. The group can see them.",
@@ -6022,7 +6022,7 @@ header.hero .me-btn { border-color:#e87328; }
       "The gear opens Settings."] },
     settings: { t: "Settings", why: "Set up your profile, body stats, goals and app preferences.", how: [
       "Tap a section to open it.",
-      "Your profile: photo, banner, handle and morning motto.",
+      "Your profile: photo, banner, handle and creed.",
       "Service record (your birthday, weight, height and activity) and Your goal build your calorie plan. Protein is 1 g per lb of your goal weight by default.",
       "Daily targets: fine-tune calories and macros with the sliders.",
       "Appearance switches between dark, light or auto.",
@@ -6066,7 +6066,7 @@ header.hero .me-btn { border-color:#e87328; }
   var ONB_TIPS = {
     banner: ["Banner", "A wide photo across the top of your profile. Optional. Your gym, your family or your truck."],
     handle: ["Handle", "Your @name in the app. The brothers type @ and your handle to tag you in Rally, and you get a notice on the bell by your profile picture. 3 to 20 letters, numbers or underscores."],
-    motto: ["Morning motto", "A short line you live by. It shows on your profile, and every morning you read it to check your Morning Motto box for 1 point."],
+    motto: ["My Creed", "A short line you live by. It shows on your profile, and every morning you read it to check your My Creed box for 1 point."],
     bday: ["Why your birthday", "Weekly challenges rank men against others their age: under 30, 30s, 40s, 50s and 60+. Your age is counted on the first day of each season. Only your bracket is shared, never your birthday."],
     wt: ["Weight", "Your current weight. Update it at each Sabbath weigh-in so your calorie plan stays accurate. Private to you."],
     act: ["Activity level", "How active you are in a normal week, counting workouts and your job. It sets how many calories you burn beyond resting. When in doubt, pick the lower one."],
@@ -6204,7 +6204,7 @@ header.hero .me-btn { border-color:#e87328; }
     } else if (k === "how") {
       h("The mission", "How it works");
       var pl = el("div", "onb-pillars");
-      [["Today", "Your daily boxes: devotional, motto, workout, steps, water and calories.", '<rect x="4" y="4" width="16" height="16" rx="1"/><path d="m8 12 3 3 5-6"/>'],
+      [["Today", "Your daily boxes: devotional, creed, workout, steps, water and calories.", '<rect x="4" y="4" width="16" height="16" rx="1"/><path d="m8 12 3 3 5-6"/>'],
        ["Fuel", "Log food and water against your calorie and protein targets.", '<path d="M12 3c2 3 5 5 5 9a5 5 0 0 1-10 0c0-2 1-3 2-4 0 2 1 3 2 3 0-3-1-5 1-8z"/>'],
        ["Train", "Your program, workouts, PRs and the weekly challenges.", '<path d="M3 12h3M18 12h3M6 8v8M18 8v8M9 6v12M15 6v12M9 12h6"/>'],
        ["Board and Rally", "Kingdom Warrior points, top lifts, and the group thread.", '<path d="M4 5h16v11H9l-5 4z"/>']].forEach(function (x) {
@@ -6227,7 +6227,7 @@ header.hero .me-btn { border-color:#e87328; }
       if (!canUp && state.me) body.appendChild(el("p", "onb-note", "Photo uploads aren\u2019t turned on for your account in this app right now. You can add photos later in Settings. (not_granted)"));
       if (ONB.msg) body.appendChild(el("p", "onb-note", ONB.msg));
       onbField(body, "Handle", "handle", "handle", "text", { maxlength: "20", placeholder: "yourname", autocomplete: "off", autocapitalize: "none", spellcheck: "false" });
-      onbField(body, "Morning motto", "motto", "motto", "text", { maxlength: "80", placeholder: "e.g. Be strong. Lead well.", autocomplete: "off" });
+      onbField(body, "My Creed", "motto", "motto", "text", { maxlength: "80", placeholder: "e.g. Be strong. Lead well.", autocomplete: "off" });
       next(); back();
     } else if (k === "service") {
       h("Step 3 of 7", "Service record");
@@ -6315,11 +6315,11 @@ header.hero .me-btn { border-color:#e87328; }
   }
   /* Tour: one card per tab over the real screen. */
   var TOUR = [
-    ["today", "Today", ["Tap a box when it's done. Boxes with an arrow open first, like the devotional, your motto and your steps.", "Some boxes fill themselves from Fuel, Train and Rally.", "Steps: 10,000 a day (7,000 on your Sabbath), plus bonus points past 10,000."]],
+    ["today", "Today", ["Tap a box when it's done. Boxes with an arrow open first, like the devotional, your creed and your steps.", "Some boxes fill themselves from Fuel, Train and Rally.", "Steps: 10,000 a day (7,000 on your Sabbath), plus bonus points past 10,000."]],
     ["fuel", "Fuel", ["Log meals with search, photo, voice or favorites.", "Tap the water buttons as you drink.", "Your Calories box checks when you land in your window: 15% under to 10% over when losing fat, within 5% when maintaining."]],
     ["train", "Train", ["Tap Start, pray the workout prayer, then tap Amen to start the clock.", "Log reps, then weight. Finish to earn 25 points for each lift PR.", "Weekly challenges are at the top. Due Sunday 8 AM Arizona time, with photo or video proof."]],
     ["board", "Board", ["Kingdom Warrior ranks the men by points: Today, This week and All time.", "Use the menu to see top PRs on each lift.", "Tap How points work for the full breakdown."]],
-    ["checkin", "Rally", ["The group thread. Post a win, a photo or a word for a brother.", "Posting checks your Daily Check-In box. Hold a brother's post to react, or tap Reply.", "Keep it real. No judgment, no gossip."]]
+    ["checkin", "Rally", ["The group thread. Post a win, a photo or a word for a brother.", "Posting checks your Rally Call box. Hold a brother's post to react, or tap Reply.", "Keep it real. No judgment, no gossip."]]
   ];
   var tourI = -1;
   function startTour() { tourI = 0; drawTour(); }

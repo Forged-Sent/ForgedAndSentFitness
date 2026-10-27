@@ -8,7 +8,7 @@
     "createdAt": 1792877500000
   },
   "t_motto": {
-    "title": "Morning Motto",
+    "title": "My Creed",
     "sub": "Say it today",
     "points": 1,
     "kind": "check",
@@ -22,7 +22,7 @@
     "createdAt": 1792877500002
   },
   "t_comms": {
-    "title": "Daily Check-In",
+    "title": "Rally Call",
     "sub": "Post in the thread today",
     "points": 1,
     "kind": "checkin",
@@ -36,7 +36,7 @@
     "createdAt": 1792877500004
   },
   "t_water": {
-    "title": "Drink 3 Liters of Water",
+    "title": "Hydrate",
     "sub": "3 L today",
     "points": 1,
     "kind": "water",
