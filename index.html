@@ -7159,6 +7159,18 @@ header.hero .me-btn { border-color:#e87328; }
       var t = ev.target; if (t === ae || (t.closest && t.closest("input, textarea, select, label, button, a, summary, [role=button]"))) return;
       ae.blur();
     }, true);
+    // A deliberate scroll up or down closes the keyboard too, wherever the finger starts (on a field, label or button).
+    // Small moves are ignored (the page shifts a little when a box opens), and so is scrolling inside a long text box.
+    var scrollY0 = null, scrollX0 = 0, scrollIn = null;
+    document.addEventListener("touchstart", function (ev) { var t = ev.touches && ev.touches[0]; if (!t) return; scrollY0 = t.clientY; scrollX0 = t.clientX; scrollIn = ev.target; }, { passive: true, capture: true });
+    document.addEventListener("touchmove", function (ev) {
+      if (scrollY0 == null) return; var t = ev.touches && ev.touches[0]; if (!t) return;
+      var dy = Math.abs(t.clientY - scrollY0), dx = Math.abs(t.clientX - scrollX0); if (dy < 45 || dy < dx) return;
+      var ae = document.activeElement; if (!ae || !/^(INPUT|TEXTAREA|SELECT)$/.test(ae.tagName) || /^(range|checkbox|radio|button|submit|file)$/i.test(ae.type || "")) return;
+      if (ae.tagName === "TEXTAREA" && scrollIn && ae.contains(scrollIn) && ae.scrollHeight > ae.clientHeight + 2) return;
+      scrollY0 = null; ae.blur();
+    }, { passive: true, capture: true });
+    document.addEventListener("touchend", function () { scrollY0 = null; }, { passive: true, capture: true });
     // Buttons: close the keyboard only after the tap has done its job, so the layout never moves under the finger.
     document.addEventListener("click", function (ev) {
       var ae = document.activeElement, t = ev.target; if (!ae || !/^(INPUT|TEXTAREA|SELECT)$/.test(ae.tagName)) return;
