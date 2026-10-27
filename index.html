@@ -668,6 +668,30 @@ button.fo-item { cursor: pointer; min-height: 44px; }
 .mention { color: var(--brass); font-weight: 600; }
 .media { display: flex; flex-direction: column; gap: 8px; margin-top: 10px; }
 .media img, .media video { width: 100%; max-height: 420px; object-fit: cover; background: var(--surface-2); border: 1px solid var(--line); display: block; }
+.fast-row { gap: 12px; }
+.fast-row > span { display: grid; gap: 2px; min-width: 0; }
+.fast-row b { font-family: var(--f-label); font-weight: 600; font-size: 16px; letter-spacing: .04em; text-transform: uppercase; }
+.fast-row small { color: var(--muted); font-size: 13.5px; }
+.fast-q { margin: 6px 0 0; padding: 10px 4px 0; border-top: 1px solid var(--line); text-align: center; }
+.fast-q p { margin: 0; font-family: var(--f-scripture); font-style: italic; }
+.fast-q cite { display: block; margin-top: 4px; font-style: normal; font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: var(--brass); }
+.fast-plan { margin-top: 10px; border: 1px solid var(--line); }
+.fast-plan summary { cursor: pointer; padding: 12px 14px; font-family: var(--f-label); font-weight: 600; font-size: 13.5px; letter-spacing: .08em; text-transform: uppercase; list-style: none; display: flex; justify-content: space-between; gap: 8px; }
+.fast-plan summary::-webkit-details-marker { display: none; }
+.fast-plan summary::after { content: "+"; color: var(--brass); }
+.fast-plan[open] summary::after { content: "\2212"; }
+.fast-in { padding: 0 14px 14px; display: grid; gap: 8px; }
+.fast-l { font-size: 12px; color: var(--muted); }
+.fast-days { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px; }
+.fast-day { display: grid; justify-items: center; gap: 0; padding: 6px 0; min-height: 0; border: 1px solid var(--line); background: transparent; color: var(--ink); cursor: pointer; }
+.fast-day small { font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+.fast-day b { font-family: var(--f-label); font-size: 17px; }
+.fast-day.on { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.fast-day.on small { color: var(--accent-ink); }
+.fast-week { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px; }
+.fast-week .rchip { padding-left: 0; padding-right: 0; justify-content: center; text-align: center; min-width: 0; }
+.fast-week .rchip.on { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.fast-tag { display: inline-block; margin-left: 8px; padding: 1px 7px; border: 1px solid var(--brass); color: var(--brass); font-size: 11px; letter-spacing: .1em; text-transform: uppercase; vertical-align: 2px; font-family: var(--f-label); font-weight: 600; }
 .rx-host { position: relative; -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; border-radius: 2px; transition: background-color .2s; }
 .rx-host textarea, .rx-host input { -webkit-user-select: text; user-select: text; }
 .rx-host.rx-pressing { background: color-mix(in srgb, var(--brass) 8%, transparent); }
@@ -1055,6 +1079,11 @@ header.hero .tag-btn { color: #efe4c8; border-color: #d0c2a0; }
       <div class="topline"><span class="date label-caps">Stewardship of the body</span><button type="button" class="me-btn" data-open="me" aria-label="Your profile"></button></div>
       <h1 class="pg">Fuel</h1>
     </header>
+
+    <section aria-labelledby="h-fast" id="fast-sec">
+      <div class="section-head"><h2 class="label-caps" id="h-fast">Fasting</h2></div>
+      <div id="fast-body"></div>
+    </section>
 
     <section aria-labelledby="h-macros">
       <div class="section-head"><h2 class="label-caps" id="h-macros">Today's macros</h2><button class="mini" type="button" id="adj-targets">Adjust targets</button></div>
@@ -1573,10 +1602,10 @@ header.hero .tag-btn { color: #efe4c8; border-color: #d0c2a0; }
     watchChecks: function (low, cb) {
       return this.db.collection("checkins").where("date", ">=", low).onSnapshot(function (s) {
         cb(s.docs.map(function (d) { var x = d.data() || {}; var p = x.prs || {};
-          return { date: x.date, uid: x.uid, done: x.done || {}, prs: normPrs(p), steps: normSteps(x.steps), pbonus: !!x.pbonus }; }));
+          return { date: x.date, uid: x.uid, done: x.done || {}, prs: normPrs(p), steps: normSteps(x.steps), pbonus: !!x.pbonus, fast: !!x.fast }; }));
       }, noop);
     },
-    saveDay: function (rec) { return this.db.doc("checkins/" + rec.date + "_" + rec.uid).set({ date: rec.date, uid: rec.uid, done: rec.done, prs: rec.prs, steps: normSteps(rec.steps), pbonus: !!rec.pbonus }); },
+    saveDay: function (rec) { return this.db.doc("checkins/" + rec.date + "_" + rec.uid).set({ date: rec.date, uid: rec.uid, done: rec.done, prs: rec.prs, steps: normSteps(rec.steps), pbonus: !!rec.pbonus, fast: !!rec.fast }); },
     watchLogs: function (uid, low, cb) {
       return this.db.doc("data/users/" + uid + "/log").collection("days").where("date", ">=", low).onSnapshot(function (s) {
         cb(s.docs.map(function (d) { var x = d.data() || {};
@@ -1613,7 +1642,7 @@ header.hero .tag-btn { color: #efe4c8; border-color: #d0c2a0; }
     addPost: function (p) { return this.db.collection("posts").add(p); },
     deletePost: function (id) { return this.db.doc("posts/" + id).delete(); },
     editPost: function (id, text, mentions) { return this.db.doc("posts/" + id).update({ text: text, mentions: mentions, editedAt: Date.now() }); },
-    watchLikes: function (cb) { return this.db.collection("likes").onSnapshot(function (s) { cb(s.docs.map(function (d) { var x = d.data() || {}; return { id: d.id, postId: x.postId, uid: x.uid, r: REACTS.some(function (k) { return k[0] === x.r; }) ? x.r : "strong" }; })); }, noop); },
+    watchLikes: function (cb) { return this.db.collection("likes").onSnapshot(function (s) { cb(s.docs.map(function (d) { var x = d.data() || {}; return { id: d.id, postId: x.postId, uid: x.uid, r: x.r === "praying" ? "brother" : REACTS.some(function (k) { return k[0] === x.r; }) ? x.r : "strong" }; })); }, noop); },
     // One reaction per man per post. A doc with no r is an old Strong.
     setReact: function (postId, uid, kind) { var r = this.db.doc("likes/" + postId + "_" + uid); return kind ? r.set({ postId: postId, uid: uid, r: kind }) : r.delete(); },
     watchReplies: function (cb) { return this.db.collection("replies").orderBy("createdAt", "asc").limit(500).onSnapshot(function (s) { cb(s.docs.map(function (d) { var x = d.data() || {}; return { id: d.id, postId: String(x.postId || ""), uid: String(x.uid || ""), text: String(x.text || "").slice(0, 500), mentions: Array.isArray(x.mentions) ? x.mentions.slice(0, 20) : [], createdAt: Number(x.createdAt) || 0, editedAt: Number(x.editedAt) || 0 }; })); }, noop); },
@@ -1835,6 +1864,74 @@ header.hero .tag-btn { color: #efe4c8; border-color: #d0c2a0; }
     // Protein bonus: protein at or above target, and calories inside the window.
     var tp = t ? Number(t.p) || 0 : 0, cw2 = calWindow(tk);
     rec.pbonus = !!(tk > 0 && tp > 0 && log.p >= tp && log.kcal >= cw2[0] && log.kcal <= cw2[1]);
+    // A fast day: the Calories box checks itself and there's no protein bonus. The brothers see a Fasting tag.
+    if (isFastDay(rec.date)) { if (ct) rec.done[ct.id] = true; rec.pbonus = false; rec.fast = true; } else delete rec.fast;
+  }
+  /* ---------- Fasting days ---------- */
+  function fastCfg() { var f = state.settings.fast; return f && typeof f === "object" ? f : { dates: {}, weekly: [] }; }
+  function normFast(x) {
+    var o = { dates: {}, weekly: [] }; if (!x || typeof x !== "object") return o;
+    var low = addDays(todayKey(), -30);
+    Object.keys(x.dates || {}).forEach(function (k) { if (/^\d{4}-\d{2}-\d{2}$/.test(k) && k >= low && typeof x.dates[k] === "boolean") o.dates[k] = x.dates[k]; });
+    (Array.isArray(x.weekly) ? x.weekly : []).forEach(function (d) { d = Number(d); if (d >= 0 && d <= 6 && o.weekly.indexOf(d) < 0) o.weekly.push(d); });
+    o.weekly.sort(); return o;
+  }
+  // A date's own choice wins; otherwise the weekly repeat decides.
+  function isFastDay(key) { var f = fastCfg(); if (f.dates && typeof f.dates[key] === "boolean") return f.dates[key]; return (f.weekly || []).indexOf(parseKey(key).getDay()) >= 0; }
+  function setFastDay(key, on) {
+    var f = normFast(fastCfg()), byWeek = f.weekly.indexOf(parseKey(key).getDay()) >= 0;
+    if (on === byWeek) delete f.dates[key]; else f.dates[key] = on;
+    state.settings.fast = f; saveSettings(); afterFastChange();
+  }
+  function setFastWeekly(dow, on) {
+    var f = normFast(fastCfg()), i = f.weekly.indexOf(dow);
+    if (on && i < 0) f.weekly.push(dow); if (!on && i >= 0) f.weekly.splice(i, 1); f.weekly.sort();
+    state.settings.fast = f; saveSettings(); afterFastChange();
+  }
+  function afterFastChange() { if (state.me && state.canWrite) writeDay(function () { return false; }); else drawAll(); }
+  var fastSynced = "";
+  // Keep today's shared check-in in step with the plan (e.g. a weekly fast day that started at midnight).
+  function syncFast() {
+    var k = todayKey(); if (!state.me || !state.canWrite || !state.settingsLoaded) return;
+    var want = isFastDay(k), rec = recFor(k), ct = taskOfKind("calories"), sig = k + ":" + want;
+    if (fastSynced === sig) return;
+    if (!!rec.fast !== want || (want && ct && !rec.done[ct.id])) { fastSynced = sig; writeDay(function () { return false; }); } else fastSynced = sig;
+  }
+  var FAST_DOW = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"], FAST_DOWN = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+  function drawFast() {
+    var box = $("fast-body"); if (!box) return; box.textContent = "";
+    var k = todayKey(), on = isFastDay(k), off = !state.me || !state.canWrite, f = fastCfg();
+    var row = el("label", "sw-row fast-row"), tx = el("span"); tx.appendChild(el("b", null, "Fasting today"));
+    tx.appendChild(el("small", null, on ? "Your Calories box is checked for you. Keep drinking water." : "Turn on if you\u2019re fasting today."));
+    var sw = el("input", "switch"); sw.type = "checkbox"; sw.setAttribute("role", "switch"); sw.id = "fast-today"; sw.checked = on; sw.disabled = off;
+    sw.addEventListener("change", function () { setFastDay(k, sw.checked); });
+    row.appendChild(tx); row.appendChild(sw); box.appendChild(row);
+    if (on) { var q = el("blockquote", "fast-q"); q.appendChild(el("p", null, "\u201CMan shall not live by bread alone, but by every word that comes from the mouth of God.\u201D")); q.appendChild(el("cite", null, "Matthew 4:4 (ESV)")); box.appendChild(q); }
+    var det = el("details", "fast-plan"); if (state.fastOpen) det.open = true;
+    det.addEventListener("toggle", function () { state.fastOpen = det.open; });
+    var n = Object.keys(f.dates || {}).filter(function (d) { return d > k && f.dates[d]; }).length;
+    det.appendChild(el("summary", null, "Plan fast days" + ((f.weekly || []).length ? " \u00B7 every " + f.weekly.map(function (d) { return FAST_DOWN[d]; }).join(", ") : n ? " \u00B7 " + n + " planned" : "")));
+    var inner = el("div", "fast-in");
+    inner.appendChild(el("div", "label-caps fast-l", "Next two weeks"));
+    var days = el("div", "fast-days");
+    for (var i = 1; i <= 14; i++) (function (d) {
+      var dt = parseKey(d), isOn = isFastDay(d), b = el("button", "fast-day" + (isOn ? " on" : "")); b.type = "button"; b.disabled = off;
+      b.appendChild(el("small", null, FAST_DOW[dt.getDay()])); b.appendChild(el("b", null, String(dt.getDate())));
+      b.setAttribute("aria-pressed", String(isOn)); b.setAttribute("aria-label", longDate(d) + (isOn ? ", fast day" : ""));
+      b.addEventListener("click", function () { setFastDay(d, !isFastDay(d)); });
+      days.appendChild(b);
+    })(addDays(k, i));
+    inner.appendChild(days);
+    inner.appendChild(el("div", "label-caps fast-l", "Repeat every week"));
+    var wk = el("div", "fast-week");
+    [1, 2, 3, 4, 5, 6, 0].forEach(function (d) {
+      var isOn = (f.weekly || []).indexOf(d) >= 0, b = el("button", "rchip" + (isOn ? " on" : ""), FAST_DOW[d]); b.type = "button"; b.disabled = off;
+      b.setAttribute("aria-pressed", String(isOn)); b.setAttribute("aria-label", "Fast every " + FAST_DOWN[d]);
+      b.addEventListener("click", function () { setFastWeekly(d, !isOn); }); wk.appendChild(b);
+    });
+    inner.appendChild(wk);
+    inner.appendChild(el("p", "note", "On a fast day your Calories box checks itself and there\u2019s no protein bonus. The brothers see a small Fasting tag by your name on the Board that day, so they can pray for you. Your food log stays private."));
+    det.appendChild(inner); box.appendChild(det);
   }
   // fn(rec, log) edits today's shared record and private log; return true from fn if it changed the log.
   function writeDay(fn) {
@@ -1921,7 +2018,7 @@ header.hero .tag-btn { color: #efe4c8; border-color: #d0c2a0; }
   }
   function saveSettings() {
     if (!B.db || !state.me) return;
-    var st = { blocked: state.settings.blocked || {}, targets: state.settings.targets || null, body: state.settings.body || null, reminders: state.settings.reminders || null, health: state.settings.health || null, plan: state.settings.plan || null, theme: state.settings.theme || null, autofill: state.settings.autofill || null, favs: state.settings.favs || [], myMeals: state.settings.myMeals || [], preps: state.settings.preps || [], swapAlways: state.settings.swapAlways || {}, dayMoves: state.settings.dayMoves || {}, onboard: state.settings.onboard || null };
+    var st = { blocked: state.settings.blocked || {}, targets: state.settings.targets || null, body: state.settings.body || null, reminders: state.settings.reminders || null, health: state.settings.health || null, plan: state.settings.plan || null, theme: state.settings.theme || null, autofill: state.settings.autofill || null, favs: state.settings.favs || [], myMeals: state.settings.myMeals || [], preps: state.settings.preps || [], swapAlways: state.settings.swapAlways || {}, dayMoves: state.settings.dayMoves || {}, fast: state.settings.fast || null, onboard: state.settings.onboard || null };
     writeChain = writeChain.then(function () { return B.saveSettings(state.me, st); }).catch(noop);
   }
 
@@ -2030,7 +2127,7 @@ header.hero .tag-btn { color: #efe4c8; border-color: #d0c2a0; }
     sabbathSynced = k; if (!myDoc().done[hk.id]) writeDay(function () { return false; });
   }
   function drawToday() {
-    drawFirstOrders(); drawReady(); setTimeout(syncSabbath, 0);
+    drawFirstOrders(); drawReady(); setTimeout(syncSabbath, 0); setTimeout(syncFast, 0);
     var list = $("tasks"); list.textContent = "";
     var notice = $("notice"); notice.textContent = "";
     var rec = myDoc(), done = rec.done, log = logFor(todayKey()), t = targets();
@@ -2061,6 +2158,7 @@ header.hero .tag-btn { color: #efe4c8; border-color: #d0c2a0; }
       var sub = tk.sub || "";
       if (isDevo) { var dv = devoToday(); sub = done[tk.id] ? "Read today" : (dv ? dv.e.ref + ". Tap to open today's reading" : "Tap to open today's reading"); }
       else if (tk.kind === "water") sub = Math.round(log.water) + " of " + Math.round(WATER_GOAL_OZ) + " oz. Log it in Fuel";
+      else if (tk.kind === "calories" && isFastDay(todayKey())) sub = "Fasting today. Checked for you.";
       else if (tk.kind === "calories") sub = t && Number(t.kcal) ? (function () { var w = calWindow(Number(t.kcal)); var pb = recFor(todayKey()).pbonus; return fmt(log.kcal) + " of " + fmt(Number(t.kcal)) + " kcal. Checks at " + fmt(w[0]) + "\u2013" + fmt(w[1]) + (pb ? ". Protein bonus +" + PROTEIN_BONUS + " earned" : Number(t.p) ? ". Hit " + fmt(Number(t.p)) + " g protein too for +" + PROTEIN_BONUS : ""); })() : "Set your targets in Fuel";
       else if (tk.kind === "workout") sub = isWeighDay(todayKey()) ? SABBATH_REST : done[tk.id] ? "Finished in Train" : "Checks itself when you finish a workout";
       else if (tk.kind === "checkin") sub = done[tk.id] ? "Posted today" : "Post in the check-in thread";
@@ -2146,6 +2244,7 @@ header.hero .tag-btn { color: #efe4c8; border-color: #d0c2a0; }
 
   /* ---------- Fuel ---------- */
   function drawFuel() {
+    drawFast();
     var log = logFor(todayKey()), t = targets();
     var wrap = $("macros"); wrap.textContent = "";
     MACROS.forEach(function (m) {
@@ -4403,6 +4502,7 @@ header.hero .tag-btn { color: #efe4c8; border-color: #d0c2a0; }
       var img = el("img", "avatar"); img.alt = ""; if (avatarSrc(p.id)) img.src = avatarSrc(p.id); makeLink(img, p.id); row.appendChild(img);
       var who = el("div", "who"), nm = el("div", "nm", nameOf(p.id));
       if (p.id === state.me) nm.appendChild(el("em", null, "YOU"));
+      if (state.checks.some(function (c) { return c.uid === p.id && c.date === todayKey() && c.fast; })) { var ft = el("span", "fast-tag", "Fasting"); ft.title = "Fasting today"; nm.appendChild(ft); }
       makeLink(nm, p.id); who.appendChild(nm);
       var bar = el("div", "bar"), fill = el("i"); fill.style.width = max ? Math.round(100 * score / max) + "%" : "0%"; bar.appendChild(fill);
       who.appendChild(bar); row.appendChild(who);
@@ -4558,7 +4658,7 @@ header.hero .tag-btn { color: #efe4c8; border-color: #d0c2a0; }
     return f;
   }
   function stopEditing() { state.editing = null; state.editDraft = null; }
-  var REACTS = [["strong", "\uD83D\uDD25", "Strong"], ["brother", "\u2764\uFE0F", "Brother"], ["praying", "\uD83D\uDE4F", "Praying"]];
+  var REACTS = [["strong", "\uD83D\uDD25", "Strong"], ["brother", "\u2764\uFE0F", "Brother"]];
   var feedSig = "", repSig = "";
   function drawFeed(force) {
     var feed = $("feed"); if (!feed) return;
@@ -5099,6 +5199,7 @@ header.hero .tag-btn { color: #efe4c8; border-color: #d0c2a0; }
       return "Points on Fuel: your Calories box (+" + (ck ? ck.points : 1) + ") checks when you land " + calWindowText() + (w ? ", which is " + fmt(w[0]) + " to " + fmt(w[1]) + " kcal for you" : "") + ". Hit or beat your protein" + (pr ? " (" + fmt(pr) + " g)" : "") + " while staying in that window for a +" + PROTEIN_BONUS + " protein bonus. Water at your goal checks your Water box (+" + (wk2 ? wk2.points : 1) + ").";
     }, how: [
       "The bars at the top show calories, protein, carbs and fat for today. Adjust targets takes you to your plan in Settings.",
+      "Fasting? Turn on Fasting today, or open Plan fast days to pick upcoming dates or a day that repeats every week. On a fast day your Calories box checks itself, there\u2019s no protein bonus, and a Fasting tag shows by your name on the Board.",
       "Tap +8 as you drink (8 oz), or type any amount (like a 20 oz bottle) and tap Add. Hitting the goal checks your water box.",
       "Under each meal, use Search, Photo, Voice or Favorites to log food. Quick add is for when you only know the numbers.",
       "Meal prep saves a meal you make often so you can log it in one tap.",
@@ -5134,7 +5235,7 @@ header.hero .tag-btn { color: #efe4c8; border-color: #d0c2a0; }
     checkin: { t: "Rally", why: "The group thread. Show up, share wins and encourage a brother.", how: [
       "Write a post and add a photo or video if you want. Type @ to tag someone.",
       "Posting here checks your Daily Check-In box.",
-      "Press and hold a post to react: \uD83D\uDD25 Strong for the effort, \u2764\uFE0F Brother when you\'ve got his back, \uD83D\uDE4F Praying when he asks for prayer. Tap a reaction again to take it back. Tap Reply to answer him. Tap Edit to fix your own post or reply, or Delete to remove it.",
+      "Press and hold a post to react: \uD83D\uDD25 Strong for the effort, \u2764\uFE0F Brother when you\'ve got his back. Tap a reaction again to take it back. Tap Reply to answer him. Tap Edit to fix your own post or reply, or Delete to remove it.",
       "Type @ in a post or reply and pick a brother by name or handle to tag him. When someone tags you, the bell next to your profile picture shows a number. Tap it to see who tagged you.",
       "Workouts you share after finishing show up here with your PRs.",
       "What's shared here stays here. No judgment, no gossip."] },
@@ -6494,7 +6595,7 @@ header.hero .tag-btn { color: #efe4c8; border-color: #d0c2a0; }
         drawToday(); onbMaybeStart();
       });
       B.watchSettings(state.me, function (st) {
-        state.settings = { blocked: (st && st.blocked) || {}, targets: (st && st.targets) || null, body: (st && st.body) || null, reminders: (st && st.reminders) || null, health: (st && st.health) || null, plan: (st && st.plan) || null, theme: (st && st.theme) || null, autofill: (st && st.autofill) || null, favs: (st && Array.isArray(st.favs)) ? st.favs.slice(0, 60) : [], myMeals: (st && Array.isArray(st.myMeals)) ? st.myMeals.slice(0, 30) : [], preps: (st && Array.isArray(st.preps)) ? st.preps.slice(0, 40) : [], swapAlways: (st && st.swapAlways && typeof st.swapAlways === "object") ? st.swapAlways : {}, dayMoves: normMoves(st && st.dayMoves), onboard: (st && st.onboard && typeof st.onboard === "object") ? st.onboard : null }; if (state.settings.theme) applyTheme(state.settings.theme, false); state.settingsLoaded = true; drawAll(); drawFeed(); refreshHealth(); onbMaybeStart();
+        state.settings = { blocked: (st && st.blocked) || {}, targets: (st && st.targets) || null, body: (st && st.body) || null, reminders: (st && st.reminders) || null, health: (st && st.health) || null, plan: (st && st.plan) || null, theme: (st && st.theme) || null, autofill: (st && st.autofill) || null, favs: (st && Array.isArray(st.favs)) ? st.favs.slice(0, 60) : [], myMeals: (st && Array.isArray(st.myMeals)) ? st.myMeals.slice(0, 30) : [], preps: (st && Array.isArray(st.preps)) ? st.preps.slice(0, 40) : [], swapAlways: (st && st.swapAlways && typeof st.swapAlways === "object") ? st.swapAlways : {}, dayMoves: normMoves(st && st.dayMoves), fast: normFast(st && st.fast), onboard: (st && st.onboard && typeof st.onboard === "object") ? st.onboard : null }; if (state.settings.theme) applyTheme(state.settings.theme, false); state.settingsLoaded = true; drawAll(); drawFeed(); refreshHealth(); onbMaybeStart();
       });
     }
     B.watchPosts(function (rows) { state.posts = rows; drawFeed(); loadProfiles(); drawTagBells(); });
