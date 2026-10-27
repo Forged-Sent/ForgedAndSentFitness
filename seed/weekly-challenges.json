@@ -30,7 +30,8 @@
     "bestAttemptCounts": true,
     "family": {
       "completionPoints": 50,
-      "ranked": false
+      "ranked": false,
+      "note": "Integrity check: no scaled or alternate version and no proof. 50 points for doing it and marking it complete."
     },
     "scaled": {
       "appliesTo": [
@@ -186,9 +187,8 @@
           "points": 50,
           "scoredBy": "completion",
           "equipment": "None",
-          "scaleDown": "3 days",
           "scripture": "1 Corinthians 16:13",
-          "record": "Mark complete with a short note or photo",
+          "record": "Mark it complete once you've done it. On your honor.",
           "alternate": null,
           "id": "w01-family"
         },
@@ -255,9 +255,8 @@
           "points": 50,
           "scoredBy": "completion",
           "equipment": "None",
-          "scaleDown": "Ask just your wife",
           "scripture": "Philippians 4:6",
-          "record": "Mark complete with a short note or photo",
+          "record": "Mark it complete once you've done it. On your honor.",
           "alternate": null,
           "id": "w03-family"
         },
@@ -325,9 +324,8 @@
           "points": 50,
           "scoredBy": "completion",
           "equipment": "None",
-          "scaleDown": "Send a card or make a call",
           "scripture": "John 15:13",
-          "record": "Mark complete with a short note or photo",
+          "record": "Mark it complete once you've done it. On your honor.",
           "alternate": null,
           "id": "w02-family"
         },
@@ -394,9 +392,8 @@
           "points": 50,
           "scoredBy": "completion",
           "equipment": "None",
-          "scaleDown": "A personal text message",
           "scripture": "Proverbs 31:28-29",
-          "record": "Mark complete with a short note or photo",
+          "record": "Mark it complete once you've done it. On your honor.",
           "alternate": null,
           "id": "w04-family"
         },
@@ -463,9 +460,8 @@
           "points": 50,
           "scoredBy": "completion",
           "equipment": "None",
-          "scaleDown": "2 meals",
           "scripture": "Acts 2:46",
-          "record": "Mark complete with a short note or photo",
+          "record": "Mark it complete once you've done it. On your honor.",
           "alternate": null,
           "id": "w05-family"
         },
@@ -532,9 +528,8 @@
           "points": 50,
           "scoredBy": "completion",
           "equipment": "None",
-          "scaleDown": "15 minutes",
           "scripture": "Ephesians 6:4",
-          "record": "Mark complete with a short note or photo",
+          "record": "Mark it complete once you've done it. On your honor.",
           "alternate": null,
           "id": "w06-family"
         },
@@ -602,9 +597,8 @@
           "points": 50,
           "scoredBy": "completion",
           "equipment": "Bible",
-          "scaleDown": "2 days with a short passage",
           "scripture": "Deuteronomy 6:6-7",
-          "record": "Mark complete with a short note or photo",
+          "record": "Mark it complete once you've done it. On your honor.",
           "alternate": null,
           "id": "w07-family"
         },
@@ -672,9 +666,8 @@
           "points": 50,
           "scoredBy": "completion",
           "equipment": "None",
-          "scaleDown": "Identify it and plan to remove it",
           "scripture": "Joshua 24:15",
-          "record": "Mark complete with a short note or photo",
+          "record": "Mark it complete once you've done it. On your honor.",
           "alternate": null,
           "id": "w08-family"
         },
@@ -742,9 +735,8 @@
           "points": 50,
           "scoredBy": "completion",
           "equipment": "None",
-          "scaleDown": "Send a message",
           "scripture": "Proverbs 13:20",
-          "record": "Mark complete with a short note or photo",
+          "record": "Mark it complete once you've done it. On your honor.",
           "alternate": null,
           "id": "w09-family"
         },
@@ -811,9 +803,8 @@
           "points": 50,
           "scoredBy": "completion",
           "equipment": "None",
-          "scaleDown": "4 days",
           "scripture": "Psalm 127:3",
-          "record": "Mark complete with a short note or photo",
+          "record": "Mark it complete once you've done it. On your honor.",
           "alternate": null,
           "id": "w10-family"
         },
@@ -880,9 +871,8 @@
           "points": 50,
           "scoredBy": "completion",
           "equipment": "None",
-          "scaleDown": "Attend together",
           "scripture": "Hebrews 10:24-25",
-          "record": "Mark complete with a short note or photo",
+          "record": "Mark it complete once you've done it. On your honor.",
           "alternate": null,
           "id": "w11-family"
         },
@@ -949,9 +939,8 @@
           "points": 50,
           "scoredBy": "completion",
           "equipment": "None",
-          "scaleDown": "Write it down and plan the conversation",
           "scripture": "James 5:16",
-          "record": "Mark complete with a short note or photo",
+          "record": "Mark it complete once you've done it. On your honor.",
           "alternate": null,
           "id": "w12-family"
         },
@@ -1016,9 +1005,8 @@
           "points": 50,
           "scoredBy": "completion",
           "equipment": "None",
-          "scaleDown": "30-minute version",
           "scripture": "Psalm 78:4",
-          "record": "Mark complete with a short note or photo",
+          "record": "Mark it complete once you've done it. On your honor.",
           "alternate": null,
           "id": "w13-family"
         },
@@ -1087,9 +1075,8 @@
           "points": 50,
           "scoredBy": "completion",
           "equipment": "None",
-          "scaleDown": "Draft it with your wife",
           "scripture": "Ephesians 6:13",
-          "record": "Mark complete with a short note or photo",
+          "record": "Mark it complete once you've done it. On your honor.",
           "alternate": null,
           "id": "w14-family"
         },
@@ -1156,9 +1143,8 @@
           "points": 50,
           "scoredBy": "completion",
           "equipment": "None",
-          "scaleDown": "Ask and listen only",
           "scripture": "Ephesians 5:25",
-          "record": "Mark complete with a short note or photo",
+          "record": "Mark it complete once you've done it. On your honor.",
           "alternate": null,
           "id": "w15-family"
         },
@@ -1225,9 +1211,8 @@
           "points": 50,
           "scoredBy": "completion",
           "equipment": "None",
-          "scaleDown": "5 days",
           "scripture": "1 Thessalonians 5:17",
-          "record": "Mark complete with a short note or photo",
+          "record": "Mark it complete once you've done it. On your honor.",
           "alternate": null,
           "id": "w16-family"
         },
@@ -1292,9 +1277,8 @@
           "points": 50,
           "scoredBy": "completion",
           "equipment": "Bible",
-          "scaleDown": "A shorter verse",
           "scripture": "Psalm 119:11",
-          "record": "Mark complete with a short note or photo",
+          "record": "Mark it complete once you've done it. On your honor.",
           "alternate": null,
           "id": "w17-family"
         },
@@ -1361,9 +1345,8 @@
           "points": 50,
           "scoredBy": "completion",
           "equipment": "None",
-          "scaleDown": "Decide the boundary with your wife first",
           "scripture": "Psalm 101:3",
-          "record": "Mark complete with a short note or photo",
+          "record": "Mark it complete once you've done it. On your honor.",
           "alternate": null,
           "id": "w18-family"
         },
@@ -1430,18 +1413,9 @@
           "points": 50,
           "scoredBy": "completion",
           "equipment": "None",
-          "scaleDown": "Serve with one family member",
           "scripture": "Galatians 5:13",
-          "record": "Mark complete with a short note or photo",
-          "alternate": {
-            "description": "Serve in a seated or light role (cook; greet; organize; write cards).",
-            "target": 1,
-            "unit": "done",
-            "helpsWith": [
-              "Mobility",
-              "Stamina"
-            ]
-          },
+          "record": "Mark it complete once you've done it. On your honor.",
+          "alternate": null,
           "id": "w19-family"
         },
         {
@@ -1506,9 +1480,8 @@
           "points": 50,
           "scoredBy": "completion",
           "equipment": "None",
-          "scaleDown": "Screen fast only",
           "scripture": "Matthew 6:16-18",
-          "record": "Mark complete with a short note or photo",
+          "record": "Mark it complete once you've done it. On your honor.",
           "alternate": null,
           "id": "w20-family"
         },
@@ -1576,9 +1549,8 @@
           "points": 50,
           "scoredBy": "completion",
           "equipment": "None",
-          "scaleDown": "At-home date after the kids are in bed",
           "scripture": "Ephesians 5:25-26",
-          "record": "Mark complete with a short note or photo",
+          "record": "Mark it complete once you've done it. On your honor.",
           "alternate": null,
           "id": "w21-family"
         },
@@ -1644,9 +1616,8 @@
           "points": 50,
           "scoredBy": "completion",
           "equipment": "None",
-          "scaleDown": "15-minute lesson",
           "scripture": "Proverbs 22:6",
-          "record": "Mark complete with a short note or photo",
+          "record": "Mark it complete once you've done it. On your honor.",
           "alternate": null,
           "id": "w22-family"
         },
@@ -1714,9 +1685,8 @@
           "points": 50,
           "scoredBy": "completion",
           "equipment": "None",
-          "scaleDown": "3 nights",
           "scripture": "1 Thessalonians 5:18",
-          "record": "Mark complete with a short note or photo",
+          "record": "Mark it complete once you've done it. On your honor.",
           "alternate": null,
           "id": "w23-family"
         },
@@ -1783,9 +1753,8 @@
           "points": 50,
           "scoredBy": "completion",
           "equipment": "None",
-          "scaleDown": "1 person",
           "scripture": "Ezekiel 22:30",
-          "record": "Mark complete with a short note or photo",
+          "record": "Mark it complete once you've done it. On your honor.",
           "alternate": null,
           "id": "w24-family"
         },
@@ -1850,9 +1819,8 @@
           "points": 50,
           "scoredBy": "completion",
           "equipment": "Bible",
-          "scaleDown": "Ask one question and listen",
           "scripture": "1 Peter 3:15",
-          "record": "Mark complete with a short note or photo",
+          "record": "Mark it complete once you've done it. On your honor.",
           "alternate": null,
           "id": "w25-family"
         },
@@ -1919,9 +1887,8 @@
           "points": 50,
           "scoredBy": "completion",
           "equipment": "None",
-          "scaleDown": "30 minutes at home",
           "scripture": "Ecclesiastes 4:12",
-          "record": "Mark complete with a short note or photo",
+          "record": "Mark it complete once you've done it. On your honor.",
           "alternate": null,
           "id": "w26-family"
         },
@@ -1989,9 +1956,8 @@
           "points": 50,
           "scoredBy": "completion",
           "equipment": "None",
-          "scaleDown": "4 meals",
           "scripture": "1 Timothy 4:4-5",
-          "record": "Mark complete with a short note or photo",
+          "record": "Mark it complete once you've done it. On your honor.",
           "alternate": null,
           "id": "w27-family"
         },
@@ -2058,9 +2024,8 @@
           "points": 50,
           "scoredBy": "completion",
           "equipment": "None",
-          "scaleDown": "3 days",
           "scripture": "Mark 10:45",
-          "record": "Mark complete with a short note or photo",
+          "record": "Mark it complete once you've done it. On your honor.",
           "alternate": null,
           "id": "w28-family"
         },
@@ -2127,9 +2092,8 @@
           "points": 50,
           "scoredBy": "completion",
           "equipment": "None",
-          "scaleDown": "Plan three days",
           "scripture": "Psalm 90:12",
-          "record": "Mark complete with a short note or photo",
+          "record": "Mark it complete once you've done it. On your honor.",
           "alternate": null,
           "id": "w29-family"
         },
@@ -2195,9 +2159,8 @@
           "points": 50,
           "scoredBy": "completion",
           "equipment": "None",
-          "scaleDown": "Bless one person",
           "scripture": "Numbers 6:24-26",
-          "record": "Mark complete with a short note or photo",
+          "record": "Mark it complete once you've done it. On your honor.",
           "alternate": null,
           "id": "w30-family"
         },
@@ -2264,9 +2227,8 @@
           "points": 50,
           "scoredBy": "completion",
           "equipment": "None",
-          "scaleDown": "Review one month",
           "scripture": "2 Corinthians 9:7",
-          "record": "Mark complete with a short note or photo",
+          "record": "Mark it complete once you've done it. On your honor.",
           "alternate": null,
           "id": "w32-family"
         },
@@ -2333,18 +2295,9 @@
           "points": 50,
           "scoredBy": "completion",
           "equipment": "None",
-          "scaleDown": "Pray and talk at home",
           "scripture": "Psalm 112:6",
-          "record": "Mark complete with a short note or photo",
-          "alternate": {
-            "description": "Honor them from a car or bench; or join a memorial service online.",
-            "target": 1,
-            "unit": "done",
-            "helpsWith": [
-              "Mobility",
-              "Stamina"
-            ]
-          },
+          "record": "Mark it complete once you've done it. On your honor.",
+          "alternate": null,
           "id": "w31-family"
         },
         {
@@ -2412,9 +2365,8 @@
           "points": 50,
           "scoredBy": "completion",
           "equipment": "None",
-          "scaleDown": "Pray about it first",
           "scripture": "Proverbs 11:3",
-          "record": "Mark complete with a short note or photo",
+          "record": "Mark it complete once you've done it. On your honor.",
           "alternate": null,
           "id": "w33-family"
         },
@@ -2480,9 +2432,8 @@
           "points": 50,
           "scoredBy": "completion",
           "equipment": "Bible",
-          "scaleDown": "Phone call",
           "scripture": "Proverbs 27:17",
-          "record": "Mark complete with a short note or photo",
+          "record": "Mark it complete once you've done it. On your honor.",
           "alternate": null,
           "id": "w34-family"
         },
@@ -2550,18 +2501,9 @@
           "points": 50,
           "scoredBy": "completion",
           "equipment": "None",
-          "scaleDown": "1 hour project",
           "scripture": "Colossians 3:23",
-          "record": "Mark complete with a short note or photo",
-          "alternate": {
-            "description": "Take a planning or light-duty role (supervise; cook; hold tools; lead the prayer).",
-            "target": 1,
-            "unit": "done",
-            "helpsWith": [
-              "Mobility",
-              "Stamina"
-            ]
-          },
+          "record": "Mark it complete once you've done it. On your honor.",
+          "alternate": null,
           "id": "w35-family"
         },
         {
@@ -2627,9 +2569,8 @@
           "points": 50,
           "scoredBy": "completion",
           "equipment": "None",
-          "scaleDown": "Share with one person",
           "scripture": "Psalm 66:16",
-          "record": "Mark complete with a short note or photo",
+          "record": "Mark it complete once you've done it. On your honor.",
           "alternate": null,
           "id": "w36-family"
         },
@@ -2695,9 +2636,8 @@
           "points": 50,
           "scoredBy": "completion",
           "equipment": "None",
-          "scaleDown": "A message of thanks",
           "scripture": "Ephesians 6:2",
-          "record": "Mark complete with a short note or photo",
+          "record": "Mark it complete once you've done it. On your honor.",
           "alternate": null,
           "id": "w37-family"
         },
@@ -2764,9 +2704,8 @@
           "points": 50,
           "scoredBy": "completion",
           "equipment": "None",
-          "scaleDown": "Take the first step",
           "scripture": "Joshua 1:9",
-          "record": "Mark complete with a short note or photo",
+          "record": "Mark it complete once you've done it. On your honor.",
           "alternate": null,
           "id": "w38-family"
         },
@@ -2833,18 +2772,9 @@
           "points": 50,
           "scoredBy": "completion",
           "equipment": "None",
-          "scaleDown": "2 hours",
           "scripture": "Matthew 25:40",
-          "record": "Mark complete with a short note or photo",
-          "alternate": {
-            "description": "Choose a seated service (write cards; prepare meals; make calls).",
-            "target": 1,
-            "unit": "done",
-            "helpsWith": [
-              "Mobility",
-              "Stamina"
-            ]
-          },
+          "record": "Mark it complete once you've done it. On your honor.",
+          "alternate": null,
           "id": "w39-family"
         },
         {
@@ -2912,9 +2842,8 @@
           "points": 50,
           "scoredBy": "completion",
           "equipment": "None",
-          "scaleDown": "4 days",
           "scripture": "1 Corinthians 16:14",
-          "record": "Mark complete with a short note or photo",
+          "record": "Mark it complete once you've done it. On your honor.",
           "alternate": null,
           "id": "w40-family"
         },
@@ -2981,9 +2910,8 @@
           "points": 50,
           "scoredBy": "completion",
           "equipment": "None",
-          "scaleDown": "4 days",
           "scripture": "Ephesians 4:29",
-          "record": "Mark complete with a short note or photo",
+          "record": "Mark it complete once you've done it. On your honor.",
           "alternate": null,
           "id": "w41-family"
         },
@@ -3050,9 +2978,8 @@
           "points": 50,
           "scoredBy": "completion",
           "equipment": "Bible",
-          "scaleDown": "3 days",
           "scripture": "Mark 1:35",
-          "record": "Mark complete with a short note or photo",
+          "record": "Mark it complete once you've done it. On your honor.",
           "alternate": null,
           "id": "w42-family"
         },
@@ -3119,9 +3046,8 @@
           "points": 50,
           "scoredBy": "completion",
           "equipment": "None",
-          "scaleDown": "Pray for them by name",
           "scripture": "Matthew 28:19-20",
-          "record": "Mark complete with a short note or photo",
+          "record": "Mark it complete once you've done it. On your honor.",
           "alternate": null,
           "id": "w43-family"
         },
@@ -3186,18 +3112,9 @@
           "points": 50,
           "scoredBy": "completion",
           "equipment": "None",
-          "scaleDown": "Pray for your street",
           "scripture": "Jeremiah 29:7",
-          "record": "Mark complete with a short note or photo",
-          "alternate": {
-            "description": "Pray from the porch or from the car while driving through the neighborhood.",
-            "target": 1,
-            "unit": "done",
-            "helpsWith": [
-              "Mobility",
-              "Stamina"
-            ]
-          },
+          "record": "Mark it complete once you've done it. On your honor.",
+          "alternate": null,
           "id": "w44-family"
         },
         {
@@ -3264,9 +3181,8 @@
           "points": 50,
           "scoredBy": "completion",
           "equipment": "None",
-          "scaleDown": "Tell one story",
           "scripture": "Deuteronomy 4:9",
-          "record": "Mark complete with a short note or photo",
+          "record": "Mark it complete once you've done it. On your honor.",
           "alternate": null,
           "id": "w45-family"
         },
@@ -3333,9 +3249,8 @@
           "points": 50,
           "scoredBy": "completion",
           "equipment": "None",
-          "scaleDown": "One child",
           "scripture": "3 John 1:4",
-          "record": "Mark complete with a short note or photo",
+          "record": "Mark it complete once you've done it. On your honor.",
           "alternate": null,
           "id": "w46-family"
         },
@@ -3402,9 +3317,8 @@
           "points": 50,
           "scoredBy": "completion",
           "equipment": "None",
-          "scaleDown": "Half day",
           "scripture": "Exodus 20:8-10",
-          "record": "Mark complete with a short note or photo",
+          "record": "Mark it complete once you've done it. On your honor.",
           "alternate": null,
           "id": "w47-family"
         },
@@ -3471,9 +3385,8 @@
           "points": 50,
           "scoredBy": "completion",
           "equipment": "None",
-          "scaleDown": "The main rooms",
           "scripture": "Psalm 127:1",
-          "record": "Mark complete with a short note or photo",
+          "record": "Mark it complete once you've done it. On your honor.",
           "alternate": null,
           "id": "w48-family"
         },
@@ -3540,9 +3453,8 @@
           "points": 50,
           "scoredBy": "completion",
           "equipment": "None",
-          "scaleDown": "Say it in front of one child",
           "scripture": "1 Peter 3:7",
-          "record": "Mark complete with a short note or photo",
+          "record": "Mark it complete once you've done it. On your honor.",
           "alternate": null,
           "id": "w49-family"
         },
@@ -3608,9 +3520,8 @@
           "points": 50,
           "scoredBy": "completion",
           "equipment": "None",
-          "scaleDown": "Give a small gift",
           "scripture": "Matthew 6:3-4",
-          "record": "Mark complete with a short note or photo",
+          "record": "Mark it complete once you've done it. On your honor.",
           "alternate": null,
           "id": "w50-family"
         },
@@ -3677,9 +3588,8 @@
           "points": 50,
           "scoredBy": "completion",
           "equipment": "None",
-          "scaleDown": "Write five",
           "scripture": "Psalm 103:2",
-          "record": "Mark complete with a short note or photo",
+          "record": "Mark it complete once you've done it. On your honor.",
           "alternate": null,
           "id": "w51-family"
         },
@@ -3746,9 +3656,8 @@
           "points": 50,
           "scoredBy": "completion",
           "equipment": "Bible",
-          "scaleDown": "Draft it with your wife",
           "scripture": "Matthew 28:18-20",
-          "record": "Mark complete with a short note or photo",
+          "record": "Mark it complete once you've done it. On your honor.",
           "alternate": null,
           "id": "w52-family"
         },
