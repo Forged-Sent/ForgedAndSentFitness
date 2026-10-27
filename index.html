@@ -191,6 +191,19 @@ details.targets[open] summary::after { content: "\2212"; }
 .tabs { display: inline-flex; border: 2px solid var(--line); }
 .tabs button { background: transparent; border: 0; padding: 6px 14px; font-family: var(--f-label); font-weight: 600; font-size: 14px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
 .tabs button[aria-pressed="true"] { background: var(--ink); color: var(--bg); }
+.podium { display: grid; grid-template-columns: 1fr 1.2fr 1fr; align-items: end; gap: 8px; margin: 4px 0 18px; padding: 16px 8px 0; background: var(--surface); border: 2px solid var(--line); border-top-color: var(--brass); }
+.podium[hidden] { display: none; }
+.pod { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 4px; min-width: 0; padding: 0 2px 12px; }
+.pod .medal { font-family: var(--f-display); font-weight: 700; font-size: 16px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+.pod .pav { position: relative; width: 64px; height: 64px; border-radius: 50%; border: 3px solid var(--line); background: var(--surface-2); overflow: hidden; display: grid; place-items: center; font-family: var(--f-display); font-weight: 700; font-size: 24px; }
+.pod .pav img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.pod.first .pav { width: 84px; height: 84px; font-size: 32px; border-color: var(--hot); }
+.pod.first .medal { color: var(--hot); font-size: 20px; }
+.pod.second .pav, .pod.third .pav { border-color: var(--brass); }
+.pod .pnm { max-width: 100%; font-family: var(--f-label); font-weight: 700; font-size: 15px; letter-spacing: .04em; text-transform: uppercase; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pod .ppts { font-family: var(--f-display); font-weight: 700; font-size: 26px; line-height: 1; font-variant-numeric: tabular-nums; }
+.pod.first .ppts { font-size: 32px; color: var(--hot); }
+.pod .plab { font-family: var(--f-label); font-weight: 600; font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
 .board { border-top: 1px solid var(--line); }
 .row { display: grid; grid-template-columns: 30px 38px minmax(0, 1fr) auto; align-items: center; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--line); }
 .rank { font-family: var(--f-display); font-weight: 700; font-size: 26px; line-height: 1; text-align: center; color: var(--muted); }
@@ -456,6 +469,7 @@ details.targets[open] summary::after { content: "\2212"; }
           <button type="button" id="tab-week" aria-pressed="true">This week</button>
         </div>
       </div>
+      <div class="podium" id="podium" aria-label="Top three"></div>
       <div class="board" id="board"></div>
       <p class="note" id="board-note"></p>
     </section>
@@ -1258,6 +1272,24 @@ details.targets[open] summary::after { content: "\2212"; }
   }
 
   /* ---------- Board ---------- */
+  // Top-three tile: photo, name and points. Shown in podium order 2nd, 1st, 3rd. Only men with points appear, so an empty board stays empty.
+  function drawPodium(arr, isWeek) {
+    var pod = $("podium"); pod.textContent = "";
+    var top = arr.filter(function (p) { return (isWeek ? p.weekPts : p.todayPts) > 0; }).slice(0, 3);
+    if (!top.length || !state.tasks.length) { pod.hidden = true; return; }
+    pod.hidden = false;
+    var spots = [{ i: 1, cls: "second", medal: "2nd" }, { i: 0, cls: "first", medal: "1st" }, { i: 2, cls: "third", medal: "3rd" }];
+    spots.forEach(function (s) {
+      var p = top[s.i], cell = el("div", "pod " + s.cls);
+      if (!p) { cell.style.visibility = "hidden"; pod.appendChild(cell); return; }
+      cell.appendChild(el("div", "medal", s.medal));
+      var av = el("div", "pav"); fillAvatar(av, p.id); makeLink(av, p.id); cell.appendChild(av);
+      var nm = el("div", "pnm", nameOf(p.id)); makeLink(nm, p.id); cell.appendChild(nm);
+      cell.appendChild(el("div", "ppts", String(isWeek ? p.weekPts : p.todayPts)));
+      cell.appendChild(el("div", "plab", "pts"));
+      pod.appendChild(cell);
+    });
+  }
   function drawBoard() {
     var board = $("board"); board.textContent = "";
     var today = todayKey(), ws = weekStartKey(), people = {};
@@ -1273,6 +1305,7 @@ details.targets[open] summary::after { content: "\2212"; }
     arr.sort(function (a, b) { var d = isWeek ? b.weekPts - a.weekPts : b.todayPts - a.todayPts; return d || (isWeek ? b.todayPts - a.todayPts : b.weekPts - a.weekPts); });
     $("tab-today").setAttribute("aria-pressed", String(!isWeek)); $("tab-week").setAttribute("aria-pressed", String(isWeek));
     $("board-note").textContent = isWeek ? "Week runs Monday to Sunday. Points come from boxes, your habits and PR bonuses. Push each other, and carry the man who is behind." : "Resets at midnight. Encourage the man next to you.";
+    drawPodium(arr, isWeek);
     if (!arr.length || !state.tasks.length) {
       var e = el("div", "empty"); e.appendChild(el("strong", null, "No standings yet"));
       e.appendChild(document.createTextNode("Standings appear once there are tasks and someone checks one off.")); board.appendChild(e); return;
