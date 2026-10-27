@@ -1078,6 +1078,25 @@ header.hero .me-btn { border-color:#e87328; }
 .chal-btn .cb-slot { color:#d0c8bf !important; }
 .onb.dark .onb-k, .onb-tip b { color:#ff9a55; }
 .onb-shield path, .onb-shield line { stroke:#f17b32; }
+.podium { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; align-items: end; margin: 4px 0 12px; }
+.podium.n2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.podium.n1 { grid-template-columns: minmax(0, 1fr); max-width: 200px; margin-left: auto; margin-right: auto; }
+.pod-tile { position: relative; display: grid; justify-items: center; gap: 4px; padding: 26px 6px 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface-2); text-align: center; min-width: 0; }
+.pod-1 { padding-top: 34px; padding-bottom: 18px; border-color: #d4a63a; background: linear-gradient(180deg, color-mix(in srgb, #d4a63a 22%, var(--surface-2)), var(--surface-2)); }
+.pod-2 { border-color: #a9b0b6; }
+.pod-3 { border-color: #b8754a; }
+.pod-tile.me .pod-nm::after { content: " (you)"; color: var(--muted); font-weight: 400; }
+.pod-rank { position: absolute; top: -1px; left: 50%; transform: translateX(-50%); padding: 3px 10px; border-radius: 0 0 8px 8px; font-family: var(--f-label); font-weight: 800; font-size: 12.5px; letter-spacing: .1em; text-transform: uppercase; color: #151719; }
+.pod-1 .pod-rank { background: #d4a63a; font-size: 14px; }
+.pod-2 .pod-rank { background: #a9b0b6; }
+.pod-3 .pod-rank { background: #b8754a; }
+.pod-av { width: 56px; height: 56px; border-radius: 50%; object-fit: cover; border: 2px solid var(--line); background: var(--surface); }
+.pod-1 .pod-av { width: 72px; height: 72px; border-color: #d4a63a; }
+.pod-2 .pod-av { border-color: #a9b0b6; } .pod-3 .pod-av { border-color: #b8754a; }
+.pod-nm { font-weight: 700; font-size: 14px; line-height: 1.2; max-width: 100%; overflow-wrap: anywhere; cursor: pointer; }
+.pod-pts b { font-family: var(--f-label); font-weight: 800; font-size: 22px; font-variant-numeric: tabular-nums; }
+.pod-1 .pod-pts b { font-size: 28px; color: var(--accent); }
+.pod-pts small { color: var(--muted); font-size: 12.5px; }
 .board .row { background:var(--surface-2); margin:6px 0; border:1px solid var(--line); padding:10px; }
 .post { background:var(--surface-2); border:1px solid var(--line); margin:8px 0; padding:12px; }
 
@@ -5004,6 +5023,22 @@ header.hero .me-btn { border-color:#e87328; }
       e.appendChild(document.createTextNode("Standings appear once there are tasks and someone checks one off.")); board.appendChild(e); return;
     }
     var max = 0; arr.forEach(function (p) { var v = scoreOf(p); if (v > max) max = v; });
+    // Podium: the top three (ties share a rank) as tiles above the list. Order on screen: 2nd, 1st, 3rd.
+    var pr = null, rk = 0, ranked = arr.map(function (p, i) { var sc = scoreOf(p); if (sc !== pr) { rk = i + 1; pr = sc; } return { p: p, rank: rk, score: sc }; });
+    var top = ranked.filter(function (x) { return x.score > 0; }).slice(0, 3);
+    if (top.length) {
+      var pod = el("div", "podium" + (top.length < 3 ? " n" + top.length : "")); pod.setAttribute("aria-label", "Top " + top.length);
+      var order = top.length === 3 ? [top[1], top[0], top[2]] : top.length === 2 ? [top[1], top[0]] : [top[0]];
+      order.forEach(function (x) {
+        var place = Math.min(3, x.rank), t = el("div", "pod-tile pod-" + place + (x.p.id === state.me ? " me" : ""));
+        t.appendChild(el("span", "pod-rank", place === 1 ? "1st" : place === 2 ? "2nd" : "3rd"));
+        var im = el("img", "avatar pod-av"); im.alt = ""; if (avatarSrc(x.p.id)) im.src = avatarSrc(x.p.id); makeLink(im, x.p.id); t.appendChild(im);
+        var nm2 = el("span", "pod-nm", nameOf(x.p.id)); makeLink(nm2, x.p.id); t.appendChild(nm2);
+        var ptb = el("span", "pod-pts"); ptb.appendChild(el("b", null, (Math.round(x.score * 10) / 10).toLocaleString())); ptb.appendChild(el("small", null, " pts")); t.appendChild(ptb);
+        pod.appendChild(t);
+      });
+      board.appendChild(pod);
+    }
     var prev = null, rank = 0;
     arr.forEach(function (p, i) {
       var score = scoreOf(p);
