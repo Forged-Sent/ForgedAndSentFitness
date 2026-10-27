@@ -1672,8 +1672,9 @@ header.hero .me-btn { border-color:#e87328; }
 
     <section aria-labelledby="h-s-test">
       <div class="section-head"><h2 class="label-caps" id="h-s-test" data-sub="Preview the app as if it were another day. Only on this phone.">Testing: change the date</h2></div>
-      <label class="flabel">Pretend today is<input class="field" type="date" id="test-date"></label>
-      <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap"><button class="btn" type="button" id="test-go" style="flex:1">Use this date</button><button class="btn ghost" type="button" id="test-off" style="flex:1">Back to the real date</button></div>
+      <p class="note" id="test-status" style="margin-top:0"></p>
+      <label class="flabel">Test date<input class="field" type="date" id="test-date"></label>
+      <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap"><button class="btn" type="button" id="test-go" style="flex:1">Set test date</button><button class="btn ghost" type="button" id="test-off" style="flex:1">Clear test date</button></div>
       <p class="note">Anything you log while testing is saved to that date for real. Delete test entries when you are done.</p>
     </section>
 
@@ -6888,8 +6889,16 @@ header.hero .me-btn { border-color:#e87328; }
     Array.prototype.forEach.call(document.querySelectorAll("#theme-tabs button"), function (b) { b.setAttribute("aria-pressed", String(b.dataset.themeMode === mode)); });
   }
   function afPrefs() { var a = state.settings.autofill; if (a === true) return { w: true, r: true }; return { w: !!(a && a.w), r: !!(a && a.r) }; }
+  // Testing date: empty unless you set one. Set and Clear only light up when they would do something.
+  function paintTestCtl() {
+    var f = $("test-date"), go = $("test-go"), off = $("test-off"), st = $("test-status"); if (!f) return;
+    var v = f.value, valid = /^\d{4}-\d{2}-\d{2}$/.test(v);
+    if (go) go.disabled = !valid || v === TEST_DATE || v === dkey(new Date());
+    if (off) off.disabled = !TEST_DATE;
+    if (st) st.textContent = TEST_DATE ? "Test date on: " + longDate(TEST_DATE) + "." : "Using the real date. Pick a date to test with.";
+  }
   function drawSettings() {
-    var tdi = $("test-date"); if (tdi && !TEST_DATE && !tdi.dataset.touched) { var nk = addDays(todayKey(), 1); while (!isWeighDay(nk)) nk = addDays(nk, 1); tdi.value = nk; }
+    paintTestCtl();
     var afp = afPrefs(); [["s-af-w", "w"], ["s-af-r", "r"]].forEach(function (c) { var x = $(c[0]); if (x) { x.checked = afp[c[1]]; x.disabled = !state.me || !state.canWrite; } });
     if (state.page !== "settings") return;
     var pp = state.pubProfiles[state.me] || {}, st = state.settings, canUp = B.canUpload();
@@ -7111,14 +7120,14 @@ header.hero .me-btn { border-color:#e87328; }
       btn.addEventListener("click", function () { var open = body.hidden; body.hidden = !open; btn.setAttribute("aria-expanded", String(open)); });
       head.hidden = true; sec.classList.add("set-card"); sec.appendChild(btn); sec.appendChild(body);
     });
-    $("test-date").value = TEST_DATE || dkey(new Date());
-    $("test-date").addEventListener("input", function () { this.dataset.touched = "1"; });
+    $("test-date").value = TEST_DATE;
+    $("test-date").addEventListener("input", paintTestCtl);
     // Switch the pretend date right away. A page reload doesn't always happen inside the Claude app,
     // which left the old test date showing, so the app redraws in place instead.
     function setTestDate(v) {
       v = v && v !== dkey(new Date()) ? v : "";
       try { if (v) localStorage.setItem("fs-test-date", v); else localStorage.removeItem("fs-test-date"); } catch (e) {}
-      TEST_DATE = v; $("test-date").value = v || dkey(new Date());
+      TEST_DATE = v; $("test-date").value = v; paintTestCtl();
       state.trainDay = todayKey(); state.wkDay = null; stripBuilt = false;
       var old = document.querySelector(".test-banner"); if (old) old.remove(); paintTestBanner();
       drawAll(); go("today");
