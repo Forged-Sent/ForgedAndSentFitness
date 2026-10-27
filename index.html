@@ -1080,6 +1080,9 @@ header.hero .me-btn { border-color:#e87328; }
 .board .row { background:var(--surface-2); margin:6px 0; border:1px solid var(--line); padding:10px; }
 .post { background:var(--surface-2); border:1px solid var(--line); margin:8px 0; padding:12px; }
 
+.ch-proof-btns { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+.ch-proof-btns .btn { min-width:0; }
+.ch-proof-pre { opacity:.75; }
 .muscle-card { background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:14px;margin:14px 0; }
 .muscle-map .mm-svg { display:block; width:100%; max-width:360px; height:auto; margin:auto; }
 .mm-h { margin:0 0 6px; font-family:var(--f-body); font-size:20px; font-weight:700; letter-spacing:0; text-transform:none; color:var(--ink); }
@@ -4503,6 +4506,13 @@ header.hero .me-btn { border-color:#e87328; }
     }
     // Submit
     var sub = el("section", "ch-sec"); if (!(c.scoredBy === "completion" && at.length)) sub.appendChild(el("h2", "label-caps", at.length ? "Submit another attempt" : "Submit your result"));
+    if (!live && cw.pre) {
+      // Before Week 1: show how proof will work, so men know they can record right here.
+      var pv = el("div", "ch-proof ch-proof-pre"); pv.appendChild(el("span", "flabel", "Proof (required)"));
+      pv.appendChild(el("p", "fnote ch-proof-tip", chalProofTip(c)));
+      var pb2 = el("div", "ch-proof-btns"), u2 = el("button", "btn ghost", "Upload"), r2 = el("button", "btn ghost", "\u23FA Record video"); u2.type = r2.type = "button"; u2.disabled = r2.disabled = true;
+      pb2.appendChild(u2); pb2.appendChild(r2); pv.appendChild(pb2); sub.appendChild(pv);
+    }
     if (!live) { sub.appendChild(el("p", "fnote", cw.pre ? "Submissions open when Week 1 starts on " + parseKey(cw.start).toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric" }) + "." : "Submissions closed " + chalDeadlineText(w.week) + ". Results are final.")); body.appendChild(sub); return; }
     sub.appendChild(el("p", "ch-due", "Submit by " + chalDeadlineText(w.week) + "."));
     if (!state.me || !state.canWrite) { sub.appendChild(el("p", "fnote", "Sign in to submit.")); body.appendChild(sub); return; }
@@ -4536,7 +4546,7 @@ header.hero .me-btn { border-color:#e87328; }
       var pr = el("div", "ch-proof");
       pr.appendChild(el("span", "flabel", "Proof (required)"));
       pr.appendChild(el("p", "fnote ch-proof-tip", chalProofTip(c)));
-      var lab = el("label", "btn ghost", F.files.length ? "Add another photo or video" : "Add photo or video");
+      var lab = el("label", "btn ghost", F.files.length ? "Upload another" : "Upload");
       var fi = el("input"); fi.type = "file"; fi.accept = "image/*,video/*"; fi.hidden = true; lab.appendChild(fi);
       fi.addEventListener("change", async function () {
         var file = fi.files && fi.files[0]; fi.value = ""; if (!file || F.files.length >= 3) return;
@@ -4544,7 +4554,7 @@ header.hero .me-btn { border-color:#e87328; }
         var ready = await prepShareFile(file, function (t) { F.msg = t; var p = document.getElementById("ch-msg"); if (p) p.textContent = t; });
         if (ready) F.files.push(ready); F.busy = false; drawChallengePage();
       });
-      if (F.files.length < 3) { pr.appendChild(lab); var rb=el("button","btn ghost","Record video");rb.type="button";rb.addEventListener("click",function(){recordVideo(c.scoredBy === "fastest_time" || c.scoredBy === "longest_hold" || c.scoredBy === "most_rounds",async function(file){F.busy=true;F.msg="Preparing video…";drawChallengePage();var ready=await prepShareFile(file,function(t){F.msg=t;var q=$("ch-msg");if(q)q.textContent=t;});if(ready)F.files.push(ready);F.busy=false;drawChallengePage();});});pr.appendChild(rb); }
+      if (F.files.length < 3) { var pbs=el("div","ch-proof-btns"); pbs.appendChild(lab); pr.appendChild(pbs); var rb=el("button","btn ghost","\u23FA Record video");rb.type="button";rb.addEventListener("click",function(){recordVideo(c.scoredBy === "fastest_time" || c.scoredBy === "longest_hold" || c.scoredBy === "most_rounds",async function(file){F.busy=true;F.msg="Preparing video…";drawChallengePage();var ready=await prepShareFile(file,function(t){F.msg=t;var q=$("ch-msg");if(q)q.textContent=t;});if(ready){F.files.push(ready);F.msg="";}F.busy=false;drawChallengePage();});});pbs.appendChild(rb); }
       var chips = el("div", "chips");
       F.files.forEach(function (fl, k) { var ch = el("span", "chip", (fl.type.indexOf("video") === 0 ? "Video: " : "Photo: ") + (fl.name || "file")); var x = el("button", "mini", "✕"); x.type = "button"; x.setAttribute("aria-label", "Remove " + (fl.name || "file")); x.addEventListener("click", function () { F.files.splice(k, 1); drawChallengePage(); }); ch.appendChild(x); chips.appendChild(ch); });
       pr.appendChild(chips); form.appendChild(pr);
@@ -6757,7 +6767,6 @@ header.hero .me-btn { border-color:#e87328; }
     $("plan-cancel").addEventListener("click", function () { state.planEdit = false; drawPlan(); });
     $("plan-form").addEventListener("submit", submitPlan);
     $("composer").addEventListener("submit", submitPost);
-    var rbtn=el("button","btn ghost","Record video");rbtn.type="button";rbtn.addEventListener("click",function(){if(state.files.length>=4){postError("Up to 4 files per post.");return;}recordVideo(false,async function(file){postError("Preparing video…");var ready=await prepShareFile(file,postError);if(ready)state.files.push(ready);postError(ready?"":"Video could not be prepared.");drawChips();});});$("attach-label").parentNode.insertBefore(rbtn,$("post-btn"));
     attachMentions($("post-text"), $("mention-list"), state.mentions);
     $("post-file").addEventListener("change", async function (ev) {
       var list = Array.prototype.slice.call(ev.target.files); ev.target.value = ""; postError("");
