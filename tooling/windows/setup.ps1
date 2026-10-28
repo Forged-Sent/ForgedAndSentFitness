@@ -146,8 +146,8 @@ try {
         if (Test-Path -LiteralPath $flutterRoot) {
             throw ('The Flutter folder exists but no flutter.bat was found: ' + $flutterRoot + '. Please ask a developer to check this folder rather than deleting it.')
         }
-        Write-Host 'Downloading the official Flutter stable SDK into your user folder.'
-        & $git clone --depth 1 --branch stable https://github.com/flutter/flutter.git $flutterRoot
+        Write-Host 'Downloading the project-pinned Flutter SDK 3.47.8 into your user folder.'
+        & $git clone --depth 1 --branch 3.47.8 https://github.com/flutter/flutter.git $flutterRoot
         Verify-External 'Flutter download'
         if (-not (Test-Path -LiteralPath $flutterFile)) { throw 'Flutter download did not produce flutter.bat.' }
     }
@@ -155,6 +155,83 @@ try {
     Append-UserPath $actualFlutterBin
     & $flutterFile --version
     Verify-External 'Flutter initialization'
+    $flutterInfo = & $flutterFile --version --machine | ConvertFrom-Json
+    Verify-External 'Flutter SDK inspection'
+    $framework = [string]$flutterInfo.frameworkVersion
+    $dartSDK = [string]$flutterInfo.dartSdkVersion
+    if(-not $framework.StartsWith('3.47.8')){
+        throw "Flutter $framework is installed, but this repository pins Flutter 3.47.8. Use the pinned SDK in your user folder or run the guided repair. No global SDK was changed."
+    }
+    if(-not ([version]($dartSDK -replace '[-+].*
+    & $flutterFile config --enable-web
+    Verify-External 'Flutter web configuration'
+
+    Announce 'Flutter editor extension'
+    try {
+        & $code --install-extension Dart-Code.flutter --force
+        if ($LASTEXITCODE -ne 0) { Write-Warning 'VS Code Flutter extension could not be installed automatically. You can install it from Extensions later.' }
+    } catch {
+        Write-Warning 'VS Code extension installation skipped. Search for Flutter in VS Code Extensions.'
+    }
+
+    if ($Android) {
+        Announce 'Optional Android Studio'
+        $androidCandidates = @(
+            (Join-Path $env:ProgramFiles 'Android\Android Studio\bin\studio64.exe')
+        )
+        $studio = Locate-Program 'studio64.exe' $androidCandidates
+        if (-not $studio) {
+            Install-Package 'Google.AndroidStudio' 'Android Studio'
+            $studio = Locate-Program 'studio64.exe' $androidCandidates
+        }
+        if (-not $studio) { throw 'Android Studio was installed but not found. Rerun setup after restart.' }
+        Write-Host 'Android Studio installed. Its first-run SDK wizard, licenses and emulator setup require interaction.'
+    }
+
+    Announce 'Create local Flutter platform files'
+    Push-Location $mobileRoot
+    try {
+        if ($Android) {
+            & $flutterFile create --platforms=web,android --project-name=forged_and_sent --org=com.forgedandsent .
+        } else {
+            & $flutterFile create --platforms=web --project-name=forged_and_sent --org=com.forgedandsent .
+        }
+        Verify-External 'Flutter platform setup'
+        & $flutterFile pub get
+        Verify-External 'Flutter dependency install'
+        & $flutterFile analyze
+        Verify-External 'Flutter static analysis'
+        & $flutterFile test
+        Verify-External 'Flutter tests'
+    } finally {
+        Pop-Location
+    }
+
+    Announce 'Finished'
+    Write-Host 'Browser preview is installed. Double-click RUN-APP.cmd to see the app.'
+    Write-Host 'You can rerun this setup later; it skips installed tools.'
+    if ($Android) {
+        Write-Host ''
+        Write-Host 'Next for Android:'
+        Write-Host '1. Open Android Studio and finish its first-run SDK setup wizard.'
+        Write-Host '2. Run "flutter doctor --android-licenses" and review/accept SDK licenses.'
+        Write-Host '3. Configure a physical Android phone or emulator.'
+        Write-Host '4. A Mac is required for local iOS builds.'
+    }
+} catch {
+    $exitCode = 1
+    Write-Host ''
+    Write-Host ('Setup error: ' + $_.Exception.Message) -ForegroundColor Red
+    Write-Host 'If you need help, send a screenshot of this window and the log mentioned at the top.'
+} finally {
+    if ($transcriptStarted) {
+        try { Stop-Transcript | Out-Null } catch {}
+    }
+}
+exit $exitCode
+,'') -ge [version]'3.9.0')){
+        throw "Dart $dartSDK is too old for the MCP server. Install the pinned Flutter SDK."
+    }
     & $flutterFile config --enable-web
     Verify-External 'Flutter web configuration'
 
