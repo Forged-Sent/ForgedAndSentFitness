@@ -68,6 +68,14 @@ jobs:
           Import-Module PSScriptAnalyzer
           $issues=@(Invoke-ScriptAnalyzer -Path tooling/windows -Recurse -IncludeRule PSAvoidAssignmentToAutomaticVariable -Severity Error,Warning)
           if($issues.Count){$issues|Format-Table|Out-String|Write-Host;throw 'Reserved automatic variable assignment'}
+      - name: Pester tests for WinGet exit semantics and profile diagnostics
+        shell: pwsh
+        run: |
+          $ErrorActionPreference='Stop'
+          Install-Module Pester -MinimumVersion 5.0.0 -Scope CurrentUser -Force -SkipPublisherCheck -Repository PSGallery
+          Import-Module Pester -MinimumVersion 5.0.0
+          $results=Invoke-Pester -Path tooling/windows/tests -PassThru
+          if($results.FailedCount -gt 0 -or $results.PassedCount -lt 7){throw 'PowerShell unit tests failed'}
       - name: Test 5.1 bridge and wizard diagnostics
         shell: pwsh
         run: |

@@ -21,7 +21,7 @@ The menu is designed for people who are not software developers:
 | 1 | Full development setup / repair: Flutter, VS Code, CLI tools, MCPs, AI extensions, optional Android Studio |
 | 2 | Preview only: installs fewer dependencies, then launch in Chrome |
 | 3 | Check requirements: prints each missing component, why it is needed, and how to fix it |
-| 4 | Sign into GitHub and Firebase only if requested; never enters passwords in a script |
+| 4 | Sign into GitHub only if requested; never enters passwords in a script |
 | 5 | Open VS Code and guide MCP trust/authorization |
 | 6 | Launch the Flutter starter in Chrome |
 | 7 | Open troubleshooting instructions |
@@ -30,16 +30,15 @@ The initial Flutter app is a basic starter screen. The original web prototype is
 
 ## Installed/configured MCP servers
 
-The version-controlled VS Code MCP configuration contains **eight** integrations and intentionally **no Sentry**:
+The version-controlled VS Code MCP configuration contains **seven** integrations, no Firebase cloud MCP, and no Sentry:
 
 1. Dart / Flutter MCP (local Dart SDK)
-2. Firebase MCP (Node.js CLI, authenticated when explicitly approved)
-3. Playwright MCP (Node.js, Chrome)
-4. GitHub hosted MCP (read-only, OAuth)
-5. Context7 hosted MCP (current programming documentation)
-6. Figma hosted MCP (OAuth)
-7. Maestro CLI MCP (local Java 17+, plus Android emulator/phone for actual tests)
-8. Google Developer Knowledge hosted MCP (Google Cloud project + API enabled + personal API key)
+2. Playwright MCP (Node.js, Chrome)
+3. GitHub hosted MCP (read-only, OAuth)
+4. Context7 hosted MCP (current programming documentation)
+5. Figma hosted MCP (OAuth)
+6. Maestro CLI MCP (local Java 17+, plus Android emulator/phone for actual tests)
+7. Google Developer Knowledge hosted MCP (Google Cloud project + API enabled + personal API key)
 
 The last four are not required merely to preview the app. Remote MCPs may require network access, terms, a paid plan or quota. Installing a config does not mean a server is authenticated or connected.
 
@@ -69,7 +68,7 @@ The wizard offers to **copy the AI prompt to the clipboard**, but it does **not 
 | Flutter not found | SDK download failed, PATH not refreshed | Rerun setup, restart terminal |
 | Android build unavailable | Android Studio, SDK licenses or emulator not ready | Run SETUP-ANDROID.cmd, complete first-run wizard and licenses |
 | Maestro missing | Native CLI ZIP or Java 17 install failed | Rerun developer setup, check Java/WinGet and download restrictions |
-| Firebase MCP won't connect | Firebase CLI, login or project permissions missing | Run firebase login and select DEV project |
+| Firebase cloud MCP unavailable | Disabled deliberately for Contributors | Use emulator-first development after PR #4; DEV cloud access is Maintainer-only |
 | Figma MCP won't connect | Figma account authorization pending | Start server in VS Code, sign into Figma |
 | Google Knowledge 401/403 | Google Cloud API not enabled or invalid/restricted key | Enable Developer Knowledge API, create/restrict API key, reconnect |
 | GitHub MCP won't connect | OAuth not granted | Sign in to GitHub and reauthorize read-only MCP |

@@ -49,7 +49,7 @@ function OpenRepo {
   Write-Host 'In VS Code, press Ctrl+Shift+P and choose MCP: List Servers.'
   Write-Host 'Start Dart, Context7, Playwright, and Maestro first.'
   Write-Host 'Sign into Figma/GitHub; Google Knowledge needs an API key from a Google Cloud project.'
-  Write-Host 'Firebase MCP should be approved only for your DEV project.'
+  Write-Host 'Firebase cloud MCP is disabled by default; Maintainers must request separate DEV-only access.'
 }
 function LaunchApp {
   $runner=Join-Path $PSScriptRoot 'run-app.ps1'
