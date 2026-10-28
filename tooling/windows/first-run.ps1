@@ -113,7 +113,7 @@ do {
         $script:selectedProfile=$options[$level]
         Write-Host "Selected: $script:selectedProfile"
         if(Ask "Install or repair the $script:selectedProfile tools now?"){
-          $status=RunScript (Join-Path $PSScriptRoot 'setup-profile.ps1') @('-Profile',$script:selectedProfile)
+          $status=RunScript (Join-Path $PSScriptRoot 'setup-profile.ps1') @('-TargetProfile',$script:selectedProfile)
           if($status -ne 0){Write-Host 'Some components need repair; the next check explains them.' -ForegroundColor Yellow}
           HelpReport
         }
