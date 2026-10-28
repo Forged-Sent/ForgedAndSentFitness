@@ -3,9 +3,9 @@
 Set-StrictMode -Version Latest
 $script:FSProfiles=@{
   Preview=@('PowerShell7','Git','Chrome','Flutter')
-  Contributor=@('PowerShell7','Git','Chrome','Flutter','VSCode','Node','Npm','GitHubCLI')
-  Mobile=@('PowerShell7','Git','Chrome','Flutter','VSCode','Node','Npm','GitHubCLI','AndroidStudio','Maestro','Java')
-  Maintainer=@('PowerShell7','Git','Chrome','Flutter','VSCode','Node','Npm','GitHubCLI','DevCloudIdentity')
+  Contributor=@('PowerShell7','Git','Chrome','Flutter','VSCode','Node','Npm','GitHubCLI','FirebaseCLI','FlutterFireCLI','Java21','GitRepo','DemoConfig','EmulatorOnline','GitHubAuth')
+  Mobile=@('PowerShell7','Git','Chrome','Flutter','VSCode','Node','Npm','GitHubCLI','FirebaseCLI','FlutterFireCLI','Java21','GitRepo','DemoConfig','EmulatorOnline','GitHubAuth','AndroidStudio','Maestro','AndroidDevice')
+  Maintainer=@('PowerShell7','Git','Chrome','Flutter','VSCode','Node','Npm','GitHubCLI','FirebaseCLI','FlutterFireCLI','Java21','GitRepo','DemoConfig','EmulatorOnline','GitHubAuth','AndroidStudio','Maestro','AndroidDevice','DevCloudIdentity')
 }
 $script:FSStatuses=@('Ready','Missing','Outdated','ConfiguredNotConnected','AuthRequired','PermissionDenied','NotApplicable','Failed')
 function New-FSCheck {
