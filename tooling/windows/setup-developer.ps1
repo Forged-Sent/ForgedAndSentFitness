@@ -4,7 +4,7 @@ Run from SETUP-DEVELOPER-WINDOWS.cmd.
 Installs developer dependencies and VS Code extensions; rerunnable.
 It never deploys Firebase, logs into paid services, or stores credentials.
 #>
-param([switch]$SkipBase,[switch]$SkipAgentCLIs,[switch]$Android)
+param([switch]$SkipBase,[switch]$SkipAgentCLIs,[switch]$Android,[switch]$SkipMaestro)
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 . (Join-Path $PSScriptRoot 'winget.ps1')
@@ -108,7 +108,7 @@ try {
 
   Write-Host 'Playwright MCP uses the repository-pinned npx package on first start; no redundant global install.'
 
-  if($Android){
+  if($Android -and -not $SkipMaestro){
   Attempt 'Maestro Windows CLI and Java 17+' {
     & (Join-Path $PSHOME 'pwsh.exe') -NoProfile -File (Join-Path $PSScriptRoot 'install-maestro.ps1')
     Check-Exit 'Maestro installer'
