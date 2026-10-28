@@ -445,6 +445,31 @@ details.targets[open] summary::after { content: "\2212"; }
 .tk-card { border-left: 3px solid var(--accent); background: var(--surface); padding: 12px 14px; display: flex; flex-direction: column; gap: 10px; }
 .tk-item b { display: block; font-family: var(--f-label); font-weight: 700; letter-spacing: .06em; text-transform: uppercase; font-size: 14px; margin-bottom: 2px; }
 .tk-item p { margin: 0; font-size: 14px; line-height: 1.5; color: var(--muted); }
+.rt-seg { display: grid; grid-template-columns: 1fr 1fr; border: 1px solid var(--line); border-radius: var(--radius, 4px); overflow: hidden; margin: 6px 0 14px; }
+.rt-seg button { min-height: 46px; background: transparent; border: 0; color: var(--ink); font-family: var(--f-label); font-weight: 700; letter-spacing: .08em; text-transform: uppercase; font-size: 14px; }
+.rt-seg button.on { background: var(--accent); color: var(--accent-ink); }
+.rt-panel { display: flex; flex-direction: column; gap: 12px; }
+.rt-card { border: 1px solid var(--line); border-left: 3px solid var(--accent); background: var(--surface); border-radius: var(--radius, 4px); padding: 12px; display: flex; flex-direction: column; gap: 8px; }
+.rt-card h3 { margin: 0; font-family: var(--f-label); font-weight: 800; text-transform: uppercase; font-size: 22px; line-height: 1.05; }
+.rt-card p { margin: 0; font-size: 14px; line-height: 1.5; color: var(--muted); }
+.rt-card .rt-k { font-family: var(--f-label); font-weight: 700; letter-spacing: .12em; text-transform: uppercase; font-size: 12px; color: var(--brass, var(--accent)); }
+.rt-card .btn { width: 100%; }
+.rt-prog { height: 8px; background: var(--surface-2); border: 1px solid var(--line); } .rt-prog i { display: block; height: 100%; background: var(--accent); }
+.rt-list { border-top: 1px solid var(--line); }
+.rt-li { display: flex; justify-content: space-between; gap: 10px; padding: 8px 0; border-bottom: 1px dashed var(--line); font-size: 14px; } .rt-li span { color: var(--muted); }
+.rt-link { background: none; border: 0; padding: 8px 0; color: var(--muted); font-family: var(--f-label); font-weight: 700; letter-spacing: .08em; text-transform: uppercase; font-size: 12.5px; text-align: left; }
+.rt-day { border: 1px solid var(--line); background: var(--surface); border-radius: var(--radius, 4px); padding: 10px 12px; display: flex; flex-direction: column; gap: 8px; }
+.rt-dh { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px; align-items: center; }
+.rt-exr { display: grid; grid-template-columns: minmax(0, 1fr) 54px 84px 38px; gap: 6px; align-items: center; }
+.rt-exr .field, .rt-dh .field { min-height: 44px; padding: 8px 10px; }
+.rt-exr .field.n { text-align: center; padding: 8px 4px; }
+.rt-hd { display: grid; grid-template-columns: minmax(0, 1fr) 54px 84px 38px; gap: 6px; font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.rt-hd span:nth-child(2), .rt-hd span:nth-child(3) { text-align: center; }
+.rt-tag { font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); margin: -4px 0 2px; } .rt-tag.cu { color: var(--hot); }
+.rt-x { min-height: 44px; min-width: 38px; padding: 0; background: transparent; border: 1px solid var(--line); border-radius: var(--radius, 4px); color: var(--muted); }
+.rt-ed-err { border-left: 3px solid var(--hot); background: var(--surface); padding: 9px 12px; font-size: 13.5px; line-height: 1.45; }
+.rt-dlg-in { width: 100%; font-size: 16px; min-height: 160px; }
+.rt-today { border-left: 3px solid var(--accent); background: var(--surface); padding: 10px 12px; font-size: 13.5px; color: var(--muted); }
 .onb-tiles { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 .onb-tile { text-align: left; padding: 10px 12px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); border-radius: var(--radius, 4px); cursor: pointer; font: inherit; }
 .onb-tile b { display: block; font-family: var(--f-label); font-weight: 800; text-transform: uppercase; font-size: 17px; } .onb-tile span { font-size: 12.5px; color: var(--muted); }
@@ -1456,6 +1481,8 @@ header.hero .me-btn { border-color:#e87328; }
 
     <section aria-labelledby="h-plan">
       <div class="section-head"><h2 class="label-caps" id="h-plan">Workout plan</h2></div>
+      <div id="rt-seg" class="rt-seg"></div>
+      <div id="rt-panel" class="rt-panel" hidden></div>
       <div id="plan-summary"></div>
       <form id="plan-form" class="pform" hidden>
         <div class="label-caps">Choose your program</div>
@@ -1468,7 +1495,7 @@ header.hero .me-btn { border-color:#e87328; }
         <p class="note" id="plan-start"></p>
         <div class="tools"><button class="btn" type="submit" id="plan-save">Start plan</button><button class="btn ghost" type="button" id="plan-cancel">Cancel</button></div>
       </form>
-      <p class="note">Bonus points: +2 for a weight PR, +1 for a volume PR.</p>
+      <p class="note" id="plan-bonus">Bonus points: +2 for a weight PR, +1 for a volume PR.</p>
     </section>
   </div>
 
@@ -1861,6 +1888,14 @@ header.hero .me-btn { border-color:#e87328; }
       if (!r || typeof r !== "object" || r.error) throw new Error("nofood");
       var n = function (v, m) { v = parseFloat(v); return isFinite(v) && v >= 0 ? Math.min(m, Math.round(v * 10) / 10) : 0; };
       return { name: String(r.name || "").slice(0, 60), l: String(r.l || "1 container").slice(0, 40), kcal: Math.round(n(r.kcal, 5000)), p: n(r.p, 500), f: n(r.f, 500), c: n(r.c, 1000), note: String(r.note || "").slice(0, 200) };
+    },
+    readRoutine: async function (text, file) {
+      if (!this.sample) throw new Error("unavailable");
+      if (file && !this.canPhoto()) throw new Error("unavailable");
+      var ask = "You read a man's workout routine for a lifting app and turn it into JSON. Reply with JSON only, no prose: {\"name\": short routine name, \"weeks\": number of weeks it runs if it says so, otherwise 0, \"days\": [{\"label\": training day name such as \"Upper A\" or \"Push\", \"exercises\": [{\"name\": exercise name, \"sets\": whole number, \"reps\": text such as \"8-10\" or \"30 sec\"}]}]}. One entry per training day, in order, and leave out rest days. Keep the exercise names as written. If sets or reps are missing, use 3 sets and \"10\" reps. If this is not a workout routine, reply {\"error\": \"no routine\"}.";
+      var r = file ? await this.sample.json(ask + " The routine is in the attached photo.", { images: [file], modelTier: "default" }) : await this.sample.json(ask + "\n\nHis routine:\n" + String(text).slice(0, 8000), { modelTier: "default" });
+      if (!r || typeof r !== "object" || r.error || !Array.isArray(r.days)) throw new Error("noroutine");
+      return r;
     },
     searchFoods: async function (text) {
       if (!this.sample) throw new Error("unavailable");
@@ -2368,7 +2403,7 @@ header.hero .me-btn { border-color:#e87328; }
   }
   function saveSettings() {
     if (!B.db || !state.me) return;
-    var st = { blocked: state.settings.blocked || {}, targets: state.settings.targets || null, body: state.settings.body || null, reminders: state.settings.reminders || null, health: state.settings.health || null, plan: state.settings.plan || null, theme: state.settings.theme || null, autofill: state.settings.autofill || null, favs: state.settings.favs || [], myMeals: state.settings.myMeals || [], preps: state.settings.preps || [], swapAlways: state.settings.swapAlways || {}, dayMoves: state.settings.dayMoves || {}, fast: state.settings.fast || null, onboard: state.settings.onboard || null, freport: state.settings.freport || {}, junior: state.settings.junior || {} };
+    var st = { blocked: state.settings.blocked || {}, targets: state.settings.targets || null, body: state.settings.body || null, reminders: state.settings.reminders || null, health: state.settings.health || null, plan: state.settings.plan || null, theme: state.settings.theme || null, autofill: state.settings.autofill || null, favs: state.settings.favs || [], myMeals: state.settings.myMeals || [], preps: state.settings.preps || [], swapAlways: state.settings.swapAlways || {}, dayMoves: state.settings.dayMoves || {}, fast: state.settings.fast || null, onboard: state.settings.onboard || null, freport: state.settings.freport || {}, junior: state.settings.junior || {}, routine: state.settings.routine || null };
     writeChain = writeChain.then(function () { return B.saveSettings(state.me, st); }).catch(noop);
   }
 
@@ -3223,7 +3258,7 @@ header.hero .me-btn { border-color:#e87328; }
   var PLAN_INFO = {"Forged":{"tagline":"Heavy, simple and repeatable. Three full-body days, each led by a big barbell lift.","forWho":"Men who want to get stronger on the big lifts and are willing to be patient with the weight on the bar.","youGet":["Three full-body lifting days a week, led by the squat, deadlift and bench press, with six exercises each","Two easy recovery days (an incline walk or stair climb plus mobility) so you can train hard on lifting days","Main sets held 1 to 2 reps short of failure, with 2 to 3 minutes of rest","Lift variations that rotate through the year, such as pause squat, trap bar deadlift and pause bench","An optional fourth full-body volume day","A lighter deload week at the end of every four-week block"],"intensity":"Moderate to hard. Most work sets end with 1 to 2 good reps still in the tank."},"Built":{"tagline":"Three full-body days with controlled volume, built for muscle size.","forWho":"Men who want more muscle and a thicker, stronger build, and who like steady progress through reps and load.","youGet":["Three full-body lifting days led by the bench press, overhead press and incline bench, with six exercises each","Rep ranges with a simple rule: add load once you hit the top of the range on every set","Controlled lowering and 60 to 90 seconds of rest between sets","Sets that stop 1 to 3 reps short of failure","Two easy recovery days (an incline walk or stair climb plus mobility) between lifting days","An optional fourth full-body pump day","A lighter deload week at the end of every four-week block"],"intensity":"Moderate to hard. Sets stop 1 to 3 reps short of failure, so you finish working but not wrecked."},"Engine":{"tagline":"Build your gas tank with intervals, circuits and steady aerobic work.","forWho":"Men who want better stamina and work capacity, for sport, for work, or just to keep up with life.","youGet":["Three hard sessions a week: intervals, a strength circuit and a metabolic complex","An aerobic base day at a conversational pace, plus an active recovery day","Interval and circuit work that swaps to match the equipment you have","Sessions of about 45 minutes","An optional fourth day of loaded carries","A lighter deload week at the end of every four-week block"],"intensity":"Hard days run at about 8 out of 10 effort. Easy days stay at a pace where you can speak in full sentences."},"Warrior":{"tagline":"Power, mobility and combat conditioning for an athletic build.","forWho":"Men who want to move, carry and strike like an athlete: explosive, mobile and conditioned.","youGet":["Two full-body power-and-strength days that pair jumps, swings and plyometrics with heavy lifts","A combat circuit day","A mobility and movement day (with Turkish get-ups) and an active recovery day","An optional fourth day of combat conditioning with shadow boxing rounds","Fast, crisp reps: stop a power set when your speed drops","A lighter deload week at the end of every four-week block"],"intensity":"Moderate to hard. Power sets are done fast with full rest, and strength sets stay 1 to 3 good reps short of failure."}};
   var DAYN = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
   var planDraft = { program: "Forged", equip: "Full Gym", rest: 0, fourth: false };
-  function planCfg() { var p = state.settings.plan; return p && p.start && PLAN.W[p.program] ? p : null; }
+  function planCfg() { var p = state.settings.plan; if (p && p.start && PLAN.W[p.program]) return p; var r = rtGet(); return r && r.active ? rtShadowPlan(r) : null; }
   function planStartFor(rest) { var k = todayKey(), want = (rest + 1) % 7; for (var i = 0; i < 7; i++) { if (parseKey(k).getDay() === want) return k; k = addDays(k, 1); } return todayKey(); }
   function dayDiff(a, b) { return Math.round((parseKey(b) - parseKey(a)) / 864e5); }
   function longDate(k) { return parseKey(k).toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric" }); }
@@ -3241,7 +3276,7 @@ header.hero .me-btn { border-color:#e87328; }
   // A week can go back to the plan's order only while every moved day is still ahead and unlogged.
   function weekResettable(key) { var mon = mondayKey(key), any = false; for (var i = 0; i < 7; i++) { var k = addDays(mon, i); if (planSrc(k) !== k) { any = true; if (!canMoveDay(k)) return false; } } return any; }
   function canMoveDay(key) {
-    var wf = workoutFor(key); if (!wf || !planCfg() || key < todayKey() || isWeighDay(key)) return false;
+    var wf = workoutFor(key); if (!wf || wf.rt || !planCfg() || key < todayKey() || isWeighDay(key)) return false;
     if (wf.kind !== "train" && wf.kind !== "off") return false;
     var wt = taskOfKind("workout"); if (wt && recFor(key).done[wt.id]) return false;
     var d = wkDocCache[key]; if (d && (d.startedAt || d.finishedAt || Object.keys(d.ex || {}).some(function (k) { return (d.ex[k] || []).some(function (x) { return x && (x.r !== "" || x.w !== ""); }); }))) return false;
@@ -3321,6 +3356,7 @@ header.hero .me-btn { border-color:#e87328; }
     return wi * 7 + [1, 3, 5][others.indexOf(dow)];
   }
   function workoutFor(key) {
+    var rw = rtWorkout(key); if (rw) return rw;
     var p = planCfg(); if (!p) return null;
     var i = planIndex(p, planSrc(key)), list = PLAN.W[p.program];
     if (i < 0) return { kind: "before" };
@@ -3517,12 +3553,12 @@ header.hero .me-btn { border-color:#e87328; }
         var ob = chevRow("wk-open", wf.w.title, wf.w.sessionType + (wf.w.minutes ? " \u00B7 " + wf.w.minutes + " min" : "") + " \u00B7 Tap to open", "\u203A");
         ob.addEventListener("click", function () { openWorkout(sel); }); box.appendChild(ob);
       } else {
-        var msg0 = wf.kind === "rest" ? "Sabbath. " + wf.w.exercises[0][1] : wf.kind === "off" ? "Rest day. Turn on the 4th training day in your plan to see an optional workout here." : wf.kind === "before" ? "Your plan starts " + longDate(p.start) + "." : "You finished all 365 days. Pick a new plan below to keep going.";
+        var msg0 = wf.kind === "rest" ? "Sabbath. " + wf.w.exercises[0][1] : wf.kind === "off" ? (wf.rt ? "Rest day. Your routine is off today." : "Rest day. Turn on the 4th training day in your plan to see an optional workout here.") : wf.kind === "before" ? "Your plan starts " + longDate(p.start) + "." : (wf.rt ? "Your routine is finished. Run it again, add weeks, or switch back to the built-in program in Workout plan below." : "You finished all 365 days. Pick a new plan below to keep going.");
         box.appendChild(el("p", "note", msg0));
       }
     }
-    if (wf && !off && planSrc(sel) !== sel) box.appendChild(el("p", "note mv-note", "\u21C4 Moved here from " + longDate(planSrc(sel)).split(",")[0] + "."));
-    if (wf && !off) {
+    if (wf && !wf.rt && !off && planSrc(sel) !== sel) box.appendChild(el("p", "note mv-note", "\u21C4 Moved here from " + longDate(planSrc(sel)).split(",")[0] + "."));
+    if (wf && !wf.rt && !off) {
       var mr = el("div", "mv-tools");
       if (canMoveDay(sel)) { var mb = el("button", "btn ghost mv-btn", "\u21C4 Move day"); mb.type = "button"; mb.addEventListener("click", function () { openMoveDay(sel); }); mr.appendChild(mb); }
       if (weekResettable(sel)) { var rb0 = el("button", "btn ghost mv-btn", "Reset week"); rb0.type = "button"; rb0.addEventListener("click", function () { confirmDelete({ title: "Reset this week?", message: "Every day this week goes back to the plan\u2019s order. Days you already logged keep what you logged.", yes: "Reset week" }, function () { resetWeekMoves(sel); drawTrain(); }); }); mr.appendChild(rb0); }
@@ -5459,7 +5495,7 @@ header.hero .me-btn { border-color:#e87328; }
     if (B.saveChal && state.me) B.saveChal(state.me, state.chal).catch(function () { state.chalMsg = "That didn’t save. Check your connection and try again."; drawChallengePage(); });
   }
   function drawTrain() {
-    drawChallengeButtons();
+    drawChallengeButtons(); rtDrawPlan();
     if (!stripBuilt) return;
     var today = todayKey(), sel = state.trainDay || today, wk = taskOfKind("workout");
     Array.prototype.forEach.call($("strip").querySelectorAll(".day"), function (b) {
@@ -6545,6 +6581,280 @@ header.hero .me-btn { border-color:#e87328; }
     back.addEventListener("keydown", function (ev) { if (ev.key === "Escape") { ev.stopPropagation(); close(); } });
     back.appendChild(box); document.body.appendChild(back); ok.focus({ preventScroll: true });
   }
+  /* ---------- My routine: a man brings his own program and runs it for a set number of weeks instead of the built-in plan.
+     Stored privately in his settings. workoutFor() hands the routine's day to the same workout screen, so logging, ratings, Coach Gideon, PRs and points all work. ---------- */
+  var RT_WEEKS = [4, 6, 8, 12], RT_DOWS = [[1, "Mon"], [2, "Tue"], [3, "Wed"], [4, "Thu"], [5, "Fri"], [6, "Sat"], [0, "Sun"]], RT_DAYN = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+  var RT_PATTERN = { 1: [1], 2: [1, 4], 3: [1, 3, 5], 4: [1, 2, 4, 5], 5: [1, 2, 3, 4, 5], 6: [1, 2, 3, 4, 5, 6], 7: [1, 2, 3, 4, 5, 6] };
+  var rtUI = { tab: "" }, rtLibCache = null, rtShadow = null;
+  function rtClean(a, n) { return String(a == null ? "" : a).replace(/[<>]/g, "").replace(/\s+/g, " ").trim().slice(0, n); }
+  function rtKey(s) { return /^\d{4}-\d{2}-\d{2}$/.test(String(s || "")) ? String(s) : ""; }
+  function normRtDays(a) {
+    return (Array.isArray(a) ? a : []).slice(0, 7).map(function (d, i) {
+      d = d || {};
+      var ex = (Array.isArray(d.ex) ? d.ex : []).slice(0, 20).map(function (x) { x = x || {}; return { g: rtClean(x.g, 60), rx: rtClean(x.rx, 40) || "3 x 10" }; }).filter(function (x) { return x.g; });
+      return { label: rtClean(d.label, 30) || "Day " + (i + 1), ex: ex };
+    }).filter(function (d) { return d.ex.length; });
+  }
+  function normRoutine(r) {
+    if (!r || typeof r !== "object") return null;
+    var revs = (Array.isArray(r.revs) ? r.revs : []).slice(0, 12).map(function (v) { v = v || {}; return { from: rtKey(v.from), days: normRtDays(v.days) }; }).filter(function (v) { return v.from && v.days.length; });
+    var start = rtKey(r.start), dow = (Array.isArray(r.dow) ? r.dow : []).map(Number).filter(function (n, i, a) { return n >= 0 && n <= 6 && a.indexOf(n) === i; });
+    if (!start || !revs.length || !dow.length) return null;
+    revs.sort(function (a, b) { return a.from < b.from ? -1 : a.from > b.from ? 1 : 0; });
+    var wk = Math.round(Number(r.weeks) || 0), rs = Math.round(Number(r.rest));
+    return { id: rtClean(r.id, 20) || "r1", name: rtClean(r.name, 40) || "My routine", weeks: wk >= 1 && wk <= 104 ? wk : 0, start: start, dow: dow, rest: rs >= 0 && rs <= 6 ? rs : 0, active: !!r.active, revs: revs };
+  }
+  function rtGet() { return (state.settings && state.settings.routine) || null; }
+  function rtRest(r) { var p = state.settings.plan; return p && p.start && PLAN.W[p.program] && p.rest != null ? Number(p.rest) : Number(r.rest) || 0; }
+  function rtShadowPlan(r) {
+    var rs = rtRest(r), k = r.id + "|" + r.start + "|" + rs + "|" + r.dow.join();
+    if (!rtShadow || rtShadow.k !== k) rtShadow = { k: k, p: { program: "Forged", equip: "Full Gym", rest: rs, start: r.start, fourth: false, lifts: r.dow.slice(), shadow: true } };
+    return rtShadow.p;
+  }
+  function rtRevFor(r, key) { var v = r.revs[0]; r.revs.forEach(function (x) { if (x.from <= key) v = x; }); return v; }
+  function rtInfo(key) {
+    var r = rtGet(); if (!r || !r.active) return null;
+    var n = dayDiff(r.start, key); if (n < 0) return { st: "before", r: r };
+    var week = Math.floor(n / 7) + 1; if (r.weeks && week > r.weeks) return { st: "over", r: r, week: week };
+    var rs = rtRest(r), dow = parseKey(key).getDay();
+    if (dow === rs) return { st: "rest", r: r, week: week };
+    var lift = r.dow.filter(function (g) { return g !== rs; });
+    if (lift.indexOf(dow) < 0) return { st: "off", r: r, week: week };
+    var rev = rtRevFor(r, key), from = rev.from > r.start ? rev.from : r.start;
+    var total = dayDiff(from, key) + 1, full = Math.floor(total / 7), cnt = full * lift.length, d0 = addDays(from, full * 7);
+    for (var i = 0; i < total % 7; i++) if (lift.indexOf(parseKey(addDays(d0, i)).getDay()) >= 0) cnt++;
+    var idx = Math.max(0, cnt - 1) % rev.days.length;
+    return { st: "train", r: r, week: week, idx: idx, day: rev.days[idx], rev: rev };
+  }
+  function rtWorkout(key) {
+    var i = rtInfo(key); if (!i || i.st === "before") return null;
+    if (i.st === "over") return { kind: "over", rt: true };
+    var base = { day: 0, week: i.week, block: 1, templateDay: 7, minutes: 0, warmup: [] };
+    if (i.st === "rest") return { kind: "rest", rt: true, th: {}, w: Object.assign({}, base, { sessionType: "Rest", title: "Sabbath", exercises: [["Sabbath", "Full rest. Be still, be with the Lord and your family."]] }) };
+    if (i.st === "off") return { kind: "off", rt: true, th: {}, w: Object.assign({}, base, { sessionType: "Optional", title: "Rest day", exercises: [] }) };
+    return { kind: "train", rt: true, th: {}, w: Object.assign({}, base, { day: i.idx + 1, templateDay: i.idx + 1, sessionType: "Core", title: i.day.label, exercises: i.day.ex.map(function (e) { return [e.g, e.rx]; }) }) };
+  }
+  function rtNorm(s) { return String(s).toLowerCase().replace(/[^a-z0-9]+/g, " ").trim(); }
+  function rtMatch(name) {
+    if (!rtLibCache) {
+      rtLibCache = {};
+      Object.keys(PLAN.M || {}).forEach(function (g) {
+        rtLibCache[rtNorm(g)] = g; var m = PLAN.M[g];
+        if (m && m.byEquipment) Object.keys(m.byEquipment).forEach(function (e) { var nm = m.byEquipment[e]; if (nm && !rtLibCache[rtNorm(nm)]) rtLibCache[rtNorm(nm)] = g; });
+      });
+    }
+    return rtLibCache[rtNorm(name)] || "";
+  }
+  function rtSaveAll() { saveSettings(); drawAll(); }
+  function rtSplit(rx) { var m = /^\s*(\d+)\s*x\s*(.+?)\s*$/i.exec(String(rx || "")); return m ? { sets: +m[1], reps: m[2] } : { sets: 3, reps: String(rx || "10") }; }
+  function rtEnds(r) { return r.weeks ? addDays(r.start, r.weeks * 7 - 1) : ""; }
+  function rtDefaultStart(dow, rs) { var k = todayKey(); for (var i = 0; i < 14; i++) { var g = parseKey(k).getDay(); if (dow.indexOf(g) >= 0 && g !== rs) return k; k = addDays(k, 1); } return todayKey(); }
+  function rtPick(tab) {
+    var r = rtGet(); rtUI.tab = tab;
+    if (tab === "built") { if (r && r.active) { r.active = false; rtSaveAll(); } else rtDrawPlan(); return; }
+    if (r && !r.active) { r.active = true; rtSaveAll(); } else rtDrawPlan();
+  }
+  function rtDrawPlan() {
+    var seg = $("rt-seg"), panel = $("rt-panel"); if (!seg || !panel) return;
+    var r = rtGet(), tab = r && r.active ? "mine" : rtUI.tab || "built"; if (tab !== "mine") tab = "built";
+    seg.textContent = ""; seg.setAttribute("role", "group"); seg.setAttribute("aria-label", "Where your workouts come from");
+    [["built", "Built-in"], ["mine", "My routine"]].forEach(function (x) {
+      var b = el("button", x[0] === tab ? "on" : "", x[1]); b.type = "button"; b.setAttribute("aria-pressed", String(x[0] === tab));
+      b.addEventListener("click", function () { rtPick(x[0]); }); seg.appendChild(b);
+    });
+    var mine = tab === "mine";
+    ["plan-summary", "plan-form", "plan-bonus"].forEach(function (id) { var e = $(id); if (e) e.style.display = mine ? "none" : ""; });
+    panel.hidden = !mine; if (mine) rtDrawPanel(panel, r);
+  }
+  function rtDrawPanel(panel, r) {
+    panel.textContent = "";
+    if (!r) {
+      var c0 = el("div", "rt-card"); c0.appendChild(el("div", "rt-k", "Your own program")); c0.appendChild(el("h3", null, "Bring your own routine"));
+      c0.appendChild(el("p", null, "Use the workout you already follow instead of a built-in program. Bring it in with a photo or pasted text, or build it here. Choose how many weeks you will run it. It stays private to you."));
+      var b0 = el("button", "btn", "Bring your own routine"); b0.type = "button"; b0.addEventListener("click", rtOpenImport); c0.appendChild(b0); panel.appendChild(c0); return;
+    }
+    var ti = rtInfo(todayKey()), c = el("div", "rt-card"), rev = r.revs[r.revs.length - 1];
+    c.appendChild(el("div", "rt-k", r.active ? "In use" : "Saved"));
+    c.appendChild(el("h3", null, r.name));
+    var line;
+    if (!r.active) line = "Not in use. Your built-in program is running.";
+    else if (!ti || ti.st === "before") line = "Starts " + longDate(r.start) + ".";
+    else if (ti.st === "over") line = "Your " + r.weeks + " weeks are done.";
+    else line = r.weeks ? "Week " + ti.week + " of " + r.weeks + " · ends " + longDate(rtEnds(r)) : "Week " + ti.week + " · repeats until you stop";
+    c.appendChild(el("p", null, line));
+    if (r.active && ti && ti.st !== "before" && ti.st !== "over" && r.weeks) { var pg = el("div", "rt-prog"), bar = el("i"); bar.style.width = Math.min(100, Math.round(ti.week / r.weeks * 100)) + "%"; pg.appendChild(bar); c.appendChild(pg); }
+    var list = el("div", "rt-list"); rev.days.forEach(function (d) { var row = el("div", "rt-li"); row.appendChild(el("b", null, d.label)); row.appendChild(el("span", null, d.ex.length + (d.ex.length === 1 ? " exercise" : " exercises"))); list.appendChild(row); }); c.appendChild(list);
+    var rs = rtRest(r); c.appendChild(el("p", null, "Lifting days: " + RT_DOWS.filter(function (x) { return r.dow.indexOf(x[0]) >= 0 && x[0] !== rs; }).map(function (x) { return x[1]; }).join(", ") + ". Your Sabbath stays your rest day."));
+    if (ti && ti.st === "over") {
+      var again = el("button", "btn", "Run it again (+" + r.weeks + " weeks)"); again.type = "button"; again.addEventListener("click", function () { r.weeks += r.weeks; rtSaveAll(); }); c.appendChild(again);
+      var plus = el("button", "btn ghost", "Add 4 weeks"); plus.type = "button"; plus.addEventListener("click", function () { r.weeks += 4; rtSaveAll(); }); c.appendChild(plus);
+    }
+    if (!r.active) { var use = el("button", "btn", "Use this routine"); use.type = "button"; use.addEventListener("click", function () { rtPick("mine"); }); c.appendChild(use); }
+    var ed = el("button", "btn ghost", "Edit routine"); ed.type = "button"; ed.addEventListener("click", function () { rtOpenEditor(rtDraftOf(r)); }); c.appendChild(ed);
+    var rp = el("button", "rt-link", "Replace with a different routine"); rp.type = "button";
+    rp.addEventListener("click", function () { confirmDelete({ title: "Replace this routine?", message: "Your current routine is removed. Workouts you already logged stay in your history.", yes: "Replace", neutral: true }, rtOpenImport); }); c.appendChild(rp);
+    if (r.active) { var sb = el("button", "rt-link", "Switch back to built-in program"); sb.type = "button"; sb.addEventListener("click", function () { rtPick("built"); }); c.appendChild(sb); }
+    panel.appendChild(c);
+  }
+  function rtDialog(build) {
+    var old = $("cdlg"); if (old) old.remove();
+    var back = el("div", "cdlg"); back.id = "cdlg"; var box = el("div", "cdlg-box nw-box"); box.setAttribute("role", "dialog"); box.setAttribute("aria-modal", "true");
+    function close() { back.remove(); }
+    build(box, close); back.appendChild(box);
+    back.addEventListener("click", function (ev) { if (ev.target === back) close(); });
+    back.addEventListener("keydown", function (ev) { if (ev.key === "Escape") close(); });
+    document.body.appendChild(back);
+  }
+  function rtFromParsed(r) {
+    var days = (r.days || []).slice(0, 7).map(function (d, i) {
+      d = d || {};
+      return { label: rtClean(d.label, 30) || "Day " + (i + 1), ex: (d.exercises || []).slice(0, 20).map(function (e) { e = e || {}; var n = Math.round(Number(e.sets)) || 3; return { g: rtClean(e.name, 60), sets: Math.max(1, Math.min(20, n)), reps: rtClean(e.reps, 24) || "10" }; }).filter(function (e) { return e.g; }) };
+    }).filter(function (d) { return d.ex.length; });
+    return days.length ? rtNewDraft({ name: rtClean(r.name, 40), weeks: Math.round(Number(r.weeks)) || 0, days: days }) : null;
+  }
+  function rtNewDraft(b) {
+    b = b || {}; var p = state.settings.plan, hasPlan = !!(p && p.start && PLAN.W[p.program]), rs = hasPlan && p.rest != null ? Number(p.rest) : 0;
+    var days = b.days && b.days.length ? b.days : [{ label: "Day 1", ex: [{ g: "", sets: 3, reps: "10" }] }];
+    var dow = (RT_PATTERN[Math.min(7, Math.max(1, days.length))] || [1, 3, 5]).filter(function (g) { return g !== rs; });
+    if (!dow.length) dow = [1, 3, 5].filter(function (g) { return g !== rs; });
+    var wk = b.weeks >= 1 && b.weeks <= 52 ? b.weeks : 8;
+    return { mode: "new", name: b.name || "", weeks: wk, dow: dow, rest: rs, start: rtDefaultStart(dow, rs), days: days };
+  }
+  function rtDraftOf(r) {
+    var rev = r.revs[r.revs.length - 1];
+    return { mode: "edit", name: r.name, weeks: r.weeks, dow: r.dow.filter(function (g) { return g !== rtRest(r); }), rest: rtRest(r), start: r.start, id: r.id,
+      days: rev.days.map(function (d) { return { label: d.label, ex: d.ex.map(function (e) { var q = rtSplit(e.rx); return { g: e.g, sets: q.sets, reps: q.reps }; }) }; }) };
+  }
+  function rtOpenImport() {
+    rtDialog(function (box, close) {
+      box.appendChild(el("h2", null, "Bring your own routine"));
+      box.appendChild(el("p", null, "Use the workout you already follow instead of a built-in program. It stays private to you."));
+      var ai = !!(B.sample && state.me && state.canWrite), photo = ai && B.canPhoto();
+      var msg = el("p", "note"); msg.setAttribute("aria-live", "polite");
+      function run(text, file) {
+        msg.className = "note"; msg.textContent = "Reading your routine…"; box.querySelectorAll("button, label.btn").forEach(function (x) { x.style.pointerEvents = "none"; x.style.opacity = ".6"; });
+        B.readRoutine(text, file).then(function (r) { var d = rtFromParsed(r); if (!d) throw new Error("none"); close(); d.note = "Claude read your routine. Check it, fix anything that looks off, then choose how long you will run it."; rtOpenEditor(d); })
+          .catch(function () { msg.className = "error"; msg.textContent = "Couldn’t read that. Try a clearer photo or paste the text, or build it by hand."; box.querySelectorAll("button, label.btn").forEach(function (x) { x.style.pointerEvents = ""; x.style.opacity = ""; }); });
+      }
+      var lab = el("label", "btn" + (photo ? "" : " ghost"), "Upload a photo"), fi = el("input"); fi.type = "file"; fi.accept = "image/*"; fi.hidden = true; lab.appendChild(fi);
+      fi.addEventListener("change", function () { if (fi.files && fi.files[0]) run("", fi.files[0]); fi.value = ""; });
+      if (photo) box.appendChild(lab);
+      var pb = el("button", "btn ghost", "Paste text"); pb.type = "button"; pb.disabled = !ai;
+      pb.addEventListener("click", function () {
+        box.textContent = ""; box.appendChild(el("h2", null, "Paste your routine"));
+        var ta = el("textarea", "field rt-dlg-in"); ta.placeholder = "Day 1 Upper\nBench press 4x6-8\nRow 4x8..."; ta.maxLength = 8000; box.appendChild(ta);
+        var m2 = el("p", "note"); box.appendChild(m2);
+        var row = el("div", "cdlg-btns"), no = el("button", "btn ghost", "Cancel"), go = el("button", "btn", "Read my routine"); no.type = go.type = "button"; row.appendChild(no); row.appendChild(go); box.appendChild(row);
+        no.addEventListener("click", close);
+        go.addEventListener("click", function () {
+          if (ta.value.trim().length < 8) { m2.className = "error"; m2.textContent = "Paste your routine first."; return; }
+          go.disabled = true; no.disabled = true; m2.className = "note"; m2.textContent = "Reading your routine…";
+          B.readRoutine(ta.value, null).then(function (r) { var d = rtFromParsed(r); if (!d) throw new Error("none"); close(); d.note = "Claude read your routine. Check it, fix anything that looks off, then choose how long you will run it."; rtOpenEditor(d); })
+            .catch(function () { go.disabled = false; no.disabled = false; m2.className = "error"; m2.textContent = "Couldn’t read that. Check the text or build it by hand."; });
+        });
+        ta.focus();
+      });
+      box.appendChild(pb);
+      var bb = el("button", "btn ghost", "Build it here"); bb.type = "button"; bb.addEventListener("click", function () { close(); rtOpenEditor(rtNewDraft(null)); }); box.appendChild(bb);
+      if (!ai) box.appendChild(el("p", "note", "Reading a photo or pasted text isn’t available here right now. You can still build your routine by hand."));
+      else if (!photo) box.appendChild(el("p", "note", "Photo upload isn’t available here right now. Paste text or build it by hand."));
+      else box.appendChild(el("p", "note", "Claude reads your file and fills it in. You review and fix anything before it is saved."));
+      box.appendChild(msg);
+      var row0 = el("div", "cdlg-btns"), cn = el("button", "btn ghost", "Cancel"); cn.type = "button"; cn.addEventListener("click", close); row0.style.gridTemplateColumns = "1fr"; row0.appendChild(cn); box.appendChild(row0);
+    });
+  }
+  function rtOpenEditor(d) {
+    var old = $("rt-ed"); if (old) old.remove();
+    var o = el("div", "onb"); o.id = "rt-ed"; o.setAttribute("role", "dialog"); o.setAttribute("aria-modal", "true"); o.setAttribute("aria-labelledby", "rt-ed-h");
+    var pl = state.settings.plan, hasPlan = !!(pl && pl.start && PLAN.W[pl.program]), errMsg = "";
+    function restDow() { return hasPlan && pl.rest != null ? Number(pl.rest) : Number(d.rest) || 0; }
+    function close() { o.remove(); }
+    function draw() {
+      var prev = o.querySelector(".onb-body"), keep = prev ? prev.scrollTop : 0; o.textContent = "";
+      var bar = el("div", "onb-bar"); bar.appendChild(el("span", "onb-k", d.mode === "edit" ? "Edit routine" : "Review your routine"));
+      var x = el("button", "onb-skip", "Cancel"); x.type = "button"; x.addEventListener("click", close); bar.appendChild(x); o.appendChild(bar);
+      var body = el("div", "onb-body"); o.appendChild(body);
+      var h = el("h2", "onb-h", d.name || "My routine"); h.id = "rt-ed-h"; h.style.fontSize = "28px"; body.appendChild(h);
+      if (d.note) body.appendChild(el("p", "onb-lead sm", d.note));
+      var nf = el("div", "onb-f"); nf.appendChild(el("span", "onb-lbl", "Routine name")); var ni = el("input", "field"); ni.type = "text"; ni.maxLength = 40; ni.value = d.name; ni.placeholder = "e.g. Upper / Lower"; ni.autocomplete = "off";
+      ni.addEventListener("input", function () { d.name = ni.value; h.textContent = d.name || "My routine"; }); nf.appendChild(ni); body.appendChild(nf);
+      d.days.forEach(function (day, di) {
+        var card = el("div", "rt-day"), dh = el("div", "rt-dh"), dl = el("input", "field"); dl.type = "text"; dl.maxLength = 30; dl.value = day.label; dl.setAttribute("aria-label", "Day " + (di + 1) + " name"); dl.addEventListener("input", function () { day.label = dl.value; }); dh.appendChild(dl);
+        var rd = el("button", "mini danger", "Remove day"); rd.type = "button"; rd.disabled = d.days.length < 2; rd.addEventListener("click", function () { d.days.splice(di, 1); draw(); }); dh.appendChild(rd); card.appendChild(dh);
+        var hd = el("div", "rt-hd"); ["Exercise", "Sets", "Reps", ""].forEach(function (t) { hd.appendChild(el("span", null, t)); }); card.appendChild(hd);
+        day.ex.forEach(function (ex, ei) {
+          var row = el("div", "rt-exr"), ge = el("input", "field"); ge.type = "text"; ge.maxLength = 60; ge.value = ex.g; ge.placeholder = "Exercise"; ge.setAttribute("aria-label", "Exercise name");
+          var tag = el("div", "rt-tag");
+          function paintTag() { var t = rtClean(ge.value, 60); tag.textContent = !t ? "" : rtMatch(t) ? "In the library" : "Custom: no video or injury swaps"; tag.className = "rt-tag" + (t && !rtMatch(t) ? " cu" : ""); tag.hidden = !t; }
+          ge.addEventListener("input", function () { ex.g = ge.value; paintTag(); }); row.appendChild(ge);
+          var se = el("input", "field n"); se.type = "number"; se.inputMode = "numeric"; se.min = "1"; se.max = "20"; se.value = ex.sets; se.setAttribute("aria-label", "Sets"); se.addEventListener("input", function () { ex.sets = se.value; }); row.appendChild(se);
+          var re = el("input", "field n"); re.type = "text"; re.maxLength = 24; re.value = ex.reps; re.setAttribute("aria-label", "Reps"); re.addEventListener("input", function () { ex.reps = re.value; }); row.appendChild(re);
+          var xb = el("button", "rt-x", "✕"); xb.type = "button"; xb.setAttribute("aria-label", "Remove exercise"); xb.addEventListener("click", function () { day.ex.splice(ei, 1); draw(); }); row.appendChild(xb);
+          card.appendChild(row); card.appendChild(tag); paintTag();
+        });
+        if (day.ex.length < 20) { var ae = el("button", "btn ghost", "+ Add exercise"); ae.type = "button"; ae.addEventListener("click", function () { day.ex.push({ g: "", sets: 3, reps: "10" }); draw(); }); card.appendChild(ae); }
+        body.appendChild(card);
+      });
+      if (d.days.length < 7) { var ad = el("button", "btn ghost", "+ Add day"); ad.type = "button"; ad.addEventListener("click", function () { d.days.push({ label: "Day " + (d.days.length + 1), ex: [{ g: "", sets: 3, reps: "10" }] }); draw(); }); body.appendChild(ad); }
+      body.appendChild(el("p", "onb-note", "Sets and reps: reps can be a range like 8-10 or a time like 30 sec."));
+      var wf = el("div", "onb-f"); wf.appendChild(el("span", "onb-lbl", "How long will you run it?")); var wc = el("div", "onb-chips");
+      var opts = RT_WEEKS.slice(); if (d.weeks && opts.indexOf(d.weeks) < 0) opts.push(d.weeks); opts.sort(function (a, b) { return a - b; });
+      opts.forEach(function (n) { var c = el("button", "onb-chip" + (d.weeks === n ? " on" : ""), n + " weeks"); c.type = "button"; c.setAttribute("aria-pressed", String(d.weeks === n)); c.addEventListener("click", function () { d.weeks = n; draw(); }); wc.appendChild(c); });
+      var rc = el("button", "onb-chip" + (!d.weeks ? " on" : ""), "Repeat"); rc.type = "button"; rc.setAttribute("aria-pressed", String(!d.weeks)); rc.addEventListener("click", function () { d.weeks = 0; draw(); }); wc.appendChild(rc);
+      wf.appendChild(wc); body.appendChild(wf);
+      var r2 = el("div", "onb-row2"), sf = el("div", "onb-f"); sf.appendChild(el("span", "onb-lbl", "Start date")); var si = el("input", "field"); si.type = "date"; si.value = d.start; si.min = d.mode === "edit" ? d.start : todayKey(); si.disabled = d.mode === "edit" && d.start <= todayKey();
+      si.addEventListener("change", function () { if (rtKey(si.value)) { d.start = si.value; draw(); } }); sf.appendChild(si); r2.appendChild(sf);
+      var ef = el("div", "onb-f"); ef.appendChild(el("span", "onb-lbl", "Ends")); var ei2 = el("input", "field"); ei2.type = "text"; ei2.disabled = true; ei2.value = d.weeks ? parseKey(addDays(d.start, d.weeks * 7 - 1)).toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric" }) : "Repeats"; ef.appendChild(ei2); r2.appendChild(ef); body.appendChild(r2);
+      var lf = el("div", "onb-f"); lf.appendChild(el("span", "onb-lbl", "Lifting days")); var lc = el("div", "onb-chips"), rs = restDow();
+      RT_DOWS.forEach(function (x) {
+        var on = d.dow.indexOf(x[0]) >= 0 && x[0] !== rs, c = el("button", "onb-chip" + (on ? " on" : ""), x[1]); c.type = "button"; c.setAttribute("aria-pressed", String(on)); c.disabled = x[0] === rs;
+        c.addEventListener("click", function () { var i = d.dow.indexOf(x[0]); if (i >= 0) d.dow.splice(i, 1); else d.dow.push(x[0]); draw(); }); lc.appendChild(c);
+      });
+      lf.appendChild(lc); body.appendChild(lf);
+      if (hasPlan) body.appendChild(el("p", "onb-note", "Your Sabbath is " + RT_DAYN[rs] + " and stays your rest day."));
+      else {
+        var sw = el("div", "onb-f"); sw.appendChild(el("span", "onb-lbl", "Your Sabbath day")); var ss = el("select", "field"); RT_DAYN.forEach(function (n, i) { var op = el("option", null, n); op.value = String(i); ss.appendChild(op); }); ss.value = String(rs);
+        ss.addEventListener("change", function () { d.rest = Number(ss.value); d.dow = d.dow.filter(function (g) { return g !== d.rest; }); draw(); }); sw.appendChild(ss); body.appendChild(sw);
+        body.appendChild(el("p", "onb-note", "Your Sabbath is your full rest day, and the day you weigh in."));
+      }
+      if (d.mode === "edit") body.appendChild(el("p", "onb-note", "Changes apply from today. Workouts you already logged keep what you logged."));
+      if (errMsg) { var er = el("div", "rt-ed-err", errMsg); er.setAttribute("role", "alert"); body.appendChild(er); }
+      var foot = el("div", "onb-foot"), sv = el("button", "btn", d.mode === "edit" ? "Save changes" : "Start my routine"); sv.type = "button"; sv.addEventListener("click", save); foot.appendChild(sv);
+      var cb = el("button", "onb-back", "Cancel"); cb.type = "button"; cb.addEventListener("click", close); foot.appendChild(cb); o.appendChild(foot);
+      body.scrollTop = keep;
+    }
+    function save() {
+      var name = rtClean(d.name, 40), days = [], bad = "", rs = restDow();
+      d.days.forEach(function (day) {
+        var ex = [];
+        day.ex.forEach(function (e) {
+          var g = rtClean(e.g, 60); if (!g) return;
+          var n = Math.round(Number(e.sets)), reps = rtClean(e.reps, 24) || "10", rx = n + " x " + reps;
+          if (!(n >= 1 && n <= 20) || !parseSets(rx)) { if (!bad) bad = "Check the sets and reps for " + g + ". Sets is a number from 1 to 20, and reps can be like 8-10 or 30 sec."; return; }
+          ex.push({ g: rtMatch(g) || g, rx: rx });
+        });
+        if (ex.length) days.push({ label: rtClean(day.label, 30) || "Day " + (days.length + 1), ex: ex });
+      });
+      var lift = d.dow.filter(function (g) { return g !== rs; });
+      if (!name) bad = "Give your routine a name.";
+      else if (!bad && !days.length) bad = "Add at least one exercise.";
+      else if (!bad && !lift.length) bad = "Pick at least one lifting day.";
+      else if (!bad && !rtKey(d.start)) bad = "Pick a start date.";
+      if (bad) { errMsg = bad; draw(); var b0 = o.querySelector(".rt-ed-err"); if (b0 && b0.scrollIntoView) b0.scrollIntoView({ block: "center" }); return; }
+      var r;
+      if (d.mode === "edit" && rtGet()) {
+        r = rtGet(); r.name = name; r.weeks = d.weeks || 0; r.dow = lift; r.rest = rs;
+        var latest = r.revs[r.revs.length - 1], eff = todayKey() > r.start ? todayKey() : r.start;
+        if (JSON.stringify(latest.days) !== JSON.stringify(days)) { if (latest.from >= eff) { latest.days = days; latest.from = eff; } else r.revs.push({ from: eff, days: days }); }
+      } else {
+        r = { id: "r" + Date.now().toString(36), name: name, weeks: d.weeks || 0, start: d.start, dow: lift, rest: rs, active: true, revs: [{ from: d.start, days: days }] };
+        state.settings.routine = r;
+      }
+      r.active = true; rtUI.tab = "mine"; close(); rtSaveAll();
+    }
+    document.body.appendChild(o); draw();
+  }
+
   /* ---------- Ask: search how the app works and where things are. Keyword search for now; built so Coach Gideon can answer later. ---------- */
   /* What tracking is for: shown in setup (Your goal), told to Coach Gideon, and answered in Ask. */
   var TRACK_MSG = [
@@ -6553,7 +6863,7 @@ header.hero .me-btn { border-color:#e87328; }
     ["The scale isn\u2019t the whole story", "With enough protein, steady calories and consistent training, you can lose fat and build muscle at the same time, especially if you\u2019re newer to training or carrying extra fat. Your weight can hold still while your waist shrinks and your lifts go up. Check your photos, how your clothes fit and your lifts, not just the scale."]
   ];
   var TRACK_KNOW = "Background you hold about food tracking, to use only when it fits: Tracking is a tool for consistency, health, better gym performance and feeling better. It is never a hammer. Never shame a man for a missed log or for going over a target; encourage honest logging and getting back on track at the next meal. Body weight is checked once a week, on the Sabbath, because daily weight swings with water, salt, carbs and food still in the gut; the trend over weeks is what counts. With enough protein, steady calories and consistent training, a man can lose fat and build muscle at the same time, especially if he is newer to training or carrying extra fat, so his weight can hold still while his waist, photos, clothing fit and lifts improve; point him to those signs, not just the scale. Do not tell a man to eat below his targets because of one week on the scale. Do not promise results.";
-  var ASK = [{"t": "Log my weight", "a": "Weigh in on your Sabbath. Tap the Weigh-In box on Today and enter your weight. Your chart is on Train under Weekly weight. Only you can see it.", "w": "Today on your Sabbath · Train › Weekly weight", "k": "weight weigh scale pounds lb body weight", "go": {"p": "train", "s": "h-wt"}}, {"t": "Progress photos", "a": "Front, side and rear photos are taken on your Sabbath from the Progress Photos box on Today. Past photos are on your profile.", "w": "Today on your Sabbath · Profile › Progress photos", "k": "photo photos picture pictures progress before after", "go": {"fn": "profile", "s": "h-prog"}}, {"t": "Change my lifting days or Sabbath", "a": "Open Workout plan on Train to pick your program, equipment, Sabbath day and your 3 lifting days.", "w": "Train › Workout plan", "k": "schedule days lifting sabbath program plan equipment change", "go": {"p": "train", "s": "h-plan"}}, {"t": "Move a workout to another day", "a": "On Train, tap a day on the calendar, then Move day and pick a day this week to trade with. Reset week puts it back.", "w": "Train › Calendar › Move day", "k": "move swap day reschedule calendar missed", "go": {"p": "train", "s": "h-cal"}}, {"t": "Swap an exercise", "a": "In the workout, tap Alt next to the exercise to pick an alternate if you lack the equipment or have an injury.", "w": "Workout › Alt button on the exercise", "k": "alternate swap exercise injury equipment replace substitute", "go": {"p": "train", "s": "h-cal"}}, {"t": "Leave a note on a lift", "a": "In a workout, tap “+ Add a note for next time” under the lift. The next time you do that lift, your note shows in the Last time box.", "w": "Workout › under each lift", "k": "note notes lift journal remember sleep felt", "go": {"p": "train", "s": "h-cal"}}, {"t": "How points work", "a": "Every box, bonus and challenge and what it’s worth.", "w": "Board › How points work", "k": "points score scoring earn worth bonus how many", "go": {"fn": "points"}}, {"t": "The Board", "a": "See where you stand this week, today and all time.", "w": "Board tab", "k": "board leaderboard rank ranking standings who winning", "go": {"p": "board"}}, {"t": "Weekly challenges", "a": "Three challenges each week (Family, Iron, Endure). Tap one at the top of Train to see it and record your attempt.", "w": "Train › This week’s challenges", "k": "challenge challenges family iron endure submit record attempt", "go": {"p": "train", "s": "h-chal"}}, {"t": "Family report", "a": "On your Sabbath, a Family report row on Today puts your week together so you can share it with your family.", "w": "Today on your Sabbath", "k": "family report share wife kids week summary", "go": {"fn": "freport"}}, {"t": "Legacy log", "a": "A private journal you write for your wife and kids, with a new prompt each Sabbath. Give it to them when you’re ready.", "w": "Today on your Sabbath · Settings › Legacy log", "k": "legacy journal letter write kids wife son daughter", "go": {"fn": "legacy"}}, {"t": "Missed a day (grace reset)", "a": "After a missed day breaks your streak, Today offers Own it. Own it in Rally once every 30 days and your streak holds.", "w": "Today, after a missed day", "k": "missed streak broke grace reset own it", "go": {"p": "today"}}, {"t": "Sit out a week", "a": "On vacation or sick? Use the link at the bottom of Today to sit out 7 days. Your streak is held. Tap I’m back to end it early.", "w": "Today › bottom of the list", "k": "vacation sick sit out pause away travel injured", "go": {"fn": "sitout"}}, {"t": "Invite a brother", "a": "Share the app with a man. When he signs up and picks you under Who invited you, you get 50 points.", "w": "Settings › Your profile", "k": "invite recruit friend share sent join brother", "go": {"set": "h-s-prof"}}, {"t": "Fasting", "a": "Turn on Fasting today or plan fast days on Fuel. Your Calories box checks itself on a fast day.", "w": "Fuel › Fasting", "k": "fast fasting fasted", "go": {"p": "fuel", "s": "h-fast"}}, {"t": "Log water", "a": "Tap +8 as you drink, or type an amount. Hitting the goal checks Hydrate.", "w": "Fuel › Water", "k": "water hydrate drink oz liters", "go": {"p": "fuel", "s": "h-water"}}, {"t": "Why isn\u2019t my weight tracked every day?", "a": "Daily weight bounces with water, salt, carbs and food in your system. One weigh-in each Sabbath gives you a trend you can trust.", "w": "Today on your Sabbath · Train › Weekly weight", "k": "weight weigh daily scale why weekly sabbath", "go": {"p": "train", "s": "h-wt"}}, {"t": "My weight isn\u2019t dropping. Is it working?", "a": "Maybe. With enough protein, steady calories and consistent training you can lose fat and build muscle together, so the scale can hold still. Check your progress photos, how your clothes fit and your lifts.", "w": "Profile › Progress photos · Train › Weekly weight", "k": "weight stuck plateau scale not dropping muscle fat working progress", "go": {"p": "train", "s": "h-wt"}}, {"t": "What is tracking for?", "a": "To build consistency, get healthy, perform better in the gym and feel better. It is a tool, not a hammer. Log honestly and keep going.", "w": "Fuel › Food log", "k": "tracking why track calories obsess consistency hammer", "go": {"p": "fuel", "s": "h-food"}}, {"t": "Log food", "a": "Under each meal, use Search, Photo, Voice or Favorites. Quick add is for when you only know the numbers.", "w": "Fuel › Food log", "k": "food meal meals eat log calories macros protein", "go": {"p": "fuel", "s": "h-food"}}, {"t": "Calorie and macro targets", "a": "Set or adjust your daily calories, protein, carbs and fat.", "w": "Settings › Daily calorie and macro targets", "k": "calories macros targets protein carbs fat adjust", "go": {"set": "h-s-tg"}}, {"t": "My goal", "a": "Lose fat, maintain or build. Your calorie plan follows it.", "w": "Settings › Your goal and calorie plan", "k": "goal lose fat cut bulk build maintain", "go": {"set": "h-s-goal"}}, {"t": "My creed", "a": "Write your creed in Settings. The My Creed box on Today shows it each morning.", "w": "Settings › Your profile", "k": "creed motto", "go": {"set": "h-s-prof"}}, {"t": "Daily devotional", "a": "Tap the Daily Devotional box on Today to read today’s reading.", "w": "Today › Daily Devotional", "k": "devotional devo reading bible scripture", "go": {"p": "today"}}, {"t": "Post in Rally", "a": "Post, tag brothers and react in Rally. Posting checks Rally Call.", "w": "Rally tab", "k": "rally post feed tag comment react call", "go": {"p": "checkin"}}, {"t": "Reminders", "a": "Turn daily reminders on or off and pick the times.", "w": "Settings › Daily reminders", "k": "reminder reminders notification notifications alert", "go": {"set": "h-s-rem"}}, {"t": "Steps and health data", "a": "Log steps from the Steps box on Today, or connect health data in Settings.", "w": "Settings › Health data", "k": "steps health apple watch fitbit connect", "go": {"set": "h-s-health"}}, {"t": "Dark mode and appearance", "a": "Change how the app looks.", "w": "Settings › Appearance", "k": "dark light mode theme appearance color", "go": {"set": "h-s-app"}}, {"t": "Core lift PRs", "a": "Your best lifts are on your profile. A PR earns 25 points.", "w": "Profile › Core lift PRs", "k": "pr prs record personal best max", "go": {"fn": "profile", "s": "h-lifts"}}, {"t": "Photos or videos won’t upload", "a": "Run the upload check in Settings. It tests your photos and tells you what went wrong.", "w": "Settings › Upload check", "k": "upload uploading photo video error unsupported fail", "go": {"set": "h-s-prof"}}, {"t": "Delete my data", "a": "Permanently delete everything you saved in the app.", "w": "Settings › Delete your data", "k": "delete remove account data erase", "go": {"set": "h-s-acct"}}];
+  var ASK = [{"t": "Log my weight", "a": "Weigh in on your Sabbath. Tap the Weigh-In box on Today and enter your weight. Your chart is on Train under Weekly weight. Only you can see it.", "w": "Today on your Sabbath · Train › Weekly weight", "k": "weight weigh scale pounds lb body weight", "go": {"p": "train", "s": "h-wt"}}, {"t": "Progress photos", "a": "Front, side and rear photos are taken on your Sabbath from the Progress Photos box on Today. Past photos are on your profile.", "w": "Today on your Sabbath · Profile › Progress photos", "k": "photo photos picture pictures progress before after", "go": {"fn": "profile", "s": "h-prog"}}, {"t": "Change my lifting days or Sabbath", "a": "Open Workout plan on Train to pick your program, equipment, Sabbath day and your 3 lifting days.", "w": "Train › Workout plan", "k": "schedule days lifting sabbath program plan equipment change", "go": {"p": "train", "s": "h-plan"}}, {"t": "Move a workout to another day", "a": "On Train, tap a day on the calendar, then Move day and pick a day this week to trade with. Reset week puts it back.", "w": "Train › Calendar › Move day", "k": "move swap day reschedule calendar missed", "go": {"p": "train", "s": "h-cal"}}, {"t": "Swap an exercise", "a": "In the workout, tap Alt next to the exercise to pick an alternate if you lack the equipment or have an injury.", "w": "Workout › Alt button on the exercise", "k": "alternate swap exercise injury equipment replace substitute", "go": {"p": "train", "s": "h-cal"}}, {"t": "Leave a note on a lift", "a": "In a workout, tap “+ Add a note for next time” under the lift. The next time you do that lift, your note shows in the Last time box.", "w": "Workout › under each lift", "k": "note notes lift journal remember sleep felt", "go": {"p": "train", "s": "h-cal"}}, {"t": "How points work", "a": "Every box, bonus and challenge and what it’s worth.", "w": "Board › How points work", "k": "points score scoring earn worth bonus how many", "go": {"fn": "points"}}, {"t": "The Board", "a": "See where you stand this week, today and all time.", "w": "Board tab", "k": "board leaderboard rank ranking standings who winning", "go": {"p": "board"}}, {"t": "Weekly challenges", "a": "Three challenges each week (Family, Iron, Endure). Tap one at the top of Train to see it and record your attempt.", "w": "Train › This week’s challenges", "k": "challenge challenges family iron endure submit record attempt", "go": {"p": "train", "s": "h-chal"}}, {"t": "Family report", "a": "On your Sabbath, a Family report row on Today puts your week together so you can share it with your family.", "w": "Today on your Sabbath", "k": "family report share wife kids week summary", "go": {"fn": "freport"}}, {"t": "Legacy log", "a": "A private journal you write for your wife and kids, with a new prompt each Sabbath. Give it to them when you’re ready.", "w": "Today on your Sabbath · Settings › Legacy log", "k": "legacy journal letter write kids wife son daughter", "go": {"fn": "legacy"}}, {"t": "Missed a day (grace reset)", "a": "After a missed day breaks your streak, Today offers Own it. Own it in Rally once every 30 days and your streak holds.", "w": "Today, after a missed day", "k": "missed streak broke grace reset own it", "go": {"p": "today"}}, {"t": "Sit out a week", "a": "On vacation or sick? Use the link at the bottom of Today to sit out 7 days. Your streak is held. Tap I’m back to end it early.", "w": "Today › bottom of the list", "k": "vacation sick sit out pause away travel injured", "go": {"fn": "sitout"}}, {"t": "Invite a brother", "a": "Share the app with a man. When he signs up and picks you under Who invited you, you get 50 points.", "w": "Settings › Your profile", "k": "invite recruit friend share sent join brother", "go": {"set": "h-s-prof"}}, {"t": "Fasting", "a": "Turn on Fasting today or plan fast days on Fuel. Your Calories box checks itself on a fast day.", "w": "Fuel › Fasting", "k": "fast fasting fasted", "go": {"p": "fuel", "s": "h-fast"}}, {"t": "Log water", "a": "Tap +8 as you drink, or type an amount. Hitting the goal checks Hydrate.", "w": "Fuel › Water", "k": "water hydrate drink oz liters", "go": {"p": "fuel", "s": "h-water"}}, {"t": "Why isn\u2019t my weight tracked every day?", "a": "Daily weight bounces with water, salt, carbs and food in your system. One weigh-in each Sabbath gives you a trend you can trust.", "w": "Today on your Sabbath · Train › Weekly weight", "k": "weight weigh daily scale why weekly sabbath", "go": {"p": "train", "s": "h-wt"}}, {"t": "My weight isn\u2019t dropping. Is it working?", "a": "Maybe. With enough protein, steady calories and consistent training you can lose fat and build muscle together, so the scale can hold still. Check your progress photos, how your clothes fit and your lifts.", "w": "Profile › Progress photos · Train › Weekly weight", "k": "weight stuck plateau scale not dropping muscle fat working progress", "go": {"p": "train", "s": "h-wt"}}, {"t": "What is tracking for?", "a": "To build consistency, get healthy, perform better in the gym and feel better. It is a tool, not a hammer. Log honestly and keep going.", "w": "Fuel › Food log", "k": "tracking why track calories obsess consistency hammer", "go": {"p": "fuel", "s": "h-food"}}, {"t": "Use my own workout routine", "a": "On Train, open Workout plan and tap My routine. Bring your routine in by photo, pasted text, or build it there. Set how many weeks you will run it and your lifting days. Tap Built-in any time to go back.", "w": "Train › Workout plan › My routine", "k": "routine own workout program upload import photo paste custom plan weeks duration switch", "go": {"p": "train", "s": "h-plan"}}, {"t": "Log food", "a": "Under each meal, use Search, Photo, Voice or Favorites. Quick add is for when you only know the numbers.", "w": "Fuel › Food log", "k": "food meal meals eat log calories macros protein", "go": {"p": "fuel", "s": "h-food"}}, {"t": "Calorie and macro targets", "a": "Set or adjust your daily calories, protein, carbs and fat.", "w": "Settings › Daily calorie and macro targets", "k": "calories macros targets protein carbs fat adjust", "go": {"set": "h-s-tg"}}, {"t": "My goal", "a": "Lose fat, maintain or build. Your calorie plan follows it.", "w": "Settings › Your goal and calorie plan", "k": "goal lose fat cut bulk build maintain", "go": {"set": "h-s-goal"}}, {"t": "My creed", "a": "Write your creed in Settings. The My Creed box on Today shows it each morning.", "w": "Settings › Your profile", "k": "creed motto", "go": {"set": "h-s-prof"}}, {"t": "Daily devotional", "a": "Tap the Daily Devotional box on Today to read today’s reading.", "w": "Today › Daily Devotional", "k": "devotional devo reading bible scripture", "go": {"p": "today"}}, {"t": "Post in Rally", "a": "Post, tag brothers and react in Rally. Posting checks Rally Call.", "w": "Rally tab", "k": "rally post feed tag comment react call", "go": {"p": "checkin"}}, {"t": "Reminders", "a": "Turn daily reminders on or off and pick the times.", "w": "Settings › Daily reminders", "k": "reminder reminders notification notifications alert", "go": {"set": "h-s-rem"}}, {"t": "Steps and health data", "a": "Log steps from the Steps box on Today, or connect health data in Settings.", "w": "Settings › Health data", "k": "steps health apple watch fitbit connect", "go": {"set": "h-s-health"}}, {"t": "Dark mode and appearance", "a": "Change how the app looks.", "w": "Settings › Appearance", "k": "dark light mode theme appearance color", "go": {"set": "h-s-app"}}, {"t": "Core lift PRs", "a": "Your best lifts are on your profile. A PR earns 25 points.", "w": "Profile › Core lift PRs", "k": "pr prs record personal best max", "go": {"fn": "profile", "s": "h-lifts"}}, {"t": "Photos or videos won’t upload", "a": "Run the upload check in Settings. It tests your photos and tells you what went wrong.", "w": "Settings › Upload check", "k": "upload uploading photo video error unsupported fail", "go": {"set": "h-s-prof"}}, {"t": "Delete my data", "a": "Permanently delete everything you saved in the app.", "w": "Settings › Delete your data", "k": "delete remove account data erase", "go": {"set": "h-s-acct"}}];
   var ASK_STOP = "a an the i my me do does how where what is are to of in on for can find it get set see with and or at this that when why which who you your".split(" ");
   var ASK_SYN = { weigh: "weight", scale: "weight", pic: "photo", pics: "photo", picture: "photo", score: "points", pts: "points", leaderboard: "board", rank: "board", meal: "food", eat: "food", macro: "macros", drink: "water", schedule: "days", reminder: "reminders", notification: "reminders", pr: "pr", record: "pr", journal: "legacy", vacation: "sit", sick: "sit", invite: "invite", recruit: "invite", fast: "fasting", motto: "creed" };
   function askToks(t) { return String(t || "").toLowerCase().replace(/[\u2018\u2019']/g, "").replace(/[^a-z0-9\s]/g, " ").split(/\s+/).filter(function (w) { return w && ASK_STOP.indexOf(w) < 0; }); }
@@ -6936,7 +7246,7 @@ header.hero .me-btn { border-color:#e87328; }
       box.appendChild(r);
     });
   }
-  var APP_VERSION = "v186";
+  var APP_VERSION = "v187";
   /* ---------- Photo upload diagnostic (Settings > Testing) ---------- */
   async function runPhotoDiag() {
     var out = { at: new Date().toISOString(), version: APP_VERSION, ua: navigator.userAgent, steps: [] };
@@ -7875,7 +8185,7 @@ header.hero .me-btn { border-color:#e87328; }
         await writeChain; await B.deleteMyData(state.me);
         var me = state.me;
         state.checks = state.checks.filter(function (c) { return c.uid !== me; }); state.logs = []; state.habits = {};
-        state.settings = { blocked: {}, targets: null, body: null, reminders: null, health: null, plan: null, theme: null, autofill: null, favs: [], myMeals: [], preps: [], swapAlways: {} }; delete state.pubProfiles[me];
+        state.settings = { blocked: {}, targets: null, body: null, reminders: null, health: null, plan: null, theme: null, autofill: null, favs: [], myMeals: [], preps: [], swapAlways: {}, routine: null }; delete state.pubProfiles[me];
         ds.textContent = "All your data was deleted."; var bx = $("del-box"); bx.hidden = true; bx.style.display = "none";
         drawAll();
       } catch (e) { ds.textContent = "Could not finish deleting. Try again."; }
@@ -8028,7 +8338,7 @@ header.hero .me-btn { border-color:#e87328; }
         drawToday(); onbMaybeStart();
       });
       B.watchSettings(state.me, function (st) {
-        state.settings = { blocked: (st && st.blocked) || {}, targets: (st && st.targets) || null, body: (st && st.body) || null, reminders: (st && st.reminders) || null, health: (st && st.health) || null, plan: (st && st.plan) || null, theme: (st && st.theme) || null, autofill: (st && st.autofill) || null, favs: (st && Array.isArray(st.favs)) ? st.favs.slice(0, 60) : [], myMeals: (st && Array.isArray(st.myMeals)) ? st.myMeals.slice(0, 30) : [], preps: (st && Array.isArray(st.preps)) ? st.preps.slice(0, 40) : [], swapAlways: (st && st.swapAlways && typeof st.swapAlways === "object") ? st.swapAlways : {}, dayMoves: normMoves(st && st.dayMoves), fast: normFast(st && st.fast), onboard: (st && st.onboard && typeof st.onboard === "object") ? st.onboard : null, freport: (st && st.freport && typeof st.freport === "object") ? st.freport : {}, junior: (st && st.junior && typeof st.junior === "object") ? st.junior : {} }; if (state.settings.theme) applyTheme(state.settings.theme, false); state.settingsLoaded = true; drawAll(); drawFeed(); refreshHealth(); onbMaybeStart();
+        state.settings = { blocked: (st && st.blocked) || {}, targets: (st && st.targets) || null, body: (st && st.body) || null, reminders: (st && st.reminders) || null, health: (st && st.health) || null, plan: (st && st.plan) || null, theme: (st && st.theme) || null, autofill: (st && st.autofill) || null, favs: (st && Array.isArray(st.favs)) ? st.favs.slice(0, 60) : [], myMeals: (st && Array.isArray(st.myMeals)) ? st.myMeals.slice(0, 30) : [], preps: (st && Array.isArray(st.preps)) ? st.preps.slice(0, 40) : [], swapAlways: (st && st.swapAlways && typeof st.swapAlways === "object") ? st.swapAlways : {}, dayMoves: normMoves(st && st.dayMoves), fast: normFast(st && st.fast), onboard: (st && st.onboard && typeof st.onboard === "object") ? st.onboard : null, freport: (st && st.freport && typeof st.freport === "object") ? st.freport : {}, junior: (st && st.junior && typeof st.junior === "object") ? st.junior : {}, routine: normRoutine(st && st.routine) }; if (state.settings.theme) applyTheme(state.settings.theme, false); state.settingsLoaded = true; drawAll(); drawFeed(); refreshHealth(); onbMaybeStart();
       });
     }
     B.watchPosts(function (rows) { state.posts = rows; drawFeed(); loadProfiles(); drawTagBells(); });
