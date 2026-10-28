@@ -10,20 +10,11 @@
   "servers": {
     "dart": {
       "type": "stdio",
-      "command": "dart",
-      "args": [
-        "mcp-server"
-      ]
-    },
-    "firebase": {
-      "type": "stdio",
       "command": "cmd",
       "args": [
         "/c",
-        "npx",
-        "-y",
-        "firebase-tools@latest",
-        "mcp"
+        "dart",
+        "mcp-server"
       ]
     },
     "playwright": {
@@ -51,8 +42,10 @@
     },
     "maestro": {
       "type": "stdio",
-      "command": "maestro",
+      "command": "cmd",
       "args": [
+        "/c",
+        "maestro",
         "mcp"
       ]
     },

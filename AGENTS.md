@@ -13,6 +13,14 @@ Forged & Sent is a faith-centered devotional workout and group accountability pl
 - Team challenges and scoreboards are server-authoritative; no spirituality-quality scoring or points for eating less.
 - Initially adult men's groups; design domain boundaries for future households and youth without enabling youth functionality by default.
 
+## Protected operations
+- GitHub server rulesets are the enforcement. Do not push to main, force-push, bypass reviews, or merge without human approval.
+- AI reviews are advisory and never satisfy required approval.
+- No default cloud Firebase MCP, Firebase deployment, or PROD credentials on colleague devices.
+- Contributor development is emulator-first, with demo-* project IDs and no cloud CLI login.
+- Never automatically execute flutterfire configure or include production FirebaseOptions in Contributor builds.
+- Follow docs/architecture/ADR-0002-emulator-first-firebase.md.
+
 ## Working agreement
 1. Read `docs/development/START_HERE.md` and any applicable ADR before work.
 2. One focused issue per branch. Never change `main` directly.

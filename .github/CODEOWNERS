@@ -1,0 +1,11 @@
+# Verified owner. Add the second developer's exact GitHub handle BEFORE
+# turning on mandatory code-owner review; otherwise owner's PRs deadlock.
+# CODEOWNERS itself does not enforce review, the repository ruleset must.
+/* @sfcsmithc-afk
+/.github/ @sfcsmithc-afk
+/tooling/ @sfcsmithc-afk
+/.vscode/mcp.json @sfcsmithc-afk
+/.claude/ @sfcsmithc-afk
+/.codex/ @sfcsmithc-afk
+/firebase/ @sfcsmithc-afk
+*.rules @sfcsmithc-afk
