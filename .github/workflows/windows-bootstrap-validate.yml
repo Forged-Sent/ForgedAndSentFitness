@@ -1,0 +1,38 @@
+name: Windows bootstrap syntax
+
+on:
+  pull_request:
+    paths:
+      - 'tooling/windows/**'
+      - 'SETUP-WINDOWS.cmd'
+      - 'SETUP-ANDROID.cmd'
+      - 'RUN-APP.cmd'
+      - '.github/workflows/windows-bootstrap-validate.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  parse-windows-scripts:
+    runs-on: windows-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Parse PowerShell without installing programs
+        shell: powershell
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $files = @('tooling/windows/setup.ps1', 'tooling/windows/run-app.ps1')
+          foreach ($file in $files) {
+            $tokens = $null
+            $errors = $null
+            [System.Management.Automation.Language.Parser]::ParseFile(
+              (Resolve-Path $file), [ref]$tokens, [ref]$errors
+            ) | Out-Null
+            if ($errors.Count -gt 0) {
+              $errors | ForEach-Object { Write-Error $_.ToString() }
+              throw ('PowerShell syntax invalid: ' + $file)
+            }
+            Write-Host ('Syntax OK: ' + $file)
+          }

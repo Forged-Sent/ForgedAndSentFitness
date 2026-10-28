@@ -1,0 +1,14 @@
+# Generated Flutter/Dart caches and build artifacts
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+.pub-cache/
+.pub/
+build/
+coverage/
+# IDE local state
+.idea/
+*.iml
+# Local Firebase credentials
+firebase_options.local.dart
