@@ -1,128 +1,110 @@
 #requires -Version 5.1
-<#
-Read-only profile-aware diagnostics and local, redacted Ask AI report.
-"Ready" for an MCP requires a real protocol initialize + tools/list.
-#>
+# Read-only, profile-aware diagnostics. Does NOT authenticate or contact cloud MCPs.
 param(
-  [ValidateSet('Preview','Contributor','Mobile','Maintainer')]
-  [string]$Profile='Preview',
+  [ValidateSet('Preview','Contributor','Mobile','Maintainer')][string]$Profile='Contributor',
   [switch]$SelfTest
 )
 Set-StrictMode -Version Latest
-$ErrorActionPreference = 'Stop'
+$ErrorActionPreference='Stop'
 $root=(Resolve-Path (Join-Path $PSScriptRoot '..\..')).Path
-$stamp=Get-Date -Format 'yyyyMMdd-HHmmss'
-$diag=Join-Path $env:TEMP "ForgedAndSent-Diagnostics-$stamp.txt"
-$askAI=Join-Path $env:TEMP "ForgedAndSent-AskAI-$stamp.txt"
-$entries=New-Object System.Collections.Generic.List[object]
-$env:Path+=';' + (Join-Path $env:APPDATA 'npm') + ';' +
- (Join-Path $env:USERPROFILE 'develop\flutter\bin') + ';' +
- (Join-Path $env:LOCALAPPDATA 'Programs\Maestro\bin')
-$rank=@{Preview=1;Contributor=2;Mobile=3;Maintainer=4}
-function Add-Status([string]$name,[string]$state,[int]$from,[string]$why,[string]$fix){
-  $necessary=($rank[$Profile] -ge $from)
-  $entries.Add([pscustomobject]@{
-    Name=$name;Status=$state;Required=$necessary;Why=$why;Fix=$fix
-  })
-}
-function Find-Command([string]$exe,[string[]]$fallback=@()){
-  $command=Get-Command $exe -ErrorAction SilentlyContinue|Select-Object -First 1
-  if($command){return $command.Source}
-  foreach($path in $fallback){if($path -and (Test-Path -LiteralPath $path)){return $path}}
-  return $null
-}
-function Check-Command([string]$name,[string]$exe,[int]$from,[string]$why,[string]$fix,[string[]]$fallback=@()){
-  if(Find-Command $exe $fallback){Add-Status $name 'Ready' $from 'Executable located.' 'None.'}
-  else{Add-Status $name 'Missing' $from $why $fix}
-}
-function Read-PSVersion([string]$path){
-  if(-not $path){return $null}
-  try{
-    $output=& $path -NoLogo -NoProfile -NonInteractive -Command '$PSVersionTable.PSVersion.ToString()' 2>$null|Select-Object -First 1
-    if($LASTEXITCODE -ne 0){return $null}
-    return [version]([string]$output).Trim()
-  }catch{return $null}
+. (Join-Path $PSScriptRoot 'diagnostic-model.ps1')
+$report=Join-Path $env:TEMP ('ForgedAndSent-Diagnostics-'+(Get-Date -Format 'yyyyMMdd-HHmmss')+'.txt')
+$aiReport=Join-Path $env:TEMP ('ForgedAndSent-AskAI-'+(Get-Date -Format 'yyyyMMdd-HHmmss')+'.txt')
+$checks=New-Object System.Collections.Generic.List[object]
+$env:Path+=';'+(Join-Path $env:APPDATA 'npm')+';'+(Join-Path $env:USERPROFILE 'develop\flutter\bin')+';'+(Join-Path $env:LOCALAPPDATA 'Programs\Maestro\bin')
+function Check([string]$id,[string]$name,[string[]]$paths,[string]$fix) {
+  $cmd=Get-Command $name -ErrorAction SilentlyContinue | Select-Object -First 1
+  $path=if($cmd){$cmd.Source}else{$paths|Where-Object{$_ -and (Test-Path -LiteralPath $_)}|Select-Object -First 1}
+  if($path){$checks.Add((New-FSCheck $id Ready 'Executable found. Live runtime testing is separate.' ''))}
+  else{$checks.Add((New-FSCheck $id Missing 'Required executable was not located.' $fix))}
 }
 if($SelfTest){
-  Add-Status 'Git' 'Ready' 1 'Fixture is present.' 'None.'
-  Add-Status 'Maestro' 'Missing' 3 'The Maestro executable was not found.' 'Install Java 21 and Maestro, then rerun the Mobile setup.'
-  Add-Status 'GoogleKnowledgeAuth' 'AuthRequired' 4 'Google Developer Knowledge needs its own Google Cloud API key.' 'Enter it in the VS Code password prompt. Never paste it into Git or AI chat.'
-}else{
-  Check-Command 'Git' 'git.exe' 1 'Git is needed to obtain and manage sources.' 'Rerun setup to install Git.' @((Join-Path $env:ProgramFiles 'Git\cmd\git.exe'))
-  Check-Command 'Chrome' 'chrome.exe' 1 'Chrome is required for the preview.' 'Rerun preview setup or ask IT to install Chrome.' @((Join-Path $env:ProgramFiles 'Google\Chrome\Application\chrome.exe'),(Join-Path $env:LOCALAPPDATA 'Google\Chrome\Application\chrome.exe'))
-  $flutter=Find-Command 'flutter.bat' @((Join-Path $env:USERPROFILE 'develop\flutter\bin\flutter.bat'))
-  if($flutter){
-    Add-Status 'Flutter' 'Ready' 1 'Flutter launcher found. Runtime build remains a separate check.' 'Run RUN-APP.cmd and flutter doctor.'
-  }else{
-    Add-Status 'Flutter' 'Missing' 1 'Flutter SDK was not found.' 'Rerun SETUP-WINDOWS.cmd to install Flutter.'
-  }
-  $pwsh=Find-Command 'pwsh.exe' @((Join-Path $env:ProgramFiles 'PowerShell\7\pwsh.exe'))
-  $pv=Read-PSVersion $pwsh
-  if($pv -and $pv -ge [version]'7.6.0'){
-    Add-Status 'PowerShell 7' 'Ready' 1 "PowerShell $pv detected." 'None.'
-  }elseif($pv){
-    Add-Status 'PowerShell 7' 'Outdated' 1 "PowerShell $pv is older than required 7.6." 'Run FIRST-RUN-WINDOWS.cmd to update PowerShell.'
-  }else{
-    Add-Status 'PowerShell 7' 'Missing' 1 'PowerShell 7.6 could not be started.' 'Install/repair Microsoft.PowerShell through WinGet; restart your terminal.'
-  }
-  Check-Command 'VS Code' 'code.cmd' 2 'Editor required for Contributor work.' 'Run the developer setup.' @((Join-Path $env:LOCALAPPDATA 'Programs\Microsoft VS Code\bin\code.cmd'),(Join-Path $env:ProgramFiles 'Microsoft VS Code\bin\code.cmd'))
-  Check-Command 'Node' 'node.exe' 2 'Node runs Firebase emulators and browser MCPs.' 'Install Node LTS via developer setup.' @((Join-Path $env:ProgramFiles 'nodejs\node.exe'))
-  Check-Command 'GitHub CLI' 'gh.exe' 2 'GitHub CLI is needed for branches and draft PRs.' 'Install the GitHub CLI, then run gh auth login.' @((Join-Path $env:ProgramFiles 'GitHub CLI\gh.exe'))
-  Check-Command 'Firebase CLI' 'firebase.cmd' 2 'The local emulator runtime needs Firebase CLI.' 'Install firebase-tools through developer setup. Do not sign into production.' @((Join-Path $env:APPDATA 'npm\firebase.cmd'))
-  $projectMCP=Join-Path $root '.vscode\mcp.json'
-  if(Test-Path -LiteralPath $projectMCP){
-    try{
-      $settings=Get-Content -LiteralPath $projectMCP -Raw|ConvertFrom-Json
-      $names=@($settings.servers.PSObject.Properties.Name)
-      if($names -contains 'firebase'){Add-Status 'Firebase MCP isolation' 'Failed' 2 'Cloud Firebase MCP is enabled in a Contributor workspace.' 'Remove the Firebase server; use the Local Emulator Suite instead.'}
-      else{Add-Status 'Firebase MCP isolation' 'Ready' 2 'No cloud Firebase MCP in default workspace.' 'None.'}
-      foreach($item in @('dart','playwright','context7','figma','maestro','github','google-developer-knowledge')){
-        if($names -contains $item){Add-Status "MCP:$item" 'ConfiguredNotConnected' 5 'Server configured, but no live MCP tools/list handshake was performed.' 'Open VS Code MCP: List Servers, connect and verify a read-only tool call.'}
-        else{Add-Status "MCP:$item" 'Missing' 5 'Server definition is absent.' 'Restore the current project .vscode/mcp.json.'}
-      }
-    }catch{Add-Status 'VS Code MCP config' 'Failed' 2 'The MCP JSON could not be parsed.' 'Restore .vscode/mcp.json from the repository.'}
-  }else{Add-Status 'VS Code MCP config' 'Missing' 2 'MCP project configuration missing.' 'Clone/extract the full repository.'}
-  Add-Status 'Firebase emulator app wiring' 'NotApplicable' 2 'Contributor emulator wiring is scheduled for PR #4, not available in this PR.' 'Use Preview for now; do not claim the Contributor profile is complete.'
-  Check-Command 'Java 21' 'java.exe' 3 'JDK 21 is needed for the Firebase emulator and Maestro.' 'Install Temurin 21 through the mobile setup.'
-  Check-Command 'Maestro' 'maestro.bat' 3 'Maestro is needed for mobile smoke tests.' 'Install Maestro with the Mobile installer.' @((Join-Path $env:LOCALAPPDATA 'Programs\Maestro\bin\maestro.bat'))
-  Add-Status 'Android device/emulator' 'ConfiguredNotConnected' 3 'No device run was performed by diagnostics.' 'Run flutter devices, launch a device and execute a Maestro flow.'
-  Add-Status 'DEV cloud credentials' 'AuthRequired' 4 'Cloud DEV access is explicitly restricted to maintainers.' 'Request a separate least-privileged DEV identity. No production credentials permitted.'
-}
-$blocked=@($entries|Where-Object {$_.Required -and $_.Status -notin @('Ready')})
-$lines=New-Object System.Collections.Generic.List[string]
-$lines.Add('Forged & Sent Windows setup diagnostic')
-$lines.Add("Profile: $Profile")
-$lines.Add('Status is local-only; MCP configuration never implies a live connection.')
-$lines.Add('No names, secrets, local file paths, environment variable values or project credentials are included below.')
-$lines.Add('')
-foreach($item in $entries){
-  $req=if($item.Required){'REQUIRED'}else{'OPTIONAL'}
-  $lines.Add("[$($item.Status)] $($item.Name) ($req)")
-  if($item.Status -ne 'Ready'){
-    $lines.Add("  WHY: $($item.Why)")
-    $lines.Add("  FIX: $($item.Fix)")
-  }
-}
-$lines.Add('')
-$lines.Add("Required unresolved checks: $($blocked.Count)")
-$lines|ForEach-Object{Write-Host $_}
-$lines|Set-Content -LiteralPath $diag -Encoding UTF8
-$ai=New-Object System.Collections.Generic.List[string]
-$ai.Add("Help me repair Forged & Sent on Windows. I selected the $Profile setup profile.")
-$ai.Add('Do not request credentials, disable security or modify production services.')
-$ai.Add('Provide one plain-English repair step at a time; statuses are local checks only.')
-foreach($item in $entries|Where-Object{$_.Status -ne 'Ready'}){
-  $ai.Add("ISSUE $($item.Name) [$($item.Status)] required=$($item.Required): $($item.Why)")
-  $ai.Add("SUGGESTED FIX: $($item.Fix)")
-}
-$ai|Set-Content -LiteralPath $askAI -Encoding UTF8
-Write-Host "Local diagnostic: $diag"
-Write-Host "Review-before-sharing AI prompt: $askAI"
-if($SelfTest){
-  $content=Get-Content -LiteralPath $askAI -Raw
-  if($content -notmatch 'ISSUE Maestro'){throw 'SelfTest: missing expected missing-Maestro explanation'}
-  Write-Host 'Diagnostic self-test passed.'
+  $fixture=@(
+    (New-FSCheck Git Ready 'Found' ''),
+    (New-FSCheck Maestro Missing 'Not installed' 'Run Mobile setup')
+  )
+  if((Get-FSNeed Preview Maestro) -ne 'Optional'){throw 'Optional tool was marked required'}
+  if((Get-FSExitCode Preview $fixture) -ne 0){throw 'Optional tool incorrectly failed Preview'}
+  if((Get-FSExitCode Mobile $fixture) -ne 1){throw 'Required tool incorrectly passed Mobile'}
+  $text='ISSUE Maestro: Not installed; FIX: Run Mobile setup'
+  if($text -notmatch 'ISSUE Maestro'){throw 'Help prompt fixture missing'}
+  Write-Host 'Self-test passed: profile-aware statuses and optional/required exit logic.'
   exit 0
 }
-if($blocked.Count){exit 1}
-exit 0
+Check Git git.exe @((Join-Path $env:ProgramFiles 'Git\cmd\git.exe')) 'Run SETUP-WINDOWS.cmd, then restart the terminal.'
+Check Chrome chrome.exe @((Join-Path $env:ProgramFiles 'Google\Chrome\Application\chrome.exe'),(Join-Path $env:LOCALAPPDATA 'Google\Chrome\Application\chrome.exe')) 'Run SETUP-WINDOWS.cmd to install Chrome.'
+Check Flutter flutter.bat @((Join-Path $env:USERPROFILE 'develop\flutter\bin\flutter.bat')) 'Run SETUP-WINDOWS.cmd, then check flutter doctor.'
+Check VSCode code.cmd @((Join-Path $env:LOCALAPPDATA 'Programs\Microsoft VS Code\bin\code.cmd'),(Join-Path $env:ProgramFiles 'Microsoft VS Code\bin\code.cmd')) 'Install VS Code with SETUP-DEVELOPER-WINDOWS.cmd.'
+Check Node node.exe @((Join-Path $env:ProgramFiles 'nodejs\node.exe')) 'Run developer setup for Node.js LTS.'
+Check Npm npm.cmd @((Join-Path $env:ProgramFiles 'nodejs\npm.cmd')) 'Reinstall Node.js LTS, then restart Windows.'
+Check GitHubCLI gh.exe @((Join-Path $env:ProgramFiles 'GitHub CLI\gh.exe')) 'Run developer setup for GitHub CLI.'
+Check FirebaseCLI firebase.cmd @((Join-Path $env:APPDATA 'npm\firebase.cmd')) 'Run developer setup for local Firebase CLI. No Firebase login required for Preview.'
+Check Maestro maestro.bat @((Join-Path $env:LOCALAPPDATA 'Programs\Maestro\bin\maestro.bat')) 'Run setup for mobile testing. Java and a phone/emulator are required.'
+Check AndroidStudio studio64.exe @((Join-Path $env:ProgramFiles 'Android\Android Studio\bin\studio64.exe')) 'Run SETUP-ANDROID.cmd and complete the Android SDK setup wizard.'
+Check ClaudeCLI claude.exe @((Join-Path $env:USERPROFILE '.local\bin\claude.exe')) 'Optional: run the developer setup or use VS Code extension.'
+Check CodexCLI codex.cmd @((Join-Path $env:APPDATA 'npm\codex.cmd')) 'Optional: run developer setup or use Codex VS Code extension.'
+$pwsh=(Get-Command pwsh.exe -ErrorAction SilentlyContinue|Select-Object -First 1)
+$pwshPath=if($pwsh){$pwsh.Source}else{Join-Path $env:ProgramFiles 'PowerShell\7\pwsh.exe'}
+if(Test-Path -LiteralPath $pwshPath){
+  try {
+    $vers=& $pwshPath -NoProfile -NonInteractive -Command '$PSVersionTable.PSVersion.ToString()'
+    $v=[version](([string]($vers|Select-Object -First 1)) -replace '-.*$','')
+    if($v -ge [version]'7.6.0'){$checks.Add((New-FSCheck PowerShell7 Ready 'Version meets baseline.' '' $v.ToString()))}
+    else{$checks.Add((New-FSCheck PowerShell7 Outdated 'PowerShell 7.6 LTS+ required.' 'Run FIRST-RUN-WINDOWS.cmd to update PowerShell.' $v.ToString()))}
+  }catch{$checks.Add((New-FSCheck PowerShell7 Failed 'PowerShell 7 could not start.' 'Restart terminal or ask IT to repair PowerShell 7.'))}
+}else{$checks.Add((New-FSCheck PowerShell7 Missing 'PowerShell 7 not found.' 'Run FIRST-RUN-WINDOWS.cmd to install it.'))}
+$java=Get-Command java.exe -ErrorAction SilentlyContinue|Select-Object -First 1
+if($java) {
+  $verLine=(& cmd.exe /c 'java -version 2>&1'|Out-String)
+  $found=[regex]::Match($verLine,'(?:version\s+["'']|openjdk\s+)(?<major>\d+)')
+  if($found.Success){
+    $major=[int]$found.Groups['major'].Value
+    if($major -eq 1 -and $verLine -match '1\.(\d+)'){$major=[int]$Matches[1]}
+    if($major -ge 17){$checks.Add((New-FSCheck Java Ready 'Java meets Maestro minimum; PR #4 will standardize JDK 21.' '' "$major"))}
+    else{$checks.Add((New-FSCheck Java Outdated 'Maestro requires Java 17+.' 'Install supported JDK, then restart terminal.' "$major"))}
+  }else{$checks.Add((New-FSCheck Java Failed 'Could not parse Java version.' 'Run java -version and check installation.'))}
+}else{$checks.Add((New-FSCheck Java Missing 'Java is not installed.' 'Mobile setup will install a suitable JDK.'))}
+# Maintainer DEV cloud identity is intentionally not enabled by PR #3.
+$checks.Add((New-FSCheck DevCloudIdentity AuthRequired 'Maintainer DEV credentials are not configured in the default bootstrap.' 'PR #4 will add explicit restricted DEV access; do not use PROD credentials.'))
+$config=Join-Path $root '.vscode\mcp.json'
+if(Test-Path -LiteralPath $config) {
+  try {
+    $mcp=Get-Content -LiteralPath $config -Raw|ConvertFrom-Json
+    foreach($id in @('dart','playwright','github','context7','figma','maestro','google-developer-knowledge')){
+      if($mcp.servers.PSObject.Properties.Name -contains $id){
+        $checks.Add((New-FSCheck "MCP:$id" ConfiguredNotConnected 'MCP is declared, but tools/list handshake was not performed.' 'Start the MCP in VS Code and verify tools/list before claiming Ready.'))
+      }else{$checks.Add((New-FSCheck "MCP:$id" Missing 'MCP declaration is missing.' 'Restore .vscode/mcp.json from the approved PR.'))}
+    }
+    if($mcp.servers.PSObject.Properties.Name -contains 'firebase'){
+      $checks.Add((New-FSCheck 'CloudFirebaseMCP' Failed 'Default cloud Firebase MCP violates security policy.' 'Remove Firebase MCP from all default configs.'))
+    }
+  }catch{$checks.Add((New-FSCheck 'MCPConfig' Failed 'MCP configuration could not be parsed.' 'Restore the approved .vscode/mcp.json.'))}
+}else{$checks.Add((New-FSCheck 'MCPConfig' Missing 'VS Code MCP configuration is absent.' 'Extract the entire repository.'))}
+$results=@($checks.ToArray())
+$exit=Get-FSExitCode $Profile $results
+$lines=New-Object System.Collections.Generic.List[string]
+$lines.Add("Forged & Sent environment check | Profile: $Profile | Result: $(if($exit){'NEEDS REPAIR'}else{'INSTALL CHECKS PASSED'})")
+$lines.Add('ConfiguredNotConnected is NOT Ready. Profile installer and live MCP checks land in PR #4.')
+$lines.Add('No usernames, filesystem paths, tokens or Firebase project IDs are included below.')
+$lines.Add('')
+foreach($c in $results){
+  $need=Get-FSNeed $Profile $c.Id
+  $lines.Add("[$($c.Status)] $($c.Id) | $need$(if($c.Version){" | Version $($c.Version)"})")
+  if($c.Status -ne 'Ready'){$lines.Add(" WHY: $($c.Reason)");$lines.Add(" FIX: $($c.Fix)")}
+}
+$lines | ForEach-Object {Write-Host $_}
+$lines | Set-Content -LiteralPath $report -Encoding UTF8
+$ai=New-Object System.Collections.Generic.List[string]
+$ai.Add("Help me fix Forged & Sent Windows onboarding for the $Profile profile.")
+$ai.Add('Suggest safe, simple steps. Do not request secrets, admin bypass or production Firebase credentials.')
+foreach($c in $results){
+  if($c.Status -ne 'Ready' -and $c.Status -ne 'NotApplicable'){
+    $need=Get-FSNeed $Profile $c.Id
+    $ai.Add("ISSUE $($c.Id) ($need, $($c.Status)): $($c.Reason)")
+    $ai.Add("FIX: $($c.Fix)")
+  }
+}
+$ai | Set-Content -LiteralPath $aiReport -Encoding UTF8
+Write-Host "Diagnostic file: $report"
+Write-Host "AI help prompt: $aiReport"
+exit $exit
