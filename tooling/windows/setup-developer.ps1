@@ -35,14 +35,14 @@ function Package([string]$id) {
 function Check-Exit([string]$name) {
   if ($LASTEXITCODE -ne 0) { throw "$name returned $LASTEXITCODE" }
 }
-function Attempt([string]$label,[scriptblock]$operation) {
+function Attempt([string]$label,[scriptblock]$operation,[switch]$Optional) {
   Write-Host ''
   Write-Host "=== $label ===" -ForegroundColor Cyan
   try {
     & $operation
     Write-Host "[OK] $label" -ForegroundColor Green
   } catch {
-    $issues.Add("$label : $($_.Exception.Message)")
+    if(-not $Optional){$issues.Add("$label : $($_.Exception.Message)")}
     Write-Warning "$label needs attention: $($_.Exception.Message)"
   }
 }
@@ -106,20 +106,18 @@ try {
     & $firebase --version; Check-Exit 'Firebase CLI'
   }
 
-  Attempt 'Playwright MCP package' {
-    $npm=Npm
-    & $npm list --global @playwright/mcp --depth=0 | Out-Null
-    if ($LASTEXITCODE -ne 0) {
-      & $npm install --global @playwright/mcp
-      Check-Exit 'Playwright MCP install'
-    }
-  }
+  Write-Host 'Playwright MCP uses the repository-pinned npx package on first start; no redundant global install.'
 
+  if($Android){
   Attempt 'Maestro Windows CLI and Java 17+' {
     & (Join-Path $PSHOME 'pwsh.exe') -NoProfile -File (Join-Path $PSScriptRoot 'install-maestro.ps1')
     Check-Exit 'Maestro installer'
     Refresh-Path
     $env:Path += ';' + (Join-Path $env:LOCALAPPDATA 'Programs\Maestro\bin')
+  } -Optional
+
+  }else{
+    Write-Host 'Maestro is Mobile-only and not installed for the default Contributor workstation.'
   }
 
   Attempt 'Approved MCP server manifest' {
@@ -157,7 +155,7 @@ try {
         & $code --install-extension $id
         Check-Exit "VS Code extension $id"
       }
-      } catch { $issues.Add("Extension $id : $($_.Exception.Message)"); Write-Warning "Extension $id failed but installation continues" }
+      } catch { if($id -in @('Dart-Code.dart-code','Dart-Code.flutter')){$issues.Add("Extension $id : $($_.Exception.Message)")}; Write-Warning "Extension $id failed but installation continues" }
     }
   }
 
@@ -203,7 +201,7 @@ try {
     Write-Host "$($issues.Count) part(s) require attention. Restart and rerun safely:" -ForegroundColor Yellow
     $issues | ForEach-Object { Write-Host (' - ' + $_) }
   } else {
-    Write-Host 'Developer workstation ready. Restart VS Code.' -ForegroundColor Green
+    Write-Host 'Installation checks complete. Full Contributor readiness requires emulator wiring from PR #4.' -ForegroundColor Green
   }
   Write-Host 'See docs/development/DEVELOPER-WINDOWS.md for MCP trust and account sign-in.'
 } finally {
