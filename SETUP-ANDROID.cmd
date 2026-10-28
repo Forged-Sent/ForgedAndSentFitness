@@ -5,7 +5,7 @@ cd /d "%~dp0"
 echo This optional step adds Android Studio to the browser preview setup.
 echo It is NOT required to preview the app on your PC.
 echo.
-powershell.exe -NoProfile -ExecutionPolicy Bypass -File "%~dp0tooling\windows\setup.ps1" -Android
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File "%~dp0tooling\windows\bootstrap-pwsh.ps1" -Mode android
 set "result=%errorlevel%"
 echo.
 if not "%result%"=="0" (

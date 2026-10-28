@@ -14,7 +14,7 @@ echo.
 echo You will sign in to AI/Firebase accounts yourself.
 echo No cloud deployments or subscriptions are created.
 echo.
-powershell.exe -NoProfile -ExecutionPolicy Bypass -File "%~dp0tooling\windows\setup-developer.ps1"
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File "%~dp0tooling\windows\bootstrap-pwsh.ps1" -Mode developer
 set "result=%errorlevel%"
 echo.
 if not "%result%"=="0" (

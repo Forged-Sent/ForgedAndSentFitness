@@ -7,7 +7,7 @@ echo ==========================================
 echo  Forged and Sent - Setup for Windows
 echo ==========================================
 echo.
-powershell.exe -NoProfile -ExecutionPolicy Bypass -File "%~dp0tooling\windows\setup.ps1" %*
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File "%~dp0tooling\windows\bootstrap-pwsh.ps1" -Mode setup
 set "result=%errorlevel%"
 echo.
 if not "%result%"=="0" (
