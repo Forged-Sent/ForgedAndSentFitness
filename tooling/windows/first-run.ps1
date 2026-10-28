@@ -7,6 +7,7 @@ $root=(Resolve-Path (Join-Path $PSScriptRoot '..\..')).Path
 $verify=Join-Path $PSScriptRoot 'verify-developer.ps1'
 $setup=Join-Path $PSScriptRoot 'setup-developer.ps1'
 $base=Join-Path $PSScriptRoot 'setup.ps1'
+$script:selectedProfile='Preview'
 function Banner([string]$title) {
   Write-Host ''
   Write-Host ('====== '+$title+' ======') -ForegroundColor Cyan
@@ -21,7 +22,7 @@ function RunScript([string]$file,[string[]]$extra=@()){
 }
 function HelpReport {
   Banner 'Checking for problems'
-  $exitCode=RunScript $verify
+  $exitCode=RunScript $verify @('-Profile',$script:selectedProfile)
   if($exitCode -eq 0){
     Write-Host 'All required installed/configured checks passed.' -ForegroundColor Green
     Write-Host 'Account approvals and actual MCP handshakes are still separate.'
@@ -49,7 +50,7 @@ function OpenRepo {
   Write-Host 'In VS Code, press Ctrl+Shift+P and choose MCP: List Servers.'
   Write-Host 'Start Dart, Context7, Playwright, and Maestro first.'
   Write-Host 'Sign into Figma/GitHub; Google Knowledge needs an API key from a Google Cloud project.'
-  Write-Host 'Firebase MCP should be approved only for your DEV project.'
+  Write-Host 'Firebase cloud MCP is disabled. Start local emulators instead.'
 }
 function LaunchApp {
   $runner=Join-Path $PSScriptRoot 'run-app.ps1'
@@ -86,7 +87,7 @@ Write-Host 'Choose a numbered option. No programming experience required.'
 Write-Host 'Your computer can develop and test independently; no private Linux server is needed.'
 do {
   Write-Host ''
-  Write-Host '  1. Guided full developer installation / repair'
+  Write-Host '  1. Choose what you want to do (Preview / Contributor / Mobile / Maintainer)'
   Write-Host '  2. Install only Flutter browser-preview tools'
   Write-Host '  3. Check everything and explain missing items'
   Write-Host '  4. Connect GitHub account (Firebase cloud access is maintainer-only)'
@@ -94,20 +95,28 @@ do {
   Write-Host '  6. Run the Flutter starter app in Chrome'
   Write-Host '  7. Read troubleshooting instructions'
   Write-Host '  8. Review project-scoped MCP integrations'
+  Write-Host '  9. Start local Firebase emulators'
+  Write-Host '  10. Clone a real Git repository (not a ZIP)'
   Write-Host '  0. Exit'
   $choice=Read-Host 'Your choice'
   switch($choice){
     '1' {
-      Banner 'Full developer setup'
-      Write-Host 'This installs/reuses Flutter, VS Code, Android testing support, coding agents and MCP tools.'
-      Write-Host 'It may download large SDKs and require standard installer prompts.'
-      if(Ask 'Proceed with full setup?'){
-        $args=@()
-        if(Ask 'Also install Android Studio now? (optional; required for emulator testing)'){$args+='-Android'}
-        $status=RunScript $setup $args
-        if($status -ne 0){Write-Host 'Setup reported one or more problems. The next check explains them.' -ForegroundColor Yellow}
-        HelpReport
-      }
+      Banner 'Choose your development goal'
+      Write-Host '  1. Preview: I only want to see the app'
+      Write-Host '  2. Contributor: I want to edit and share changes'
+      Write-Host '  3. Mobile: I want to test the Android app'
+      Write-Host '  4. Maintainer: I need approved DEV infrastructure access'
+      $level=Read-Host 'Choose a profile [1-4]'
+      $options=@{'1'='Preview';'2'='Contributor';'3'='Mobile';'4'='Maintainer'}
+      if($options.ContainsKey($level)){
+        $script:selectedProfile=$options[$level]
+        Write-Host "Selected: $script:selectedProfile"
+        if(Ask "Install or repair the $script:selectedProfile tools now?"){
+          $status=RunScript (Join-Path $PSScriptRoot 'setup-profile.ps1') @('-Profile',$script:selectedProfile)
+          if($status -ne 0){Write-Host 'Some components need repair; the next check explains them.' -ForegroundColor Yellow}
+          HelpReport
+        }
+      }else{Write-Host 'Enter a number between 1 and 4.' -ForegroundColor Yellow}
     }
     '2' {
       Banner 'Preview-only setup'
@@ -134,6 +143,35 @@ do {
       if(Ask 'Show project-scoped MCP locations?'){
         $status=RunScript (Join-Path $PSScriptRoot 'register-cli-mcps.ps1')
         if($status -ne 0){Write-Host 'Some CLI registrations failed. Review errors or use VS Code MCPs.' -ForegroundColor Yellow}
+      }
+    }
+    '9' {
+      Banner 'Start local emulators'
+      Write-Host 'Only demo-forgedandsent is used. No cloud login is needed.'
+      if(Ask 'Start Firebase Local Emulator Suite in this window?'){
+        $status=RunScript (Join-Path $PSScriptRoot 'start-emulators.ps1')
+        if($status -ne 0){Write-Host 'Check Java 21, Firebase CLI and free ports 8080/9099/9199.' -ForegroundColor Yellow}
+      }
+    }
+    '10' {
+      Banner 'Clone a Git repository'
+      if(Test-Path -LiteralPath (Join-Path $root '.git')){
+        Write-Host 'This folder is already a Git repository. Open it in VS Code.'
+      }else{
+        $gh=Get-Command gh.exe -ErrorAction SilentlyContinue|Select-Object -First 1
+        if(-not $gh){Write-Host 'GitHub CLI missing. Run Contributor setup.' -ForegroundColor Yellow}
+        else{
+          $target=Join-Path $env:USERPROFILE 'source\ForgedAndSentFitness'
+          Write-Host "Suggested clone location: $target"
+          if(Test-Path -LiteralPath $target){Write-Host 'Folder exists. Nothing was overwritten.'}
+          elseif(Ask 'Clone from GitHub into that new folder?'){
+            & $gh.Source auth status
+            if($LASTEXITCODE -ne 0){& $gh.Source auth login}
+            & $gh.Source repo clone sfcsmithc-afk/ForgedAndSentFitness $target
+            if($LASTEXITCODE -eq 0){Write-Host 'Clone ready. Open this new folder in VS Code.'}
+            else{Write-Host 'Clone failed. Check GitHub login, network and permissions.' -ForegroundColor Yellow}
+          }
+        }
       }
     }
     '0' { Write-Host 'Exiting without making more changes.' }
