@@ -1,0 +1,28 @@
+# Workspace-scoped Codex MCP configuration, loaded after project trust.
+# Firebase cloud MCP must not be configured for contributors.
+approval_policy = "on-request"
+sandbox_mode = "workspace-write"
+
+[mcp_servers.dart]
+command = "cmd"
+args = ["/c", "dart", "mcp-server"]
+startup_timeout_sec = 30
+
+[mcp_servers.playwright]
+command = "cmd"
+args = ["/c", "npx", "-y", "@playwright/mcp@0.0.83", "--browser=chrome"]
+startup_timeout_sec = 60
+
+[mcp_servers.maestro]
+command = "cmd"
+args = ["/c", "maestro", "mcp"]
+startup_timeout_sec = 60
+
+[mcp_servers.context7]
+url = "https://mcp.context7.com/mcp"
+
+[mcp_servers.figma]
+url = "https://mcp.figma.com/mcp"
+
+[mcp_servers.github]
+url = "https://api.githubcopilot.com/mcp/readonly"

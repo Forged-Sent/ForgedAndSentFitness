@@ -1,4 +1,4 @@
-#requires -Version 7.4
+#requires -Version 7.6
 <#
 Run from SETUP-DEVELOPER-WINDOWS.cmd.
 Installs developer dependencies and VS Code extensions; rerunnable.

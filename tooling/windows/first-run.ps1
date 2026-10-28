@@ -1,4 +1,4 @@
-#requires -Version 7.4
+#requires -Version 7.6
 # Guided, interactive Windows setup wizard. No unattended credential prompts.
 param([switch]$SelfTest)
 Set-StrictMode -Version Latest
@@ -69,15 +69,7 @@ function ConnectAccounts {
     $gh=Get-Command gh.exe -ErrorAction SilentlyContinue|Select-Object -First 1
     if($gh){& $gh.Source auth login}else{Write-Host 'Missing GitHub CLI. Run full setup.'}
   }
-  if(Ask 'Sign in to Firebase CLI for the team DEV project?'){
-    $fb=Get-Command firebase.cmd -ErrorAction SilentlyContinue|Select-Object -First 1
-    if(-not $fb){
-      $possible=Join-Path $env:APPDATA 'npm\firebase.cmd'
-      if(Test-Path -LiteralPath $possible){$fb=[pscustomobject]@{Source=$possible}}
-    }
-    if($fb){& $fb.Source login;Write-Host 'Verify the selected Firebase project is DEV before any future writes.'}
-    else{Write-Host 'Missing Firebase CLI. Run full setup.'}
-  }
+  Write-Host 'Firebase cloud login is intentionally excluded from Contributor onboarding.'
   Write-Host 'Copilot, Codex, Claude and Figma use their own interactive extension/browser sign-in.'
   Write-Host 'Google Developer Knowledge requires an API-enabled Google Cloud project.'
   Write-Host 'The API key is prompted as a password input when the VS Code MCP starts.'
@@ -97,11 +89,11 @@ do {
   Write-Host '  1. Guided full developer installation / repair'
   Write-Host '  2. Install only Flutter browser-preview tools'
   Write-Host '  3. Check everything and explain missing items'
-  Write-Host '  4. Connect GitHub/Firebase accounts (optional)'
+  Write-Host '  4. Connect GitHub account (Firebase cloud access is maintainer-only)'
   Write-Host '  5. Open VS Code and set up MCP permissions'
   Write-Host '  6. Run the Flutter starter app in Chrome'
   Write-Host '  7. Read troubleshooting instructions'
-  Write-Host '  8. Register MCP integrations for Claude and Codex CLIs'
+  Write-Host '  8. Review project-scoped MCP integrations'
   Write-Host '  0. Exit'
   $choice=Read-Host 'Your choice'
   switch($choice){
@@ -136,10 +128,10 @@ do {
     }
     '8' {
       Banner 'Optional Claude/Codex MCP registration'
-      Write-Host 'Registers Dart, Firebase, Playwright, Maestro, GitHub read-only, Context7, and Figma.'
+      Write-Host 'Reviews project MCP configurations; no Firebase cloud MCP is enabled.'
       Write-Host 'Google Knowledge is configured in VS Code with a password-style API key prompt.'
-      Write-Host 'The CLI registrations are per-Windows-user, without automatic cloud logins.'
-      if(Ask 'Register these MCP servers for available Claude/Codex CLIs?'){
+      Write-Host 'Configuration stays within this repository; no user-global registrations.'
+      if(Ask 'Show project-scoped MCP locations?'){
         $status=RunScript (Join-Path $PSScriptRoot 'register-cli-mcps.ps1')
         if($status -ne 0){Write-Host 'Some CLI registrations failed. Review errors or use VS Code MCPs.' -ForegroundColor Yellow}
       }
