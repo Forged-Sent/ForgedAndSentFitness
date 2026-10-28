@@ -1,4 +1,4 @@
-#requires -Version 5.1
+#requires -Version 7.4
 <#
 Maestro official Windows CLI installer. Requires Java 17+. Uses official
 https://github.com/mobile-dev-inc/maestro/releases/latest/download/maestro.zip .

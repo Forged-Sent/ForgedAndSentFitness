@@ -1,4 +1,4 @@
-#requires -Version 5.1
+#requires -Version 7.4
 # Registers approved no-key MCPs for Claude Code and Codex, per-user.
 # Never logs in or stores authentication tokens in the repository.
 param([ValidateSet('Both','Claude','Codex')][string]$Agent='Both')

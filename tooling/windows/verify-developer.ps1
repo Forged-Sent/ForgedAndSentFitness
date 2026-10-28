@@ -35,7 +35,23 @@ if($SelfTest){
   Issue 'Maestro' 'The Maestro executable was not found.' (HelpFor 'Maestro')
   Issue 'GoogleKnowledgeAuth' 'The Google Developer Knowledge MCP has not been authenticated.' (HelpFor 'GoogleKnowledgeAuth') 'ACTION'
 }else {
-  CheckTool 'Git' 'git.exe' @((Join-Path $env:ProgramFiles 'Git\cmd\git.exe')) 'Git is required for Flutter and repository changes.' 'Rerun SETUP-DEVELOPER-WINDOWS.cmd; if WinGet is blocked, request access from IT.'
+  $pwshCandidates=@((Join-Path $env:ProgramFiles 'PowerShell\7\pwsh.exe'),(Join-Path $env:LOCALAPPDATA 'Microsoft\WindowsApps\pwsh.exe'))
+$pwshTool=Get-Command 'pwsh.exe' -ErrorAction SilentlyContinue | Select-Object -First 1
+$pwshPath=if($pwshTool){$pwshTool.Source}else{$pwshCandidates | Where-Object {$_ -and (Test-Path -LiteralPath $_)} | Select-Object -First 1}
+if(-not $pwshPath){
+  Issue 'PowerShell7' 'PowerShell 7 is not installed; Windows PowerShell 5.1 is only the bootstrap engine.' 'Rerun FIRST-RUN-WINDOWS.cmd to install the supported PowerShell 7 release using WinGet.'
+}else{
+  try{
+    $versionText=(& $pwshPath -NoLogo -NoProfile -NonInteractive -Command '$PSVersionTable.PSVersion.ToString()' | Select-Object -First 1)
+    $version=[version]([string]$versionText).Trim()
+    if($version -lt [version]'7.4.0'){
+      Issue 'PowerShell7' "PowerShell $version is too old for the developer tools." 'Rerun FIRST-RUN-WINDOWS.cmd to upgrade PowerShell through WinGet.'
+    }else{$ok.Add("PowerShell7:$version")}
+  }catch{
+    Issue 'PowerShell7' 'PowerShell 7 was found but could not start or report its version.' 'Try pwsh --version, restart Windows, and rerun setup. Ask IT if the app is blocked.'
+  }
+}
+CheckTool 'Git' 'git.exe' @((Join-Path $env:ProgramFiles 'Git\cmd\git.exe')) 'Git is required for Flutter and repository changes.' 'Rerun SETUP-DEVELOPER-WINDOWS.cmd; if WinGet is blocked, request access from IT.'
   CheckTool 'Flutter' 'flutter.bat' @((Join-Path $env:USERPROFILE 'develop\flutter\bin\flutter.bat')) 'Flutter SDK is missing or its bin folder is not on PATH.' 'Run SETUP-WINDOWS.cmd, restart terminals, then retry.'
   CheckTool 'VSCode' 'code.cmd' @((Join-Path $env:LOCALAPPDATA 'Programs\Microsoft VS Code\bin\code.cmd'),(Join-Path $env:ProgramFiles 'Microsoft VS Code\bin\code.cmd')) 'VS Code is required for the supported agent/MCP workspace.' 'Rerun setup, then restart VS Code.'
   CheckTool 'Node' 'node.exe' @((Join-Path $env:ProgramFiles 'nodejs\node.exe')) 'Node.js LTS runs the Firebase and Playwright MCP tools.' 'Rerun developer setup to install Node.js LTS; restart Windows after installation.'

@@ -1,4 +1,4 @@
-#requires -Version 5.1
+#requires -Version 7.4
 <#
 Run from SETUP-DEVELOPER-WINDOWS.cmd.
 Installs developer dependencies and VS Code extensions; rerunnable.
@@ -67,9 +67,9 @@ try {
 
   if (-not $SkipBase) {
     Attempt 'Basic Flutter/Chrome/Git/VS Code setup' {
-      $args=@('-NoProfile','-ExecutionPolicy','Bypass','-File',(Join-Path $PSScriptRoot 'setup.ps1'))
+      $args=@('-NoProfile','-File',(Join-Path $PSScriptRoot 'setup.ps1'))
       if ($Android) { $args += '-Android' }
-      & powershell.exe @args
+      & (Join-Path $PSHOME 'pwsh.exe') @args
       Check-Exit 'Basic setup'
     }
     Refresh-Path
@@ -116,7 +116,7 @@ try {
   }
 
   Attempt 'Maestro Windows CLI and Java 17+' {
-    & powershell.exe -NoProfile -ExecutionPolicy Bypass -File (Join-Path $PSScriptRoot 'install-maestro.ps1')
+    & (Join-Path $PSHOME 'pwsh.exe') -NoProfile -File (Join-Path $PSScriptRoot 'install-maestro.ps1')
     Check-Exit 'Maestro installer'
     Refresh-Path
     $env:Path += ';' + (Join-Path $env:LOCALAPPDATA 'Programs\Maestro\bin')
@@ -194,13 +194,13 @@ try {
 
   if(-not $SkipAgentCLIs){
     Attempt 'Register approved no-key MCPs with Claude and Codex' {
-      & powershell.exe -NoProfile -ExecutionPolicy Bypass -File (Join-Path $PSScriptRoot 'register-cli-mcps.ps1') -Agent Both
+      & (Join-Path $PSHOME 'pwsh.exe') -NoProfile -File (Join-Path $PSScriptRoot 'register-cli-mcps.ps1') -Agent Both
       Check-Exit 'Claude/Codex MCP registration'
     }
   }
 
   Attempt 'Developer diagnostics' {
-    & powershell.exe -NoProfile -ExecutionPolicy Bypass -File (Join-Path $PSScriptRoot 'verify-developer.ps1')
+    & (Join-Path $PSHOME 'pwsh.exe') -NoProfile -File (Join-Path $PSScriptRoot 'verify-developer.ps1')
     Check-Exit 'Developer diagnostics'
   }
 

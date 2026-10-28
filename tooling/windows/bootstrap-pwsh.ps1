@@ -102,7 +102,8 @@ try {
         throw "PowerShell 7.4+ could not be started. Restart Windows after installation. Current version: $version. Run FIRST-RUN-WINDOWS.cmd again."
     }
     Write-Host "Using PowerShell $version ($pwsh)" -ForegroundColor Green
-    & $pwsh -NoLogo -NoProfile -File $script @($selected.Args)
+    $scriptArguments = [string[]]$selected.Args
+    & $pwsh -NoLogo -NoProfile -File $script @scriptArguments
     exit [int]$LASTEXITCODE
 } catch {
     Write-Host ''

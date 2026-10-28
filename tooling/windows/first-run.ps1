@@ -1,4 +1,4 @@
-#requires -Version 5.1
+#requires -Version 7.4
 # Guided, interactive Windows setup wizard. No unattended credential prompts.
 param([switch]$SelfTest)
 Set-StrictMode -Version Latest
@@ -16,7 +16,7 @@ function Ask([string]$question) {
   return ($response -match '^(y|yes)$')
 }
 function RunScript([string]$file,[string[]]$extra=@()){
-  & powershell.exe -NoProfile -ExecutionPolicy Bypass -File $file @extra | Out-Host
+  & (Join-Path $PSHOME 'pwsh.exe') -NoLogo -NoProfile -File $file @extra | Out-Host
   return [int]$LASTEXITCODE
 }
 function HelpReport {

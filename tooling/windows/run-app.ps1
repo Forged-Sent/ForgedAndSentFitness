@@ -1,4 +1,4 @@
-#requires -Version 5.1
+#requires -Version 7.4
 <#
 .SYNOPSIS
   Starts the local Forged & Sent Flutter preview in Chrome.
