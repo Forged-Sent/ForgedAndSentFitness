@@ -139,9 +139,31 @@ jobs:
           flutter build web --release --no-pub
           flutter build apk --debug --no-pub
 
+  ios-simulator:
+    needs: changes
+    if: needs.changes.outputs.mobile == 'true'
+    runs-on: macos-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up pinned Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version: '3.47.8'
+          cache: true
+      - name: Generate interim iOS simulator host
+        working-directory: mobile
+        run: flutter create --platforms=ios --project-name=forged_and_sent --org=com.forgedandsent .
+      - name: Install dependencies and build unsigned simulator app
+        working-directory: mobile
+        run: |
+          flutter pub get
+          flutter build ios --simulator --debug --no-codesign
+
   ci-gate:
     name: ci-gate
-    needs: [changes, windows-checks, windows-preview, flutter]
+    needs: [changes, windows-checks, windows-preview, flutter, ios-simulator]
     if: ${{ always() }}
     runs-on: ubuntu-latest
     timeout-minutes: 5
