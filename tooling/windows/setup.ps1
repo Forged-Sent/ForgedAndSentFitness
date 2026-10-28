@@ -162,7 +162,13 @@ try {
     if(-not $framework.StartsWith('3.47.8')){
         throw "Flutter $framework is installed, but this repository pins Flutter 3.47.8. Use the pinned SDK in your user folder or run the guided repair. No global SDK was changed."
     }
-    if(-not ([version]($dartSDK -replace '[-+].*
+    if($dartSDK -notmatch '^(\d+\.\d+\.\d+)'){
+        throw 'Flutter reported an unexpected Dart version. Run flutter --version and confirm the project-pinned SDK.'
+    }
+    $dartVersion = [version]$Matches[1]
+    if($dartVersion -lt [version]'3.9.0'){
+        throw "Dart $dartSDK is too old for the MCP server. Install the pinned Flutter SDK."
+    }
     & $flutterFile config --enable-web
     Verify-External 'Flutter web configuration'
 
