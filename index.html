@@ -755,6 +755,17 @@ button.fo-item { cursor: pointer; min-height: 44px; }
 .stat{padding:12px 6px;text-align:center;border-right:1px solid var(--line)}
 .stat:last-child{border-right:0}
 .stats .stat:nth-child(2n){border-right:0}
+.gr-card { border: 1px solid var(--brass, var(--accent)) !important; background: color-mix(in srgb, var(--brass, var(--accent)) 10%, var(--surface)) !important; }
+.gr-card.out { border-style: dashed !important; }
+.gr-card .name { white-space: normal; }
+.own-box { max-height: 88vh; overflow-y: auto; }
+.own-p { margin: 0 0 8px; line-height: 1.5; }
+.own-vs { display: flex; flex-direction: column; gap: 8px; margin: 6px 0 12px; }
+.own-q { margin: 0; padding: 8px 12px; border-left: 3px solid var(--brass, var(--accent)); background: var(--surface); font-family: var(--f-scripture, inherit); font-style: italic; }
+.own-q cite { display: block; margin-top: 2px; font-style: normal; font-family: var(--f-label); font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.own-qs { margin: 6px 0; font-style: italic; color: var(--muted); }
+.linkish { background: none; border: 0; padding: 4px 0; min-height: 32px; color: var(--muted); text-decoration: underline; text-underline-offset: 3px; font: inherit; cursor: pointer; }
+.out-tag { background: var(--surface-2); color: var(--muted); }
 .fr-box { max-height: 88vh; overflow-y: auto; }
 .fr-k { margin: 0; font-family: var(--f-label); font-weight: 700; font-size: 12px; letter-spacing: .12em; text-transform: uppercase; color: var(--brass, var(--accent)); }
 .fr-sec { border-top: 1px solid var(--line); padding-top: 10px; margin-top: 10px; display: flex; flex-direction: column; gap: 6px; }
@@ -1914,11 +1925,13 @@ header.hero .me-btn { border-color:#e87328; }
         s.docs.forEach(function (d) { var x = d.data() || {}; var prs = {};
           Object.keys(x.prs || {}).forEach(function (k) { var v = x.prs[k] || {}; if (Number(v.w) > 0) prs[k] = { w: Number(v.w), reps: Number(v.reps) || 1, date: String(v.date || "") }; });
           m[d.id] = { motto: String(x.motto || ""), avatarId: String(x.avatarId || ""), bannerId: String(x.bannerId || ""), prs: prs, handle: validHandle(cleanHandle(x.handle)) ? cleanHandle(x.handle) : "",
-            invitedBy: /^[A-Za-z0-9_-]{1,80}$/.test(String(x.invitedBy || "")) && x.invitedBy !== d.id ? String(x.invitedBy) : "", invitedAt: /^\d{4}-\d{2}-\d{2}$/.test(String(x.invitedAt || "")) ? String(x.invitedAt) : "" }; });
+            invitedBy: /^[A-Za-z0-9_-]{1,80}$/.test(String(x.invitedBy || "")) && x.invitedBy !== d.id ? String(x.invitedBy) : "", invitedAt: /^\d{4}-\d{2}-\d{2}$/.test(String(x.invitedAt || "")) ? String(x.invitedAt) : "",
+            grace: (Array.isArray(x.grace) ? x.grace : []).filter(function (k) { return /^\d{4}-\d{2}-\d{2}$/.test(String(k)); }).slice(-24),
+            out: (Array.isArray(x.out) ? x.out : []).filter(function (o) { return o && /^\d{4}-\d{2}-\d{2}$/.test(String(o.from)) && /^\d{4}-\d{2}-\d{2}$/.test(String(o.to)) && o.to >= o.from; }).map(function (o) { return { from: String(o.from), to: String(o.to) }; }).slice(-20) }; });
         cb(m);
       }, noop);
     },
-    saveProfile: function (uid, p) { return this.db.doc("profiles/" + uid).set({ motto: p.motto, avatarId: p.avatarId, bannerId: p.bannerId, prs: p.prs, handle: p.handle || "", invitedBy: p.invitedBy || "", invitedAt: p.invitedAt || "", updatedAt: Date.now() }); },
+    saveProfile: function (uid, p) { return this.db.doc("profiles/" + uid).set({ motto: p.motto, avatarId: p.avatarId, bannerId: p.bannerId, prs: p.prs, handle: p.handle || "", invitedBy: p.invitedBy || "", invitedAt: p.invitedAt || "", grace: p.grace || [], out: p.out || [], updatedAt: Date.now() }); },
     watchLifts: function (cb) {
       return this.db.collection("lifts").orderBy("order").onSnapshot(function (s) {
         cb(s.docs.map(function (d) { var x = d.data() || {}; return { id: d.id, name: String(x.name || "Lift"), order: Number(x.order) || 0 }; }));
@@ -2088,8 +2101,25 @@ header.hero .me-btn { border-color:#e87328; }
     if (!daily.length || !uid) return 0;
     var days = {}; state.checks.forEach(function (c) { if (c.uid === uid && daily.every(function (t) { return c.done && c.done[t.id]; })) days[c.date] = true; });
     var k = todayKey(); if (!days[k]) k = addDays(k, -1);
-    var n = 0; while (days[k]) { n++; k = addDays(k, -1); }
+    // A grace-reset day or a sit-out day doesn't count, and doesn't break the streak.
+    var n = 0, guard = 0; while ((days[k] || bridged(uid, k)) && guard++ < 800) { if (days[k]) n++; k = addDays(k, -1); }
     return n;
+  }
+  function fullDayOf(uid, k) { var daily = state.tasks.filter(function (t) { return t.kind !== "weigh" && t.kind !== "photos"; }); return !!daily.length && state.checks.some(function (c) { return c.uid === uid && c.date === k && daily.every(function (t) { return c.done && c.done[t.id]; }); }); }
+  function graceDays(uid) { return ((state.pubProfiles[uid] || {}).grace) || []; }
+  function outSpans(uid) { return ((state.pubProfiles[uid] || {}).out) || []; }
+  function isOut(uid, k) { return outSpans(uid).some(function (o) { return k >= o.from && k <= o.to; }); }
+  function bridged(uid, k) { return graceDays(uid).indexOf(k) >= 0 || isOut(uid, k); }
+  var GRACE_GAP = 30, OUT_DAYS = 7;
+  function lastGrace(uid) { var g = graceDays(uid).slice().sort(); return g.length ? g[g.length - 1] : ""; }
+  function graceReady(uid) { var l = lastGrace(uid); return !l || Math.round((parseKey(todayKey()) - parseKey(l)) / 864e5) >= GRACE_GAP; }
+  // Offer a reset when yesterday broke a streak he had going.
+  function graceOffer() {
+    var me = state.me; if (!me || !state.canWrite || !state.tasks.length) return null;
+    var y = addDays(todayKey(), -1); if (fullDayOf(me, y) || bridged(me, y) || isOut(me, todayKey())) return null;
+    var k = addDays(y, -1), n = 0, guard = 0; while ((fullDayOf(me, k) || bridged(me, k)) && guard++ < 800) { if (fullDayOf(me, k)) n++; k = addDays(k, -1); }
+    if (!n) return null;
+    return { day: y, streak: n, ready: graceReady(me), last: lastGrace(me) };
   }
 
   /* ---------- Writing today's record ---------- */
@@ -2458,10 +2488,70 @@ header.hero .me-btn { border-color:#e87328; }
       else { try { navigator.clipboard.writeText(txt).then(function () { sh.textContent = "Copied. Paste it in a text."; }); } catch (e) {} } });
     back.appendChild(box); document.body.appendChild(back);
   }
+  var OWN_IT_TEXT = ["Every man falls. What matters is what he does next. A man who hides it stays down; a man who brings it into the light gets back up.",
+    "Owning it isn\u2019t a punishment. It\u2019s how brothers carry each other. When you post it, the men in this group won\u2019t pile on. They\u2019ll pray for you, check on you and stand with you on the line tomorrow. One day missed doesn\u2019t define you. Getting back up does."];
+  var OWN_IT_VERSES = [["For though a righteous man may fall seven times, he still gets up.", "Proverbs 24:16"],
+    ["Therefore confess your sins to each other and pray for each other so that you may be healed.", "James 5:16"],
+    ["Carry one another\u2019s burdens, and in this way you will fulfill the law of Christ.", "Galatians 6:2"]];
+  function openOwnIt(g) {
+    var old = $("cdlg"); if (old) old.remove();
+    var back = el("div", "cdlg"); back.id = "cdlg";
+    var box = el("form", "cdlg-box nw-box own-box"); box.setAttribute("role", "dialog"); box.setAttribute("aria-modal", "true"); box.setAttribute("aria-labelledby", "own-t"); box.noValidate = true;
+    box.appendChild(el("p", "fr-k", "Grace reset \u00B7 " + longDate(g.day)));
+    var t = el("h2", null, "Own it, brother."); t.id = "own-t"; box.appendChild(t);
+    OWN_IT_TEXT.forEach(function (p) { box.appendChild(el("p", "own-p", p)); });
+    var vs = el("div", "own-vs"); OWN_IT_VERSES.forEach(function (v) { var q = el("blockquote", "own-q"); q.appendChild(el("span", null, v[0])); q.appendChild(el("cite", null, v[1] + " (BSB)")); vs.appendChild(q); }); box.appendChild(vs);
+    var lb = el("label", "flabel", "What happened? One honest sentence."), ta = el("textarea", "field"); ta.rows = 2; ta.maxLength = 280; ta.placeholder = "e.g. I skipped my workout and let the day get away from me."; lb.appendChild(ta); box.appendChild(lb);
+    box.appendChild(el("p", "fnote", "This posts to Rally so your brothers can stand with you. Your " + g.streak + "-day streak picks back up, and " + shortDate(g.day) + " is marked as a reset day with no points. One reset every " + GRACE_GAP + " days."));
+    var msg = el("p", "error"); msg.hidden = true; box.appendChild(msg);
+    var row = el("div", "cdlg-btns"), no = el("button", "btn ghost", "Not now"), yes = el("button", "btn", "Post it and get back up"); no.type = "button"; yes.type = "submit"; row.appendChild(no); row.appendChild(yes); box.appendChild(row);
+    function close() { back.remove(); }
+    no.addEventListener("click", close); back.addEventListener("keydown", function (ev) { if (ev.key === "Escape") { ev.stopPropagation(); close(); } });
+    box.addEventListener("submit", async function (ev) {
+      ev.preventDefault(); var line = ta.value.trim();
+      if (line.length < 8) { msg.hidden = false; msg.textContent = "Write one honest sentence first."; ta.focus(); return; }
+      if (!B.db || !state.me) return; yes.disabled = true; yes.textContent = "Posting\u2026";
+      try {
+        await B.addPost({ uid: state.me, text: "Owning it: " + line + "\n\nI\u2019m getting back on the line today. Brothers, hold me to it.", media: [], mentions: [], createdAt: Date.now(), date: todayKey(), grace: true });
+        var cur = state.pubProfiles[state.me] || {}; saveProfilePatch({ grace: (cur.grace || []).concat([g.day]).slice(-24) });
+        var ct = taskOfKind("checkin"); if (ct && !myDoc().done[ct.id]) toggle(ct.id);
+        close(); drawAll();
+      } catch (e) { yes.disabled = false; yes.textContent = "Post it and get back up"; msg.hidden = false; msg.textContent = "Couldn\u2019t post. Check your connection and try again."; }
+    });
+    back.appendChild(box); document.body.appendChild(back); setTimeout(function () { try { ta.focus({ preventScroll: true }); } catch (e) {} }, 0);
+  }
+  function outNow(uid) { var t = todayKey(); return outSpans(uid).filter(function (o) { return t >= o.from && t <= o.to; })[0] || null; }
+  function openSitOut() {
+    var old = $("cdlg"); if (old) old.remove();
+    var cur = outNow(state.me), from = todayKey(), to = addDays(from, OUT_DAYS - 1);
+    var back = el("div", "cdlg"); back.id = "cdlg";
+    var box = el("div", "cdlg-box nw-box"); box.setAttribute("role", "dialog"); box.setAttribute("aria-modal", "true"); box.setAttribute("aria-labelledby", "so-t");
+    var t = el("h2", null, cur ? "You\u2019re sitting out" : "Sit out a week"); t.id = "so-t"; box.appendChild(t);
+    if (cur) {
+      box.appendChild(el("p", null, "You\u2019re out through " + longDate(cur.to) + ". Ready to come back early?"));
+      var r0 = el("div", "cdlg-btns"), c0 = el("button", "btn ghost", "Close"), b0 = el("button", "btn", "I\u2019m back"); c0.type = b0.type = "button"; r0.appendChild(c0); r0.appendChild(b0); box.appendChild(r0);
+      c0.addEventListener("click", function () { back.remove(); });
+      b0.addEventListener("click", function () { var me = state.pubProfiles[state.me] || {}, y = addDays(todayKey(), -1);
+        var out = (me.out || []).map(function (o) { return o === cur || (o.from === cur.from && o.to === cur.to) ? (y >= o.from ? { from: o.from, to: y } : null) : o; }).filter(Boolean);
+        saveProfilePatch({ out: out }); back.remove(); drawAll(); });
+    } else {
+      box.appendChild(el("p", null, "On vacation or sick? Sit out for 7 days, " + shortDate(from) + " to " + shortDate(to) + ". Your streak is held, so missed days won\u2019t break it. You won\u2019t earn points for boxes you skip, but you can still check any box you get to."));
+      box.appendChild(el("p", "fnote", "The brothers see a Sitting out tag by your name, not the reason. Come back early any time."));
+      var q = el("p", "own-qs", "\u201CCome with Me privately to a solitary place, and let us rest for a while.\u201D Mark 6:31 (BSB)"); box.appendChild(q);
+      var r1 = el("div", "cdlg-btns"), c1 = el("button", "btn ghost", "Cancel"), b1 = el("button", "btn", "Sit out 7 days"); c1.type = b1.type = "button"; r1.appendChild(c1); r1.appendChild(b1); box.appendChild(r1);
+      c1.addEventListener("click", function () { back.remove(); });
+      b1.addEventListener("click", function () { var me = state.pubProfiles[state.me] || {}; saveProfilePatch({ out: (me.out || []).concat([{ from: from, to: to }]).slice(-20) }); back.remove(); drawAll(); });
+    }
+    back.addEventListener("click", function (ev) { if (ev.target === back) back.remove(); });
+    back.appendChild(box); document.body.appendChild(back);
+  }
   function drawToday() {
     drawFirstOrders(); drawReady(); setTimeout(syncSabbath, 0); setTimeout(syncFast, 0);
     var list = $("tasks"); list.textContent = "";
     var notice = $("notice"); notice.textContent = "";
+    var so = state.me ? outNow(state.me) : null, gO = so ? null : graceOffer();
+    if (so) { var sli = el("li", "item gr-li"), sb2 = el("button", "hit gr-card out"); sb2.type = "button"; var st2 = el("span", "txt"); st2.appendChild(el("span", "name", "Sitting out through " + shortDate(so.to))); st2.appendChild(el("span", "sub", "Rest up. Your streak is held. Tap if you\u2019re back early.")); sb2.appendChild(st2); sb2.appendChild(el("span", "chev", "\u203A")); sb2.addEventListener("click", openSitOut); sli.appendChild(sb2); list.appendChild(sli); }
+    else if (gO && gO.ready) { var gli = el("li", "item gr-li"), gb2 = el("button", "hit gr-card"); gb2.type = "button"; var gt2 = el("span", "txt"); gt2.appendChild(el("span", "name", "Yesterday\u2019s gone. Own it and get back on the line.")); gt2.appendChild(el("span", "sub", "Keep your " + gO.streak + "-day streak. Tap to own it.")); gb2.appendChild(gt2); gb2.appendChild(el("span", "chev", "\u203A")); gb2.addEventListener("click", function () { openOwnIt(gO); }); gli.appendChild(gb2); list.appendChild(gli); }
     var rec = myDoc(), done = rec.done, log = logFor(todayKey()), t = targets();
     var tasks = dayTasks(todayKey()), total = tasks.length + filledSlots().length;
     var n = tasks.filter(function (t) { return done[t.id]; }).length + filledSlots().filter(function (k) { return done[k]; }).length;
@@ -2520,6 +2610,7 @@ header.hero .me-btn { border-color:#e87328; }
       var nx = 0; while (nx < 7 && !isWeighDay(addDays(todayKey(), nx))) nx++;
       list.appendChild(el("li", "wk-hint", "Weekly weigh-in" + (taskOfKind("photos") ? " and progress photos are" : " is") + " on your Sabbath, " + DAYN[sabbathDow()] + (nx === 1 ? " (tomorrow)." : " (in " + nx + " days).")));
     }
+    if (state.me && state.canWrite && !so) { var soli = el("li", "wk-hint so-li"), sol = el("button", "linkish", "On vacation or sick? Sit out a week"); sol.type = "button"; sol.addEventListener("click", openSitOut); soli.appendChild(sol); list.appendChild(soli); }
   }
   function drawYours() {
     var wrap = $("yours"), a = document.activeElement;
@@ -5275,6 +5366,7 @@ header.hero .me-btn { border-color:#e87328; }
       var who = el("div", "who"), nm = el("div", "nm", nameOf(p.id));
       if (p.id === state.me) nm.appendChild(el("em", null, "YOU"));
       if (state.checks.some(function (c) { return c.uid === p.id && c.date === todayKey() && c.fast; })) { var ft = el("span", "fast-tag", "Fasting"); ft.title = "Fasting today"; nm.appendChild(ft); }
+      if (isOut(p.id, todayKey())) { var ot = el("span", "fast-tag out-tag", "Sitting out"); ot.title = "Sitting out this week"; nm.appendChild(ot); }
       makeLink(nm, p.id); who.appendChild(nm);
       var bar = el("div", "bar"), fill = el("i"); fill.style.width = max ? Math.round(100 * score / max) + "%" : "0%"; bar.appendChild(fill);
       who.appendChild(bar); row.appendChild(who);
@@ -5664,7 +5756,7 @@ header.hero .me-btn { border-color:#e87328; }
   function saveProfilePatch(patch) {
     if (!state.me || !state.canWrite) return;
     var cur = state.pubProfiles[state.me] || {};
-    var next = { motto: cur.motto || "", avatarId: cur.avatarId || "", bannerId: cur.bannerId || "", prs: cur.prs || {}, handle: cur.handle || "", invitedBy: cur.invitedBy || "", invitedAt: cur.invitedAt || "" };
+    var next = { motto: cur.motto || "", avatarId: cur.avatarId || "", bannerId: cur.bannerId || "", prs: cur.prs || {}, handle: cur.handle || "", invitedBy: cur.invitedBy || "", invitedAt: cur.invitedAt || "", grace: cur.grace || [], out: cur.out || [] };
     Object.keys(patch).forEach(function (k) { next[k] = patch[k]; });
     state.pubProfiles[state.me] = next; drawAll();
     if (B.db) writeChain = writeChain.then(function () { return B.saveProfile(state.me, next); }).catch(noop);
