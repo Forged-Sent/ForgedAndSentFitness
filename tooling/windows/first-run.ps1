@@ -102,9 +102,9 @@ do {
       Write-Host 'This installs/reuses Flutter, VS Code, Android testing support, coding agents and MCP tools.'
       Write-Host 'It may download large SDKs and require standard installer prompts.'
       if(Ask 'Proceed with full setup?'){
-        $args=@()
-        if(Ask 'Also install Android Studio now? (optional; required for emulator testing)'){$args+='-Android'}
-        $status=RunScript $setup $args
+        $setupArgs=@()
+        if(Ask 'Also install Android Studio now? (optional; required for emulator testing)'){$setupArgs+='-Android'}
+        $status=RunScript $setup $setupArgs
         if($status -ne 0){Write-Host 'Setup reported one or more problems. The next check explains them.' -ForegroundColor Yellow}
         HelpReport
       }

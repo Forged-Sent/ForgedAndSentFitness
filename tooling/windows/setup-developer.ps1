@@ -67,8 +67,8 @@ try {
 
   if (-not $SkipBase) {
     Attempt 'Basic Flutter/Chrome/Git/VS Code setup' {
-      $args=@('-NoProfile','-File',(Join-Path $PSScriptRoot 'setup.ps1'))
-      if ($Android) { $args += '-Android' }
+      $setupArgs=@('-NoProfile','-File',(Join-Path $PSScriptRoot 'setup.ps1'))
+      if ($Android) { $setupArgs += '-Android' }
       & (Join-Path $PSHOME 'pwsh.exe') @args
       Check-Exit 'Basic setup'
     }

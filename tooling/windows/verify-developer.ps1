@@ -1,7 +1,7 @@
 #requires -Version 5.1
 # Read-only, profile-aware diagnostics. Does NOT authenticate or contact cloud MCPs.
 param(
-  [ValidateSet('Preview','Contributor','Mobile','Maintainer')][string]$Profile='Contributor',
+  [Alias('Profile')][ValidateSet('Preview','Contributor','Mobile','Maintainer')][string]$TargetProfile='Preview',
   [switch]$SelfTest
 )
 Set-StrictMode -Version Latest
@@ -65,6 +65,7 @@ if($java) {
   }else{$checks.Add((New-FSCheck Java Failed 'Could not parse Java version.' 'Run java -version and check installation.'))}
 }else{$checks.Add((New-FSCheck Java Missing 'Java is not installed.' 'Mobile setup will install a suitable JDK.'))}
 # Maintainer DEV cloud identity is intentionally not enabled by PR #3.
+$checks.Add((New-FSCheck EmulatorWiring NotApplicable 'Local emulator-to-app connection will be added in PR #4.' 'Contributor profile is not ready until emulator wiring is implemented and tested.'))
 $checks.Add((New-FSCheck DevCloudIdentity AuthRequired 'Maintainer DEV credentials are not configured in the default bootstrap.' 'PR #4 will add explicit restricted DEV access; do not use PROD credentials.'))
 $config=Join-Path $root '.vscode\mcp.json'
 if(Test-Path -LiteralPath $config) {
@@ -81,25 +82,25 @@ if(Test-Path -LiteralPath $config) {
   }catch{$checks.Add((New-FSCheck 'MCPConfig' Failed 'MCP configuration could not be parsed.' 'Restore the approved .vscode/mcp.json.'))}
 }else{$checks.Add((New-FSCheck 'MCPConfig' Missing 'VS Code MCP configuration is absent.' 'Extract the entire repository.'))}
 $results=@($checks.ToArray())
-$exit=Get-FSExitCode $Profile $results
+$exit=Get-FSExitCode $TargetProfile $results
 $lines=New-Object System.Collections.Generic.List[string]
-$lines.Add("Forged & Sent environment check | Profile: $Profile | Result: $(if($exit){'NEEDS REPAIR'}else{'INSTALL CHECKS PASSED'})")
+$lines.Add("Forged & Sent environment check | Profile: $TargetProfile | Result: $(if($exit){'NEEDS REPAIR'}else{'INSTALL CHECKS PASSED'})")
 $lines.Add('ConfiguredNotConnected is NOT Ready. Profile installer and live MCP checks land in PR #4.')
 $lines.Add('No usernames, filesystem paths, tokens or Firebase project IDs are included below.')
 $lines.Add('')
 foreach($c in $results){
-  $need=Get-FSNeed $Profile $c.Id
+  $need=Get-FSNeed $TargetProfile $c.Id
   $lines.Add("[$($c.Status)] $($c.Id) | $need$(if($c.Version){" | Version $($c.Version)"})")
   if($c.Status -ne 'Ready'){$lines.Add(" WHY: $($c.Reason)");$lines.Add(" FIX: $($c.Fix)")}
 }
 $lines | ForEach-Object {Write-Host $_}
 $lines | Set-Content -LiteralPath $report -Encoding UTF8
 $ai=New-Object System.Collections.Generic.List[string]
-$ai.Add("Help me fix Forged & Sent Windows onboarding for the $Profile profile.")
+$ai.Add("Help me fix Forged & Sent Windows onboarding for the $TargetProfile profile.")
 $ai.Add('Suggest safe, simple steps. Do not request secrets, admin bypass or production Firebase credentials.')
 foreach($c in $results){
   if($c.Status -ne 'Ready' -and $c.Status -ne 'NotApplicable'){
-    $need=Get-FSNeed $Profile $c.Id
+    $need=Get-FSNeed $TargetProfile $c.Id
     $ai.Add("ISSUE $($c.Id) ($need, $($c.Status)): $($c.Reason)")
     $ai.Add("FIX: $($c.Fix)")
   }
