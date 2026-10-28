@@ -1,10 +1,11 @@
-name: Windows bootstrap syntax
+name: Windows bootstrap syntax and onboarding self-tests
 
 on:
   pull_request:
     paths:
       - 'tooling/windows/**'
       - 'SETUP-*.cmd'
+      - 'FIRST-RUN-WINDOWS.cmd'
       - 'VERIFY-DEVELOPER-WINDOWS.cmd'
       - 'RUN-APP.cmd'
       - '.vscode/**'
@@ -15,27 +16,53 @@ permissions:
   contents: read
 
 jobs:
-  parse-windows-scripts:
+  validate-windows-setup:
     runs-on: windows-latest
-    timeout-minutes: 10
+    timeout-minutes: 12
     steps:
       - uses: actions/checkout@v4
-      - name: Parse PowerShell and validate MCP/extension JSON
+      - name: Parse PowerShell scripts and validate MCP/extension JSON
         shell: powershell
         run: |
           $ErrorActionPreference = 'Stop'
-          foreach($file in @('tooling/windows/setup.ps1','tooling/windows/run-app.ps1','tooling/windows/setup-developer.ps1','tooling/windows/verify-developer.ps1')){
+          $files = @(
+            'tooling/windows/setup.ps1',
+            'tooling/windows/run-app.ps1',
+            'tooling/windows/setup-developer.ps1',
+            'tooling/windows/install-maestro.ps1',
+            'tooling/windows/verify-developer.ps1',
+            'tooling/windows/first-run.ps1'
+          )
+          foreach($file in $files){
             $tokens=$null
             $errors=$null
             [System.Management.Automation.Language.Parser]::ParseFile((Resolve-Path $file),[ref]$tokens,[ref]$errors) | Out-Null
-            if($errors.Count -gt 0){$errors|ForEach-Object{Write-Error $_.ToString()};throw "Invalid PowerShell: $file"}
+            if($errors.Count -gt 0){
+              $errors|ForEach-Object {Write-Host $_.ToString()}
+              throw "PowerShell parse failed: $file"
+            }
             Write-Host "Syntax OK: $file"
           }
           $mcp=Get-Content '.vscode/mcp.json' -Raw|ConvertFrom-Json
           $ext=Get-Content '.vscode/extensions.json' -Raw|ConvertFrom-Json
-          foreach($name in @('dart','firebase','playwright','github')){
+          $wanted=@('dart','firebase','playwright','github','context7','figma','maestro','google-developer-knowledge')
+          foreach($name in $wanted){
             if(-not ($mcp.servers.PSObject.Properties.Name -contains $name)){throw "Missing MCP: $name"}
           }
-          if($mcp.servers.github.url -notmatch '/readonly$'){throw 'GitHub MCP must be read-only'}
-          if($ext.recommendations.Count -lt 8){throw 'Missing recommended VS Code extensions'}
-          Write-Host 'Shared MCP and extension JSON validated.'
+          if($mcp.servers.PSObject.Properties.Name -contains 'sentry'){throw 'Sentry is excluded from the approved setup'}
+          if($mcp.servers.github.url -notmatch '/readonly$'){throw 'GitHub MCP must remain read-only'}
+          if($mcp.servers.'google-developer-knowledge'.headers.'X-Goog-Api-Key' -notmatch '^\$\{input:forgedGoogleKnowledgeApiKey\}$'){
+            throw 'Google developer API key must be prompted at runtime, not committed'
+          }
+          if($mcp.inputs.Count -ne 1 -or $mcp.inputs[0].password -ne $true){
+            throw 'Google Knowledge password prompt missing'
+          }
+          if($ext.recommendations.Count -lt 8){throw 'Recommended editor extensions missing'}
+          Write-Host 'MCP and extensions validated, Sentry absent.'
+      - name: Test wizard diagnostics without changing machine
+        shell: powershell
+        run: |
+          & powershell.exe -NoProfile -ExecutionPolicy Bypass -File 'tooling/windows/verify-developer.ps1' -SelfTest
+          if($LASTEXITCODE -ne 0){throw 'Diagnostics synthetic test failed'}
+          & powershell.exe -NoProfile -ExecutionPolicy Bypass -File 'tooling/windows/first-run.ps1' -SelfTest
+          if($LASTEXITCODE -ne 0){throw 'Wizard self-test failed'}

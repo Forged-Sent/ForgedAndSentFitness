@@ -115,6 +115,24 @@ try {
     }
   }
 
+  Attempt 'Maestro Windows CLI and Java 17+' {
+    & powershell.exe -NoProfile -ExecutionPolicy Bypass -File (Join-Path $PSScriptRoot 'install-maestro.ps1')
+    Check-Exit 'Maestro installer'
+    Refresh-Path
+    $env:Path += ';' + (Join-Path $env:LOCALAPPDATA 'Programs\Maestro\bin')
+  }
+
+  Attempt 'Approved MCP server manifest' {
+    $config = Join-Path $root '.vscode\mcp.json'
+    if(-not (Test-Path -LiteralPath $config)){throw 'Shared .vscode/mcp.json missing. Extract the full branch.'}
+    $definition=Get-Content -LiteralPath $config -Raw | ConvertFrom-Json
+    foreach($name in @('dart','firebase','playwright','github','context7','figma','maestro','google-developer-knowledge')){
+      if(-not ($definition.servers.PSObject.Properties.Name -contains $name)){throw "Missing approved MCP $name"}
+    }
+    if($definition.servers.PSObject.Properties.Name -contains 'sentry'){throw 'Sentry must not be enabled'}
+    Write-Host 'Eight MCPs configured for VS Code. Live connection and cloud account trust remain manual.'
+  }
+
   Attempt 'Visual Studio Code extensions' {
     $code=Code
     $extensions=@(
