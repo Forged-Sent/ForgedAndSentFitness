@@ -19,6 +19,12 @@ Download the GitHub branch ZIP and **extract all** before double-clicking the sc
 
 Tools are reused when found; rerun setup safely after restarts or network failures. Windows may show installation prompts. Script success does not prove cloud accounts, Android SDK licenses, or MCP sessions are authenticated.
 
+## Guided first run
+
+Start with **FIRST-RUN-WINDOWS.cmd**. The wizard offers developer/preview installation, account sign-ins, MCP setup, launching the app, and an explicit "check everything" command that explains each missing dependency and gives a repair step.
+
+It generates a **secret-free AI troubleshooting prompt** in the Windows temporary folder and offers to copy it to the clipboard. It does not paste or send it automatically. See docs/development/FIRST-RUN-TROUBLESHOOTING.md.
+
 ## MCP integrations
 
 The project VS Code MCP file configures:
@@ -30,7 +36,7 @@ The project VS Code MCP file configures:
 
 **Safety:** MCP providers can execute code or access external data. VS Code asks you to trust servers. Do not approve tool requests you have not reviewed. Firebase MCP includes potentially mutating tools; only authorize it against the shared DEV project, never PROD by default. No Firebase project or API key is created by this bootstrap.
 
-The shared .vscode/mcp.json works for VS Code and Copilot. Claude and Codex keep separate MCP settings. The script registers the Dart MCP with CLI tools only, rather than silently adding privileged Firebase/GitHub operations to both.
+The shared .vscode/mcp.json works for VS Code and Copilot. The full developer bootstrap also attempts to register Dart, Firebase, Playwright, Maestro, Context7, Figma, and read-only GitHub as **user-scoped** MCPs for available Claude/Codex CLIs. No account login or tool access is approved by registration. Google Developer Knowledge uses a password-style key prompt in VS Code; CLI key setup requires a separate manual decision. If one CLI MCP fails, rerun wizard option 8 or use the VS Code servers.
 
 ## Sign-in after setup
 

@@ -192,6 +192,13 @@ try {
     }
   }
 
+  if(-not $SkipAgentCLIs){
+    Attempt 'Register approved no-key MCPs with Claude and Codex' {
+      & powershell.exe -NoProfile -ExecutionPolicy Bypass -File (Join-Path $PSScriptRoot 'register-cli-mcps.ps1') -Agent Both
+      Check-Exit 'Claude/Codex MCP registration'
+    }
+  }
+
   Attempt 'Developer diagnostics' {
     & powershell.exe -NoProfile -ExecutionPolicy Bypass -File (Join-Path $PSScriptRoot 'verify-developer.ps1')
     Check-Exit 'Developer diagnostics'

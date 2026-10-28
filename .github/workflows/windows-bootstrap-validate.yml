@@ -31,7 +31,8 @@ jobs:
             'tooling/windows/setup-developer.ps1',
             'tooling/windows/install-maestro.ps1',
             'tooling/windows/verify-developer.ps1',
-            'tooling/windows/first-run.ps1'
+            'tooling/windows/first-run.ps1',
+            'tooling/windows/register-cli-mcps.ps1'
           )
           foreach($file in $files){
             $tokens=$null

@@ -101,6 +101,7 @@ do {
   Write-Host '  5. Open VS Code and set up MCP permissions'
   Write-Host '  6. Run the Flutter starter app in Chrome'
   Write-Host '  7. Read troubleshooting instructions'
+  Write-Host '  8. Register MCP integrations for Claude and Codex CLIs'
   Write-Host '  0. Exit'
   $choice=Read-Host 'Your choice'
   switch($choice){
@@ -132,6 +133,16 @@ do {
         Write-Host "Guide: $doc"
         if(Ask 'Open the troubleshooting guide in your default editor?'){Start-Process -FilePath $doc}
       }else{Write-Host 'Troubleshooting guide missing. Extract the entire branch ZIP.'}
+    }
+    '8' {
+      Banner 'Optional Claude/Codex MCP registration'
+      Write-Host 'Registers Dart, Firebase, Playwright, Maestro, GitHub read-only, Context7, and Figma.'
+      Write-Host 'Google Knowledge is configured in VS Code with a password-style API key prompt.'
+      Write-Host 'The CLI registrations are per-Windows-user, without automatic cloud logins.'
+      if(Ask 'Register these MCP servers for available Claude/Codex CLIs?'){
+        $status=RunScript (Join-Path $PSScriptRoot 'register-cli-mcps.ps1')
+        if($status -ne 0){Write-Host 'Some CLI registrations failed. Review errors or use VS Code MCPs.' -ForegroundColor Yellow}
+      }
     }
     '0' { Write-Host 'Exiting without making more changes.' }
     default {Write-Host 'Please enter one of the listed numbers.' -ForegroundColor Yellow}
