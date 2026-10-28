@@ -1,0 +1,23 @@
+{
+  "servers": {
+    "dart": {
+      "type": "stdio",
+      "command": "dart",
+      "args": ["mcp-server"]
+    },
+    "firebase": {
+      "type": "stdio",
+      "command": "cmd",
+      "args": ["/c", "npx", "-y", "firebase-tools@latest", "mcp"]
+    },
+    "playwright": {
+      "type": "stdio",
+      "command": "cmd",
+      "args": ["/c", "npx", "-y", "@playwright/mcp@latest", "--browser=chrome"]
+    },
+    "github": {
+      "type": "http",
+      "url": "https://api.githubcopilot.com/mcp/readonly"
+    }
+  }
+}
