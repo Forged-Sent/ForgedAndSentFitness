@@ -2,30 +2,29 @@
 set -eu
 branch="$(git branch --show-current)"
 if [ "$branch" = main ]; then
-  echo "Cannot commit on main. Use fs-start to make your own branch." >&2
+  echo "Use fs-start before saving. main is the shared branch." >&2
   exit 1
 fi
-# Reject large staged blobs.
-for file in $(git diff --cached --name-only --diff-filter=ACM | tr '\n' '\t'); do
-  if [ -f "$file" ]; then
-    size=$(wc -c < "$file")
-    if [ "$size" -gt 5242880 ]; then
-      echo "File over 5MB: $file" >&2
-      exit 1
+git diff --cached --name-only --diff-filter=ACM |
+  while IFS= read -r file; do
+    if [ -f "$file" ]; then
+      size=$(wc -c < "$file")
+      if [ "$size" -gt 5242880 ]; then
+        echo "File over 5 MB: $file" >&2
+        exit 1
+      fi
     fi
-  fi
-done
+  done
 if ! command -v gitleaks >/dev/null 2>&1; then
-  echo "Gitleaks missing; rerun Contributor setup." >&2
+  echo "Gitleaks is missing. Rerun Contributor setup." >&2
   exit 1
 fi
 gitleaks git --staged --redact --no-banner
 if command -v dart >/dev/null 2>&1; then
-  staged="$(git diff --cached --name-only --diff-filter=ACM -- '*.dart')"
-  if [ -n "$staged" ]; then
-    echo "$staged" | while IFS= read -r file; do
-      [ -f "$file" ] || continue
-      dart format --output=none --set-exit-if-changed "$file" || exit 1
+  git diff --cached --name-only --diff-filter=ACM -- '*.dart' |
+    while IFS= read -r path; do
+      if [ -f "$path" ]; then
+        dart format --output=none --set-exit-if-changed "$path" || exit 1
+      fi
     done
-  fi
 fi

@@ -97,6 +97,7 @@ do {
   Write-Host '  8. Review project-scoped MCP integrations'
   Write-Host '  9. Start local Firebase emulators'
   Write-Host '  10. Clone a real Git repository (not a ZIP)'
+  Write-Host '  11. Run Flutter connected to local emulators'
   Write-Host '  0. Exit'
   $choice=Read-Host 'Your choice'
   switch($choice){
@@ -173,6 +174,12 @@ do {
           }
         }
       }
+    }
+    '11' {
+      Banner 'Run app with local Firebase'
+      Write-Host 'Start local emulators in another terminal first (option 9).'
+      $status=RunScript (Join-Path $PSScriptRoot 'run-emulator-app.ps1')
+      if($status -ne 0){Write-Host 'Emulator-mode app did not launch. Verify emulators are running.' -ForegroundColor Yellow}
     }
     '0' { Write-Host 'Exiting without making more changes.' }
     default {Write-Host 'Please enter one of the listed numbers.' -ForegroundColor Yellow}

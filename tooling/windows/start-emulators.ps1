@@ -10,6 +10,11 @@ if(-not $cli){
 if(-not $cli){throw 'Firebase CLI missing. Run Contributor setup.'}
 & pwsh -NoProfile -File (Join-Path $PSScriptRoot 'ensure-java21.ps1') | Out-Host
 if($LASTEXITCODE){throw 'JDK 21 required; check installer errors.'}
+$javaHome=[Environment]::GetEnvironmentVariable('JAVA_HOME','User')
+if($javaHome -and (Test-Path -LiteralPath (Join-Path $javaHome 'bin\java.exe'))){
+  $env:JAVA_HOME=$javaHome
+  $env:Path=(Join-Path $javaHome 'bin')+';'+$env:Path
+}
 Write-Host 'Starting demo-forgedandsent local emulators (not cloud Firebase).' -ForegroundColor Cyan
 Push-Location $root
 try {
