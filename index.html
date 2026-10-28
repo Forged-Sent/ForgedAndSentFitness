@@ -311,6 +311,14 @@ details.targets[open] summary::after { content: "\2212"; }
 .cdlg-box .mo-text { margin: 6px 0 2px; font-family: var(--f-label); font-weight: 700; font-size: 26px; line-height: 1.2; text-transform: uppercase; letter-spacing: .02em; border-left: 3px solid var(--accent); padding-left: 14px; }
 .help-btn { flex: none; width: 30px; height: 30px; min-height: 0; padding: 0; border-radius: 50%; border: 1.5px solid var(--muted); background: transparent; color: var(--muted); font: italic 700 16px/1 Georgia, "Times New Roman", serif; display: inline-grid; place-items: center; cursor: pointer; align-self: center; }
 .help-btn:hover, .help-btn:focus-visible { border-color: var(--accent); color: var(--accent); }
+.ask-btn svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; }
+.ask-box { max-height: 88vh; overflow-y: auto; }
+.ask-in { width: 100%; font-size: 16px; margin: 4px 0 12px; }
+.ask-card { padding: 12px; margin-bottom: 10px; border: 1px solid var(--line, rgba(255,255,255,.1)); border-radius: 10px; background: var(--surface); }
+.ask-card b { display: block; font-size: 15px; margin-bottom: 4px; } .ask-card p { margin: 0 0 8px; font-size: 14px; line-height: 1.45; }
+.ask-ft { display: flex; align-items: center; gap: 10px; } .ask-w { flex: 1; font-size: 12.5px; color: var(--muted); }
+.ask-soon { margin-top: 6px; }
+.ask-flash { outline: 2px solid var(--accent); outline-offset: 4px; border-radius: 8px; transition: outline-color 1s; }
 .topline.has-help { flex-wrap: nowrap; align-items: center; }
 .topline.has-help > .date { flex: 1 1 auto; min-width: 0; }
 .topline .right { display: inline-flex; align-items: center; gap: 10px; }
@@ -756,6 +764,25 @@ button.fo-item { cursor: pointer; min-height: 44px; }
 .stat:last-child{border-right:0}
 .stats .stat:nth-child(2n){border-right:0}
 .mem-box { max-height: 88vh; overflow-y: auto; }
+.lg-box { max-height: 88vh; overflow-y: auto; }
+.lg-p { font-size: 17px; }
+.lg-prow { display: flex; gap: 16px; margin: -2px 0 10px; }
+.lg-chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 6px 0 10px; }
+.lg-add { display: flex; gap: 8px; margin: -2px 0 10px; } .lg-add .field { flex: 1; }
+.lg-ta { width: 100%; min-height: 150px; font-size: 16px; line-height: 1.5; }
+.lg-msg { min-height: 1em; }
+.lg-grp { margin: 10px 0 14px; }
+.lg-gh { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; } .lg-gh b { font-size: 15px; } .lg-gh span { color: var(--muted); font-size: 13px; flex: 1; }
+.lg-it { border-top: 1px solid var(--line, rgba(255,255,255,.08)); }
+.lg-ih { display: flex; gap: 10px; width: 100%; text-align: left; background: none; border: 0; color: inherit; padding: 10px 0; font: inherit; cursor: pointer; }
+.lg-d { color: var(--muted); font-size: 13px; min-width: 52px; } .lg-s { flex: 1; font-size: 14px; }
+.lg-pp { font-style: italic; color: var(--muted); margin: 0 0 6px; font-size: 14px; } .lg-full { white-space: pre-wrap; margin: 0 0 8px; line-height: 1.5; }
+.lg-ib { display: flex; gap: 8px; margin-bottom: 10px; }
+.ln-wrap { margin-top: 6px; }
+.ln-add { font-size: 13px; text-align: left; } .ln-add i { font-style: normal; font-weight: 700; color: var(--muted); }
+.ln-ta { width: 100%; font-size: 15px; }
+.ln-btns { display: flex; gap: 8px; margin-top: 6px; }
+.wk-last .ln-prev { display: block; margin-top: 4px; color: var(--text, inherit); } .wk-last .ln-prev i { font-style: normal; font-weight: 700; color: var(--muted); }
 .mem-v { margin: 6px 0 8px; padding: 10px 12px; border-left: 3px solid var(--brass, var(--accent)); background: var(--surface); font-family: var(--f-scripture, inherit); font-size: 18px; line-height: 1.6; }
 .gr-card.wit { display: flex; flex-direction: column; align-items: stretch; gap: 8px; cursor: default; }
 .wit-btns { display: flex; gap: 8px; } .wit-btns .mini { flex: 1; min-height: 44px; }
@@ -1742,6 +1769,11 @@ header.hero .me-btn { border-color:#e87328; }
       <p class="note">Anything you log while testing is saved to that date for real. Delete test entries when you are done.</p>
     </section>
 
+    <section aria-labelledby="h-s-legacy">
+      <div class="section-head"><h2 class="label-caps" id="h-s-legacy" data-sub="A private journal for your wife and kids. A new prompt comes each Sabbath.">Legacy log</h2></div>
+      <button class="btn ghost" type="button" id="set-legacy" style="width:100%">Open my legacy log</button>
+    </section>
+
     <section aria-labelledby="h-s-bible">
       <div class="section-head"><h2 class="label-caps" id="h-s-bible">Scripture</h2></div>
       <p class="note" style="margin-top:0">Scripture quotations are from the Berean Standard Bible (BSB), which is in the public domain, except as noted below.</p>
@@ -1891,6 +1923,10 @@ header.hero .me-btn { border-color:#e87328; }
     saveProgress: function (uid, x) { return this.db.doc("data/users/" + uid + "/log").collection("photos").doc(x.date).set({ date: x.date, front: x.front || "", side: x.side || "", rear: x.rear || "" }); },
     watchWeights: function (uid, cb) { return this.db.doc("data/users/" + uid + "/weights").onSnapshot(function (s) { cb(s.exists ? ((s.data() || {}).w || {}) : {}); }, noop); },
     saveWeights: function (uid, w) { return this.db.doc("data/users/" + uid + "/weights").set({ w: w, updatedAt: Date.now() }); },
+    watchLiftNotes: function (uid, cb) { return this.db.doc("data/users/" + uid + "/liftnotes").onSnapshot(function (s) { cb(s.exists ? ((s.data() || {}).n || {}) : {}); }, noop); },
+    saveLiftNotes: function (uid, n) { return this.db.doc("data/users/" + uid + "/liftnotes").set({ n: n, updatedAt: Date.now() }); },
+    watchLegacy: function (uid, cb) { return this.db.doc("data/users/" + uid + "/legacy").onSnapshot(function (s) { cb(s.exists ? (s.data() || {}) : {}); }, noop); },
+    saveLegacy: function (uid, o) { return this.db.doc("data/users/" + uid + "/legacy").set(o); },
     deleteProgress: function (uid, date) { return this.db.doc("data/users/" + uid + "/log").collection("photos").doc(date).delete(); },
     getWorkoutLog: function (uid, date) { return this.db.doc("data/users/" + uid + "/log").collection("workouts").doc(date).get().then(function (s) { return s.exists ? s.data() : null; }); },
     saveWorkoutLog: function (uid, rec) { return this.db.doc("data/users/" + uid + "/log").collection("workouts").doc(rec.date).set(rec); },
@@ -1961,7 +1997,7 @@ header.hero .me-btn { border-color:#e87328; }
       for (var wi = 0; wi < wlogs.docs.length; wi++) await db.doc("data/users/" + uid + "/log/workouts/" + wlogs.docs[wi].id).delete();
       var pr = await db.doc("profiles/" + uid).get();
       if (pr.exists) { var px = pr.data() || {}; if (px.avatarId) assetIds.push(px.avatarId); if (px.bannerId) assetIds.push(px.bannerId); }
-      await db.doc("data/users/" + uid + "/settings").delete(); await db.doc("habits/" + uid).delete(); await db.doc("profiles/" + uid).delete();
+      await db.doc("data/users/" + uid + "/settings").delete(); try { await db.doc("data/users/" + uid + "/liftnotes").delete(); await db.doc("data/users/" + uid + "/legacy").delete(); } catch (e) {} await db.doc("habits/" + uid).delete(); await db.doc("profiles/" + uid).delete();
       for (var j = 0; j < assetIds.length; j++) await self.deleteAsset(assetIds[j]);
     }
   };
@@ -2423,6 +2459,98 @@ header.hero .me-btn { border-color:#e87328; }
     if (!hk || !state.me || !state.canWrite || !state.settingsLoaded || sabbathSynced === k || !isWeighDay(k)) return;
     sabbathSynced = k; if (!myDoc().done[hk.id]) writeDay(function () { return false; });
   }
+  /* ---------- Legacy log: a private journal he writes for his wife and kids. Never scored, never shown to anyone. ---------- */
+  var LEGACY_PROMPTS = ["What's one thing you learned the hard way that you want your kids to know before they have to learn it?", "Write down a moment this week you were proud of one of your kids. Be specific.", "What did you first notice about your wife? Tell her the story.", "What does it mean to be a man of your word? Give an example from your own life.", "Write about a time you failed and what God taught you through it.", "What do you want your kids to remember about your home when they're grown?", "Thank your wife for one thing she does that nobody else sees.", "Tell the story of how you came to faith, or the moment it became your own.", "What's one habit you hope your kids carry for life, and why?", "Write a blessing you would pray over your son or daughter on their wedding day.", "What did your own father (or the man who raised you) teach you, good or hard?", "Describe a day with your family this year you never want to forget.", "What do you want your kids to do when they feel like quitting?", "Write your wife a few lines about what you'd marry her for all over again.", "What does hard work look like? Tell them about the hardest job you ever had.", "What do you hope your kids look for in the person they marry?", "Write about a prayer God answered for your family.", "What would you tell your kids about money, debt and generosity?", "Name a fear you've faced and how you got through it.", "What do you love about who your son or daughter is becoming?", "Write down the Scripture that has carried you the most, and why.", "What do you want your kids to know about how to treat people who can't do anything for them?", "Tell your wife about a time she made you a better man.", "What does it look like to own a mistake? Tell them about one you owned.", "Write about a tradition in your family and why it matters to you.", "What do you want your kids to know about their body, health and taking care of themselves?", "What's a funny story about your family you never want lost?", "Write down what you want your kids to hear from you on their worst day.", "What do you want your kids to know about forgiveness, giving it and asking for it?", "Thank God, in writing, for each person in your family by name.", "What did serving (in the military, church, work or community) teach you about leading?", "What do you hope your kids say about you when you're gone?", "Write about a time you were wrong with your wife and how you made it right.", "What does courage look like in everyday life? Give them an example.", "What do you want your kids to know about friendship, and which friends to keep?", "Tell the story of the day each of your kids was born.", "What do you want your kids to know about rest and the Sabbath?", "Write about a hard season your family came through together.", "What's one thing you want to tell your kids that you've never said out loud?", "What does being a husband mean to you now, compared with your wedding day?", "What do you want your kids to know about handling anger?", "Write down the advice you'd give your son or daughter on their first day of real work.", "What are you praying for each of your kids right now?", "Describe your wife as you see her today, for your kids to read one day.", "What do you want your kids to know about doubt and holding on to faith?", "Tell them about a mentor who shaped you and what he did.", "What do you want your family to know about how to spend a Sunday?", "Write about a time you saw God provide when you couldn't.", "What do you want your kids to know about integrity when no one is watching?", "What has this year taught you about being a father?", "Write your family a thank-you for this year.", "Looking back on the year, what do you want them to remember about how you lived it?"];
+  var LEGACY_PEOPLE = ["My wife", "My kids", "My family"];
+  function normLegacy(m) { m = m || {}; return { people: Array.isArray(m.people) && m.people.length ? m.people.slice(0, 12) : LEGACY_PEOPLE.slice(), e: m.e && typeof m.e === "object" ? m.e : {} }; }
+  function legacyOf() { return state.legacy || normLegacy({}); }
+  function legacyPrompt(n, off) { var L = LEGACY_PROMPTS.length; return LEGACY_PROMPTS[(((n - 1 + (off || 0)) % L) + L) % L]; }
+  function legacyEntries() { var e = legacyOf().e; return Object.keys(e).map(function (id) { return Object.assign({ id: id }, e[id]); }).sort(function (a, b) { return (b.at || 0) - (a.at || 0); }); }
+  function legacyThisWeek(n) { return legacyEntries().some(function (x) { return x.w === n; }); }
+  function saveLegacyNow(lg) { state.legacy = lg; if (B.db && B.saveLegacy) B.saveLegacy(state.me, { people: lg.people, e: lg.e, updatedAt: Date.now() }).catch(noop); drawToday(); }
+  function legacyLetter(who, list) {
+    var esc = function (t) { return String(t).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); };
+    var me = nameOf(state.me); if (me === "Someone") me = "Dad";
+    var h = '<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>For ' + esc(who) + '</title><style>body{font-family:Georgia,serif;max-width:640px;margin:40px auto;padding:0 20px;line-height:1.6;color:#222}h1{font-size:28px;margin:0 0 4px}.sub{color:#777;margin:0 0 32px}.d{color:#777;font-size:13px;text-transform:uppercase;letter-spacing:.06em}.p{font-style:italic;color:#555;margin:4px 0}.t{white-space:pre-wrap;margin:0 0 28px}hr{border:0;border-top:1px solid #ddd;margin:24px 0}</style></head><body>';
+    h += "<h1>For " + esc(who) + "</h1><p class=\"sub\">From " + esc(me) + " \u00B7 " + list.length + (list.length === 1 ? " entry" : " entries") + "</p>";
+    list.slice().sort(function (a, b) { return (a.at || 0) - (b.at || 0); }).forEach(function (x) { h += '<p class="d">' + esc(parseKey(x.d).toLocaleDateString(undefined, { year: "numeric", month: "long", day: "numeric" })) + "</p>" + (x.p ? '<p class="p">' + esc(x.p) + "</p>" : "") + '<p class="t">' + esc(x.t) + "</p><hr>"; });
+    return h + "</body></html>";
+  }
+  function openLegacy(opts) {
+    opts = opts || {}; var old = $("cdlg"); if (old) old.remove();
+    var cw = chalWeekFor(todayKey()), n = cw.pre ? 1 : cw.n, lg = legacyOf(), F = openLegacy.F || (openLegacy.F = { off: 0, who: "", t: "", edit: "", open: "" });
+    if (!F.who || lg.people.indexOf(F.who) < 0) F.who = lg.people[0];
+    var back = el("div", "cdlg"); back.id = "cdlg"; back.dataset.k = "legacy";
+    var box = el("div", "cdlg-box nw-box lg-box"); box.setAttribute("role", "dialog"); box.setAttribute("aria-modal", "true"); box.setAttribute("aria-labelledby", "lg-t");
+    box.appendChild(el("p", "fr-k", "Legacy log \u00B7 Week " + n));
+    var t = el("h2", null, F.edit ? "Edit your entry" : "Write it down for them."); t.id = "lg-t"; box.appendChild(t);
+    box.appendChild(el("p", "note", "Private. Only you can see this. It is never scored and never shows on the Board. When you're ready, give it to them."));
+    var ed = F.edit ? lg.e[F.edit] : null, prompt = ed ? (ed.p || "") : legacyPrompt(n, F.off);
+    var pq = el("blockquote", "mem-v lg-p", prompt || "Write anything you want them to have."); box.appendChild(pq);
+    if (!ed) { var prow = el("div", "lg-prow"), nx = el("button", "linkish", "Different prompt"), own = el("button", "linkish", "Write my own"); nx.type = own.type = "button";
+      nx.addEventListener("click", function () { F.off++; openLegacy(); }); own.addEventListener("click", function () { F.off = null; openLegacy(); });
+      if (F.off === null) { pq.textContent = "Write anything you want them to have."; prompt = ""; }
+      prow.appendChild(nx); prow.appendChild(own); box.appendChild(prow); }
+    var fl = el("div", "fr-h", "Who is this for?"); box.appendChild(fl);
+    var chips = el("div", "lg-chips");
+    lg.people.forEach(function (who) { var c = el("button", "mini" + (F.who === who ? " on" : ""), who); c.type = "button"; c.setAttribute("aria-pressed", F.who === who ? "true" : "false"); c.addEventListener("click", function () { F.who = who; F.t = ta.value; openLegacy(); }); chips.appendChild(c); });
+    var addp = el("button", "mini", "+ Add a name"); addp.type = "button";
+    addp.addEventListener("click", function () {
+      F.t = ta.value; var row = el("div", "lg-add"), inp = el("input", "field"); inp.maxLength = 30; inp.placeholder = "Name (for example, your son's name)"; inp.setAttribute("aria-label", "Name to add");
+      var ok = el("button", "mini on", "Add"); ok.type = "button"; ok.addEventListener("click", function () { var v = inp.value.trim(); if (!v) return; var l2 = legacyOf(); if (l2.people.indexOf(v) < 0 && l2.people.length < 12) l2.people = l2.people.concat([v]); F.who = v; saveLegacyNow(l2); openLegacy(); });
+      row.appendChild(inp); row.appendChild(ok); chips.after(row); addp.remove(); inp.focus(); });
+    chips.appendChild(addp); box.appendChild(chips);
+    var ta = el("textarea", "field lg-ta"); ta.rows = 7; ta.maxLength = 4000; ta.placeholder = "Write it the way you'd say it to them."; ta.setAttribute("aria-label", "Your entry");
+    ta.value = ed && !F.t ? ed.t : F.t; ta.addEventListener("input", function () { F.t = ta.value; }); box.appendChild(ta);
+    var msg = el("p", "note lg-msg", opts.msg || ""); 
+    var srow = el("div", "cdlg-btns"), sv = el("button", "btn", ed ? "Save changes" : "Save to my legacy log"); sv.type = "button";
+    sv.addEventListener("click", function () {
+      var v = ta.value.trim(); if (!v) { msg.textContent = "Write something first."; return; }
+      var l2 = legacyOf(), e2 = Object.assign({}, l2.e), id = F.edit || ("l" + Date.now().toString(36));
+      e2[id] = ed ? Object.assign({}, ed, { t: v, who: F.who }) : { w: n, d: todayKey(), who: F.who, p: prompt, t: v, at: Date.now() };
+      l2.e = e2; F.t = ""; F.edit = ""; F.off = 0; saveLegacyNow(l2); openLegacy({ msg: "Saved for " + e2[id].who + ". Only you can see it." });
+    });
+    srow.appendChild(sv);
+    if (ed) { var cx = el("button", "btn ghost", "Cancel"); cx.type = "button"; cx.addEventListener("click", function () { F.edit = ""; F.t = ""; openLegacy(); }); srow.appendChild(cx); }
+    box.appendChild(srow); box.appendChild(msg);
+    // The log so far, by person
+    var all = legacyEntries();
+    if (all.length) {
+      var sec = el("div", "fr-sec"); sec.appendChild(el("div", "fr-h", "Your log \u00B7 " + all.length + (all.length === 1 ? " entry" : " entries")));
+      lg.people.forEach(function (who) {
+        var mine = all.filter(function (x) { return x.who === who; }); if (!mine.length) return;
+        var grp = el("div", "lg-grp"), hd = el("div", "lg-gh"); hd.appendChild(el("b", null, who)); hd.appendChild(el("span", null, mine.length + (mine.length === 1 ? " entry" : " entries")));
+        var give = el("button", "mini", "Give it to them"); give.type = "button"; give.addEventListener("click", function () { giveLegacy(who, mine); }); hd.appendChild(give); grp.appendChild(hd);
+        mine.forEach(function (x) {
+          var it = el("div", "lg-it"), top = el("button", "lg-ih"); top.type = "button"; top.setAttribute("aria-expanded", F.open === x.id ? "true" : "false");
+          top.appendChild(el("span", "lg-d", shortDate(x.d))); top.appendChild(el("span", "lg-s", x.t.split(/\n/)[0].slice(0, 70) + (x.t.length > 70 ? "\u2026" : "")));
+          top.addEventListener("click", function () { F.open = F.open === x.id ? "" : x.id; F.t = ta.value; openLegacy(); }); it.appendChild(top);
+          if (F.open === x.id) {
+            if (x.p) it.appendChild(el("p", "lg-pp", x.p)); it.appendChild(el("p", "lg-full", x.t));
+            var ib = el("div", "lg-ib"), eb = el("button", "mini", "Edit"), db = el("button", "mini", "Delete"); eb.type = db.type = "button";
+            eb.addEventListener("click", function () { F.edit = x.id; F.who = x.who; F.t = ""; openLegacy(); box.scrollTop = 0; });
+            db.addEventListener("click", function () { if (db.dataset.sure !== "1") { db.dataset.sure = "1"; db.textContent = "Tap again to delete"; return; } var l2 = legacyOf(), e2 = Object.assign({}, l2.e); delete e2[x.id]; l2.e = e2; F.open = ""; saveLegacyNow(l2); openLegacy(); });
+            ib.appendChild(eb); ib.appendChild(db); it.appendChild(ib);
+          }
+          grp.appendChild(it);
+        });
+        sec.appendChild(grp);
+      });
+      box.appendChild(sec);
+    }
+    var row = el("div", "cdlg-btns"), cl = el("button", "btn ghost", "Close"); cl.type = "button"; row.appendChild(cl); box.appendChild(row);
+    cl.addEventListener("click", function () { back.remove(); }); back.addEventListener("click", function (ev) { if (ev.target === back) back.remove(); });
+    back.addEventListener("keydown", function (ev) { if (ev.key === "Escape") { ev.stopPropagation(); back.remove(); } });
+    back.appendChild(box); document.body.appendChild(back);
+  }
+  // Hand the entries for one person over as a letter: saved as a page he can print or send, or shared as text.
+  async function giveLegacy(who, list) {
+    var html = legacyLetter(who, list), fn = "legacy-for-" + who.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") + ".html";
+    var txt = "For " + who + "\n\n" + list.slice().sort(function (a, b) { return (a.at || 0) - (b.at || 0); }).map(function (x) { return shortDate(x.d) + (x.p ? "\n" + x.p : "") + "\n" + x.t; }).join("\n\n");
+    if (B.downloads) { try { await B.downloads.save({ filename: fn, data: new Blob([html], { type: "text/html" }) }); openLegacy({ msg: "Saved as a letter. Open it to print or send it to " + who + "." }); return; } catch (e) {} }
+    if (navigator.share) { try { await navigator.share({ title: "For " + who, text: txt }); return; } catch (e) { if (e && e.name === "AbortError") return; } }
+    try { await navigator.clipboard.writeText(txt); openLegacy({ msg: "Copied. Paste it into a message or a document." }); } catch (e) {}
+  }
   /* ---------- Family report (each Sabbath) and the weekly junior challenge ---------- */
   var JUNIOR = ["Take a 15-minute walk together. Each of you names one thing you're thankful for.", "Pray together before bed one night. Let your kid pray first.", "Veterans Day week: make a thank-you card together and give it to a veteran.", "Build something together: a fort, a model, or a Lego build. Let them lead.", "Make a gratitude list together and post it on the fridge.", "Cook one meal together. They pick the dish.", "Memorize Proverbs 27:17 together and say it at dinner.", "Do 20 push-ups together, any style. Count out loud.", "Read the Christmas story together in Luke 2.", "Look back at the year together: name three things God did for your family.", "Pray together for the year ahead and write one goal each.", "Write a note to Mom together and hide it where she'll find it.", "Serve a neighbor together: rake leaves, take out bins, or bring a treat.", "Read one chapter of a Gospel together and ask what Jesus did.", "Play catch or shoot hoops for 20 minutes with no phones.", "Give each kid one job to do with you this week, and do it side by side.", "Have a 10-minute talk: ask what's been hard this week, then just listen.", "Go outside at night and look at the stars. Read Psalm 19:1 together.", "Race each other: sprint, crawl or hop. Laugh more than you win.", "Pick one family rule together and write it on the fridge.", "Plank together. See who can hold it longest.", "Read the Easter story together in Luke 24 and talk about why the empty tomb matters.", "Take turns praying for each person in the family by name.", "Fix or clean something in the house together.", "Let your kid teach you something they're good at.", "Go on a hike or long walk and pray at the halfway point.", "Give away a toy, book or clothes together to someone who needs it.", "Write down three things you love about each other.", "Do a family workout: 3 rounds of 10 squats, 10 jumping jacks and a 20-second plank.", "Ask Grandma or Grandpa a question about their faith together.", "Wash the car or bikes together.", "Memorial Day week: visit a memorial or flag and pray for families who lost someone.", "Memorize Joshua 1:9 together.", "Plan a family movie or game night and let them choose.", "Bake something and deliver it to a friend.", "Go to bed early one night and read together instead of screens.", "Plant something together and water it each day this week.", "Bike ride or scooter together around the neighborhood.", "Tell your kid a story about a time God helped you.", "Make breakfast for Mom together.", "Do 50 jumping jacks together every day for 3 days.", "Draw or write what you each want to be known for.", "Pray over a meal together and let your kid lead it.", "Throw, kick or hit a ball together for 20 minutes.", "Clean your kid's room together. Work, then celebrate.", "Write a letter to a missionary or a soldier together.", "Read Psalm 23 together and talk about what a shepherd does.", "Learn one new skill together: tie a knot, change a tire or check the oil.", "Do a no-screens hour together. Play a board or card game.", "Ask your kid how you can pray for them, then pray right then.", "Walk the dog or take a walk and pick up trash along the way.", "Do wall sits together. Talk until one of you quits."];
   function juniorFor(n) { return JUNIOR[(n - 1) % JUNIOR.length] || ""; }
@@ -2608,6 +2736,10 @@ header.hero .me-btn { border-color:#e87328; }
       fb.appendChild(el("span", "fr-ic", "\u2709")); var ftx = el("span", "txt"); ftx.appendChild(el("span", "name", "Family report"));
       ftx.appendChild(el("span", "sub", ((state.settings.freport || {})[todayKey()] ? "Ready. Tap to review and share" : "Your week, ready to share with your family"))); fb.appendChild(ftx); fb.appendChild(el("span", "chev", "\u203A"));
       fb.addEventListener("click", openFamilyReport); fli.appendChild(fb); list.appendChild(fli);
+      var lcw = chalWeekFor(todayKey()), ln0 = lcw.pre ? 1 : lcw.n, lw = legacyThisWeek(ln0), lli = el("li", "item fr-li"), lb0 = el("button", "hit fr-open"); lb0.type = "button";
+      lb0.appendChild(el("span", "fr-ic", "\u270D\uFE0E")); var ltx = el("span", "txt"); ltx.appendChild(el("span", "name", "Legacy log"));
+      ltx.appendChild(el("span", "sub", lw ? "Written this week \u2713" : legacyPrompt(ln0, 0))); lb0.appendChild(ltx); lb0.appendChild(el("span", "chev", "\u203A"));
+      lb0.addEventListener("click", function () { openLegacy(); }); lli.appendChild(lb0); list.appendChild(lli);
     }
     var wt = taskOfKind("weigh");
     if (wt && !isWeighDay(todayKey())) {
@@ -2796,11 +2928,42 @@ header.hero .me-btn { border-color:#e87328; }
     });
     return best;
   }
+  /* Lift notes: one short note per lift, saved privately with the day it was written. It shows in "Last time" the next time he does that lift. */
+  var liftNoteDraft = {};
+  function liftNoteKey(g) { return String(g).trim().toLowerCase(); }
+  function liftNoteFor(g) { return (state.liftNotes || {})[liftNoteKey(g)] || null; }
+  function saveLiftNote(g, key, t) {
+    var n = Object.assign({}, state.liftNotes || {}), k = liftNoteKey(g); t = String(t || "").trim().slice(0, 280);
+    if (t) n[k] = { d: key, t: t }; else if (n[k] && n[k].d === key) delete n[k];
+    state.liftNotes = n; if (B.db && B.saveLiftNotes) B.saveLiftNotes(state.me, n).catch(noop);
+  }
+  function liftNoteEl(g, key, name) {
+    var wrap = el("div", "ln-wrap"), k = liftNoteKey(g);
+    function paint() {
+      wrap.textContent = ""; var cur = liftNoteFor(g), mine = cur && cur.d === key ? cur.t : "";
+      if (liftNoteDraft[k] != null) {
+        var ta = el("textarea", "field ln-ta"); ta.rows = 2; ta.maxLength = 280; ta.value = liftNoteDraft[k]; ta.placeholder = "How did it feel? Sleep, pain, energy. Shows next time you do this lift.";
+        ta.setAttribute("aria-label", "Note for next time on " + name);
+        ta.addEventListener("input", function () { liftNoteDraft[k] = ta.value; });
+        var btns = el("div", "ln-btns"), sv = el("button", "mini on", "Save note"), cx = el("button", "mini", "Cancel"); sv.type = cx.type = "button";
+        sv.addEventListener("click", function () { saveLiftNote(g, key, ta.value); delete liftNoteDraft[k]; paint(); });
+        cx.addEventListener("click", function () { delete liftNoteDraft[k]; paint(); });
+        btns.appendChild(sv); btns.appendChild(cx); wrap.appendChild(ta); wrap.appendChild(btns);
+        setTimeout(function () { try { ta.focus(); } catch (e) {} }, 0); return;
+      }
+      var b = el("button", "linkish ln-add"); b.type = "button";
+      if (mine) { b.appendChild(el("i", null, "\u270E Note for next time: ")); b.appendChild(document.createTextNode(mine)); b.setAttribute("aria-label", "Edit your note for next time on " + name); }
+      else b.textContent = "+ Add a note for next time";
+      b.addEventListener("click", function () { liftNoteDraft[k] = mine; paint(); }); wrap.appendChild(b);
+    }
+    paint(); return wrap;
+  }
   function lastTimeEl(g, key, rxNow, weighted) {
     var L = lastWorking(g, key); if (!L) return null;
     var box = el("span", "wk-last"), when = parseKey(L.date).toLocaleDateString(undefined, { month: "short", day: "numeric" });
     box.appendChild(el("b", null, "Last time \u00B7 " + when));
     box.appendChild(document.createTextNode((weighted && L.w ? L.w + " lb \u00D7 " : "") + L.r + " reps on your last working set"));
+    var ln = liftNoteFor(g); if (ln && ln.d === L.date && ln.t) { var lp = el("span", "ln-prev"); lp.appendChild(el("i", null, "Your note: ")); lp.appendChild(document.createTextNode(ln.t)); box.appendChild(lp); }
     if (!weighted || !L.w || !L.target) return box;
     var deload = /deload/i.test(String(rxNow || ""));
     if (deload) { box.appendChild(el("span", "hold", "Deload week. Stay at " + L.w + " lb or a little lighter and move well.")); return box; }
@@ -4362,6 +4525,7 @@ header.hero .me-btn { border-color:#e87328; }
       ex.appendChild(el("span", "wr", e[1]));
       var c = moveCue(mg); if (c) ex.appendChild(el("span", "wc", c));
       if (ps && !ps.time && (live || (isToday && !done))) { var lt0 = lastTimeEl(mg, key, e[1], needsWeight(mg, p.equip)); if (lt0) ex.appendChild(lt0); }
+      if (ps && !ps.time && live && isToday && state.me) ex.appendChild(liftNoteEl(mg, key, shownName));
       if (live) {
         var a = setsOf(idx, ps);
         if (ps) {
@@ -6305,6 +6469,68 @@ header.hero .me-btn { border-color:#e87328; }
     back.addEventListener("keydown", function (ev) { if (ev.key === "Escape") { ev.stopPropagation(); close(); } });
     back.appendChild(box); document.body.appendChild(back); ok.focus({ preventScroll: true });
   }
+  /* ---------- Ask: search how the app works and where things are. Keyword search for now; built so Coach Gideon can answer later. ---------- */
+  var ASK = [{"t": "Log my weight", "a": "Weigh in on your Sabbath. Tap the Weigh-In box on Today and enter your weight. Your chart is on Train under Weekly weight. Only you can see it.", "w": "Today on your Sabbath · Train › Weekly weight", "k": "weight weigh scale pounds lb body weight", "go": {"p": "train", "s": "h-wt"}}, {"t": "Progress photos", "a": "Front, side and rear photos are taken on your Sabbath from the Progress Photos box on Today. Past photos are on your profile.", "w": "Today on your Sabbath · Profile › Progress photos", "k": "photo photos picture pictures progress before after", "go": {"fn": "profile", "s": "h-prog"}}, {"t": "Change my lifting days or Sabbath", "a": "Open Workout plan on Train to pick your program, equipment, Sabbath day and your 3 lifting days.", "w": "Train › Workout plan", "k": "schedule days lifting sabbath program plan equipment change", "go": {"p": "train", "s": "h-plan"}}, {"t": "Move a workout to another day", "a": "On Train, tap a day on the calendar, then Move day and pick a day this week to trade with. Reset week puts it back.", "w": "Train › Calendar › Move day", "k": "move swap day reschedule calendar missed", "go": {"p": "train", "s": "h-cal"}}, {"t": "Swap an exercise", "a": "In the workout, tap Alt next to the exercise to pick an alternate if you lack the equipment or have an injury.", "w": "Workout › Alt button on the exercise", "k": "alternate swap exercise injury equipment replace substitute", "go": {"p": "train", "s": "h-cal"}}, {"t": "Leave a note on a lift", "a": "In a workout, tap “+ Add a note for next time” under the lift. The next time you do that lift, your note shows in the Last time box.", "w": "Workout › under each lift", "k": "note notes lift journal remember sleep felt", "go": {"p": "train", "s": "h-cal"}}, {"t": "How points work", "a": "Every box, bonus and challenge and what it’s worth.", "w": "Board › How points work", "k": "points score scoring earn worth bonus how many", "go": {"fn": "points"}}, {"t": "The Board", "a": "See where you stand this week, today and all time.", "w": "Board tab", "k": "board leaderboard rank ranking standings who winning", "go": {"p": "board"}}, {"t": "Weekly challenges", "a": "Three challenges each week (Family, Iron, Endure). Tap one at the top of Train to see it and record your attempt.", "w": "Train › This week’s challenges", "k": "challenge challenges family iron endure submit record attempt", "go": {"p": "train", "s": "h-chal"}}, {"t": "Family report", "a": "On your Sabbath, a Family report row on Today puts your week together so you can share it with your family.", "w": "Today on your Sabbath", "k": "family report share wife kids week summary", "go": {"fn": "freport"}}, {"t": "Legacy log", "a": "A private journal you write for your wife and kids, with a new prompt each Sabbath. Give it to them when you’re ready.", "w": "Today on your Sabbath · Settings › Legacy log", "k": "legacy journal letter write kids wife son daughter", "go": {"fn": "legacy"}}, {"t": "Missed a day (grace reset)", "a": "After a missed day breaks your streak, Today offers Own it. Own it in Rally once every 30 days and your streak holds.", "w": "Today, after a missed day", "k": "missed streak broke grace reset own it", "go": {"p": "today"}}, {"t": "Sit out a week", "a": "On vacation or sick? Use the link at the bottom of Today to sit out 7 days. Your streak is held. Tap I’m back to end it early.", "w": "Today › bottom of the list", "k": "vacation sick sit out pause away travel injured", "go": {"fn": "sitout"}}, {"t": "Invite a brother", "a": "Share the app with a man. When he signs up and picks you under Who invited you, you get 50 points.", "w": "Settings › Your profile", "k": "invite recruit friend share sent join brother", "go": {"set": "h-s-prof"}}, {"t": "Fasting", "a": "Turn on Fasting today or plan fast days on Fuel. Your Calories box checks itself on a fast day.", "w": "Fuel › Fasting", "k": "fast fasting fasted", "go": {"p": "fuel", "s": "h-fast"}}, {"t": "Log water", "a": "Tap +8 as you drink, or type an amount. Hitting the goal checks Hydrate.", "w": "Fuel › Water", "k": "water hydrate drink oz liters", "go": {"p": "fuel", "s": "h-water"}}, {"t": "Log food", "a": "Under each meal, use Search, Photo, Voice or Favorites. Quick add is for when you only know the numbers.", "w": "Fuel › Food log", "k": "food meal meals eat log calories macros protein", "go": {"p": "fuel", "s": "h-food"}}, {"t": "Calorie and macro targets", "a": "Set or adjust your daily calories, protein, carbs and fat.", "w": "Settings › Daily calorie and macro targets", "k": "calories macros targets protein carbs fat adjust", "go": {"set": "h-s-tg"}}, {"t": "My goal", "a": "Lose fat, maintain or build. Your calorie plan follows it.", "w": "Settings › Your goal and calorie plan", "k": "goal lose fat cut bulk build maintain", "go": {"set": "h-s-goal"}}, {"t": "My creed", "a": "Write your creed in Settings. The My Creed box on Today shows it each morning.", "w": "Settings › Your profile", "k": "creed motto", "go": {"set": "h-s-prof"}}, {"t": "Daily devotional", "a": "Tap the Daily Devotional box on Today to read today’s reading.", "w": "Today › Daily Devotional", "k": "devotional devo reading bible scripture", "go": {"p": "today"}}, {"t": "Post in Rally", "a": "Post, tag brothers and react in Rally. Posting checks Rally Call.", "w": "Rally tab", "k": "rally post feed tag comment react call", "go": {"p": "checkin"}}, {"t": "Reminders", "a": "Turn daily reminders on or off and pick the times.", "w": "Settings › Daily reminders", "k": "reminder reminders notification notifications alert", "go": {"set": "h-s-rem"}}, {"t": "Steps and health data", "a": "Log steps from the Steps box on Today, or connect health data in Settings.", "w": "Settings › Health data", "k": "steps health apple watch fitbit connect", "go": {"set": "h-s-health"}}, {"t": "Dark mode and appearance", "a": "Change how the app looks.", "w": "Settings › Appearance", "k": "dark light mode theme appearance color", "go": {"set": "h-s-app"}}, {"t": "Core lift PRs", "a": "Your best lifts are on your profile. A PR earns 25 points.", "w": "Profile › Core lift PRs", "k": "pr prs record personal best max", "go": {"fn": "profile", "s": "h-lifts"}}, {"t": "Photos or videos won’t upload", "a": "Run the upload check in Settings. It tests your photos and tells you what went wrong.", "w": "Settings › Upload check", "k": "upload uploading photo video error unsupported fail", "go": {"set": "h-s-prof"}}, {"t": "Delete my data", "a": "Permanently delete everything you saved in the app.", "w": "Settings › Delete your data", "k": "delete remove account data erase", "go": {"set": "h-s-acct"}}];
+  var ASK_STOP = "a an the i my me do does how where what is are to of in on for can find it get set see with and or at this that when why which who you your".split(" ");
+  var ASK_SYN = { weigh: "weight", scale: "weight", pic: "photo", pics: "photo", picture: "photo", score: "points", pts: "points", leaderboard: "board", rank: "board", meal: "food", eat: "food", macro: "macros", drink: "water", schedule: "days", reminder: "reminders", notification: "reminders", pr: "pr", record: "pr", journal: "legacy", vacation: "sit", sick: "sit", invite: "invite", recruit: "invite", fast: "fasting", motto: "creed" };
+  function askToks(t) { return String(t || "").toLowerCase().replace(/[\u2018\u2019']/g, "").replace(/[^a-z0-9\s]/g, " ").split(/\s+/).filter(function (w) { return w && ASK_STOP.indexOf(w) < 0; }); }
+  function askIndex() {
+    if (askIndex.c) return askIndex.c;
+    var out = ASK.map(function (e) { return Object.assign({ cur: true, tk: askToks(e.t + " " + e.k), ak: askToks(e.a) }, e); });
+    var PG = { today: "today", fuel: "fuel", train: "train", workout: "train", board: "board", checkin: "checkin", settings: "settings", profile: "profile" };
+    Object.keys(HELP).forEach(function (pg) { var h = HELP[pg]; (h.how || []).forEach(function (b) { out.push({ t: h.t, a: b, w: h.t + " page", go: PG[pg] === "profile" ? { fn: "profile" } : PG[pg] ? { p: PG[pg] } : null, tk: askToks(h.t), ak: askToks(b) }); }); });
+    return (askIndex.c = out);
+  }
+  function askSearch(q) {
+    var qt = askToks(q).map(function (w) { return ASK_SYN[w] || w; }); if (!qt.length) return [];
+    function hit(list, w) { return list.some(function (x) { return x === w || (w.length >= 4 && x.indexOf(w) === 0) || (x.length >= 4 && w.indexOf(x) === 0); }); }
+    return askIndex().map(function (e) { var sc = 0, n = 0; qt.forEach(function (w) { if (hit(e.tk, w)) { sc += 3; n++; } else if (hit(e.ak, w)) { sc += 1; n++; } }); if (!n) return null; return { e: e, sc: sc + (e.cur ? 0.5 : 0) + n / qt.length }; })
+      .filter(Boolean).sort(function (a, b) { return b.sc - a.sc; }).filter(function (r, i, arr) { return r.sc >= arr[0].sc * 0.6; }).slice(0, 6).map(function (r) { return r.e; });
+  }
+  function askGo(g) {
+    var d = $("cdlg"); if (d) d.remove(); if (!g) return;
+    var F = { points: openPointsGuide, legacy: function () { openLegacy(); }, sitout: openSitOut, freport: openFamilyReport, profile: function () { openProfile(state.me); } };
+    if (g.fn && F[g.fn]) F[g.fn](); else if (g.set) { openSettingsSection(g.set); return; } else if (g.p) go(g.p);
+    if (g.s) setTimeout(function () { var h = $(g.s), sec = h && (h.closest("section") || h); if (sec && sec.scrollIntoView) { sec.scrollIntoView({ block: "start", behavior: "smooth" }); sec.classList.add("ask-flash"); setTimeout(function () { sec.classList.remove("ask-flash"); }, 1600); } }, 80);
+  }
+  var ASK_POPULAR = ["Log my weight", "How points work", "Swap an exercise", "Sit out a week", "Invite a brother", "Fasting"];
+  function openAsk(q0) {
+    var old = $("cdlg"); if (old) old.remove();
+    var back = el("div", "cdlg"); back.id = "cdlg";
+    var box = el("div", "cdlg-box nw-box ask-box"); box.setAttribute("role", "dialog"); box.setAttribute("aria-modal", "true"); box.setAttribute("aria-labelledby", "ask-t");
+    var t = el("h2", null, "Ask"); t.id = "ask-t"; box.appendChild(t);
+    var inp = el("input", "field ask-in"); inp.type = "search"; inp.placeholder = "Ask a question, like \u201Cwhere do I log my weight?\u201D"; inp.setAttribute("aria-label", "Ask a question about the app"); inp.setAttribute("enterkeyhint", "search"); inp.value = q0 || "";
+    box.appendChild(inp);
+    var res = el("div", "ask-res"); res.setAttribute("aria-live", "polite"); box.appendChild(res);
+    function card(e) {
+      var c = el("div", "ask-card"); c.appendChild(el("b", null, e.t)); c.appendChild(el("p", null, e.a));
+      var ft = el("div", "ask-ft"); ft.appendChild(el("span", "ask-w", e.w));
+      if (e.go) { var gb = el("button", "mini on", "Take me there \u203A"); gb.type = "button"; gb.addEventListener("click", function () { askGo(e.go); }); ft.appendChild(gb); }
+      c.appendChild(ft); return c;
+    }
+    function paint() {
+      res.textContent = ""; var q = inp.value.trim();
+      if (!q) { res.appendChild(el("div", "fr-h", "Popular")); var ch = el("div", "lg-chips"); ASK_POPULAR.forEach(function (pq) { var b = el("button", "mini", pq); b.type = "button"; b.addEventListener("click", function () { inp.value = pq; paint(); }); ch.appendChild(b); }); res.appendChild(ch); return; }
+      var r = askSearch(q);
+      if (!r.length) { res.appendChild(el("p", "note", "Nothing matched. Try fewer words, like \u201Cweight\u201D or \u201Cpoints.\u201D")); return; }
+      r.forEach(function (e) { res.appendChild(card(e)); });
+    }
+    inp.addEventListener("input", paint); inp.addEventListener("keydown", function (ev) { if (ev.key === "Enter") { ev.preventDefault(); inp.blur(); } });
+    paint();
+    box.appendChild(el("p", "fnote ask-soon", "Coming later: Coach Gideon answers in his own words."));
+    var row = el("div", "cdlg-btns"), cl = el("button", "btn ghost", "Close"); cl.type = "button"; row.appendChild(cl); box.appendChild(row);
+    cl.addEventListener("click", function () { back.remove(); }); back.addEventListener("click", function (ev) { if (ev.target === back) back.remove(); });
+    back.addEventListener("keydown", function (ev) { if (ev.key === "Escape") { ev.stopPropagation(); back.remove(); } });
+    back.appendChild(box); document.body.appendChild(back); setTimeout(function () { try { inp.focus(); } catch (e) {} }, 30);
+  }
+  function addAskButtons() {
+    Array.prototype.forEach.call(document.querySelectorAll(".help-btn"), function (hb) {
+      if (hb.previousElementSibling && hb.previousElementSibling.classList.contains("ask-btn")) return;
+      var a = el("button", "help-btn ask-btn"); a.type = "button"; a.setAttribute("aria-label", "Ask: search how the app works");
+      a.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6"/><path d="M15 15l5 5"/></svg>';
+      a.addEventListener("click", function () { openAsk(); }); hb.parentNode.insertBefore(a, hb);
+    });
+  }
   function addHelpButtons() {
     Object.keys(HELP).forEach(function (page) {
       var pg = $("page-" + page); if (!pg || pg.querySelector(".help-btn")) return;
@@ -6317,7 +6543,7 @@ header.hero .me-btn { border-color:#e87328; }
       else if (top) { top.appendChild(b); }
     });
   }
-  addHelpButtons();
+  addHelpButtons(); addAskButtons();
   (function () { var b = $("pts-open"); if (b) b.addEventListener("click", openPointsGuide); })();
   /* ---------- First-time setup: wizard, info bubbles, tour and first orders ---------- */
   var ONB = null, ONB_STEPS = ["welcome", "how", "profile", "service", "goal", "training", "three", "done"];
@@ -6624,7 +6850,7 @@ header.hero .me-btn { border-color:#e87328; }
       box.appendChild(r);
     });
   }
-  var APP_VERSION = "v181";
+  var APP_VERSION = "v182";
   /* ---------- Photo upload diagnostic (Settings > Testing) ---------- */
   async function runPhotoDiag() {
     var out = { at: new Date().toISOString(), version: APP_VERSION, ua: navigator.userAgent, steps: [] };
@@ -7537,6 +7763,7 @@ header.hero .me-btn { border-color:#e87328; }
     $("s-bn-rm").addEventListener("click", function () { var o = (state.pubProfiles[state.me] || {}).bannerId; saveProfilePatch({ bannerId: "" }); if (o) B.deleteAsset(o); });
     $("b-bday").addEventListener("change", function (ev) { saveBirthday(ev.target.value); });
     $("set-replay").addEventListener("click", function () { openOnboarding(true); });
+    $("set-legacy").addEventListener("click", function () { openLegacy(); });
     $("calc-apply").addEventListener("click", function () {
       var b = readBody(), plan = calcPlan(b); if (!plan) return;
       state.settings.body = b; state.settings.targets = { kcal: plan.kcal, p: plan.p, f: plan.f, c: plan.c };
@@ -7706,6 +7933,8 @@ header.hero .me-btn { border-color:#e87328; }
       });
       B.watchProgress(state.me, function (rows) { state.progress = rows.map(normProg).filter(function (x) { return /^\d{4}-\d{2}-\d{2}$/.test(x.date); }); drawProgress(); drawToday(); });
       B.watchWeights(state.me, function (m) { state.weights = normWeights(m); drawToday(); if (!$("page-train").hidden) drawWeightChart(); });
+      if (B.watchLiftNotes) B.watchLiftNotes(state.me, function (m) { state.liftNotes = m || {}; });
+      if (B.watchLegacy) B.watchLegacy(state.me, function (m) { state.legacy = normLegacy(m); drawToday(); var lg = $("cdlg"); if (lg && lg.dataset.k === "legacy" && !lg.contains(document.activeElement)) openLegacy(); });
       B.watchSeen(state.me, function (o) { state.seen = { tags: Number(o.tags) || 0 }; drawTagBells(); });
       B.watchOnboard(state.me, function (o) {
         state.onboard = { done: !!o.done, at: Number(o.at) || 0, ordersDone: !!o.ordersDone }; state.onboardLoaded = true;
