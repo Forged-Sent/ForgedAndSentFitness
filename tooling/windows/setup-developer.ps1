@@ -69,7 +69,7 @@ try {
     Attempt 'Basic Flutter/Chrome/Git/VS Code setup' {
       $setupArgs=@('-NoProfile','-File',(Join-Path $PSScriptRoot 'setup.ps1'))
       if ($Android) { $setupArgs += '-Android' }
-      & (Join-Path $PSHOME 'pwsh.exe') @args
+      & (Join-Path $PSHOME 'pwsh.exe') @setupArgs
       Check-Exit 'Basic setup'
     }
     Refresh-Path
