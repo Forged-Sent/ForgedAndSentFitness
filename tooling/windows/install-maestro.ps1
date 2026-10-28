@@ -1,12 +1,12 @@
 #requires -Version 7.4
 <#
-Maestro official Windows CLI installer. Requires Java 17+. Uses official
-https://github.com/mobile-dev-inc/maestro/releases/latest/download/maestro.zip .
+Maestro 2.12.0 verified Windows CLI archive. Requires Java 17+. Uses official
+https://github.com/mobile-dev-inc/Maestro/releases/download/cli-2.12.0/maestro.zip .
 Installs under %LOCALAPPDATA%, never invokes downloaded scripts.
 #>
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
-$home = Join-Path $env:LOCALAPPDATA 'Programs\Maestro'
+$maestroRoot = Join-Path $env:LOCALAPPDATA 'Programs\Maestro'
 $archive = Join-Path $env:TEMP ('ForgedAndSent-Maestro-' + [guid]::NewGuid().ToString('n') + '.zip')
 $staging = Join-Path $env:TEMP ('ForgedAndSent-Maestro-' + [guid]::NewGuid().ToString('n'))
 function Find-Tool([string]$name) {
@@ -51,7 +51,7 @@ if($version -lt 17) {
 $existing=Find-Tool 'maestro.bat'
 if(-not $existing){$existing=Find-Tool 'maestro.exe'}
 if(-not $existing){
-  foreach($item in @((Join-Path $home 'bin\maestro.bat'),(Join-Path $home 'bin\maestro.exe'))){
+  foreach($item in @((Join-Path $maestroRoot 'bin\maestro.bat'),(Join-Path $maestroRoot 'bin\maestro.exe'))){
     if(Test-Path -LiteralPath $item){$existing=$item;break}
   }
 }
@@ -65,20 +65,22 @@ try {
   Write-Host 'Downloading Maestro CLI from its official GitHub release...'
   Invoke-WebRequest -UseBasicParsing -Uri $url -OutFile $archive
   if((Get-Item $archive).Length -lt 100000){throw 'Maestro download looks incomplete.'}
+  $sha256=(Get-FileHash -Algorithm SHA256 -LiteralPath $archive).Hash.ToLowerInvariant()
+  if($sha256 -ne 'a6044a84542f522f434c5dc3d609e60c7446d423f3ed1b2ae513f5c48663ec5e'){throw 'Maestro ZIP SHA256 mismatch; installation stopped before extraction.'}
   New-Item -ItemType Directory -Force -Path $staging | Out-Null
   Expand-Archive -LiteralPath $archive -DestinationPath $staging -Force
   $launcher=Get-ChildItem $staging -Recurse -File | Where-Object{$_.Name -in @('maestro.bat','maestro.exe')} | Select-Object -First 1
   if(-not $launcher){throw 'Downloaded Maestro ZIP has no native Windows launcher. Check the official release or use the installer manually.'}
   $installRoot=Split-Path (Split-Path $launcher.FullName -Parent) -Parent
   if(-not (Test-Path -LiteralPath $installRoot)){throw 'Unexpected Maestro package layout.'}
-  $target=Join-Path $home 'bin'
-  if(Test-Path -LiteralPath $home){throw 'Maestro install directory exists but is incomplete. Inspect it before rerunning.'}
-  New-Item -ItemType Directory -Force -Path (Split-Path $home -Parent) | Out-Null
-  Move-Item -LiteralPath $installRoot -Destination $home
+  $target=Join-Path $maestroRoot 'bin'
+  if(Test-Path -LiteralPath $maestroRoot){throw 'Maestro install directory exists but is incomplete. Inspect it before rerunning.'}
+  New-Item -ItemType Directory -Force -Path (Split-Path $maestroRoot -Parent) | Out-Null
+  Move-Item -LiteralPath $installRoot -Destination $maestroRoot
   $installedLauncher=Join-Path $target $launcher.Name
   if(-not (Test-Path -LiteralPath $installedLauncher)){
     # Some release archives contain a different root layout; search inside the installed package.
-    $found=Get-ChildItem $home -Recurse -File | Where-Object{$_.Name -in @('maestro.bat','maestro.exe')} | Select-Object -First 1
+    $found=Get-ChildItem $maestroRoot -Recurse -File | Where-Object{$_.Name -in @('maestro.bat','maestro.exe')} | Select-Object -First 1
     if(-not $found){throw 'Maestro moved but executable was not found.'}
     $target=Split-Path $found.FullName -Parent
   }

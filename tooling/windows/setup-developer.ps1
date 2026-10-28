@@ -93,7 +93,7 @@ try {
     & $gh --version | Select-Object -First 1
   }
 
-  Attempt 'Firebase CLI and Firebase MCP runtime' {
+  Attempt 'Firebase CLI (local emulators; no cloud MCP)' {
     $npm=Npm
     $firebase=Find-Tool 'firebase.cmd' @((Join-Path $env:APPDATA 'npm\firebase.cmd'))
     if (-not $firebase) {
@@ -126,11 +126,12 @@ try {
     $config = Join-Path $root '.vscode\mcp.json'
     if(-not (Test-Path -LiteralPath $config)){throw 'Shared .vscode/mcp.json missing. Extract the full branch.'}
     $definition=Get-Content -LiteralPath $config -Raw | ConvertFrom-Json
-    foreach($name in @('dart','firebase','playwright','github','context7','figma','maestro','google-developer-knowledge')){
+    foreach($name in @('dart','playwright','github','context7','figma','maestro','google-developer-knowledge')){
       if(-not ($definition.servers.PSObject.Properties.Name -contains $name)){throw "Missing approved MCP $name"}
     }
     if($definition.servers.PSObject.Properties.Name -contains 'sentry'){throw 'Sentry must not be enabled'}
-    Write-Host 'Eight MCPs configured for VS Code. Live connection and cloud account trust remain manual.'
+    if($definition.servers.PSObject.Properties.Name -contains 'firebase'){throw 'Cloud Firebase MCP must not be enabled by default'}
+    Write-Host 'Seven safe-by-default MCPs configured in VS Code. No Firebase cloud MCP.'
   }
 
   Attempt 'Visual Studio Code extensions' {
@@ -138,7 +139,6 @@ try {
     $extensions=@(
       'Dart-Code.dart-code',
       'Dart-Code.flutter',
-      'GitHub.copilot',
       'GitHub.copilot-chat',
       'GitHub.vscode-pull-request-github',
       'OpenAI.chatgpt',
@@ -149,6 +149,7 @@ try {
     )
     $installed=@(& $code --list-extensions)
     foreach ($id in $extensions) {
+      try {
       if ($installed | Where-Object { $_ -ieq $id }) {
         Write-Host "Already installed: $id"
       } else {
@@ -156,11 +157,12 @@ try {
         & $code --install-extension $id
         Check-Exit "VS Code extension $id"
       }
+      } catch { $issues.Add("Extension $id : $($_.Exception.Message)"); Write-Warning "Extension $id failed but installation continues" }
     }
   }
 
   if (-not $SkipAgentCLIs) {
-    Attempt 'Codex CLI and Dart MCP registration' {
+    Attempt 'Codex CLI' {
       $npm=Npm
       $codex=Find-Tool 'codex.cmd' @((Join-Path $env:APPDATA 'npm\codex.cmd'))
       if (-not $codex) {
@@ -171,29 +173,21 @@ try {
       $codex=Find-Tool 'codex.cmd' @((Join-Path $env:APPDATA 'npm\codex.cmd'))
       if (-not $codex) { throw 'Codex CLI not detected' }
       & $codex --version; Check-Exit 'Codex CLI'
-      $list = (& $codex mcp list 2>&1 | Out-String)
-      if ($list -notmatch '(?m)^\s*dart\s') {
-        & $codex mcp add dart -- dart mcp-server
-        Check-Exit 'Codex Dart MCP'
-      }
+
     }
-    Attempt 'Claude Code CLI and Dart MCP registration' {
+    Attempt 'Claude Code CLI' {
       $claude=Find-Tool 'claude.exe' @((Join-Path $env:USERPROFILE '.local\bin\claude.exe'))
       if (-not $claude) { Package 'Anthropic.ClaudeCode' }
       Refresh-Path
       $claude=Find-Tool 'claude.exe' @((Join-Path $env:USERPROFILE '.local\bin\claude.exe'))
       if (-not $claude) { throw 'Claude CLI not detected; VS Code extension can still work' }
       & $claude --version; Check-Exit 'Claude Code'
-      $list = (& $claude mcp list 2>&1 | Out-String)
-      if ($list -notmatch '(?m)^\s*dart\s') {
-        & $claude mcp add --scope user dart -- dart mcp-server
-        Check-Exit 'Claude Dart MCP'
-      }
+
     }
   }
 
   if(-not $SkipAgentCLIs){
-    Attempt 'Register approved no-key MCPs with Claude and Codex' {
+    Attempt 'Register safe no-cloud MCPs with Claude and Codex' {
       & (Join-Path $PSHOME 'pwsh.exe') -NoProfile -File (Join-Path $PSScriptRoot 'register-cli-mcps.ps1') -Agent Both
       Check-Exit 'Claude/Codex MCP registration'
     }

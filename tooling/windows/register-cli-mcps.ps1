@@ -1,76 +1,58 @@
 #requires -Version 7.4
-# Registers approved no-key MCPs for Claude Code and Codex, per-user.
-# Never logs in or stores authentication tokens in the repository.
+# Idempotent per-user registration of SAFE, no-cloud-write MCP servers.
+# Firebase and GitHub cloud MCPs are deliberately EXCLUDED.
 param([ValidateSet('Both','Claude','Codex')][string]$Agent='Both')
 Set-StrictMode -Version Latest
 $ErrorActionPreference='Stop'
-$env:Path += ';' + (Join-Path $env:APPDATA 'npm') + ';' +
-  (Join-Path $env:USERPROFILE 'develop\flutter\bin') + ';' +
-  (Join-Path $env:LOCALAPPDATA 'Programs\Maestro\bin')
+$env:Path += ';' + (Join-Path $env:APPDATA 'npm') + ';' + (Join-Path $env:USERPROFILE 'develop\flutter\bin') + ';' + (Join-Path $env:LOCALAPPDATA 'Programs\Maestro\bin')
 $failures=New-Object System.Collections.Generic.List[string]
 $local=@(
-  @{name='dart';command=@('dart','mcp-server')},
-  @{name='firebase';command=@('firebase','mcp')},
-  @{name='playwright';command=@('npx','-y','@playwright/mcp@latest','--browser=chrome')},
-  @{name='maestro';command=@('maestro','mcp')}
+  @{name='dart';cmd=@('cmd','/c','dart','mcp-server')},
+  @{name='playwright';cmd=@('cmd','/c','npx','-y','@playwright/mcp@0.0.83','--browser=chrome')},
+  @{name='maestro';cmd=@('cmd','/c','maestro','mcp')}
 )
 $remote=@(
-  @{name='github';url='https://api.githubcopilot.com/mcp/readonly'},
   @{name='context7';url='https://mcp.context7.com/mcp'},
   @{name='figma';url='https://mcp.figma.com/mcp'}
 )
-function Register([string]$client,[string]$cli,[string]$name,[string]$url,[string[]]$command) {
-  # A user can be signed out while MCP configuration is still available.
-  $existing = (& $cli mcp list 2>&1 | Out-String)
-  if($LASTEXITCODE -ne 0){throw "$client MCP list command failed"}
-  if($existing -match "(?m)^\s*$([regex]::Escape($name))\s"){
-    Write-Host "$client already has $name, leaving it untouched."
-    return
-  }
+function Has-Mcp([string]$cli,[string]$name) {
+  # mcp get is a single configuration lookup; mcp list may initiate network auth/handshakes.
+  $null = & $cli mcp get $name 2>&1
+  return ($LASTEXITCODE -eq 0)
+}
+function Register-Mcp([string]$client,[string]$cli,[string]$name,[string[]]$argv,[string]$url='') {
+  if(Has-Mcp $cli $name) {Write-Host "[ALREADY] $client / $name";return}
   if($url){
-    if($client -eq 'Codex'){
-      & $cli mcp add $name --url $url
-    }else{
-      & $cli mcp add --transport http --scope user $name $url
-    }
+    if($client -eq 'Claude') {& $cli mcp add --scope user --transport http $name $url}
+    else {& $cli mcp add $name --url $url}
   }else{
-    if($client -eq 'Codex'){
-      & $cli mcp add $name -- @command
-    }else{
-      & $cli mcp add --scope user $name -- @command
-    }
+    if($client -eq 'Claude') {& $cli mcp add --scope user $name -- @argv}
+    else {& $cli mcp add $name -- @argv}
   }
-  if($LASTEXITCODE -ne 0){throw "$client could not register MCP $name"}
-  Write-Host ("[OK] " + $client + ": " + $name)
+  if($LASTEXITCODE -ne 0){throw "$client failed to register $name"}
+  Write-Host "[OK] $client / $name"
 }
 foreach($client in @('Codex','Claude')){
   if($Agent -ne 'Both' -and $client -ne $Agent){continue}
-  $exeName=if($client -eq 'Codex'){'codex.cmd'}else{'claude.exe'}
-  $found=Get-Command $exeName -ErrorAction SilentlyContinue|Select-Object -First 1
-  if(-not $found){
-    $candidate=if($client -eq 'Codex'){Join-Path $env:APPDATA 'npm\codex.cmd'}else{Join-Path $env:USERPROFILE '.local\bin\claude.exe'}
-    if(Test-Path -LiteralPath $candidate){$found=[pscustomobject]@{Source=$candidate}}
+  $exe=if($client -eq 'Codex'){'codex.cmd'}else{'claude.exe'}
+  $candidate=Get-Command $exe -ErrorAction SilentlyContinue | Select-Object -First 1
+  if(-not $candidate){
+    $fallback=if($client -eq 'Codex'){Join-Path $env:APPDATA 'npm\codex.cmd'}else{Join-Path $env:USERPROFILE '.local\bin\claude.exe'}
+    if(Test-Path -LiteralPath $fallback){$candidate=[pscustomobject]@{Source=$fallback}}
   }
-  if(-not $found){
-    Write-Warning "$client CLI not detected. Use VS Code MCPs instead, or rerun developer setup."
-    continue
+  if(-not $candidate){Write-Host "[OPTIONAL] $client CLI not installed";continue}
+  foreach($item in $local){
+    try{Register-Mcp $client $candidate.Source $item.name ([string[]]$item.cmd)}
+    catch{$failures.Add("$client/$($item.name): $($_.Exception.Message)")}
   }
-  Write-Host ''
-  Write-Host "Configuring $client MCPs in the current Windows user profile..." -ForegroundColor Cyan
-  foreach($entry in $local){
-    try {Register $client $found.Source $entry.name '' $entry.command}
-    catch {$failures.Add("$client / $($entry.name): $($_.Exception.Message)");Write-Warning $failures[$failures.Count-1]}
-  }
-  foreach($entry in $remote){
-    try {Register $client $found.Source $entry.name $entry.url @()}
-    catch {$failures.Add("$client / $($entry.name): $($_.Exception.Message)");Write-Warning $failures[$failures.Count-1]}
+  foreach($item in $remote){
+    try{Register-Mcp $client $candidate.Source $item.name @() $item.url}
+    catch{$failures.Add("$client/$($item.name): $($_.Exception.Message)")}
   }
 }
-Write-Host ''
-Write-Host 'Google Developer Knowledge requires a personal API key; use the VS Code prompt.'
-Write-Host 'No cloud credentials, CLI logins, or deployments were performed.'
+Write-Host 'No Firebase MCP or cloud GitHub credentials were registered. Cloud services remain opt-in for Maintainers only.'
 if($failures.Count){
-  Write-Host "$($failures.Count) MCP registration(s) need attention. The VS Code MCP configuration is still available." -ForegroundColor Yellow
+  foreach($failure in $failures){Write-Warning $failure}
   exit 1
 }
 exit 0
