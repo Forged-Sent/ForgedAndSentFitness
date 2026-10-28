@@ -44,8 +44,8 @@ if(-not $pwshPath){
   try{
     $versionText=(& $pwshPath -NoLogo -NoProfile -NonInteractive -Command '$PSVersionTable.PSVersion.ToString()' | Select-Object -First 1)
     $version=[version]([string]$versionText).Trim()
-    if($version -lt [version]'7.4.0'){
-      Issue 'PowerShell7' "PowerShell $version is too old for the developer tools." 'Rerun FIRST-RUN-WINDOWS.cmd to upgrade PowerShell through WinGet.'
+    if($version -lt [version]'7.6.0'){
+      Issue 'PowerShell7' "PowerShell $version is older than the required PowerShell 7.6 LTS baseline." 'Rerun FIRST-RUN-WINDOWS.cmd to upgrade PowerShell through WinGet.'
     }else{$ok.Add("PowerShell7:$version")}
   }catch{
     Issue 'PowerShell7' 'PowerShell 7 was found but could not start or report its version.' 'Try pwsh --version, restart Windows, and rerun setup. Ask IT if the app is blocked.'
