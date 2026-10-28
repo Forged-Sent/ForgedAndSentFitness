@@ -14,6 +14,7 @@ param(
 
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
+. (Join-Path $PSScriptRoot 'winget.ps1')
 $ProgressPreference = 'SilentlyContinue'
 
 $projectRoot = (Resolve-Path (Join-Path $PSScriptRoot '..\..')).Path
@@ -54,10 +55,7 @@ function Ensure-Winget {
 function Install-Package([string]$id, [string]$label) {
     Ensure-Winget
     Write-Host ('Installing ' + $label + ' using Windows Package Manager...')
-    & winget.exe install --id $id --exact --source winget --accept-package-agreements --accept-source-agreements
-    if ($LASTEXITCODE -ne 0) {
-        throw ($label + ' installation did not complete (WinGet exit ' + $LASTEXITCODE + '). Check for Windows installation prompts and rerun the setup.')
-    }
+    $null=Invoke-FSWinGetPackage -Id $id -Action Install
     Refresh-ProcessPath
 }
 

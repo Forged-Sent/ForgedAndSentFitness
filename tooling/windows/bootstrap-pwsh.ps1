@@ -11,6 +11,7 @@ param(
 )
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
+. (Join-Path $PSScriptRoot 'winget.ps1')
 $root = (Resolve-Path (Join-Path $PSScriptRoot '..\..')).Path
 $minimum = [version]'7.6.0'
 $entries = @{
@@ -53,8 +54,7 @@ function Require-Winget {
 function Install-Pwsh {
     Require-Winget
     Write-Host 'Installing current supported PowerShell 7 through Microsoft WinGet...' -ForegroundColor Cyan
-    & winget.exe install --id Microsoft.PowerShell --exact --source winget --accept-package-agreements --accept-source-agreements
-    if($LASTEXITCODE -ne 0){throw "PowerShell installation exited $LASTEXITCODE. Approve the Windows installer if prompted, or share this error with your administrator."}
+    $null=Invoke-FSWinGetPackage -Id 'Microsoft.PowerShell' -Action Install
     Refresh-Path
 }
 function Update-Pwsh {
@@ -63,10 +63,7 @@ function Update-Pwsh {
         return
     }
     Write-Host 'Checking for a supported PowerShell 7 update...'
-    & winget.exe upgrade --id Microsoft.PowerShell --exact --source winget --accept-package-agreements --accept-source-agreements
-    if($LASTEXITCODE -ne 0){
-        Write-Host 'No PowerShell upgrade was applied (already current, not registered with WinGet, or installer declined).' -ForegroundColor Yellow
-    }
+    $null=Invoke-FSWinGetPackage -Id 'Microsoft.PowerShell' -Action Upgrade
     Refresh-Path
 }
 try {
@@ -93,7 +90,7 @@ try {
         Install-Pwsh
         $pwsh = Locate-Pwsh
         $version = PwshVersion $pwsh
-    } elseif($version -lt $minimum -or $selected.Update) {
+    } elseif($version -lt $minimum) {
         Update-Pwsh
         $pwsh = Locate-Pwsh
         $version = PwshVersion $pwsh

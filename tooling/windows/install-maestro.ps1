@@ -6,6 +6,7 @@ Installs under %LOCALAPPDATA%, never invokes downloaded scripts.
 #>
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
+. (Join-Path $PSScriptRoot 'winget.ps1')
 $maestroRoot = Join-Path $env:LOCALAPPDATA 'Programs\Maestro'
 $archive = Join-Path $env:TEMP ('ForgedAndSent-Maestro-' + [guid]::NewGuid().ToString('n') + '.zip')
 $staging = Join-Path $env:TEMP ('ForgedAndSent-Maestro-' + [guid]::NewGuid().ToString('n'))
@@ -40,8 +41,7 @@ $version=JavaVersion
 if($version -lt 17) {
   Write-Host 'Maestro requires Java 17 or newer. Installing Temurin 17 JDK through WinGet...'
   if(-not (Find-Tool 'winget.exe')){throw 'WinGet is required to install Java 17. Install App Installer from Microsoft Store.'}
-  & winget.exe install --exact --id EclipseAdoptium.Temurin.17.JDK --source winget --accept-package-agreements --accept-source-agreements
-  if($LASTEXITCODE -ne 0){throw 'Java 17 installation failed. Restart Windows and rerun setup.'}
+  $null=Invoke-FSWinGetPackage -Id 'EclipseAdoptium.Temurin.17.JDK' -Action Install
   $env:Path = [Environment]::GetEnvironmentVariable('Path','Machine') + ';' + [Environment]::GetEnvironmentVariable('Path','User')
   if((JavaVersion) -lt 17){
     Write-Warning 'Java may need a fresh terminal after installation. Restart Windows and rerun the developer setup.'

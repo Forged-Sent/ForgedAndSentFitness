@@ -7,6 +7,7 @@ It never deploys Firebase, logs into paid services, or stores credentials.
 param([switch]$SkipBase,[switch]$SkipAgentCLIs,[switch]$Android)
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
+. (Join-Path $PSScriptRoot 'winget.ps1')
 $root = (Resolve-Path (Join-Path $PSScriptRoot '..\..')).Path
 $log = Join-Path $env:TEMP ('ForgedAndSent-developer-{0:yyyyMMdd-HHmmss}.log' -f (Get-Date))
 $issues = New-Object System.Collections.Generic.List[string]
@@ -28,8 +29,7 @@ function Find-Tool([string]$name,[string[]]$alternatives=@()) {
 }
 function Package([string]$id) {
   if (-not (Find-Tool 'winget.exe')) { throw 'WinGet missing. Update App Installer from Microsoft Store and rerun.' }
-  & winget.exe install --exact --id $id --source winget --accept-package-agreements --accept-source-agreements
-  if ($LASTEXITCODE -ne 0) { throw "WinGet failed to install $id, exit $LASTEXITCODE" }
+  $null=Invoke-FSWinGetPackage -Id $id -Action Install
   Refresh-Path
 }
 function Check-Exit([string]$name) {
