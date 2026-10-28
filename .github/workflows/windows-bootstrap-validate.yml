@@ -33,7 +33,14 @@ jobs:
             'tooling/windows/install-maestro.ps1',
             'tooling/windows/verify-developer.ps1',
             'tooling/windows/first-run.ps1',
-            'tooling/windows/register-cli-mcps.ps1'
+            'tooling/windows/register-cli-mcps.ps1',
+            'tooling/windows/setup-profile.ps1',
+            'tooling/windows/ensure-java21.ps1',
+            'tooling/windows/start-emulators.ps1',
+            'tooling/windows/run-emulator-app.ps1',
+            'tooling/shell/fs-tools.ps1',
+            'tooling/shell/forged-shell.ps1',
+            'tooling/shell/task.ps1'
           )
           foreach($file in $files){
             $tokens=$null
@@ -66,7 +73,7 @@ jobs:
             if((Get-Content $launcher -Raw) -notmatch 'bootstrap-pwsh.ps1'){throw "$launcher must use the bootstrap bridge"}
           }
           $settings=Get-Content '.vscode/settings.json' -Raw | ConvertFrom-Json
-          if($settings.'terminal.integrated.defaultProfile.windows' -ne 'PowerShell 7'){throw 'VS Code Windows default terminal must be PowerShell 7'}
+          if($settings.'terminal.integrated.defaultProfile.windows' -notin @('PowerShell 7','Forged & Sent')){throw 'Default VS Code terminal must use supported PowerShell 7'}
           Write-Host 'MCP and extensions validated, Sentry absent.'
       - name: Test wizard diagnostics without changing machine
         shell: pwsh
