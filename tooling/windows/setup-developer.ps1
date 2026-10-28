@@ -1,0 +1,194 @@
+#requires -Version 5.1
+<#
+Run from SETUP-DEVELOPER-WINDOWS.cmd.
+Installs developer dependencies and VS Code extensions; rerunnable.
+It never deploys Firebase, logs into paid services, or stores credentials.
+#>
+param([switch]$SkipBase,[switch]$SkipAgentCLIs,[switch]$Android)
+Set-StrictMode -Version Latest
+$ErrorActionPreference = 'Stop'
+$root = (Resolve-Path (Join-Path $PSScriptRoot '..\..')).Path
+$log = Join-Path $env:TEMP ('ForgedAndSent-developer-{0:yyyyMMdd-HHmmss}.log' -f (Get-Date))
+$issues = New-Object System.Collections.Generic.List[string]
+$logged = $false
+
+function Refresh-Path {
+  $env:Path = [Environment]::GetEnvironmentVariable('Path','Machine') + ';' +
+    [Environment]::GetEnvironmentVariable('Path','User') + ';' +
+    (Join-Path $env:APPDATA 'npm') + ';' +
+    (Join-Path $env:USERPROFILE 'develop\flutter\bin')
+}
+function Find-Tool([string]$name,[string[]]$alternatives=@()) {
+  $found = Get-Command $name -ErrorAction SilentlyContinue | Select-Object -First 1
+  if ($found) { return $found.Source }
+  foreach ($path in $alternatives) {
+    if ($path -and (Test-Path -LiteralPath $path)) { return $path }
+  }
+  return $null
+}
+function Package([string]$id) {
+  if (-not (Find-Tool 'winget.exe')) { throw 'WinGet missing. Update App Installer from Microsoft Store and rerun.' }
+  & winget.exe install --exact --id $id --source winget --accept-package-agreements --accept-source-agreements
+  if ($LASTEXITCODE -ne 0) { throw "WinGet failed to install $id, exit $LASTEXITCODE" }
+  Refresh-Path
+}
+function Check-Exit([string]$name) {
+  if ($LASTEXITCODE -ne 0) { throw "$name returned $LASTEXITCODE" }
+}
+function Attempt([string]$label,[scriptblock]$operation) {
+  Write-Host ''
+  Write-Host "=== $label ===" -ForegroundColor Cyan
+  try {
+    & $operation
+    Write-Host "[OK] $label" -ForegroundColor Green
+  } catch {
+    $issues.Add("$label : $($_.Exception.Message)")
+    Write-Warning "$label needs attention: $($_.Exception.Message)"
+  }
+}
+function Npm {
+  $candidate = Find-Tool 'npm.cmd' @((Join-Path $env:ProgramFiles 'nodejs\npm.cmd'))
+  if (-not $candidate) { throw 'npm missing; restart Windows or rerun Node.js install' }
+  return $candidate
+}
+function Code {
+  $candidate = Find-Tool 'code.cmd' @(
+    (Join-Path $env:LOCALAPPDATA 'Programs\Microsoft VS Code\bin\code.cmd'),
+    (Join-Path $env:ProgramFiles 'Microsoft VS Code\bin\code.cmd')
+  )
+  if (-not $candidate) { throw 'VS Code launcher missing. Rerun SETUP-WINDOWS.cmd.' }
+  return $candidate
+}
+try {
+  try { Start-Transcript -Path $log | Out-Null; $logged=$true } catch { Write-Warning 'Log unavailable' }
+  Write-Host "Setup log: $log"
+  Write-Host 'Review installation and MCP trust prompts. No Firebase, GitHub, or AI login is performed.'
+  Refresh-Path
+
+  if (-not $SkipBase) {
+    Attempt 'Basic Flutter/Chrome/Git/VS Code setup' {
+      $args=@('-NoProfile','-ExecutionPolicy','Bypass','-File',(Join-Path $PSScriptRoot 'setup.ps1'))
+      if ($Android) { $args += '-Android' }
+      & powershell.exe @args
+      Check-Exit 'Basic setup'
+    }
+    Refresh-Path
+  }
+
+  Attempt 'Node.js LTS / npm' {
+    if (-not (Find-Tool 'node.exe' @((Join-Path $env:ProgramFiles 'nodejs\node.exe')))) {
+      Package 'OpenJS.NodeJS.LTS'
+    }
+    $node=Find-Tool 'node.exe' @((Join-Path $env:ProgramFiles 'nodejs\node.exe'))
+    if (-not $node) { throw 'Node.js not detected after install' }
+    & $node --version; Check-Exit 'Node.js'
+    $npm=Npm; & $npm --version; Check-Exit 'npm'
+  }
+
+  Attempt 'GitHub CLI' {
+    $gh=Find-Tool 'gh.exe' @((Join-Path $env:ProgramFiles 'GitHub CLI\gh.exe'))
+    if (-not $gh) { Package 'GitHub.cli' }
+    $gh=Find-Tool 'gh.exe' @((Join-Path $env:ProgramFiles 'GitHub CLI\gh.exe'))
+    if (-not $gh) { throw 'GitHub CLI not found; restart then retry' }
+    & $gh --version | Select-Object -First 1
+  }
+
+  Attempt 'Firebase CLI and Firebase MCP runtime' {
+    $npm=Npm
+    $firebase=Find-Tool 'firebase.cmd' @((Join-Path $env:APPDATA 'npm\firebase.cmd'))
+    if (-not $firebase) {
+      & $npm install --global firebase-tools
+      Check-Exit 'Firebase CLI install'
+    }
+    Refresh-Path
+    $firebase=Find-Tool 'firebase.cmd' @((Join-Path $env:APPDATA 'npm\firebase.cmd'))
+    if (-not $firebase) { throw 'Firebase CLI not found after npm installation' }
+    & $firebase --version; Check-Exit 'Firebase CLI'
+  }
+
+  Attempt 'Playwright MCP package' {
+    $npm=Npm
+    & $npm list --global @playwright/mcp --depth=0 | Out-Null
+    if ($LASTEXITCODE -ne 0) {
+      & $npm install --global @playwright/mcp
+      Check-Exit 'Playwright MCP install'
+    }
+  }
+
+  Attempt 'Visual Studio Code extensions' {
+    $code=Code
+    $extensions=@(
+      'Dart-Code.dart-code',
+      'Dart-Code.flutter',
+      'GitHub.copilot',
+      'GitHub.copilot-chat',
+      'GitHub.vscode-pull-request-github',
+      'OpenAI.chatgpt',
+      'Anthropic.claude-code',
+      'redhat.vscode-yaml',
+      'EditorConfig.EditorConfig',
+      'ms-vscode.powershell'
+    )
+    $installed=@(& $code --list-extensions)
+    foreach ($id in $extensions) {
+      if ($installed | Where-Object { $_ -ieq $id }) {
+        Write-Host "Already installed: $id"
+      } else {
+        Write-Host "Installing extension: $id"
+        & $code --install-extension $id
+        Check-Exit "VS Code extension $id"
+      }
+    }
+  }
+
+  if (-not $SkipAgentCLIs) {
+    Attempt 'Codex CLI and Dart MCP registration' {
+      $npm=Npm
+      $codex=Find-Tool 'codex.cmd' @((Join-Path $env:APPDATA 'npm\codex.cmd'))
+      if (-not $codex) {
+        & $npm install --global @openai/codex
+        Check-Exit 'Codex CLI install'
+      }
+      Refresh-Path
+      $codex=Find-Tool 'codex.cmd' @((Join-Path $env:APPDATA 'npm\codex.cmd'))
+      if (-not $codex) { throw 'Codex CLI not detected' }
+      & $codex --version; Check-Exit 'Codex CLI'
+      $list = (& $codex mcp list 2>&1 | Out-String)
+      if ($list -notmatch '(?m)^\s*dart\s') {
+        & $codex mcp add dart -- dart mcp-server
+        Check-Exit 'Codex Dart MCP'
+      }
+    }
+    Attempt 'Claude Code CLI and Dart MCP registration' {
+      $claude=Find-Tool 'claude.exe' @((Join-Path $env:USERPROFILE '.local\bin\claude.exe'))
+      if (-not $claude) { Package 'Anthropic.ClaudeCode' }
+      Refresh-Path
+      $claude=Find-Tool 'claude.exe' @((Join-Path $env:USERPROFILE '.local\bin\claude.exe'))
+      if (-not $claude) { throw 'Claude CLI not detected; VS Code extension can still work' }
+      & $claude --version; Check-Exit 'Claude Code'
+      $list = (& $claude mcp list 2>&1 | Out-String)
+      if ($list -notmatch '(?m)^\s*dart\s') {
+        & $claude mcp add --scope user dart -- dart mcp-server
+        Check-Exit 'Claude Dart MCP'
+      }
+    }
+  }
+
+  Attempt 'Developer diagnostics' {
+    & powershell.exe -NoProfile -ExecutionPolicy Bypass -File (Join-Path $PSScriptRoot 'verify-developer.ps1')
+    Check-Exit 'Developer diagnostics'
+  }
+
+  Write-Host ''
+  if ($issues.Count) {
+    Write-Host "$($issues.Count) part(s) require attention. Restart and rerun safely:" -ForegroundColor Yellow
+    $issues | ForEach-Object { Write-Host (' - ' + $_) }
+  } else {
+    Write-Host 'Developer workstation ready. Restart VS Code.' -ForegroundColor Green
+  }
+  Write-Host 'See docs/development/DEVELOPER-WINDOWS.md for MCP trust and account sign-in.'
+} finally {
+  if ($logged) { try { Stop-Transcript | Out-Null } catch {} }
+}
+if ($issues.Count) { exit 1 }
+exit 0
