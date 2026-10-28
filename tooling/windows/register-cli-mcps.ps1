@@ -41,7 +41,7 @@ function Register([string]$client,[string]$cli,[string]$name,[string]$url,[strin
     }
   }
   if($LASTEXITCODE -ne 0){throw "$client could not register MCP $name"}
-  Write-Host "[OK] $client: $name"
+  Write-Host ("[OK] " + $client + ": " + $name)
 }
 foreach($client in @('Codex','Claude')){
   if($Agent -ne 'Both' -and $client -ne $Agent){continue}
