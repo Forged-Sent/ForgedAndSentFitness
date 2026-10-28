@@ -1,5 +1,15 @@
 # Forged & Sent: developer setup on Windows
 
+## PowerShell 7 (automatic)
+
+**PowerShell 7.6 LTS or newer is the standard for this repo.** The double-click .cmd entrypoints begin with the built-in Windows PowerShell 5.1 only to run tooling/windows/bootstrap-pwsh.ps1. The bootstrap checks for pwsh, installs or updates PowerShell using the official WinGet ID Microsoft.PowerShell, checks it is at least 7.6, and launches all developer scripts with pwsh.exe. Windows PowerShell 5.1 stays installed; don't remove it. The launchers do not permanently change execution policy.
+
+The full and preview installers check for updates. RUN-APP.cmd does not check for updates every time. If WinGet/App Installer is missing, installer permission is declined, or a restart is needed, the wizard prints a clear fix and stops rather than silently using 5.1.
+
+Run pwsh --version to check it yourself. VS Code now defaults to the PowerShell 7 terminal for this workspace. PowerShell 7 is installed side-by-side with 5.1.
+
+Official installation instructions: https://learn.microsoft.com/en-us/powershell/scripting/install/install-powershell-on-windows
+
 ## Two setups, for different teammates
 
 - Preview-only: run SETUP-WINDOWS.cmd, then RUN-APP.cmd. This opens the Flutter starter in Chrome, without accounts.

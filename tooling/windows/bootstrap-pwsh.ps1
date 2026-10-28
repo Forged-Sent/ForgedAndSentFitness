@@ -1,6 +1,6 @@
 #requires -Version 5.1
 <#
-Minimal PowerShell 5.1 bootstrap. All real development scripts run in pwsh 7.
+Minimal PowerShell 5.1 bootstrap. Installs/updates supported PowerShell 7.6 LTS+; all real development scripts run in pwsh 7.
 Run by the repository's .cmd entrypoints; never changes execution policy globally.
 #>
 param(
@@ -12,12 +12,12 @@ param(
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 $root = (Resolve-Path (Join-Path $PSScriptRoot '..\..')).Path
-$minimum = [version]'7.4.0'
+$minimum = [version]'7.6.0'
 $entries = @{
     wizard    = @{File='first-run.ps1'; Args=@(); Update=$true}
     developer = @{File='setup-developer.ps1'; Args=@(); Update=$true}
-    setup     = @{File='setup.ps1'; Args=@(); Update=$false}
-    android   = @{File='setup.ps1'; Args=@('-Android'); Update=$false}
+    setup     = @{File='setup.ps1'; Args=@(); Update=$true}
+    android   = @{File='setup.ps1'; Args=@('-Android'); Update=$true}
     run       = @{File='run-app.ps1'; Args=@(); Update=$false}
     verify    = @{File='verify-developer.ps1'; Args=@(); Update=$false}
 }
@@ -89,17 +89,17 @@ try {
         & powershell.exe -NoProfile -ExecutionPolicy Bypass -File $script
         exit [int]$LASTEXITCODE
     }
-    if(-not $version -or $version -lt $minimum){
+    if(-not $version) {
         Install-Pwsh
         $pwsh = Locate-Pwsh
         $version = PwshVersion $pwsh
-    } elseif($selected.Update) {
+    } elseif($version -lt $minimum -or $selected.Update) {
         Update-Pwsh
         $pwsh = Locate-Pwsh
         $version = PwshVersion $pwsh
     }
     if(-not $version -or $version -lt $minimum){
-        throw "PowerShell 7.4+ could not be started. Restart Windows after installation. Current version: $version. Run FIRST-RUN-WINDOWS.cmd again."
+        throw "PowerShell 7.6 LTS or newer could not be started. Restart Windows after installation. Current version: $version. Run FIRST-RUN-WINDOWS.cmd again."
     }
     Write-Host "Using PowerShell $version ($pwsh)" -ForegroundColor Green
     $scriptArguments = [string[]]$selected.Args

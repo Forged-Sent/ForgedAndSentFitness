@@ -22,10 +22,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Parse PowerShell scripts and validate MCP/extension JSON
-        shell: powershell
+        shell: pwsh
         run: |
           $ErrorActionPreference = 'Stop'
           $files = @(
+            'tooling/windows/bootstrap-pwsh.ps1',
             'tooling/windows/setup.ps1',
             'tooling/windows/run-app.ps1',
             'tooling/windows/setup-developer.ps1',
@@ -59,11 +60,21 @@ jobs:
             throw 'Google Knowledge password prompt missing'
           }
           if($ext.recommendations.Count -lt 8){throw 'Recommended editor extensions missing'}
+
+          foreach($launcher in @('SETUP-WINDOWS.cmd','SETUP-DEVELOPER-WINDOWS.cmd','SETUP-ANDROID.cmd','RUN-APP.cmd','VERIFY-DEVELOPER-WINDOWS.cmd','FIRST-RUN-WINDOWS.cmd')){
+            if((Get-Content $launcher -Raw) -notmatch 'bootstrap-pwsh.ps1'){throw "$launcher must use the bootstrap bridge"}
+          }
+          $settings=Get-Content '.vscode/settings.json' -Raw | ConvertFrom-Json
+          if($settings.'terminal.integrated.defaultProfile.windows' -ne 'PowerShell 7'){throw 'VS Code Windows default terminal must be PowerShell 7'}
           Write-Host 'MCP and extensions validated, Sentry absent.'
       - name: Test wizard diagnostics without changing machine
-        shell: powershell
+        shell: pwsh
         run: |
-          & powershell.exe -NoProfile -ExecutionPolicy Bypass -File 'tooling/windows/verify-developer.ps1' -SelfTest
+          & powershell.exe -NoProfile -ExecutionPolicy Bypass -File 'tooling/windows/bootstrap-pwsh.ps1' -Mode wizard -SelfTest
+          if($LASTEXITCODE -ne 0){throw '5.1 bootstrap wizard test failed'}
+          & powershell.exe -NoProfile -ExecutionPolicy Bypass -File 'tooling/windows/bootstrap-pwsh.ps1' -Mode android -SelfTest
+          if($LASTEXITCODE -ne 0){throw '5.1 bootstrap Android test failed'}
+          & pwsh -NoProfile -File 'tooling/windows/verify-developer.ps1' -SelfTest
           if($LASTEXITCODE -ne 0){throw 'Diagnostics synthetic test failed'}
-          & powershell.exe -NoProfile -ExecutionPolicy Bypass -File 'tooling/windows/first-run.ps1' -SelfTest
+          & pwsh -NoProfile -File 'tooling/windows/first-run.ps1' -SelfTest
           if($LASTEXITCODE -ne 0){throw 'Wizard self-test failed'}

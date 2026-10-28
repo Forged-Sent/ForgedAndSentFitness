@@ -2,6 +2,10 @@
 
 These instructions are for teammates who want to **see the Flutter app running on their own Windows computer** or start making changes. You do not need your friend's Linux server, a Firebase account, or Android Studio for the initial browser preview.
 
+## Why PowerShell 7 is included
+
+The CMD file uses built-in Windows PowerShell 5.1 only to bootstrap the current supported **PowerShell 7.6 LTS+** via WinGet. The rest of the installer and the app tools run under pwsh.exe. PowerShell 5.1 stays on Windows. If the upgrade is blocked or cannot complete, follow the exact message in the setup window or ask your IT team.
+
 ## First time: three simple steps
 
 1. Open the GitHub pull request or branch provided by your teammate. Choose **Code > Download ZIP** and use **Extract All** in Windows File Explorer. **Do not run scripts directly from inside the ZIP.**
