@@ -284,6 +284,9 @@ details.targets[open] summary::after { content: "\2212"; }
 .wu-line.timed { grid-template-columns: minmax(0, 1fr) 26px; }
 .wu-line .field { padding: 8px 10px; min-height: 44px; text-align: center; }
 .bw-tag { font-size: 12px; color: var(--muted); text-align: center; align-self: center; }
+.setrow .sw.opt { border-style: dashed; }
+.addwt-note { margin: 6px 0 4px; padding: 8px 10px; font-size: 13px; line-height: 1.4; color: var(--muted); border-left: 3px solid var(--brass); background: color-mix(in srgb, var(--brass) 8%, transparent); }
+.setrow .sw.opt::placeholder { color: var(--muted); }
 .lockline { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--muted); margin: 0; }
 .lockline svg, .lk-btn svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 2; flex: none; }
 .lk-stats { display: grid; grid-template-columns: repeat(3, 1fr); border: 1px solid var(--line); border-radius: var(--radius, 4px); }
@@ -4287,9 +4290,14 @@ header.hero .me-btn { border-color:#e87328; }
   // A movement needs a weight box unless it's bodyweight for this setup (push-ups, pull-ups, planks, burpees...).
   var LOADED_RX = /barbell|dumbbell|kettlebell|cable|machine|weighted|loaded|plate|sled|landmine|\bez\b|trap bar|medicine ball|backpack|band|pulldown|press(?!-)|smith|hack|sandbag|bike|rower|rowing|ski|treadmill/i;
   var BW_RX = /pull-up|chin-up|push-up|\bdip|plank|burpee|inverted row|hanging|bodyweight|air squat|crawl|climber|hold|bridge|crunch|sit-up|jumping|jack|high knees|shadow|sprawl|hollow|bird dog|dead bug|superman|wall sit|pistol|nordic|leg raise|knee raise|skater|broad jump|box jump|jump squat|tuck jump|bear|inchworm|stretch|rotation/i;
+  // Bodyweight moves the name check above misses (they'd otherwise ask for a weight).
+  var BW_MORE_RX = /bounding|road ride|brisk walk|l-sit|slider hamstring|thoracic extension|ab wheel|battle rope|dead hang|elliptical|reverse hyperextension|prone back extension|back extension \(45/i;
+  // Bodyweight moves a man can load with a belt, vest or plate: weight is optional, reps alone finish the set.
+  var ADD_WT_RX = /pull-up|chin-up|\bdips?\b|back extension \(45/i;
+  function canAddWeight(g, equip) { var shown = moveName(g, equip); return ADD_WT_RX.test(shown) && !/scapular|assisted|band/i.test(shown) && !needsWeight(g, equip); }
   function needsWeight(g, equip) {
     var shown = moveName(g, equip); if (LOADED_RX.test(shown)) return true;
-    if (BW_RX.test(shown)) return false;
+    if (BW_RX.test(shown) || BW_MORE_RX.test(shown)) return false;
     return shown !== moveName(g, "Bodyweight Only");
   }
   /* ---------- Finished workouts are locked: a text summary until the man unlocks to edit ---------- */
@@ -4333,6 +4341,7 @@ header.hero .me-btn { border-color:#e87328; }
         if (!(Number(s.r) > 0) && !s.d) return; logged++;
         var val = ps && ps.time ? [(s.r || "") + " sec"] : !ps ? ["Done"] : [(s.r || "") + " reps"];
         if (ps && !ps.time && !bw && s.w !== "" && s.w != null) { val.push(mut(" × ")); val.push(fmtW(Number(s.w)) + " lb"); }
+        else if (bw && ps && Number(s.w) > 0) val.push(mut(" (bodyweight + " + fmtW(Number(s.w)) + " lb)"));
         else if (bw && ps) val.push(mut(" (bodyweight)"));
         line(item, lab, val, s.k === "w" ? "wu" : "");
       });
@@ -4365,7 +4374,7 @@ header.hero .me-btn { border-color:#e87328; }
       var g = e[0], shown = moveName(g, p.equip), ps = parseSets(e[1]), bw = !needsWeight(g, p.equip), a = (rec.ex && rec.ex[i]) || [], sets = [];
       a.forEach(function (s) {
         if (!s || s.k === "w" || !(Number(s.r) > 0)) return; workSets++;
-        sets.push(ps && ps.time ? s.r + "s" : ps && !bw && s.w !== "" && s.w != null ? s.r + " × " + fmtW(Number(s.w)) : s.r + (bw ? " reps" : ""));
+        sets.push(ps && ps.time ? s.r + "s" : ps && !bw && s.w !== "" && s.w != null ? s.r + " × " + fmtW(Number(s.w)) : bw && Number(s.w) > 0 ? s.r + " × BW+" + fmtW(Number(s.w)) : s.r + (bw ? " reps" : ""));
       });
       if (!sets.length) return;
       if (prNames[shown]) prList.push(prNames[shown]);
@@ -4526,6 +4535,7 @@ header.hero .me-btn { border-color:#e87328; }
       var c = moveCue(mg); if (c) ex.appendChild(el("span", "wc", c));
       if (ps && !ps.time && (live || (isToday && !done))) { var lt0 = lastTimeEl(mg, key, e[1], needsWeight(mg, p.equip)); if (lt0) ex.appendChild(lt0); }
       if (ps && !ps.time && live && isToday && state.me) ex.appendChild(liftNoteEl(mg, key, shownName));
+      if (live && ps && !ps.time && !needsWeight(mg, p.equip) && canAddWeight(mg, p.equip)) ex.appendChild(el("p", "addwt-note", "Bodyweight lift. Leave the + box empty unless you add weight with a belt, vest or plate, and enter only that added weight, never your body weight."));
       if (live) {
         var a = setsOf(idx, ps);
         if (ps) {
@@ -4545,7 +4555,8 @@ header.hero .me-btn { border-color:#e87328; }
             };
             var rph = !isW && !isX && ps.reps && ps.reps[setNo - 1] ? ps.reps[setNo - 1] + (ps.reps[setNo - 1] === 1 ? " rep" : " reps") : ps.time ? "sec" : "reps";
             row.appendChild(numField("sr", (isW ? "Warm-up " + wNo : lab) + (ps.time ? " seconds" : " reps"), rph, s.r, 999, function (v) { s.r = v; paintDone(); }));
-            if (bw) row.appendChild(el("span", "bw-tag", "Bodyweight"));
+            if (bw && canAddWeight(mg, p.equip)) row.appendChild(numField("sw opt", (isW ? "Warm-up " + wNo : lab) + " added weight in pounds, optional. Leave empty for bodyweight only. Do not enter your body weight.", "+ added", s.w, 400, function (v) { s.w = v; paintDone(); }));
+            else if (bw) row.appendChild(el("span", "bw-tag", "Bodyweight"));
             else row.appendChild(numField("sw", (isW ? "Warm-up " + wNo : lab) + " weight in pounds", "lb", s.w, 2000, function (v) { s.w = v; paintDone(); }));
             afRows.push({ s: s, w: row.querySelector(".sw") || el("input"), r: row.querySelector(".sr"), paint: paintDone });
             ck.setAttribute("role", "img"); row.appendChild(ck); paintDone();
@@ -6850,7 +6861,7 @@ header.hero .me-btn { border-color:#e87328; }
       box.appendChild(r);
     });
   }
-  var APP_VERSION = "v182";
+  var APP_VERSION = "v183";
   /* ---------- Photo upload diagnostic (Settings > Testing) ---------- */
   async function runPhotoDiag() {
     var out = { at: new Date().toISOString(), version: APP_VERSION, ua: navigator.userAgent, steps: [] };
