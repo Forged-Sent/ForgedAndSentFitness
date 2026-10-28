@@ -1,0 +1,14 @@
+#!/bin/sh
+set -eu
+branch="$(git branch --show-current)"
+if [ "$branch" = main ]; then
+  echo "Main is protected. Use fs-share from a feature branch." >&2
+  exit 1
+fi
+if [ ! -f mobile/pubspec.yaml ]; then
+  echo "Run from the project repository root." >&2
+  exit 1
+fi
+cd mobile
+flutter analyze
+flutter test

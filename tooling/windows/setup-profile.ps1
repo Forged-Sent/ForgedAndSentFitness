@@ -24,6 +24,21 @@ $old=[Environment]::GetEnvironmentVariable('Path','User')
 if(($old -split ';') -notcontains $pubBin){
   [Environment]::SetEnvironmentVariable('Path',($old.TrimEnd(';')+';'+$pubBin),'User')
 }
+$leaks=Get-Command gitleaks.exe -ErrorAction SilentlyContinue | Select-Object -First 1
+if(-not $leaks){
+  & winget.exe install --id Gitleaks.Gitleaks --exact --source winget --accept-source-agreements --accept-package-agreements
+  if($LASTEXITCODE -ne 0){throw 'Gitleaks could not be installed. Ask IT or rerun setup.'}
+}
+$root=(Resolve-Path (Join-Path $PSScriptRoot '..\..')).Path
+if(Test-Path -LiteralPath (Join-Path $root '.git')){
+  & git -C $root config core.hooksPath .githooks
+  & git -C $root config pull.ff only
+  & git -C $root config push.autoSetupRemote true
+  & git -C $root config fetch.prune true
+  Write-Host 'Installed repository-scoped Git hooks and safe defaults.'
+}else{
+  Write-Host 'This folder came from a ZIP. Use the Git clone option in the wizard before contributing.' -ForegroundColor Yellow
+}
 Write-Host 'FlutterFire CLI activated; flutterfire configure was NOT run.' -ForegroundColor Green
 Write-Host 'Firebase emulator project is demo-forgedandsent. No cloud login required.'
 if($Profile -eq 'Contributor'){exit 0}

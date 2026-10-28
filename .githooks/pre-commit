@@ -1,0 +1,31 @@
+#!/bin/sh
+set -eu
+branch="$(git branch --show-current)"
+if [ "$branch" = main ]; then
+  echo "Cannot commit on main. Use fs-start to make your own branch." >&2
+  exit 1
+fi
+# Reject large staged blobs.
+for file in $(git diff --cached --name-only --diff-filter=ACM | tr '\n' '\t'); do
+  if [ -f "$file" ]; then
+    size=$(wc -c < "$file")
+    if [ "$size" -gt 5242880 ]; then
+      echo "File over 5MB: $file" >&2
+      exit 1
+    fi
+  fi
+done
+if ! command -v gitleaks >/dev/null 2>&1; then
+  echo "Gitleaks missing; rerun Contributor setup." >&2
+  exit 1
+fi
+gitleaks git --staged --redact --no-banner
+if command -v dart >/dev/null 2>&1; then
+  staged="$(git diff --cached --name-only --diff-filter=ACM -- '*.dart')"
+  if [ -n "$staged" ]; then
+    echo "$staged" | while IFS= read -r file; do
+      [ -f "$file" ] || continue
+      dart format --output=none --set-exit-if-changed "$file" || exit 1
+    done
+  fi
+fi

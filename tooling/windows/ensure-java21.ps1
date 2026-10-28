@@ -29,5 +29,13 @@ if(-not $jdk){
   $jdk=Find-Java21
 }
 if(-not $jdk){throw 'Java 21 not detected. Restart Windows or ask IT to install Temurin 21, then rerun.'}
+[Environment]::SetEnvironmentVariable('JAVA_HOME',$jdk,'User')
+$javaBin=Join-Path $jdk 'bin'
+$userPath=[Environment]::GetEnvironmentVariable('Path','User')
+if(($userPath -split ';') -notcontains $javaBin){
+  [Environment]::SetEnvironmentVariable('Path',($javaBin+';'+$userPath),'User')
+}
+$env:JAVA_HOME=$jdk
+$env:Path=$javaBin+';'+$env:Path
 Write-Host "JDK 21 located: $jdk" -ForegroundColor Green
 exit 0
