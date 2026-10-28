@@ -1,7 +1,7 @@
 #requires -Version 5.1
 # Read-only, profile-aware diagnostics. Does NOT authenticate or contact cloud MCPs.
 param(
-  [ValidateSet('Preview','Contributor','Mobile','Maintainer')][string]$Profile='Contributor',
+  [Alias('Profile')][ValidateSet('Preview','Contributor','Mobile','Maintainer')][string]$TargetProfile='Preview',
   [switch]$SelfTest
 )
 Set-StrictMode -Version Latest
@@ -39,54 +39,6 @@ Check Node node.exe @((Join-Path $env:ProgramFiles 'nodejs\node.exe')) 'Run deve
 Check Npm npm.cmd @((Join-Path $env:ProgramFiles 'nodejs\npm.cmd')) 'Reinstall Node.js LTS, then restart Windows.'
 Check GitHubCLI gh.exe @((Join-Path $env:ProgramFiles 'GitHub CLI\gh.exe')) 'Run developer setup for GitHub CLI.'
 Check FirebaseCLI firebase.cmd @((Join-Path $env:APPDATA 'npm\firebase.cmd')) 'Run developer setup for local Firebase CLI. No Firebase login required for Preview.'
-# Contributor profiles require a real clone, local SDK/CLI and running emulators.
-$gitFolder=Join-Path $root '.git'
-if(Test-Path -LiteralPath $gitFolder){
-  $checks.Add((New-FSCheck GitRepo Ready 'This is a Git clone.' ''))
-}else{$checks.Add((New-FSCheck GitRepo Missing 'This folder was extracted from ZIP; it cannot create PRs.' 'Use wizard option 10 to clone the repository.'))}
-Check FlutterFireCLI flutterfire.bat @((Join-Path $env:LOCALAPPDATA 'Pub\Cache\bin\flutterfire.bat')) 'Run Contributor setup to install FlutterFire CLI. Do not run flutterfire configure automatically.'
-$demo=(Join-Path $root '.firebaserc')
-$configFile=(Join-Path $root 'firebase.json')
-if((Test-Path -LiteralPath $demo) -and (Test-Path -LiteralPath $configFile)){
-  try {
-    $id=(Get-Content -LiteralPath $demo -Raw|ConvertFrom-Json).projects.default
-    if($id -eq 'demo-forgedandsent'){$checks.Add((New-FSCheck DemoConfig Ready 'Local demo Firebase config found.' ''))}
-    else{$checks.Add((New-FSCheck DemoConfig Failed 'Firebase project is not demo-forgedandsent.' 'Restore the checked-in demo .firebaserc.'))}
-  }catch{$checks.Add((New-FSCheck DemoConfig Failed 'Local demo configuration could not be parsed.' 'Restore firebase.json and .firebaserc.'))}
-}else{$checks.Add((New-FSCheck DemoConfig Missing 'Firebase emulator files are missing.' 'Checkout PR #4 complete files.'))}
-$javaHome=[Environment]::GetEnvironmentVariable('JAVA_HOME','User')
-$javaPath=if($javaHome){Join-Path $javaHome 'bin\java.exe'}else{''}
-if($javaPath -and (Test-Path -LiteralPath $javaPath)){
-  $javaText=(& cmd.exe /c ('"'+$javaPath+'" -version 2>&1')|Out-String)
-  if($javaText -match '(?:version|openjdk)\s+"?(\d+)'){
-    $javaMajor=[int]$Matches[1]
-    if($javaMajor -ge 21){$checks.Add((New-FSCheck Java21 Ready 'JDK 21+ is installed.' '' "$javaMajor"))}
-    else{$checks.Add((New-FSCheck Java21 Outdated 'JDK 21+ is required.' 'Run the Contributor setup JDK installer.' "$javaMajor"))}
-  }else{$checks.Add((New-FSCheck Java21 Failed 'Could not read JAVA_HOME Java version.' 'Rerun Contributor setup.'))}
-}else{$checks.Add((New-FSCheck Java21 Missing 'Java 21 not detected in the user development profile.' 'Run Contributor setup; restart Windows if needed.'))}
-$listen=@(8080,9099,9199)
-$closed=New-Object System.Collections.Generic.List[int]
-foreach($port in $listen) {
-  $client=New-Object System.Net.Sockets.TcpClient
-  try {
-    $pending=$client.BeginConnect('127.0.0.1',$port,$null,$null)
-    if(-not $pending.AsyncWaitHandle.WaitOne(600) -or -not $client.Connected){$closed.Add($port)}
-    elseif($client.Connected){$client.EndConnect($pending)}
-  }catch{$closed.Add($port)}
-  finally{$client.Close()}
-}
-if($closed.Count){
-  $checks.Add((New-FSCheck EmulatorOnline ConfiguredNotConnected 'Local emulator ports are not all reachable.' 'Run START-EMULATORS-WINDOWS.cmd. Check ports 8080, 9099, 9199.'))
-}else{
-  $checks.Add((New-FSCheck EmulatorOnline Ready 'Local Auth/Firestore/Storage TCP ports respond; app integration still needs a real UI test.' ''))
-}
-$gh=Get-Command gh.exe -ErrorAction SilentlyContinue|Select-Object -First 1
-if($gh){
-  $null=& $gh.Source auth status 2>&1
-  if($LASTEXITCODE -eq 0){$checks.Add((New-FSCheck GitHubAuth Ready 'GitHub CLI account is authenticated.' ''))}
-  else{$checks.Add((New-FSCheck GitHubAuth AuthRequired 'GitHub account not authorized for draft PRs.' 'Run wizard option 4 to sign in.'))}
-}else{$checks.Add((New-FSCheck GitHubAuth Missing 'GitHub CLI missing.' 'Run Contributor setup.'))}
-$checks.Add((New-FSCheck AndroidDevice ConfiguredNotConnected 'A native Android device and Maestro flow were not run by this diagnostic.' 'Run flutter devices and one Maestro flow on an emulator or phone.'))
 Check Maestro maestro.bat @((Join-Path $env:LOCALAPPDATA 'Programs\Maestro\bin\maestro.bat')) 'Run setup for mobile testing. Java and a phone/emulator are required.'
 Check AndroidStudio studio64.exe @((Join-Path $env:ProgramFiles 'Android\Android Studio\bin\studio64.exe')) 'Run SETUP-ANDROID.cmd and complete the Android SDK setup wizard.'
 Check ClaudeCLI claude.exe @((Join-Path $env:USERPROFILE '.local\bin\claude.exe')) 'Optional: run the developer setup or use VS Code extension.'
@@ -113,6 +65,7 @@ if($java) {
   }else{$checks.Add((New-FSCheck Java Failed 'Could not parse Java version.' 'Run java -version and check installation.'))}
 }else{$checks.Add((New-FSCheck Java Missing 'Java is not installed.' 'Mobile setup will install a suitable JDK.'))}
 # Maintainer DEV cloud identity is intentionally not enabled by PR #3.
+$checks.Add((New-FSCheck EmulatorWiring NotApplicable 'Local emulator-to-app connection will be added in PR #4.' 'Contributor profile is not ready until emulator wiring is implemented and tested.'))
 $checks.Add((New-FSCheck DevCloudIdentity AuthRequired 'Maintainer DEV credentials are not configured in the default bootstrap.' 'PR #4 will add explicit restricted DEV access; do not use PROD credentials.'))
 $config=Join-Path $root '.vscode\mcp.json'
 if(Test-Path -LiteralPath $config) {
@@ -129,25 +82,25 @@ if(Test-Path -LiteralPath $config) {
   }catch{$checks.Add((New-FSCheck 'MCPConfig' Failed 'MCP configuration could not be parsed.' 'Restore the approved .vscode/mcp.json.'))}
 }else{$checks.Add((New-FSCheck 'MCPConfig' Missing 'VS Code MCP configuration is absent.' 'Extract the entire repository.'))}
 $results=@($checks.ToArray())
-$exit=Get-FSExitCode $Profile $results
+$exit=Get-FSExitCode $TargetProfile $results
 $lines=New-Object System.Collections.Generic.List[string]
-$lines.Add("Forged & Sent environment check | Profile: $Profile | Result: $(if($exit){'NEEDS REPAIR'}else{'INSTALL CHECKS PASSED'})")
-$lines.Add('ConfiguredNotConnected is NOT Ready. Local profile checks are advisory; only a real app/MCP handshake proves functionality.')
+$lines.Add("Forged & Sent environment check | Profile: $TargetProfile | Result: $(if($exit){'NEEDS REPAIR'}else{'INSTALL CHECKS PASSED'})")
+$lines.Add('ConfiguredNotConnected is NOT Ready. Profile installer and live MCP checks land in PR #4.')
 $lines.Add('No usernames, filesystem paths, tokens or Firebase project IDs are included below.')
 $lines.Add('')
 foreach($c in $results){
-  $need=Get-FSNeed $Profile $c.Id
+  $need=Get-FSNeed $TargetProfile $c.Id
   $lines.Add("[$($c.Status)] $($c.Id) | $need$(if($c.Version){" | Version $($c.Version)"})")
   if($c.Status -ne 'Ready'){$lines.Add(" WHY: $($c.Reason)");$lines.Add(" FIX: $($c.Fix)")}
 }
 $lines | ForEach-Object {Write-Host $_}
 $lines | Set-Content -LiteralPath $report -Encoding UTF8
 $ai=New-Object System.Collections.Generic.List[string]
-$ai.Add("Help me fix Forged & Sent Windows onboarding for the $Profile profile.")
+$ai.Add("Help me fix Forged & Sent Windows onboarding for the $TargetProfile profile.")
 $ai.Add('Suggest safe, simple steps. Do not request secrets, admin bypass or production Firebase credentials.')
 foreach($c in $results){
   if($c.Status -ne 'Ready' -and $c.Status -ne 'NotApplicable'){
-    $need=Get-FSNeed $Profile $c.Id
+    $need=Get-FSNeed $TargetProfile $c.Id
     $ai.Add("ISSUE $($c.Id) ($need, $($c.Status)): $($c.Reason)")
     $ai.Add("FIX: $($c.Fix)")
   }

@@ -5,12 +5,13 @@ Run by the repository's .cmd entrypoints; never changes execution policy globall
 #>
 param(
     [Parameter(Mandatory = $true)]
-    [ValidateSet('wizard','developer','setup','android','run','verify','emulators','run-emulator')]
+    [ValidateSet('wizard','developer','setup','android','run','verify')]
     [string]$Mode,
     [switch]$SelfTest
 )
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
+. (Join-Path $PSScriptRoot 'winget.ps1')
 $root = (Resolve-Path (Join-Path $PSScriptRoot '..\..')).Path
 $minimum = [version]'7.6.0'
 $entries = @{
@@ -20,8 +21,6 @@ $entries = @{
     android   = @{File='setup.ps1'; Args=@('-Android'); Update=$true}
     run       = @{File='run-app.ps1'; Args=@(); Update=$false}
     verify    = @{File='verify-developer.ps1'; Args=@(); Update=$false}
-    emulators = @{File='start-emulators.ps1'; Args=@(); Update=$false}
-    'run-emulator' = @{File='run-emulator-app.ps1'; Args=@(); Update=$false}
 }
 function Locate-Pwsh {
     $command = Get-Command 'pwsh.exe' -ErrorAction SilentlyContinue | Select-Object -First 1
@@ -55,8 +54,7 @@ function Require-Winget {
 function Install-Pwsh {
     Require-Winget
     Write-Host 'Installing current supported PowerShell 7 through Microsoft WinGet...' -ForegroundColor Cyan
-    & winget.exe install --id Microsoft.PowerShell --exact --source winget --accept-package-agreements --accept-source-agreements
-    if($LASTEXITCODE -ne 0){throw "PowerShell installation exited $LASTEXITCODE. Approve the Windows installer if prompted, or share this error with your administrator."}
+    $null=Invoke-FSWinGetPackage -Id 'Microsoft.PowerShell' -Action Install
     Refresh-Path
 }
 function Update-Pwsh {
@@ -65,10 +63,7 @@ function Update-Pwsh {
         return
     }
     Write-Host 'Checking for a supported PowerShell 7 update...'
-    & winget.exe upgrade --id Microsoft.PowerShell --exact --source winget --accept-package-agreements --accept-source-agreements
-    if($LASTEXITCODE -ne 0){
-        Write-Host 'No PowerShell upgrade was applied (already current, not registered with WinGet, or installer declined).' -ForegroundColor Yellow
-    }
+    $null=Invoke-FSWinGetPackage -Id 'Microsoft.PowerShell' -Action Upgrade
     Refresh-Path
 }
 try {
@@ -95,7 +90,7 @@ try {
         Install-Pwsh
         $pwsh = Locate-Pwsh
         $version = PwshVersion $pwsh
-    } elseif($version -lt $minimum -or $selected.Update) {
+    } elseif($version -lt $minimum) {
         Update-Pwsh
         $pwsh = Locate-Pwsh
         $version = PwshVersion $pwsh

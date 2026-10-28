@@ -14,6 +14,7 @@ param(
 
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
+. (Join-Path $PSScriptRoot 'winget.ps1')
 $ProgressPreference = 'SilentlyContinue'
 
 $projectRoot = (Resolve-Path (Join-Path $PSScriptRoot '..\..')).Path
@@ -54,10 +55,7 @@ function Ensure-Winget {
 function Install-Package([string]$id, [string]$label) {
     Ensure-Winget
     Write-Host ('Installing ' + $label + ' using Windows Package Manager...')
-    & winget.exe install --id $id --exact --source winget --accept-package-agreements --accept-source-agreements
-    if ($LASTEXITCODE -ne 0) {
-        throw ($label + ' installation did not complete (WinGet exit ' + $LASTEXITCODE + '). Check for Windows installation prompts and rerun the setup.')
-    }
+    $null=Invoke-FSWinGetPackage -Id $id -Action Install
     Refresh-ProcessPath
 }
 
@@ -148,8 +146,8 @@ try {
         if (Test-Path -LiteralPath $flutterRoot) {
             throw ('The Flutter folder exists but no flutter.bat was found: ' + $flutterRoot + '. Please ask a developer to check this folder rather than deleting it.')
         }
-        Write-Host 'Downloading the official Flutter stable SDK into your user folder.'
-        & $git clone --depth 1 --branch stable https://github.com/flutter/flutter.git $flutterRoot
+        Write-Host 'Downloading the project-pinned Flutter SDK 3.47.8 into your user folder.'
+        & $git clone --depth 1 --branch 3.47.8 https://github.com/flutter/flutter.git $flutterRoot
         Verify-External 'Flutter download'
         if (-not (Test-Path -LiteralPath $flutterFile)) { throw 'Flutter download did not produce flutter.bat.' }
     }
@@ -157,6 +155,20 @@ try {
     Append-UserPath $actualFlutterBin
     & $flutterFile --version
     Verify-External 'Flutter initialization'
+    $flutterInfo = & $flutterFile --version --machine | ConvertFrom-Json
+    Verify-External 'Flutter SDK inspection'
+    $framework = [string]$flutterInfo.frameworkVersion
+    $dartSDK = [string]$flutterInfo.dartSdkVersion
+    if(-not $framework.StartsWith('3.47.8')){
+        throw "Flutter $framework is installed, but this repository pins Flutter 3.47.8. Use the pinned SDK in your user folder or run the guided repair. No global SDK was changed."
+    }
+    if($dartSDK -notmatch '^(\d+\.\d+\.\d+)'){
+        throw 'Flutter reported an unexpected Dart version. Run flutter --version and confirm the project-pinned SDK.'
+    }
+    $dartVersion = [version]$Matches[1]
+    if($dartVersion -lt [version]'3.9.0'){
+        throw "Dart $dartSDK is too old for the MCP server. Install the pinned Flutter SDK."
+    }
     & $flutterFile config --enable-web
     Verify-External 'Flutter web configuration'
 

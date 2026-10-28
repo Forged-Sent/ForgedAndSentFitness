@@ -37,16 +37,16 @@ It generates a **secret-free AI troubleshooting prompt** in the Windows temporar
 
 ## MCP integrations
 
-The project VS Code MCP file configures:
+The project VS Code MCP file configures seven servers (no Firebase cloud MCP):
 
 1. Dart MCP: analyzer, tests and Flutter app context via dart mcp-server. Runs from the Flutter SDK.
-2. Firebase MCP: npx/firebase-tools mcp; can access Firebase projects **after you explicitly authorize it**.
+2. No Firebase cloud MCP is installed by default. Firebase CLI itself is retained for future local emulators (PR #4).
 3. Playwright MCP: browser automation against Chrome for Flutter web UI.
 4. GitHub hosted MCP: read-only repository/issue/PR context via OAuth.
 
-**Safety:** MCP providers can execute code or access external data. VS Code asks you to trust servers. Do not approve tool requests you have not reviewed. Firebase MCP includes potentially mutating tools; only authorize it against the shared DEV project, never PROD by default. No Firebase project or API key is created by this bootstrap.
+**Safety:** MCP providers can execute code or access external data. VS Code asks you to trust servers. Firebase cloud MCP is deliberately absent. DEV cloud authorization belongs to Maintainer opt-in in PR #4. No Firebase project or API key is created by this bootstrap.
 
-The shared .vscode/mcp.json works for VS Code and Copilot. The full developer bootstrap also attempts to register Dart, Firebase, Playwright, Maestro, Context7, Figma, and read-only GitHub as **user-scoped** MCPs for available Claude/Codex CLIs. No account login or tool access is approved by registration. Google Developer Knowledge uses a password-style key prompt in VS Code; CLI key setup requires a separate manual decision. If one CLI MCP fails, rerun wizard option 8 or use the VS Code servers.
+The shared .vscode/mcp.json works for VS Code and Copilot. Claude uses the project-scoped .mcp.json and Codex uses .codex/config.toml after trust. No user-global Firebase/cloud MCP is registered. Google Developer Knowledge prompts for a masked API key in VS Code.
 
 ## Sign-in after setup
 
@@ -55,7 +55,7 @@ The shared .vscode/mcp.json works for VS Code and Copilot. The full developer bo
 3. Open the Codex extension and sign in with your account, if eligible.
 4. Open the Claude Code extension and sign in with your own account, if eligible.
 5. Use VS Code Command Palette > MCP: List Servers to review and start project MCPs.
-6. When Firebase DEV has been created by the project owner, run firebase login if you need Firebase access; verify the project before making changes.
+6. Do not run firebase login as a Contributor. PR #4 will install the local emulators; DEV cloud credentials are Maintainer-only and separately approved.
 7. Run RUN-APP.cmd for the Flutter browser preview. Keep the command window open while testing.
 
 A free public GitHub Actions runner does not make Claude/Codex/Copilot usage free. No agent is authorized to deploy, commit secrets, or change accepted architecture just because its extension is installed.
