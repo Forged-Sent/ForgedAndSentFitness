@@ -27,7 +27,7 @@ function Add-UserPath([string]$bin) {
 function JavaVersion {
   $j = Find-Tool 'java.exe'
   if(-not $j){return 0}
-  $info = (& $j -version 2>&1 | Out-String)
+  $info = (& cmd.exe /c 'java -version 2>&1' | Out-String)
   if($info -match 'version "(\d+)'){
     $major = [int]$Matches[1]
     if($major -eq 1 -and $info -match 'version "1\.(\d+)'){$major=[int]$Matches[1]}

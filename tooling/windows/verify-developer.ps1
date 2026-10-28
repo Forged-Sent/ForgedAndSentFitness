@@ -47,7 +47,7 @@ if($SelfTest){
   CheckTool 'Maestro' 'maestro.bat' @((Join-Path $env:LOCALAPPDATA 'Programs\Maestro\bin\maestro.bat')) 'Maestro CLI is missing, so Android/iOS UI automation MCP cannot start.' (HelpFor 'Maestro')
   $j=Get-Command java.exe -ErrorAction SilentlyContinue | Select-Object -First 1
   if($j){
-    $line=(& $j.Source -version 2>&1 | Out-String)
+    $line=(& cmd.exe /c 'java -version 2>&1' | Out-String)
     if($line -match 'version "(\d+)'){
       $ver=[int]$Matches[1]
       if($ver -eq 1 -and $line -match 'version "1\.(\d+)'){$ver=[int]$Matches[1]}
