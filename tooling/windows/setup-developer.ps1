@@ -4,7 +4,7 @@ Run from SETUP-DEVELOPER-WINDOWS.cmd.
 Installs developer dependencies and VS Code extensions; rerunnable.
 It never deploys Firebase, logs into paid services, or stores credentials.
 #>
-param([switch]$SkipBase,[switch]$SkipAgentCLIs,[switch]$Android)
+param([switch]$SkipBase,[switch]$SkipAgentCLIs,[switch]$Android,[switch]$SkipMaestro)
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 $root = (Resolve-Path (Join-Path $PSScriptRoot '..\..')).Path
@@ -115,12 +115,15 @@ try {
     }
   }
 
+  if(-not $SkipMaestro){
   Attempt 'Maestro Windows CLI and Java 17+' {
     & (Join-Path $PSHOME 'pwsh.exe') -NoProfile -File (Join-Path $PSScriptRoot 'install-maestro.ps1')
     Check-Exit 'Maestro installer'
     Refresh-Path
     $env:Path += ';' + (Join-Path $env:LOCALAPPDATA 'Programs\Maestro\bin')
   }
+  }
+
 
   Attempt 'Approved MCP server manifest' {
     $config = Join-Path $root '.vscode\mcp.json'
