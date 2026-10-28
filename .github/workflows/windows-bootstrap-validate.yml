@@ -4,9 +4,10 @@ on:
   pull_request:
     paths:
       - 'tooling/windows/**'
-      - 'SETUP-WINDOWS.cmd'
-      - 'SETUP-ANDROID.cmd'
+      - 'SETUP-*.cmd'
+      - 'VERIFY-DEVELOPER-WINDOWS.cmd'
       - 'RUN-APP.cmd'
+      - '.vscode/**'
       - '.github/workflows/windows-bootstrap-validate.yml'
   workflow_dispatch:
 
@@ -19,20 +20,22 @@ jobs:
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
-      - name: Parse PowerShell without installing programs
+      - name: Parse PowerShell and validate MCP/extension JSON
         shell: powershell
         run: |
           $ErrorActionPreference = 'Stop'
-          $files = @('tooling/windows/setup.ps1', 'tooling/windows/run-app.ps1')
-          foreach ($file in $files) {
-            $tokens = $null
-            $errors = $null
-            [System.Management.Automation.Language.Parser]::ParseFile(
-              (Resolve-Path $file), [ref]$tokens, [ref]$errors
-            ) | Out-Null
-            if ($errors.Count -gt 0) {
-              $errors | ForEach-Object { Write-Error $_.ToString() }
-              throw ('PowerShell syntax invalid: ' + $file)
-            }
-            Write-Host ('Syntax OK: ' + $file)
+          foreach($file in @('tooling/windows/setup.ps1','tooling/windows/run-app.ps1','tooling/windows/setup-developer.ps1','tooling/windows/verify-developer.ps1')){
+            $tokens=$null
+            $errors=$null
+            [System.Management.Automation.Language.Parser]::ParseFile((Resolve-Path $file),[ref]$tokens,[ref]$errors) | Out-Null
+            if($errors.Count -gt 0){$errors|ForEach-Object{Write-Error $_.ToString()};throw "Invalid PowerShell: $file"}
+            Write-Host "Syntax OK: $file"
           }
+          $mcp=Get-Content '.vscode/mcp.json' -Raw|ConvertFrom-Json
+          $ext=Get-Content '.vscode/extensions.json' -Raw|ConvertFrom-Json
+          foreach($name in @('dart','firebase','playwright','github')){
+            if(-not ($mcp.servers.PSObject.Properties.Name -contains $name)){throw "Missing MCP: $name"}
+          }
+          if($mcp.servers.github.url -notmatch '/readonly$'){throw 'GitHub MCP must be read-only'}
+          if($ext.recommendations.Count -lt 8){throw 'Missing recommended VS Code extensions'}
+          Write-Host 'Shared MCP and extension JSON validated.'
