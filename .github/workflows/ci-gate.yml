@@ -1,0 +1,153 @@
+name: Required CI gate
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: required-ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      windows: ${{ steps.scope.outputs.windows }}
+      mobile: ${{ steps.scope.outputs.mobile }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - id: scope
+        name: Identify changes without skipping the required workflow
+        shell: bash
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
+        run: |
+          set -euo pipefail
+          if [ -z "$BASE_SHA" ] || [[ "$BASE_SHA" =~ ^0+$ ]]; then
+            git ls-files > /tmp/changed
+          else
+            git diff --name-only "$BASE_SHA" HEAD > /tmp/changed
+          fi
+          if grep -Eq '^(tooling/windows/|SETUP-|FIRST-RUN-WINDOWS.cmd|VERIFY-DEVELOPER-WINDOWS.cmd|RUN-APP.cmd|.vscode/|.github/workflows/|.github/CODEOWNERS|docs/development/)' /tmp/changed; then echo "windows=true" >> "$GITHUB_OUTPUT"; else echo "windows=false" >> "$GITHUB_OUTPUT"; fi
+          if grep -Eq '^(mobile/|.github/workflows/ci-gate.yml|.github/workflows/flutter-android.yml)' /tmp/changed; then echo "mobile=true" >> "$GITHUB_OUTPUT"; else echo "mobile=false" >> "$GITHUB_OUTPUT"; fi
+          cat /tmp/changed
+
+  windows-checks:
+    needs: changes
+    if: needs.changes.outputs.windows == 'true'
+    runs-on: windows-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: PowerShell parse and safe MCP policy
+        shell: pwsh
+        run: |
+          $ErrorActionPreference='Stop'
+          foreach($f in (Get-ChildItem tooling/windows -Filter *.ps1)){
+            $tokens=$null;$errors=$null
+            [System.Management.Automation.Language.Parser]::ParseFile($f.FullName,[ref]$tokens,[ref]$errors)|Out-Null
+            if($errors.Count){throw "PowerShell errors in $($f.Name): $errors"}
+          }
+          $v=Get-Content .vscode/mcp.json -Raw|ConvertFrom-Json
+          if($v.servers.PSObject.Properties.Name -contains 'firebase'){throw 'Default Firebase cloud MCP forbidden'}
+          if($v.servers.PSObject.Properties.Name -contains 'sentry'){throw 'Sentry excluded'}
+          if($v.servers.github.url -notmatch '/readonly$'){throw 'GitHub MCP must be read-only'}
+          foreach($n in @('dart','playwright','github','context7','figma','maestro','google-developer-knowledge')){
+            if($v.servers.PSObject.Properties.Name -notcontains $n){throw "MCP absent: $n"}
+          }
+          $cli=Get-Content tooling/windows/register-cli-mcps.ps1 -Raw
+          if($cli -match "name='firebase'"){throw 'Default CLI Firebase MCP forbidden'}
+      - name: Check protected PowerShell variables
+        shell: pwsh
+        run: |
+          $ErrorActionPreference='Stop'
+          Install-Module PSScriptAnalyzer -Scope CurrentUser -Force -AllowClobber -Repository PSGallery
+          Import-Module PSScriptAnalyzer
+          $issues=@(Invoke-ScriptAnalyzer -Path tooling/windows -Recurse -IncludeRule PSAvoidAssignmentToAutomaticVariable -Severity Error,Warning)
+          if($issues.Count){$issues|Format-Table|Out-String|Write-Host;throw 'Reserved automatic variable assignment'}
+      - name: Test 5.1 bridge and wizard diagnostics
+        shell: pwsh
+        run: |
+          & powershell.exe -NoProfile -ExecutionPolicy Bypass -File tooling/windows/bootstrap-pwsh.ps1 -Mode wizard -SelfTest
+          if($LASTEXITCODE){throw 'PowerShell 5.1 bridge failed'}
+          & powershell.exe -NoProfile -ExecutionPolicy Bypass -File tooling/windows/verify-developer.ps1 -SelfTest
+          if($LASTEXITCODE){throw 'PowerShell 5.1 diagnostic fallback failed'}
+          & pwsh -NoProfile -File tooling/windows/verify-developer.ps1 -SelfTest
+          if($LASTEXITCODE){throw 'Diagnostic selftest failed'}
+          & pwsh -NoProfile -File tooling/windows/first-run.ps1 -SelfTest
+          if($LASTEXITCODE){throw 'Wizard selftest failed'}
+
+  windows-preview:
+    needs: changes
+    if: needs.changes.outputs.windows == 'true'
+    runs-on: windows-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - name: Exercise preview installation with existing machine tools
+        shell: pwsh
+        run: |
+          & pwsh -NoProfile -File tooling/windows/setup.ps1
+          if($LASTEXITCODE){throw 'Windows preview install failed'}
+      - name: Build the actual Chrome preview
+        shell: pwsh
+        run: |
+          $flutter=Join-Path $env:USERPROFILE 'develop\flutter\bin\flutter.bat'
+          if(-not (Test-Path $flutter)){$flutter=(Get-Command flutter.bat -ErrorAction Stop).Source}
+          Push-Location mobile
+          try {
+            & $flutter create --platforms=web --project-name=forged_and_sent --org=com.forgedandsent .
+            if($LASTEXITCODE){throw 'web host failed'}
+            & $flutter pub get
+            if($LASTEXITCODE){throw 'pub get failed'}
+            & $flutter build web --release
+            if($LASTEXITCODE){throw 'web build failed'}
+          } finally {Pop-Location}
+
+  flutter:
+    needs: changes
+    if: needs.changes.outputs.mobile == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+      - name: Generate interim hosts
+        working-directory: mobile
+        run: flutter create --platforms=android,web --project-name=forged_and_sent --org=com.forgedandsent .
+      - name: Analyze, test, build Flutter web and debug Android
+        working-directory: mobile
+        run: |
+          flutter pub get
+          flutter analyze --no-pub
+          flutter test --no-pub
+          flutter build web --release --no-pub
+          flutter build apk --debug --no-pub
+
+  ci-gate:
+    name: ci-gate
+    needs: [changes, windows-checks, windows-preview, flutter]
+    if: ${{ always() }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Aggregate dependency results
+        shell: bash
+        env:
+          NEEDS_JSON: ${{ toJSON(needs) }}
+        run: |
+          set -euo pipefail
+          echo "$NEEDS_JSON" | jq -r 'to_entries[] | "\(.key): \(.value.result)"'
+          if echo "$NEEDS_JSON" | jq -e 'any(.[]; .result == "failure" or .result == "cancelled")' >/dev/null; then
+            echo "::error::CI dependency failure or cancellation"; exit 1
+          fi
+          if ! echo "$NEEDS_JSON" | jq -e 'all(.[]; .result == "success" or .result == "skipped")' >/dev/null; then
+            echo "::error::Unexpected dependency status"; exit 1
+          fi
+          echo "ci-gate passed"

@@ -47,11 +47,12 @@ jobs:
           }
           $mcp=Get-Content '.vscode/mcp.json' -Raw|ConvertFrom-Json
           $ext=Get-Content '.vscode/extensions.json' -Raw|ConvertFrom-Json
-          $wanted=@('dart','firebase','playwright','github','context7','figma','maestro','google-developer-knowledge')
+          $wanted=@('dart','playwright','github','context7','figma','maestro','google-developer-knowledge')
           foreach($name in $wanted){
             if(-not ($mcp.servers.PSObject.Properties.Name -contains $name)){throw "Missing MCP: $name"}
           }
           if($mcp.servers.PSObject.Properties.Name -contains 'sentry'){throw 'Sentry is excluded from the approved setup'}
+          if($mcp.servers.PSObject.Properties.Name -contains 'firebase'){throw 'Firebase MCP must not be enabled by default'}
           if($mcp.servers.github.url -notmatch '/readonly$'){throw 'GitHub MCP must remain read-only'}
           if($mcp.servers.'google-developer-knowledge'.headers.'X-Goog-Api-Key' -notmatch '^\$\{input:forgedGoogleKnowledgeApiKey\}$'){
             throw 'Google developer API key must be prompted at runtime, not committed'
