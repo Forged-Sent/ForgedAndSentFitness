@@ -60,6 +60,17 @@ jobs:
           }
           $cli=Get-Content tooling/windows/register-cli-mcps.ps1 -Raw
           if($cli -match "name='firebase'"){throw 'Default CLI Firebase MCP forbidden'}
+      - name: Verify project-shell commands are actually available
+        shell: pwsh
+        run: |
+          $ErrorActionPreference='Stop'
+          . ./tooling/shell/forged-shell.ps1
+          foreach($command in @('fs-start','fs-save','fs-sync','fs-share','fs-status','fs-undo','fs-help')){
+            if(-not (Get-Command $command -CommandType Function -ErrorAction SilentlyContinue)){
+              throw "Missing interactive command: $command"
+            }
+          }
+          Write-Host 'All interactive fs-* functions are available after dot-sourcing.'
       - name: Check protected PowerShell variables
         shell: pwsh
         run: |

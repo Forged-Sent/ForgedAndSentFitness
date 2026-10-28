@@ -2,7 +2,7 @@
 
 **Contributor default:** no Firebase cloud MCP. An authenticated Firebase CLI is
 not a safe authorization boundary for a demo project. Keep production credentials
-off developer machines. Firebase Local Emulator Suite arrives in PR #4.
+off developer machines. The Firebase Local Emulator Suite is implemented in PR #4.
 
 The common workspace MCP list is Dart, Playwright, Maestro, Context7, Figma,
 and read-only GitHub. Google Developer Knowledge is available in VS Code through

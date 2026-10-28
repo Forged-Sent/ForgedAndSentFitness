@@ -5,8 +5,8 @@
       "args": [
         "-NoLogo",
         "-NoExit",
-        "-File",
-        "${workspaceFolder}/tooling/shell/forged-shell.ps1"
+        "-Command",
+        ". \"${workspaceFolder}/tooling/shell/forged-shell.ps1\""
       ],
       "icon": "terminal-powershell"
     }

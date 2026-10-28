@@ -55,7 +55,7 @@ The shared .vscode/mcp.json works for VS Code and Copilot. Claude uses the proje
 3. Open the Codex extension and sign in with your account, if eligible.
 4. Open the Claude Code extension and sign in with your own account, if eligible.
 5. Use VS Code Command Palette > MCP: List Servers to review and start project MCPs.
-6. Do not run firebase login as a Contributor. PR #4 will install the local emulators; DEV cloud credentials are Maintainer-only and separately approved.
+6. Do not run firebase login as a Contributor. PR #4 includes the local emulators; DEV cloud credentials are Maintainer-only and separately approved.
 7. Run RUN-APP.cmd for the Flutter browser preview. Keep the command window open while testing.
 
 A free public GitHub Actions runner does not make Claude/Codex/Copilot usage free. No agent is authorized to deploy, commit secrets, or change accepted architecture just because its extension is installed.
