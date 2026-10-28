@@ -101,6 +101,10 @@ function fs-undo {
   $remote=(& git ls-remote --heads origin $branch | Out-String).Trim()
   if($LASTEXITCODE){throw 'Unable to check GitHub. Undo is disabled while offline.'}
   $last=(& git rev-parse HEAD).Trim()
+  $main=(& git rev-parse origin/main 2>$null | Out-String).Trim()
+  if(-not $main){throw 'Unable to verify shared main; undo disabled until you sync.'}
+  if($last -eq $main){throw 'You have not saved a feature commit to undo yet.'}
+
   if($remote){
     $sha=($remote -split '\s+')[0]
     if($sha -eq $last){throw 'The last save is already shared. Do not rewrite it; make a new commit instead.'}
