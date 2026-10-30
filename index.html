@@ -701,6 +701,26 @@ button.fo-item { cursor: pointer; min-height: 44px; }
 .wk-last { display: block; margin-top: 6px; padding: 8px 10px; border-left: 3px solid var(--brass); background: color-mix(in srgb, var(--brass) 10%, transparent); font-size: 13px; line-height: 1.4; }
 .wk-last b { display: block; font-family: var(--f-label); letter-spacing: .06em; text-transform: uppercase; font-size: 11.5px; color: var(--muted); margin-right: 4px; }
 .wk-last .up { display: block; font-weight: 700; color: var(--accent); }
+.wk-last .lt-sets { display: block; margin-top: 3px; font-size: 12px; line-height: 1.4; color: var(--muted); font-variant-numeric: tabular-nums; }
+.lt-hist { display: inline-flex; align-items: center; gap: 6px; margin-top: 6px; min-height: 32px; padding: 0 10px; border: 1px solid var(--line); border-radius: 16px; background: var(--surface); color: var(--ink); font-family: var(--f-label); font-weight: 700; font-size: 12px; letter-spacing: .08em; text-transform: uppercase; cursor: pointer; }
+.lt-hist svg { width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.lh-box { max-height: calc(var(--app-h, 100dvh) - 60px); overflow-y: auto; }
+.lh-box h2 { padding-right: 44px; }
+.lh-sub { margin: -4px 0 8px; color: var(--muted); font-size: 13px; }
+.lh-day { border-top: 1px solid var(--line); padding: 10px 0; }
+.lh-top { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 2px 10px; margin-bottom: 4px; }
+.lh-top b { font-family: var(--f-label); font-size: 16px; letter-spacing: .03em; }
+.lh-top span { font-size: 12px; color: var(--muted); }
+.lh-day.last .lh-top b { color: var(--accent); }
+.lh-set { display: grid; grid-template-columns: 76px minmax(0, 1fr); gap: 8px; padding: 3px 0; font-size: 14px; font-variant-numeric: tabular-nums; }
+.lh-set .lh-n { font-family: var(--f-label); font-size: 12px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); align-self: center; }
+.lh-set.wu .lh-v { color: var(--muted); }
+.lh-set.top .lh-v { font-weight: 700; }
+.lh-rir, .lh-note { margin: 4px 0 0; font-size: 12.5px; color: var(--muted); }
+.lh-note { font-style: italic; color: var(--ink); }
+.wk-last .lt-sets.in-rows { display: none; }
+.setrow .sn-prev { margin-top: 2px; font-family: var(--f-body); font-size: 11px; font-weight: 500; letter-spacing: 0; text-transform: none; color: var(--brass); font-variant-numeric: tabular-nums; white-space: nowrap; }
+#wkp-body .setrow:not(.one) { grid-template-columns: 52px minmax(0, 1fr) minmax(0, 1fr) 26px 32px; }
 .wk-last .hold { display: block; color: var(--muted); }
 .setrow.need { outline: 2px solid var(--danger); outline-offset: 2px; }
 .fix-list { margin: 6px 0 12px; padding-left: 18px; font-size: 14px; line-height: 1.5; }
@@ -718,7 +738,7 @@ button.fo-item { cursor: pointer; min-height: 44px; }
 .setx { min-height: 48px; min-width: 36px; padding: 0; background: transparent; border: 0; color: var(--danger); font-size: 19px; font-weight: 700; }
 .addset { display: flex; gap: 8px; margin-top: 10px; }
 .addset .mini { flex: 1; min-height: 44px; }
-.setrow .sn { font-family: var(--f-label); font-weight: 600; font-size: 12.5px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+.setrow .sn { display: flex; flex-direction: column; line-height: 1.15; font-family: var(--f-label); font-weight: 600; font-size: 12.5px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
 .setrow .field { padding: 8px 10px; min-height: 48px; text-align: center; }
 .setck { width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center; justify-self: center; border: 1px solid var(--line); color: var(--line); font-size: 12px; font-weight: 700; line-height: 1; transition: background .15s, border-color .15s, color .15s; }
 .setck-btn { min-height: 48px; min-width: 48px; background: transparent; border: 1px solid var(--line); color: var(--muted); font-size: 17px; font-weight: 700; }
@@ -3182,11 +3202,68 @@ header.hero .me-btn { border-color:#e87328; }
     }
     paint(); return wrap;
   }
-  function lastTimeEl(g, key, rxNow, weighted) {
+  /* Lift history: every earlier day this lift was logged, newest first. Read from his saved workout logs. */
+  function liftSessions(g, key) {
+    if (!wkHist) return []; var gk = String(g).trim().toLowerCase(), byDay = {};
+    wkHist.forEach(function (d) {
+      if (!d || !d.date || d.date >= key) return;
+      var root = normWk(d, d.date), rt = root.rate || {};
+      exEntriesOf(root, d.date).forEach(function (e) {
+        if (String(e[0]).trim().toLowerCase() !== gk) return;
+        var sets = e[2].filter(function (x) { return x && Number(x.r) > 0; }).map(function (x) { return { w: parseFloat(x.w) || 0, r: Number(x.r), k: !!x.k }; });
+        if (!sets.length) return;
+        var day = byDay[d.date] || (byDay[d.date] = { date: d.date, rx: e[1], sets: [], rir: "" });
+        day.sets = day.sets.concat(sets); if (e[3] != null && (rt.lifts || {})[e[3]]) day.rir = rt.lifts[e[3]];
+      });
+    });
+    return Object.keys(byDay).sort().reverse().map(function (k) { return byDay[k]; });
+  }
+  function setText(x, weighted) { return (x.w ? (weighted ? "" : "+") + fmtW(x.w) + " lb × " + x.r : x.r + (x.r === 1 ? " rep" : " reps")); }
+  function openLiftHistory(g, key, name, weighted) {
+    var list = liftSessions(g, key), old = $("cdlg"); if (old) old.remove();
+    var back = el("div", "cdlg"); back.id = "cdlg";
+    var box = el("div", "cdlg-box nw-box lh-box"); box.setAttribute("role", "dialog"); box.setAttribute("aria-modal", "true"); box.setAttribute("aria-labelledby", "lh-t");
+    var x = el("button", "dlg-x"); x.type = "button"; x.setAttribute("aria-label", "Close"); x.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>'; box.appendChild(x);
+    var h = el("h2", null, name + " history"); h.id = "lh-t"; box.appendChild(h);
+    box.appendChild(el("p", "lh-sub", list.length + (list.length === 1 ? " workout" : " workouts") + " · newest first"));
+    var yr = new Date().getFullYear(), rirTxt = { "3": "3+ reps left", "2": "2 reps left", "1": "1 rep left", "0": "Nothing left", "x": "Missed reps" };
+    list.forEach(function (d, i) {
+      var card = el("div", "lh-day" + (i === 0 ? " last" : "")), dt = parseKey(d.date);
+      var top = el("div", "lh-top"); top.appendChild(el("b", null, dt.toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric", year: dt.getFullYear() !== yr ? "numeric" : undefined })));
+      top.appendChild(el("span", null, d.rx || "")); card.appendChild(top);
+      var heavy = 0; d.sets.forEach(function (st) { if (!st.k && st.w > heavy) heavy = st.w; });
+      var n = 0;
+      d.sets.forEach(function (st) {
+        var row = el("div", "lh-set" + (st.k ? " wu" : "") + (!st.k && heavy && st.w === heavy ? " top" : ""));
+        row.appendChild(el("span", "lh-n", st.k ? "Warm-up" : "Set " + (++n)));
+        row.appendChild(el("span", "lh-v", setText(st, weighted)));
+        card.appendChild(row);
+      });
+      if (d.rir && rirTxt[d.rir]) card.appendChild(el("p", "lh-rir", "Last set: " + rirTxt[d.rir]));
+      var ln = liftNoteFor(g); if (ln && ln.d === d.date && ln.t) card.appendChild(el("p", "lh-note", "“" + ln.t + "”"));
+      box.appendChild(card);
+    });
+    if (!list.length) box.appendChild(el("p", "note", "No earlier workouts with this lift yet."));
+    function close() { back.remove(); }
+    x.addEventListener("click", close);
+    back.addEventListener("click", function (ev) { if (ev.target === back) close(); });
+    back.addEventListener("keydown", function (ev) { if (ev.key === "Escape") close(); });
+    back.appendChild(box); document.body.appendChild(back); try { x.focus({ preventScroll: true }); } catch (e) {}
+  }
+  function lastTimeEl(g, key, rxNow, weighted, name, inRows) {
     var L = lastWorking(g, key); if (!L) return null;
     var box = el("span", "wk-last"), when = parseKey(L.date).toLocaleDateString(undefined, { month: "short", day: "numeric" });
     box.appendChild(el("b", null, "Last time \u00B7 " + when));
     box.appendChild(document.createTextNode((weighted && L.w ? L.w + " lb \u00D7 " : "") + L.r + " reps on your last working set"));
+    var hs = liftSessions(g, key), last = hs[0];
+    if (last) {
+      var work = last.sets.filter(function (x) { return !x.k; });
+      var sl = el("span", "lt-sets" + (inRows ? " in-rows" : "")); sl.textContent = work.map(function (x, i) { return "Set " + (i + 1) + ": " + setText(x, weighted); }).join(" \u00B7 ");
+      box.appendChild(sl);
+      var hb = el("button", "lt-hist"); hb.type = "button"; hb.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 12a8.5 8.5 0 1 0 2.6-6.1"/><path d="M3 4.5v4h4"/><path d="M12 7.5V12l3 2"/></svg>';
+      hb.appendChild(el("span", null, "History (" + hs.length + ")")); hb.setAttribute("aria-label", "See every earlier time you did " + (name || g) + ", newest first");
+      hb.addEventListener("click", function () { openLiftHistory(g, key, name || g, weighted); }); box.appendChild(hb);
+    }
     var ln = liftNoteFor(g); if (ln && ln.d === L.date && ln.t) { var lp = el("span", "ln-prev"); lp.appendChild(el("i", null, "Your note: ")); lp.appendChild(document.createTextNode(ln.t)); box.appendChild(lp); }
     if (!weighted || !L.w || !L.target) return box;
     var rirTxt = { "3": "You had 3+ reps left", "2": "You had 2 reps left", "1": "You had 1 rep left", "0": "You had nothing left", "x": "You missed reps" }[L.rir];
@@ -4793,17 +4870,19 @@ header.hero .me-btn { border-color:#e87328; }
       if (swp0 && (swp0.automatic || /^Suggested for /.test(swp0.why || ""))) ex.appendChild(el("p", "note", "Suggested alternative, not a safety guarantee. Stop if painful; review with a clinician."));
       ex.appendChild(el("span", "wr", e[1]));
       var c = moveCue(mg); if (c) ex.appendChild(el("span", "wc", c));
-      if (ps && !ps.time && (live || (isToday && !done))) { var lt0 = lastTimeEl(mg, key, e[1], needsWeight(mg, p.equip)); if (lt0) ex.appendChild(lt0); }
+      if (ps && !ps.time && !done) { var lt0 = lastTimeEl(mg, key, e[1], needsWeight(mg, p.equip), shownName, live); if (lt0) ex.appendChild(lt0); }
       if (ps && !ps.time && live && isToday && state.me) ex.appendChild(liftNoteEl(mg, key, shownName));
       if (live && ps && !ps.time && !needsWeight(mg, p.equip) && canAddWeight(mg, p.equip)) ex.appendChild(el("p", "addwt-note", "Bodyweight lift. Leave the + box empty unless you add weight with a belt, vest or plate, and enter only that added weight, never your body weight."));
       if (live) {
         var a = setsOf(idx, ps);
         if (ps) {
-          var setNo = 0, wNo = 0, afRows = [];
+          var setNo = 0, wNo = 0, afRows = [], prevDay = ps.time ? null : liftSessions(mg, key)[0], prevW = prevDay ? prevDay.sets.filter(function (x) { return x.k; }) : [], prevS = prevDay ? prevDay.sets.filter(function (x) { return !x.k; }) : [], prevWt = needsWeight(mg, p.equip);
           a.forEach(function (s, j) {
             var isW = s.k === "w", isX = s.k === "x", row = el("div", "setrow" + (s.d ? " ok" : "")), lab = isW ? "W" + (++wNo) : "Set " + (++setNo);
             row.dataset.fix = idx + "-" + j;
-            row.appendChild(el("span", "sn", lab));
+            var pv = isX ? null : isW ? prevW[wNo - 1] : prevS[setNo - 1], snb = el("span", "sn"); snb.appendChild(el("span", "sn-l", lab));
+            if (pv) { var pvs = el("span", "sn-prev", (pv.w ? (prevWt ? "" : "+") + fmtW(pv.w) + "\u00D7" : "") + pv.r); pvs.title = "Last time: " + setText(pv, prevWt); pvs.setAttribute("aria-label", "Last time " + setText(pv, prevWt)); snb.appendChild(pvs); }
+            row.appendChild(snb);
             var ck = el("span", "setck", "\u2713");
             // Lights up on its own once the set has reps (or time) and weight. Not tappable.
             var bw = !needsWeight(mg, p.equip);
@@ -7655,7 +7734,7 @@ header.hero .me-btn { border-color:#e87328; }
       box.appendChild(r);
     });
   }
-  var APP_VERSION = "v200";
+  var APP_VERSION = "v201";
   /* ---------- Photo upload diagnostic (Settings > Testing) ---------- */
   async function runPhotoDiag() {
     var out = { at: new Date().toISOString(), version: APP_VERSION, ua: navigator.userAgent, steps: [] };
