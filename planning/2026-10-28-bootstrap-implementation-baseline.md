@@ -9,4 +9,7 @@ All P1 and material P2 review findings; harden Maestro installation; correct Win
 Preview/Contributor/Mobile/Maintainer working profiles; JDK 21 and local Firebase demo emulators; FlutterFire CLI never auto-configured; runtime emulator-only app wiring; Android mobile testing; project-friendly Git functions, hooks/tasks/Git 101; optional DEV cloud MCP for Maintainers; iOS CI and clean-machine end-to-end acceptance.
 
 ## Merge gate
-Protect main now; enforce ci-gate and code owner approvals only after they exist and a second human owner is named. Windows lint/CI and Flutter web/Android tests pass; complete clean-VM smoke test before colleague onboarding. No production Firebase access to developer workstations.
+Protect main in the Forged-Sent organization now; both @Chadillac12 and @sfcsmithc-afk are named in CODEOWNERS. Require ci-gate and code-owner approval only after PR #3 merges and both humans' repository write/review permissions are confirmed. Windows lint/CI and Flutter web/Android tests pass; complete clean-VM smoke test before colleague onboarding. No production Firebase access to developer workstations.
+
+## Organization transfer update (2026-10-30)
+Repository is `Forged-Sent/ForgedAndSentFitness`. Existing draft PR #3 survived the transfer. The ChatGPT GitHub integration has been authorized for organization repository writes. No repository ruleset currently exists, so an organization admin must enable the main pull-request requirement, force-push/deletion protections, and secret scanning/push protection through GitHub's security settings.
