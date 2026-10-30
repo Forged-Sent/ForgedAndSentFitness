@@ -383,6 +383,10 @@ details.targets[open] summary::after { content: "\2212"; }
 .ch-att-t { display: flex; flex-direction: column; gap: 2px; min-width: 0; flex: 1 1 60%; }
 .ch-att-t b { font-family: var(--f-label); font-size: 20px; }
 .ch-att-t span { font-size: 13px; color: var(--muted); }
+.ch-att-acts { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.ch-again-btn { font-weight: 700; }
+.ch-again { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 8px 10px; border-left: 3px solid var(--accent); background: var(--surface); }
+.ch-again .label-caps { font-size: 13px; color: var(--accent); }
 .ch-att-t .ch-note { color: var(--ink); font-style: italic; }
 .ch-media { display: flex; gap: 6px; flex-wrap: wrap; width: 100%; }
 .ch-media img, .ch-media video { width: 96px; height: 96px; object-fit: cover; border: 1px solid var(--line); border-radius: var(--radius, 4px); background: #000; }
@@ -4938,7 +4942,7 @@ header.hero .me-btn { border-color:#e87328; }
     return out;
   }
   /* ---------- Weekly challenges (Family, Iron, Endure) ---------- */
-  var chalCur = null, chalForm = null;
+  var chalCur = null, chalForm = null, chalAgain = null;
   /* ---------- Proof kept on this phone ----------
      A recorded clip from the camera hand-off isn't saved to Photos, so if an upload fails it could be lost.
      Every proof file is copied to this phone's app storage (IndexedDB) until the submission goes through,
@@ -5415,7 +5419,7 @@ header.hero .me-btn { border-color:#e87328; }
     });
     if (!cw.pre && !cw.over) hd.textContent += " Your points this week: " + weekPts + " of " + CHAL.scoring.maxWeek.allStandard + ".";
   }
-  function openChallenge(id) { chalCur = id; chalForm = null; state.chalBr = null; go("chal"); }
+  function openChallenge(id) { chalCur = id; chalForm = null; chalAgain = null; state.chalBr = null; go("chal"); }
   function chalFind(id) { for (var i = 0; i < CHAL.weeks.length; i++) { var w = CHAL.weeks[i]; for (var j = 0; j < w.challenges.length; j++) if (w.challenges[j].id === id) return { w: w, c: w.challenges[j] }; } return null; }
   /* ---------- Challenge proof viewer: tap the icon by a man's name to see what he submitted. ---------- */
   var CH_PROOF_ICON = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2.5" y="5" width="19" height="14" rx="2.5"/><path d="M2.5 9.2h19M6.8 5l-1.6 4.2M11.8 5l-1.6 4.2M16.8 5l-1.6 4.2"/><path class="pl" d="M10.2 11.6v5.2l4.5-2.6z"/></svg>';
@@ -5567,13 +5571,16 @@ header.hero .me-btn { border-color:#e87328; }
         var tx = el("div", "ch-att-t"); tx.appendChild(el("b", null, chalResultText(c, a))); tx.appendChild(el("span", null, (c.scoredBy === "completion" ? "" : chalModeLabel(a.mode) + " · ") + new Date(a.at).toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric" }) + (isBest ? " · Best" : "")));
         if (a.note) tx.appendChild(el("span", "ch-note", "“" + a.note + "”")); r.appendChild(tx);
         // His photos and videos open from the proof icon by his name in Standings, so they are not repeated here.
-        if (live) { var del = el("button", "mini", "Remove"); del.type = "button"; del.setAttribute("aria-label", "Remove this submission"); del.addEventListener("click", function () { confirmDelete({ title: "Remove this submission?", message: chalResultText(c, a) + " will be removed from this challenge.", yes: "Remove" }, function () { var s = chalAttempts(c.id).slice(); s.splice(i, 1); chalSave(c.id, s); }); }); r.appendChild(del); }
+        var acts = el("div", "ch-att-acts");
+        if (live && ri === 0 && !(c.scoredBy === "completion") && chalAgain !== c.id && state.me && state.canWrite) { var ra = el("button", "mini on ch-again-btn", "Re-attempt"); ra.type = "button"; ra.addEventListener("click", function () { chalAgain = c.id; chalForm = null; drawChallengePage(); setTimeout(function () { var s0 = document.querySelector(".ch-again"); if (s0 && s0.scrollIntoView) s0.scrollIntoView({ block: "start", behavior: "smooth" }); }, 30); }); acts.appendChild(ra); }
+        if (live) { var del = el("button", "mini", "Remove"); del.type = "button"; del.setAttribute("aria-label", "Remove this submission"); del.addEventListener("click", function () { confirmDelete({ title: "Remove this submission?", message: chalResultText(c, a) + " will be removed from this challenge.", yes: "Remove" }, function () { var s = chalAttempts(c.id).slice(); s.splice(i, 1); chalSave(c.id, s); }); }); acts.appendChild(del); }
+        if (acts.childNodes.length) r.appendChild(acts);
         ps.appendChild(r);
       });
       body.appendChild(ps);
     }
     // Submit
-    var sub = el("section", "ch-sec"); if (!(c.scoredBy === "completion" && at.length)) sub.appendChild(el("h2", "label-caps", at.length ? "Submit another attempt" : "Submit your result"));
+    var sub = el("section", "ch-sec"); if (!(c.scoredBy === "completion" && at.length) && !at.length) sub.appendChild(el("h2", "label-caps", "Submit your result"));
     if (!live && cw.pre && !isFam) {
       // Before Week 1: show how proof will work, so men know they can record right here.
       var pv = el("div", "ch-proof ch-proof-pre"); pv.appendChild(el("span", "flabel", "Proof (required)"));
@@ -5585,6 +5592,10 @@ header.hero .me-btn { border-color:#e87328; }
     sub.appendChild(el("p", "ch-due", "Submit by " + chalDeadlineText(w.week) + "."));
     if (!state.me || !state.canWrite) { sub.appendChild(el("p", "fnote", "Sign in to submit.")); body.appendChild(sub); return; }
     if (c.scoredBy === "completion" && at.length) { if (state.chalMsg) { sub.appendChild(el("p", "ch-ok", state.chalMsg)); state.chalMsg = ""; } body.appendChild(sub); return; }
+    if (at.length && chalAgain !== c.id && !(chalForm && chalForm.busy)) {
+      if (state.chalMsg) { var okm = el("p", "ch-ok", state.chalMsg); state.chalMsg = ""; var ps0 = body.querySelector(".ch-att"); if (ps0) ps0.parentNode.insertBefore(okm, ps0); else body.appendChild(okm); }
+      return;
+    }
     if (!chalForm) chalForm = { mode: "standard", v: "", x: "", m: CH_MODES[0], note: "", files: [], busy: false, msg: "" };
     if (!isFam && !proofChecked[c.id] && !chalForm.files.length) {
       proofChecked[c.id] = true;
@@ -5600,6 +5611,12 @@ header.hero .me-btn { border-color:#e87328; }
     var canUp = B.canUpload();
     if (!isFam) {
       var pc = el("section", "ch-sec ch-rec");
+      if (chalAgain === c.id) {
+        var ag = el("div", "ch-again"); ag.appendChild(el("span", "label-caps", "New attempt"));
+        var cx = el("button", "mini", "Cancel"); cx.type = "button"; cx.disabled = !!chalForm.busy;
+        cx.addEventListener("click", function () { if (chalSwInt) { clearInterval(chalSwInt); chalSwInt = null; } chalAgain = null; chalForm = null; proofKeep(c.id, []); drawChallengePage(); });
+        ag.appendChild(cx); pc.insertBefore(ag, pc.firstChild);
+      }
       if (canUp) {
         // Two equal ways in: film it here, or upload a video he already took with his phone camera.
         var CHMAX = 5, full = F.busy || F.files.length >= CHMAX, two = el("div", "ch-two");
@@ -5710,7 +5727,7 @@ header.hero .me-btn { border-color:#e87328; }
         for (var k = 0; k < F.files.length; k++) { var up = await B.upload(F.files[k]); a.media.push({ id: up.id, type: F.files[k].type.indexOf("video") === 0 ? "video" : "image" }); }
       } catch (e) { F.busy = false; F.msg = uploadErrText(e) + " Your proof is still kept on this phone" + (B.downloads ? ". Tap Save to my phone to keep a copy, or try again." : ". Try again."); proofKeep(c.id, F.files); drawChallengePage(); return; }
       var list = chalAttempts(c.id).concat([a]).slice(-10);
-      proofKeep(c.id, []); chalForm = null; chalSave(c.id, list, "Submitted. " + (c.scoredBy === "completion" || a.mode !== "standard" ? "Well done." : "Your best attempt counts."));
+      proofKeep(c.id, []); chalForm = null; chalAgain = null; chalSave(c.id, list, "Submitted. " + (c.scoredBy === "completion" || a.mode !== "standard" ? "Well done." : "Your best attempt counts."));
     });
     sub.appendChild(form); body.appendChild(sub);
     if (state.chalMsg) { var ok = el("p", "ch-ok", state.chalMsg); sub.insertBefore(ok, form); state.chalMsg = ""; }
@@ -7591,7 +7608,7 @@ header.hero .me-btn { border-color:#e87328; }
       box.appendChild(r);
     });
   }
-  var APP_VERSION = "v197";
+  var APP_VERSION = "v198";
   /* ---------- Photo upload diagnostic (Settings > Testing) ---------- */
   async function runPhotoDiag() {
     var out = { at: new Date().toISOString(), version: APP_VERSION, ua: navigator.userAgent, steps: [] };
