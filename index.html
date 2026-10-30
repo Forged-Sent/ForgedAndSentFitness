@@ -1440,7 +1440,7 @@ header.hero .me-btn { border-color:#e87328; }
 .ch-mark svg { width: 16px; height: 18px; flex: none; fill: none; stroke: var(--accent); stroke-width: 1.6; stroke-linejoin: round; }
 .ch-mark.has { border-color: var(--brass, var(--accent)); }
 .ch-vers { display: flex; gap: 8px; }
-.ch-vers button { flex: 1 1 0; min-height: 54px; border: 1px solid var(--line); border-radius: var(--radius, 4px); background: var(--surface-2); color: var(--muted); font-family: var(--f-label); font-weight: 700; font-size: 16px; letter-spacing: .04em; cursor: pointer; }
+.ch-vers button { flex: 1 1 0; min-height: 40px; border: 1px solid var(--line); border-radius: var(--radius, 4px); background: var(--surface-2); color: var(--muted); font-family: var(--f-label); font-weight: 700; font-size: 16px; letter-spacing: .04em; cursor: pointer; }
 .ch-vers button[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
 .ch-bigrow { display: flex; align-items: flex-end; gap: 10px; }
 .ch-bigl { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; gap: 6px; }
@@ -1451,6 +1451,26 @@ header.hero .me-btn { border-color:#e87328; }
 .ch-sw { width: 100%; min-height: 56px; border: 2px solid var(--accent); border-radius: var(--radius, 4px); background: transparent; color: var(--accent); font-family: var(--f-label); font-weight: 700; font-size: 16px; letter-spacing: .1em; text-transform: uppercase; cursor: pointer; }
 .ch-sw.run { background: var(--accent); color: var(--accent-ink); }
 .ch-form > .btn[type="submit"] { min-height: 60px; font-size: 17px; }
+/* Challenge result form: compact */
+.ch-vers button { font-size: 14px; }
+.ch-bigrow { gap: 8px; }
+.ch-bigl { gap: 4px; }
+.ch-bigcap { font-size: 11px; }
+.ch-big { height: 52px; font-size: 26px; border-width: 1.5px; }
+.ch-colon { padding-bottom: 12px; font-size: 22px; }
+.ch-sw { min-height: 44px; font-size: 14px; border-width: 1.5px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
+.ch-form > .btn[type="submit"] { min-height: 48px; font-size: 15px; }
+.ch-form textarea.field { min-height: 64px; }
+.ic { width: 1em; height: 1em; display: block; fill: currentColor; }
+.ic-w { fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; }
+.ch-sw .ic { width: 18px; height: 18px; }
+.ch-sw .ic:not(.ic-w) { fill: currentColor; }
+.wu-play .ic { width: 14px; height: 14px; }
+.wlink .pl .ic { width: 12px; height: 12px; }
+.ex-thumb .pl .ic { width: 9px; height: 9px; margin-left: 1px; }
+.vd-pb .ic { width: 22px; height: 22px; margin-left: 2px; }
+.wu-play, .wlink .pl { display: inline-grid; place-items: center; }
+
 .ch-proof-btns { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
 .ch-proof-btns .btn { min-width:0; }
 .ch-proof-pre { opacity:.75; }
@@ -4199,7 +4219,7 @@ header.hero .me-btn { border-color:#e87328; }
     var vc = el("div", "vd-card"); vc.appendChild(el("h2", "mm-h", "Watch how to do it"));
     if (id) {
       var a = el("a", "vd-play"); a.href = "https://www.youtube.com/watch?v=" + id; a.target = "_blank"; a.rel = "noopener noreferrer"; a.setAttribute("aria-label", "Watch on YouTube" + (m.vch ? ", video by " + m.vch : ""));
-      a.appendChild(el("span", "vd-pb", "\u25B6\uFE0E")); a.appendChild(el("small", null, "Opens YouTube" + (m.vch ? " \u00B7 " + m.vch : ""))); vc.appendChild(a);
+      a.appendChild(icSpan("vd-pb", IC_PLAY)); a.appendChild(el("small", null, "Opens YouTube" + (m.vch ? " \u00B7 " + m.vch : ""))); vc.appendChild(a);
       if (vidCur.shown !== vidCur.g) vc.appendChild(el("p", "vmeta", "This video demonstrates the " + vidCur.g + ". Your version today is the " + vidCur.shown + "."));
     } else vc.appendChild(el("p", "note", "No video for this one yet."));
     sec("v", "Video", vc);
@@ -4375,7 +4395,7 @@ header.hero .me-btn { border-color:#e87328; }
       var shown = moveName(e[0], p.equip);
       if (moveVideo(e[0])) {
         var nb = el("button", "wn wlink"); nb.type = "button"; nb.setAttribute("aria-label", "Watch how to do " + shown);
-        nb.appendChild(el("span", "pl", "▶︎")); nb.appendChild(el("span", null, shown));
+        nb.appendChild(icSpan("pl", IC_PLAY)); nb.appendChild(el("span", null, shown));
         nb.addEventListener("click", function () { saveWkNow(); openVideo(e[0], shown); }); return nb;
       }
       return el("span", "wn", shown);
@@ -4404,7 +4424,7 @@ header.hero .me-btn { border-color:#e87328; }
         if (pl.time) {
           var key = "wu" + i + ":" + r, t = timerFor(key, pl.time); t.doneText = "Done"; var tb = el("button", "wu-timer"); tb.type = "button"; tb.disabled = off;
           if (s.d && !t.running && !t.done) { t.done = true; t.left = 0; }
-          var tl = el("span", "rt-time"); t.timeEl = tl; t.goEl = null; tb.appendChild(el("span", "wu-play", "▶︎")); tb.appendChild(tl);
+          var tl = el("span", "rt-time"); t.timeEl = tl; t.goEl = null; tb.appendChild(icSpan("wu-play", IC_PLAY)); tb.appendChild(tl);
           if (pl.note) tb.appendChild(el("span", "wu-note", pl.note));
           t.onDone = function () { s.d = true; paint(); saveWkSoon(); };
           tb.addEventListener("click", function () {
@@ -4748,7 +4768,7 @@ header.hero .me-btn { border-color:#e87328; }
         var th0 = el("button", "ex-thumb"); th0.type = "button"; th0.setAttribute("aria-label", "Muscles, video and coaching for " + shownName);
         var mr0 = mInfo.muscles ? MUSCLE_MAP.render(mInfo.muscles) : null;
         if (mr0 && mr0.any) th0.innerHTML = mr0.svg; else th0.appendChild(el("span", "ex-thumb-g", "G"));
-        if (moveVideo(mg)) th0.appendChild(el("span", "pl", "\u25B6\uFE0E"));
+        if (moveVideo(mg)) th0.appendChild(icSpan("pl", IC_PLAY));
         th0.addEventListener("click", function () { saveWkNow(); openVideo(mg, shownName); }); top.appendChild(th0);
         var nb = el("button", "wn wlink"); nb.type = "button"; nb.setAttribute("aria-label", "Open " + shownName); nb.appendChild(el("span", null, shownName));
         nb.addEventListener("click", function () { saveWkNow(); openVideo(mg, shownName); }); top.appendChild(nb);
@@ -5441,6 +5461,11 @@ header.hero .me-btn { border-color:#e87328; }
     back.addEventListener("keydown", function (ev) { if (ev.key === "Escape") close(); });
     back.appendChild(box); document.body.appendChild(back); try { x.focus({ preventScroll: true }); } catch (e) {}
   }
+  /* Drawn icons so iPhones never swap in emoji. */
+  var IC_PLAY = '<svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l10.5-6.5z"/></svg>';
+  var IC_WATCH = '<svg class="ic ic-w" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="13.5" r="7.5"/><path d="M12 13.5V9.5M10 2.5h4M12 2.5V6M18.2 6.8l1.4-1.4"/></svg>';
+  var IC_STOP = '<svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="6.5" y="6.5" width="11" height="11" rx="1.5"/></svg>';
+  function icSpan(cls, svg) { var sp = el("span", cls); sp.innerHTML = svg; return sp; }
   function drawChallengePage() {
     var body = $("chal-body"); if (!body) return;
     var f = chalFind(chalCur); body.textContent = ""; if (!f) return;
@@ -5649,7 +5674,7 @@ header.hero .me-btn { border-color:#e87328; }
         // Stopwatch: counts up and fills the boxes. Tap again to stop.
         if (!F.sw) F.sw = { run: false, t0: 0 };
         var swb = el("button", "ch-sw" + (F.sw.run ? " run" : "")); swb.type = "button"; swb.id = "ch-swb";
-        swb.textContent = F.sw.run ? "■ Stop timer" : (F.mm || F.ss ? "▶ Start over" : "▶ Start timer");
+        swb.innerHTML = F.sw.run ? IC_STOP : IC_WATCH; swb.appendChild(el("span", null, F.sw.run ? "Stop timer" : (F.mm || F.ss ? "Start over" : "Start timer")));
         swb.addEventListener("click", function () {
           if (F.sw.run) { F.sw.run = false; clearInterval(chalSwInt); chalSwInt = null; swPaint(); drawChallengePage(); return; }
           unlockAudio(); F.sw = { run: true, t0: Date.now() }; F.mm = "0"; F.ss = "00"; drawChallengePage();
@@ -7566,7 +7591,7 @@ header.hero .me-btn { border-color:#e87328; }
       box.appendChild(r);
     });
   }
-  var APP_VERSION = "v196";
+  var APP_VERSION = "v197";
   /* ---------- Photo upload diagnostic (Settings > Testing) ---------- */
   async function runPhotoDiag() {
     var out = { at: new Date().toISOString(), version: APP_VERSION, ua: navigator.userAgent, steps: [] };
