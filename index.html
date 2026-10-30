@@ -353,7 +353,8 @@ details.targets[open] summary::after { content: "\2212"; }
 .pts-h { font-family: var(--f-label); font-weight: 700; letter-spacing: .1em; text-transform: uppercase; font-size: 13px; color: var(--brass, var(--accent)); margin: 14px 0 6px; }
 .pts-tbl { border-top: 1px solid var(--line); }
 .pts-row { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; padding: 8px 0; border-bottom: 1px solid var(--line); font-size: 14px; }
-.pts-row b { flex: none; font-family: var(--f-label); font-weight: 700; color: var(--accent); text-align: right; }
+.pts-row > span { min-width: 0; }
+.pts-row b { flex: 0 1 auto; max-width: 62%; min-width: 0; overflow-wrap: anywhere; font-family: var(--f-label); font-weight: 700; color: var(--accent); text-align: right; }
 .chal-sub { margin: -4px 0 10px; }
 .chal-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
 .chal-btn { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; min-height: 104px; padding: 10px; text-align: left; background: var(--surface); border: 1px solid var(--line); border-top: 4px solid var(--accent); border-radius: var(--radius, 4px); color: var(--ink); cursor: pointer; font: inherit; }
@@ -574,6 +575,10 @@ details.targets[open] summary::after { content: "\2212"; }
 .rl-card .rl-r .rl-t { display: inline; }
 .rl-card .rl-meta { float: none; display: inline-block; margin: 0 0 0 8px; vertical-align: baseline; }
 .rl-card .ed-form { width: 100%; }
+.inv-text { min-height: 120px; resize: none; font-size: 15px; line-height: 1.45; -webkit-user-select: text; user-select: text; }
+.inv-box .cdlg-btns { margin-top: 10px; }
+.inv-msg { margin: 8px 0 0; }
+.inv-close { width: 100%; margin-top: 10px; }
 .onb-tiles { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 .onb-tile { text-align: left; padding: 10px 12px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); border-radius: var(--radius, 4px); cursor: pointer; font: inherit; }
 .onb-tile b { display: block; font-family: var(--f-label); font-weight: 800; text-transform: uppercase; font-size: 17px; } .onb-tile span { font-size: 12.5px; color: var(--muted); }
@@ -780,9 +785,11 @@ button.fo-item { cursor: pointer; min-height: 44px; }
 .pinfo ul { margin: 0; padding-left: 20px; font-size: 13px; line-height: 1.5; }
 .pinfo li { margin: 4px 0; }
 .pinfo .pi-day { display: flex; justify-content: space-between; gap: 12px; padding: 6px 0; border-top: 1px dashed var(--line); font-size: 13px; }
-.pinfo .pi-day span:last-child { color: var(--muted); text-align: right; flex: none; }
+.pinfo .pi-day span:first-child { min-width: 0; }
+.pinfo .pi-day span:last-child { color: var(--muted); text-align: right; flex: 0 1 auto; max-width: 55%; min-width: 0; overflow-wrap: anywhere; }
 .pinfo .pi-ex { display: flex; justify-content: space-between; gap: 12px; padding: 6px 0; border-top: 1px dashed var(--line); font-size: 13px; }
-.pinfo .pi-ex span:last-child { color: var(--accent); font-weight: 600; text-align: right; flex: none; }
+.pinfo .pi-ex span:first-child { flex: 1 1 45%; min-width: 0; overflow-wrap: anywhere; }
+.pinfo .pi-ex span:last-child { color: var(--accent); font-weight: 600; text-align: right; flex: 0 1 55%; min-width: 0; overflow-wrap: anywhere; }
 .day-panel { margin-top: 18px; }
 .day-panel h3 { margin: 0 0 4px; font-family: var(--f-display); font-weight: 700; font-size: 19px; text-transform: uppercase; }
 .status { font-family: var(--f-label); font-weight: 600; font-size: 14.5px; letter-spacing: .08em; text-transform: uppercase; }
@@ -1389,6 +1396,33 @@ header.hero .me-btn { border-color:#e87328; }
 .ch-rec-btn svg { width: 30px; height: 20px; fill: currentColor; flex: none; }
 .ch-rec-btn:active { background: var(--surface-2); }
 .ch-rec-btn:disabled { opacity: .5; }
+#chal-body .ch-stand { order: 1; }
+.ch-nmrow { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.ch-nmrow .nm { min-width: 0; }
+.ch-pf { flex: none; width: 30px; height: 30px; min-height: 0; padding: 0; display: grid; place-items: center; border: 1.5px solid var(--brass, var(--accent)); border-radius: 8px; background: color-mix(in srgb, var(--brass, var(--accent)) 12%, transparent); color: var(--brass, var(--accent)); cursor: pointer; }
+.ch-pf svg { width: 19px; height: 19px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.ch-pf svg .pl { fill: currentColor; stroke: none; }
+.ch-pf:hover, .ch-pf:focus-visible { background: color-mix(in srgb, var(--brass, var(--accent)) 24%, transparent); }
+.ch-flh { margin: 14px 0 6px; font-family: var(--f-label); font-weight: 700; font-size: 12.5px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+.ch-flats { display: flex; flex-direction: column; border-top: 1px solid var(--line); }
+.ch-flat { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--line); min-width: 0; }
+.ch-flat .avatar { width: 32px; height: 32px; }
+.ch-flat .nm { flex: 0 1 auto; min-width: 0; font-family: var(--f-label); font-weight: 700; font-size: 15px; letter-spacing: .04em; text-transform: uppercase; overflow-wrap: anywhere; }
+.ch-flat em { font-style: normal; font-size: 12px; letter-spacing: .12em; color: var(--brass); }
+.ch-flat .ch-pf { margin-left: auto; }
+.chp-box { max-height: calc(var(--app-h, 100dvh) - 60px); overflow-y: auto; }
+.chp-hd { display: flex; align-items: center; gap: 12px; padding-right: 40px; margin-bottom: 10px; }
+.chp-hd h2 { margin: 0; }
+.chp-hd .avatar { width: 44px; height: 44px; }
+.chp-c { display: block; color: var(--muted); font-size: 13px; }
+.chp-att { border-top: 1px solid var(--line); padding: 10px 0; display: flex; flex-direction: column; gap: 6px; }
+.chp-att.best .chp-top b { color: var(--accent); }
+.chp-top { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; }
+.chp-top b { font-family: var(--f-label); font-size: 22px; }
+.chp-top span { font-size: 13px; color: var(--muted); }
+.chp-note { margin: 0; font-style: italic; font-size: 14px; }
+.chp-media { display: flex; flex-direction: column; gap: 8px; }
+.chp-media img, .chp-media video { width: 100%; max-height: 60vh; object-fit: contain; background: #000; border-radius: 8px; display: block; }
 .ch-rec-cap { margin: 0; }
 .ch-thumbs { display: grid; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: 8px; }
 .ch-th { position: relative; aspect-ratio: 1 / 1; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; background: #000; }
@@ -5363,6 +5397,50 @@ header.hero .me-btn { border-color:#e87328; }
   }
   function openChallenge(id) { chalCur = id; chalForm = null; state.chalBr = null; go("chal"); }
   function chalFind(id) { for (var i = 0; i < CHAL.weeks.length; i++) { var w = CHAL.weeks[i]; for (var j = 0; j < w.challenges.length; j++) if (w.challenges[j].id === id) return { w: w, c: w.challenges[j] }; } return null; }
+  /* ---------- Challenge proof viewer: tap the icon by a man's name to see what he submitted. ---------- */
+  var CH_PROOF_ICON = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2.5" y="5" width="19" height="14" rx="2.5"/><path d="M2.5 9.2h19M6.8 5l-1.6 4.2M11.8 5l-1.6 4.2M16.8 5l-1.6 4.2"/><path class="pl" d="M10.2 11.6v5.2l4.5-2.6z"/></svg>';
+  function chalProofOf(c, uid) {
+    var d = (state.chalAll || {})[uid], sub = d && d.subs && d.subs[c.id];
+    return ((sub && sub.attempts) || []).filter(function (a) { return (a.media || []).some(function (m) { return m && safeId(m.id); }); });
+  }
+  function chalProofBtn(host, c, uid) {
+    var list = chalProofOf(c, uid); if (!list.length) return;
+    var n = list.reduce(function (t, a) { return t + a.media.length; }, 0);
+    var b = el("button", "ch-pf"); b.type = "button"; b.innerHTML = CH_PROOF_ICON;
+    b.setAttribute("aria-label", "See " + (uid === state.me ? "your" : nameOf(uid) + "’s") + " submission (" + n + (n === 1 ? " file" : " files") + ")");
+    b.title = "See submission";
+    b.addEventListener("click", function (ev) { ev.stopPropagation(); openChalProof(c, uid); });
+    host.appendChild(b);
+  }
+  function openChalProof(c, uid) {
+    var old = $("cdlg"); if (old) old.remove();
+    var list = chalProofOf(c, uid).slice().reverse(), all = (((state.chalAll || {})[uid] || {}).subs || {})[c.id], best = null;
+    if (chalRanked(c)) ((all && all.attempts) || []).forEach(function (a) { if (a.mode === "standard" && a.v > 0 && chalBetter(c.scoredBy, a, best)) best = a; });
+    var back = el("div", "cdlg"); back.id = "cdlg";
+    var box = el("div", "cdlg-box nw-box chp-box"); box.setAttribute("role", "dialog"); box.setAttribute("aria-modal", "true"); box.setAttribute("aria-labelledby", "chp-t");
+    var x = el("button", "dlg-x"); x.type = "button"; x.setAttribute("aria-label", "Close"); x.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>'; box.appendChild(x);
+    var hd = el("div", "chp-hd"), im = el("img", "avatar"); im.alt = ""; if (avatarSrc(uid)) im.src = avatarSrc(uid); hd.appendChild(im);
+    var tt = el("div"); var h = el("h2", null, uid === state.me ? "Your submission" : nameOf(uid) + "’s submission"); h.id = "chp-t"; tt.appendChild(h); tt.appendChild(el("span", "chp-c", c.name.replace(/^Gauntlet:\s*/, ""))); hd.appendChild(tt); box.appendChild(hd);
+    list.forEach(function (a) {
+      var card = el("div", "chp-att" + (a === best ? " best" : ""));
+      var top = el("div", "chp-top"); top.appendChild(el("b", null, chalResultText(c, a)));
+      top.appendChild(el("span", null, (c.scoredBy === "completion" ? "" : chalModeLabel(a.mode) + " · ") + new Date(a.at).toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric" }) + (a === best && list.length > 1 ? " · Counts" : "")));
+      card.appendChild(top);
+      if (a.note) card.appendChild(el("p", "chp-note", "“" + a.note + "”"));
+      var md = el("div", "chp-media");
+      a.media.forEach(function (m, k) {
+        if (!m || !safeId(m.id)) return; var src = "/_blob/" + safeId(m.id);
+        if (m.type === "video") { var v = el("video"); v.controls = true; v.playsInline = true; v.preload = "metadata"; v.src = src; v.setAttribute("aria-label", "Proof video " + (k + 1)); md.appendChild(v); }
+        else { var i2 = el("img"); i2.alt = "Proof photo " + (k + 1); i2.loading = "lazy"; i2.src = src; md.appendChild(i2); }
+      });
+      card.appendChild(md); box.appendChild(card);
+    });
+    function close() { back.querySelectorAll("video").forEach(function (v) { try { v.pause(); } catch (e) {} }); back.remove(); }
+    x.addEventListener("click", close);
+    back.addEventListener("click", function (ev) { if (ev.target === back) close(); });
+    back.addEventListener("keydown", function (ev) { if (ev.key === "Escape") close(); });
+    back.appendChild(box); document.body.appendChild(back); try { x.focus({ preventScroll: true }); } catch (e) {}
+  }
   function drawChallengePage() {
     var body = $("chal-body"); if (!body) return;
     var f = chalFind(chalCur); body.textContent = ""; if (!f) return;
@@ -5420,12 +5498,12 @@ header.hero .me-btn { border-color:#e87328; }
     } else how.appendChild(el("li", null, "Complete it for " + CHAL.scoring.family.completionPoints + " points. Not ranked."));
     sec2.appendChild(how); body.appendChild(sec2);
     var rows = chalStandings(c), me = rows.filter(function (r) { return r.uid === state.me; })[0];
-    if (me) { var yp = el("div", "ch-score"); yp.appendChild(el("b", null, String(me.pts))); yp.appendChild(el("span", null, "your points" + (me.rank && me.pts === me.score ? " \u00B7 " + (me.rank === 1 ? "1st" : me.rank === 2 ? "2nd" : me.rank === 3 ? "3rd" : me.rank + "th") + " of " + me.n + " in " + bracketLabel(me.br) + (me.mode ? " (" + me.mode + ")" : "") : ""))); sec2.appendChild(yp); }
+    // His points show on his Standings row, which updates as he submits, so they are not repeated here.
     if (ranked) {
       var groups = {}; rows.forEach(function (r) { if (r.rank) (groups[r.g] = groups[r.g] || []).push(r); });
       var keys = Object.keys(groups);
       if (!state.chalBr || keys.indexOf(state.chalBr) < 0) state.chalBr = me && groups[me.g] ? me.g : (myBracket(w.season) + "|") in groups ? myBracket(w.season) + "|" : keys[0];
-      var stS = el("section", "ch-sec"); stS.appendChild(el("h2", "label-caps", "Standings"));
+      var stS = el("section", "ch-sec ch-stand"); stS.appendChild(el("h2", "label-caps", "Standings"));
       if (!keys.length) stS.appendChild(el("p", "fnote", "No Standard results yet. Be the first."));
       else {
         if (keys.length > 1) {
@@ -5437,13 +5515,19 @@ header.hero .me-btn { border-color:#e87328; }
         groups[state.chalBr].slice().sort(function (x, y) { return x.rank - y.rank; }).forEach(function (r) {
           var rw = el("div", "row" + (r.rank === 1 ? " lead" : "")); rw.appendChild(el("div", "rank", String(r.rank)));
           var img = el("img", "avatar"); img.alt = ""; if (avatarSrc(r.uid)) img.src = avatarSrc(r.uid); makeLink(img, r.uid); rw.appendChild(img);
-          var who = el("div", "who"), nm = el("div", "nm", nameOf(r.uid)); if (r.uid === state.me) nm.appendChild(el("em", null, "YOU")); makeLink(nm, r.uid); who.appendChild(nm);
+          var who = el("div", "who"), nl = el("div", "ch-nmrow"), nm = el("div", "nm", nameOf(r.uid)); if (r.uid === state.me) nm.appendChild(el("em", null, "YOU")); makeLink(nm, r.uid); nl.appendChild(nm); chalProofBtn(nl, c, r.uid); who.appendChild(nl);
           var bar = el("div", "bar"), fl = el("i"); fl.style.width = r.score + "%"; bar.appendChild(fl); who.appendChild(bar); rw.appendChild(who);
           var sc = el("div", "score"); sc.appendChild(el("b", null, String(r.score))); sc.appendChild(el("span", null, chalResultText(c, r.best))); rw.appendChild(sc); bd.appendChild(rw);
         });
         stS.appendChild(bd);
       }
-      var flats = rows.filter(function (r) { return r.flat; }).length; if (flats) stS.appendChild(el("p", "fnote", flats + (flats === 1 ? " man" : " men") + " completed the Alternate or Scaled version."));
+      var flatRows = rows.filter(function (r) { return r.flat; });
+      if (flatRows.length) {
+        stS.appendChild(el("div", "ch-flh", "Completed Alternate or Scaled"));
+        var fl0 = el("div", "ch-flats");
+        flatRows.forEach(function (r) { var fr = el("div", "ch-flat"), im = el("img", "avatar"); im.alt = ""; if (avatarSrc(r.uid)) im.src = avatarSrc(r.uid); makeLink(im, r.uid); fr.appendChild(im); var n2 = el("span", "nm", nameOf(r.uid)); makeLink(n2, r.uid); fr.appendChild(n2); if (r.uid === state.me) fr.appendChild(el("em", null, "YOU")); chalProofBtn(fr, c, r.uid); fl0.appendChild(fr); });
+        stS.appendChild(fl0);
+      }
       if (!myBracket(w.season)) stS.appendChild(el("p", "fnote", "Add your birthday in Settings \u2192 Service record to be ranked in your age bracket."));
       body.appendChild(stS);
     }
@@ -5457,7 +5541,7 @@ header.hero .me-btn { border-color:#e87328; }
         var i = at.length - 1 - ri, isBest = a === bS && at.length > 1, r = el("div", "ch-att" + (isBest ? " best" : ""));
         var tx = el("div", "ch-att-t"); tx.appendChild(el("b", null, chalResultText(c, a))); tx.appendChild(el("span", null, (c.scoredBy === "completion" ? "" : chalModeLabel(a.mode) + " · ") + new Date(a.at).toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric" }) + (isBest ? " · Best" : "")));
         if (a.note) tx.appendChild(el("span", "ch-note", "“" + a.note + "”")); r.appendChild(tx);
-        if ((a.media || []).length) { var mm = el("div", "ch-media"); a.media.forEach(function (m) { var src = "/_blob/" + safeId(m.id); if (!safeId(m.id)) return; var n = m.type === "video" ? el("video") : el("img"); n.src = src; if (m.type === "video") { n.controls = true; n.playsInline = true; n.preload = "metadata"; } else n.alt = "Proof photo"; mm.appendChild(n); }); r.appendChild(mm); }
+        // His photos and videos open from the proof icon by his name in Standings, so they are not repeated here.
         if (live) { var del = el("button", "mini", "Remove"); del.type = "button"; del.setAttribute("aria-label", "Remove this submission"); del.addEventListener("click", function () { confirmDelete({ title: "Remove this submission?", message: chalResultText(c, a) + " will be removed from this challenge.", yes: "Remove" }, function () { var s = chalAttempts(c.id).slice(); s.splice(i, 1); chalSave(c.id, s); }); }); r.appendChild(del); }
         ps.appendChild(r);
       });
@@ -6231,9 +6315,42 @@ header.hero .me-btn { border-color:#e87328; }
   }
   function setInviter(uid) { var cur = state.pubProfiles[state.me] || {}; if (cur.invitedBy || !uid || uid === state.me) return; saveProfilePatch({ invitedBy: uid, invitedAt: todayKey() }); }
   function inviteBrother(btn) {
-    var h = handleOf(state.me), txt = "Join me on Forged & Sent, the app our men use to train, pray and stay accountable. Open " + APP_LINK + " and when you set up, search my name, " + nameOf(state.me) + ", under \u201CWho invited you?\u201D" + ".";
-    if (navigator.share) { navigator.share({ title: "Forged & Sent", text: txt }).catch(noop); return; }
-    try { navigator.clipboard.writeText(txt).then(function () { if (btn) btn.textContent = "Invite copied. Paste it in a text."; }); } catch (e) { if (btn) btn.textContent = "Couldn\u2019t copy. Share the app link: " + APP_LINK; }
+    var txt = "Join me on Forged & Sent, the app our men use to train, pray and stay accountable. Open " + APP_LINK + " and when you set up, search my name, " + nameOf(state.me) + ", under “Who invited you?”" + ".";
+    var old = $("cdlg"); if (old) old.remove();
+    var back = el("div", "cdlg"); back.id = "cdlg";
+    var box = el("div", "cdlg-box nw-box inv-box"); box.setAttribute("role", "dialog"); box.setAttribute("aria-modal", "true"); box.setAttribute("aria-labelledby", "inv-t");
+    var h = el("h2", null, "Invite a brother"); h.id = "inv-t"; box.appendChild(h);
+    box.appendChild(el("p", null, "Send him this message. When he joins and picks you under “Who invited you?”, you get " + RECRUIT_PTS + " points."));
+    var ta = el("textarea", "field inv-text"); ta.readOnly = true; ta.rows = 5; ta.value = txt; ta.setAttribute("aria-label", "Invite message"); box.appendChild(ta);
+    var msg = el("p", "note inv-msg"); msg.setAttribute("aria-live", "polite"); msg.textContent = "Or press and hold the message to copy it yourself.";
+    var row = el("div", "cdlg-btns");
+    var sh = el("button", "btn", "Share"); sh.type = "button";
+    var cp = el("button", "btn ghost", "Copy text"); cp.type = "button";
+    function selectAll() { try { ta.focus({ preventScroll: true }); ta.select(); ta.setSelectionRange(0, ta.value.length); } catch (e) {} }
+    function copied(ok) { msg.textContent = ok ? "Copied. Paste it in a text to him." : "Your phone blocked copying here. Press and hold the message above, then tap Copy."; if (!ok) selectAll(); }
+    cp.addEventListener("click", function () {
+      var done = false;
+      try {
+        if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(txt).then(function () { done = true; copied(true); }, function () { selectAll(); var ok = false; try { ok = document.execCommand("copy"); } catch (e) {} copied(ok); });
+        else { selectAll(); var ok2 = false; try { ok2 = document.execCommand("copy"); } catch (e) {} copied(ok2); }
+      } catch (e) { copied(false); }
+    });
+    if (navigator.share) {
+      sh.addEventListener("click", function () {
+        try { navigator.share({ title: "Forged & Sent", text: txt }).then(function () { msg.textContent = "Sent. Thanks for bringing a brother in."; }, function (e) { if (e && e.name === "AbortError") return; msg.textContent = "Sharing isn’t allowed here. Tap Copy text, or press and hold the message."; }); }
+        catch (e) { msg.textContent = "Sharing isn’t allowed here. Tap Copy text, or press and hold the message."; }
+      });
+      row.appendChild(sh); row.appendChild(cp);
+    } else { row.style.gridTemplateColumns = "1fr"; cp.className = "btn"; row.appendChild(cp); }
+    box.appendChild(row); box.appendChild(msg);
+    var cl = el("button", "btn ghost inv-close", "Close"); cl.type = "button"; box.appendChild(cl);
+    function close() { back.remove(); if (btn) try { btn.focus({ preventScroll: true }); } catch (e) {} }
+    cl.addEventListener("click", close);
+    back.addEventListener("click", function (ev) { if (ev.target === back) close(); });
+    back.addEventListener("keydown", function (ev) { if (ev.key === "Escape") close(); });
+    back.appendChild(box); document.body.appendChild(back);
+    try { ta.style.height = (ta.scrollHeight + 2) + "px"; } catch (e) {}
+    try { sh.focus ? (navigator.share ? sh : cp).focus({ preventScroll: true }) : null; } catch (e) {}
   }
   function saveProfilePatch(patch) {
     if (!state.me || !state.canWrite) return;
@@ -7449,7 +7566,7 @@ header.hero .me-btn { border-color:#e87328; }
       box.appendChild(r);
     });
   }
-  var APP_VERSION = "v191";
+  var APP_VERSION = "v196";
   /* ---------- Photo upload diagnostic (Settings > Testing) ---------- */
   async function runPhotoDiag() {
     var out = { at: new Date().toISOString(), version: APP_VERSION, ua: navigator.userAgent, steps: [] };
