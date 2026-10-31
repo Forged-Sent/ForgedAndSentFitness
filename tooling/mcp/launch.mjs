@@ -21,8 +21,8 @@ export function commandFor(tool, platform=process.platform, home=homedir()){
     return {command:existsSync(local) ? local : 'dart',args:['mcp-server']};
   }
   if (tool === 'playwright') {
-    return win ? {command:'cmd.exe',args:['/d','/c','npx -y @playwright/mcp@0.0.83 --browser=chrome']} :
-      {command:'npx',args:['-y','@playwright/mcp@0.0.83','--browser=chrome']};
+    return win ? {command:'cmd.exe',args:['/d','/c','npx -y @playwright/mcp@0.0.83 --browser=chrome --isolated']} :
+      {command:'npx',args:['-y','@playwright/mcp@0.0.83','--browser=chrome','--isolated']};
   }
   if (tool === 'maestro') {
     return win ? {command:'cmd.exe',args:['/d','/c','maestro mcp']} :
