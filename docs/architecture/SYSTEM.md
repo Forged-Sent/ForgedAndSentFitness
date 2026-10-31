@@ -91,6 +91,6 @@ Review agents are **advisory**. A tool that wrote a change is not counted as an 
 
 ## Open this architecture as an interactive website
 
-Use the one-click `ARCHITECTURE-WINDOWS.cmd` or `ARCHITECTURE-MAC.command` launcher from a real Git clone. The offline [Architecture Atlas](explorer/README.md) shows clickable current/planned/process diagrams, an every-tracked-file source inventory, detected functions and their source lines, import/reference relationships and reverse dependencies. You can also download the `forged-sent-architecture-atlas` artifact from the latest PR CI run.
+Use the one-click `ARCHITECTURE-WINDOWS.cmd` or `ARCHITECTURE-MAC.command` launcher from a real Git clone. The offline [Architecture Atlas](explorer/README.md) shows clickable current/planned/process diagrams, an every-tracked-file source inventory, detected functions and their source lines, import/reference relationships, reverse dependencies, and the complete checked-in Markdown documents in a safe reader. You can also download the `forged-sent-architecture-atlas` artifact from the latest PR CI run.
 
 `docs/architecture/explorer/model.json` holds curated component/function descriptions. `tooling/architecture/build_explorer.py` reads the actual current repo and generates `build/architecture-explorer/index.html` plus its self-contained assets. Do not confuse lexical file mentions with verified call relationships. The generated site intentionally excludes the huge content bodies of archived prototype versions.
