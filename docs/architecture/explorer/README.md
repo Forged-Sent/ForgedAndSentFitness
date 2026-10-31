@@ -17,6 +17,7 @@ Use a real Git clone and Python 3.11+ (provided by the current onboarding script
 2. **Source explorer:** search filename, symbol, or description. The default hides archived snapshots to keep the list manageable, but choose **Everything** to reveal all tracked files. File details show detected declarations, excerpts (for reasonably small text files), source-line links, dependencies, reverse references and external imports.
 3. **Agent playbook:** open Codex/Claude/Gemini skills and choose who authored the change. The website prepares the appropriate independent review command for copying; it never runs an AI model or spends tokens.
 4. **Getting started:** choose Windows or Mac and copy setup, architecture-generation, and review commands.
+5. **Documentation Library:** read the complete original tracked Markdown documents in the browser with headings, tables, code blocks, an on-page contents menu, and links back to exact Git source lines. Mermaid diagram sources direct you to the interactive system map.
 
 ## Keyboard shortcuts
 
