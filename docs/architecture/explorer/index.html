@@ -22,6 +22,7 @@
         <button type="button" class="side-link" data-view="files"><span class="nav-icon">⌘</span> Source explorer <kbd>2</kbd></button>
         <button type="button" class="side-link" data-view="agents"><span class="nav-icon">✳</span> Agent playbook <kbd>3</kbd></button>
         <button type="button" class="side-link" data-view="guide"><span class="nav-icon">▤</span> Getting started <kbd>4</kbd></button>
+        <button type="button" class="side-link" data-view="docs"><span class="nav-icon">▦</span> Documentation <kbd>5</kbd></button>
       </nav>
       <div class="side-kicker side-kicker-gap">ABOUT THE SOURCE</div>
       <div class="side-explain">
@@ -138,6 +139,23 @@
             <div class="guide-card"><h3>Where the decisions live</h3><p><a id="link-system" href="#" target="_blank" rel="noopener">SYSTEM.md</a> documents the current and planned system. Architecture decisions live in ADRs. The generated code map describes actual Dart declarations.</p></div>
             <div class="guide-card"><h3>What is not ready yet</h3><p>Real user groups, server scoring, durable offline workflows and production permissions are <strong>planned</strong>. Green CI and an emulator sign-in are not evidence these features exist.</p></div>
           </div>
+        </section>
+
+        <section class="workspace hidden" id="view-docs" data-panel="docs" aria-labelledby="docs-title">
+          <div class="section-heading">
+            <div><div class="eyebrow alt">05 / KNOWLEDGE BASE</div><h2 id="docs-title">The documentation, readable</h2><p>Read every tracked Markdown document here. Select a heading, follow a link, or jump into its actual source file.</p></div>
+          </div>
+          <div class="docs-layout">
+            <div class="docs-menu">
+              <div class="file-search"><span aria-hidden="true">⌕</span><label class="sr-only" for="doc-search">Find a document</label><input id="doc-search" type="search" placeholder="Find a document..."></div>
+              <div id="doc-count" class="docs-count"></div>
+              <nav id="doc-list" class="docs-list" aria-label="Markdown documents"></nav>
+            </div>
+            <article id="doc-reader" class="doc-reader" aria-live="polite">
+              <div class="empty-state"><h3>Select a document</h3><p>The architecture, decisions, contributor guides, and agent skills are all available here.</p></div>
+            </article>
+          </div>
+          <p class="truth-note">Markdown is rendered with a restricted local formatter. Embedded HTML is treated as text, scripts are never executed, and Mermaid source diagrams are linked to the interactive map.</p>
         </section>
 
         <footer class="footer"><span><span class="tiny-mark">✦</span> Forged &amp; Sent / Architecture Atlas</span><span id="revision">Loading repository revision...</span><a id="github-repo" href="https://github.com/Forged-Sent/ForgedAndSentFitness" target="_blank" rel="noopener">View repository ↗</a></footer>
