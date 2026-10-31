@@ -13,7 +13,7 @@ test('Dart is directly executable on macOS without cmd.exe',()=>{
 test('Playwright uses fixed version and safe macOS command',()=>{
  const s=commandFor('playwright','darwin');
  assert.equal(s.command,'npx');
- assert.deepEqual(s.args,['-y','@playwright/mcp@0.0.83','--browser=chrome']);
+ assert.deepEqual(s.args,['-y','@playwright/mcp@0.0.83','--browser=chrome','--isolated']);
 });
 test('Windows Dart uses pinned native SDK executable, without cmd.exe',()=>{
  const home=mkdtempSync(join(tmpdir(),'forged dart & '));
