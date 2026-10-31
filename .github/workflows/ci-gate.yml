@@ -72,6 +72,12 @@ jobs:
           python3 --version
           python3 -m unittest discover -s tooling/policy -p 'test_*.py' -v
           python3 tooling/policy/check.py
+          python3 -m unittest discover -s tooling/skills -p 'test_*.py' -v
+          python3 tooling/skills/sync.py --check
+          python3 -m unittest discover -s tooling/architecture -p 'test_*.py' -v
+          python3 tooling/architecture/generate.py --check
+          python3 -m unittest discover -s tooling/review -p 'test_*.py' -v
+          python3 tooling/review/review.py --help
 
   windows-checks:
     needs: changes
