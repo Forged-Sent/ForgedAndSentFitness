@@ -107,7 +107,7 @@ try {
     }
     Write-Host "Using PowerShell $version ($pwsh)" -ForegroundColor Green
     $scriptArguments = [string[]]$selected.Args
-    & $pwsh -NoLogo -NoProfile -File $script @scriptArguments
+    & $pwsh -NoLogo -NoProfile -ExecutionPolicy Bypass -File $script @scriptArguments
     exit [int]$LASTEXITCODE
 } catch {
     Write-Host ''
