@@ -9,8 +9,8 @@
   }
   var $=function(sel){return document.querySelector(sel);};
   var $$=function(sel){return Array.from(document.querySelectorAll(sel));};
-  var files=DATA.files, model=DATA.model, byPath=new Map(files.map(function(f){return [f.path,f];}));
-  var view='map',stage='current',zoom=1,platform='windows',author='human',visibleFiles=[],activeFile=null,resultIndex=0,drawerOpen=false,helpOpen=false,lastFocus=null;
+  var files=DATA.files, model=DATA.model, documents=DATA.documents||[], byPath=new Map(files.map(function(f){return [f.path,f];}));
+  var view='map',stage='current',zoom=1,platform='windows',author='human',visibleFiles=[],activeFile=null,resultIndex=0,drawerOpen=false,helpOpen=false,lastFocus=null,activeDocument=null;
   var SVG='http://www.w3.org/2000/svg';
   function node(tag,cls,text) {
     var n=document.createElement(tag);
@@ -46,7 +46,7 @@
     var a=node('a',null,text||'Open source ↗');a.href=link(path,line);a.target='_blank';a.rel='noopener noreferrer';return a;
   }
   function go(which){
-    if(!['map','files','agents','guide'].includes(which))return;
+    if(!['map','files','agents','guide','docs'].includes(which))return;
     view=which;
     $$('[data-panel]').forEach(function(p){p.classList.toggle('hidden',p.dataset.panel!==which);});
     $$('[data-view]').forEach(function(p){
@@ -55,6 +55,7 @@
       p.setAttribute('aria-current',yes?'page':'false');
     });
     if(which==='files'){$('#file-search').value=$('#global-search').value;renderFiles();}
+    if(which==='docs')renderDocsList();
     window.history.replaceState(null,'','#'+which);
   }
   function sourceForModel(n){return (n.files||[]).filter(function(p){return byPath.has(p);});}
@@ -289,7 +290,7 @@
     var typing=tag==='input'||tag==='textarea'||tag==='select'||e.target.isContentEditable;
     if(e.key==='/'&&!typing){e.preventDefault();go('files');$('#file-search').focus();return;}
     if(typing)return;
-    var views={'1':'map','2':'files','3':'agents','4':'guide',g:'map',f:'files',a:'agents'};
+    var views={'1':'map','2':'files','3':'agents','4':'guide','5':'docs',g:'map',f:'files',a:'agents',d:'docs'};
     if(views[e.key]){go(views[e.key]);return;}
     if(e.key==='?'){help(true);return;}
     if(view==='map'){
@@ -304,6 +305,145 @@
       var b=$$('#file-results .file-result')[resultIndex];if(b)b.scrollIntoView({block:'nearest'});
     }
   }
+
+  /* Safe Markdown renderer: textContent throughout; no raw HTML interpretation. */
+  function docPath(base,href) {
+    if(href.charAt(0)==='#')return null;
+    if(/^https?:\/\//i.test(href))return href;
+    var parts=base.split('/');parts.pop();
+    href.split('/').forEach(function(p){
+      if(p==='..')parts.pop();else if(p!=='.'&&p!=='')parts.push(p);
+    });
+    return parts.join('/');
+  }
+  function appendInline(target,text,path){
+    var pattern=/(\[[^\]]+\]\([^)]+\)|\*\*[^*]+\*\*|`[^`]+`|\*[^*]+\*)/g;
+    var offset=0,match;
+    while((match=pattern.exec(text))!==null){
+      if(match.index>offset)target.appendChild(document.createTextNode(text.slice(offset,match.index)));
+      var token=match[0];
+      if(token.charAt(0)==='['){
+        var parsed=/^\[([^\]]+)\]\(([^)]+)\)$/.exec(token);
+        if(parsed){
+          var dest=docPath(path,parsed[2]);
+          var a=node('a',null,parsed[1]);
+          if(dest&&/^https?:\/\//i.test(dest)){a.href=dest;a.target='_blank';a.rel='noopener noreferrer';}
+          else if(parsed[2].charAt(0)==='#'){a.href=parsed[2];}
+          else if(dest&&byPath.has(dest)){a.href=link(dest);a.addEventListener('click',function(e){e.preventDefault();go('files');selectFile(this.dataset.file);});a.dataset.file=dest;}
+          else {a.removeAttribute('href');a.title='Reference not resolved within tracked repository';}
+          target.appendChild(a);
+        }else target.appendChild(document.createTextNode(token));
+      }else if(token.startsWith('**')){
+        target.appendChild(node('strong',null,token.slice(2,-2)));
+      }else if(token.charCodeAt(0)===96){
+        target.appendChild(node('code',null,token.slice(1,-1)));
+      }else if(token.startsWith('*')){
+        target.appendChild(node('em',null,token.slice(1,-1)));
+      }else target.appendChild(document.createTextNode(token));
+      offset=pattern.lastIndex;
+    }
+    if(offset<text.length)target.appendChild(document.createTextNode(text.slice(offset)));
+  }
+  function isTableSeparator(line){return /^\s*\|?\s*:?-{3,}(?:\s*\|\s*:?-{3,})+\s*\|?\s*$/.test(line);}
+  function cells(line){return line.trim().replace(/^\|/,'').replace(/\|$/,'').split('|').map(function(s){return s.trim();});}
+  function markdownBody(doc){
+    var container=node('div','doc-body'),text=doc.markdown||'',lines=text.split(/\r?\n/),i=0,headingNum=0;
+    var toc=node('nav','doc-contents');toc.setAttribute('aria-label','On this page');
+    var body=node('div');
+    function heading(level,label){
+      var h=node('h'+level,null);h.id='doc-section-'+headingNum++;appendInline(h,label,doc.path);body.appendChild(h);
+      if(level===2||level===3){
+        var a=node('a',null,label.slice(0,55));a.href='#'+h.id;
+        a.addEventListener('click',function(e){e.preventDefault();h.scrollIntoView({behavior:'smooth',block:'start'});});
+        toc.appendChild(a);
+      }
+    }
+    while(i<lines.length){
+      var line=lines[i],trim=line.trim();
+      if(!trim){i++;continue;}
+      var fence=String.fromCharCode(96).repeat(3);
+      if(trim.startsWith(fence)){
+        var lang=trim.slice(3).trim(),content=[];i++;
+        while(i<lines.length&&!lines[i].trim().startsWith(fence)){content.push(lines[i]);i++;}
+        if(i<lines.length)i++;
+        var pre=node('pre');var code=node('code',null,content.join('\n'));pre.appendChild(code);body.appendChild(pre);
+        if(lang.toLowerCase()==='mermaid'){
+          var box=node('div','doc-diagram-hint','This source diagram also has an interactive component map. ');
+          var b=node('button','quiet-btn','Open interactive map ↗');b.type='button';b.addEventListener('click',function(){go('map');});
+          box.appendChild(b);body.appendChild(box);
+        }
+        continue;
+      }
+      var h=/^(#{1,4})\s+(.+)$/.exec(line);
+      if(h){heading(h[1].length,h[2]);i++;continue;}
+      if(/^---+$/.test(trim)){body.appendChild(node('hr'));i++;continue;}
+      if(trim.startsWith('|')&&i+1<lines.length&&isTableSeparator(lines[i+1])){
+        var wrap=node('div','doc-table-wrap'),table=node('table'),thead=node('thead'),tr=node('tr');
+        cells(lines[i]).forEach(function(v){var th=node('th');appendInline(th,v,doc.path);tr.appendChild(th);});
+        thead.appendChild(tr);table.appendChild(thead);i+=2;
+        var tbody=node('tbody');
+        while(i<lines.length&&lines[i].trim().startsWith('|')){
+          var row=node('tr');cells(lines[i]).forEach(function(v){var td=node('td');appendInline(td,v,doc.path);row.appendChild(td);});
+          tbody.appendChild(row);i++;
+        }
+        table.appendChild(tbody);wrap.appendChild(table);body.appendChild(wrap);continue;
+      }
+      if(/^>\s?/.test(trim)){
+        var quote=node('blockquote');while(i<lines.length&&/^>\s?/.test(lines[i].trim())){
+          var p=node('p');appendInline(p,lines[i].trim().replace(/^>\s?/,''),doc.path);quote.appendChild(p);i++;
+        }body.appendChild(quote);continue;
+      }
+      if(/^[-*+]\s+/.test(trim)||/^\d+\.\s+/.test(trim)){
+        var ordered=/^\d+\.\s+/.test(trim),list=node(ordered?'ol':'ul');
+        while(i<lines.length){
+          var candidate=lines[i].trim(),m=ordered?/^\d+\.\s+(.+)$/.exec(candidate):/^[-*+]\s+(.+)$/.exec(candidate);
+          if(!m)break;
+          var li=node('li');appendInline(li,m[1],doc.path);list.appendChild(li);i++;
+        }body.appendChild(list);continue;
+      }
+      var fragments=[trim];i++;
+      while(i<lines.length&&lines[i].trim()&&
+        !/^(#{1,4})\s+/.test(lines[i])&&!lines[i].trim().startsWith(fence)&&
+        !/^[-*+]\s+|^\d+\.\s+|^>\s?/.test(lines[i].trim())){
+        if(lines[i].trim().startsWith('|')&&i+1<lines.length&&isTableSeparator(lines[i+1]))break;
+        fragments.push(lines[i].trim());i++;
+      }
+      var p=node('p');appendInline(p,fragments.join(' '),doc.path);body.appendChild(p);
+    }
+    if(toc.children.length){container.appendChild(toc);}
+    container.appendChild(body);return container;
+  }
+  function renderDocsList(){
+    var query=($('#doc-search').value||'').trim().toLowerCase();
+    var eligible=documents.filter(function(d){return d.path.toLowerCase().includes(query)||d.title.toLowerCase().includes(query);});
+    eligible.sort(function(a,b){
+      function rank(d){return d.path==='docs/architecture/SYSTEM.md'?0:d.path==='docs/architecture/CODE-MAP.md'?1:d.path.startsWith('docs/architecture/')?2:d.path.startsWith('docs/development/')?3:4;}
+      return rank(a)-rank(b)||a.path.localeCompare(b.path);
+    });
+    $('#doc-count').textContent=eligible.length+' Markdown documents';
+    var panel=$('#doc-list');clear(panel);
+    if(!eligible.length)panel.appendChild(node('div','no-result','No Markdown document matches your search.'));
+    eligible.forEach(function(d){
+      var b=node('button','doc-choice'+(activeDocument&&activeDocument.path===d.path?' active':''));
+      b.type='button';b.appendChild(node('strong',null,d.title));b.appendChild(node('small',null,d.path));
+      b.addEventListener('click',function(){selectDoc(d.path);});panel.appendChild(b);
+    });
+    if(!activeDocument&&documents.length){
+      var first=documents.find(function(d){return d.path==='docs/architecture/SYSTEM.md';})||documents[0];
+      selectDoc(first.path);
+    }
+  }
+  function selectDoc(path){
+    var d=documents.find(function(x){return x.path===path;});if(!d)return;
+    activeDocument=d;var panel=$('#doc-reader');clear(panel);
+    var head=node('div','doc-reader-head');head.appendChild(node('span',null,d.path));
+    head.appendChild(srcLink(d.path,0,'Read original Markdown ↗'));panel.appendChild(head);
+    panel.appendChild(markdownBody(d));panel.scrollTop=0;
+    $('.doc-choice').forEach(function(b){
+      b.classList.toggle('active',b.querySelector('small')&&b.querySelector('small').textContent===path);
+    });
+  }
+
   function init(){
     $('#stat-files').textContent=DATA.stats.files.toLocaleString();
     $('#stat-symbols').textContent=DATA.stats.symbols.toLocaleString();
@@ -325,8 +465,9 @@
     $$('.guide-platform').forEach(function(b){b.addEventListener('click',function(){platform=b.dataset.platform;setupGuide();});});
     $('#close-drawer').addEventListener('click',closeDrawer);$('#drawer-cover').addEventListener('click',closeDrawer);
     document.addEventListener('keydown',shortcuts);
-    renderMap();renderFiles();setupAgents();setupGuide();setupHelp();
-    var start=location.hash.replace('#','');if(['map','files','agents','guide'].includes(start))go(start);
+    renderMap();renderFiles();setupAgents();setupGuide();setupHelp();renderDocsList();
+    $('#doc-search').addEventListener('input',renderDocsList);
+    var start=location.hash.replace('#','');if(['map','files','agents','guide','docs'].includes(start))go(start);
   }
   init();
 })();
