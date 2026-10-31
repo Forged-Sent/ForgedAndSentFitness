@@ -1,7 +1,7 @@
 # Human review routing for protected production and security surfaces.
 # Ruleset Required reviewers (team: app-reviewers, one approval) is the
 # enforcement. CODEOWNERS requests review; it is not itself branch protection.
-# Do NOT add '*' or '/*': pure HTML prototype PRs are intentionally lightweight.
+# CODEOWNERS cannot negate patterns; the catch-all lives in the GitHub\n# Required reviewers ruleset, not here. Do NOT add '*' or '/*': ordinary\n# prototype-only PRs must not trigger blanket code owner requests.\n# The ruleset protects ALL new or unrecognized files by default.
 /mobile/ @Chadillac12 @sfcsmithc-afk
 /tooling/ @Chadillac12 @sfcsmithc-afk
 /.github/ @Chadillac12 @sfcsmithc-afk
@@ -23,3 +23,11 @@
 /seed/weekly-challenges.json @Chadillac12 @sfcsmithc-afk
 /seed/movement-standards.json @Chadillac12 @sfcsmithc-afk
 /seed/tasks.json @Chadillac12 @sfcsmithc-afk
+/dev/*.py @Chadillac12 @sfcsmithc-afk
+/dev/patches/ @Chadillac12 @sfcsmithc-afk
+/dev/firebase/ @Chadillac12 @sfcsmithc-afk
+/docs/development/ @Chadillac12 @sfcsmithc-afk
+/functions/ @Chadillac12 @sfcsmithc-afk
+/firebase.json @Chadillac12 @sfcsmithc-afk
+/.firebaserc @Chadillac12 @sfcsmithc-afk
+/firestore.indexes.json @Chadillac12 @sfcsmithc-afk
