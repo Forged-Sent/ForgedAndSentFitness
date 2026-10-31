@@ -29,6 +29,7 @@ Use a real Git clone and Python 3.11+ (provided by the current onboarding script
 | `2` / `f` | Source explorer |
 | `3` / `a` | Agent playbook |
 | `4` | Getting started |
+| `5` / `d` | Documentation Library | 
 | `j` / `k` | Move through filtered source files |
 | `+` / `-` | Zoom architecture map |
 | `0` | Reset map zoom |
