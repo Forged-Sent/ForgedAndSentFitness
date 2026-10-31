@@ -20,6 +20,7 @@ PATHS = [
     "tooling/mcp/launch.mjs", "tooling/windows/install-maestro.ps1",
     "tooling/versions.json",
     "tooling/macos/common.sh", "tooling/windows/setup-developer.ps1",
+    "tooling/windows/setup.ps1",
     ".vscode/settings.json", "mobile/pubspec.lock",
     "docs/development/REPOSITORY-SECURITY.md",
 ]
@@ -87,6 +88,36 @@ class PolicyTests(unittest.TestCase):
         obj["mcpServers"]["dart"]["env"] = {"NODE_OPTIONS": "--require ./unexpected.cjs"}
         path.write_text(json.dumps(obj))
         self.assert_violation("local MCP has unapproved fields")
+
+    def test_second_flutter_workflow_pin_drift_is_rejected(self):
+        path = self.root / ".github/workflows/ci-gate.yml"
+        src = path.read_text()
+        self.assertGreaterEqual(src.count("flutter-version: '3.47.8'"), 2)
+        first = src.index("flutter-version: '3.47.8'")
+        later = src.index("flutter-version: '3.47.8'", first + 1)
+        path.write_text(src[:later] + src[later:].replace(
+            "flutter-version: '3.47.8'", "flutter-version: '3.48.0'", 1))
+        self.assert_violation("all pinned version/hash occurrences")
+
+    def test_windows_flutter_checkout_pin_drift_is_rejected(self):
+        path = self.root / "tooling/windows/setup.ps1"
+        path.write_text(path.read_text().replace(
+            "--branch 3.47.8", "--branch 3.48.0", 1))
+        self.assert_violation("all pinned version/hash occurrences")
+
+    def test_mac_flutter_pin_drift_is_rejected(self):
+        path = self.root / "tooling/macos/common.sh"
+        path.write_text(path.read_text().replace(
+            "Flutter 3.47.8", "Flutter 3.48.0", 1))
+        self.assert_violation("all pinned version/hash occurrences")
+
+    def test_maestro_hash_drift_is_rejected(self):
+        path = self.root / "tooling/windows/install-maestro.ps1"
+        raw = path.read_text()
+        manifest = json.loads((self.root / "tooling/versions.json").read_text())
+        self.assertIn(manifest["maestroZipSha256"], raw)
+        path.write_text(raw.replace(manifest["maestroZipSha256"], "b"*64, 1))
+        self.assert_violation("all pinned version/hash occurrences")
 
     def test_reviewer_without_tools_rejected(self):
         path = self.root / ".github/agents/architecture-reviewer.agent.md"
