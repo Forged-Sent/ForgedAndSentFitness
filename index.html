@@ -269,7 +269,7 @@ details.targets[open] summary::after { content: "\2212"; }
 .wc-stats { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 12.5px; color: var(--muted); }
 .wc-stats b { color: var(--ink); font-family: var(--f-label); font-size: 15px; font-weight: 700; }
 .wc-pr { font-size: 13px; } .wc-pr i { font-style: normal; font-family: var(--f-label); font-weight: 700; color: var(--brass, #b08d57); }
-.sh-box textarea { min-height: 76px; resize: vertical; }
+.sh-box textarea { min-height: 150px; resize: none; line-height: 1.45; }
 .sh-prev { position: relative; }
 .sh-prev img, .sh-prev video { width: 100%; max-height: 240px; object-fit: cover; display: block; border: 1px solid var(--line); border-radius: var(--radius, 4px); }
 .sh-x { position: absolute; top: 6px; right: 6px; width: 32px; height: 32px; border-radius: 50%; border: 0; background: rgba(0,0,0,.65); color: #fff; font-size: 14px; }
@@ -925,7 +925,7 @@ button.fo-item { cursor: pointer; min-height: 44px; }
 .rp-acts { display: flex; gap: 14px; margin-top: 2px; }
 .rp-acts .rp-del { margin-left: 0; }
 .ed-form { display: grid; gap: 8px; margin-top: 6px; }
-.ed-form textarea { width: 100%; resize: vertical; }
+.ed-form textarea { width: 100%; min-height: 120px; resize: none; line-height: 1.45; }
 .rp-del { margin-left: auto; background: none; border: 0; padding: 4px 0; color: var(--muted); font-size: 12.5px; text-decoration: underline; cursor: pointer; min-height: 0; }
 .rp-more { align-self: flex-start; }
 .rp-form { display: flex; flex-direction: column; gap: 8px; }
@@ -3423,7 +3423,7 @@ header.hero .me-btn { border-color:#e87328; }
     box.appendChild(workoutCardEl(card, false));
     var l = el("label", "flabel", "Message"), ta = el("textarea", "field"); ta.id = "sh-text"; ta.maxLength = 1000; ta.rows = 3;
     ta.value = "Finished " + card.t + "." + (card.prs.length ? " New PR" + (card.prs.length > 1 ? "s" : "") + " on " + card.prs.map(function (x) { return x.l; }).join(" and ") + "." : "") + " Iron sharpens iron.";
-    l.appendChild(ta); box.appendChild(l);
+    l.appendChild(ta); box.appendChild(l); fitSoon(ta);
     var prev = el("div", "sh-prev"); prev.hidden = true; box.appendChild(prev);
     var msg = el("p", "fnote"); box.appendChild(msg);
     function say(x) { msg.textContent = x || ""; }
@@ -6258,7 +6258,7 @@ header.hero .me-btn { border-color:#e87328; }
   function editBox(id, cur, maxLen, onSave, onCancel) {
     var f = el("form", "ed-form"), ta = el("textarea", "field"); ta.id = "ed-" + id; ta.rows = 3; ta.maxLength = maxLen; ta.setAttribute("aria-label", "Edit your message");
     ta.value = state.editDraft != null ? state.editDraft : cur;
-    ta.addEventListener("input", function () { state.editDraft = ta.value; });
+    ta.addEventListener("input", function () { state.editDraft = ta.value; }); fitSoon(ta);
     var err = el("p", "error"); err.hidden = true;
     var row = el("div", "rp-btns"), cn = el("button", "mini", "Cancel"), go = el("button", "btn", "Save"); cn.type = "button"; go.type = "submit";
     cn.addEventListener("click", onCancel);
@@ -7830,7 +7830,7 @@ header.hero .me-btn { border-color:#e87328; }
       box.appendChild(r);
     });
   }
-  var APP_VERSION = "v206";
+  var APP_VERSION = "v207";
   /* ---------- Photo upload diagnostic (Settings > Testing) ---------- */
   async function runPhotoDiag() {
     var out = { at: new Date().toISOString(), version: APP_VERSION, ua: navigator.userAgent, steps: [] };
@@ -7912,6 +7912,16 @@ header.hero .me-btn { border-color:#e87328; }
     catch (e) { step("report.saved", errOf(e)); }
     note.textContent = "Done. The results were saved for Curtis. You can also copy them and text them."; cp.disabled = false;
   }
+  /* Typing boxes grow with what's in them (up to half the screen). */
+  function fitTA(t) {
+    if (!t || t.tagName !== "TEXTAREA" || t.readOnly || t.id === "post-text" || (t.closest && t.closest("#composer"))) return;
+    var cap = Math.max(160, Math.round((window.innerHeight || 700) * 0.5)), min = parseFloat(getComputedStyle(t).minHeight) || 0;
+    t.style.height = "auto"; var want = Math.max(min, t.scrollHeight + 2);
+    t.style.height = Math.min(want, cap) + "px"; t.style.overflowY = want > cap ? "auto" : "hidden";
+  }
+  document.addEventListener("input", function (ev) { fitTA(ev.target); });
+  document.addEventListener("focusin", function (ev) { fitTA(ev.target); });
+  function fitSoon(t) { requestAnimationFrame(function () { fitTA(t); }); }
   function confirmDelete(o, onYes) {
     var old = $("cdlg"); if (old) old.remove();
     var back = el("div", "cdlg"); back.id = "cdlg";
