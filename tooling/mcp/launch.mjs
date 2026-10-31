@@ -9,10 +9,16 @@ import {fileURLToPath} from 'node:url';
 export function commandFor(tool, platform=process.platform, home=homedir()){
   const win = platform === 'win32';
   if (tool === 'dart') {
-    const local = join(home, 'develop', 'flutter', 'bin', win ? 'dart.bat' : 'dart');
-    const dart = existsSync(local) ? local : 'dart';
-    return win ? {command:'cmd.exe',args:['/d','/c','dart mcp-server']} :
-      {command:dart,args:['mcp-server']};
+    if (win) {
+      // Native SDK executable avoids cmd.exe searching the working directory for dart.bat.
+      const dartExe = join(home, 'develop', 'flutter', 'bin', 'cache', 'dart-sdk', 'bin', 'dart.exe');
+      if (!existsSync(dartExe)) {
+        throw new Error('Pinned Flutter Dart SDK missing. Run SETUP-WINDOWS.cmd before starting the Dart MCP.');
+      }
+      return {command:dartExe,args:['mcp-server']};
+    }
+    const local = join(home, 'develop', 'flutter', 'bin', 'dart');
+    return {command:existsSync(local) ? local : 'dart',args:['mcp-server']};
   }
   if (tool === 'playwright') {
     return win ? {command:'cmd.exe',args:['/d','/c','npx -y @playwright/mcp@0.0.83 --browser=chrome']} :
