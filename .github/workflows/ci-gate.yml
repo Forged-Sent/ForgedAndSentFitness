@@ -160,6 +160,9 @@ jobs:
         working-directory: mobile
         run: |
           flutter pub get
+          echo 'FORGED_SENT_LOCK_START'
+          cat pubspec.lock
+          echo 'FORGED_SENT_LOCK_END'
           flutter analyze --no-pub
           flutter test --no-pub
           flutter build web --release --no-pub
