@@ -11,4 +11,4 @@ paths:
 - Limit edits to the requested prototype behavior; do not refactor `mobile/` without an explicit issue.
 - Preserve existing archived HTML versions and maintain an append-only version history.
 - Run `python3 dev/make_preview.py` and review visuals. Mock data is not evidence of real authentication, access controls or persistence.
-- Prototype-only PRs use lightweight CI with optional human approval, but changes to protected seed rules, scoring, security or product decisions need human review.
+- Only explicit low-risk exceptions listed in `tooling/policy/review_scope.py` have optional formal review. Executable `dev/*.py`, `dev/patches/**`, `dev/firebase/**`, protected seed rules, unknown new paths and security/scoring decisions require human review.
