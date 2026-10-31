@@ -269,11 +269,23 @@ def build_catalog(root: Path, paths: list[str], model: dict, ref: str) -> dict:
                     errors.append(f"Model {node['id']} references absent file {owned}")
     if errors:
         raise ValueError("\n".join(errors))
+    documents = []
+    for p in paths:
+        if p.endswith(".md"):
+            try:
+                body = (root/p).read_text(encoding="utf-8")
+                if len(body) <= 120_000:
+                    title = next((line.lstrip("# ").strip() for line in body.splitlines()
+                                  if line.startswith("# ")), PurePosixPath(p).name)
+                    documents.append({"path":p,"title":title,"markdown":body})
+            except (OSError, UnicodeError):
+                continue
     return {
         "schema":1, "repository":REPO_URL,"ref":ref,
-        "model":model,
+        "model":model, "documents":documents,
         "stats":{
             "files":len(catalog),
+            "documents":len(documents),
             "symbols":sum(len(f["symbols"]) for f in catalog),
             "links":sum(len(f["deps"]) for f in catalog),
             "archived":sum(f["path"].startswith("versions/") for f in catalog),
