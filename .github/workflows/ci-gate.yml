@@ -76,6 +76,7 @@ jobs:
           python3 tooling/skills/sync.py --check
           python3 -m unittest discover -s tooling/architecture -p 'test_*.py' -v
           python3 tooling/architecture/generate.py --check
+          python3 tooling/architecture/build_explorer.py --check
           python3 -m unittest discover -s tooling/review -p 'test_*.py' -v
           python3 tooling/review/review.py --help
 
@@ -329,9 +330,53 @@ jobs:
         run: |
           set -euo pipefail
           ./tooling/firebase/node_modules/.bin/firebase emulators:exec --project demo-forgedandsent --only firestore,storage --non-interactive 'node --test tooling/firebase/tests/*.test.mjs'
+  architecture-atlas:
+    needs: changes
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '24'
+      - name: Validate source explorer and browser JavaScript
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --check docs/architecture/explorer/site.js
+          python3 -m unittest discover -s tooling/architecture -p 'test_*.py' -v
+          python3 tooling/architecture/build_explorer.py --write
+          test -s build/architecture-explorer/data.js
+          test -s build/architecture-explorer/index.html
+          python3 - <<'PY'
+          from pathlib import Path
+          from html.parser import HTMLParser
+          out=Path('build/architecture-explorer')
+          for p in ('index.html','site.css','site.js','data.js'):
+              assert (out/p).is_file() and (out/p).stat().st_size > 50, p
+          class IDs(HTMLParser):
+              def __init__(self):
+                  super().__init__();self.ids=set()
+              def handle_starttag(self, tag, attrs):
+                  for k,v in attrs:
+                      if k=='id':self.ids.add(v)
+          x=IDs();x.feed((out/'index.html').read_text())
+          for required in ('architecture-svg','file-results','file-detail','agent-cards','help-modal'):
+              assert required in x.ids, required
+          print('Offline architecture explorer assets and navigation targets passed')
+          PY
+      - name: Archive complete offline site for contributor preview
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: forged-sent-architecture-atlas
+          path: build/architecture-explorer/
+          retention-days: 10
+          if-no-files-found: error
   ci-gate:
     name: ci-gate
-    needs: [policy, changes, prototype-checks, windows-checks, windows-preview, flutter, mac-checks, mac-preview, ios-simulator, firebase-rules]
+    needs: [policy, changes, prototype-checks, windows-checks, windows-preview, flutter, mac-checks, mac-preview, ios-simulator, firebase-rules, architecture-atlas]
     if: ${{ always() }}
     runs-on: ubuntu-latest
     timeout-minutes: 5
