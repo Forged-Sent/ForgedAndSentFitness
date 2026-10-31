@@ -37,6 +37,17 @@ jobs:
           if grep -Eq '^(tooling/macos/|tooling/mcp/|\.mcp\.json$|\.codex/|\.vscode/|\.github/workflows/|.*-MAC\.command$|docs/development/|mobile/)' /tmp/changed; then echo "mac=true" >> "$GITHUB_OUTPUT"; else echo "mac=false" >> "$GITHUB_OUTPUT"; fi
           cat /tmp/changed
 
+  policy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Enforce MCP, API-key, reviewer, ownership and pinning policies
+        run: |
+          python3 --version
+          python3 -m unittest discover -s tooling/policy -p 'test_*.py' -v
+          python3 tooling/policy/check.py
+
   windows-checks:
     needs: changes
     if: needs.changes.outputs.windows == 'true'
@@ -199,7 +210,7 @@ jobs:
 
   ci-gate:
     name: ci-gate
-    needs: [changes, windows-checks, windows-preview, flutter, mac-checks, mac-preview]
+    needs: [policy, changes, windows-checks, windows-preview, flutter, mac-checks, mac-preview]
     if: ${{ always() }}
     runs-on: ubuntu-latest
     timeout-minutes: 5

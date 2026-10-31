@@ -1,7 +1,7 @@
 # Both developers are named. Confirm both have repository write access before
 # enabling mandatory code-owner review; a PR author cannot approve their own PR.
 # CODEOWNERS itself does not enforce review, the repository ruleset must.
-/* @Chadillac12 @sfcsmithc-afk
+* @Chadillac12 @sfcsmithc-afk
 /.github/ @Chadillac12 @sfcsmithc-afk
 /tooling/ @Chadillac12 @sfcsmithc-afk
 /.vscode/mcp.json @Chadillac12 @sfcsmithc-afk
