@@ -73,6 +73,19 @@ for fs_mcp in dart playwright maestro github context7 figma google-developer-kno
     fs_record "MCP:$fs_mcp" ConfiguredNotConnected 'Configured but no MCP tools/list handshake performed.' 'Connect from VS Code to verify tools/list.'
   else fs_record "MCP:$fs_mcp" Missing 'MCP declaration not found.' 'Restore .vscode/mcp.json.'; fi
 done
-fs_line "Local diagnostic file: $fs_report"
+# Build a separate, secret-free prompt for optional troubleshooting with an AI assistant.
+fs_ai="$(mktemp -t ForgedAndSent-Mac-AskAI)"
+chmod 600 "$fs_ai"
+{
+  printf '%s\n' "Help me fix Forged & Sent MacBook setup for the $FS_PROFILE profile."
+  printf '%s\n' 'Suggest safe steps; never request tokens, passwords, Firebase PROD credentials or bypass security.'
+  grep -E '^\[|^  WHY:|^  FIX:' "$fs_report" | grep -v '^\[Ready\]' || true
+} > "$fs_ai"
+printf 'Local diagnostic file: %s\n' "$fs_report"
+printf 'Review-before-sharing AI repair prompt: %s\n' "$fs_ai"
+if [ -t 0 ] && fs_has pbcopy && fs_question 'Copy the sanitized AI help prompt to the clipboard?'; then
+  pbcopy < "$fs_ai"
+  fs_ok 'Copied the diagnostics prompt. Review it before sharing.'
+fi
 if [ "$fs_failed" -eq 1 ]; then fs_warn 'Required items are missing or not yet implemented.'; exit 1; fi
 fs_ok 'All required local installation checks passed.'
