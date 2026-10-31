@@ -14,8 +14,8 @@ Forged & Sent is a faith-centered devotional workout and group accountability pl
 - Initially adult men's groups; design domain boundaries for future households and youth without enabling youth functionality by default.
 
 ## Protected operations
-- GitHub rulesets, not these instructions, enforce protected branches and path-specific human approval. Never push to main, force-push main, bypass protections, or merge a PR before required checks/reviews pass.
-- ONLY explicit low-risk exceptions in `tooling/policy/review_scope.py` may merge without an approval when all GitHub-required checks pass. Every other path, including new files, Flutter, security tooling, Python preview scripts, onboarding and Firebase configuration, requires one other human reviewer through the path-specific ruleset.
+- GitHub rulesets, not instructions or AI reviews, enforce protected branches and mandatory checks. The live ruleset currently requires ci-gate but ZERO human approvals. Do NOT claim a second human review is enforced. Never push to main, force-push main, bypass protections, or merge before required checks pass.
+- Require deterministic CI and independent advisory reviews. For sensitive auth, privacy, scoring, Firebase rules or unfamiliar architecture changes request another human, even when GitHub's current minimum human approval count is zero.
 - Never use an AI agent's review as an approval. Agents must not self-approve, self-merge, change branch protections, or impersonate a human reviewer.
 - AI reviews are advisory and never satisfy required approval.
 - No default cloud Firebase MCP, Firebase deployment, or PROD credentials on colleague devices.
@@ -43,10 +43,10 @@ Forged & Sent is a faith-centered devotional workout and group accountability pl
 
 ## Pull request classification
 - **Prototype (explicit exceptions only):** HTML/versions, mock and listed seed content. Lightweight preview CI, optional formal review, required PR. Executable preview scripts are *not* review-exempt.
-- **Application:** `mobile/` and production app architecture. Flutter CI plus required human review.
-- **Infrastructure/security:** `tooling/`, workflows, agent instructions, MCP settings, Firebase config, architecture ADRs and protected seed rules. Mandatory policy CI plus required human review.
+- **Application:** `mobile/` and production app architecture. Flutter CI and independent review, plus human attention for sensitive changes.
+- **Infrastructure/security:** `tooling/`, workflows, agent instructions, MCP settings, Firebase config, architecture ADRs and protected seed rules. Mandatory policy CI plus independent security review and a human decision.
 - A mixed PR receives the strictest applicable checks and review requirements. Prefer splitting unrelated changes.
-- Ask the other developer for review on required PRs. A PR author cannot provide their own required approval. Do not enable broad one-approval rules that unnecessarily block prototype-only PRs.
+- PR authors cannot approve their own GitHub PRs. AI reviews NEVER satisfy human-approval requirements. Read docs/development/AI-REVIEW-WORKFLOW.md and inspect live rules before merging.
 
 ## Platform-specific onboarding
 - Windows bootstrap: FIRST-RUN-WINDOWS.cmd; Mac bootstrap: FIRST-RUN-MAC.command. Both must preserve emulator-first/no-cloud-Firebase MCP defaults.
@@ -62,7 +62,7 @@ Forged & Sent is a faith-centered devotional workout and group accountability pl
 - Flutter Builder: one vertical slice, widget tests, no backend policy changes.
 - Architecture Reviewer: independent read-only design and requirements assessment.
 - Firebase Security Reviewer: authentication, rules, functions, storage and adversarial access tests.
-Run 1 builder plus 1 reviewer per PR by default; do not run every agent for every issue.
+Use one builder and at least two independent provider reviews when available; an authoring model must not review itself. Mark outages NOT VERIFIED. Avoid calling a large swarm for every minor change.
 
 ## Safe beginner Git collaboration (PR #4)
 
@@ -72,3 +72,10 @@ draft PRs for teammates. Do not run firebase deploy, overwrite production
 configurations, force-push, or merge PRs without explicit human approval.
 GitHub server rules are the actual enforcement boundary; local prompts and
 agent instructions are advisory. No cloud Firebase MCP is enabled by default.
+
+## Living architecture and shared agent instructions
+
+- Read docs/architecture/SYSTEM.md for current vs planned system boundaries and CODE-MAP.md for actual Dart symbols/imports.
+- Update SYSTEM.md/ADRs when boundaries change; run `python3 tooling/architecture/generate.py --write` for Dart changes.
+- Canonical skills are in .agents/skills; .claude/skills must match, enforced by `python3 tooling/skills/sync.py --check`.
+- Before pushing, run `python3 tooling/review/review.py --dry-run` and the appropriate independent review procedure.
