@@ -6,4 +6,4 @@ Read the repository root `AGENTS.md` for the shared workflow. This directory is 
 - Run `python3 dev/make_preview.py` after changing the prototype or the mock.
 - The generated `dev/preview.html` is ignored and must not be committed.
 - The mock validates appearance and basic interactions, not the hosted Claude runtime's identity, storage or sharing.
-- A prototype-only PR may merge after CI without required human approval; changes to protected files or sensitive product rules must be reviewed.
+- Only the explicit preview exceptions in `tooling/policy/review_scope.py` may merge after CI without mandatory approval. `dev/make_preview.py`, `dev/patches/**`, `dev/firebase/**` and every unfamiliar new path require human review. Do not self-merge using an agent.
