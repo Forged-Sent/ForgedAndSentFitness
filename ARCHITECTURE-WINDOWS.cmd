@@ -18,7 +18,7 @@ if errorlevel 1 (
   pause
   exit /b 1
 )
-start "" "%CD%\build\architecture-explorer\index.html"
+start "" "%CD%\build\architecture-explorer\Architecture-Atlas.html"
 if errorlevel 1 (
   echo  Open build\architecture-explorer\index.html manually.
 )
