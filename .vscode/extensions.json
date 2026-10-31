@@ -1,0 +1,13 @@
+{
+  "recommendations": [
+    "Dart-Code.dart-code",
+    "Dart-Code.flutter",
+    "GitHub.copilot-chat",
+    "GitHub.vscode-pull-request-github",
+    "OpenAI.chatgpt",
+    "Anthropic.claude-code",
+    "redhat.vscode-yaml",
+    "EditorConfig.EditorConfig",
+    "ms-vscode.powershell"
+  ]
+}

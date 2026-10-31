@@ -15,6 +15,20 @@ A men's fitness and accountability app for the Forged in Faith men's group. Men 
 | `docs/architecture-notes.md` | Architecture and store-readiness notes. |
 | `docs/health-integration.md` | Apple Health and Health Connect plan, bridge contract and store requirements. |
 
+## Working together
+
+All changes go through short-lived branches and pull requests to `main`.
+The HTML prototype's explicitly listed low-risk files (`index.html`,
+`versions/`, selected `dev/` and `seed/` content) stay fast with **optional
+human approval** and lightweight CI. Python scripts, Firebase configuration,
+onboarding, and any new or unfamiliar paths require human approval. Flutter (`mobile/`), CI/tooling, security settings and
+protected scoring/access rule files require a second human review. AI
+coding agents follow the same process using `AGENTS.md` and `CLAUDE.md`.
+
+See [repository security and review rules](docs/development/REPOSITORY-SECURITY.md)
+for the exact path patterns and GitHub administrator setup. Those rules
+must be enabled in GitHub; documentation alone does not enforce them.
+
 ## Running it
 
 **Locally (for development):**
@@ -81,3 +95,8 @@ Steps, Weigh-In and Workout can be filled from Apple Health or Health Connect on
 ## License
 
 Private, unreleased. No license granted yet.
+
+
+## MacBook development
+
+For a Mac, double-click **FIRST-RUN-MAC.command** from Finder. **SETUP-MAC.command** sets up the browser preview, and **SETUP-DEVELOPER-MAC.command** adds contributor tools. See [MacBook Quickstart](docs/development/MACBOOK-QUICKSTART.md). Full iOS/Android device onboarding is reserved for PR #4.

@@ -1,0 +1,284 @@
+name: Required CI gate
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: required-ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+jobs:
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      windows: ${{ steps.scope.outputs.windows }}
+      mobile: ${{ steps.scope.outputs.mobile }}
+      mac: ${{ steps.scope.outputs.mac }}
+      prototype: ${{ steps.scope.outputs.prototype }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          fetch-depth: 0
+      - id: scope
+        name: Identify changes without skipping the required workflow
+        shell: bash
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
+        run: |
+          set -euo pipefail
+          if [ -z "$BASE_SHA" ] || [[ "$BASE_SHA" =~ ^0+$ ]]; then
+            git ls-files > /tmp/changed
+          else
+            git diff --name-only "$BASE_SHA" HEAD > /tmp/changed
+          fi
+          python3 -m unittest discover -s tooling/ci -p 'test_*.py' -v
+          python3 tooling/ci/path_scope.py /tmp/changed >> "$GITHUB_OUTPUT"
+          cat /tmp/changed
+
+
+  prototype-checks:
+    needs: changes
+    if: needs.changes.outputs.prototype == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - name: Build and validate the local HTML prototype without Flutter
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -m compileall -q dev tooling/ci tooling/policy
+          python3 dev/make_preview.py
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          active = Path('index.html').read_text(encoding='utf-8')
+          preview = Path('dev/preview.html').read_text(encoding='utf-8')
+          assert preview == '<script src="mock-claude.js"></script>\n' + active, 'Mock injection or preview generation failed'
+          for seed in sorted(Path('seed').glob('*.json')):
+              json.loads(seed.read_text(encoding='utf-8'))
+          print('HTML preview generation and seed JSON passed')
+          PY
+
+  policy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - name: Enforce MCP, API-key, reviewer, ownership and pinning policies
+        run: |
+          python3 --version
+          python3 -m unittest discover -s tooling/policy -p 'test_*.py' -v
+          python3 tooling/policy/check.py
+
+  windows-checks:
+    needs: changes
+    if: needs.changes.outputs.windows == 'true'
+    runs-on: windows-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '22'
+      - name: Verify MCP launcher on Windows
+        shell: pwsh
+        run: node --test tooling/mcp/launch.test.mjs
+      - name: PowerShell parse and safe MCP policy
+        shell: pwsh
+        run: |
+          $ErrorActionPreference='Stop'
+          foreach($f in (Get-ChildItem tooling/windows -Filter *.ps1)){
+            $tokens=$null;$errors=$null
+            [System.Management.Automation.Language.Parser]::ParseFile($f.FullName,[ref]$tokens,[ref]$errors)|Out-Null
+            if($errors.Count){throw "PowerShell errors in $($f.Name): $errors"}
+          }
+          $v=Get-Content .vscode/mcp.json -Raw|ConvertFrom-Json
+          if($v.servers.PSObject.Properties.Name -contains 'firebase'){throw 'Default Firebase cloud MCP forbidden'}
+          if($v.servers.PSObject.Properties.Name -contains 'sentry'){throw 'Sentry excluded'}
+          if($v.servers.github.url -notmatch '/readonly$'){throw 'GitHub MCP must be read-only'}
+          foreach($launcher in @('SETUP-WINDOWS.cmd','SETUP-DEVELOPER-WINDOWS.cmd','SETUP-ANDROID.cmd','RUN-APP.cmd','VERIFY-DEVELOPER-WINDOWS.cmd','FIRST-RUN-WINDOWS.cmd')){
+            if((Get-Content $launcher -Raw) -notmatch 'bootstrap-pwsh.ps1'){throw "$launcher must use the PowerShell 5.1 bridge"}
+          }
+          $settings=Get-Content '.vscode/settings.json' -Raw|ConvertFrom-Json
+          if($settings.'terminal.integrated.defaultProfile.windows' -ne 'PowerShell 7'){throw 'Windows VS Code terminal must use PowerShell 7'}
+          foreach($n in @('dart','playwright','github','context7','figma','maestro','google-developer-knowledge')){
+            if($v.servers.PSObject.Properties.Name -notcontains $n){throw "MCP absent: $n"}
+          }
+          $cli=Get-Content tooling/windows/register-cli-mcps.ps1 -Raw
+          if($cli -match "name='firebase'"){throw 'Default CLI Firebase MCP forbidden'}
+      - name: Check protected PowerShell variables
+        shell: pwsh
+        run: |
+          $ErrorActionPreference='Stop'
+          Install-Module PSScriptAnalyzer -RequiredVersion 1.23.0 -Scope CurrentUser -Force -AllowClobber -Repository PSGallery
+          Import-Module PSScriptAnalyzer
+          $issues=@(Invoke-ScriptAnalyzer -Path tooling/windows -Recurse -IncludeRule PSAvoidAssignmentToAutomaticVariable -Severity Error,Warning)
+          if($issues.Count){$issues|Format-Table|Out-String|Write-Host;throw 'Reserved automatic variable assignment'}
+      - name: Pester tests for WinGet exit semantics and profile diagnostics
+        shell: pwsh
+        run: |
+          $ErrorActionPreference='Stop'
+          Install-Module Pester -RequiredVersion 5.7.1 -Scope CurrentUser -Force -SkipPublisherCheck -Repository PSGallery
+          Import-Module Pester -RequiredVersion 5.7.1
+          $results=Invoke-Pester -Path tooling/windows/tests -PassThru
+          if($results.FailedCount -gt 0 -or $results.PassedCount -eq 0){throw 'PowerShell unit tests failed'}
+      - name: Test 5.1 bridge and wizard diagnostics
+        shell: pwsh
+        run: |
+          & powershell.exe -NoProfile -ExecutionPolicy Bypass -File tooling/windows/bootstrap-pwsh.ps1 -Mode android -SelfTest
+          if($LASTEXITCODE){throw 'PowerShell 5.1 Android mapping failed'}
+          & powershell.exe -NoProfile -ExecutionPolicy Bypass -File tooling/windows/bootstrap-pwsh.ps1 -Mode wizard -SelfTest
+          if($LASTEXITCODE){throw 'PowerShell 5.1 bridge failed'}
+          & powershell.exe -NoProfile -ExecutionPolicy Bypass -File tooling/windows/verify-developer.ps1 -SelfTest
+          if($LASTEXITCODE){throw 'PowerShell 5.1 diagnostic fallback failed'}
+          & pwsh -NoProfile -File tooling/windows/verify-developer.ps1 -SelfTest
+          if($LASTEXITCODE){throw 'Diagnostic selftest failed'}
+          & pwsh -NoProfile -File tooling/windows/first-run.ps1 -SelfTest
+          if($LASTEXITCODE){throw 'Wizard selftest failed'}
+
+  windows-preview:
+    needs: changes
+    if: needs.changes.outputs.windows == 'true'
+    runs-on: windows-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - name: Exercise preview installation with existing machine tools
+        shell: pwsh
+        run: |
+          & pwsh -NoProfile -File tooling/windows/setup.ps1
+          if($LASTEXITCODE){throw 'Windows preview install failed'}
+      - name: Build the actual Chrome preview
+        shell: pwsh
+        run: |
+          $flutter=Join-Path $env:USERPROFILE 'develop\flutter\bin\flutter.bat'
+          if(-not (Test-Path $flutter)){$flutter=(Get-Command flutter.bat -ErrorAction Stop).Source}
+          Push-Location mobile
+          try {
+            & $flutter create --platforms=web --project-name=forged_and_sent --org=com.forgedandsent .
+            if($LASTEXITCODE){throw 'web host failed'}
+            & $flutter pub get
+            if($LASTEXITCODE){throw 'pub get failed'}
+            $dirty=(& git status --porcelain --untracked-files=normal -- .)
+            if($dirty){
+              $dirty|ForEach-Object{Write-Host $_}
+              & git diff -- analysis_options.yaml pubspec.lock | Out-Host
+              throw 'Flutter setup dirtied tracked or untracked mobile sources'
+            }
+            & $flutter build web --release
+            if($LASTEXITCODE){throw 'web build failed'}
+          } finally {Pop-Location}
+
+  flutter:
+    needs: changes
+    if: needs.changes.outputs.mobile == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2
+        with:
+          channel: stable
+          flutter-version: '3.47.8'
+          cache: true
+      - name: Generate interim hosts
+        working-directory: mobile
+        run: flutter create --platforms=android,web --project-name=forged_and_sent --org=com.forgedandsent .
+      - name: Analyze, test, build Flutter web and debug Android
+        working-directory: mobile
+        run: |
+          flutter pub get
+          git diff --exit-code -- pubspec.lock
+          flutter analyze --no-pub
+          flutter test --no-pub
+          flutter build web --release --no-pub
+          flutter build apk --debug --no-pub
+      - name: Preserve Android debug APK for human reviewers
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: forged-sent-android-debug
+          path: mobile/build/app/outputs/flutter-apk/app-debug.apk
+          retention-days: 5
+          if-no-files-found: error
+
+
+  mac-checks:
+    needs: changes
+    if: needs.changes.outputs.mac == 'true'
+    runs-on: macos-15
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '24'
+      - name: Mac syntax, launcher modes and non-installing profile self-tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          for s in tooling/macos/*.sh *-MAC.command; do
+            bash -n "$s"
+            test -x "$s" || { echo "::error::$s must be executable"; exit 1; }
+          done
+          bash tooling/macos/setup.sh --profile Preview --self-test
+          bash tooling/macos/setup.sh --profile Contributor --self-test
+          bash tooling/macos/verify.sh --self-test
+          bash tooling/macos/first-run.sh --self-test
+      - name: Test cross-platform MCP allowlist
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --test tooling/mcp/launch.test.mjs
+          if grep -Eiq '"firebase"[[:space:]]*:' .mcp.json .vscode/mcp.json; then echo "::error::Default Firebase cloud MCP forbidden"; exit 1; fi
+
+  mac-preview:
+    needs: changes
+    if: needs.changes.outputs.mac == 'true'
+    runs-on: macos-15
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2
+        with:
+          flutter-version: '3.47.8'
+          channel: stable
+          cache: true
+      - name: Verify Mac CI prerequisites only (not a clean installer test)
+        shell: bash
+        run: bash tooling/macos/setup.sh --profile Preview --ci
+      - name: Build browser preview and widget tests on macOS
+        shell: bash
+        working-directory: mobile
+        run: |
+          set -euo pipefail
+          flutter create --platforms=web --project-name=forged_and_sent --org=com.forgedandsent .
+          flutter pub get
+          git diff --exit-code -- pubspec.lock
+          flutter analyze --no-pub
+          flutter test --no-pub
+          flutter build web --release --no-pub
+
+  ci-gate:
+    name: ci-gate
+    needs: [policy, changes, prototype-checks, windows-checks, windows-preview, flutter, mac-checks, mac-preview]
+    if: ${{ always() }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Aggregate dependency results
+        shell: bash
+        env:
+          NEEDS_JSON: ${{ toJSON(needs) }}
+        run: |
+          set -euo pipefail
+          echo "$NEEDS_JSON" | jq -r 'to_entries[] | "\(.key): \(.value.result)"'
+          if echo "$NEEDS_JSON" | jq -e 'any(.[]; .result == "failure" or .result == "cancelled")' >/dev/null; then
+            echo "::error::CI dependency failure or cancellation"; exit 1
+          fi
+          if ! echo "$NEEDS_JSON" | jq -e 'all(.[]; .result == "success" or .result == "skipped")' >/dev/null; then
+            echo "::error::Unexpected dependency status"; exit 1
+          fi
+          echo "ci-gate passed"
