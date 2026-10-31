@@ -166,8 +166,8 @@ def evaluate(root: Path) -> list[str]:
     try:
         doc = (root / "docs/development/REPOSITORY-SECURITY.md").read_text(encoding="utf-8")
         block = re.search(
-            r"<!-- BEGIN REQUIRED_REVIEW_RULESET_PATTERNS -->\\s*`{3}gitignore\\s*"
-            r"(.*?)\\s*`{3}\\s*<!-- END REQUIRED_REVIEW_RULESET_PATTERNS -->",
+            r"<!-- BEGIN REQUIRED_REVIEW_RULESET_PATTERNS -->\s*`{3}gitignore\s*"
+            r"(.*?)\s*`{3}\s*<!-- END REQUIRED_REVIEW_RULESET_PATTERNS -->",
             doc, re.S)
         actual = tuple(line.strip() for line in block.group(1).splitlines()) if block else ()
         if actual != REVIEW_RULESET_PATTERNS:
