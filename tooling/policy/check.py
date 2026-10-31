@@ -9,6 +9,12 @@ from pathlib import Path
 LOCAL = {"dart", "playwright", "maestro"}
 REMOTE = {"github", "context7", "figma", "google-developer-knowledge"}
 APPROVED = LOCAL | REMOTE
+REMOTE_URLS = {
+    "github": "https://api.githubcopilot.com/mcp/readonly",
+    "context7": "https://mcp.context7.com/mcp",
+    "figma": "https://mcp.figma.com/mcp",
+    "google-developer-knowledge": "https://developerknowledge.googleapis.com/mcp",
+}
 
 def evaluate(root: Path) -> list[str]:
     errors: list[str] = []
@@ -52,20 +58,41 @@ def evaluate(root: Path) -> list[str]:
             if re.search(r"firebase(?:-tools)?", serialized):
                 fail(filename, f"{name} references forbidden Firebase cloud MCP")
             if name in LOCAL:
+                # MCP names are not security boundaries; disallow extra executable
+                # fields even if a trusted name and launcher are still present.
+                expected_keys = {"command", "args"}
+                if filename == ".vscode/mcp.json":
+                    expected_keys.add("type")
+                    if server.get("type") != "stdio":
+                        fail(filename, f"{name} local MCP must use stdio")
+                elif filename == ".codex/config.toml":
+                    expected_keys.add("startup_timeout_sec")
+                if set(server) != expected_keys:
+                    fail(filename, f"{name} local MCP has unapproved fields")
                 if server.get("command") != "node":
                     fail(filename, f"{name} must use the approved Node launcher")
                 args = server.get("args", [])
-                if not isinstance(args, list) or len(args) != 2 or not isinstance(args[0], str) or not args[0].endswith("/tooling/mcp/launch.mjs") and args[0] != "tooling/mcp/launch.mjs" or args[1] != name:
+                if (not isinstance(args, list) or len(args) != 2
+                        or not isinstance(args[0], str)
+                        or not (args[0].endswith("/tooling/mcp/launch.mjs")
+                                or args[0] == "tooling/mcp/launch.mjs")
+                        or args[1] != name):
                     fail(filename, f"{name} must invoke tooling/mcp/launch.mjs using its exact allowlisted tool name")
-            elif name == "github" and server.get("url") != "https://api.githubcopilot.com/mcp/readonly":
-                fail(filename, "GitHub MCP must use the readonly endpoint")
-            elif name in REMOTE and server.get("type") != "http" and filename.endswith(".json"):
-                fail(filename, f"{name} must be an HTTP MCP")
+            elif name in REMOTE:
+                expected_keys = {"url"} if filename == ".codex/config.toml" else {"type", "url"}
+                if name == "google-developer-knowledge":
+                    expected_keys.add("headers")
+                if set(server) != expected_keys:
+                    fail(filename, f"{name} remote MCP has unapproved fields")
+                if filename != ".codex/config.toml" and server.get("type") != "http":
+                    fail(filename, f"{name} remote MCP must use HTTP")
+                if server.get("url") != REMOTE_URLS[name]:
+                    fail(filename, f"{name} must use approved URL")
 
     expected_key = "$" + "{input:forgedGoogleKnowledgeApiKey}"
     if isinstance(v, dict):
         inp = v.get("inputs")
-        if not isinstance(inp, list) or len(inp) != 1 or inp[0].get("id") != "forgedGoogleKnowledgeApiKey" or inp[0].get("password") is not True:
+        if not isinstance(inp, list) or len(inp) != 1 or not isinstance(inp[0], dict) or inp[0].get("id") != "forgedGoogleKnowledgeApiKey" or inp[0].get("password") is not True:
             fail(".vscode/mcp.json", "Google Knowledge input must use the single masked password prompt")
         google = (v.get("servers") or {}).get("google-developer-knowledge", {})
         if google.get("headers", {}).get("X-Goog-Api-Key") != expected_key:
@@ -73,6 +100,8 @@ def evaluate(root: Path) -> list[str]:
 
     for settings in (root / ".claude").glob("settings*.json"):
         obj = get_json(str(settings.relative_to(root)))
+        if isinstance(obj, dict) and ("mcpServers" in obj or "servers" in obj):
+            fail(str(settings.relative_to(root)), "MCP declarations belong in audited config files")
         if obj is not None and re.search(r"firebase(?:-tools)?\W+(?:mcp|server)", json.dumps(obj), flags=re.I):
             fail(str(settings.relative_to(root)), "Firebase cloud MCP config forbidden")
 
