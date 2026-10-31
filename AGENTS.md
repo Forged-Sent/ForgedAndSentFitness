@@ -14,7 +14,9 @@ Forged & Sent is a faith-centered devotional workout and group accountability pl
 - Initially adult men's groups; design domain boundaries for future households and youth without enabling youth functionality by default.
 
 ## Protected operations
-- GitHub server rulesets are the enforcement. Do not push to main, force-push, bypass reviews, or merge without human approval.
+- GitHub rulesets, not these instructions, enforce protected branches and path-specific human approval. Never push to main, force-push main, bypass protections, or merge a PR before required checks/reviews pass.
+- Prototype-only pull requests may merge without an approval when all GitHub-required checks pass. Flutter, tooling, security policy and designated seed-rule paths require one other human reviewer through the path-specific ruleset.
+- Never use an AI agent's review as an approval. Agents must not self-approve, self-merge, change branch protections, or impersonate a human reviewer.
 - AI reviews are advisory and never satisfy required approval.
 - No default cloud Firebase MCP, Firebase deployment, or PROD credentials on colleague devices.
 - Contributor development is emulator-first, with demo-* project IDs and no cloud CLI login.
@@ -24,12 +26,27 @@ Forged & Sent is a faith-centered devotional workout and group accountability pl
 ## Working agreement
 1. Read `docs/development/START_HERE.md` and any applicable ADR before work.
 2. One focused issue per branch. Never change `main` directly.
-3. Human approval required for new dependencies, authentication or data-access changes, scoring formula changes, health permissions, and public communication features.
+3. Human product approval is required for new dependencies, authentication/data-access changes, scoring formula changes, health permissions, and public communication features, even if first explored in the prototype. Do not claim a prototype-only PR approves these decisions.
 4. Prefer a minimal vertical slice with tests over a large unreviewable implementation.
 5. Keep Flutter features under `mobile/lib/src/features/`; UI depends on application/domain services, not Firebase SDK types.
 6. Do not commit credentials, Firebase service account JSON, signing keys, personal data, or large generated media.
 7. Pull requests report changed files, test commands/results, potential data exposure, and unresolved decisions.
 8. Never claim an integration is tested until it has actually been run.
+
+## HTML prototype workflow (lighter review, same hygiene)
+- For `index.html`, `versions/`, `dev/` and ordinary `seed/` updates: create a short-lived `prototype/<topic>` branch and open a PR to `main`. Use a descriptive PR summary and a screenshot or notes for visual changes. A formal GitHub issue is optional for small iterations.
+- Prototype-only PRs do not require a human approval by default, but may receive voluntary review. Do not merge when mandatory CI is failing, review has explicitly requested changes, or scope has broadened into protected files.
+- `index.html` is the active prototype. Preserve existing `versions/app-vN.html` files as an append-only history; use a new version file when recording a milestone, never rewrite an older version.
+- Run `python3 dev/make_preview.py`, open `dev/preview.html` in a browser, and note any untested `window.claude` behavior. The local mock is not proof of data access, sharing, identity or persistence.
+- `seed/db-rules.json`, `seed/tasks.json`, `seed/weekly-challenges.json` and `seed/movement-standards.json` are review-protected because they describe data access or scoring. If a prototype change alters authorization, scoring or privacy semantics, escalate for human review even when the edit is only to `index.html`.
+- Prototype work is reference material. Do not introduce prototype runtime dependencies into `mobile/` or treat its backend adapter as production authorization.
+
+## Pull request classification
+- **Prototype:** HTML, versions, preview tooling and ordinary seed data. Lightweight preview CI, optional review, required PR.
+- **Application:** `mobile/` and production app architecture. Flutter CI plus required human review.
+- **Infrastructure/security:** `tooling/`, workflows, agent instructions, MCP settings, Firebase config, architecture ADRs and protected seed rules. Mandatory policy CI plus required human review.
+- A mixed PR receives the strictest applicable checks and review requirements. Prefer splitting unrelated changes.
+- Ask the other developer for review on required PRs. A PR author cannot provide their own required approval. Do not enable broad one-approval rules that unnecessarily block prototype-only PRs.
 
 ## Platform-specific onboarding
 - Windows bootstrap: FIRST-RUN-WINDOWS.cmd; Mac bootstrap: FIRST-RUN-MAC.command. Both must preserve emulator-first/no-cloud-Firebase MCP defaults.
