@@ -31,6 +31,11 @@ Forged & Sent is a faith-centered devotional workout and group accountability pl
 7. Pull requests report changed files, test commands/results, potential data exposure, and unresolved decisions.
 8. Never claim an integration is tested until it has actually been run.
 
+## Platform-specific onboarding
+- Windows bootstrap: FIRST-RUN-WINDOWS.cmd; Mac bootstrap: FIRST-RUN-MAC.command. Both must preserve emulator-first/no-cloud-Firebase MCP defaults.
+- Mac bootstrap support in PR #3 covers Preview and tool-only Contributor foundation. Do not claim iOS/Android device integration or Firebase emulator readiness until PR #4.
+- Project MCP stdio commands use the allowlisted Node launcher on both platforms. Never add Firebase cloud MCP or automatically request credentials.
+
 ## Checks
 - `cd mobile && flutter pub get && flutter analyze && flutter test`
 - `cd mobile && flutter build apk --debug` once Android platform files are generated.

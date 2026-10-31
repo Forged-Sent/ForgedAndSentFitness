@@ -81,3 +81,8 @@ Steps, Weigh-In and Workout can be filled from Apple Health or Health Connect on
 ## License
 
 Private, unreleased. No license granted yet.
+
+
+## MacBook development
+
+For a Mac, double-click **FIRST-RUN-MAC.command** from Finder. **SETUP-MAC.command** sets up the browser preview, and **SETUP-DEVELOPER-MAC.command** adds contributor tools. See [MacBook Quickstart](docs/development/MACBOOK-QUICKSTART.md). Full iOS/Android device onboarding is reserved for PR #4.

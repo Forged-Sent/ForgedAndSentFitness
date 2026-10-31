@@ -3,6 +3,10 @@
 ## Baseline
 This branch introduces an intentionally small Flutter scaffold and CI, **not a production app**. Existing `index.html` and `seed/` are the functional reference. Repo main was v182 when this work started.
 
+## Guided Windows and MacBook setup
+
+On Windows use FIRST-RUN-WINDOWS.cmd. On a MacBook use FIRST-RUN-MAC.command. Both provide a safe Flutter browser Preview and developer tool setup, without Firebase cloud MCP or login. See docs/development/MACBOOK-QUICKSTART.md for Mac prerequisites. Full iOS/Android device tooling is PR #4.
+
 ## Local setup
 Install the stable Flutter SDK and run:
 

@@ -13,3 +13,6 @@ Protect main in the Forged-Sent organization now; both @Chadillac12 and @sfcsmit
 
 ## Organization transfer update (2026-10-30)
 Repository is `Forged-Sent/ForgedAndSentFitness`. Existing draft PR #3 survived the transfer. The ChatGPT GitHub integration has been authorized for organization repository writes. No repository ruleset currently exists, so an organization admin must enable the main pull-request requirement, force-push/deletion protections, and secret scanning/push protection through GitHub's security settings.
+
+## Approved scope extension, 2026-10-30
+The user explicitly requested equivalent MacBook bootstrap support in PR #3. This narrowly authorizes Mac browser Preview / Contributor launchers, safe local developer dependency installation, read-only diagnostic models, portable Dart/Playwright/optional Maestro MCP launchers, macOS Flutter web CI and documentation. Full Firebase emulator wiring, JDK21, Android and iOS simulator provisioning, and complete Mobile/Maintainer profiles remain PR #4. No default Firebase cloud MCP, automatic credentials, or direct main writes are permitted.
