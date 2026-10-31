@@ -2,7 +2,7 @@
 What changed, why, and the issue/decision this addresses:
 
 ## Scope
-- [ ] HTML prototype only (`index.html`, `versions/`, `dev/`, ordinary `seed/`)
+- [ ] Low-risk preview files ONLY (exact GitHub rule exceptions documented in `tooling/policy/review_scope.py`)
 - [ ] Flutter app (`mobile/`)
 - [ ] Tooling, CI, MCP, agent policy or security-sensitive configuration
 - [ ] Protected scoring/data-access seed rules or sensitive product decision
