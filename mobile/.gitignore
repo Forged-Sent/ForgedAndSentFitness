@@ -12,3 +12,12 @@ coverage/
 *.iml
 # Local Firebase credentials
 firebase_options.local.dart
+
+# Temporary generated Flutter hosts, reviewed/committed in PR #4
+/android/
+/ios/
+/web/
+/macos/
+/windows/
+/linux/
+/.metadata

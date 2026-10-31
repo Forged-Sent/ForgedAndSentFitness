@@ -8,6 +8,11 @@ function Get-FSWinGetOutcome {
     '8A15002B' {return 'AlreadyPresent'}
     '8A150061' {return 'AlreadyPresent'}
     '8A150109' {return 'RestartRequired'}
+    '8A15010B' {return 'RestartRequired'}
+    '8A15010A' {return 'RestartRequired'}
+    '8A15010D' {return 'AlreadyPresent'}
+    '8A15010E' {return 'AlreadyPresent'}
+    '8A150014' {return 'NoApplicationsFound'}
     default {return 'Failed'}
   }
 }
@@ -21,9 +26,10 @@ function Invoke-FSWinGetPackage {
   }
   $exeArgs=@($Action.ToLowerInvariant(),'--id',$Id,'--exact','--source','winget',
     '--accept-package-agreements','--accept-source-agreements')
-  & winget.exe @exeArgs
+  & winget.exe @exeArgs | Out-Host
   $outcome=Get-FSWinGetOutcome $LASTEXITCODE
-  if($outcome -eq 'Failed'){
+  if($outcome -eq 'NoApplicationsFound' -and $Action -eq 'Upgrade'){$outcome='AlreadyPresent'}
+  if($outcome -in @('Failed','NoApplicationsFound')){
     $hex=('{0:X8}' -f ([long]$LASTEXITCODE -band 4294967295L))
     throw "WinGet $Action for $Id failed (code 0x$hex). Check installation permissions, network, and IT policy."
   }

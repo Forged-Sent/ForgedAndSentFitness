@@ -39,7 +39,7 @@ fs_record(){
   if [ "$fs_state" != Ready ]; then
     fs_line "  WHY: $fs_reason"
     fs_line "  FIX: $fs_fix"
-    if [ "$fs_kind" = REQUIRED ]; then fs_failed=1; fi
+    if [ "$fs_kind" = REQUIRED ] && [ "$fs_state" != NotApplicable ]; then fs_failed=1; fi
   fi
 }
 fs_probe(){
@@ -49,6 +49,7 @@ fs_probe(){
 fs_line "Forged & Sent MacBook diagnostic | $FS_PROFILE"
 fs_line 'Configured MCP servers are NOT Ready until a live initialize + tools/list handshake succeeds.'
 fs_line 'No user names, account tokens, project IDs or private file paths are included.'
+fs_line 'NotApplicable means deferred to PR #4; passing local installation checks is NOT full Contributor readiness.'
 if xcode-select -p >/dev/null 2>&1; then fs_record AppleCLT Ready '' ''; else fs_record AppleCLT Missing 'Apple Command Line Tools missing.' 'Complete the macOS developer tools installation dialog.'; fi
 fs_probe Git git 'Install Apple Command Line Tools.'
 if [ -d '/Applications/Google Chrome.app' ] || [ -d "$HOME/Applications/Google Chrome.app" ]; then fs_record Chrome Ready '' ''; else fs_record Chrome Missing 'Chrome not found.' 'Run SETUP-MAC.command.'; fi
@@ -65,7 +66,9 @@ fs_probe Maestro maestro 'Maestro mobile runner is part of PR #4.'
 fs_probe Java java 'JDK 21 configuration belongs to PR #4.'
 fs_record EmulatorWiring NotApplicable 'Firebase emulator-to-app wiring is not implemented in PR #3.' 'Complete demo-* emulator tests in PR #4.'
 fs_record DevCloudIdentity AuthRequired 'Maintainer cloud credentials are not configured.' 'PR #4 DEV-only, least-privilege opt-in; no production credentials.'
-if grep -Eq '"firebase"[[:space:]]*:' "$FS_ROOT/.vscode/mcp.json" "$FS_ROOT/.mcp.json"; then
+if [ ! -f "$FS_ROOT/.vscode/mcp.json" ] || [ ! -f "$FS_ROOT/.mcp.json" ]; then
+  fs_record FirebaseMCPIsolation Failed 'One or more required project MCP configurations are missing.' 'Restore the complete trusted project files.'
+elif grep -Eq '"firebase"[[:space:]]*:' "$FS_ROOT/.vscode/mcp.json" "$FS_ROOT/.mcp.json"; then
   fs_record FirebaseMCPIsolation Failed 'Firebase cloud MCP found in default settings.' 'Remove default Firebase MCP.'
 else fs_record FirebaseMCPIsolation Ready '' ''; fi
 for fs_mcp in dart playwright maestro github context7 figma google-developer-knowledge; do

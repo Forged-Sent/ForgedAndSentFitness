@@ -20,7 +20,7 @@ $entries = @{
     setup     = @{File='setup.ps1'; Args=@(); Update=$true}
     android   = @{File='setup.ps1'; Args=@('-Android'); Update=$true}
     run       = @{File='run-app.ps1'; Args=@(); Update=$false}
-    verify    = @{File='verify-developer.ps1'; Args=@(); Update=$false}
+    verify    = @{File='verify-developer.ps1'; Args=@('-TargetProfile','Contributor'); Update=$false}
 }
 function Locate-Pwsh {
     $command = Get-Command 'pwsh.exe' -ErrorAction SilentlyContinue | Select-Object -First 1

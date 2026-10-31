@@ -2,7 +2,7 @@
 # Profile state model only. Full profile-specific installation is PR #4.
 Set-StrictMode -Version Latest
 $script:FSProfiles=@{
-  Preview=@('PowerShell7','Git','Chrome','Flutter')
+  Preview=@('PowerShell7','Git','Chrome','Flutter','VSCode')
   Contributor=@('PowerShell7','Git','Chrome','Flutter','VSCode','Node','Npm','GitHubCLI','FirebaseCLI','EmulatorWiring')
   Mobile=@('PowerShell7','Git','Chrome','Flutter','VSCode','Node','Npm','GitHubCLI','FirebaseCLI','EmulatorWiring','AndroidStudio','Maestro','Java')
   Maintainer=@('PowerShell7','Git','Chrome','Flutter','VSCode','Node','Npm','GitHubCLI','FirebaseCLI','EmulatorWiring','DevCloudIdentity')
@@ -20,7 +20,7 @@ function Get-FSNeed {
 function Get-FSExitCode {
   param([ValidateSet('Preview','Contributor','Mobile','Maintainer')][string]$TargetProfile,[object[]]$Checks)
   foreach($c in $Checks) {
-    if((Get-FSNeed $TargetProfile $c.Id) -eq 'Required' -and $c.Status -ne 'Ready'){return 1}
+    if((Get-FSNeed $TargetProfile $c.Id) -eq 'Required' -and $c.Status -notin @('Ready','NotApplicable')){return 1}
   }
   return 0
 }

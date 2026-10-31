@@ -1,7 +1,7 @@
 #requires -Version 5.1
 # Read-only, profile-aware diagnostics. Does NOT authenticate or contact cloud MCPs.
 param(
-  [Alias('Profile')][ValidateSet('Preview','Contributor','Mobile','Maintainer')][string]$TargetProfile='Preview',
+  [Alias('Profile')][ValidateSet('Preview','Contributor','Mobile','Maintainer')][string]$TargetProfile='Contributor',
   [switch]$SelfTest
 )
 Set-StrictMode -Version Latest
@@ -85,8 +85,9 @@ $results=@($checks.ToArray())
 $exit=Get-FSExitCode $TargetProfile $results
 $lines=New-Object System.Collections.Generic.List[string]
 $lines.Add("Forged & Sent environment check | Profile: $TargetProfile | Result: $(if($exit){'NEEDS REPAIR'}else{'INSTALL CHECKS PASSED'})")
-$lines.Add('ConfiguredNotConnected is NOT Ready. Profile installer and live MCP checks land in PR #4.')
-$lines.Add('No usernames, filesystem paths, tokens or Firebase project IDs are included below.')
+$lines.Add('INSTALL CHECKS PASSED verifies local tools only. Deferred/NotApplicable items, Firebase emulator wiring and live MCP handshakes remain PR #4.')
+$lines.Add('No usernames, filesystem paths, tokens or Firebase project IDs are included in the report body.')
+if($results | Where-Object { $_.Status -eq 'NotApplicable' -and (Get-FSNeed $TargetProfile $_.Id) -eq 'Required' }){$lines.Add('DEFERRED: This profile has unimplemented PR #4 capabilities; installation success is NOT full readiness.')}
 $lines.Add('')
 foreach($c in $results){
   $need=Get-FSNeed $TargetProfile $c.Id

@@ -46,6 +46,6 @@ A declared server has status **ConfiguredNotConnected** until a live MCP initial
 
 ## Verification policy
 
-PR #3 adds macos-15 GitHub Actions shell/installer tests, portable Node MCP tests and an actual Flutter browser build. Hosted-runner checks **do not prove** that a clean personal MacBook can complete the entire first-time experience. We still need a real fresh Mac test and a rerun without reinstalls before inviting colleagues.
+PR #3 adds macos-15 shell syntax and simulated-profile self-tests, portable Node MCP unit tests, and an actual Flutter browser build. These checks do not run the Homebrew/Command Line Tools first-install flow. Hosted-runner checks **do not prove** that a clean personal MacBook can complete the entire first-time experience. We still need a real fresh Mac test and a rerun without reinstalls before inviting colleagues.
 
 The canonical repository is https://github.com/Forged-Sent/ForgedAndSentFitness; keep all changes on a reviewed feature branch, not main.

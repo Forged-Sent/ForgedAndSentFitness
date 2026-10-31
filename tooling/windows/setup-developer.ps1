@@ -192,7 +192,7 @@ try {
   }
 
   Attempt 'Developer diagnostics' {
-    & (Join-Path $PSHOME 'pwsh.exe') -NoProfile -File (Join-Path $PSScriptRoot 'verify-developer.ps1')
+    & (Join-Path $PSHOME 'pwsh.exe') -NoProfile -File (Join-Path $PSScriptRoot 'verify-developer.ps1') -TargetProfile Contributor
     Check-Exit 'Developer diagnostics'
   }
 

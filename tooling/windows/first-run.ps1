@@ -19,9 +19,10 @@ function RunScript([string]$file,[string[]]$extra=@()){
   & (Join-Path $PSHOME 'pwsh.exe') -NoLogo -NoProfile -File $file @extra | Out-Host
   return [int]$LASTEXITCODE
 }
+$script:LastInstalledProfile='Preview'
 function HelpReport {
   Banner 'Checking for problems'
-  $exitCode=RunScript $verify
+  $exitCode=RunScript $verify @('-TargetProfile',$script:LastInstalledProfile)
   if($exitCode -eq 0){
     Write-Host 'All required installed/configured checks passed.' -ForegroundColor Green
     Write-Host 'Account approvals and actual MCP handshakes are still separate.'
@@ -104,6 +105,7 @@ do {
       if(Ask 'Proceed with full setup?'){
         $setupArgs=@()
         if(Ask 'Also install Android Studio now? (optional; required for emulator testing)'){$setupArgs+='-Android'}
+        $script:LastInstalledProfile='Contributor'
         $status=RunScript $setup $setupArgs
         if($status -ne 0){Write-Host 'Setup reported one or more problems. The next check explains them.' -ForegroundColor Yellow}
         HelpReport
@@ -111,6 +113,7 @@ do {
     }
     '2' {
       Banner 'Preview-only setup'
+      $script:LastInstalledProfile='Preview'
       $status=RunScript $base
       if($status -eq 0){Write-Host 'Now choose option 6 to launch the app.' -ForegroundColor Green}
       else{Write-Host 'Preview setup failed. See its error output or use option 3.' -ForegroundColor Yellow}

@@ -61,7 +61,7 @@ if($existing){
   exit 0
 }
 try {
-  $url='https://github.com/mobile-dev-inc/maestro/releases/latest/download/maestro.zip'
+  $url='https://github.com/mobile-dev-inc/maestro/releases/download/cli-2.12.0/maestro.zip'
   Write-Host 'Downloading Maestro CLI from its official GitHub release...'
   Invoke-WebRequest -UseBasicParsing -Uri $url -OutFile $archive
   if((Get-Item $archive).Length -lt 100000){throw 'Maestro download looks incomplete.'}
