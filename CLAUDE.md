@@ -2,7 +2,7 @@
 
 Read `AGENTS.md` as the shared source of truth and `docs/development/START_HERE.md` before modifying files.
 
-Workflow: every change uses a short-lived branch and a pull request. Pure HTML prototype PRs have optional human review, while Flutter/security files require approval from another person under GitHub's path-specific ruleset. Never merge or bypass controls yourself.
+Workflow: every change uses a short-lived branch and a pull request. Only the explicit low-risk prototype exceptions defined in `tooling/policy/review_scope.py` have optional formal human review; ALL other files, including new paths, developer scripts, Firebase settings and Flutter code, require the other person's approval under GitHub's path-specific ruleset. Never merge or bypass controls yourself.
 
 When working on the prototype (`index.html`, `versions/`, `seed/`, `dev/`):
 - Read the root `AGENTS.md`, including its HTML prototype workflow.
