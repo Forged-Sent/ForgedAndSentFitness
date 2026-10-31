@@ -138,7 +138,11 @@ jobs:
             & $flutter pub get
             if($LASTEXITCODE){throw 'pub get failed'}
             $dirty=(& git status --porcelain --untracked-files=normal -- .)
-            if($dirty){$dirty|ForEach-Object{Write-Host $_};throw 'Flutter setup dirtied tracked or untracked mobile sources'}
+            if($dirty){
+              $dirty|ForEach-Object{Write-Host $_}
+              & git diff -- analysis_options.yaml pubspec.lock | Out-Host
+              throw 'Flutter setup dirtied tracked or untracked mobile sources'
+            }
             & $flutter build web --release
             if($LASTEXITCODE){throw 'web build failed'}
           } finally {Pop-Location}

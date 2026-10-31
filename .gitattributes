@@ -1,0 +1,3 @@
+# Dart pub and Flutter analyzer writes should not dirty Windows checkouts.
+mobile/pubspec.lock text eol=lf
+mobile/analysis_options.yaml text eol=lf
