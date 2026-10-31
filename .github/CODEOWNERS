@@ -1,11 +1,25 @@
-# Both developers are named. Confirm both have repository write access before
-# enabling mandatory code-owner review; a PR author cannot approve their own PR.
-# CODEOWNERS itself does not enforce review, the repository ruleset must.
-* @Chadillac12 @sfcsmithc-afk
-/.github/ @Chadillac12 @sfcsmithc-afk
+# Human review routing for protected production and security surfaces.
+# Ruleset Required reviewers (team: app-reviewers, one approval) is the
+# enforcement. CODEOWNERS requests review; it is not itself branch protection.
+# Do NOT add '*' or '/*': pure HTML prototype PRs are intentionally lightweight.
+/mobile/ @Chadillac12 @sfcsmithc-afk
 /tooling/ @Chadillac12 @sfcsmithc-afk
-/.vscode/mcp.json @Chadillac12 @sfcsmithc-afk
-/.claude/ @Chadillac12 @sfcsmithc-afk
+/.github/ @Chadillac12 @sfcsmithc-afk
 /.codex/ @Chadillac12 @sfcsmithc-afk
+/.claude/ @Chadillac12 @sfcsmithc-afk
+/.agents/ @Chadillac12 @sfcsmithc-afk
+/.vscode/ @Chadillac12 @sfcsmithc-afk
+/docs/architecture/ @Chadillac12 @sfcsmithc-afk
 /firebase/ @Chadillac12 @sfcsmithc-afk
+/.mcp.json @Chadillac12 @sfcsmithc-afk
+/.gitignore @Chadillac12 @sfcsmithc-afk
+/.gitattributes @Chadillac12 @sfcsmithc-afk
+/AGENTS.md @Chadillac12 @sfcsmithc-afk
+/CLAUDE.md @Chadillac12 @sfcsmithc-afk
+/*.cmd @Chadillac12 @sfcsmithc-afk
+/*.command @Chadillac12 @sfcsmithc-afk
 *.rules @Chadillac12 @sfcsmithc-afk
+/seed/db-rules.json @Chadillac12 @sfcsmithc-afk
+/seed/weekly-challenges.json @Chadillac12 @sfcsmithc-afk
+/seed/movement-standards.json @Chadillac12 @sfcsmithc-afk
+/seed/tasks.json @Chadillac12 @sfcsmithc-afk
