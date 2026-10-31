@@ -350,12 +350,17 @@ jobs:
           python3 tooling/architecture/build_explorer.py --write
           test -s build/architecture-explorer/data.js
           test -s build/architecture-explorer/index.html
+          test -s build/architecture-explorer/Architecture-Atlas.html
           python3 - <<'PY'
           from pathlib import Path
           from html.parser import HTMLParser
           out=Path('build/architecture-explorer')
-          for p in ('index.html','site.css','site.js','data.js'):
+          for p in ('index.html','site.css','site.js','data.js','Architecture-Atlas.html'):
               assert (out/p).is_file() and (out/p).stat().st_size > 50, p
+          single=(out/'Architecture-Atlas.html').read_text()
+          assert 'window.FS_ATLAS_DATA' in single
+          assert '<link rel="stylesheet" href="site.css">' not in single
+          assert '<script src="data.js"></script>' not in single
           class IDs(HTMLParser):
               def __init__(self):
                   super().__init__();self.ids=set()
