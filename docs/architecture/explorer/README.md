@@ -41,6 +41,7 @@ Keyboard shortcuts do not intercept text typed into an input or dropdown.
 ## How the source index is built
 
 - **Files:** all entries from `git ls-files`, sorted, classified and made searchable. Large archives remain in the index but their multi-megabyte source is deliberately not embedded.
+- **Documentation:** all tracked Markdown files are embedded for safe in-browser reading. The browser renders a restricted subset without executing raw HTML or linked code.
 - **Definitions:** Python AST for classes/functions and docstrings; best-effort Dart, JS, PowerShell, shell, YAML CI jobs and Markdown headings from text patterns; JSON config keys for selected files. Names and source line numbers link to the exact Git revision used by the generator.
 - **Dependencies:** explicit Dart/JS imports, best-effort Python local imports, Markdown links and lexical file path mentions. Every edge has a kind and confidence label. The reverse index shows which tracked files refer to a given path.
 - **Behaviors:** descriptions in `model.json` are a **human-maintained** glossary for selected key functions and components; a declaration without a vetted description is identified as undocumented, never filled with invented behavior.
