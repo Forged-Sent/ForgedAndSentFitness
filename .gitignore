@@ -1,3 +1,6 @@
 dev/preview.html
 .DS_Store
 .review/
+
+# Generated offline architecture website (rebuild with build_explorer.py)
+build/architecture-explorer/
