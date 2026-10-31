@@ -439,7 +439,7 @@
     var head=node('div','doc-reader-head');head.appendChild(node('span',null,d.path));
     head.appendChild(srcLink(d.path,0,'Read original Markdown ↗'));panel.appendChild(head);
     panel.appendChild(markdownBody(d));panel.scrollTop=0;
-    $('.doc-choice').forEach(function(b){
+    $$('.doc-choice').forEach(function(b){
       b.classList.toggle('active',b.querySelector('small')&&b.querySelector('small').textContent===path);
     });
   }
