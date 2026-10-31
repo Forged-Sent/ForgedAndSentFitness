@@ -1,0 +1,8 @@
+{
+  "rule": [
+    {
+      "action": { "type": "Delete" },
+      "condition": { "age": 30, "matchesPrefix": ["media/rally/", "media/proof/", "media/test/"] }
+    }
+  ]
+}
