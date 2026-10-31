@@ -201,12 +201,15 @@ def resolve_relative(path: str, target: str, known: set[str]) -> str | None:
 
 
 def dependencies(path: str, lines: list[str], known: set[str], modules: dict) -> tuple[list[dict], list[str]]:
-    found: dict[tuple[str,str], dict] = {}
+    found: dict[str, dict] = {}
     external: set[str] = set()
     lang = language(path)
     def add(target: str, kind: str, line: int, confidence: str):
         if target != path and target in known:
-            found[(target,kind)] = {"target":target,"kind":kind,"line":line,"confidence":confidence}
+            rank = {"import": 4, "documentation link": 3, "mentions path": 1}
+            existing = found.get(target)
+            if existing is None or rank[kind] > rank[existing["kind"]]:
+                found[target] = {"target":target,"kind":kind,"line":line,"confidence":confidence}
     for ix, line in enumerate(lines, 1):
         if lang in ("dart", "javascript"):
             m = (IMPORT_DART if lang == "dart" else IMPORT_JS).match(line)
