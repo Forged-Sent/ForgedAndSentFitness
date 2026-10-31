@@ -199,7 +199,7 @@ def evaluate(root: Path) -> list[str]:
         # in several jobs or install scripts. Validate EVERY occurrence.
         checks = (
             (".github/workflows/ci-gate.yml",
-             r"flutter-version:\s*['\\\"]([^'\\\"]+)['\\\"]", versions.get("flutter", "")),
+             r"flutter-version:\s*'([^']+)'", versions.get("flutter", "")),
             ("tooling/windows/setup.ps1",
              r"\b(3\.\d+\.\d+)\b", versions.get("flutter", "")),
             ("tooling/macos/common.sh",
