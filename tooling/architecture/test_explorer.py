@@ -73,5 +73,11 @@ class ExplorerTests(unittest.TestCase):
         self.assertEqual(edges[0]["confidence"],"explicit")
 
 
+    def test_browser_code_does_not_iterate_query_selector_single_element(self):
+        src = (Path(__file__).resolve().parents[2] /
+               "docs/architecture/explorer/site.js").read_text(encoding="utf-8")
+        self.assertNotRegex(src, r"(?<!\$)\$\([^)]*\)\.forEach\s*\(")
+
+
 if __name__=="__main__":
     unittest.main()
