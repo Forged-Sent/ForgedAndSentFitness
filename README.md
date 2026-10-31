@@ -18,9 +18,10 @@ A men's fitness and accountability app for the Forged in Faith men's group. Men 
 ## Working together
 
 All changes go through short-lived branches and pull requests to `main`.
-The HTML prototype (`index.html`, `versions/`, `dev/` and ordinary
-`seed/`) stays a fast iteration surface with **optional human review** and
-lightweight CI. Flutter (`mobile/`), CI/tooling, security settings and
+The HTML prototype's explicitly listed low-risk files (`index.html`,
+`versions/`, selected `dev/` and `seed/` content) stay fast with **optional
+human approval** and lightweight CI. Python scripts, Firebase configuration,
+onboarding, and any new or unfamiliar paths require human approval. Flutter (`mobile/`), CI/tooling, security settings and
 protected scoring/access rule files require a second human review. AI
 coding agents follow the same process using `AGENTS.md` and `CLAUDE.md`.
 
