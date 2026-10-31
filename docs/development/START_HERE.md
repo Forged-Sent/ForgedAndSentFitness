@@ -7,6 +7,20 @@ This branch introduces an intentionally small Flutter scaffold and CI, **not a p
 
 On Windows use FIRST-RUN-WINDOWS.cmd. On a MacBook use FIRST-RUN-MAC.command. Both provide a safe Flutter browser Preview and developer tool setup, without Firebase cloud MCP or login. See docs/development/MACBOOK-QUICKSTART.md for Mac prerequisites. Full iOS/Android device tooling is PR #4.
 
+## Branches, pull requests and reviews
+
+- Every contributor works on a short-lived branch and opens a pull request
+  to `main`. Do not commit or merge directly to the default branch.
+- Prototype-only UI and content changes need passing `ci-gate` but no
+  mandatory human approval by default. Run `python3 dev/make_preview.py`
+  and inspect the generated HTML locally.
+- Flutter and security-sensitive changes require one approval by the
+  other developer. Cross-cutting PRs inherit the stricter review process.
+- Agents use the repository root `AGENTS.md`, Claude `CLAUDE.md`, and
+  matching path instructions. Agent reviews are advisory only.
+- A GitHub administrator must enable the path-specific required-reviewer
+  ruleset. See `docs/development/REPOSITORY-SECURITY.md`.
+
 ## Local setup
 Install the stable Flutter SDK and run:
 
