@@ -1,128 +1,130 @@
-# Forged & Sent repository governance and administrator setup
+# Forged & Sent: GitHub governance and administrator checklist
 
-This public repository uses a single protected `main`, short-lived feature branches,
-required pull requests, a mandatory `ci-gate`, and **path-specific human reviews**.
-The HTML prototype is a fast iteration surface; the Flutter application and security
-policy are subject to stricter review.
+The intent: every change arrives through a pull request; low-risk HTML
+prototype iterations are fast, while **every other file is human-reviewed by
+default**, including new files nobody anticipated. The server-side ruleset is
+the security boundary. AGENTS.md, CODEOWNERS and CI do NOT activate it.
 
-**Important:** Code and `CODEOWNERS` files do not activate GitHub rulesets or
-secret scanning. A repository administrator must do the GitHub UI setup below.
-Do not claim the repository is protected until the live GitHub settings show it.
+## 1. Organization team and identities
 
-## 1. GitHub organization team
+Create `Forged-Sent/app-reviewers`, add `@Chadillac12` and
+`@sfcsmithc-afk`, and grant the **team** repository Write permission or
+higher. PR authors cannot count as their own approving reviewer.
+Review the install permissions for all AI agent/GitHub Apps, especially the
+ChatGPT integration: where possible prefer PR creation without merge
+permission, limit installations to the necessary repos, and avoid bot bypasses.
+GitHub may not offer distinct PR-create and merge scopes for a given app.
+If a write-capable integration can still merge zero-review prototype PRs,
+record that as a **known residual risk**. Instructions telling agents not
+to merge are not technical enforcement.
 
-In the `Forged-Sent` organization, create a team named **app-reviewers**.
-Add `@Chadillac12` and `@sfcsmithc-afk`. Both accounts currently have
-repository administrator rights (confirmed 2026-10-31); ensure the team
-itself has **Write** or higher permission on `ForgedAndSentFitness`.
-
-An author cannot approve their own PR. For two-person development, the other
-developer supplies the review when GitHub requires one.
-
-## 2. Protect main with a repository branch ruleset
+## 2. Create an ACTIVE branch ruleset on main
 
 Open: https://github.com/Forged-Sent/ForgedAndSentFitness/settings/rules
 
-Create an **active branch ruleset** targeting the default branch `main`.
-Configure the following:
+- Target **main**; require pull requests. No direct `main` pushes, force
+  pushes, branch deletion or standard bypass actors, including admins/bots.
+- Require the always-created **`ci-gate`** GitHub Actions check. Never
+  individually require conditional Flutter/platform jobs, which can skip.
+- Under pull request rules, set general required approval count to **0**.
+  Do not enable blanket CODEOWNERS approval, or prototype-only changes would
+  lose their fast merge flow.
+- Set **Dismiss stale pull request approvals when new commits are pushed**.
+  This prevents previously approved code being modified without another
+  human review. Unlike required last-push approval, it is not a standing
+  requirement for prototype-only PRs; still validate the actual interaction
+  with Required reviewers on GitHub before relying on it.
+- Under **Required reviewers**, select team **app-reviewers** with
+  **1 required approval** and paste EACH pattern below **in this order**.
+  GitHub documents that negative patterns cancel earlier matches.
+- Prefer squash merging, delete merged working branches and verify required
+  reviews are still current immediately before the merge.
 
-- Require a pull request before merging. No direct push to `main`.
-- Keep **general required approvals at 0**, not 1. Otherwise ordinary HTML
-  prototype PRs would be blocked waiting for a reviewer.
-- Under **Required reviewers**, choose the organization team `app-reviewers`,
-  require **1 approval**, and add the protected file patterns below.
-- Require status check **`ci-gate`** from **GitHub Actions**. That named job
-  is always created. Do not require individually path-skipped Flutter jobs.
-- Block force pushes and branch deletion. No normal bypass, including admins.
-  Never bypass the rule for AI-generated changes.
-- Prefer squash merges and delete the merged feature branch. A strict
-  up-to-date requirement is optional: it reduces stale builds but makes
-  concurrent prototype PRs refresh more often.
-- Do not also turn on global **1 approval**, global **code owner approval**,
-  or an extra latest-push approval rule if your goal is zero-review
-  prototype-only PRs. GitHub's Required reviewers rule is the path gate.
+### Required reviewers path patterns (canonical list)
 
-### File patterns for 1 required team approval
+These patterns are also defined in `tooling/policy/review_scope.py`, and
+checked against this document by `tooling/policy/check.py`.
+**Start with the default-protected `**`**. Later `!` patterns carve out
+only the low-risk prototype files; unrecognized and newly added files
+still need a human reviewer.
 
-Enter these patterns for the single `app-reviewers` team, each as a
-separate pattern. GitHub uses `.gitignore`-style path matching:
-
+<!-- BEGIN REQUIRED_REVIEW_RULESET_PATTERNS -->
 ```gitignore
-mobile/**
-tooling/**
-.github/**
-.codex/**
-.claude/**
-.agents/**
-.vscode/**
-docs/architecture/**
-firebase/**
-.mcp.json
-.gitignore
-.gitattributes
-AGENTS.md
-CLAUDE.md
-*.cmd
-*.command
-*.rules
-seed/db-rules.json
-seed/tasks.json
-seed/weekly-challenges.json
-seed/movement-standards.json
+**
+!index.html
+!versions/**
+!dev/*.html
+!dev/mock-claude.js
+!seed/devotionals*.json
+!seed/lifts.json
+!seed/esv-verses.json
+!README.md
 ```
+<!-- END REQUIRED_REVIEW_RULESET_PATTERNS -->
 
-The patterns intentionally **exclude** ordinary `index.html`,
-`versions/**`, `dev/**`, `seed/lifts.json`, `seed/devotionals.json`,
-`README.md`, and prototype documentation. PRs changing only those files
-can merge after mandatory CI without a required approval. Voluntary review
-is always welcome. PRs spanning protected and prototype files require approval.
+**Requires review:** `mobile/**`, workflows and agents, all tooling, all
+Python preview scripts such as `dev/make_preview.py` and
+`dev/patches/*.py`, onboarding `docs/development/**`, rules/score
+content such as `seed/db-rules.json`, `seed/tasks.json`,
+`dev/firebase/**`, `firebase.json`, `.firebaserc`,
+`firestore.indexes.json`, `functions/**` and ANY future path not
+explicitly excluded above.
 
-The `.github/CODEOWNERS` file lists the same protected areas to request
-reviews from the two named people. CODEOWNERS is helpful for routing, but
-**do not use a wildcard owner**: it would bring the prototype into the
-protected group if code-owner reviews are later made mandatory.
+**No review required by default:** changes affecting only
+`index.html`, `versions/**`, root `dev/*.html`,
+`dev/mock-claude.js`, the explicitly listed low-risk seed data and
+`README.md`. A PR mixing exception and protected files requires review.
+An agent must still escalate auth, privacy, security or scoring changes
+even inside `index.html`; path rules alone cannot inspect semantics.
 
-Security-critical edits inside `index.html` (auth, privacy or scoring logic)
-cannot be reliably detected just by filename. The agent instructions require
-human escalation for such decisions; ultimately they must be moved to
-reviewed, server-enforced code before production. Agent instructions are
-guidance, not a security boundary.
+The `.github/CODEOWNERS` file requests review on known protected paths.
+It cannot use `!` negations, so it is **not** a complete mirror of this
+fail-closed ruleset and it does not replace it.
 
-## 3. Repository security switches
+## 3. Enable repository security
 
-Open repository **Settings > Security > Code security and analysis**.
-Enable secret scanning, secret push protection, Dependabot alerts and
-Dependabot security updates where available. Do not use a real secret
-to test any protection.
+Repository Settings > Security > Code security and analysis:
 
-## 4. Check the intended behavior
+- Secret scanning and push protection, where supported
+- Dependabot alerts and security updates, where supported
+- Check app permissions and audit existing/personal user-scope MCP server
+  registrations on both developer machines; project MCP files cannot remove
+  user-installed servers
 
-After the ruleset is active and the governance changes from PR #3 are merged:
+Do not test with real tokens or credentials.
 
-1. Open a `prototype/sample-ui` PR changing only `index.html`. It should
-   run `policy`, `prototype-checks` and `ci-gate`, skip expensive Flutter
-   builds, and **not** require a reviewer.
-2. Open a `feature/sample-flutter` PR that touches `mobile/`. It should
-   require one `app-reviewers` approval and the relevant Flutter CI.
-3. Open a PR touching `.github/workflows/ci-gate.yml`. It should require
-   approval and run all relevant CI lanes.
-4. Verify direct pushes and force pushes to `main` are rejected.
-5. Verify a deliberately failing test prevents merge via `ci-gate`.
-6. Confirm there is no bypass by a bot, agent, or routine administrator.
+## 4. Validate the actual GitHub enforcement (do not assume!)
 
-Do not perform destructive or credential-bearing "tests". Use a harmless
-unmerged PR for negative checks.
+After enabling the ruleset and merging PR #3, use harmless test PRs:
 
-## 5. Daily workflow
+1. `prototype/ui-test` edits only `index.html`: `ci-gate` runs,
+   `prototype-checks` runs, Flutter jobs may skip, and no approval is
+   required.
+2. `feature/flutter-test` touches `mobile/`: one `app-reviewers`
+   approval must be required.
+3. `security/new-file-test` adds a new `firebase.json` or an unfamiliar
+   root config: **one approval must be required**. Repeat with
+   `dev/firebase/storage-lifecycle.json` and `dev/make_preview.py`.
+4. In a protected test PR, approve, then push a new commit; verify the
+   approval is dismissed and the merge is blocked until reapproval.
+5. Confirm direct/force pushes to `main` are rejected, and a failing
+   `ci-gate` blocks merging.
+6. Inspect the effective ruleset in GitHub after saving, including pattern
+   order and the team member permissions, to detect server-side drift.
 
-- Prototype: `prototype/<short-topic>` -> edit `index.html` and/or
-  `dev/`, `seed/` -> run `python3 dev/make_preview.py` -> open a PR ->
-  wait for required CI -> merge if no blocked reviews or risky changes.
-- Flutter: `feature/<short-topic>` -> one feature slice -> Dart analyze
-  and widget tests -> PR -> other human approves -> green CI -> merge.
-- Security/tooling: `chore/<short-topic>` or `security/<short-topic>` ->
-  evidence and negative tests -> PR -> other human approves -> green CI.
-- AI Codex/Claude/Copilot changes use the same branch and PR policy. AI
-  reviewers never satisfy the human approval requirement and may not merge.
+Do not deliberately weaken main or expose real secrets to test this.
+A separate temporary test PR is sufficient; close it unmerged.
 
-This policy leaves PR #4 device/emulator and live MCP integration work separate.
+## 5. Daily development
+
+- HTML prototype: `prototype/<topic>` branch -> PR -> lightweight CI ->
+  human manually decides when to merge (formal approval optional).
+- Flutter: `feature/<topic>` branch -> tests -> PR -> other developer
+  approves -> required CI -> merge.
+- Security/tooling: `security/<topic>` or `chore/<topic>` branch ->
+  focused negative tests -> PR -> other developer approves -> CI -> merge.
+- Codex, Claude and Copilot follow the same flow. They must never
+  self-approve or self-merge, but app permission controls must also be
+  reviewed; instructions alone are not enforcement.
+
+PR #4 covers the full device/emulator/MCP onboarding not completed in PR #3.
