@@ -323,8 +323,6 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          npm install --prefix tooling/firebase --package-lock-only --ignore-scripts --no-audit --no-fund
-          python3 -c 'import base64,pathlib; print("FS_RULES_LOCK_B64_BEGIN"+base64.b64encode(pathlib.Path("tooling/firebase/package-lock.json").read_bytes()).decode()+"FS_RULES_LOCK_B64_END")'
           npm ci --prefix tooling/firebase --no-audit --no-fund
       - name: Run emulator-backed positive and negative Firebase rules tests
         shell: bash
