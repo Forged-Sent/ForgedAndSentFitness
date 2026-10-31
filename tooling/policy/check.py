@@ -107,6 +107,8 @@ def evaluate(root: Path) -> list[str]:
     except OSError:
         fail(".github/CODEOWNERS", "file missing")
 
+    if not (root / 'mobile/pubspec.lock').is_file():
+        fail('mobile/pubspec.lock', 'reproducible app dependency lockfile must be committed')
     if not isinstance(versions, dict):
         fail("tooling/versions.json", "missing versions")
     else:

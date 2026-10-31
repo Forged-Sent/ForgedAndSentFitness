@@ -137,6 +137,8 @@ jobs:
             if($LASTEXITCODE){throw 'web host failed'}
             & $flutter pub get
             if($LASTEXITCODE){throw 'pub get failed'}
+            $dirty=(& git status --porcelain --untracked-files=normal -- .)
+            if($dirty){$dirty|ForEach-Object{Write-Host $_};throw 'Flutter setup dirtied tracked or untracked mobile sources'}
             & $flutter build web --release
             if($LASTEXITCODE){throw 'web build failed'}
           } finally {Pop-Location}
@@ -160,9 +162,7 @@ jobs:
         working-directory: mobile
         run: |
           flutter pub get
-          echo 'FORGED_SENT_LOCK_START'
-          cat pubspec.lock
-          echo 'FORGED_SENT_LOCK_END'
+          git diff --exit-code -- pubspec.lock
           flutter analyze --no-pub
           flutter test --no-pub
           flutter build web --release --no-pub
@@ -227,6 +227,7 @@ jobs:
           set -euo pipefail
           flutter create --platforms=web --project-name=forged_and_sent --org=com.forgedandsent .
           flutter pub get
+          git diff --exit-code -- pubspec.lock
           flutter analyze --no-pub
           flutter test --no-pub
           flutter build web --release --no-pub

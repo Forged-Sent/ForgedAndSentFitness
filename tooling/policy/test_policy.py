@@ -20,7 +20,7 @@ PATHS = [
     "tooling/mcp/launch.mjs", "tooling/windows/install-maestro.ps1",
     "tooling/versions.json",
     "tooling/macos/common.sh", "tooling/windows/setup-developer.ps1",
-    ".vscode/settings.json",
+    ".vscode/settings.json", "mobile/pubspec.lock",
 ]
 
 class PolicyTests(unittest.TestCase):
