@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <meta name="description" content="A fully navigable architecture and source map for Forged & Sent.">
+  <title>Architecture Atlas · Forged & Sent</title>
+  <link rel="stylesheet" href="site.css">
+</head>
+<body>
+  <a class="skip-link" href="#main-content">Skip to content</a>
+  <div class="shell">
+    <aside class="sidebar" aria-label="Primary navigation">
+      <div class="brand">
+        <span class="brand-symbol" aria-hidden="true"><span></span><span></span><span></span><span></span></span>
+        <span><strong>FORGED<span class="brand-plus">+</span>SENT</strong><small>ENGINEERING STUDIO</small></span>
+      </div>
+      <div class="side-kicker">WORKSPACE</div>
+      <nav class="side-nav" aria-label="Explorer views">
+        <button type="button" class="side-link active" data-view="map"><span class="nav-icon">◈</span> System map <kbd>1</kbd></button>
+        <button type="button" class="side-link" data-view="files"><span class="nav-icon">⌘</span> Source explorer <kbd>2</kbd></button>
+        <button type="button" class="side-link" data-view="agents"><span class="nav-icon">✳</span> Agent playbook <kbd>3</kbd></button>
+        <button type="button" class="side-link" data-view="guide"><span class="nav-icon">▤</span> Getting started <kbd>4</kbd></button>
+      </nav>
+      <div class="side-kicker side-kicker-gap">ABOUT THE SOURCE</div>
+      <div class="side-explain">
+        <span class="glow-dot"></span>
+        <span>Generated from a real Git revision</span>
+      </div>
+      <p class="side-mini">Every tracked file is indexed. Function extraction and file references are best effort, not proof of runtime calls.</p>
+      <div class="side-spacer"></div>
+      <div class="side-bottom">
+        <div class="side-status"><span class="status-circle"></span> Foundation · Not production</div>
+        <button type="button" id="open-help-side" class="side-help"><span>⌨</span> Keyboard shortcuts <kbd>?</kbd></button>
+      </div>
+    </aside>
+
+    <main class="main" id="main-content">
+      <header class="topbar">
+        <div class="breadcrumb">FORGED &amp; SENT <span>/</span> DEV EXPERIENCE <span>/</span> <b>ATLAS</b></div>
+        <div class="top-actions">
+          <div class="top-search-wrap"><span aria-hidden="true">⌕</span><label class="sr-only" for="global-search">Search the architecture</label><input id="global-search" type="search" placeholder="Find a file or function..." autocomplete="off"><kbd>/</kbd></div>
+          <button id="open-help-top" type="button" class="help-quick" aria-label="Show keyboard shortcuts">?</button>
+        </div>
+      </header>
+
+      <div class="content">
+        <div class="hero">
+          <div class="hero-copy">
+            <div class="eyebrow"><span class="eyebrow-line"></span> ARCHITECTURE &amp; SOURCE INTELLIGENCE <span class="hero-edition">/ 01</span></div>
+            <h1>Understand the system.<br><em>Trace the code.</em></h1>
+            <p>A navigable map of what exists, what is planned, and how every tracked file fits together. Select a component to follow its functions and dependencies.</p>
+            <div class="hero-actions">
+              <button type="button" class="primary-btn" data-go="map">Explore the system <span>↗</span></button>
+              <button type="button" class="quiet-btn" data-go="guide">Start here <span>→</span></button>
+            </div>
+          </div>
+          <div class="hero-art" aria-hidden="true">
+            <svg viewBox="0 0 340 224" preserveAspectRatio="xMidYMid meet">
+              <defs><linearGradient id="trace" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#74e6c0"/><stop offset="1" stop-color="#4867ba"/></linearGradient></defs>
+              <path d="M40 46L143 46L215 111L310 111M65 154L143 154L215 111M143 46L143 154M215 111L215 188L300 188" fill="none" stroke="url(#trace)" stroke-width="2" opacity=".65"/>
+              <g fill="#172839" stroke="#81e3c8" stroke-width="2"><rect x="17" y="25" width="54" height="42" rx="10"/><rect x="117" y="28" width="54" height="36" rx="10"/><rect x="191" y="90" width="48" height="41" rx="10"/><rect x="285" y="90" width="42" height="42" rx="10"/><rect x="42" y="133" width="49" height="41" rx="10"/><rect x="275" y="168" width="50" height="40" rx="10"/></g>
+              <g fill="#aef7dc"><circle cx="44" cy="46" r="5"/><circle cx="144" cy="46" r="5"/><circle cx="215" cy="111" r="5"/><circle cx="306" cy="111" r="5"/><circle cx="66" cy="154" r="5"/><circle cx="300" cy="188" r="5"/></g>
+            </svg>
+            <span class="art-caption">SYSTEM NODES / TRACEABLE CONNECTIONS</span>
+          </div>
+        </div>
+
+        <div class="stats" id="stats" aria-label="Repository inventory">
+          <div class="stat"><strong id="stat-files">—</strong><span>TRACKED FILES</span></div>
+          <div class="stat"><strong id="stat-symbols">—</strong><span>DECLARATIONS</span></div>
+          <div class="stat"><strong id="stat-links">—</strong><span>FILE REFERENCES</span></div>
+          <div class="stat"><strong id="stat-archive">—</strong><span>ARCHIVED SNAPSHOTS</span></div>
+        </div>
+
+        <section class="workspace" id="view-map" data-panel="map" aria-labelledby="map-title">
+          <div class="section-heading">
+            <div><div class="eyebrow alt">01 / SYSTEM MODEL</div><h2 id="map-title">The architecture, explained</h2><p>Choose a layer, then select any node for ownership, responsibilities and source links.</p></div>
+            <div class="segmented" role="group" aria-label="Architecture layer">
+              <button type="button" class="stage-btn active" data-stage="current" aria-pressed="true">Implemented</button>
+              <button type="button" class="stage-btn" data-stage="planned" aria-pressed="false">Planned</button>
+              <button type="button" class="stage-btn" data-stage="process" aria-pressed="false">Delivery</button>
+            </div>
+          </div>
+          <div class="map-card">
+            <div class="map-topline"><span><span class="pulse"></span><strong id="map-stage-title">CURRENT IMPLEMENTATION</strong> <span class="map-divider">/</span> <span id="map-node-count"></span></span>
+              <div class="map-controls">
+                <button type="button" id="zoom-out" title="Zoom out (-)" aria-label="Zoom out">−</button>
+                <button type="button" id="zoom-reset" title="Reset zoom (0)" aria-label="Reset zoom">100%</button>
+                <button type="button" id="zoom-in" title="Zoom in (+)" aria-label="Zoom in">+</button>
+              </div>
+            </div>
+            <div id="map-scroll" class="map-scroll" tabindex="0" aria-label="Interactive architecture map. Tab to a node and press Enter for its details.">
+              <svg id="architecture-svg" viewBox="0 0 1200 510" role="group" aria-label="System component dependency graph"></svg>
+            </div>
+            <div class="map-foot"><span><i class="legend-dot current"></i> Actual foundation</span><span><i class="legend-dot planned"></i> Planned / not implemented</span><span><i class="legend-line"></i> Depends on</span><span class="map-foot-hint">Click a node · <kbd>+</kbd> / <kbd>−</kbd> to zoom</span></div>
+          </div>
+          <p class="truth-note"><strong>Evidence boundary:</strong> The map is curated design intent. The Source explorer indexes actual checked-in files, detected declarations, and lexical references. No dynamic call graph is asserted.</p>
+        </section>
+
+        <section class="workspace hidden" id="view-files" data-panel="files" aria-labelledby="files-title">
+          <div class="section-heading">
+            <div><div class="eyebrow alt">02 / SOURCE ATLAS</div><h2 id="files-title">Trace every file &amp; function</h2><p>Search all tracked paths. Follow declared symbols, imports, referenced files, and reverse dependencies.</p></div>
+            <button type="button" class="outline-btn" id="browse-all">Show all files ↗</button>
+          </div>
+          <div class="atlas-layout">
+            <div class="file-browser">
+              <div class="file-search"><label class="sr-only" for="file-search">Filter files and functions</label><span aria-hidden="true">⌕</span><input id="file-search" type="search" placeholder="Search filename, symbol or description..."></div>
+              <div class="file-filter-bar">
+                <label class="sr-only" for="category-filter">File category</label>
+                <select id="category-filter"><option value="core">All except archived snapshots</option><option value="all">Everything (including archives)</option><option value="flutter">Flutter</option><option value="firebase">Firebase</option><option value="tooling">Tooling</option><option value="agents">Agents</option><option value="automation">CI / automation</option><option value="docs">Documentation</option><option value="prototype">Prototype / archives</option><option value="data">Seed data</option></select>
+                <span id="results-count">— results</span>
+              </div>
+              <div id="file-results" class="file-results" role="listbox" tabindex="0" aria-label="Tracked repository files"></div>
+            </div>
+            <div id="file-detail" class="file-detail" aria-live="polite"><div class="empty-state"><div class="empty-orbit">⌘</div><h3>Select a file</h3><p>See its purpose, declared functions, upstream dependencies and files that reference it.</p></div></div>
+          </div>
+        </section>
+
+        <section class="workspace hidden" id="view-agents" data-panel="agents" aria-labelledby="agents-title">
+          <div class="section-heading"><div><div class="eyebrow alt">03 / SHARED ENGINEERING PRACTICES</div><h2 id="agents-title">An independent review team</h2><p>Codex, Claude and optional Gemini use shared standards. A model never validates its own work.</p></div></div>
+          <div id="agent-cards" class="agent-cards"></div>
+          <div class="command-panel">
+            <div class="command-head"><div><div class="eyebrow alt">CHOOSE THE AUTHOR</div><h3>Get the correct review command</h3></div><span class="muted">No commands run in this page</span></div>
+            <div id="author-options" class="author-options" role="group" aria-label="Who authored the change?"></div>
+            <div class="command-console"><span class="console-prompt">❯</span><code id="review-command"></code><button type="button" id="copy-review" class="copy-btn">Copy</button></div>
+            <p id="review-explanation" class="command-explain"></p>
+          </div>
+          <div class="source-note"><b>Shared source of truth:</b> <code>.agents/skills/</code> and <code>.claude/skills/</code> are kept byte-identical by CI. AI findings are advisory, and the human still owns every merge decision.</div>
+        </section>
+
+        <section class="workspace hidden" id="view-guide" data-panel="guide" aria-labelledby="guide-title">
+          <div class="section-heading"><div><div class="eyebrow alt">04 / NEW CONTRIBUTOR PATH</div><h2 id="guide-title">Your first fifteen minutes</h2><p>Follow this on your computer. Every step is copyable; no cloud credentials are required for the local demo foundation.</p></div>
+          <div class="segmented"><button type="button" id="guide-win" class="guide-platform active" data-platform="windows" aria-pressed="true">Windows</button><button type="button" id="guide-mac" class="guide-platform" data-platform="mac" aria-pressed="false">MacBook</button></div></div>
+          <div id="guide-steps" class="guide-steps"></div>
+          <div class="guide-cards">
+            <div class="guide-card"><h3>Where the decisions live</h3><p><a id="link-system" href="#" target="_blank" rel="noopener">SYSTEM.md</a> documents the current and planned system. Architecture decisions live in ADRs. The generated code map describes actual Dart declarations.</p></div>
+            <div class="guide-card"><h3>What is not ready yet</h3><p>Real user groups, server scoring, durable offline workflows and production permissions are <strong>planned</strong>. Green CI and an emulator sign-in are not evidence these features exist.</p></div>
+          </div>
+        </section>
+
+        <footer class="footer"><span><span class="tiny-mark">✦</span> Forged &amp; Sent / Architecture Atlas</span><span id="revision">Loading repository revision...</span><a id="github-repo" href="https://github.com/Forged-Sent/ForgedAndSentFitness" target="_blank" rel="noopener">View repository ↗</a></footer>
+      </div>
+    </main>
+  </div>
+
+  <div id="drawer-cover" class="drawer-cover hidden" tabindex="-1"></div>
+  <aside id="detail-drawer" class="detail-drawer hidden" role="dialog" aria-modal="true" aria-labelledby="drawer-title" tabindex="-1">
+    <div class="drawer-top"><span class="eyebrow alt">ARCHITECTURE DETAIL</span><button type="button" class="close-btn" id="close-drawer" aria-label="Close details">×</button></div>
+    <div id="drawer-content"></div>
+  </aside>
+
+  <div id="help-modal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="help-title">
+    <div class="modal-card"><div class="modal-head"><div><div class="eyebrow alt">MOVE FASTER</div><h2 id="help-title">Keyboard shortcuts</h2></div><button type="button" id="close-help" class="close-btn" aria-label="Close shortcuts">×</button></div><div id="shortcut-grid" class="shortcut-grid"></div><p>All buttons are reachable with Tab and activate with Enter or Space. Press Esc to close this window.</p></div>
+  </div>
+
+  <noscript><div class="noscript">This interactive atlas needs JavaScript. The original architecture is available in docs/architecture/SYSTEM.md.</div></noscript>
+  <script src="data.js"></script>
+  <script src="site.js"></script>
+</body>
+</html>
