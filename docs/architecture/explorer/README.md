@@ -6,7 +6,7 @@ Open the architecture as a **real webpage**, not a static image. The HTML/CSS/Ja
 
 - **Windows:** double-click `ARCHITECTURE-WINDOWS.cmd` from the repository root.
 - **Mac:** double-click `ARCHITECTURE-MAC.command` from the repository root.
-- **Any OS:** `python3 tooling/architecture/build_explorer.py --write`, then open `build/architecture-explorer/index.html` in a browser.
+- **Any OS:** `python3 tooling/architecture/build_explorer.py --write`, then open `build/architecture-explorer/Architecture-Atlas.html` in a browser. This **single HTML file** contains its own styling, JavaScript and generated catalog, so it can be emailed or shared without companion files.
 - **GitHub Actions:** each PR run produces a downloadable `forged-sent-architecture-atlas` artifact. Download and extract the entire artifact, then open `index.html` locally. The archive includes `site.css`, `site.js` and generated `data.js`.
 
 Use a real Git clone and Python 3.11+ (provided by the current onboarding scripts). The generator reads `git ls-files` and therefore covers **every tracked path** in that revision, including docs, tools, agent skills, tests, seed data and all archived HTML snapshots. It does not include ignored, untracked, secret, or external private files.
