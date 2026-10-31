@@ -1,0 +1,70 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "▶ Run app in Chrome",
+      "type": "shell",
+      "command": "pwsh",
+      "args": [
+        "-NoProfile",
+        "-File",
+        "${workspaceFolder}/tooling/shell/task.ps1",
+        "-Action",
+        "run"
+      ],
+      "problemMatcher": []
+    },
+    {
+      "label": "✔ Check my setup",
+      "type": "shell",
+      "command": "pwsh",
+      "args": [
+        "-NoProfile",
+        "-File",
+        "${workspaceFolder}/tooling/shell/task.ps1",
+        "-Action",
+        "verify"
+      ],
+      "problemMatcher": []
+    },
+    {
+      "label": "＋ Start a change",
+      "type": "shell",
+      "command": "pwsh",
+      "args": [
+        "-NoProfile",
+        "-File",
+        "${workspaceFolder}/tooling/shell/task.ps1",
+        "-Action",
+        "start"
+      ],
+      "problemMatcher": []
+    },
+    {
+      "label": "⇪ Share my work",
+      "type": "shell",
+      "command": "pwsh",
+      "args": [
+        "-NoProfile",
+        "-File",
+        "${workspaceFolder}/tooling/shell/task.ps1",
+        "-Action",
+        "share"
+      ],
+      "problemMatcher": []
+    },
+    {
+      "label": "Start local Firebase emulators",
+      "type": "shell",
+      "command": "pwsh",
+      "args": [
+        "-NoProfile",
+        "-File",
+        "${workspaceFolder}/tooling/shell/task.ps1",
+        "-Action",
+        "emulators"
+      ],
+      "problemMatcher": []
+    }
+  ]
+}
