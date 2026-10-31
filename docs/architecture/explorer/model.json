@@ -435,6 +435,10 @@
         "Agent playbook"
       ],
       [
+        "5",
+        "Documentation library"
+      ],
+      [
         "4",
         "Getting started"
       ],
@@ -465,6 +469,10 @@
       [
         "Esc",
         "Close detail or shortcut overlay"
+      ],
+      [
+        "d",
+        "Go to documentation"
       ]
     ]
   },
