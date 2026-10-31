@@ -44,6 +44,46 @@ class ClassificationTests(unittest.TestCase):
     def test_protected_seed_rule_is_still_preview_code(self):
         self.assertTrue(classify(["seed/db-rules.json"])["prototype"])
 
+    def test_preview_python_code_is_reviewed_but_cheap_to_test(self):
+        from path_scope import is_lightweight_path
+        self.assertFalse(is_lightweight_path("dev/make_preview.py"))
+        v = classify(["dev/make_preview.py", "dev/patches/repair.py"])
+        self.assertEqual(v, {"windows": False, "mobile": False,
+                             "mac": False, "prototype": True})
+
+    def test_dev_firebase_policy_triggers_full_matrix(self):
+        self.assertTrue(all(classify(["dev/firebase/storage-lifecycle.json"]).values()))
+
+    def test_future_firebase_root_config_triggers_full_matrix(self):
+        for path in ("firebase.json", ".firebaserc", "functions/index.js",
+                     "firestore.indexes.json"):
+            with self.subTest(path=path):
+                self.assertTrue(all(classify([path]).values()))
+
+    def test_unknown_inside_dev_still_triggers_all_checks(self):
+        self.assertTrue(all(classify(["index.html", "dev/unexpected.sh"]).values()))
+
+    def test_unknown_mixed_with_known_path_triggers_all_checks(self):
+        self.assertTrue(all(classify([
+            "tooling/windows/setup.ps1", "tooling/macos-new/x.sh"
+        ]).values()))
+
+    def test_safe_prototype_patterns_are_explicit(self):
+        from review_scope import requires_human_review
+        for path in ("index.html", "versions/app-v183.html",
+                     "dev/mock-claude.js", "dev/preview.html",
+                     "seed/devotionals.json", "seed/devotionals-2026.json",
+                     "seed/lifts.json", "seed/esv-verses.json", "README.md"):
+            with self.subTest(path=path):
+                self.assertFalse(requires_human_review(path))
+        for path in ("dev/make_preview.py", "dev/patches/a.py",
+                     "dev/firebase/media-retention.md", "docs/development/START_HERE.md",
+                     "firebase.json", ".firebaserc", "functions/index.js",
+                     "seed/db-rules.json", "seed/tasks.json",
+                     "dev/new-tool.sh", "some-new-root-file.txt"):
+            with self.subTest(path=path):
+                self.assertTrue(requires_human_review(path))
+
 
 if __name__ == "__main__":
     unittest.main()
