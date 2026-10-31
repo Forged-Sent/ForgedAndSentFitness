@@ -56,9 +56,15 @@ fs_flutter_version_ok(){
 fs_ensure_flutter(){
   if [ -x "$FS_FLUTTER" ]; then
     if fs_flutter_version_ok; then fs_ok 'Flutter 3.47.8 already present.'; return 0; fi
+    if [ -d "$HOME/develop/flutter/.git" ] &&
+       [ "$(git -C "$HOME/develop/flutter" describe --tags --exact-match 2>/dev/null || true)" = "3.47.8" ]; then
+      fs_fail 'Pinned Flutter 3.47.8 checkout found, but Dart initialization is incomplete. Check network access and rerun SETUP-MAC.command; no SDK files were deleted.'; return 1
+    fi
     fs_fail 'Found a different Flutter SDK in ~/develop/flutter. Choose the pinned 3.47.8 version manually; existing SDKs will not be overwritten.'; return 1
   fi
-  if [ -e "$HOME/develop/flutter" ]; then fs_fail 'Incomplete Flutter directory exists. Review it before rerunning.'; return 1; fi
+  if [ -e "$HOME/develop/flutter" ]; then
+    fs_fail 'An incomplete Flutter clone exists. Inspect or move that folder aside before rerunning. Setup never deletes an existing SDK.'; return 1
+  fi
   mkdir -p "$HOME/develop"
   fs_info 'Downloading Flutter 3.47.8 into your home folder.'
   git clone --depth 1 --branch 3.47.8 https://github.com/flutter/flutter.git "$HOME/develop/flutter"
