@@ -195,6 +195,29 @@ def evaluate(root: Path) -> list[str]:
                     fail(rel, f"version drift from tooling/versions.json ({needle})")
             except OSError:
                 fail(rel, "required versioned file missing")
+        # A single matching pin is insufficient when the same tool is pinned
+        # in several jobs or install scripts. Validate EVERY occurrence.
+        checks = (
+            (".github/workflows/ci-gate.yml",
+             r"flutter-version:\s*['\\\"]([^'\\\"]+)['\\\"]", versions.get("flutter", "")),
+            ("tooling/windows/setup.ps1",
+             r"\b(3\.\d+\.\d+)\b", versions.get("flutter", "")),
+            ("tooling/macos/common.sh",
+             r"\b(3\.\d+\.\d+)\b", versions.get("flutter", "")),
+            ("tooling/windows/install-maestro.ps1",
+             r"cli-(\d+\.\d+\.\d+)", versions.get("maestroCLI", "")),
+            ("tooling/windows/install-maestro.ps1",
+             r"(?i)(?<![0-9a-f])[0-9a-f]{64}(?![0-9a-f])",
+             versions.get("maestroZipSha256", "")),
+        )
+        for rel, pattern, expected in checks:
+            try:
+                raw = (root / rel).read_text(encoding="utf-8")
+                found = re.findall(pattern, raw)
+                if not found or any(item.lower() != str(expected).lower() for item in found):
+                    fail(rel, f"all pinned version/hash occurrences must match tooling/versions.json ({expected}); found {found}")
+            except OSError:
+                fail(rel, "required versioned file missing")
     return errors
 
 if __name__ == "__main__":
