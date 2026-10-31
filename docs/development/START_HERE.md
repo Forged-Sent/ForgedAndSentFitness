@@ -67,3 +67,7 @@ For Android host compilation, CI temporarily generates Android platform files; X
 - [SYSTEM.md](../architecture/SYSTEM.md): living Mermaid design, current vs planned.
 - [CODE-MAP.md](../architecture/CODE-MAP.md): generated Dart file/function inventory; refresh with `python3 tooling/architecture/generate.py --write`.
 - [AI-REVIEW-WORKFLOW.md](AI-REVIEW-WORKFLOW.md): Windows/Mac setup for independent Codex/Claude/Gemini reviews, optional pre-push verification, costs and limitations.
+
+## Visual architecture Explorer
+
+To understand all tracked files and the current/planned architecture, open the [Architecture Atlas guide](../architecture/explorer/README.md). Windows: `ARCHITECTURE-WINDOWS.cmd`; Mac: `ARCHITECTURE-MAC.command`. Click any system node or source function to see its responsibilities, owning file, dependencies and exact source line. Use `/` for search and `?` for hotkeys. New design boundaries require updates to `docs/architecture/SYSTEM.md` and `docs/architecture/explorer/model.json`.
