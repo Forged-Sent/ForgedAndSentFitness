@@ -15,6 +15,7 @@ jobs:
     outputs:
       windows: ${{ steps.scope.outputs.windows }}
       mobile: ${{ steps.scope.outputs.mobile }}
+      mac: ${{ steps.scope.outputs.mac }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -33,6 +34,7 @@ jobs:
           fi
           if grep -Eq '^(tooling/windows/|SETUP-|FIRST-RUN-WINDOWS.cmd|VERIFY-DEVELOPER-WINDOWS.cmd|RUN-APP.cmd|.vscode/|.github/workflows/|.github/CODEOWNERS|docs/development/)' /tmp/changed; then echo "windows=true" >> "$GITHUB_OUTPUT"; else echo "windows=false" >> "$GITHUB_OUTPUT"; fi
           if grep -Eq '^(mobile/|.github/workflows/ci-gate.yml|.github/workflows/flutter-android.yml)' /tmp/changed; then echo "mobile=true" >> "$GITHUB_OUTPUT"; else echo "mobile=false" >> "$GITHUB_OUTPUT"; fi
+          if grep -Eq '^(tooling/macos/|tooling/mcp/|\.mcp\.json$|\.codex/|\.vscode/|\.github/workflows/|.*-MAC\.command$|docs/development/|mobile/)' /tmp/changed; then echo "mac=true" >> "$GITHUB_OUTPUT"; else echo "mac=false" >> "$GITHUB_OUTPUT"; fi
           cat /tmp/changed
 
   windows-checks:
@@ -139,9 +141,65 @@ jobs:
           flutter build web --release --no-pub
           flutter build apk --debug --no-pub
 
+
+  mac-checks:
+    needs: changes
+    if: needs.changes.outputs.mac == 'true'
+    runs-on: macos-15
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Mac syntax, launcher modes and script self-tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          for s in tooling/macos/*.sh *-MAC.command; do
+            bash -n "$s"
+            test -x "$s" || { echo "::error::$s must be executable"; exit 1; }
+          done
+          bash tooling/macos/setup.sh --profile Preview --self-test
+          bash tooling/macos/setup.sh --profile Contributor --self-test
+          bash tooling/macos/verify.sh --self-test
+          bash tooling/macos/first-run.sh --self-test
+      - name: Test cross-platform MCP allowlist
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --test tooling/mcp/launch.test.mjs
+          if grep -Eiq '"firebase"[[:space:]]*:' .mcp.json .vscode/mcp.json; then echo "::error::Default Firebase cloud MCP forbidden"; exit 1; fi
+
+  mac-preview:
+    needs: changes
+    if: needs.changes.outputs.mac == 'true'
+    runs-on: macos-15
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.47.8'
+          channel: stable
+          cache: true
+      - name: Check Mac bootstrap CI mode without system changes
+        shell: bash
+        run: bash tooling/macos/setup.sh --profile Preview --ci
+      - name: Build browser preview and widget tests on macOS
+        shell: bash
+        working-directory: mobile
+        run: |
+          set -euo pipefail
+          flutter create --platforms=web --project-name=forged_and_sent --org=com.forgedandsent .
+          flutter pub get
+          flutter analyze --no-pub
+          flutter test --no-pub
+          flutter build web --release --no-pub
+
   ci-gate:
     name: ci-gate
-    needs: [changes, windows-checks, windows-preview, flutter]
+    needs: [changes, windows-checks, windows-preview, flutter, mac-checks, mac-preview]
     if: ${{ always() }}
     runs-on: ubuntu-latest
     timeout-minutes: 5
