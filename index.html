@@ -1449,6 +1449,49 @@ header.hero .me-btn { border-color:#e87328; }
 .gb-box .vd-coach { margin-bottom: 4px; }
 .gb-p { margin: 0; font-size: 15px; line-height: 1.5; }
 .gb-box { position: relative; max-height: 86vh; overflow-y: auto; }
+.fm-opts { display: grid; gap: 8px; }
+.fm-opt { display: grid; grid-template-columns: 22px minmax(0, 1fr); gap: 12px; align-items: start; width: 100%; padding: 12px; text-align: left; font: inherit; color: var(--ink); background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius, 4px); cursor: pointer; }
+.fm-opt.on { border-color: var(--accent); box-shadow: inset 3px 0 0 var(--accent); }
+.fm-dot { width: 20px; height: 20px; margin-top: 2px; border-radius: 50%; border: 2px solid var(--muted); }
+.fm-opt.on .fm-dot { border-color: var(--accent); background: radial-gradient(circle, var(--accent) 0 5px, transparent 6px); }
+.fm-tx { display: grid; gap: 3px; min-width: 0; }
+.fm-tx b { font-family: var(--f-label); font-weight: 800; font-size: 16px; letter-spacing: .03em; text-transform: uppercase; }
+.fm-tx span { font-size: 14px; line-height: 1.4; color: var(--muted); }
+.fm-h { margin: 6px 0 6px; font-family: var(--f-display); font-size: 21px; line-height: 1.15; text-transform: uppercase; }
+.fm-ul { margin: 0 0 12px; padding-left: 20px; display: grid; gap: 6px; }
+.fm-ul li { font-size: 15px; line-height: 1.45; }
+.fm-ul li::marker { color: var(--accent); }
+.fm-prev { margin: 0 0 12px; padding: 10px 12px; border: 1px dashed var(--line); border-radius: var(--radius, 4px); }
+.fm-pk { display: block; font-family: var(--f-label); font-weight: 700; font-size: 11.5px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
+.fm-pr { display: flex; align-items: center; gap: 10px; }
+.fm-pb { width: 22px; height: 22px; border: 2px solid var(--line); border-radius: 4px; flex: none; }
+.fm-pr b { flex: 1; font-size: 16px; } .fm-pr i { font-style: normal; font-weight: 700; color: var(--accent); }
+.fm-box .btn { width: 100%; margin-top: 8px; }
+.fm-fuel-card { border: 1px solid var(--line); border-left: 3px solid var(--accent); border-radius: var(--radius, 4px); background: var(--surface); padding: 12px; display: grid; gap: 10px; }
+.fmc-k { color: var(--muted); font-size: 12px; }
+.fmc-box { display: grid; grid-template-columns: 30px minmax(0, 1fr) auto; gap: 12px; align-items: center; width: 100%; padding: 10px; text-align: left; font: inherit; color: var(--ink); background: var(--bg); border: 1px solid var(--line); border-radius: var(--radius, 4px); cursor: pointer; }
+.fmc-box .box { width: 28px; height: 28px; border: 2px solid var(--line); border-radius: 5px; display: grid; place-items: center; }
+.fmc-box .box svg { width: 18px; height: 18px; opacity: 0; }
+.fmc-box.on .box { background: var(--accent); border-color: var(--accent); } .fmc-box.on .box svg { opacity: 1; }
+.fmc-t { display: grid; gap: 2px; min-width: 0; } .fmc-t b { font-size: 17px; } .fmc-t span { font-size: 13.5px; color: var(--muted); }
+.fmc-pts { font-style: normal; font-weight: 700; color: var(--accent); }
+.fmc-ul { margin: 0; padding-left: 20px; list-style: disc outside; display: grid; gap: 4px; font-size: 15px; } .fmc-ul li { display: list-item; } .fmc-ul li::marker { color: var(--accent); }
+.fmc-n { margin: 0; }
+.fm-more { width: 100%; margin: 4px 0 8px; }
+.fmx { display: grid; gap: 8px; padding-top: 10px; border-top: 1px dashed var(--line); }
+.fmx-h { font-family: var(--f-label); font-weight: 700; font-size: 13px; letter-spacing: .1em; text-transform: uppercase; color: var(--ink); }
+.fmx-n { margin: 0; font-size: 13.5px; color: var(--muted); }
+.fmx-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.fmx-f { display: grid; gap: 4px; font-size: 13px; color: var(--muted); }
+.fmx-in { position: relative; display: block; } .fmx-in .field { width: 100%; padding-right: 40px; }
+.fmx-in i { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); font-style: normal; font-size: 13px; color: var(--muted); }
+.fmx-acts { display: flex; gap: 8px; } .fmx-acts .btn { flex: 1; }
+.fmc-box.ext { opacity: 1; cursor: default; }
+.fm-gcard { margin-top: 10px; padding: 12px; border: 1px solid var(--line); border-left: 3px solid var(--accent); border-radius: var(--radius, 4px); background: var(--surface); }
+.fm-gh { margin: 4px 0 6px; font-weight: 700; }
+.onb .fm-opt { background: var(--surface); }
+.help-fm { margin: 10px 0 4px; padding: 10px 12px; border: 1px solid var(--line); border-radius: var(--radius, 4px); display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 6px 10px; }
+.help-fm p { flex-basis: 100%; margin: 0; font-size: 13.5px; color: var(--muted); }
 .coach-big { margin: 14px 0 6px; padding: 0 12px 4px; border: 1px solid var(--line); border-left: 3px solid var(--accent); border-radius: var(--radius, 8px); background: var(--surface); }
 .coach-big > summary { display: flex; align-items: center; gap: 8px; padding: 8px 0 !important; color: var(--ink) !important; }
 .coach-big > summary::before { content: none !important; }
@@ -1653,6 +1696,7 @@ header.hero .me-btn { border-color:#e87328; }
       <h1 class="pg">Fuel</h1>
     </header>
 
+    <section class="fm-fuel-card" id="fm-fuel-card" aria-label="Your Calories box" hidden></section>
     <section aria-labelledby="h-macros">
       <div class="section-head"><h2 class="label-caps" id="h-macros">Today's macros</h2><button class="mini" type="button" id="adj-targets">Adjust targets</button></div>
       <div class="macros" id="macros"></div>
@@ -1681,6 +1725,7 @@ header.hero .me-btn { border-color:#e87328; }
       <div id="fast-body"></div>
     </section>
 
+    <button class="btn ghost fm-more" type="button" id="fm-fuel-more" hidden>Log food here anyway</button>
     <section aria-labelledby="h-food">
       <div class="section-head"><h2 class="label-caps" id="h-food">Food log</h2><span class="nums" id="food-total"></span></div>
       <button class="btn ghost" type="button" id="copy-day">Copy a previous day</button>
@@ -2014,6 +2059,11 @@ header.hero .me-btn { border-color:#e87328; }
       <p class="note">Your suggested calories and macros are shown in Daily calorie and macro targets below.</p>
     </section>
 
+    <section aria-labelledby="h-s-food">
+      <div class="section-head"><h2 class="label-caps" id="h-s-food" data-sub="Log in the app, use another app, or skip the numbers. Same points every way.">How I track food</h2></div>
+      <div class="fm-opts" id="food-mode" role="radiogroup" aria-labelledby="h-s-food"></div>
+    </section>
+
     <section aria-labelledby="h-s-tg">
       <div class="section-head"><h2 class="label-caps" id="h-s-tg" data-sub="The calories, protein, carbs and fat you track against on the Fuel tab.">Daily calorie and macro targets</h2></div>
       <div class="calc" id="calc-out" style="margin-top:4px"></div>
@@ -2223,7 +2273,7 @@ header.hero .me-btn { border-color:#e87328; }
           ["breakfast", "lunch", "dinner", "snack"].forEach(function (k) {
             meals[k] = (Array.isArray(x.meals && x.meals[k]) ? x.meals[k] : []).map(normEntry);
           });
-          return { date: x.date || d.id, water: Number(x.water) || 0, kcal: Number(x.kcal) || 0, p: Number(x.p) || 0, f: Number(x.f) || 0, c: Number(x.c) || 0, meals: meals }; }));
+          return { date: x.date || d.id, water: Number(x.water) || 0, kcal: Number(x.kcal) || 0, p: Number(x.p) || 0, f: Number(x.f) || 0, c: Number(x.c) || 0, meals: meals, ext: normExt(x.ext) }; }));
       }, noop);
     },
     listWorkouts: function (uid) { return this.db.doc("data/users/" + uid + "/log").collection("workouts").get().then(function (s) { return s.docs.map(function (d) { var x = d.data() || {}; if (!x.date) x.date = d.id; return x; }); }); },
@@ -2430,6 +2480,7 @@ header.hero .me-btn { border-color:#e87328; }
   function emptyMeals() { return { breakfast: [], lunch: [], dinner: [], snack: [] }; }
   function cloneMeals(m) { var o = emptyMeals(); MEALS.forEach(function (x) { o[x.k] = ((m && m[x.k]) || []).map(normEntry); }); return o; }
   function mealTotals(m) { var t = { kcal: 0, p: 0, f: 0, c: 0 }; MEALS.forEach(function (x) { (m[x.k] || []).forEach(function (e) { t.kcal += e.kcal; t.p += e.p; t.f += e.f; t.c += e.c; }); }); return t; }
+  function normExt(x) { if (!x || typeof x !== "object") return null; var k = Math.round(Number(x.kcal) || 0), p = Math.round(Number(x.p) || 0); return k > 0 && k < 15000 ? { kcal: k, p: Math.max(0, Math.min(1000, p)), at: Number(x.at) || 0 } : null; }
   function logFor(key) {
     for (var i = 0; i < state.logs.length; i++) if (state.logs[i].date === key) return state.logs[i];
     return { date: key, water: 0, kcal: 0, p: 0, f: 0, c: 0, meals: emptyMeals() };
@@ -2484,6 +2535,144 @@ header.hero .me-btn { border-color:#e87328; }
   var CAL_WINDOWS = { lose: [0.15, 0.10], maintain: [0.05, 0.05], build: [0.10, 0.10] };
   function calWindow(tk) { var g = ((state.settings || {}).body || {}).goal, w = CAL_WINDOWS[g] || CAL_WINDOWS.build; return [Math.round(tk * (1 - w[0])), Math.round(tk * (1 + w[1]))]; }
   function calWindowText() { var g = ((state.settings || {}).body || {}).goal; return g === "lose" ? "15% under to 10% over your goal" : g === "maintain" ? "within 5% of your goal" : "within 10% of your goal"; }
+  /* How I track food: "app" (log in Fuel, box checks itself), "elsewhere" (one honest tap), "none" (no counting). */
+  var FOOD_MODES = {
+    app: { t: "Track in the app", s: "Log your food in Fuel. Your Calories box checks itself when you land in your range.", box: "Calories" },
+    elsewhere: { t: "I track somewhere else", s: "MyFitnessPal, MacroFactor or another app. One honest tap, or type today’s totals for the protein bonus.", box: "Hit my calories" },
+    none: { t: "I don't count calories", s: "No numbers. Check the box when you ate on purpose today.", box: "Fueled on purpose" }
+  };
+  function foodMode() { var m = (state.settings || {}).foodMode; return m === "elsewhere" || m === "none" ? m : "app"; }
+  var FOOD_GIDEON = {
+    elsewhere: { h: "You already track. Keep using what works.", p: [
+      "Your Calories box becomes “Hit my calories.” Tap it on the days you land in your range, on your honor.",
+      "Same 1 point. You lose nothing on the Board.",
+      "Want the protein bonus too? Type today’s calories and protein from your app on Fuel. With totals in, the box checks itself and the bonus counts.",
+      "Fuel stays open. Log a meal here any time you want.",
+      "The deal is honesty. Check it only on the days you actually hit it."] },
+    none: { h: "Counting isn’t the only way to eat well.", p: [
+      "Your Calories box becomes “Fueled on purpose.” Check it on the days you ate with intent: protein at every meal, real food, nothing mindless after dinner.",
+      "Same 1 point. You lose nothing on the Board.",
+      "No protein bonus, since there are no numbers to check.",
+      "If counting has been unhealthy for you before, this is the right call. No explanation needed.",
+      "If your weight stalls for a few weeks and you want to know why, count for two weeks. It is the fastest way to find the gap. Then come back here if you like."] },
+    app: { h: "Back to logging in Fuel.", p: [
+      "Your Calories box checks itself when your food log lands in your range.",
+      "The protein bonus is back on: hit your protein and stay in range for +" + PROTEIN_BONUS + " points.",
+      "You can switch again any time."] }
+  };
+  function openFoodMode(mode, after) {
+    var old = $("cdlg"); if (old) old.remove();
+    var g = FOOD_GIDEON[mode], back = el("div", "cdlg"); back.id = "cdlg";
+    var box = el("div", "cdlg-box nw-box gb-box fm-box"); box.setAttribute("role", "dialog"); box.setAttribute("aria-modal", "true"); box.setAttribute("aria-labelledby", "fm-t");
+    var hd = el("div", "vd-coach"), bd = el("span", "vd-badge"); bd.innerHTML = GIDEON_BADGE; hd.appendChild(bd);
+    var nm = el("span"); nm.appendChild(el("b", null, COACH_LABEL)); nm.appendChild(el("small", null, FOOD_MODES[mode].t)); hd.appendChild(nm); box.appendChild(hd);
+    var h = el("h2", "fm-h", g.h); h.id = "fm-t"; box.appendChild(h);
+    var ul = el("ul", "fm-ul"); g.p.forEach(function (x) { ul.appendChild(el("li", null, x)); }); box.appendChild(ul);
+    var prev = el("div", "fm-prev"); prev.appendChild(el("span", "fm-pk", "Your box on Today"));
+    var pr = el("span", "fm-pr"); pr.appendChild(el("span", "fm-pb")); pr.appendChild(el("b", null, FOOD_MODES[mode].box)); pr.appendChild(el("i", null, "+1 pt")); prev.appendChild(pr); box.appendChild(prev);
+    var ok = el("button", "btn", mode === "app" ? "Track in the app" : "Got it. Switch me"), no = el("button", "btn ghost", "Cancel"); ok.type = "button"; no.type = "button";
+    box.appendChild(ok); box.appendChild(no);
+    function close() { back.remove(); }
+    no.addEventListener("click", close);
+    ok.addEventListener("click", function () { close(); after(); });
+    back.addEventListener("click", function (ev) { if (ev.target === back) close(); });
+    back.addEventListener("keydown", function (ev) { if (ev.key === "Escape") close(); });
+    back.appendChild(box); document.body.appendChild(back); ok.focus({ preventScroll: true });
+  }
+  function setFoodMode(mode) {
+    if (mode === foodMode()) return;
+    openFoodMode(mode, function () {
+      state.settings.foodMode = mode; saveSettings();
+      if (state.me && state.canWrite) writeDay(function () { return false; }); else drawAll();
+      drawFoodMode();
+    });
+  }
+  /* Shared: the three choices as radio cards (Settings, setup, the Change picker). */
+  function foodModeCards(cur, onPick, off) {
+    var box = el("div", "fm-opts"); box.setAttribute("role", "radiogroup"); box.setAttribute("aria-label", "How I track food");
+    Object.keys(FOOD_MODES).forEach(function (k) {
+      var b = el("button", "fm-opt" + (k === cur ? " on" : "")); b.type = "button"; b.setAttribute("role", "radio"); b.setAttribute("aria-checked", String(k === cur)); b.disabled = !!off;
+      b.appendChild(el("span", "fm-dot"));
+      var tx = el("span", "fm-tx"); tx.appendChild(el("b", null, FOOD_MODES[k].t)); tx.appendChild(el("span", null, FOOD_MODES[k].s)); b.appendChild(tx);
+      b.addEventListener("click", function () { onPick(k); }); box.appendChild(b);
+    });
+    return box;
+  }
+  /* Coach Gideon's note as a card (used inline in setup). */
+  function foodGideonCard(mode) {
+    var g = FOOD_GIDEON[mode], c = el("div", "fm-gcard");
+    var hd = el("div", "vd-coach"), bd = el("span", "vd-badge"); bd.innerHTML = GIDEON_BADGE; hd.appendChild(bd);
+    var nm = el("span"); nm.appendChild(el("b", null, COACH_LABEL)); nm.appendChild(el("small", null, FOOD_MODES[mode].t)); hd.appendChild(nm); c.appendChild(hd);
+    c.appendChild(el("p", "fm-gh", g.h));
+    var ul = el("ul", "fm-ul"); g.p.forEach(function (x) { ul.appendChild(el("li", null, x)); }); c.appendChild(ul);
+    return c;
+  }
+  function openFoodModePicker() {
+    var old = $("cdlg"); if (old) old.remove();
+    var back = el("div", "cdlg"); back.id = "cdlg";
+    var box = el("div", "cdlg-box nw-box gb-box fm-box"); box.setAttribute("role", "dialog"); box.setAttribute("aria-modal", "true"); box.setAttribute("aria-labelledby", "fmp-t");
+    var hd = el("div", "vd-coach"), bd = el("span", "vd-badge"); bd.innerHTML = GIDEON_BADGE; hd.appendChild(bd);
+    var nm = el("span"); nm.appendChild(el("b", null, COACH_LABEL)); nm.appendChild(el("small", null, "Same points every way")); hd.appendChild(nm); box.appendChild(hd);
+    var h = el("h2", "fm-h", "How do you track food?"); h.id = "fmp-t"; box.appendChild(h);
+    box.appendChild(foodModeCards(foodMode(), function (k) { back.remove(); if (k !== foodMode()) setFoodMode(k); }, !state.me || !state.canWrite));
+    var no = el("button", "btn ghost", "Close"); no.type = "button"; box.appendChild(no);
+    function close() { back.remove(); }
+    no.addEventListener("click", close);
+    back.addEventListener("click", function (ev) { if (ev.target === back) close(); });
+    back.addEventListener("keydown", function (ev) { if (ev.key === "Escape") close(); });
+    back.appendChild(box); document.body.appendChild(back); no.focus({ preventScroll: true });
+  }
+  var fuelShowLog = false;
+  /* Today's totals from his other app: two numbers, and the box and protein bonus work like logging here. */
+  function drawExtTotals(card, boxBtn) {
+    var t = targets(), tk = t ? Number(t.kcal) || 0 : 0, tp = t ? Number(t.p) || 0 : 0, w = calWindow(tk), ext = normExt(logFor(todayKey()).ext), off = !state.me || !state.canWrite;
+    var f = el("form", "fmx"); f.noValidate = true;
+    f.appendChild(el("div", "fmx-h", ext ? "Today’s totals from your app" : "Or enter today’s totals from your app (optional)"));
+    f.appendChild(el("p", "fmx-n", tk ? "Your range is " + fmt(w[0]) + "–" + fmt(w[1]) + " kcal" + (tp ? " and protein " + fmt(tp) + " g" : "") + ". With totals in, the box checks itself and the protein bonus (+" + PROTEIN_BONUS + ") counts." : "Set your targets in Settings to see your range."));
+    var row = el("div", "fmx-row");
+    function fld(lbl, id, val, unit) { var l = el("label", "fmx-f"); l.appendChild(el("span", null, lbl)); var w2 = el("span", "fmx-in"); var i = el("input", "field"); i.type = "number"; i.id = id; i.min = "0"; i.inputMode = "numeric"; i.value = val || ""; i.disabled = off; w2.appendChild(i); w2.appendChild(el("i", null, unit)); l.appendChild(w2); row.appendChild(l); return i; }
+    var ik = fld("Calories", "fmx-k", ext ? ext.kcal : "", "kcal"), ip = fld("Protein", "fmx-p", ext ? ext.p : "", "g");
+    f.appendChild(row);
+    var acts = el("div", "fmx-acts"), sv = el("button", "btn", ext ? "Update" : "Save totals"); sv.type = "submit"; sv.disabled = off; acts.appendChild(sv);
+    if (ext) { var clr = el("button", "btn ghost", "Clear"); clr.type = "button"; clr.disabled = off; clr.addEventListener("click", function () { writeDay(function (r, l) { l.ext = null; var ct = taskOfKind("calories"); if (ct) delete r.done[ct.id]; return true; }); }); acts.appendChild(clr); }
+    f.appendChild(acts);
+    var err = el("p", "error"); err.hidden = true; f.appendChild(err);
+    f.addEventListener("submit", function (ev) {
+      ev.preventDefault(); var k = Math.round(Number(ik.value) || 0), p = Math.round(Number(ip.value) || 0);
+      if (!(k > 0 && k < 15000)) { err.textContent = "Enter today’s calories from your app."; err.hidden = false; return; }
+      writeDay(function (r, l) { l.ext = { kcal: k, p: p, at: Date.now() }; return true; });
+    });
+    if (ext) { boxBtn.disabled = true; boxBtn.classList.add("ext"); var sp = boxBtn.querySelector(".fmc-t span"); if (sp) sp.textContent = fmt(ext.kcal) + " kcal, " + fmt(ext.p) + " g protein from your app. " + (myDoc().done[(taskOfKind("calories") || {}).id] ? "In range." : "Not in range yet.") + (recFor(todayKey()).pbonus ? " Protein bonus +" + PROTEIN_BONUS + "." : ""); }
+    card.appendChild(f);
+  }
+
+  /* Fuel when he doesn't track in the app: his box on top, the logging tools folded away. */
+  function drawFuelMode() {
+    var mode = foodMode(), own = mode !== "app", card = $("fm-fuel-card");
+    ["h-macros", "h-food", "h-seven"].forEach(function (hid) { var h = $(hid), sec = h && h.closest("section"); if (sec) sec.hidden = own && !fuelShowLog; });
+    var more = $("fm-fuel-more"); if (more) { more.hidden = !own; more.textContent = fuelShowLog ? "Hide the food log" : "Log food here anyway"; }
+    if (!card) return; card.hidden = !own; card.textContent = ""; if (!own) return;
+    var ct = taskOfKind("calories"), done = ct && myDoc().done[ct.id], fast = isFastDay(todayKey());
+    card.appendChild(el("div", "label-caps fmc-k", mode === "elsewhere" ? "You track in another app" : "You don’t count calories"));
+    var b = el("button", "fmc-box" + (done ? " on" : "")); b.type = "button"; b.setAttribute("role", "checkbox"); b.setAttribute("aria-checked", String(!!done));
+    b.disabled = fast || !ct || !state.me || !state.canWrite;
+    var bx = el("span", "box"); bx.innerHTML = CHECK_SVG; b.appendChild(bx);
+    var tx = el("span", "fmc-t"); tx.appendChild(el("b", null, FOOD_MODES[mode].box));
+    tx.appendChild(el("span", null, fast ? "Fasting today. Checked for you." : mode === "elsewhere" ? "Tap when you land in your range today. On your honor." : "Tap when you ate on purpose today."));
+    b.appendChild(tx); b.appendChild(el("i", "fmc-pts", "+" + (ct ? ct.points : 1) + " pt"));
+    b.addEventListener("click", function () { if (ct) toggle(ct.id); });
+    card.appendChild(b);
+    if (mode === "none") {
+      var ul = el("ul", "fmc-ul"); ["Protein at every meal", "Real food, mostly from the ground or an animal", "Nothing mindless after dinner"].forEach(function (x) { ul.appendChild(el("li", null, x)); }); card.appendChild(ul);
+    } else drawExtTotals(card, b);
+    var ch = el("button", "linkish", "Change how I track food"); ch.type = "button"; ch.addEventListener("click", openFoodModePicker); card.appendChild(ch);
+  }
+  function drawFoodMode() {
+    var box = $("food-mode"); if (box) { box.textContent = ""; var cards = foodModeCards(foodMode(), setFoodMode, !state.me || !state.canWrite); while (cards.firstChild) box.appendChild(cards.firstChild); }
+    if (state.page === "fuel") drawFuelMode();
+    var fn = null;
+    if (fn) { fn.hidden = cur === "app"; fn.textContent = ""; if (cur !== "app") { fn.appendChild(document.createTextNode(cur === "elsewhere" ? "You track food in another app. Logging here is optional. " : "You don’t count calories. Logging here is optional. ")); var ch = el("button", "linkish", "Change"); ch.type = "button"; ch.addEventListener("click", function () { openSettingsSection("h-s-food"); }); fn.appendChild(ch); } }
+  }
   function derive(rec, log) {
     var wt = taskOfKind("water");
     if (wt) { if (log.water >= WATER_GOAL_OZ) rec.done[wt.id] = true; else delete rec.done[wt.id]; }
@@ -2496,10 +2685,12 @@ header.hero .me-btn { border-color:#e87328; }
     // On the Sabbath, rest is the workout: the box checks itself.
     if (hk && isWeighDay(rec.date)) rec.done[hk.id] = true;
     var ct = taskOfKind("calories"), t = targets(), tk = t ? Number(t.kcal) || 0 : 0;
-    if (ct) { var cw = calWindow(tk); if (tk > 0 && log.kcal >= cw[0] && log.kcal <= cw[1]) rec.done[ct.id] = true; else delete rec.done[ct.id]; }
+    var fmApp = foodMode() === "app", ext = foodMode() === "elsewhere" ? normExt(log.ext) : null;
+    if (ext) { log = { kcal: ext.kcal, p: ext.p }; fmApp = true; }
+    if (ct && fmApp) { var cw = calWindow(tk); if (tk > 0 && log.kcal >= cw[0] && log.kcal <= cw[1]) rec.done[ct.id] = true; else delete rec.done[ct.id]; }
     // Protein bonus: protein at or above target, and calories inside the window.
     var tp = t ? Number(t.p) || 0 : 0, cw2 = calWindow(tk);
-    rec.pbonus = !!(tk > 0 && tp > 0 && log.p >= tp && log.kcal >= cw2[0] && log.kcal <= cw2[1]);
+    rec.pbonus = !!(fmApp && tk > 0 && tp > 0 && log.p >= tp && log.kcal >= cw2[0] && log.kcal <= cw2[1]);
     // A fast day: the Calories box checks itself and there's no protein bonus. The brothers see a Fasting tag.
     if (isFastDay(rec.date)) { if (ct) rec.done[ct.id] = true; rec.pbonus = false; rec.fast = true; } else delete rec.fast;
   }
@@ -2583,7 +2774,7 @@ header.hero .me-btn { border-color:#e87328; }
     var cur = recFor(date), cl = logFor(date);
     var cp = normPrs(cur.prs), rec = { date: date, uid: uid, done: {}, prs: cp, steps: normSteps(cur.steps), pbonus: !!cur.pbonus };
     Object.keys(cur.done || {}).forEach(function (k) { rec.done[k] = true; });
-    var log = { date: date, water: cl.water, kcal: cl.kcal, p: cl.p, f: cl.f, c: cl.c, meals: cloneMeals(cl.meals) };
+    var log = { date: date, water: cl.water, kcal: cl.kcal, p: cl.p, f: cl.f, c: cl.c, meals: cloneMeals(cl.meals), ext: normExt(cl.ext) };
     var wasAll = allBoxesDone(cur.done);
     var logChanged = !!fn(rec, log);
     derive(rec, log);
@@ -2661,7 +2852,7 @@ header.hero .me-btn { border-color:#e87328; }
   }
   function saveSettings() {
     if (!B.db || !state.me) return;
-    var st = { blocked: state.settings.blocked || {}, targets: state.settings.targets || null, body: state.settings.body || null, reminders: state.settings.reminders || null, health: state.settings.health || null, plan: state.settings.plan || null, theme: state.settings.theme || null, autofill: state.settings.autofill || null, favs: state.settings.favs || [], myMeals: state.settings.myMeals || [], preps: state.settings.preps || [], swapAlways: state.settings.swapAlways || {}, dayMoves: state.settings.dayMoves || {}, fast: state.settings.fast || null, onboard: state.settings.onboard || null, freport: state.settings.freport || {}, junior: state.settings.junior || {}, routine: state.settings.routine || null };
+    var st = { blocked: state.settings.blocked || {}, targets: state.settings.targets || null, body: state.settings.body || null, reminders: state.settings.reminders || null, health: state.settings.health || null, plan: state.settings.plan || null, theme: state.settings.theme || null, autofill: state.settings.autofill || null, favs: state.settings.favs || [], myMeals: state.settings.myMeals || [], preps: state.settings.preps || [], swapAlways: state.settings.swapAlways || {}, dayMoves: state.settings.dayMoves || {}, fast: state.settings.fast || null, onboard: state.settings.onboard || null, freport: state.settings.freport || {}, junior: state.settings.junior || {}, routine: state.settings.routine || null, foodMode: foodMode() };
     writeChain = writeChain.then(function () { return B.saveSettings(state.me, st); }).catch(noop);
   }
 
@@ -3018,7 +3209,7 @@ header.hero .me-btn { border-color:#e87328; }
     }
     tasks.forEach(function (tk) {
       var li = el("li", "item"), b = el("button", "hit"); b.type = "button";
-      var isDevo = tk.kind === "devo", page = AUTO_PAGE[tk.kind];
+      var isDevo = tk.kind === "devo", fmOwn = tk.kind === "calories" && foodMode() !== "app" && !isFastDay(todayKey()), fmExt = fmOwn && foodMode() === "elsewhere" && !!normExt(log.ext), page = fmOwn && !fmExt ? null : AUTO_PAGE[tk.kind];
       var hAuto = (tk.kind === "steps" && healthHave("steps")) || (tk.kind === "weigh" && healthHave("weight"));
       b.setAttribute("role", "checkbox"); b.setAttribute("aria-checked", done[tk.id] ? "true" : "false");
       // Boxes owned by an area (Fuel, Train, Check-in, health data) are filled by the app. They are display-only here.
@@ -3026,12 +3217,14 @@ header.hero .me-btn { border-color:#e87328; }
       if (auto) { b.setAttribute("aria-readonly", "true"); b.classList.add("auto"); }
       b.disabled = !isDevo && !auto && (!state.me || !state.canWrite);
       var box = el("span", "box"); box.innerHTML = CHECK_SVG; b.appendChild(box);
-      var txt = el("span", "txt"), nm = el("span", "name", tk.title);
+      var txt = el("span", "txt"), nm = el("span", "name", tk.kind === "calories" && foodMode() !== "app" ? FOOD_MODES[foodMode()].box : tk.title);
       txt.appendChild(nm);
       var sub = tk.sub || "";
       if (isDevo) { var dv = devoToday(); sub = done[tk.id] ? "Read today" : (dv ? dv.e.ref + ". Tap to open today's reading" : "Tap to open today's reading"); }
       else if (tk.kind === "water") sub = Math.round(log.water) + " of " + Math.round(WATER_GOAL_OZ) + " oz (3 L). Log it in Fuel";
       else if (tk.kind === "calories" && isFastDay(todayKey())) sub = "Fasting today. Checked for you.";
+      else if (fmOwn && foodMode() === "elsewhere" && normExt(log.ext)) sub = (function () { var e = normExt(log.ext), w = calWindow(Number((t || {}).kcal) || 0); return fmt(e.kcal) + " kcal, " + fmt(e.p) + " g protein from your app" + (done[tk.id] ? ". In range" : ". Range " + fmt(w[0]) + "\u2013" + fmt(w[1])) + (recFor(todayKey()).pbonus ? ". Protein bonus +" + PROTEIN_BONUS : ""); })();
+      else if (fmOwn) sub = foodMode() === "elsewhere" ? (done[tk.id] ? "Hit my range today" : "Tap when you land in your range today. On your honor") : (done[tk.id] ? "Ate on purpose today" : "Protein at every meal, real food, nothing mindless after dinner");
       else if (tk.kind === "calories") sub = t && Number(t.kcal) ? (function () { var w = calWindow(Number(t.kcal)); var pb = recFor(todayKey()).pbonus; return fmt(log.kcal) + " of " + fmt(Number(t.kcal)) + " kcal. Checks at " + fmt(w[0]) + "\u2013" + fmt(w[1]) + (pb ? ". Protein bonus +" + PROTEIN_BONUS + " earned" : Number(t.p) ? ". Hit " + fmt(Number(t.p)) + " g protein too for +" + PROTEIN_BONUS : ""); })() : "Set your targets in Fuel";
       else if (tk.kind === "workout") sub = isWeighDay(todayKey()) ? SABBATH_REST : done[tk.id] ? "Finished in Train" : "Checks itself when you finish a workout";
       else if (tk.kind === "checkin") sub = done[tk.id] ? "Posted in Rally today" : "Post in Rally to answer the call";
@@ -3128,7 +3321,7 @@ header.hero .me-btn { border-color:#e87328; }
 
   /* ---------- Fuel ---------- */
   function drawFuel() {
-    drawFast();
+    drawFast(); drawFoodMode(); drawFuelMode();
     var log = logFor(todayKey()), t = targets();
     var wrap = $("macros"); wrap.textContent = "";
     MACROS.forEach(function (m) {
@@ -7339,6 +7532,7 @@ header.hero .me-btn { border-color:#e87328; }
       "Your streak counts days in a row with every daily box checked.",
       "On your Sabbath the Workout box checks itself. Rest is part of the training."] },
     fuel: { t: "Fuel", why: "Track what you eat and drink against your daily calorie and macro targets.", tip: function () {
+      if (foodMode() !== "app") { var wk3 = taskOfKind("water"); return "Points on Fuel: your " + FOOD_MODES[foodMode()].box + " box (+1) is yours to tap, on your honor. Water at your goal checks your Water box (+" + (wk3 ? wk3.points : 1) + "). The food log is still here under Log food here anyway."; }
       var t = targets(), k = t ? Number(t.kcal) || 0 : 0, pr = t ? Number(t.p) || 0 : 0, w = k ? calWindow(k) : null, ck = taskOfKind("calories"), wk2 = taskOfKind("water");
       return "Points on Fuel: your Calories box (+" + (ck ? ck.points : 1) + ") checks when you land " + calWindowText() + (w ? ", which is " + fmt(w[0]) + " to " + fmt(w[1]) + " kcal for you" : "") + ". Hit or beat your protein" + (pr ? " (" + fmt(pr) + " g)" : "") + " while staying in that window for a +" + PROTEIN_BONUS + " protein bonus. Water at your goal checks your Water box (+" + (wk2 ? wk2.points : 1) + ").";
     }, how: [
@@ -7431,6 +7625,12 @@ header.hero .me-btn { border-color:#e87328; }
     var t = el("h2", null, h.t); t.id = "hp-t"; box.appendChild(t);
     box.appendChild(el("p", "help-why", h.why));
     if (h.tip) box.appendChild(el("p", "help-tip", typeof h.tip === "function" ? h.tip() : h.tip));
+    if (page === "fuel" || page === "today") {
+      var fmr = el("div", "help-fm"), fml = el("span"); fml.appendChild(document.createTextNode("How you track food: ")); fml.appendChild(el("b", null, FOOD_MODES[foodMode()].t)); fmr.appendChild(fml);
+      var fmb = el("button", "mini", "Change"); fmb.type = "button"; fmb.addEventListener("click", function () { back.remove(); openFoodModePicker(); }); fmr.appendChild(fmb);
+      fmr.appendChild(el("p", null, foodMode() === "app" ? "Already tracking in another app, or don’t want to count? Change it here. Same points every way." : "Your Calories box is “" + FOOD_MODES[foodMode()].box + ".” Tap it on Today or Fuel. Same points as logging here."));
+      box.appendChild(fmr);
+    }
     var ul = el("ul", "help-list"); h.how.forEach(function (x) { ul.appendChild(el("li", null, x)); }); box.appendChild(ul);
     var ok = el("button", "btn", "Got it"); ok.type = "button"; box.appendChild(ok);
     var prev = document.activeElement;
@@ -7992,6 +8192,12 @@ header.hero .me-btn { border-color:#e87328; }
       var pc = el("div", "onb-plan"); pc.id = "onb-plan"; body.appendChild(pc); onbPlanCard(pc);
       body.appendChild(el("p", "onb-note", "Protein is 1 g per pound of your goal weight. You can fine-tune these anytime in Settings."));
       body.appendChild(el("p", "onb-note", "Fasting? On Fuel, just above your food log, turn on Fasting today or plan fast days ahead (even one that repeats every week). On a fast day your Calories box checks itself and the brothers see a small Fasting tag so they can pray for you."));
+      if (!d.foodMode) d.foodMode = foodMode();
+      var fw = el("div", "onb-f"); fw.appendChild(el("span", "onb-lbl", "How you’ll track food"));
+      fw.appendChild(el("p", "onb-note", "Already dialed in with another app, or don’t want to count? Pick what fits. Same points every way."));
+      fw.appendChild(foodModeCards(d.foodMode, function (k) { d.foodMode = k; drawOnb(); }, false));
+      if (d.foodMode !== "app") fw.appendChild(foodGideonCard(d.foodMode));
+      body.appendChild(fw);
       var tk = el("div", "tk-card"); tk.appendChild(el("div", "onb-k", "What tracking is for"));
       TRACK_MSG.forEach(function (m) { var it = el("div", "tk-item"); it.appendChild(el("b", null, m[0])); it.appendChild(el("p", null, m[1])); tk.appendChild(it); });
       body.appendChild(tk);
@@ -8000,6 +8206,7 @@ header.hero .me-btn { border-color:#e87328; }
         var b = onbBodyMerged(), plan = calcPlan(b);
         state.settings.body = b;
         if (plan) { state.settings.targets = { kcal: plan.kcal, p: plan.p, f: plan.f, c: plan.c }; ONB.done.goal = true; }
+        state.settings.foodMode = d.foodMode === "elsewhere" || d.foodMode === "none" ? d.foodMode : "app";
         saveSettings(); writeDay(function () { return false; }); onbGo(1);
       });
       back();
@@ -8105,7 +8312,7 @@ header.hero .me-btn { border-color:#e87328; }
       box.appendChild(r);
     });
   }
-  var APP_VERSION = "v209";
+  var APP_VERSION = "v210";
   /* ---------- Photo upload diagnostic (Settings > Testing) ---------- */
   async function runPhotoDiag() {
     var out = { at: new Date().toISOString(), version: APP_VERSION, ua: navigator.userAgent, steps: [] };
@@ -8742,7 +8949,7 @@ header.hero .me-btn { border-color:#e87328; }
     var ib = el("button", "btn", "Invite a brother"); ib.type = "button"; ib.addEventListener("click", function () { inviteBrother(ib); }); box.appendChild(ib);
   }
   function drawSettings() {
-    paintTestCtl(); drawInviteSettings();
+    paintTestCtl(); drawInviteSettings(); drawFoodMode();
     var afp = afPrefs(); [["s-af-w", "w"], ["s-af-r", "r"]].forEach(function (c) { var x = $(c[0]); if (x) { x.checked = afp[c[1]]; x.disabled = !state.me || !state.canWrite; } });
     if (state.page !== "settings") return;
     var pp = state.pubProfiles[state.me] || {}, st = state.settings, canUp = B.canUpload();
@@ -8966,7 +9173,7 @@ header.hero .me-btn { border-color:#e87328; }
       btn.addEventListener("click", function () { var open = body.hidden; body.hidden = !open; btn.setAttribute("aria-expanded", String(open)); });
       head.hidden = true; sec.classList.add("set-card"); sec.appendChild(btn); sec.appendChild(body);
     });
-    ["h-s-wk", "h-s-body", "h-s-goal", "h-s-tg", "h-s-rem", "h-s-health", "h-s-safe", "h-s-test", "h-s-acct"].forEach(function (hid) {
+    ["h-s-wk", "h-s-body", "h-s-goal", "h-s-food", "h-s-tg", "h-s-rem", "h-s-health", "h-s-safe", "h-s-test", "h-s-acct"].forEach(function (hid) {
       var h = $(hid); if (!h) return; var sec = h.closest("section"), head = h.closest(".section-head"); if (!sec || !head) return;
       var body = el("div", "set-body"); body.id = hid + "-body"; body.hidden = true;
       while (head.nextSibling) body.appendChild(head.nextSibling);
@@ -9003,6 +9210,7 @@ header.hero .me-btn { border-color:#e87328; }
       $(c[0]).addEventListener("change", function () { var a = afPrefs(); a[c[1]] = this.checked; state.settings.autofill = a; if (state.me && state.canWrite) saveSettings(); });
     });
     $("adj-targets").addEventListener("click", function () { openSettingsSection("h-s-tg"); });
+    $("fm-fuel-more").addEventListener("click", function () { fuelShowLog = !fuelShowLog; drawFuelMode(); });
     Array.prototype.forEach.call(document.querySelectorAll("[data-open]"), function (b) {
       b.addEventListener("click", function () { if (b.dataset.open === "settings") { state.viewUid = state.me; go("settings"); } else openProfile(null); });
     });
@@ -9209,7 +9417,7 @@ header.hero .me-btn { border-color:#e87328; }
         drawToday(); onbMaybeStart();
       });
       B.watchSettings(state.me, function (st) {
-        state.settings = { blocked: (st && st.blocked) || {}, targets: (st && st.targets) || null, body: (st && st.body) || null, reminders: (st && st.reminders) || null, health: (st && st.health) || null, plan: (st && st.plan) || null, theme: (st && st.theme) || null, autofill: (st && st.autofill) || null, favs: (st && Array.isArray(st.favs)) ? st.favs.slice(0, 60) : [], myMeals: (st && Array.isArray(st.myMeals)) ? st.myMeals.slice(0, 30) : [], preps: (st && Array.isArray(st.preps)) ? st.preps.slice(0, 40) : [], swapAlways: (st && st.swapAlways && typeof st.swapAlways === "object") ? st.swapAlways : {}, dayMoves: normMoves(st && st.dayMoves), fast: normFast(st && st.fast), onboard: (st && st.onboard && typeof st.onboard === "object") ? st.onboard : null, freport: (st && st.freport && typeof st.freport === "object") ? st.freport : {}, junior: (st && st.junior && typeof st.junior === "object") ? st.junior : {}, routine: normRoutine(st && st.routine) }; if (state.settings.theme) applyTheme(state.settings.theme, false); state.settingsLoaded = true; drawAll(); drawFeed(); refreshHealth(); onbMaybeStart();
+        state.settings = { blocked: (st && st.blocked) || {}, targets: (st && st.targets) || null, body: (st && st.body) || null, reminders: (st && st.reminders) || null, health: (st && st.health) || null, plan: (st && st.plan) || null, theme: (st && st.theme) || null, autofill: (st && st.autofill) || null, favs: (st && Array.isArray(st.favs)) ? st.favs.slice(0, 60) : [], myMeals: (st && Array.isArray(st.myMeals)) ? st.myMeals.slice(0, 30) : [], preps: (st && Array.isArray(st.preps)) ? st.preps.slice(0, 40) : [], swapAlways: (st && st.swapAlways && typeof st.swapAlways === "object") ? st.swapAlways : {}, dayMoves: normMoves(st && st.dayMoves), fast: normFast(st && st.fast), onboard: (st && st.onboard && typeof st.onboard === "object") ? st.onboard : null, freport: (st && st.freport && typeof st.freport === "object") ? st.freport : {}, junior: (st && st.junior && typeof st.junior === "object") ? st.junior : {}, routine: normRoutine(st && st.routine), foodMode: st && (st.foodMode === "elsewhere" || st.foodMode === "none") ? st.foodMode : "app" }; if (state.settings.theme) applyTheme(state.settings.theme, false); state.settingsLoaded = true; drawAll(); drawFeed(); refreshHealth(); onbMaybeStart();
       });
     }
     B.watchPosts(function (rows) { state.posts = rows; drawFeed(); loadProfiles(); drawTagBells(); });
