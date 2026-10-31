@@ -108,3 +108,11 @@ For a Mac, double-click **FIRST-RUN-MAC.command** from Finder. **SETUP-MAC.comma
 - [Generated Flutter code map](docs/architecture/CODE-MAP.md): actual Dart imports, classes and methods. CI checks drift.
 - Checked-in Codex `.agents/skills/` and Claude `.claude/skills/` workflows must match exactly.
 - Windows: `REVIEW-WINDOWS.cmd`. Mac: `REVIEW-MAC.command`. Try `--dry-run` before making paid AI requests.
+
+## Explore the engineering architecture as a webpage
+
+- **Windows:** double-click `ARCHITECTURE-WINDOWS.cmd` in the cloned repository.
+- **Mac:** double-click `ARCHITECTURE-MAC.command`.
+- **Any OS:** run `python3 tooling/architecture/build_explorer.py --write` and open `build/architecture-explorer/index.html`.
+
+The [Architecture Atlas guide](docs/architecture/explorer/README.md) covers keyboard shortcuts, interactive component ownership, source functions and reverse dependencies, independent AI reviewer models, and the full tracked-file index. CI also produces an offline `forged-sent-architecture-atlas` artifact for every PR.
