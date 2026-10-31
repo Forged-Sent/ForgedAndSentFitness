@@ -21,6 +21,7 @@ PATHS = [
     "tooling/versions.json",
     "tooling/macos/common.sh", "tooling/windows/setup-developer.ps1",
     ".vscode/settings.json", "mobile/pubspec.lock",
+    "docs/development/REPOSITORY-SECURITY.md",
 ]
 
 class PolicyTests(unittest.TestCase):
@@ -91,6 +92,28 @@ class PolicyTests(unittest.TestCase):
         path = self.root / ".github/agents/architecture-reviewer.agent.md"
         path.write_text(path.read_text().replace("tools: ['read', 'search']", ""))
         self.assert_violation("reviewer must explicitly")
+
+    def test_ruleset_documentation_must_keep_default_protection(self):
+        path = self.root / "docs/development/REPOSITORY-SECURITY.md"
+        path.write_text(path.read_text().replace("**\\n!index.html", "mobile/**\\n!index.html"))
+        self.assert_violation("Required reviewers patterns must match")
+
+    def test_ruleset_documentation_must_keep_specific_exceptions(self):
+        path = self.root / "docs/development/REPOSITORY-SECURITY.md"
+        path.write_text(path.read_text().replace("!dev/mock-claude.js", "!dev/**"))
+        self.assert_violation("Required reviewers patterns must match")
+
+    def test_claude_session_hook_is_rejected(self):
+        path = self.root / ".claude/settings.json"
+        path.write_text(json.dumps({"hooks": {"SessionStart": [{
+            "hooks": [{"type": "command", "command": "firebase login --no-localhost"}]
+        }]}}))
+        self.assert_violation("Claude project hooks are forbidden")
+
+    def test_claude_allow_permission_is_rejected(self):
+        path = self.root / ".claude/settings.local.json"
+        path.write_text(json.dumps({"permissions": {"allow": ["Bash(*)"]}}))
+        self.assert_violation("Claude project permissions.allow is forbidden")
 
     def test_sensitive_mobile_path_cannot_lose_review_owners(self):
         path = self.root / ".github/CODEOWNERS"
