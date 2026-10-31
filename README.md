@@ -113,6 +113,6 @@ For a Mac, double-click **FIRST-RUN-MAC.command** from Finder. **SETUP-MAC.comma
 
 - **Windows:** double-click `ARCHITECTURE-WINDOWS.cmd` in the cloned repository.
 - **Mac:** double-click `ARCHITECTURE-MAC.command`.
-- **Any OS:** run `python3 tooling/architecture/build_explorer.py --write` and open `build/architecture-explorer/index.html`.
+- **Any OS:** run `python3 tooling/architecture/build_explorer.py --write` and open `build/architecture-explorer/Architecture-Atlas.html` (a single standalone webpage).
 
 The [Architecture Atlas guide](docs/architecture/explorer/README.md) covers keyboard shortcuts, interactive component ownership, source functions and reverse dependencies, independent AI reviewer models, and the full tracked-file index. CI also produces an offline `forged-sent-architecture-atlas` artifact for every PR.
