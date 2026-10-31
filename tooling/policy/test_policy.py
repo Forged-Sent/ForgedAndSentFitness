@@ -126,7 +126,9 @@ class PolicyTests(unittest.TestCase):
 
     def test_ruleset_documentation_must_keep_default_protection(self):
         path = self.root / "docs/development/REPOSITORY-SECURITY.md"
-        path.write_text(path.read_text().replace("**\\n!index.html", "mobile/**\\n!index.html"))
+        src = path.read_text()
+        self.assertIn("**\n!index.html", src)
+        path.write_text(src.replace("**\n!index.html", "mobile/**\n!index.html"))
         self.assert_violation("Required reviewers patterns must match")
 
     def test_ruleset_documentation_must_keep_specific_exceptions(self):
