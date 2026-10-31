@@ -1,5 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import {mkdtempSync, mkdirSync, rmSync, writeFileSync} from 'node:fs';
+import {tmpdir} from 'node:os';
+import {join} from 'node:path';
 import {commandFor} from './launch.mjs';
 
 test('Dart is directly executable on macOS without cmd.exe',()=>{
@@ -12,10 +15,19 @@ test('Playwright uses fixed version and safe macOS command',()=>{
  assert.equal(s.command,'npx');
  assert.deepEqual(s.args,['-y','@playwright/mcp@0.0.83','--browser=chrome']);
 });
-test('Windows execution uses cmd wrapper for .cmd and .bat compatibility',()=>{
- const s=commandFor('dart','win32');
- assert.equal(s.command,'cmd.exe');
- assert.match(s.args.join(' '),/mcp-server/);
+test('Windows Dart uses pinned native SDK executable, without cmd.exe',()=>{
+ const home=mkdtempSync(join(tmpdir(),'forged dart & '));
+ try {
+   const dart=join(home,'develop','flutter','bin','cache','dart-sdk','bin','dart.exe');
+   mkdirSync(join(home,'develop','flutter','bin','cache','dart-sdk','bin'),{recursive:true});
+   writeFileSync(dart,'');
+   assert.deepEqual(commandFor('dart','win32',home),{command:dart,args:['mcp-server']});
+ } finally {rmSync(home,{recursive:true,force:true});}
+});
+test('Windows Dart fails closed when Flutter SDK is missing',()=>{
+ const home=mkdtempSync(join(tmpdir(),'forged-no-sdk-'));
+ try {assert.throws(()=>commandFor('dart','win32',home),/Pinned Flutter Dart SDK missing/);}
+ finally {rmSync(home,{recursive:true,force:true});}
 });
 test('Mac Maestro invokes native executable (optional Mobile tool)',()=>{
  assert.deepEqual(commandFor('maestro','darwin'),{command:'maestro',args:['mcp']});
