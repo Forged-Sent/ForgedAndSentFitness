@@ -4526,7 +4526,7 @@ header.hero .me-btn { border-color:#e87328; }
     }
     b.appendChild(w);
   }
-  function redrawKeepScroll() { var sc = $("scroll"), t = sc.scrollTop; drawWorkoutPage(true); sc.scrollTop = t; }
+  function redrawKeepScroll() { drawWorkoutPage(true); }
   /* ---------- Structured warm-up: each movement logs like an exercise; timed rounds get their own countdown ---------- */
   // Turns a warm-up prescription into rounds. Examples:
   //   "3 min easy" -> 1 timed round of 180 s       "2 x 30 sec, building pace" -> 2 timed rounds of 30 s
@@ -4888,7 +4888,20 @@ header.hero .me-btn { border-color:#e87328; }
     saveWkNow(); if (wk.root) awardPRs(key, wk.root, 0, null, "silent");
     drawWorkoutPage(true);
   }
+  /* Redraws never move him: hold the height, rebuild, put the scroll back, then release the height. */
   function drawWorkoutPage(force) {
+    var sc = $("scroll"), body = $("wkp-body"), keep = state.page === "workout" && sc && body;
+    if (!keep) return drawWorkoutPageNow(force);
+    var t = sc.scrollTop, h = body.offsetHeight, ae = document.activeElement;
+    // a focused button that is about to be rebuilt (like the set's remove button) is let go first, so Safari doesn't jump
+    if (ae && ae !== document.body && body.contains(ae) && ae.tagName !== "INPUT" && ae.blur) ae.blur();
+    body.style.minHeight = h + "px";
+    try { drawWorkoutPageNow(force); } finally {
+      sc.scrollTop = t;
+      requestAnimationFrame(function () { body.style.minHeight = ""; if (Math.abs(sc.scrollTop - t) > 2 && sc.scrollHeight - sc.clientHeight >= t) sc.scrollTop = t; });
+    }
+  }
+  function drawWorkoutPageNow(force) {
     var body = $("wkp-body"), key = state.wkDay || todayKey(), wf = workoutFor(key), p = planCfg();
     if (!force && document.activeElement && document.activeElement.tagName === "INPUT" && body.contains(document.activeElement)) return;
     var sid = state.wkSid || null, S = !!sid;
@@ -7143,7 +7156,7 @@ header.hero .me-btn { border-color:#e87328; }
     var ul = el("ul", "help-list"); h.how.forEach(function (x) { ul.appendChild(el("li", null, x)); }); box.appendChild(ul);
     var ok = el("button", "btn", "Got it"); ok.type = "button"; box.appendChild(ok);
     var prev = document.activeElement;
-    function close() { back.remove(); try { if (prev && prev.focus && document.body.contains(prev)) prev.focus({ preventScroll: true }); } catch (e) {} }
+    function close() { var sc = $("scroll"), t = sc ? sc.scrollTop : 0; back.remove(); try { if (prev && prev.focus && document.body.contains(prev)) prev.focus({ preventScroll: true }); } catch (e) {} if (sc && sc.scrollTop !== t) sc.scrollTop = t; }
     ok.addEventListener("click", close); hx.addEventListener("click", close);
     back.addEventListener("click", function (ev) { if (ev.target === back) close(); });
     back.addEventListener("keydown", function (ev) { if (ev.key === "Escape") { ev.stopPropagation(); close(); } });
@@ -7814,7 +7827,7 @@ header.hero .me-btn { border-color:#e87328; }
       box.appendChild(r);
     });
   }
-  var APP_VERSION = "v204";
+  var APP_VERSION = "v205";
   /* ---------- Photo upload diagnostic (Settings > Testing) ---------- */
   async function runPhotoDiag() {
     var out = { at: new Date().toISOString(), version: APP_VERSION, ua: navigator.userAgent, steps: [] };
@@ -7905,7 +7918,7 @@ header.hero .me-btn { border-color:#e87328; }
     var row = el("div", "cdlg-btns"), no = el("button", "btn ghost", "Cancel"), yes = el("button", "btn" + (o.neutral ? "" : " cdlg-yes"), o.yes || "Delete");
     no.type = "button"; yes.type = "button"; row.appendChild(no); row.appendChild(yes); box.appendChild(row); back.appendChild(box);
     var prev = document.activeElement;
-    function close() { back.remove(); try { if (prev && prev.focus && document.body.contains(prev)) prev.focus({ preventScroll: true }); } catch (e) {} }
+    function close() { var sc = $("scroll"), t = sc ? sc.scrollTop : 0; back.remove(); try { if (prev && prev.focus && document.body.contains(prev)) prev.focus({ preventScroll: true }); } catch (e) {} if (sc && sc.scrollTop !== t) sc.scrollTop = t; }
     no.addEventListener("click", close);
     yes.addEventListener("click", function () { close(); onYes(); });
     back.addEventListener("click", function (ev) { if (ev.target === back) close(); });
