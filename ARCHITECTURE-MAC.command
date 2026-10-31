@@ -13,5 +13,5 @@ if ! python3 tooling/architecture/build_explorer.py --write; then
   if [ -t 0 ]; then read -r -p 'Press Enter to close...' _answer; fi
   exit 1
 fi
-open "build/architecture-explorer/index.html"
+open "build/architecture-explorer/Architecture-Atlas.html"
 printf 'Opened your local offline architecture explorer.\n'
