@@ -32,6 +32,21 @@ test('Windows Dart fails closed when Flutter SDK is missing',()=>{
 test('Mac Maestro invokes native executable (optional Mobile tool)',()=>{
  assert.deepEqual(commandFor('maestro','darwin'),{command:'maestro',args:['mcp']});
 });
+test('Windows Playwright and Maestro commands use only the audited fixed launch forms',()=>{
+ assert.deepEqual(commandFor('playwright','win32'),{
+  command:'cmd.exe',args:['/d','/c','npx -y @playwright/mcp@0.0.83 --browser=chrome --isolated']
+ });
+ assert.deepEqual(commandFor('maestro','win32'),{
+  command:'cmd.exe',args:['/d','/c','maestro mcp']
+ });
+});
+test('Only three approved local MCP tools are dispatchable on both platforms',()=>{
+ for(const platform of ['darwin','win32']){
+  for(const tool of ['fb','firebase-tools','github','sentry','shell','anything']){
+   assert.throws(()=>commandFor(tool,platform),/forbidden/i);
+  }
+ }
+});
 test('No Firebase cloud MCP or arbitrary executable is accepted',()=>{
  assert.throws(()=>commandFor('firebase','darwin'),/forbidden/i);
  assert.throws(()=>commandFor('anything','win32'),/forbidden/i);
