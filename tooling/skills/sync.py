@@ -21,7 +21,7 @@ REQUIRED = {
 def validate(root: Path, fix: bool = False) -> list[str]:
     errors = []
     a, b = root / CANONICAL, root / MIRROR
-    names = {p.name for p in a.glob("*/SKILL.md")} | {p.name for p in b.glob("*/SKILL.md")} | REQUIRED
+    names = {p.parent.name for p in a.glob("*/SKILL.md")} | {p.parent.name for p in b.glob("*/SKILL.md")} | REQUIRED
     for name in sorted(names):
         source, dest = a / name / "SKILL.md", b / name / "SKILL.md"
         if not source.is_file():
