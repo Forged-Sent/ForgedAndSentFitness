@@ -16,6 +16,7 @@ jobs:
       windows: ${{ steps.scope.outputs.windows }}
       mobile: ${{ steps.scope.outputs.mobile }}
       mac: ${{ steps.scope.outputs.mac }}
+      prototype: ${{ steps.scope.outputs.prototype }}
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
@@ -32,16 +33,33 @@ jobs:
           else
             git diff --name-only "$BASE_SHA" HEAD > /tmp/changed
           fi
-          if grep -Eq '^(tooling/windows/|tooling/mcp/|tooling/versions\.json|SETUP-|FIRST-RUN-WINDOWS.cmd|VERIFY-DEVELOPER-WINDOWS.cmd|RUN-APP.cmd|\.vscode/|\.mcp\.json$|\.codex/|\.github/workflows/)' /tmp/changed; then echo "windows=true" >> "$GITHUB_OUTPUT"; else echo "windows=false" >> "$GITHUB_OUTPUT"; fi
-          if grep -Eq '^(mobile/|tooling/versions\.json|\.github/workflows/ci-gate.yml)' /tmp/changed; then echo "mobile=true" >> "$GITHUB_OUTPUT"; else echo "mobile=false" >> "$GITHUB_OUTPUT"; fi
-          if grep -Eq '^(tooling/macos/|tooling/mcp/|tooling/versions\.json|\.mcp\.json$|\.codex/|\.vscode/|\.github/workflows/|.*-MAC\.command$|mobile/)' /tmp/changed; then echo "mac=true" >> "$GITHUB_OUTPUT"; else echo "mac=false" >> "$GITHUB_OUTPUT"; fi
-          # Unknown non-doc changes default to broad testing rather than an unchecked green gate.
-          if ! grep -Eq '^(tooling/windows/|tooling/macos/|tooling/mcp/|tooling/versions\.json|mobile/|\.github/|\.vscode/|\.mcp\.json$|\.codex/|.*-MAC\.command$|.*-WINDOWS\.cmd$|RUN-APP\.cmd$|SETUP-ANDROID\.cmd$)' /tmp/changed && grep -Ev '^(README\.md|docs/.*\.md|planning/.*\.md|AGENTS\.md|CLAUDE\.md|\.claude/.*\.md|\.agents/.*\.md)$' /tmp/changed | grep -q .; then
-            echo 'windows=true' >> "$GITHUB_OUTPUT"
-            echo 'mobile=true' >> "$GITHUB_OUTPUT"
-            echo 'mac=true' >> "$GITHUB_OUTPUT"
-          fi
+          python3 -m unittest discover -s tooling/ci -p 'test_*.py' -v
+          python3 tooling/ci/path_scope.py /tmp/changed >> "$GITHUB_OUTPUT"
           cat /tmp/changed
+
+
+  prototype-checks:
+    needs: changes
+    if: needs.changes.outputs.prototype == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - name: Build and validate the local HTML prototype without Flutter
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 dev/make_preview.py
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          active = Path('index.html').read_text(encoding='utf-8')
+          preview = Path('dev/preview.html').read_text(encoding='utf-8')
+          assert preview == '<script src="mock-claude.js"></script>\n' + active, 'Mock injection or preview generation failed'
+          for seed in sorted(Path('seed').glob('*.json')):
+              json.loads(seed.read_text(encoding='utf-8'))
+          print('HTML preview generation and seed JSON passed')
+          PY
 
   policy:
     runs-on: ubuntu-latest
@@ -244,7 +262,7 @@ jobs:
 
   ci-gate:
     name: ci-gate
-    needs: [policy, changes, windows-checks, windows-preview, flutter, mac-checks, mac-preview]
+    needs: [policy, changes, prototype-checks, windows-checks, windows-preview, flutter, mac-checks, mac-preview]
     if: ${{ always() }}
     runs-on: ubuntu-latest
     timeout-minutes: 5
