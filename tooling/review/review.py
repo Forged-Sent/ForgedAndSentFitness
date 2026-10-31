@@ -92,6 +92,7 @@ def build_prompt(root: Path, patch: str) -> str:
 def command_for(provider: str, output: Path) -> list[str]:
     if provider == "codex":
         return ["codex", "exec", "--sandbox", "read-only", "--ephemeral",
+                "--skip-git-repo-check", "--ignore-user-config",
                 "--output-last-message", str(output), "-"]
     if provider == "claude":
         return ["claude", "-p", "Review the provided patch and return JSON only.",
