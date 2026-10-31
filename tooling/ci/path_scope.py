@@ -1,13 +1,16 @@
 #!/usr/bin/env python3
-"""Fail safe CI path classification. Required policy and ci-gate always run.
+"""Fail-safe CI classification. Unknown paths trigger all CI jobs.
 
-Prototype changes stay inexpensive. New/unrecognized file families trigger all
-build lanes rather than silently skipping validation.
+Review enforcement is separate: every unlisted file requires approval under
+GitHub Required reviewers, even if its tests are inexpensive.
 """
 from __future__ import annotations
 
 import sys
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "policy"))
+from review_scope import is_lightweight_path
 
 
 def classify(paths: list[str]) -> dict[str, bool]:
@@ -23,11 +26,24 @@ def classify(paths: list[str]) -> dict[str, bool]:
         return result
 
     for path in files:
-        if path == "index.html" or path.startswith(("versions/", "seed/", "dev/")):
+        if is_lightweight_path(path):
+            if path != "README.md":
+                enable("prototype")
+        elif path in ("dev/make_preview.py",) or (
+                path.startswith("dev/patches/") and path.endswith(".py")):
+            # Executable preview code: human review required, but the
+            # prototype job runs it and Python syntax checks, not Flutter.
             enable("prototype")
+        elif path.startswith("seed/") and path.endswith(".json"):
+            # Protected scoring/authorization seed files still get JSON
+            # verification; novel non-JSON content is unknown/full matrix.
+            enable("prototype")
+        elif path.startswith("dev/firebase/"):
+            enable(*result)
         elif path.startswith("mobile/"):
             enable("mobile", "mac")
-        elif path.startswith((".github/workflows/", "tooling/ci/", "tooling/policy/")):
+        elif path.startswith((".github/workflows/", ".github/actions/",
+                             "tooling/ci/", "tooling/policy/")):
             enable(*result)
         elif path.startswith("tooling/windows/") or ("/" not in path and path.endswith(".cmd")):
             enable("windows")
@@ -41,15 +57,21 @@ def classify(paths: list[str]) -> dict[str, bool]:
             enable(*result)
         elif path.startswith((".vscode/", ".codex/")) or path == ".mcp.json":
             enable("windows", "mac")
-        elif path.startswith("firebase/") or path in (".gitignore", ".gitattributes"):
+        elif (path.startswith(("firebase/", "functions/"))
+              or path in ("firebase.json", ".firebaserc", "firestore.indexes.json",
+                          ".gitignore", ".gitattributes")):
             enable(*result)
-        elif (path in ("AGENTS.md", "CLAUDE.md", "README.md")
+        elif path.startswith(".claude/settings") and path.endswith(".json"):
+            enable(*result)
+        elif (path in ("AGENTS.md", "CLAUDE.md")
               or path.startswith((".github/", ".claude/", ".agents/"))
               or (path.startswith(("docs/", "planning/")) and path.endswith(".md"))):
-            # These are reviewed or documented through the always-run policy
-            # lane, without expensive application builds for text-only PRs.
+            # Changes to known instructions and documentation get the always-on
+            # policy job and human review, not expensive Flutter compilation.
             pass
         else:
+            # Per-file evaluation matters: any unknown file in a mixed PR
+            # must broaden CI regardless of previously recognized paths.
             enable(*result)
     return result
 
