@@ -22,12 +22,12 @@ Download the GitHub branch ZIP and **extract all** before double-clicking the sc
 ## What full setup adds
 
 - Node.js LTS/npm, GitHub CLI and Firebase CLI.
-- Playwright MCP npm package.
+- Playwright MCP package is fetched by the pinned project launcher on first use; no global installation.
 - VS Code extensions: Dart, Flutter, GitHub Copilot, Copilot Chat, GitHub Pull Requests, Codex, Claude Code, YAML, EditorConfig and PowerShell.
-- Optional Codex and Claude Code command-line tools, with the Dart MCP registered for each when supported.
+- Optional Codex and Claude Code command-line tools, using project-scoped `.codex/config.toml` / `.mcp.json` (no global registration).
 - Shared VS Code MCP configuration, committed at .vscode/mcp.json.
 
-Tools are reused when found; rerun setup safely after restarts or network failures. Windows may show installation prompts. Script success does not prove cloud accounts, Android SDK licenses, or MCP sessions are authenticated.
+Tools are reused when found; project-scoped MCPs depend on Node and require user trust and live handshakes; rerun setup safely after restarts or network failures. Windows may show installation prompts. Script success does not prove cloud accounts, Android SDK licenses, or MCP sessions are authenticated.
 
 ## Guided first run
 

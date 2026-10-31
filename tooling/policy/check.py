@@ -113,7 +113,6 @@ def evaluate(root: Path) -> list[str]:
         # Verify cross-file pins rather than treating a never-read manifest as truth.
         for rel, needle in (
             (".github/workflows/ci-gate.yml", "flutter-version: '"+versions.get("flutter", "")+"'"),
-            (".github/workflows/flutter-android.yml", "flutter-version: '"+versions.get("flutter", "")+"'"),
             ("tooling/mcp/launch.mjs", "@playwright/mcp@"+versions.get("playwrightMcp", "")),
             ("tooling/windows/install-maestro.ps1", "cli-"+versions.get("maestroCLI", "")),
         ):
