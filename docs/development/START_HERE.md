@@ -14,12 +14,10 @@ On Windows use FIRST-RUN-WINDOWS.cmd. On a MacBook use FIRST-RUN-MAC.command. Bo
 - Prototype-only UI and content changes need passing `ci-gate` but no
   mandatory human approval by default. Run `python3 dev/make_preview.py`
   and inspect the generated HTML locally.
-- Flutter and security-sensitive changes require one approval by the
-  other developer. Cross-cutting PRs inherit the stricter review process.
+- Flutter and security-sensitive changes need careful independent review; high-risk Auth/privacy/rules/scoring changes warrant another human. The live ruleset currently requires `ci-gate` but ZERO human approvals.
 - Agents use the repository root `AGENTS.md`, Claude `CLAUDE.md`, and
   matching path instructions. Agent reviews are advisory only.
-- A GitHub administrator must enable the path-specific required-reviewer
-  ruleset. See `docs/development/REPOSITORY-SECURITY.md`.
+- The ruleset is active; human-approval enforcement depends on its minimum approvals. See `docs/development/REPOSITORY-SECURITY.md` and verify live values before merge.
 
 ## Local setup
 Install the stable Flutter SDK and run:
@@ -63,3 +61,9 @@ flutter run
 This is a public repo. Never commit API secrets, signing credentials, real prayers, health data, member records or test media. Be especially cautious before running AI agents on external PRs or user input. Keep workflow permissions read-only by default.
 
 For Android host compilation, CI temporarily generates Android platform files; Xcode/iOS provisioning and reviewed native projects are PR #4. Preview contributors generate only the web host.
+
+## Architecture and optional local AI review
+
+- [SYSTEM.md](../architecture/SYSTEM.md): living Mermaid design, current vs planned.
+- [CODE-MAP.md](../architecture/CODE-MAP.md): generated Dart file/function inventory; refresh with `python3 tooling/architecture/generate.py --write`.
+- [AI-REVIEW-WORKFLOW.md](AI-REVIEW-WORKFLOW.md): Windows/Mac setup for independent Codex/Claude/Gemini reviews, optional pre-push verification, costs and limitations.
