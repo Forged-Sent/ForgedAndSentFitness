@@ -2,6 +2,7 @@
 # macOS Bash 3.2-compatible helpers. No automatic cloud authentication.
 FS_ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 FS_FLUTTER="$HOME/develop/flutter/bin/flutter"
+# Keep the Mac CLI pin consistent with tooling/versions.json.
 FS_FIREBASE_VERSION=15.34.2
 export PATH="$HOME/develop/flutter/bin:$HOME/.local/bin:/opt/homebrew/bin:/usr/local/bin:$PATH"
 fs_info(){ printf '[INFO] %s\n' "$*"; }

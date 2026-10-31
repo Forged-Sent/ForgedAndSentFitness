@@ -95,15 +95,19 @@ try {
 
   Attempt 'Firebase CLI (local emulators; no cloud MCP)' {
     $npm=Npm
+    $pins=Get-Content (Join-Path $root 'tooling\versions.json') -Raw | ConvertFrom-Json
+    $firebasePin=[string]$pins.firebaseCLI
     $firebase=Find-Tool 'firebase.cmd' @((Join-Path $env:APPDATA 'npm\firebase.cmd'))
-    if (-not $firebase) {
-      & $npm install --global firebase-tools
+    $foundVersion=if($firebase){((& $firebase --version | Select-Object -First 1) -join '').Trim()}else{''}
+    if ($foundVersion -ne $firebasePin) {
+      & $npm install --global "firebase-tools@$firebasePin"
       Check-Exit 'Firebase CLI install'
     }
     Refresh-Path
     $firebase=Find-Tool 'firebase.cmd' @((Join-Path $env:APPDATA 'npm\firebase.cmd'))
     if (-not $firebase) { throw 'Firebase CLI not found after npm installation' }
-    & $firebase --version; Check-Exit 'Firebase CLI'
+    $installedVersion=((& $firebase --version | Select-Object -First 1) -join '').Trim(); Check-Exit 'Firebase CLI'
+    if($installedVersion -ne $firebasePin){throw "Firebase CLI $installedVersion was found but this project pins $firebasePin"}
   }
 
   Write-Host 'Playwright MCP uses the repository-pinned npx package on first start; no redundant global install.'
@@ -186,7 +190,7 @@ try {
 
   if(-not $SkipAgentCLIs){
     Attempt 'Register safe no-cloud MCPs with Claude and Codex' {
-      & (Join-Path $PSHOME 'pwsh.exe') -NoProfile -File (Join-Path $PSScriptRoot 'register-cli-mcps.ps1') -Agent Both
+      & (Join-Path $PSHOME 'pwsh.exe') -NoProfile -File (Join-Path $PSScriptRoot 'register-cli-mcps.ps1')
       Check-Exit 'Claude/Codex MCP registration'
     }
   }

@@ -13,7 +13,8 @@ Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 . (Join-Path $PSScriptRoot 'winget.ps1')
 $root = (Resolve-Path (Join-Path $PSScriptRoot '..\..')).Path
-$minimum = [version]'7.6.0'
+$preferred = [version]'7.6.0'
+$minimum = if($Mode -in @('setup','android','run')){[version]'7.4.0'}else{[version]'7.6.0'}
 $entries = @{
     wizard    = @{File='first-run.ps1'; Args=@(); Update=$true}
     developer = @{File='setup-developer.ps1'; Args=@(); Update=$true}
@@ -90,10 +91,16 @@ try {
         Install-Pwsh
         $pwsh = Locate-Pwsh
         $version = PwshVersion $pwsh
-    } elseif($version -lt $minimum) {
-        Update-Pwsh
-        $pwsh = Locate-Pwsh
-        $version = PwshVersion $pwsh
+    } elseif($selected.Update -and $version -lt $preferred) {
+        try {
+            Update-Pwsh
+            $candidate = Locate-Pwsh
+            $candidateVersion = PwshVersion $candidate
+            if($candidateVersion){$pwsh=$candidate;$version=$candidateVersion}
+        } catch {
+            if($version -lt $minimum){throw}
+            Write-Warning "PowerShell upgrade unavailable; installed $version still satisfies this script's minimum $minimum."
+        }
     }
     if(-not $version -or $version -lt $minimum){
         throw "PowerShell 7.6 LTS or newer could not be started. Restart Windows after installation. Current version: $version. Run FIRST-RUN-WINDOWS.cmd again."

@@ -39,6 +39,8 @@ fs_ensure_flutter
 fs_editor_extensions
 if [ "$FS_PROFILE" = Contributor ]; then
   fs_brew_formula node node
+  fs_node_major="$(node -p 'Number(process.versions.node.split(".")[0])' 2>/dev/null || printf '0')"
+  if [ "$fs_node_major" -lt 20 ]; then fs_fail 'Node.js 20+ is required for the pinned Firebase CLI. Update Node before retrying; no existing install was changed.'; exit 1; fi
   fs_brew_formula gh gh
   fs_npm_firebase
   fs_brew_cask codex '' codex

@@ -11,7 +11,7 @@ The draft PR #3 Mac foundation supports the same safe starting experience as Win
 5. The wizard installs or reuses Chrome, VS Code, and the pinned Flutter 3.47.8 SDK. Contributor also installs Node.js, GitHub CLI, Codex CLI, Claude Code, and Firebase CLI 15.34.2 for **future local emulators**.
 6. Double-click **RUN-APP-MAC.command** to open the starter Flutter preview in Chrome. **VERIFY-DEVELOPER-MAC.command** reports missing or optional tools with repair instructions.
 
-The setup checks for already-installed tools, is safe to rerun, and does not delete an existing Flutter SDK. If a different SDK occupies your dedicated Flutter folder, setup reports the mismatch rather than overwriting it.
+The setup checks for already-installed tools, is safe to rerun, and does not delete an existing Flutter SDK. VS Code uses a workspace `dart.flutterSdkPath` pointing to `~/develop/flutter`, so Finder/Dock launches can locate the SDK without shell PATH changes. Contributor requires Node.js 20+. If a different SDK occupies your dedicated Flutter folder, setup reports the mismatch rather than overwriting it.
 
 Mac setup requires macOS and either Apple Silicon or a supported Intel Mac. Flutter is deprecating Intel-hosted development, so Apple Silicon is preferable for future Flutter versions.
 
@@ -37,7 +37,7 @@ A declared server has status **ConfiguredNotConnected** until a live MCP initial
 | Apple developer tools installer opens | Complete it and rerun first-run |
 | Homebrew missing | Install from https://brew.sh, then rerun |
 | Different Flutter version found | Do not delete it. Ask a maintainer to align the SDK to 3.47.8 |
-| Gatekeeper blocks downloaded file | Verify its trusted project origin, then use normal Mac Privacy & Security controls. Never disable Gatekeeper |
+| Gatekeeper blocks downloaded file | Verify the repository is trusted and move the extracted folder out of Downloads; use System Settings → Privacy & Security → Open Anyway for the first launcher only. Alternatively open Terminal, type `bash ` (with a space), drag FIRST-RUN-MAC.command into Terminal and press Return. Never disable Gatekeeper or strip quarantine attributes |
 | Missing VS Code or Chrome | Run SETUP-MAC.command or install through their official site |
 | GitHub / Codex / Claude sign-in missing | Sign in separately from the provider's normal interface |
 | MCP says ConfiguredNotConnected | Start it from your editor and verify tools/list |

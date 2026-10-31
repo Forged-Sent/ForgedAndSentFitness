@@ -49,8 +49,9 @@ if(Test-Path -LiteralPath $pwshPath){
   try {
     $vers=& $pwshPath -NoProfile -NonInteractive -Command '$PSVersionTable.PSVersion.ToString()'
     $v=[version](([string]($vers|Select-Object -First 1)) -replace '-.*$','')
-    if($v -ge [version]'7.6.0'){$checks.Add((New-FSCheck PowerShell7 Ready 'Version meets baseline.' '' $v.ToString()))}
-    else{$checks.Add((New-FSCheck PowerShell7 Outdated 'PowerShell 7.6 LTS+ required.' 'Run FIRST-RUN-WINDOWS.cmd to update PowerShell.' $v.ToString()))}
+    $requiredPwsh=if($TargetProfile -eq 'Preview'){[version]'7.4.0'}else{[version]'7.6.0'}
+    if($v -ge $requiredPwsh){$checks.Add((New-FSCheck PowerShell7 Ready 'Version meets baseline.' '' $v.ToString()))}
+    else{$checks.Add((New-FSCheck PowerShell7 Outdated 'PowerShell version is below the chosen profile minimum.' 'Run FIRST-RUN-WINDOWS.cmd to update PowerShell.' $v.ToString()))}
   }catch{$checks.Add((New-FSCheck PowerShell7 Failed 'PowerShell 7 could not start.' 'Restart terminal or ask IT to repair PowerShell 7.'))}
 }else{$checks.Add((New-FSCheck PowerShell7 Missing 'PowerShell 7 not found.' 'Run FIRST-RUN-WINDOWS.cmd to install it.'))}
 $java=Get-Command java.exe -ErrorAction SilentlyContinue|Select-Object -First 1

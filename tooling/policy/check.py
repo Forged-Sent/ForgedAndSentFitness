@@ -114,6 +114,9 @@ def evaluate(root: Path) -> list[str]:
         for rel, needle in (
             (".github/workflows/ci-gate.yml", "flutter-version: '"+versions.get("flutter", "")+"'"),
             ("tooling/mcp/launch.mjs", "@playwright/mcp@"+versions.get("playwrightMcp", "")),
+            ("tooling/macos/common.sh", "FS_FIREBASE_VERSION="+versions.get("firebaseCLI", "")),
+            ("tooling/windows/setup-developer.ps1", "firebasePin=[string]$pins.firebaseCLI"),
+            (".vscode/settings.json", '"dart.flutterSdkPath": "~/develop/flutter"'),
             ("tooling/windows/install-maestro.ps1", "cli-"+versions.get("maestroCLI", "")),
         ):
             try:

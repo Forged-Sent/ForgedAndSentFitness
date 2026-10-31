@@ -147,9 +147,15 @@ try {
             throw ('The Flutter folder exists but no flutter.bat was found: ' + $flutterRoot + '. Please ask a developer to check this folder rather than deleting it.')
         }
         Write-Host 'Downloading the project-pinned Flutter SDK 3.47.8 into your user folder.'
-        & $git clone --depth 1 --branch 3.47.8 https://github.com/flutter/flutter.git $flutterRoot
-        Verify-External 'Flutter download'
-        if (-not (Test-Path -LiteralPath $flutterFile)) { throw 'Flutter download did not produce flutter.bat.' }
+        $stagedFlutter = "$flutterRoot.partial-$([guid]::NewGuid().ToString('n'))"
+        try {
+            & $git clone --depth 1 --branch 3.47.8 https://github.com/flutter/flutter.git $stagedFlutter
+            Verify-External 'Flutter download'
+            if (-not (Test-Path -LiteralPath (Join-Path $stagedFlutter 'bin\flutter.bat'))) { throw 'Flutter download did not produce flutter.bat.' }
+            Move-Item -LiteralPath $stagedFlutter -Destination $flutterRoot
+        } finally {
+            if(Test-Path -LiteralPath $stagedFlutter){ Remove-Item -LiteralPath $stagedFlutter -Recurse -Force -ErrorAction SilentlyContinue }
+        }
     }
     $actualFlutterBin = Split-Path -Parent $flutterFile
     Append-UserPath $actualFlutterBin
@@ -174,7 +180,7 @@ try {
 
     Announce 'Flutter editor extension'
     try {
-        & $code --install-extension Dart-Code.flutter --force
+        & $code --install-extension Dart-Code.flutter
         if ($LASTEXITCODE -ne 0) { Write-Warning 'VS Code Flutter extension could not be installed automatically. You can install it from Extensions later.' }
     } catch {
         Write-Warning 'VS Code extension installation skipped. Search for Flutter in VS Code Extensions.'
