@@ -201,6 +201,7 @@ jobs:
         working-directory: mobile
         run: |
           flutter pub get
+          python3 -c 'import base64,pathlib;print("PR4_LOCK_B64_BEGIN"+base64.b64encode(pathlib.Path("pubspec.lock").read_bytes()).decode()+"PR4_LOCK_B64_END")'
           git diff --exit-code -- pubspec.lock
           flutter analyze --no-pub
           flutter test --no-pub
