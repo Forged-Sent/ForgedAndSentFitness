@@ -316,10 +316,11 @@ def write(root: Path, output: Path, catalog: dict) -> None:
     site_js = (source/"site.js").read_text(encoding="utf-8")
     if "</script" in site_js.lower() or "</style" in css.lower():
         raise ValueError("Unsafe inline asset terminator; cannot build single-file HTML")
+    newline = chr(10)
     inline = (
-        ('<link rel="stylesheet" href="site.css">', '<style>\\n' + css + '\\n</style>'),
-        ('<script src="data.js"></script>', '<script>\\n' + catalog_js + '\\n</script>'),
-        ('<script src="site.js"></script>', '<script>\\n' + site_js + '\\n</script>'),
+        ('<link rel="stylesheet" href="site.css">', '<style>' + newline + css + newline + '</style>'),
+        ('<script src="data.js"></script>', '<script>' + newline + catalog_js + newline + '</script>'),
+        ('<script src="site.js"></script>', '<script>' + newline + site_js + newline + '</script>'),
     )
     for old, new in inline:
         if html.count(old) != 1:
