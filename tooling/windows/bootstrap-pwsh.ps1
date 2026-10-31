@@ -5,7 +5,7 @@ Run by the repository's .cmd entrypoints; never changes execution policy globall
 #>
 param(
     [Parameter(Mandatory = $true)]
-    [ValidateSet('wizard','developer','setup','android','run','verify')]
+    [ValidateSet('wizard','developer','setup','android','run','verify','emulators','run-emulator')]
     [string]$Mode,
     [switch]$SelfTest
 )
@@ -22,6 +22,8 @@ $entries = @{
     android   = @{File='setup.ps1'; Args=@('-Android'); Update=$true}
     run       = @{File='run-app.ps1'; Args=@(); Update=$false}
     verify    = @{File='verify-developer.ps1'; Args=@('-TargetProfile','Contributor'); Update=$false}
+    emulators = @{File='start-emulators.ps1'; Args=@(); Update=$false}
+    'run-emulator' = @{File='run-emulator-app.ps1'; Args=@(); Update=$false}
 }
 function Locate-Pwsh {
     $command = Get-Command 'pwsh.exe' -ErrorAction SilentlyContinue | Select-Object -First 1
