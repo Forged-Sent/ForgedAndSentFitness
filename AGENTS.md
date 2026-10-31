@@ -15,7 +15,7 @@ Forged & Sent is a faith-centered devotional workout and group accountability pl
 
 ## Protected operations
 - GitHub rulesets, not these instructions, enforce protected branches and path-specific human approval. Never push to main, force-push main, bypass protections, or merge a PR before required checks/reviews pass.
-- Prototype-only pull requests may merge without an approval when all GitHub-required checks pass. Flutter, tooling, security policy and designated seed-rule paths require one other human reviewer through the path-specific ruleset.
+- ONLY explicit low-risk exceptions in `tooling/policy/review_scope.py` may merge without an approval when all GitHub-required checks pass. Every other path, including new files, Flutter, security tooling, Python preview scripts, onboarding and Firebase configuration, requires one other human reviewer through the path-specific ruleset.
 - Never use an AI agent's review as an approval. Agents must not self-approve, self-merge, change branch protections, or impersonate a human reviewer.
 - AI reviews are advisory and never satisfy required approval.
 - No default cloud Firebase MCP, Firebase deployment, or PROD credentials on colleague devices.
@@ -34,15 +34,15 @@ Forged & Sent is a faith-centered devotional workout and group accountability pl
 8. Never claim an integration is tested until it has actually been run.
 
 ## HTML prototype workflow (lighter review, same hygiene)
-- For `index.html`, `versions/`, `dev/` and ordinary `seed/` updates: create a short-lived `prototype/<topic>` branch and open a PR to `main`. Use a descriptive PR summary and a screenshot or notes for visual changes. A formal GitHub issue is optional for small iterations.
-- Prototype-only PRs do not require a human approval by default, but may receive voluntary review. Do not merge when mandatory CI is failing, review has explicitly requested changes, or scope has broadened into protected files.
+- For prototype edits create a short-lived `prototype/<topic>` branch and a PR to `main`. Use a descriptive summary and a screenshot or notes for visual changes. A formal issue is optional for small iterations. Only `index.html`, archived `versions/**`, `dev/*.html`, `dev/mock-claude.js`, `seed/devotionals*.json`, `seed/lifts.json`, `seed/esv-verses.json` and root `README.md` qualify for optional formal review.
+- PRs touching ONLY listed low-risk exceptions do not require a formal approval by default. A human should still choose when to merge. Do not merge with failing CI, requested changes or any protected file. All unknown/new paths require review.
 - `index.html` is the active prototype. Preserve existing `versions/app-vN.html` files as an append-only history; use a new version file when recording a milestone, never rewrite an older version.
 - Run `python3 dev/make_preview.py`, open `dev/preview.html` in a browser, and note any untested `window.claude` behavior. The local mock is not proof of data access, sharing, identity or persistence.
-- `seed/db-rules.json`, `seed/tasks.json`, `seed/weekly-challenges.json` and `seed/movement-standards.json` are review-protected because they describe data access or scoring. If a prototype change alters authorization, scoring or privacy semantics, escalate for human review even when the edit is only to `index.html`.
+- `seed/db-rules.json`, `seed/tasks.json`, `seed/weekly-challenges.json`, `seed/movement-standards.json`, `dev/make_preview.py`, `dev/patches/**`, `dev/firebase/**` and `docs/development/**` are review-protected. If even an otherwise exempt `index.html` change alters authorization, scoring or privacy semantics, escalate for human review.
 - Prototype work is reference material. Do not introduce prototype runtime dependencies into `mobile/` or treat its backend adapter as production authorization.
 
 ## Pull request classification
-- **Prototype:** HTML, versions, preview tooling and ordinary seed data. Lightweight preview CI, optional review, required PR.
+- **Prototype (explicit exceptions only):** HTML/versions, mock and listed seed content. Lightweight preview CI, optional formal review, required PR. Executable preview scripts are *not* review-exempt.
 - **Application:** `mobile/` and production app architecture. Flutter CI plus required human review.
 - **Infrastructure/security:** `tooling/`, workflows, agent instructions, MCP settings, Firebase config, architecture ADRs and protected seed rules. Mandatory policy CI plus required human review.
 - A mixed PR receives the strictest applicable checks and review requirements. Prefer splitting unrelated changes.
