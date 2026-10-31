@@ -49,6 +49,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          python3 -m compileall -q dev tooling/ci tooling/policy
           python3 dev/make_preview.py
           python3 - <<'PY'
           import json
