@@ -1,29 +1,24 @@
 {
   "mcpServers": {
     "dart": {
-      "command": "cmd",
+      "command": "node",
       "args": [
-        "/c",
-        "dart",
-        "mcp-server"
+        "tooling/mcp/launch.mjs",
+        "dart"
       ]
     },
     "playwright": {
-      "command": "cmd",
+      "command": "node",
       "args": [
-        "/c",
-        "npx",
-        "-y",
-        "@playwright/mcp@0.0.83",
-        "--browser=chrome"
+        "tooling/mcp/launch.mjs",
+        "playwright"
       ]
     },
     "maestro": {
-      "command": "cmd",
+      "command": "node",
       "args": [
-        "/c",
-        "maestro",
-        "mcp"
+        "tooling/mcp/launch.mjs",
+        "maestro"
       ]
     },
     "context7": {

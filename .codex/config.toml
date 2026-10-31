@@ -4,18 +4,18 @@ approval_policy = "on-request"
 sandbox_mode = "workspace-write"
 
 [mcp_servers.dart]
-command = "cmd"
-args = ["/c", "dart", "mcp-server"]
+command = "node"
+args = ["tooling/mcp/launch.mjs", "dart"]
 startup_timeout_sec = 30
 
 [mcp_servers.playwright]
-command = "cmd"
-args = ["/c", "npx", "-y", "@playwright/mcp@0.0.83", "--browser=chrome"]
+command = "node"
+args = ["tooling/mcp/launch.mjs", "playwright"]
 startup_timeout_sec = 60
 
 [mcp_servers.maestro]
-command = "cmd"
-args = ["/c", "maestro", "mcp"]
+command = "node"
+args = ["tooling/mcp/launch.mjs", "maestro"]
 startup_timeout_sec = 60
 
 [mcp_servers.context7]

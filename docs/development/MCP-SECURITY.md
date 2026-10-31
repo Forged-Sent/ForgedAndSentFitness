@@ -18,3 +18,5 @@ initialize and tools/list exchange. A file and executable check means configured
 Maintainers may later add narrowly scoped DEV cloud MCP through a separate,
 reviewed opt-in. No Firebase CLI login occurs in the Contributor wizard.
 Review ADR-0002 and never give production access to agents or colleagues.
+
+The three local stdio MCPs use an allowlisted Node 18+ launcher (`tooling/mcp/launch.mjs`) on Windows and macOS. It can launch Dart, Playwright, or optional Maestro; never Firebase cloud MCP. An installed/declared tool is **not** marked Ready until a live protocol handshake succeeds. Mac setup uses project-scoped configurations; no global MCP registrations.

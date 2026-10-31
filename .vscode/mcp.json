@@ -10,22 +10,18 @@
   "servers": {
     "dart": {
       "type": "stdio",
-      "command": "cmd",
+      "command": "node",
       "args": [
-        "/c",
-        "dart",
-        "mcp-server"
+        "${workspaceFolder}/tooling/mcp/launch.mjs",
+        "dart"
       ]
     },
     "playwright": {
       "type": "stdio",
-      "command": "cmd",
+      "command": "node",
       "args": [
-        "/c",
-        "npx",
-        "-y",
-        "@playwright/mcp@0.0.83",
-        "--browser=chrome"
+        "${workspaceFolder}/tooling/mcp/launch.mjs",
+        "playwright"
       ]
     },
     "github": {
@@ -42,11 +38,10 @@
     },
     "maestro": {
       "type": "stdio",
-      "command": "cmd",
+      "command": "node",
       "args": [
-        "/c",
-        "maestro",
-        "mcp"
+        "${workspaceFolder}/tooling/mcp/launch.mjs",
+        "maestro"
       ]
     },
     "google-developer-knowledge": {
