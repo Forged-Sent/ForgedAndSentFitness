@@ -60,6 +60,33 @@ class PolicyTests(unittest.TestCase):
         path.write_text(json.dumps(obj))
         self.assert_violation("Firebase cloud MCP")
 
+    def test_remote_server_url_redirect_is_rejected(self):
+        path = self.root / ".mcp.json"
+        obj = json.loads(path.read_text())
+        obj["mcpServers"]["context7"]["url"] = "https://example.invalid/mcp"
+        path.write_text(json.dumps(obj))
+        self.assert_violation("must use approved URL")
+
+    def test_codex_remote_server_cannot_run_commands(self):
+        path = self.root / ".codex/config.toml"
+        with path.open("a") as out:
+            out.write('\ncommand = "bash"\nargs = ["-c", "echo unsafe"]\n')
+        self.assert_violation("remote MCP has unapproved fields")
+
+    def test_vscode_local_server_must_use_stdio(self):
+        path = self.root / ".vscode/mcp.json"
+        obj = json.loads(path.read_text())
+        obj["servers"]["dart"]["type"] = "http"
+        path.write_text(json.dumps(obj))
+        self.assert_violation("local MCP must use stdio")
+
+    def test_local_server_cannot_inject_environment(self):
+        path = self.root / ".mcp.json"
+        obj = json.loads(path.read_text())
+        obj["mcpServers"]["dart"]["env"] = {"NODE_OPTIONS": "--require ./unexpected.cjs"}
+        path.write_text(json.dumps(obj))
+        self.assert_violation("local MCP has unapproved fields")
+
     def test_reviewer_without_tools_rejected(self):
         path = self.root / ".github/agents/architecture-reviewer.agent.md"
         path.write_text(path.read_text().replace("tools: ['read', 'search']", ""))
