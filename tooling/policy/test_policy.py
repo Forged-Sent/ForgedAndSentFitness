@@ -92,10 +92,20 @@ class PolicyTests(unittest.TestCase):
         path.write_text(path.read_text().replace("tools: ['read', 'search']", ""))
         self.assert_violation("reviewer must explicitly")
 
-    def test_unowned_nested_files_rejected(self):
+    def test_sensitive_mobile_path_cannot_lose_review_owners(self):
         path = self.root / ".github/CODEOWNERS"
-        path.write_text(path.read_text().replace("* @Chadillac12", "/* @Chadillac12"))
-        self.assert_violation("entire repository")
+        path.write_text(path.read_text().replace("/mobile/ @Chadillac12", "/mobile/ @someoneelse"))
+        self.assert_violation("protected path is unowned: /mobile/")
+
+    def test_proto_changes_must_not_be_owned_by_repository_wildcard(self):
+        path = self.root / ".github/CODEOWNERS"
+        path.write_text("* @Chadillac12 @sfcsmithc-afk\n" + path.read_text())
+        self.assert_violation("prototype must not have a repository-wide mandatory owner")
+
+    def test_sensitive_prototype_seed_rule_cannot_lose_review(self):
+        path = self.root / ".github/CODEOWNERS"
+        path.write_text(path.read_text().replace("/seed/db-rules.json @Chadillac12", "/seed/db-rules.json @someoneelse"))
+        self.assert_violation("protected path is unowned: /seed/db-rules.json")
 
 if __name__ == "__main__":
     unittest.main()
