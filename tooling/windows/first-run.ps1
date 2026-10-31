@@ -16,7 +16,7 @@ function Ask([string]$question) {
   return ($response -match '^(y|yes)$')
 }
 function RunScript([string]$file,[string[]]$extra=@()){
-  & (Join-Path $PSHOME 'pwsh.exe') -NoLogo -NoProfile -File $file @extra | Out-Host
+  & (Join-Path $PSHOME 'pwsh.exe') -NoLogo -NoProfile -ExecutionPolicy Bypass -File $file @extra | Out-Host
   return [int]$LASTEXITCODE
 }
 $script:LastInstalledProfile='Preview'
