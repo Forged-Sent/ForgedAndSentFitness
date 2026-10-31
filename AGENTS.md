@@ -79,3 +79,10 @@ agent instructions are advisory. No cloud Firebase MCP is enabled by default.
 - Update SYSTEM.md/ADRs when boundaries change; run `python3 tooling/architecture/generate.py --write` for Dart changes.
 - Canonical skills are in .agents/skills; .claude/skills must match, enforced by `python3 tooling/skills/sync.py --check`.
 - Before pushing, run `python3 tooling/review/review.py --dry-run` and the appropriate independent review procedure.
+
+## Architecture Explorer update contract
+
+- The clickable static site is generated via `python3 tooling/architecture/build_explorer.py --write`. The source UI lives under `docs/architecture/explorer/`, and the generated site lives in the ignored `build/architecture-explorer/` directory.
+- Keep the curated component/function glossary in `docs/architecture/explorer/model.json` aligned with `SYSTEM.md` and real code. Never label a proposed component as implemented.
+- For new components or meaningful behavior, update model descriptions, source paths, dependencies, and the appropriate ADR. CI builds the latest file/symbol index and rejects dangling model file references.
+- Never describe lexical file mentions or best-effort symbol detection as a complete runtime call graph. Explain uncertainty honestly.
