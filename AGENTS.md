@@ -63,3 +63,12 @@ Forged & Sent is a faith-centered devotional workout and group accountability pl
 - Architecture Reviewer: independent read-only design and requirements assessment.
 - Firebase Security Reviewer: authentication, rules, functions, storage and adversarial access tests.
 Run 1 builder plus 1 reviewer per PR by default; do not run every agent for every issue.
+
+## Safe beginner Git collaboration (PR #4)
+
+Use project-local fs-start / fs-save / fs-sync / fs-share / fs-status helpers
+for contributor workflow. Never directly commit or push to main. Only open
+draft PRs for teammates. Do not run firebase deploy, overwrite production
+configurations, force-push, or merge PRs without explicit human approval.
+GitHub server rules are the actual enforcement boundary; local prompts and
+agent instructions are advisory. No cloud Firebase MCP is enabled by default.
