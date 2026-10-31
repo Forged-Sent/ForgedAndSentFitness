@@ -274,7 +274,7 @@ jobs:
   ios-simulator:
     needs: changes
     if: needs.changes.outputs.mobile == 'true'
-    runs-on: macos-15
+    runs-on: macos-26
     timeout-minutes: 45
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
@@ -283,6 +283,11 @@ jobs:
           channel: stable
           flutter-version: '3.47.8'
           cache: true
+      - name: Verify Firebase-compatible Xcode
+        shell: bash
+        run: |
+          xcodebuild -version
+          python3 -c 'import subprocess; v=subprocess.check_output(["xcodebuild","-version"],text=True); major,minor=map(int,v.splitlines()[0].split()[1].split(".")[:2]); assert (major,minor)>=(26,2), "Firebase iOS SDK requires Xcode >= 26.2"'
       - name: Generate interim iOS simulator host and build unsigned app
         working-directory: mobile
         run: |
