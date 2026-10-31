@@ -15,6 +15,19 @@ A men's fitness and accountability app for the Forged in Faith men's group. Men 
 | `docs/architecture-notes.md` | Architecture and store-readiness notes. |
 | `docs/health-integration.md` | Apple Health and Health Connect plan, bridge contract and store requirements. |
 
+## Working together
+
+All changes go through short-lived branches and pull requests to `main`.
+The HTML prototype (`index.html`, `versions/`, `dev/` and ordinary
+`seed/`) stays a fast iteration surface with **optional human review** and
+lightweight CI. Flutter (`mobile/`), CI/tooling, security settings and
+protected scoring/access rule files require a second human review. AI
+coding agents follow the same process using `AGENTS.md` and `CLAUDE.md`.
+
+See [repository security and review rules](docs/development/REPOSITORY-SECURITY.md)
+for the exact path patterns and GitHub administrator setup. Those rules
+must be enabled in GitHub; documentation alone does not enforce them.
+
 ## Running it
 
 **Locally (for development):**
