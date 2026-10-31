@@ -12,7 +12,7 @@ Install the stable Flutter SDK and run:
 
 ```bash
 cd mobile
-flutter create --platforms=android,ios --org=com.forgedandsent --project-name=forged_and_sent .
+flutter create --platforms=web --org=com.forgedandsent --project-name=forged_and_sent .
 flutter pub get
 flutter analyze
 flutter test
@@ -47,3 +47,5 @@ flutter run
 
 ## Security
 This is a public repo. Never commit API secrets, signing credentials, real prayers, health data, member records or test media. Be especially cautious before running AI agents on external PRs or user input. Keep workflow permissions read-only by default.
+
+For Android host compilation, CI temporarily generates Android platform files; Xcode/iOS provisioning and reviewed native projects are PR #4. Preview contributors generate only the web host.

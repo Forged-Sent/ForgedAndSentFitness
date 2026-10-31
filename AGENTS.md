@@ -39,7 +39,7 @@ Forged & Sent is a faith-centered devotional workout and group accountability pl
 ## Checks
 - `cd mobile && flutter pub get && flutter analyze && flutter test`
 - `cd mobile && flutter build apk --debug` once Android platform files are generated.
-- On a new clone of the interim scaffold, first run `cd mobile && flutter create --platforms=android,ios --org=com.forgedandsent --project-name=forged_and_sent .`
+- On a new clone of the interim scaffold, first run `cd mobile && flutter create --platforms=web --org=com.forgedandsent --project-name=forged_and_sent .`. CI generates temporary Android hosts; reviewed native hosts belong to PR #4
 
 ## Agent roles
 - Flutter Builder: one vertical slice, widget tests, no backend policy changes.

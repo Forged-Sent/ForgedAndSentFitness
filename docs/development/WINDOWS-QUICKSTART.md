@@ -31,7 +31,7 @@ Open Visual Studio Code, choose **File > Open Folder**, and select the extracted
 ## If something goes wrong
 
 - Rerun SETUP-WINDOWS.cmd; installed tools are reused.
-- Copy the error message or take a screenshot of the command window.
+- Copy only the non-sensitive error message or use the redacted Ask AI diagnostics report. Review it before sharing; do not share installation transcripts or credentials.
 - The setup also writes a log named \`ForgedAndSent-setup-*.log\` in your Windows temporary folder (press Win+R, type \`%TEMP%\`).
 - If Windows reports that \`winget\` is missing, install or update Microsoft's **App Installer** and rerun.
 - If setup is blocked by a corporate laptop policy, ask your IT team for help. Do not disable company security controls.
