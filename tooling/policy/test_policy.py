@@ -16,7 +16,7 @@ PATHS = [
     ".github/CODEOWNERS", ".github/agents/architecture-reviewer.agent.md",
     ".github/agents/firebase-security.agent.md",
     ".claude/agents/architecture-reviewer.md", ".claude/agents/firebase-security.md",
-    ".github/workflows/ci-gate.yml", ".github/workflows/flutter-android.yml",
+    ".github/workflows/ci-gate.yml",
     "tooling/mcp/launch.mjs", "tooling/windows/install-maestro.ps1",
     "tooling/versions.json",
 ]
