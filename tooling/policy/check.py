@@ -6,6 +6,8 @@ import sys
 import tomllib
 from pathlib import Path
 
+from review_scope import REVIEW_RULESET_PATTERNS
+
 LOCAL = {"dart", "playwright", "maestro"}
 REMOTE = {"github", "context7", "figma", "google-developer-knowledge"}
 APPROVED = LOCAL | REMOTE
@@ -102,6 +104,10 @@ def evaluate(root: Path) -> list[str]:
         obj = get_json(str(settings.relative_to(root)))
         if isinstance(obj, dict) and ("mcpServers" in obj or "servers" in obj):
             fail(str(settings.relative_to(root)), "MCP declarations belong in audited config files")
+        if isinstance(obj, dict) and "hooks" in obj:
+            fail(str(settings.relative_to(root)), "Claude project hooks are forbidden until separately reviewed")
+        if isinstance(obj, dict) and isinstance(obj.get("permissions"), dict) and obj["permissions"].get("allow"):
+            fail(str(settings.relative_to(root)), "Claude project permissions.allow is forbidden until separately reviewed")
         if obj is not None and re.search(r"firebase(?:-tools)?\W+(?:mcp|server)", json.dumps(obj), flags=re.I):
             fail(str(settings.relative_to(root)), "Firebase cloud MCP config forbidden")
 
@@ -142,6 +148,9 @@ def evaluate(root: Path) -> list[str]:
             "/CLAUDE.md", "/*.cmd", "/*.command", "*.rules",
             "/seed/db-rules.json", "/seed/weekly-challenges.json",
             "/seed/movement-standards.json", "/seed/tasks.json",
+            "/dev/*.py", "/dev/patches/", "/dev/firebase/",
+            "/docs/development/", "/functions/", "/firebase.json",
+            "/.firebaserc", "/firestore.indexes.json",
         )
         if "*" in mapped or "/*" in mapped:
             fail(".github/CODEOWNERS", "prototype must not have a repository-wide mandatory owner")
@@ -150,6 +159,22 @@ def evaluate(root: Path) -> list[str]:
                 fail(".github/CODEOWNERS", f"protected path is unowned: {pattern}")
     except OSError:
         fail(".github/CODEOWNERS", "file missing")
+
+    # The ruleset is defined on GitHub; verify the documented patterns use
+    # the default-protected model so an administrator can copy them faithfully.
+    # Checking docs is not checking the live ruleset: validate it after setup.
+    try:
+        doc = (root / "docs/development/REPOSITORY-SECURITY.md").read_text(encoding="utf-8")
+        block = re.search(
+            r"<!-- BEGIN REQUIRED_REVIEW_RULESET_PATTERNS -->\\s*`{3}gitignore\\s*"
+            r"(.*?)\\s*`{3}\\s*<!-- END REQUIRED_REVIEW_RULESET_PATTERNS -->",
+            doc, re.S)
+        actual = tuple(line.strip() for line in block.group(1).splitlines()) if block else ()
+        if actual != REVIEW_RULESET_PATTERNS:
+            fail("docs/development/REPOSITORY-SECURITY.md",
+                 "Required reviewers patterns must match the default-protected source of truth")
+    except OSError:
+        fail("docs/development/REPOSITORY-SECURITY.md", "required reviewer ruleset guide missing")
 
     if not (root / 'mobile/pubspec.lock').is_file():
         fail('mobile/pubspec.lock', 'reproducible app dependency lockfile must be committed')
