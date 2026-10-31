@@ -28,7 +28,7 @@ Mac setup requires macOS and either Apple Silicon or a supported Intel Mac. Flut
 
 Shared project configurations support Windows and Mac using a portable, allowlisted Node launcher. Supported local servers: Dart, Playwright and optional Maestro. Remote servers: read-only GitHub, Context7, Figma, and (in VS Code) Google Developer Knowledge with a masked API key prompt.
 
-A declared server has status **ConfiguredNotConnected** until a live MCP initialize and tools/list handshake has succeeded. Missing optional Mobile tools must not fail Preview. The Contributor profile remains explicitly incomplete until PR #4 implements Firebase Local Emulator Suite app wiring.
+The **Preview** profile does not install Node.js. Local Dart/Playwright/Maestro MCP entries use the Node launcher and therefore cannot start until Node.js is available (normally after choosing **Contributor**). A declared server has status **ConfiguredNotConnected** until a live MCP initialize and tools/list handshake has succeeded. Missing optional Mobile tools must not fail Preview. The Contributor profile remains explicitly incomplete until PR #4 implements Firebase Local Emulator Suite app wiring.
 
 ## Troubleshooting
 
