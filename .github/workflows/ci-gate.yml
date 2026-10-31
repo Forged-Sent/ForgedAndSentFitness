@@ -72,6 +72,13 @@ jobs:
           python3 --version
           python3 -m unittest discover -s tooling/policy -p 'test_*.py' -v
           python3 tooling/policy/check.py
+          python3 -m unittest discover -s tooling/skills -p 'test_*.py' -v
+          python3 tooling/skills/sync.py --check
+          python3 -m unittest discover -s tooling/architecture -p 'test_*.py' -v
+          python3 tooling/architecture/generate.py --check
+          python3 tooling/architecture/build_explorer.py --check
+          python3 -m unittest discover -s tooling/review -p 'test_*.py' -v
+          python3 tooling/review/review.py --help
 
   windows-checks:
     needs: changes
@@ -90,7 +97,7 @@ jobs:
         shell: pwsh
         run: |
           $ErrorActionPreference='Stop'
-          foreach($f in (Get-ChildItem tooling/windows -Filter *.ps1)){
+          foreach($f in (@(Get-ChildItem tooling/windows -Filter *.ps1) + @(Get-ChildItem tooling/shell -Filter *.ps1))){
             $tokens=$null;$errors=$null
             [System.Management.Automation.Language.Parser]::ParseFile($f.FullName,[ref]$tokens,[ref]$errors)|Out-Null
             if($errors.Count){throw "PowerShell errors in $($f.Name): $errors"}
@@ -103,12 +110,22 @@ jobs:
             if((Get-Content $launcher -Raw) -notmatch 'bootstrap-pwsh.ps1'){throw "$launcher must use the PowerShell 5.1 bridge"}
           }
           $settings=Get-Content '.vscode/settings.json' -Raw|ConvertFrom-Json
-          if($settings.'terminal.integrated.defaultProfile.windows' -ne 'PowerShell 7'){throw 'Windows VS Code terminal must use PowerShell 7'}
+          if($settings.'terminal.integrated.defaultProfile.windows' -notin @('PowerShell 7','Forged & Sent')){throw 'Windows VS Code terminal must use a PowerShell 7 profile'}
           foreach($n in @('dart','playwright','github','context7','figma','maestro','google-developer-knowledge')){
             if($v.servers.PSObject.Properties.Name -notcontains $n){throw "MCP absent: $n"}
           }
           $cli=Get-Content tooling/windows/register-cli-mcps.ps1 -Raw
           if($cli -match "name='firebase'"){throw 'Default CLI Firebase MCP forbidden'}
+      - name: Verify local project shell commands
+        shell: pwsh
+        run: |
+          $ErrorActionPreference='Stop'
+          . ./tooling/shell/forged-shell.ps1
+          foreach($command in @('fs-start','fs-save','fs-sync','fs-share','fs-status','fs-undo','fs-help')){
+            if(-not (Get-Command $command -CommandType Function -ErrorAction SilentlyContinue)){
+              throw "Missing interactive command: $command"
+            }
+          }
       - name: Check protected PowerShell variables
         shell: pwsh
         run: |
@@ -261,9 +278,110 @@ jobs:
           flutter test --no-pub
           flutter build web --release --no-pub
 
+  ios-simulator:
+    needs: changes
+    if: needs.changes.outputs.mobile == 'true'
+    runs-on: macos-26
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2
+        with:
+          channel: stable
+          flutter-version: '3.47.8'
+          cache: true
+      - name: Verify Firebase-compatible Xcode
+        shell: bash
+        run: |
+          xcodebuild -version
+          python3 -c 'import subprocess; v=subprocess.check_output(["xcodebuild","-version"],text=True); major,minor=map(int,v.splitlines()[0].split()[1].split(".")[:2]); assert (major,minor)>=(26,2), "Firebase iOS SDK requires Xcode >= 26.2"'
+      - name: Generate interim iOS simulator host and build unsigned app
+        working-directory: mobile
+        run: |
+          set -euo pipefail
+          flutter create --platforms=ios --project-name=forged_and_sent --org=com.forgedandsent .
+          flutter pub get
+          flutter build ios --simulator --debug --no-codesign
+
+  firebase-rules:
+    needs: changes
+    if: needs.changes.outputs.mobile == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '24'
+      - name: Select installed JDK 21 for emulators
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "${JAVA_HOME_21_X64:-}" || { echo 'JDK 21 missing on runner'; exit 1; }
+          echo "JAVA_HOME=$JAVA_HOME_21_X64" >> "$GITHUB_ENV"
+          echo "$JAVA_HOME_21_X64/bin" >> "$GITHUB_PATH"
+      - name: Install exact Firebase test CLI and SDK dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm ci --prefix tooling/firebase --no-audit --no-fund
+      - name: Run emulator-backed positive and negative Firebase rules tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          ./tooling/firebase/node_modules/.bin/firebase emulators:exec --project demo-forgedandsent --only firestore,storage --non-interactive 'node --test tooling/firebase/tests/*.test.mjs'
+  architecture-atlas:
+    needs: changes
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '24'
+      - name: Validate source explorer and browser JavaScript
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --check docs/architecture/explorer/site.js
+          python3 -m unittest discover -s tooling/architecture -p 'test_*.py' -v
+          python3 tooling/architecture/build_explorer.py --write
+          test -s build/architecture-explorer/data.js
+          test -s build/architecture-explorer/index.html
+          test -s build/architecture-explorer/Architecture-Atlas.html
+          python3 - <<'PY'
+          from pathlib import Path
+          from html.parser import HTMLParser
+          out=Path('build/architecture-explorer')
+          for p in ('index.html','site.css','site.js','data.js','Architecture-Atlas.html'):
+              assert (out/p).is_file() and (out/p).stat().st_size > 50, p
+          single=(out/'Architecture-Atlas.html').read_text()
+          assert 'window.FS_ATLAS_DATA' in single
+          assert '<link rel="stylesheet" href="site.css">' not in single
+          assert '<script src="data.js"></script>' not in single
+          class IDs(HTMLParser):
+              def __init__(self):
+                  super().__init__();self.ids=set()
+              def handle_starttag(self, tag, attrs):
+                  for k,v in attrs:
+                      if k=='id':self.ids.add(v)
+          x=IDs();x.feed((out/'index.html').read_text())
+          for required in ('architecture-svg','file-results','file-detail','agent-cards','help-modal'):
+              assert required in x.ids, required
+          print('Offline architecture explorer assets and navigation targets passed')
+          PY
+      - name: Archive complete offline site for contributor preview
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: forged-sent-architecture-atlas
+          path: build/architecture-explorer/
+          retention-days: 10
+          if-no-files-found: error
   ci-gate:
     name: ci-gate
-    needs: [policy, changes, prototype-checks, windows-checks, windows-preview, flutter, mac-checks, mac-preview]
+    needs: [policy, changes, prototype-checks, windows-checks, windows-preview, flutter, mac-checks, mac-preview, ios-simulator, firebase-rules, architecture-atlas]
     if: ${{ always() }}
     runs-on: ubuntu-latest
     timeout-minutes: 5

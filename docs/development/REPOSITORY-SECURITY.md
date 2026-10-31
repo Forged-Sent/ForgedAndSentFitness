@@ -5,6 +5,10 @@ prototype iterations are fast, while **every other file is human-reviewed by
 default**, including new files nobody anticipated. The server-side ruleset is
 the security boundary. AGENTS.md, CODEOWNERS and CI do NOT activate it.
 
+## Live enforcement note (2026-10-31)
+
+GitHub's active Protect main ruleset currently requires pull requests and the ci-gate check, but global required approvals and app-reviewers minimum approvals are BOTH **0**. The one-approval policy documented below is a **stricter recommended target, NOT the current enforcement**. Codex/Claude/Gemini reviews are advisory and do not satisfy GitHub human approval requirements. See docs/development/AI-REVIEW-WORKFLOW.md. Do not treat CODEOWNERS or AI prompts as branch protection.
+
 ## 1. Organization team and identities
 
 Create `Forged-Sent/app-reviewers`, add `@Chadillac12` and

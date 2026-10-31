@@ -8,6 +8,7 @@
     "Anthropic.claude-code",
     "redhat.vscode-yaml",
     "EditorConfig.EditorConfig",
-    "ms-vscode.powershell"
+    "ms-vscode.powershell",
+    "mhutchie.git-graph"
   ]
 }

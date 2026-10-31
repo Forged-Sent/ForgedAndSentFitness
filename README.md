@@ -21,8 +21,8 @@ All changes go through short-lived branches and pull requests to `main`.
 The HTML prototype's explicitly listed low-risk files (`index.html`,
 `versions/`, selected `dev/` and `seed/` content) stay fast with **optional
 human approval** and lightweight CI. Python scripts, Firebase configuration,
-onboarding, and any new or unfamiliar paths require human approval. Flutter (`mobile/`), CI/tooling, security settings and
-protected scoring/access rule files require a second human review. AI
+onboarding, and any new or unfamiliar paths require independent inspection. Flutter (`mobile/`), CI/tooling, security settings and
+protected scoring/access rule files merit stronger independent review, with a second human for high-risk changes. GitHub currently requires ci-gate but ZERO human approvals. AI
 coding agents follow the same process using `AGENTS.md` and `CLAUDE.md`.
 
 See [repository security and review rules](docs/development/REPOSITORY-SECURITY.md)
@@ -100,3 +100,19 @@ Private, unreleased. No license granted yet.
 ## MacBook development
 
 For a Mac, double-click **FIRST-RUN-MAC.command** from Finder. **SETUP-MAC.command** sets up the browser preview, and **SETUP-DEVELOPER-MAC.command** adds contributor tools. See [MacBook Quickstart](docs/development/MACBOOK-QUICKSTART.md). Full iOS/Android device onboarding is reserved for PR #4.
+
+## Shared agents, local code reviews and architecture
+
+- [Beginner AI-review walkthrough](docs/development/AI-REVIEW-WORKFLOW.md): Codex, Claude, and optional Gemini reviewers before pushing.
+- [Living system architecture](docs/architecture/SYSTEM.md): current implementation, planned system and review pipeline diagrams.
+- [Generated Flutter code map](docs/architecture/CODE-MAP.md): actual Dart imports, classes and methods. CI checks drift.
+- Checked-in Codex `.agents/skills/` and Claude `.claude/skills/` workflows must match exactly.
+- Windows: `REVIEW-WINDOWS.cmd`. Mac: `REVIEW-MAC.command`. Try `--dry-run` before making paid AI requests.
+
+## Explore the engineering architecture as a webpage
+
+- **Windows:** double-click `ARCHITECTURE-WINDOWS.cmd` in the cloned repository.
+- **Mac:** double-click `ARCHITECTURE-MAC.command`.
+- **Any OS:** run `python3 tooling/architecture/build_explorer.py --write` and open `build/architecture-explorer/Architecture-Atlas.html` (a single standalone webpage).
+
+The [Architecture Atlas guide](docs/architecture/explorer/README.md) covers keyboard shortcuts, interactive component ownership, source functions and reverse dependencies, independent AI reviewer models, and the full tracked-file index. CI also produces an offline `forged-sent-architecture-atlas` artifact for every PR.

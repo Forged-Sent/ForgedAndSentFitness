@@ -1,0 +1,25 @@
+#!/bin/sh
+set -eu
+branch="$(git branch --show-current)"
+if [ "$branch" = main ]; then
+  echo "Main is protected. Use fs-share from a feature branch." >&2
+  exit 1
+fi
+if [ ! -f mobile/pubspec.yaml ]; then
+  echo "Run from the project repository root." >&2
+  exit 1
+fi
+# Optional, explicit pre-push AI review stamp. Never auto-spend model tokens.
+if [ "${FS_REQUIRE_AI_REVIEW:-0}" = "1" ]; then
+  if command -v python3 >/dev/null 2>&1; then
+    python3 tooling/review/review.py --verify
+  elif command -v py >/dev/null 2>&1; then
+    py -3 tooling/review/review.py --verify
+  else
+    echo "Python 3 is required for FS_REQUIRE_AI_REVIEW=1." >&2
+    exit 1
+  fi
+fi
+cd mobile
+flutter analyze
+flutter test

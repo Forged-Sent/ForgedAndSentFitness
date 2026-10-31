@@ -1,0 +1,30 @@
+#!/bin/sh
+set -eu
+branch="$(git branch --show-current)"
+if [ "$branch" = main ]; then
+  echo "Use fs-start before saving. main is the shared branch." >&2
+  exit 1
+fi
+git diff --cached --name-only --diff-filter=ACM |
+  while IFS= read -r file; do
+    if [ -f "$file" ]; then
+      size=$(wc -c < "$file")
+      if [ "$size" -gt 5242880 ]; then
+        echo "File over 5 MB: $file" >&2
+        exit 1
+      fi
+    fi
+  done
+if ! command -v gitleaks >/dev/null 2>&1; then
+  echo "Gitleaks is missing. Rerun Contributor setup." >&2
+  exit 1
+fi
+gitleaks git --staged --redact --no-banner
+if command -v dart >/dev/null 2>&1; then
+  git diff --cached --name-only --diff-filter=ACM -- '*.dart' |
+    while IFS= read -r path; do
+      if [ -f "$path" ]; then
+        dart format --output=none --set-exit-if-changed "$path" || exit 1
+      fi
+    done
+fi
