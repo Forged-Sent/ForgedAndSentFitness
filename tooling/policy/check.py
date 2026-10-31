@@ -131,8 +131,23 @@ def evaluate(root: Path) -> list[str]:
 
     try:
         owners = (root / ".github/CODEOWNERS").read_text(encoding="utf-8")
-        if not re.search(r"(?m)^\*\s+@Chadillac12\s+@sfcsmithc-afk\s*$", owners):
-            fail(".github/CODEOWNERS", "both human owners must own the entire repository")
+        entries = [line.split() for line in owners.splitlines()
+                   if line.strip() and not line.lstrip().startswith("#")]
+        mapped = {entry[0]: entry[1:] for entry in entries if len(entry) > 1}
+        expected_owners = ["@Chadillac12", "@sfcsmithc-afk"]
+        required_paths = (
+            "/mobile/", "/tooling/", "/.github/", "/.codex/", "/.claude/",
+            "/.agents/", "/.vscode/", "/docs/architecture/", "/firebase/",
+            "/.mcp.json", "/.gitignore", "/.gitattributes", "/AGENTS.md",
+            "/CLAUDE.md", "/*.cmd", "/*.command", "*.rules",
+            "/seed/db-rules.json", "/seed/weekly-challenges.json",
+            "/seed/movement-standards.json", "/seed/tasks.json",
+        )
+        if "*" in mapped or "/*" in mapped:
+            fail(".github/CODEOWNERS", "prototype must not have a repository-wide mandatory owner")
+        for pattern in required_paths:
+            if mapped.get(pattern) != expected_owners:
+                fail(".github/CODEOWNERS", f"protected path is unowned: {pattern}")
     except OSError:
         fail(".github/CODEOWNERS", "file missing")
 
