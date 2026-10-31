@@ -72,7 +72,7 @@ elif grep -Eq '"firebase"[[:space:]]*:' "$FS_ROOT/.vscode/mcp.json" "$FS_ROOT/.m
   fs_record FirebaseMCPIsolation Failed 'Firebase cloud MCP found in default settings.' 'Remove default Firebase MCP.'
 else fs_record FirebaseMCPIsolation Ready '' ''; fi
 for fs_mcp in dart playwright maestro github context7 figma google-developer-knowledge; do
-  if grep -Fq "\"$fs_mcp\"" "$FS_ROOT/.vscode/mcp.json"; then
+  if grep -Eq "^[[:space:]]{4}\"$fs_mcp\"[[:space:]]*:" "$FS_ROOT/.vscode/mcp.json"; then
     fs_record "MCP:$fs_mcp" ConfiguredNotConnected 'Configured but no MCP tools/list handshake performed.' 'Connect from VS Code to verify tools/list.'
   else fs_record "MCP:$fs_mcp" Missing 'MCP declaration not found.' 'Restore .vscode/mcp.json.'; fi
 done

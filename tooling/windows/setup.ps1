@@ -149,8 +149,10 @@ try {
         Write-Host 'Downloading the project-pinned Flutter SDK 3.47.8 into your user folder.'
         $stagedFlutter = "$flutterRoot.partial-$([guid]::NewGuid().ToString('n'))"
         try {
-            & $git clone --depth 1 --branch 3.47.8 https://github.com/flutter/flutter.git $stagedFlutter
+            & $git -c core.longpaths=true clone --depth 1 --branch 3.47.8 https://github.com/flutter/flutter.git $stagedFlutter
             Verify-External 'Flutter download'
+            & $git -C $stagedFlutter config core.longpaths true
+            Verify-External 'Flutter long-path configuration'
             if (-not (Test-Path -LiteralPath (Join-Path $stagedFlutter 'bin\flutter.bat'))) { throw 'Flutter download did not produce flutter.bat.' }
             Move-Item -LiteralPath $stagedFlutter -Destination $flutterRoot
         } finally {
@@ -234,7 +236,7 @@ try {
     $exitCode = 1
     Write-Host ''
     Write-Host ('Setup error: ' + $_.Exception.Message) -ForegroundColor Red
-    Write-Host 'If you need help, send a screenshot of this window and the log mentioned at the top.'
+    Write-Host 'For help, share only the error message or redacted Ask AI report. Review any transcript for personal paths and secrets before sharing.'
 } finally {
     if ($transcriptStarted) {
         try { Stop-Transcript | Out-Null } catch {}

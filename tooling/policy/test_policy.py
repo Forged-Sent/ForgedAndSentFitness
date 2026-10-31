@@ -19,6 +19,8 @@ PATHS = [
     ".github/workflows/ci-gate.yml",
     "tooling/mcp/launch.mjs", "tooling/windows/install-maestro.ps1",
     "tooling/versions.json",
+    "tooling/macos/common.sh", "tooling/windows/setup-developer.ps1",
+    ".vscode/settings.json",
 ]
 
 class PolicyTests(unittest.TestCase):
