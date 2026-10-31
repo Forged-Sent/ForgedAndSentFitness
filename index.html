@@ -2633,6 +2633,7 @@ header.hero .me-btn { border-color:#e87328; }
   var stripBuilt = false, STRIP_BACK = 8, STRIP_FWD = 8;
   function go(p) {
     if (p === "board" && state.page !== "board") state.boardView = "kw";
+    if (p !== state.page || p !== "workout") coachOpen = false;
     state.page = p;
     if (p !== "workout") { closeExPicker(); closeSwap(); }
     if (p !== "fuel") { state.add = null; var fsh = document.getElementById("fsheet"); if (fsh) fsh.remove(); }
@@ -3803,9 +3804,11 @@ header.hero .me-btn { border-color:#e87328; }
     back.appendChild(box); document.body.appendChild(back); ok.focus({ preventScroll: true });
   }
   /* Coach brief: one-line mission, then short bullet sections. */
+  var coachOpen = false; // closed each time he arrives on a workout
   var BRIEF_SECS = [["why", "Why it matters"], ["focus", "Today's focus"], ["effort", "Effort and rest"], ["progress", "Progress"], ["arms", "Arm finisher"], ["watch", "Watch for"]];
   function coachBrief(box, label, br, w) {
-    var d = el("details", "coach-sec coach-big coach-brief"), sm = el("summary"); d.open = true;
+    var d = el("details", "coach-sec coach-big coach-brief"), sm = el("summary"); d.open = !!coachOpen;
+    d.addEventListener("toggle", function () { coachOpen = d.open; });
     var bg = el("span", "vd-badge"); bg.innerHTML = GIDEON_BADGE; sm.appendChild(bg); var tt = el("span", "cb-t"); tt.appendChild(el("b", null, label)); sm.appendChild(tt);
     d.appendChild(sm);
     var mi = el("div", "cbr-mission"); mi.appendChild(el("span", "cbr-k", "Mission")); mi.appendChild(el("p", null, br.mission)); d.appendChild(mi);
@@ -7827,7 +7830,7 @@ header.hero .me-btn { border-color:#e87328; }
       box.appendChild(r);
     });
   }
-  var APP_VERSION = "v205";
+  var APP_VERSION = "v206";
   /* ---------- Photo upload diagnostic (Settings > Testing) ---------- */
   async function runPhotoDiag() {
     var out = { at: new Date().toISOString(), version: APP_VERSION, ua: navigator.userAgent, steps: [] };
