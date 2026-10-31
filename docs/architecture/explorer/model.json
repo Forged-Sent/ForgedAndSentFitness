@@ -1,0 +1,507 @@
+{
+  "title": "Forged & Sent · Architecture Atlas",
+  "product": "Faith-centered workouts, discipleship and group accountability",
+  "status": "foundation",
+  "overview": "The Flutter client is a small foundation. Firebase is connected only to local demo emulators. Offline workouts, group roles, private reflections and production scoring are planned, not implemented.",
+  "source": "docs/architecture/SYSTEM.md",
+  "systems": [
+    {
+      "id": "prototype",
+      "label": "Behavioral prototype",
+      "short": "HTML + seed reference",
+      "stage": "current",
+      "layer": 0,
+      "x": 80,
+      "y": 85,
+      "color": "sage",
+      "purpose": "The archived HTML behavior is a reference for user experience only. It is not the production Flutter client or a trusted identity/data service.",
+      "files": [
+        "index.html",
+        "seed/devotionals.json",
+        "seed/lifts.json"
+      ],
+      "depends": [],
+      "notes": "Older snapshots stay available under versions/; no production persistence should be inferred."
+    },
+    {
+      "id": "entry",
+      "label": "Flutter entrypoint",
+      "short": "App mode & startup",
+      "stage": "current",
+      "layer": 1,
+      "x": 350,
+      "y": 75,
+      "color": "blue",
+      "purpose": "main() initializes Flutter and switches between a local preview and emulator mode. Unsupported cloud modes are rejected without falling back to live Firebase.",
+      "files": [
+        "mobile/lib/main.dart"
+      ],
+      "functions": [
+        "mobile/lib/main.dart::main"
+      ],
+      "depends": [
+        "ui",
+        "adapter"
+      ],
+      "notes": "Review mode selection and fail-closed behavior before any production backend is enabled."
+    },
+    {
+      "id": "ui",
+      "label": "Foundation UI",
+      "short": "Screens & user feedback",
+      "stage": "current",
+      "layer": 2,
+      "x": 635,
+      "y": 50,
+      "color": "blue",
+      "purpose": "ForgedSentApp sets up MaterialApp. FoundationHomeScreen shows the app's foundational state or an emulator-startup error.",
+      "files": [
+        "mobile/lib/src/app/forged_sent_app.dart"
+      ],
+      "functions": [
+        "mobile/lib/src/app/forged_sent_app.dart::ForgedSentApp",
+        "mobile/lib/src/app/forged_sent_app.dart::FoundationHomeScreen"
+      ],
+      "depends": [],
+      "notes": "This is not a working devotional/workout feature yet."
+    },
+    {
+      "id": "adapter",
+      "label": "Demo Firebase adapter",
+      "short": "Emulator wiring only",
+      "stage": "current",
+      "layer": 2,
+      "x": 635,
+      "y": 185,
+      "color": "amber",
+      "purpose": "ForgedFirebaseRuntime rejects non-demo Firebase projects, connects Auth/Firestore/Storage SDKs to local endpoints, and signs in anonymously to check reachability.",
+      "files": [
+        "mobile/lib/src/firebase/forged_firebase_runtime.dart"
+      ],
+      "functions": [
+        "mobile/lib/src/firebase/forged_firebase_runtime.dart::connectEmulators",
+        "mobile/lib/src/firebase/forged_firebase_runtime.dart::emulatorHost"
+      ],
+      "depends": [
+        "emulators"
+      ],
+      "notes": "Anonymous sign-in is a local smoke test, not user authorization."
+    },
+    {
+      "id": "emulators",
+      "label": "Local Firebase",
+      "short": "Auth · Firestore · Storage",
+      "stage": "current",
+      "layer": 3,
+      "x": 920,
+      "y": 185,
+      "color": "amber",
+      "purpose": "Local Auth (9099), Firestore (8080) and Storage (9199) services used only with the demo-forgedandsent project.",
+      "files": [
+        "firebase.json",
+        ".firebaserc",
+        "firebase/firestore.rules",
+        "firebase/storage.rules"
+      ],
+      "depends": [],
+      "notes": "Rules are deny-by-default outside owner-scoped developer_smoke paths. This is not production-ready group authorization."
+    },
+    {
+      "id": "devtools",
+      "label": "Developer bootstrap",
+      "short": "Windows + Mac + shell",
+      "stage": "current",
+      "layer": 0,
+      "x": 80,
+      "y": 340,
+      "color": "violet",
+      "purpose": "Guided setup scripts and Git helpers install development prerequisites and teach new contributors how to work on feature branches.",
+      "files": [
+        "tooling/windows/first-run.ps1",
+        "tooling/macos/first-run.sh",
+        "tooling/shell/forged-shell.ps1"
+      ],
+      "depends": [
+        "ci"
+      ],
+      "notes": "Hosted CI is not a substitute for a physical clean-machine acceptance test."
+    },
+    {
+      "id": "review",
+      "label": "Multi-agent review",
+      "short": "Codex · Claude · Gemini",
+      "stage": "current",
+      "layer": 1,
+      "x": 350,
+      "y": 345,
+      "color": "violet",
+      "purpose": "Reusable skills guide each provider; local review.py requests independent evidence-backed findings and records an advisory verdict without GitHub approval or merge powers.",
+      "files": [
+        "tooling/review/review.py",
+        ".agents/skills/independent-code-review/SKILL.md",
+        ".claude/skills/independent-code-review/SKILL.md"
+      ],
+      "depends": [
+        "ci"
+      ],
+      "notes": "CLI availability, authentication and actual two-provider review runs still need workstation verification."
+    },
+    {
+      "id": "ci",
+      "label": "Required CI gate",
+      "short": "Checks + platform builds",
+      "stage": "current",
+      "layer": 2,
+      "x": 635,
+      "y": 350,
+      "color": "sage",
+      "purpose": "The GitHub Actions ci-gate aggregates policy, Python tests, Flutter builds, Mac/Windows checks, iOS simulator and Firebase security-rule emulator tests.",
+      "files": [
+        ".github/workflows/ci-gate.yml",
+        "tooling/policy/check.py",
+        "tooling/firebase/tests/security-rules.test.mjs"
+      ],
+      "depends": [],
+      "notes": "A passing AI review never replaces GitHub checks or a human decision."
+    },
+    {
+      "id": "vm",
+      "label": "ViewModels & commands",
+      "short": "State, errors, UI events",
+      "stage": "planned",
+      "layer": 0,
+      "x": 80,
+      "y": 80,
+      "color": "blue",
+      "purpose": "Intended UI state holders translate commands into repository operations and immutable view state.",
+      "files": [],
+      "depends": [
+        "repos"
+      ],
+      "notes": "Not implemented. Add after the first domain slice ADR."
+    },
+    {
+      "id": "repos",
+      "label": "Domain repositories",
+      "short": "Boundary & source of truth",
+      "stage": "planned",
+      "layer": 1,
+      "x": 350,
+      "y": 80,
+      "color": "blue",
+      "purpose": "Repository interfaces decouple UI and domain logic from Firebase and local storage. Use cases are added only when behavior warrants them.",
+      "files": [],
+      "depends": [
+        "outbox",
+        "services"
+      ],
+      "notes": "No concrete repositories exist in mobile/lib yet."
+    },
+    {
+      "id": "outbox",
+      "label": "Durable local outbox",
+      "short": "Offline workout events",
+      "stage": "planned",
+      "layer": 2,
+      "x": 635,
+      "y": 30,
+      "color": "amber",
+      "purpose": "Persist workout events and unique idempotency keys before presenting a save as durable. Retry and reconcile on reconnect.",
+      "files": [],
+      "depends": [
+        "sync"
+      ],
+      "notes": "Firebase cache alone must not be treated as a durable event log."
+    },
+    {
+      "id": "sync",
+      "label": "Sync coordinator",
+      "short": "Retries & conflicts",
+      "stage": "planned",
+      "layer": 3,
+      "x": 920,
+      "y": 30,
+      "color": "amber",
+      "purpose": "Retries uploads, deduplicates event identifiers and reconciles offline edits with trusted server state.",
+      "files": [],
+      "depends": [
+        "services"
+      ],
+      "notes": "Conflict policy, local store and data retention need ADRs."
+    },
+    {
+      "id": "services",
+      "label": "Service adapters",
+      "short": "Firebase / HTTP isolation",
+      "stage": "planned",
+      "layer": 2,
+      "x": 635,
+      "y": 190,
+      "color": "amber",
+      "purpose": "Adapters translate repository operations to SDK/network calls while keeping SDK types out of Flutter widgets and domain interfaces.",
+      "files": [],
+      "depends": [
+        "authz"
+      ],
+      "notes": "The current emulator-only smoke adapter is not this full production data layer."
+    },
+    {
+      "id": "authz",
+      "label": "Protected backend",
+      "short": "Members, roles, privacy",
+      "stage": "planned",
+      "layer": 3,
+      "x": 920,
+      "y": 190,
+      "color": "amber",
+      "purpose": "Trusted Firebase Security Rules, Auth claims and server-side checks enforce user and group permissions. Private prayers and measurements do not appear in group queries.",
+      "files": [],
+      "depends": [
+        "scoring"
+      ],
+      "notes": "No real membership or private production model exists yet."
+    },
+    {
+      "id": "scoring",
+      "label": "Server scoring",
+      "short": "Trusted versioned rules",
+      "stage": "planned",
+      "layer": 3,
+      "x": 920,
+      "y": 355,
+      "color": "sage",
+      "purpose": "Trusted functions compute auditable group points and challenges from validated events. Clients cannot award authoritative points.",
+      "files": [],
+      "depends": [],
+      "notes": "No server scoring functions exist yet."
+    },
+    {
+      "id": "change",
+      "label": "Branch & tests",
+      "short": "Small scoped change",
+      "stage": "process",
+      "layer": 0,
+      "x": 80,
+      "y": 95,
+      "color": "violet",
+      "purpose": "Create feature branch, implement a small vertical slice, update architecture when needed and run deterministic tests before AI calls.",
+      "files": [
+        "AGENTS.md",
+        "tooling/architecture/generate.py"
+      ],
+      "depends": [
+        "independent"
+      ],
+      "notes": "A local hook is helpful but bypassable."
+    },
+    {
+      "id": "independent",
+      "label": "Independent reviewers",
+      "short": "Non-author providers",
+      "stage": "process",
+      "layer": 1,
+      "x": 350,
+      "y": 95,
+      "color": "violet",
+      "purpose": "Two different providers check a bounded diff, record path/line findings and mark tool failures NOT VERIFIED. The authoring agent does not count as an independent reviewer.",
+      "files": [
+        "tooling/review/review.py",
+        "docs/development/AI-REVIEW-WORKFLOW.md"
+      ],
+      "depends": [
+        "pr"
+      ],
+      "notes": "Review agents do not push, approve, merge or deploy."
+    },
+    {
+      "id": "pr",
+      "label": "Draft PR & GitHub CI",
+      "short": "Server-enforced checks",
+      "stage": "process",
+      "layer": 2,
+      "x": 635,
+      "y": 95,
+      "color": "sage",
+      "purpose": "Push to a feature branch, open a Draft PR and require all aggregated ci-gate jobs to pass before merging.",
+      "files": [
+        ".github/workflows/ci-gate.yml"
+      ],
+      "depends": [
+        "merge"
+      ],
+      "notes": "Live human-approval count must be checked separately; AI advisory review cannot satisfy it."
+    },
+    {
+      "id": "merge",
+      "label": "Human merge decision",
+      "short": "Security-sensitive review",
+      "stage": "process",
+      "layer": 3,
+      "x": 920,
+      "y": 95,
+      "color": "sage",
+      "purpose": "A human inspects scope, risks, failures and GitHub status. Sensitive auth, data-access and scoring changes warrant another human reviewer even when not enforced.",
+      "files": [
+        "docs/development/REPOSITORY-SECURITY.md"
+      ],
+      "depends": [],
+      "notes": "No automatic merge permission is granted to agents."
+    }
+  ],
+  "symbolNotes": {
+    "mobile/lib/main.dart::main": "Initializes Flutter, reads FNS_ENV, starts the preview UI or connects the demo Firebase emulators. Rejects unsupported cloud modes.",
+    "mobile/lib/src/app/forged_sent_app.dart::ForgedSentApp": "Constructs the app shell, Material theme and foundation home screen.",
+    "mobile/lib/src/app/forged_sent_app.dart::FoundationHomeScreen": "Displays foundation text and either local emulator status or an explicit setup error.",
+    "mobile/lib/src/firebase/forged_firebase_runtime.dart::connectEmulators": "Checks demo-only project ID, initializes Firebase with nonproduction options, redirects SDK calls to local ports 9099/8080/9199, then performs anonymous Auth smoke sign-in.",
+    "mobile/lib/src/firebase/forged_firebase_runtime.dart::emulatorHost": "Chooses 127.0.0.1 for browser/desktop and 10.0.2.2 for the Android emulator unless a compile-time host override was provided.",
+    "tooling/review/review.py::main": "Parses CLI options, validates reviewer independence, prepares the diff, invokes reviewers and writes local advisory verdict reports.",
+    "tooling/review/review.py::parse_report": "Validates strict JSON review output, including severity, file/line evidence and contradictions between verdict and high-risk findings.",
+    "tooling/review/review.py::verify": "Checks that the locally saved passing review matches the current Git HEAD and diff, otherwise fails rather than trusting stale reviews.",
+    "tooling/architecture/generate.py::inventory": "Produces the Markdown Flutter code map from actual Dart imports and named declarations.",
+    "tooling/skills/sync.py::validate": "Detects and can repair drift between canonical Codex and mirrored Claude skill files."
+  },
+  "guide": {
+    "windows": [
+      [
+        "Open the guided setup",
+        "Run FIRST-RUN-WINDOWS.cmd from a real Git clone"
+      ],
+      [
+        "Check local tools",
+        "py -3 --version"
+      ],
+      [
+        "Update architecture explorer",
+        "py -3 tooling/architecture/build_explorer.py --write"
+      ],
+      [
+        "Open it",
+        "Start build/architecture-explorer/index.html in a browser"
+      ],
+      [
+        "Review before sharing",
+        "py -3 tooling/review/review.py --dry-run"
+      ],
+      [
+        "Run a real review",
+        "py -3 tooling/review/review.py --author human --reviewers codex,claude"
+      ]
+    ],
+    "mac": [
+      [
+        "Open the guided setup",
+        "Run FIRST-RUN-MAC.command from a real Git clone"
+      ],
+      [
+        "Check local tools",
+        "python3 --version"
+      ],
+      [
+        "Update architecture explorer",
+        "python3 tooling/architecture/build_explorer.py --write"
+      ],
+      [
+        "Open it",
+        "open build/architecture-explorer/index.html"
+      ],
+      [
+        "Review before sharing",
+        "python3 tooling/review/review.py --dry-run"
+      ],
+      [
+        "Run a real review",
+        "python3 tooling/review/review.py --author human --reviewers codex,claude"
+      ]
+    ],
+    "shortcuts": [
+      [
+        "/",
+        "Search files and functions"
+      ],
+      [
+        "?",
+        "Open or close shortcut reference"
+      ],
+      [
+        "1",
+        "System map"
+      ],
+      [
+        "2",
+        "File explorer"
+      ],
+      [
+        "3",
+        "Agent playbook"
+      ],
+      [
+        "4",
+        "Getting started"
+      ],
+      [
+        "g",
+        "Go to system map"
+      ],
+      [
+        "f",
+        "Go to files"
+      ],
+      [
+        "a",
+        "Go to agents"
+      ],
+      [
+        "j / k",
+        "Next / previous result"
+      ],
+      [
+        "+ / −",
+        "Zoom map"
+      ],
+      [
+        "0",
+        "Reset map zoom"
+      ],
+      [
+        "Esc",
+        "Close detail or shortcut overlay"
+      ]
+    ]
+  },
+  "agents": [
+    {
+      "id": "codex",
+      "name": "Codex",
+      "role": "Build/test or independently review other providers",
+      "instructions": [
+        "AGENTS.md",
+        ".agents/skills/flutter-vertical-slice/SKILL.md",
+        ".agents/skills/flutter-architecture-review/SKILL.md",
+        ".agents/skills/firebase-security-review/SKILL.md"
+      ],
+      "notes": "Cannot independently review changes it authored."
+    },
+    {
+      "id": "claude",
+      "name": "Claude Code",
+      "role": "Build or independent architecture/security review",
+      "instructions": [
+        "CLAUDE.md",
+        ".claude/skills/flutter-vertical-slice/SKILL.md",
+        ".claude/skills/flutter-architecture-review/SKILL.md",
+        ".claude/skills/firebase-security-review/SKILL.md"
+      ],
+      "notes": "Skills mirror Codex skills; parity verified by CI."
+    },
+    {
+      "id": "gemini",
+      "name": "Gemini CLI",
+      "role": "Optional independent third provider",
+      "instructions": [
+        "GEMINI.md",
+        ".agents/skills/independent-code-review/SKILL.md"
+      ],
+      "notes": "Optional; sandbox and CLI flags must be tested on the installed version. Do not assume a particular model variant."
+    }
+  ]
+}
