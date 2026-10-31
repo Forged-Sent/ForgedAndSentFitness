@@ -214,6 +214,13 @@ def evaluate(root: Path) -> list[str]:
             try:
                 raw = (root / rel).read_text(encoding="utf-8")
                 found = re.findall(pattern, raw)
+                if rel == "tooling/windows/setup.ps1":
+                    # The same script also specifies the independent Dart MCP
+                    # minimum, which must NOT be compared to Flutter's pin.
+                    dart_floor = str(versions.get("dartMinimum", ""))
+                    if dart_floor not in found:
+                        fail(rel, "Dart minimum from versions.json is missing")
+                    found = [pin for pin in found if pin != dart_floor]
                 if not found or any(item.lower() != str(expected).lower() for item in found):
                     fail(rel, f"all pinned version/hash occurrences must match tooling/versions.json ({expected}); found {found}")
             except OSError:
