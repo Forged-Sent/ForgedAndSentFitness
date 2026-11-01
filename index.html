@@ -1317,6 +1317,7 @@ header.hero .mini:hover, header.hero .pts-btn:hover { border-color: var(--gold-2
 .own-team { display: grid; grid-template-columns: 46px minmax(0, 1fr) auto; gap: 10px; align-items: center; padding: 8px 0; border-top: 1px solid var(--line); }
 .own-tt { display: grid; gap: 3px; min-width: 0; } .own-tt small { color: var(--muted); }
 #s-owner .btn { width: 100%; margin-top: 8px; }
+.own-ok { margin: 4px 0 0; padding: 10px 12px; border: 1px solid var(--accent); border-radius: 8px; color: var(--ink); font-weight: 600; }
 /* Devotional reading */
 .devo-head.hero h1.pg { font-family: var(--f-scripture, Georgia, serif); text-transform: none; font-size: 26px; }
 .d-read { font-family: var(--f-scripture, Georgia, serif); }
@@ -7033,6 +7034,7 @@ header.hero .me-btn { border-color:#e87328; }
   }
 
   /* Settings > Owner (only the app's owner sees it). */
+  var ownMsg = { t: "", at: 0 };
   function drawCampOwner() {
     var sec = $("s-owner-sec"); if (!sec) return; sec.hidden = !state.isOwner; if (!state.isOwner) return;
     var box = $("s-owner"); if (!box || (document.activeElement && box.contains(document.activeElement) && /INPUT|SELECT/.test(document.activeElement.tagName))) return;
@@ -7056,14 +7058,17 @@ header.hero .me-btn { border-color:#e87328; }
     }
     f.appendChild(el("p", "note", "The chosen box counts double that week for every man on a marching team, on his team score and his own Kingdom Warrior points."));
     var err = el("p", "error"); err.hidden = true; f.appendChild(err);
-    var ok = el("p", "note ok"); ok.hidden = true; f.appendChild(ok);
-    var sv = el("button", "btn", "Save campaign"); sv.type = "submit"; f.appendChild(sv);
+    var ok = el("p", "own-ok"); ok.setAttribute("role", "status"); ok.hidden = !(ownMsg.t && Date.now() - ownMsg.at < 15000); ok.textContent = ownMsg.t; f.appendChild(ok);
+    var sv = el("button", "btn own-save", "Save campaign"); sv.type = "submit"; f.appendChild(sv);
     f.addEventListener("submit", function (ev) {
       ev.preventDefault(); err.hidden = true; ok.hidden = true;
       if (!/^\d{4}-\d{2}-\d{2}$/.test(sa.value) || parseKey(sa.value).getDay() !== 1) { err.textContent = "Pick a Monday for the start, so campaign weeks match the Board’s Monday to Sunday weeks."; err.hidden = false; return; }
       if (su.value && su.value > sa.value) { err.textContent = "Sign-ups need to open before the start."; err.hidden = false; return; }
       var o = { id: d.id, n: d.n, signup: su.value || "", start: sa.value, weeks: CAMP_WEEKS, doubles: sels.map(function (x) { return x.value; }), updatedAt: Date.now() };
-      B.saveCamp("current", o).then(function () { ok.textContent = "Saved."; ok.hidden = false; }).catch(function () { err.textContent = "That didn’t save. Only the app’s owner can change campaigns."; err.hidden = false; });
+      sv.disabled = true; sv.textContent = "Saving\u2026";
+      var ph2 = campPhase(o), msg = "\u2713 Saved. " + (ph2 === "signup" ? "Sign-ups are open now. The brothers see the campaign on Today." : ph2 === "soon" ? "Sign-ups open " + longDate(o.signup) + "." : ph2 === "live" ? "The campaign is underway." : "") + " Starts " + longDate(o.start) + ".";
+      B.saveCamp("current", o).then(function () { ownMsg = { t: msg, at: Date.now() }; sv.disabled = false; sv.textContent = "Save campaign"; var live = document.querySelector("#s-owner .own-ok") || ok; live.textContent = msg; live.hidden = false; var b2 = document.querySelector("#s-owner .own-save"); if (b2) { b2.disabled = false; b2.textContent = "Save campaign"; } setTimeout(function () { ownMsg.t = ""; var o2 = document.querySelector("#s-owner .own-ok"); if (o2) o2.hidden = true; }, 15000); })
+        .catch(function () { sv.disabled = false; sv.textContent = "Save campaign"; err.textContent = "That didn\u2019t save. Only the app\u2019s owner can change campaigns."; err.hidden = false; });
     });
     box.appendChild(f);
     // Teams: rename
@@ -8879,7 +8884,7 @@ header.hero .me-btn { border-color:#e87328; }
       box.appendChild(r);
     });
   }
-  var APP_VERSION = "v213";
+  var APP_VERSION = "v214";
   /* ---------- Photo upload diagnostic (Settings > Testing) ---------- */
   async function runPhotoDiag() {
     var out = { at: new Date().toISOString(), version: APP_VERSION, ua: navigator.userAgent, steps: [] };
