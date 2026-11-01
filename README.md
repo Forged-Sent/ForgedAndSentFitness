@@ -9,7 +9,7 @@ A men's fitness and accountability app for the Forged in Faith men's group. Men 
 | Path | What it is |
 |---|---|
 | `index.html` | Current version. A single self-contained file: HTML, CSS and JS. |
-| `versions/app-v1.html` ... `app-v211.html` | Every earlier iteration, kept for rollback. A new version file is created for each iteration; never overwrite old ones. |
+| `versions/app-v1.html` ... `app-v212.html` | Every earlier iteration, kept for rollback. A new version file is created for each iteration; never overwrite old ones. |
 | `seed/` | Starting data: `tasks.json` (standard daily list), `lifts.json` (core lifts), `devotionals.json` (366 daily devotionals, one per calendar date, also embedded in `index.html`), `db-rules.json` (access rules and runtime capabilities the page declares). `weekly-challenges.json` (52-week challenge program: one Family, one Iron and one Endure challenge per week, with the 0-100 age-bracket scoring rules, injury-friendly alternates and season metadata) and `movement-standards.json` (what counts as a rep). |
 | `dev/` | Local preview. `mock-claude.js` is an in-memory stand-in for `window.claude`; `make_preview.py` builds `dev/preview.html`. |
 | `docs/architecture-notes.md` | Architecture and store-readiness notes. |
@@ -54,6 +54,7 @@ The mock keeps data in memory only, shows one fake user, and cannot display uplo
   - `habits/{uid}` the man's three custom habits.
   - `profiles/{uid}` shared: `motto, avatarId, bannerId, prs {liftId: {w, reps, date}}`.
   - `posts/{id}`, `likes/{postId}_{uid}`, `reports/{id}` community thread.
+  - Campaigns (team battles): `camps/current` (owner-only: campaign number, sign-up and start dates, weekly double box) and `camps/hist_<id>` (closed campaign results); `teams/{captainUid}` (captain-only: name, banner, invites); `tmembers/{uid}` (each man: which team he joined, or invites he declined). Team score = average Kingdom Warrior points per man per week + 25 when every man checks every daily box all 7 days.
   - PRIVATE per user: `data/users/<id>/log/days/<date>` (water oz, calories, protein, fat, carbs totals, plus `meals` {breakfast, lunch, dinner, snack: [{id, name, kcal, p, f, c}]}) and `data/users/<id>/settings` (targets, body stats, reminder times, blocked users).
 - **Access rules** (see `seed/db-rules.json`): standard list and lifts are admin-write; each man writes only his own habits and profile; personal health data lives in the private subtree. A real backend must enforce the same rules server-side.
 
