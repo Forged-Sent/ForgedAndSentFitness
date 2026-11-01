@@ -1293,6 +1293,12 @@ header.hero .mini:hover, header.hero .pts-btn:hover { border-color: var(--gold-2
 .tm-day { width: 22px; height: 22px; border: 1.5px solid var(--line); border-radius: 4px; display: grid; place-items: center; font-size: 10px; color: var(--muted); }
 .tm-day.on { background: var(--accent); border-color: var(--accent); color: #111; } .tm-day.now { outline: 1.5px solid var(--ink); outline-offset: 1px; }
 #team-body > .btn { width: 100%; margin-top: 8px; }
+.tm-chat { display: flex !important; align-items: center; justify-content: center; gap: 10px; position: relative; margin-top: 14px !important; }
+.tm-chat svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linejoin: round; }
+.tm-unread { min-width: 24px; height: 24px; padding: 0 7px; border-radius: 12px; background: var(--accent); color: #111; font-size: 13px; letter-spacing: 0; display: inline-grid; place-items: center; }
+.tm-chev { position: absolute; right: 14px; }
+.chan-back { padding: 6px 0 2px; } .chan-back[hidden] { display: none; }
+.rl-top .chan-ban { width: 38px; height: 43px; }
 .rt-box { max-height: 88vh; overflow-y: auto; } .rt-box .btn { width: 100%; margin-top: 8px; }
 .rt-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
 .rt-chip { padding: 6px 10px; font: inherit; font-size: 13.5px; color: var(--ink); background: var(--surface); border: 1px solid var(--line); border-radius: 16px; cursor: pointer; text-align: left; }
@@ -2376,7 +2382,7 @@ header.hero .me-btn { border-color:#e87328; }
     saveHabits: function (uid, slots) { return this.db.doc("habits/" + uid).set({ slots: slots }); },
     watchSettings: function (uid, cb) { return this.db.doc("data/users/" + uid + "/settings").onSnapshot(function (s) { cb(s.exists ? s.data() : {}); }, noop); },
     watchSeen: function (uid, cb) { return this.db.doc("data/users/" + uid + "/seen").onSnapshot(function (s) { cb(s.exists ? (s.data() || {}) : {}); }, noop); },
-    saveSeen: function (uid, o) { return this.db.doc("data/users/" + uid + "/seen").set({ tags: Number(o.tags) || 0, rally: Number(o.rally) || 0 }); },
+    saveSeen: function (uid, o) { return this.db.doc("data/users/" + uid + "/seen").set({ tags: Number(o.tags) || 0, rally: Number(o.rally) || 0, team: normTeamSeen(o.team || (state.seen && state.seen.team)) }); },
     watchOnboard: function (uid, cb) { return this.db.doc("data/users/" + uid + "/onboard").onSnapshot(function (s) { cb(s.exists ? (s.data() || {}) : {}); }, noop); },
     saveOnboard: function (uid, o) { return this.db.doc("data/users/" + uid + "/onboard").set(o); },
     saveSettings: function (uid, st) { return this.db.doc("data/users/" + uid + "/settings").set(st); },
@@ -2397,6 +2403,16 @@ header.hero .me-btn { border-color:#e87328; }
     saveTMember: function (id, o) { return this.db.doc("tmembers/" + id).set(o); },
     deleteTMember: function (id) { return this.db.doc("tmembers/" + id).delete(); },
     deletePost: function (id) { return this.db.doc("posts/" + id).delete(); },
+    watchTPosts: function (team, cb) {
+      return this.db.collection("tposts").where("team", "==", team).onSnapshot(function (s) {
+        cb(s.docs.map(function (d) { var x = d.data() || {};
+          return { id: d.id, team: String(x.team || ""), uid: x.uid, text: String(x.text || ""), media: Array.isArray(x.media) ? x.media : [], mentions: Array.isArray(x.mentions) ? x.mentions : [], card: null, ch: null, createdAt: Number(x.createdAt) || 0, editedAt: Number(x.editedAt) || 0 }; })
+          .sort(function (a, b) { return b.createdAt - a.createdAt; }).slice(0, 200));
+      }, noop);
+    },
+    addTPost: function (p) { return this.db.collection("tposts").add(p); },
+    deleteTPost: function (id) { return this.db.doc("tposts/" + id).delete(); },
+    editTPost: function (id, text, mentions) { return this.db.doc("tposts/" + id).update({ text: text, mentions: mentions, editedAt: Date.now() }); },
     editPost: function (id, text, mentions) { return this.db.doc("posts/" + id).update({ text: text, mentions: mentions, editedAt: Date.now() }); },
     watchLikes: function (cb) { return this.db.collection("likes").onSnapshot(function (s) { cb(s.docs.map(function (d) { var x = d.data() || {}; return { id: d.id, postId: x.postId, uid: x.uid, r: x.r === "praying" ? "brother" : REACTS.some(function (k) { return k[0] === x.r; }) ? x.r : "strong" }; })); }, noop); },
     // One reaction per man per post. A doc with no r is an old Strong.
@@ -2990,13 +3006,15 @@ header.hero .me-btn { border-color:#e87328; }
   var stripBuilt = false, STRIP_BACK = 8, STRIP_FWD = 8;
   function go(p) {
     if (p === "board" && state.page !== "board") state.boardView = "kw";
+    if (p === "checkin") { state.chan = state.chanNext || ""; state.chanNext = ""; } else state.chan = "";
+    paintChanHead();
     if (p !== state.page || p !== "workout") coachOpen = false;
     state.page = p;
     if (p !== "workout") { closeExPicker(); closeSwap(); }
     if (p !== "fuel") { state.add = null; var fsh = document.getElementById("fsheet"); if (fsh) fsh.remove(); }
     ["today", "fuel", "train", "board", "checkin", "profile", "settings", "devo", "workout", "video", "chal", "ideas", "team"].forEach(function (n) { $("page-" + n).hidden = n !== p; });
     Array.prototype.forEach.call(document.querySelectorAll(".tabbar button"), function (b) {
-      if (b.dataset.page === (p === "workout" || p === "video" || p === "chal" ? "train" : p === "ideas" ? "fuel" : p === "team" ? "board" : p)) b.setAttribute("aria-current", "page"); else b.removeAttribute("aria-current");
+      if (b.dataset.page === (p === "workout" || p === "video" || p === "chal" ? "train" : p === "ideas" ? "fuel" : p === "team" || (p === "checkin" && state.chan) ? "board" : p)) b.setAttribute("aria-current", "page"); else b.removeAttribute("aria-current");
     });
     $("scroll").scrollTop = 0;
     if (p === "workout") startWkTick(); else if (p !== "video") { if (wkTick) saveWkNow(); stopWkTick(); cancelAllTones(); }
@@ -5882,7 +5900,7 @@ header.hero .me-btn { border-color:#e87328; }
   }
   function myTags() {
     var me = state.me, out = []; if (!me) return out;
-    state.posts.forEach(function (p) { if (p.uid !== me && (p.mentions || []).some(function (m) { return m && m.id === me; })) out.push({ kind: "post", id: p.id, postId: p.id, uid: p.uid, text: p.text, at: p.createdAt }); });
+    state.posts.concat(state.tposts || []).forEach(function (p) { if (p.uid !== me && (p.mentions || []).some(function (m) { return m && m.id === me; })) out.push({ kind: "post", id: p.id, postId: p.id, uid: p.uid, text: p.text, at: p.createdAt }); });
     (state.replies || []).forEach(function (r) { if (r.uid !== me && (r.mentions || []).some(function (m) { return m && m.id === me; })) out.push({ kind: "reply", id: r.id, postId: r.postId, uid: r.uid, text: r.text, at: r.createdAt }); });
     return out.sort(function (a, b) { return b.at - a.at; });
   }
@@ -5928,7 +5946,8 @@ header.hero .me-btn { border-color:#e87328; }
     if (latest > seen) { state.seen = Object.assign({}, state.seen || {}, { tags: latest, rally: Number(state.seen && state.seen.rally) || 0 }); drawTagBells(); if (B.db && state.me) B.saveSeen(state.me, state.seen).catch(noop); }
   }
   function showPost(postId, openReplies) {
-    go("checkin");
+    var tp = (state.tposts || []).filter(function (x) { return x.id === postId; })[0];
+    if (tp) openTeamChat(tp.team); else go("checkin");
     if (openReplies) { state.repliesAll = state.repliesAll || {}; state.repliesAll[postId] = true; refreshReplies(postId); }
     setTimeout(function () {
       var a = document.querySelector('#feed [data-post="' + postId + '"]'); if (!a) return;
@@ -6847,6 +6866,13 @@ header.hero .me-btn { border-color:#e87328; }
     });
     body.appendChild(list);
     if (cw) body.appendChild(el("p", "note", "A filled day means he checked every daily box. Brothers see the days, never each man’s points."));
+    // Team chat
+    if (onIt || state.isOwner) {
+      var un = onIt ? teamUnread(t.id) : 0, cb = el("button", "btn ghost tm-chat"); cb.type = "button";
+      cb.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v11H11l-5 4v-4H4z"/></svg>';
+      cb.appendChild(el("span", null, "Team chat")); if (un) cb.appendChild(el("span", "tm-unread", un > 99 ? "99+" : String(un))); cb.appendChild(el("span", "tm-chev", "›"));
+      cb.setAttribute("aria-label", "Open team chat" + (un ? ", " + un + " new" : "")); cb.addEventListener("click", function () { openTeamChat(t.id); }); body.appendChild(cb);
+    }
     // Actions
     if (isCap && (ph === "signup" || ph === "soon") && state.canWrite) {
       var left = CAMP_MAX - t.men.length;
@@ -6862,6 +6888,46 @@ header.hero .me-btn { border-color:#e87328; }
   function alertSoon(m) { var n = $("team-body"); if (n) n.appendChild(el("p", "error", m)); }
 
   /* Raise (or edit) a team: name with Scripture ideas, banner. */
+  /* ---------- Team chat ---------- */
+  function normTeamSeen(x) { var o = {}; if (x && typeof x === "object") Object.keys(x).slice(0, 20).forEach(function (k) { if (/^[A-Za-z0-9_-]{1,80}$/.test(k) && Number(x[k]) > 0) o[k] = Number(x[k]); }); return o; }
+  var tpostSub = { team: "", off: null };
+  function campWatchTPosts() {
+    var t = myTeam(), open = state.chanNext || state.chan, want = t ? t.id : "";
+    if (open && state.isOwner) want = open;
+    if (!B.db || want === tpostSub.team) return;
+    if (tpostSub.off) try { tpostSub.off(); } catch (e) {}
+    tpostSub = { team: want, off: null }; state.tposts = [];
+    if (want) tpostSub.off = B.watchTPosts(want, function (rows) { state.tposts = rows; if (state.page === "checkin" && state.chan) drawFeed(); if (state.page === "team") drawTeamPage(); drawTagBells(); loadProfiles(); });
+  }
+  function teamLatest(team) {
+    var ids = {}, n = 0, blocked = state.settings.blocked || {};
+    (state.tposts || []).forEach(function (p) { if (p.team !== team) return; ids[p.id] = 1; if (p.uid !== state.me && !blocked[p.uid] && p.createdAt > n) n = p.createdAt; });
+    (state.replies || []).forEach(function (r) { if (ids[r.postId] && r.uid !== state.me && !blocked[r.uid] && r.createdAt > n) n = r.createdAt; });
+    return n;
+  }
+  function teamUnread(team) {
+    var seen = ((state.seen && state.seen.team) || {})[team] || 0, ids = {}, n = 0, blocked = state.settings.blocked || {};
+    (state.tposts || []).forEach(function (p) { if (p.team !== team) return; ids[p.id] = 1; if (p.uid !== state.me && !blocked[p.uid] && p.createdAt > seen) n++; });
+    (state.replies || []).forEach(function (r) { if (ids[r.postId] && r.uid !== state.me && !blocked[r.uid] && r.createdAt > seen) n++; });
+    return n;
+  }
+  function teamSeen(team) {
+    if (!state.me) return; var latest = teamLatest(team), tm = Object.assign({}, (state.seen && state.seen.team) || {});
+    if (latest > (tm[team] || 0)) { tm[team] = latest; state.seen = Object.assign({}, state.seen || {}, { team: tm }); if (B.db) B.saveSeen(state.me, state.seen).catch(noop); }
+  }
+  function openTeamChat(id) { state.chanNext = id; state.teamId = id; campWatchTPosts(); rlStick = true; go("checkin"); drawFeed(true); }
+  var chanHeadSaved = null;
+  function paintChanHead() {
+    var top = document.querySelector("#page-checkin .rl-top"); if (!top) return;
+    var av = top.querySelector(".rl-av"), h = $("h-feed"), sm = top.querySelector(".rl-tt small"), bk = $("chan-back"), pt = $("post-text");
+    if (!chanHeadSaved) chanHeadSaved = { h: h.textContent, sm: sm.textContent, ph: pt ? pt.placeholder : "" };
+    var t = state.chan ? (teamById(state.chan) || { name: "Team chat", banner: "trumpet", men: [] }) : null;
+    if (!bk) { bk = el("div", "chan-back"); bk.id = "chan-back"; var b = el("button", "mini", "‹ Team page"); b.type = "button"; b.addEventListener("click", function () { openTeam(state.teamId || state.chan); }); bk.appendChild(b); top.parentNode.insertBefore(bk, top); }
+    bk.hidden = !t;
+    var bn = top.querySelector(".chan-ban"); if (bn) bn.remove();
+    if (t) { av.hidden = true; var bb = bannerEl(t.banner, "chan-ban"); top.insertBefore(bb, av); h.textContent = t.name; sm.textContent = "Team chat · " + t.men.length + (t.men.length === 1 ? " man" : " men") + " · only your team sees this"; if (pt) pt.placeholder = "Post to " + t.name; }
+    else { av.hidden = false; h.textContent = chanHeadSaved.h; sm.textContent = chanHeadSaved.sm; if (pt) pt.placeholder = chanHeadSaved.ph; }
+  }
   function openRaiseTeam(edit) {
     var c = campCfg(); if (!c || !state.me || !state.canWrite) return;
     var t0 = edit && edit.cap ? edit : null, name = t0 ? t0.name : "", ban = t0 ? t0.banner : "trumpet";
@@ -7238,15 +7304,16 @@ header.hero .me-btn { border-color:#e87328; }
   function stopEditing() { state.editing = null; state.editDraft = null; }
   var REACTS = [["strong", "\uD83D\uDD25", "Strong"], ["brother", "\u2764\uFE0F", "Brother"]];
   var feedSig = "", repSig = "";
+  function feedPosts() { return state.chan ? (state.tposts || []).filter(function (p) { return p.team === state.chan; }) : state.posts; }
   function drawFeed(force) {
     var feed = $("feed"); if (!feed) return; rlBadge();
     // Skip the rebuild when nothing the thread shows has changed; just refresh the Strong buttons.
-    var sig = JSON.stringify([state.posts.map(function (p) { return p.id + ":" + p.createdAt + ":" + (p.editedAt || 0); }), state.editing && state.editing.type === "post" ? state.editing.id : "", Object.keys(state.settings.blocked || {}), state.confirm || "", Object.keys(state.reported || {}), state.me || "", !!state.canWrite, JSON.stringify(state.repliesAll || {}), state.rlReply ? state.rlReply.postId : "", state.editing ? state.editing.type + state.editing.id : "",
+    var sig = JSON.stringify([state.chan || "", feedPosts().map(function (p) { return p.id + ":" + p.createdAt + ":" + (p.editedAt || 0); }), state.editing && state.editing.type === "post" ? state.editing.id : "", Object.keys(state.settings.blocked || {}), state.confirm || "", Object.keys(state.reported || {}), state.me || "", !!state.canWrite, JSON.stringify(state.repliesAll || {}), state.rlReply ? state.rlReply.postId : "", state.editing ? state.editing.type + state.editing.id : "",
       Object.keys(state.profs || {}).map(function (k) { return k + (state.profs[k] && state.profs[k].name || ""); }).join(",")]);
     if (!force && sig === feedSig && feed.childNodes.length) {
       refreshLikes();
       var rsig = (state.replies || []).map(function (r) { return r.id + ":" + (r.editedAt || 0); }).join(",");
-      if (rsig !== repSig) { repSig = rsig; state.posts.forEach(function (p) { var ae = document.activeElement; if (!(ae && /^ed-/.test(ae.id || "") && ae.closest && ae.closest('[data-post="' + p.id + '"]'))) refreshReplies(p.id); }); }
+      if (rsig !== repSig) { repSig = rsig; feedPosts().forEach(function (p) { var ae = document.activeElement; if (!(ae && /^ed-/.test(ae.id || "") && ae.closest && ae.closest('[data-post="' + p.id + '"]'))) refreshReplies(p.id); }); }
       return;
     }
     repSig = (state.replies || []).map(function (r) { return r.id + ":" + (r.editedAt || 0); }).join(",");
@@ -7257,10 +7324,10 @@ header.hero .me-btn { border-color:#e87328; }
   }
   function drawFeedInner(feed) {
     var blocked = state.settings.blocked || {};
-    var posts = state.posts.filter(function (p) { return p.uid === state.me || !blocked[p.uid]; }).slice().sort(function (a, b) { return (b.createdAt || 0) - (a.createdAt || 0); });
+    var posts = feedPosts().filter(function (p) { return p.uid === state.me || !blocked[p.uid]; }).slice().sort(function (a, b) { return (b.createdAt || 0) - (a.createdAt || 0); });
     if (!posts.length) {
       var e = el("div", "empty"); e.appendChild(el("strong", null, "No posts yet"));
-      e.appendChild(document.createTextNode("Be the first. Post your workout, a photo, or a word for a brother.")); feed.appendChild(e); return;
+      e.appendChild(document.createTextNode(state.chan ? "Be the first. Rally your team: call out the double, pray for a brother, hold the wall." : "Be the first. Post your workout, a photo, or a word for a brother.")); feed.appendChild(e); return;
     }
     var can = !!(state.me && state.canWrite);
     posts.forEach(function (p) {
@@ -7272,7 +7339,7 @@ header.hero .me-btn { border-color:#e87328; }
       var editingThis = state.editing && state.editing.type === "post" && state.editing.id === p.id && mine;
       if (editingThis) card.appendChild(editBox(p.id, p.text, 1000, function (t) {
         var ments = mentionsIn(t, p.mentions); p.text = t; p.mentions = ments; p.editedAt = Date.now(); stopEditing(); drawFeed(true);
-        if (B.db) B.editPost(p.id, t, ments).catch(function () { postError("Couldn’t save your edit. Check your connection and try again."); });
+        if (B.db) (p.team ? B.editTPost(p.id, t, ments) : B.editPost(p.id, t, ments)).catch(function () { postError("Couldn’t save your edit. Check your connection and try again."); });
       }, function () { stopEditing(); drawFeed(true); }));
       else if (p.text) { var tx = el("div", "rl-t"); appendWithMentions(tx, p.text, p.mentions); card.appendChild(tx); }
       if (p.card) card.appendChild(workoutCardEl(p.card, true));
@@ -7369,10 +7436,10 @@ header.hero .me-btn { border-color:#e87328; }
     function item(label, fn, cls) { var b = el("button", "btn ghost" + (cls ? " " + cls : ""), label); b.type = "button"; b.addEventListener("click", fn); mn.appendChild(b); return b; }
     if (can) item("Reply", function () { close(); rlStartReply(p); });
     if (mine && can && (r || p.text || !p.media.length)) item("Edit", function () { close(); state.editing = { type: r ? "reply" : "post", id: it.id }; state.editDraft = null; drawFeed(true); });
-    if (mine && can) item("Delete", function () {
+    if ((mine || (p.team && state.isOwner && !r)) && can) item("Delete", function () {
       close();
       if (r) confirmDelete({ title: "Delete this reply?", message: "Your reply will be removed for everyone.", yes: "Delete" }, function () { state.replies = state.replies.filter(function (x) { return x.id !== r.id; }); drawFeed(true); if (B.db) B.deleteReply(r.id).catch(noop); });
-      else confirmDelete({ title: "Delete this post?", message: "Your post will be removed for everyone.", yes: "Delete" }, function () { state.posts = state.posts.filter(function (x) { return x.id !== p.id; }); if (state.rlReply && state.rlReply.postId === p.id) { state.rlReply = null; rlBar(); } drawFeed(true); if (B.db) B.deletePost(p.id).catch(noop); });
+      else confirmDelete({ title: "Delete this post?", message: mine ? "Your post will be removed for everyone." : "This post will be removed for the whole team.", yes: "Delete" }, function () { if (p.team) { state.tposts = (state.tposts || []).filter(function (x) { return x.id !== p.id; }); drawFeed(true); if (B.db) B.deleteTPost(p.id).catch(noop); return; } state.posts = state.posts.filter(function (x) { return x.id !== p.id; }); if (state.rlReply && state.rlReply.postId === p.id) { state.rlReply = null; rlBar(); } drawFeed(true); if (B.db) B.deletePost(p.id).catch(noop); });
     }, "danger");
     item("Close", close);
     box.appendChild(mn); back.appendChild(box);
@@ -7383,24 +7450,27 @@ header.hero .me-btn { border-color:#e87328; }
   function rlLatest() {
     var blocked = state.settings.blocked || {}, n = 0;
     (state.posts || []).forEach(function (p) { if (p.uid !== state.me && !blocked[p.uid] && p.createdAt > n) n = p.createdAt; });
-    (state.replies || []).forEach(function (r) { if (r.uid !== state.me && !blocked[r.uid] && r.createdAt > n) n = r.createdAt; });
+    var rids = {}; (state.posts || []).forEach(function (p) { rids[p.id] = 1; });
+    (state.replies || []).forEach(function (r) { if (rids[r.postId] && r.uid !== state.me && !blocked[r.uid] && r.createdAt > n) n = r.createdAt; });
     return n;
   }
   function rlUnread() {
     var seen = Number(state.seen && state.seen.rally) || 0, blocked = state.settings.blocked || {}, n = 0; if (!state.me || !seen) return 0;
     (state.posts || []).forEach(function (p) { if (p.uid !== state.me && !blocked[p.uid] && p.createdAt > seen) n++; });
-    (state.replies || []).forEach(function (r) { if (r.uid !== state.me && !blocked[r.uid] && r.createdAt > seen) n++; });
+    var rids = {}; (state.posts || []).forEach(function (p) { rids[p.id] = 1; });
+    (state.replies || []).forEach(function (r) { if (rids[r.postId] && r.uid !== state.me && !blocked[r.uid] && r.createdAt > seen) n++; });
     return n;
   }
   function rlBadge() {
     var tb = document.querySelector('.tabbar [data-page="checkin"]'); if (!tb) return;
-    var n = state.page === "checkin" ? 0 : rlUnread(), bd = tb.querySelector(".rl-badge");
+    var n = state.page === "checkin" && !state.chan ? 0 : rlUnread(), bd = tb.querySelector(".rl-badge");
     if (n) { if (!bd) { bd = el("span", "rl-badge"); tb.appendChild(bd); } bd.textContent = n > 99 ? "99+" : String(n); tb.setAttribute("aria-label", "Rally, " + n + " new"); }
     else { if (bd) bd.remove(); tb.removeAttribute("aria-label"); }
   }
   // Opening Rally marks everything up to the newest message as seen. A brand-new man starts with nothing unread.
   function rlSeen() {
     if (state.page !== "checkin" || !state.me) return;
+    if (state.chan) { teamSeen(state.chan); return; }
     var latest = Math.max(rlLatest(), Number(state.seen && state.seen.rally) ? 0 : Date.now()), cur = Number(state.seen && state.seen.rally) || 0;
     if (latest > cur) { state.seen = Object.assign({}, state.seen || {}, { rally: latest }); if (B.db) B.saveSeen(state.me, state.seen).catch(noop); }
     rlBadge();
@@ -7463,8 +7533,9 @@ header.hero .me-btn { border-color:#e87328; }
         media.push({ id: up.id, type: (f.type || "").indexOf("video") === 0 ? "video" : "image" });
       }
       var ments = mentionsIn(text, state.mentions);
-      await B.addPost({ uid: state.me, text: text, media: media, mentions: ments, createdAt: Date.now(), date: todayKey() });
-      var ct = taskOfKind("checkin"); if (ct && !myDoc().done[ct.id]) toggle(ct.id);
+      if (state.chan) await B.addTPost({ team: state.chan, uid: state.me, text: text, media: media, mentions: ments, createdAt: Date.now(), date: todayKey() });
+      else { await B.addPost({ uid: state.me, text: text, media: media, mentions: ments, createdAt: Date.now(), date: todayKey() });
+      var ct = taskOfKind("checkin"); if (ct && !myDoc().done[ct.id]) toggle(ct.id); }
       $("post-text").value = ""; state.files = []; state.mentions.length = 0; drawChips(); hideMentions(); rlFit(); rlStick = true; drawFeed(true);
     } catch (e) {
       postError(state.files.length && e && e.code ? uploadErrText(e) : "Could not post. Check your connection and try again.");
@@ -8808,7 +8879,7 @@ header.hero .me-btn { border-color:#e87328; }
       box.appendChild(r);
     });
   }
-  var APP_VERSION = "v212";
+  var APP_VERSION = "v213";
   /* ---------- Photo upload diagnostic (Settings > Testing) ---------- */
   async function runPhotoDiag() {
     var out = { at: new Date().toISOString(), version: APP_VERSION, ua: navigator.userAgent, steps: [] };
@@ -9769,7 +9840,7 @@ header.hero .me-btn { border-color:#e87328; }
 
   /* ---------- Render all ---------- */
   function drawAll() {
-    campDirty(); campWatchChecks();
+    campDirty(); campWatchChecks(); campWatchTPosts();
     drawHeader(); drawCampToday(); drawToday(); drawYours(); drawFuel(); drawTrain(); drawBoard(); drawMeBtns(); drawProfile(); drawSettings();
     drawDevo();
   }
@@ -9912,7 +9983,7 @@ header.hero .me-btn { border-color:#e87328; }
       B.watchWeights(state.me, function (m) { state.weights = normWeights(m); drawToday(); if (!$("page-train").hidden) drawWeightChart(); });
       if (B.watchLiftNotes) B.watchLiftNotes(state.me, function (m) { state.liftNotes = m || {}; });
       if (B.watchLegacy) B.watchLegacy(state.me, function (m) { state.legacy = normLegacy(m); drawToday(); var lg = $("cdlg"); if (lg && lg.dataset.k === "legacy" && !lg.contains(document.activeElement)) openLegacy(); });
-      B.watchSeen(state.me, function (o) { state.seen = { tags: Number(o.tags) || 0, rally: Math.max(Number(o.rally) || 0, Number(state.seen && state.seen.rally) || 0) }; drawTagBells(); rlBadge(); });
+      B.watchSeen(state.me, function (o) { var tm = normTeamSeen(o.team), lt = (state.seen && state.seen.team) || {}; Object.keys(lt).forEach(function (k) { tm[k] = Math.max(tm[k] || 0, lt[k] || 0); }); state.seen = { tags: Number(o.tags) || 0, rally: Math.max(Number(o.rally) || 0, Number(state.seen && state.seen.rally) || 0), team: tm }; drawTagBells(); rlBadge(); if (state.page === "team") drawTeamPage(); });
       B.watchOnboard(state.me, function (o) {
         state.onboard = { done: !!o.done, at: Number(o.at) || 0, ordersDone: !!o.ordersDone }; state.onboardLoaded = true;
         if (state.onboard.done && ONB && !ONB.replay && ONB.i === 0) closeOnb();
