@@ -1006,6 +1006,19 @@ button.fo-item { cursor: pointer; min-height: 44px; }
 .cpg-how li { position: relative; padding-left: 20px; font-size: 14.5px; line-height: 1.45; } .cpg-how li::before { content: "\2022"; position: absolute; left: 4px; color: var(--accent); font-weight: 700; }
 .cpg-wk { color: var(--muted); margin: 0 0 10px; }
 .cpg-sh { margin: 0 0 8px; }
+.set-ownrow { width: 100%; display: flex; align-items: center; gap: 12px; margin: 0 0 14px; padding: 14px; text-align: left; font: inherit; color: var(--ink); border: 1px solid var(--accent); border-radius: 10px; background: var(--surface); cursor: pointer; }
+.set-ownrow .sc-txt { flex: 1; display: grid; gap: 2px; } .set-ownrow .sc-txt > span { font-family: var(--f-label); font-weight: 800; letter-spacing: .1em; text-transform: uppercase; font-size: 16px; color: var(--accent); } .set-ownrow small { color: var(--muted); font-size: 13px; }
+.set-ownrow .sc-chev { color: var(--accent); font-size: 22px; }
+.o-badge { min-width: 22px; height: 22px; padding: 0 6px; border-radius: 11px; background: var(--accent); color: var(--accent-ink, #111); font-weight: 700; font-size: 12.5px; display: grid; place-items: center; }
+#page-owner h1.pg { margin: 6px 0 2px; }
+.o-rep { border: 1px solid var(--line); border-radius: 10px; background: var(--surface); padding: 12px; margin-bottom: 10px; }
+.o-rh { display: flex; justify-content: space-between; gap: 10px; align-items: baseline; } .o-rc { color: var(--accent); font-family: var(--f-label); font-weight: 700; letter-spacing: .08em; text-transform: uppercase; font-size: 12.5px; }
+.o-rt { margin: 8px 0; padding: 8px 10px; border-left: 3px solid var(--line); font-size: 14.5px; line-height: 1.45; white-space: pre-wrap; }
+.o-rby { color: var(--muted); font-size: 12.5px; display: block; }
+.o-ra { display: flex; gap: 8px; margin-top: 10px; } .o-ra .btn { flex: 1; } .o-rm { background: var(--danger, #c0392b); border-color: var(--danger, #c0392b); color: #fff; }
+.o-soon { margin-top: 18px; } .o-soon h2 { margin: 0 0 8px; }
+.o-soon-row { display: grid; gap: 2px; padding: 10px 12px; border: 1px dashed var(--line); border-radius: 8px; margin-bottom: 8px; } .o-soon-row span { color: var(--muted); font-size: 13.5px; }
+
 .cpg-mine { border: 1px solid var(--accent); border-radius: 12px; background: var(--surface); padding: 6px; margin-bottom: 12px; }
 .cpg-mine .cpg-mtop { border: 0; grid-template-columns: 72px minmax(0, 1fr) auto; }
 .cpg-mn { font-family: var(--f-label); font-weight: 800; text-transform: uppercase; letter-spacing: .04em; font-size: 22px; }
@@ -2089,6 +2102,39 @@ header.hero .me-btn { border-color:#e87328; }
   </div>
 
   <!-- WEEKLY CHALLENGE -->
+  <div class="page" id="page-owner" hidden>
+    <div class="pbar">
+      <button class="mini" type="button" id="own-back">&lsaquo; Settings</button>
+      <span class="date label-caps">Only you see this</span>
+    </div>
+    <h1 class="pg">Owner tools</h1>
+    <p class="note">Everything you need to run Forged &amp; Sent, in one place.</p>
+
+    <section aria-labelledby="h-o-rep">
+      <div class="section-head"><h2 class="label-caps" id="h-o-rep" data-sub="Posts brothers flagged. Keep them or remove them.">Reports</h2></div>
+      <div id="o-reports"></div>
+    </section>
+
+    <section aria-labelledby="h-s-owner" id="s-owner-sec" hidden>
+      <div class="section-head"><h2 class="label-caps" id="h-s-owner" data-sub="Sign-up and start dates, the weekly double, team names.">Campaigns</h2></div>
+      <div id="s-owner"></div>
+    </section>
+
+    <section aria-labelledby="h-s-test">
+      <div class="section-head"><h2 class="label-caps" id="h-s-test" data-sub="Preview the app as if it were another day. Only on this phone.">App: test a different date</h2></div>
+      <p class="note" id="test-status" style="margin-top:0"></p>
+      <label class="flabel">Test date<input class="field" type="date" id="test-date"></label>
+      <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap"><button class="btn" type="button" id="test-go" style="flex:1">Set test date</button><button class="btn ghost" type="button" id="test-off" style="flex:1">Clear test date</button></div>
+      <p class="note">Anything you log while testing is saved to that date for real. Delete test entries when you are done.</p>
+    </section>
+
+    <section class="o-soon" aria-label="Coming next">
+      <h2 class="label-caps">Coming next</h2>
+      <div class="o-soon-row"><b>Members</b><span>Who’s in, who invited whom, who hasn’t agreed to the latest terms.</span></div>
+      <div class="o-soon-row"><b>Content</b><span>This week’s challenges, the lift list and the daily boxes.</span></div>
+    </section>
+  </div>
+
   <div class="page" id="page-camp" hidden>
     <header>
       <div class="topline"><span class="date label-caps">Iron sharpens iron</span><button type="button" class="me-btn" data-open="me" aria-label="Your profile"></button></div>
@@ -2172,6 +2218,8 @@ header.hero .me-btn { border-color:#e87328; }
       <div class="topline"><button class="mini" type="button" id="set-back">&lsaquo; Profile</button></div>
       <h1 class="pg">Settings</h1>
     </header>
+
+    <button type="button" class="set-ownrow" id="set-owner" hidden><span class="sc-txt"><span>Owner tools</span><small>Campaigns, reports and app tools. Only you see this.</small></span><span class="o-badge" id="o-badge" hidden></span><span class="sc-chev">›</span></button>
 
     <section aria-labelledby="h-s-guide">
       <div class="section-head"><h2 class="label-caps" id="h-s-guide">Setup guide</h2></div>
@@ -2274,11 +2322,6 @@ header.hero .me-btn { border-color:#e87328; }
       <div class="fm-opts" id="food-mode" role="radiogroup" aria-labelledby="h-s-food"></div>
     </section>
 
-    <section aria-labelledby="h-s-owner" id="s-owner-sec" hidden>
-      <div class="section-head"><h2 class="label-caps" id="h-s-owner" data-sub="Only you see this. Campaign dates, the weekly double, team names.">Owner</h2></div>
-      <div id="s-owner"></div>
-    </section>
-
     <section aria-labelledby="h-s-tg">
       <div class="section-head"><h2 class="label-caps" id="h-s-tg" data-sub="The calories, protein, carbs and fat you track against on the Fuel tab.">Daily calorie and macro targets</h2></div>
       <div class="calc" id="calc-out" style="margin-top:4px"></div>
@@ -2327,14 +2370,6 @@ header.hero .me-btn { border-color:#e87328; }
       <div id="blocked-list"></div>
       <p class="note" id="blocked-empty">You have not blocked anyone.</p>
       <p class="note">Concern about a post or a brother? Use Report on the post, or contact your group leader. A public support email gets added before the app store launch.</p>
-    </section>
-
-    <section aria-labelledby="h-s-test">
-      <div class="section-head"><h2 class="label-caps" id="h-s-test" data-sub="Preview the app as if it were another day. Only on this phone.">Testing: change the date</h2></div>
-      <p class="note" id="test-status" style="margin-top:0"></p>
-      <label class="flabel">Test date<input class="field" type="date" id="test-date"></label>
-      <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap"><button class="btn" type="button" id="test-go" style="flex:1">Set test date</button><button class="btn ghost" type="button" id="test-off" style="flex:1">Clear test date</button></div>
-      <p class="note">Anything you log while testing is saved to that date for real. Delete test entries when you are done.</p>
     </section>
 
     <section aria-labelledby="h-s-legacy">
@@ -3162,7 +3197,7 @@ header.hero .me-btn { border-color:#e87328; }
     state.page = p;
     if (p !== "workout") { closeExPicker(); closeSwap(); }
     if (p !== "fuel") { state.add = null; var fsh = document.getElementById("fsheet"); if (fsh) fsh.remove(); }
-    ["today", "fuel", "train", "board", "checkin", "profile", "settings", "devo", "workout", "video", "chal", "ideas", "team", "camp"].forEach(function (n) { $("page-" + n).hidden = n !== p; });
+    ["today", "fuel", "train", "board", "checkin", "profile", "settings", "devo", "workout", "video", "chal", "ideas", "team", "camp", "owner"].forEach(function (n) { $("page-" + n).hidden = n !== p; });
     Array.prototype.forEach.call(document.querySelectorAll(".tabbar button"), function (b) {
       if (b.dataset.page === (p === "workout" || p === "video" || p === "chal" ? "train" : p === "ideas" ? "fuel" : p === "team" || (p === "checkin" && state.chan) ? "camp" : p)) b.setAttribute("aria-current", "page"); else b.removeAttribute("aria-current");
     });
@@ -3177,6 +3212,7 @@ header.hero .me-btn { border-color:#e87328; }
     if (p === "ideas") drawIdeas();
     if (p === "team") drawTeamPage();
     if (p === "camp") drawCampPage();
+    if (p === "owner") { ownerWatch(); drawOwner(); }
     $("scroll").classList.toggle("rally-mode", p === "checkin"); rlBadge();
     if (p === "checkin") { rlStick = true; drawFeed(true); }
     if (p === "devo") { sizeDevo(); $("scroll").scrollTop = 0; devoScroll(); }
@@ -8168,7 +8204,7 @@ header.hero .me-btn { border-color:#e87328; }
   }
   /* ---------- Confirm before deleting ---------- */
   function openSettingsSection(hid) {
-    state.viewUid = state.me; go("settings");
+    state.viewUid = state.me; go(/^h-(s-owner|s-test|o-)/.test(hid) ? "owner" : "settings");
     var body = $(hid + "-body"), sec = body && body.closest("section"), btn = sec && sec.querySelector(".set-open");
     if (body && body.hidden && btn) btn.click();
     setTimeout(function () { if (sec && sec.scrollIntoView) sec.scrollIntoView({ block: "start", behavior: "smooth" }); }, 60);
@@ -9149,7 +9185,7 @@ header.hero .me-btn { border-color:#e87328; }
       box.appendChild(r);
     });
   }
-  var APP_VERSION = "v224";
+  var APP_VERSION = "v225";
   /* ---------- Photo upload diagnostic (Settings > Testing) ---------- */
   async function runPhotoDiag() {
     var out = { at: new Date().toISOString(), version: APP_VERSION, ua: navigator.userAgent, steps: [] };
@@ -9992,7 +10028,41 @@ header.hero .me-btn { border-color:#e87328; }
     var last = Number(state.settings && state.settings.lastExport) || 0;
     box.appendChild(el("p", "fnote", (expMsg ? expMsg + " " : "") + (last ? "Last download " + expTimeText(last) + ". " : "") + "One download a day. Only your own data is included, never other brothers’ posts or team chat."));
   }
+
+  /* ---------- Owner tools ---------- */
+  var ownerUnsub = null;
+  function ownerWatch() {
+    if (ownerUnsub || !state.isOwner || !B.db) return;
+    try { ownerUnsub = B.db.collection("reports").onSnapshot(function (s) { state.reports = s.docs.map(function (d) { var x = d.data() || {}; return { id: d.id, postId: String(x.postId || ""), by: String(x.by || ""), author: String(x.author || ""), createdAt: Number(x.createdAt) || 0 }; }).filter(function (r) { return r.postId; }); drawOwner(); drawSettings(); }, noop); } catch (e) {}
+  }
+  function openReports() { var gone = state.repGone || {}; return (state.reports || []).filter(function (r) { return !gone[r.id]; }); }
+  function repPost(r) { var p = (state.posts || []).filter(function (x) { return x.id === r.postId; })[0]; if (p) return { p: p, team: false }; p = (state.tposts || []).filter(function (x) { return x.id === r.postId; })[0]; return p ? { p: p, team: true } : null; }
+  function clearReports(postId) { var ids = openReports().filter(function (r) { return r.postId === postId; }).map(function (r) { return r.id; }); state.repGone = state.repGone || {}; ids.forEach(function (id) { state.repGone[id] = 1; try { B.db.doc("reports/" + id).delete().catch(noop); } catch (e) {} }); drawOwner(); drawSettings(); }
+  function drawOwner() {
+    var box = $("o-reports"); if (!box) return; box.textContent = "";
+    var list = openReports(), byPost = {};
+    list.forEach(function (r) { (byPost[r.postId] = byPost[r.postId] || []).push(r); });
+    var keys = Object.keys(byPost).sort(function (a, b) { return Math.max.apply(null, byPost[b].map(function (r) { return r.createdAt; })) - Math.max.apply(null, byPost[a].map(function (r) { return r.createdAt; })); });
+    if (!keys.length) { box.appendChild(el("p", "note", "No open reports. When a brother reports a post, it shows up here.")); }
+    keys.forEach(function (pid) {
+      var rs = byPost[pid], hit = repPost(rs[0]), card = el("div", "o-rep");
+      var hd = el("div", "o-rh"); hd.appendChild(el("b", null, hit ? nameOf(hit.p.uid) + (hit.team ? " · team chat" : " · Rally") : "Post no longer available"));
+      hd.appendChild(el("span", "o-rc", rs.length + (rs.length === 1 ? " report" : " reports"))); card.appendChild(hd);
+      if (hit) card.appendChild(el("p", "o-rt", String(hit.p.text || "(photo or video)").slice(0, 280)));
+      card.appendChild(el("small", "o-rby", "Reported by " + rs.map(function (r) { return nameOf(r.by); }).filter(function (v, i, a) { return a.indexOf(v) === i; }).join(", ") + " · " + new Date(Math.max.apply(null, rs.map(function (r) { return r.createdAt; }))).toLocaleString(undefined, { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" })));
+      var row = el("div", "o-ra"), keep = el("button", "btn ghost", hit ? "Keep post" : "Dismiss"); keep.type = "button"; keep.addEventListener("click", function () { clearReports(pid); }); row.appendChild(keep);
+      if (hit) { var rm = el("button", "btn o-rm", "Remove post"); rm.type = "button";
+        rm.addEventListener("click", function () { confirmDelete({ title: "Remove this post?", message: "It will be removed for everyone. The reports are cleared.", yes: "Remove" }, function () { var pr = hit.team ? B.deleteTPost(pid) : B.deletePost(pid); Promise.resolve(pr).then(function () { if (hit.team) state.tposts = (state.tposts || []).filter(function (x) { return x.id !== pid; }); else state.posts = state.posts.filter(function (x) { return x.id !== pid; }); clearReports(pid); drawFeed(); }).catch(function () { rm.textContent = "Couldn’t remove. Try again."; }); }); });
+        row.appendChild(rm); }
+      card.appendChild(row); box.appendChild(card);
+    });
+  }
+  function drawOwnerRow() {
+    var b = $("set-owner"); if (!b) return; b.hidden = !state.isOwner; if (!state.isOwner) return; ownerWatch();
+    var n = openReports().length, bd = $("o-badge"); bd.hidden = !n; bd.textContent = n ? String(n) : "";
+  }
   function drawSettings() {
+    drawOwnerRow();
     drawExportSettings();
     drawLegalSettings();
     paintTestCtl(); drawInviteSettings(); drawFoodMode(); drawCampOwner();
@@ -10219,7 +10289,7 @@ header.hero .me-btn { border-color:#e87328; }
       btn.addEventListener("click", function () { var open = body.hidden; body.hidden = !open; btn.setAttribute("aria-expanded", String(open)); });
       head.hidden = true; sec.classList.add("set-card"); sec.appendChild(btn); sec.appendChild(body);
     });
-    ["h-s-wk", "h-s-body", "h-s-goal", "h-s-food", "h-s-owner", "h-s-tg", "h-s-rem", "h-s-health", "h-s-safe", "h-s-test", "h-s-export", "h-s-legal", "h-s-acct"].forEach(function (hid) {
+    ["h-s-wk", "h-s-body", "h-s-goal", "h-s-food", "h-s-owner", "h-s-tg", "h-s-rem", "h-s-health", "h-s-safe", "h-s-test", "h-s-export", "h-s-legal", "h-s-acct", "h-o-rep"].forEach(function (hid) {
       var h = $(hid); if (!h) return; var sec = h.closest("section"), head = h.closest(".section-head"); if (!sec || !head) return;
       var body = el("div", "set-body"); body.id = hid + "-body"; body.hidden = true;
       while (head.nextSibling) body.appendChild(head.nextSibling);
@@ -10265,6 +10335,8 @@ header.hero .me-btn { border-color:#e87328; }
     $("prof-back").addEventListener("click", function () { go(state.prevPage || "today"); });
     $("prof-gear").addEventListener("click", function () { go("settings"); });
     $("set-back").addEventListener("click", function () { state.viewUid = state.me; go("profile"); });
+    $("set-owner").addEventListener("click", function () { go("owner"); });
+    $("own-back").addEventListener("click", function () { go("settings"); });
     $("page-settings").addEventListener("input", function (ev) {
       var f = ev.target.closest ? ev.target.closest("[data-form]") : null;
       if (f) state.dirty[f.dataset.form] = true;
