@@ -7,7 +7,7 @@
 - Flutter foundation is under `mobile/`, including the app shell and emulator runtime scaffold. It is not an implemented feature-complete replacement for `index.html`.
 - Separate local Firebase emulator rules/tests, Windows/Mac onboarding, multi-provider advisory review, architecture SYSTEM.md/CODE-MAP.md and offline Architecture Atlas are proposed in that draft.
 - The HTML/JavaScript `index.html` remains the behavior and visual-reference prototype. Archived `versions/app-vN.html` files remain append-only.
-- Current source was inspected at PR #4 head `9ed822db1d2d8cb0ae092d98fc070bb503124c1d`; later changes require rereading PR metadata and HEAD. The PR #4 branch now integrates main prototype versions through app-v226 at the merge snapshot.
+- Current source was inspected at PR #4 head `edd1d4f0084dad1aa8fd0f27cdd5a6ade91753a4`; later changes require rereading PR metadata and HEAD. The PR #4 branch now integrates main prototype versions through app-v226 at the merge snapshot.
 
 ## Do not assume
 - Draft PR #4 has merged, CI is green, real emulator/device integration is proven, all MCP handshakes succeed, or desktop hosts compile.
