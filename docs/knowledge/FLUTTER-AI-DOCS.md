@@ -1,6 +1,6 @@
 # Flutter and Dart AI documentation retrieval rules
 
-**Use live SDK/source state first.** The project already defines a Dart MCP and Context7 connection in .mcp.json and .codex/config.toml, plus a Google Developer Knowledge entry in VS Code. Configuration is not a successful initialize/tools/list handshake; check locally and report unavailable tools without inventing results.
+**Use live SDK/source state first.** The project defines a Dart MCP and Context7 connection in .mcp.json (Claude), .codex/config.toml (Codex), and .gemini/settings.json (Gemini), plus a Google Developer Knowledge entry in VS Code. Configuration is not a successful initialize/tools/list handshake; check locally and report unavailable tools without inventing results.
 
 ## Preferred retrieval order
 1. Inspect the actual code, `mobile/pubspec.yaml`, `mobile/pubspec.lock`, SDK version and `flutter doctor -v`; query Dart MCP for symbols, analysis, formatting, tests and runtime diagnostics when connected.
@@ -35,3 +35,7 @@ After installing, verify the real tools/skills rather than recording "ready" bas
 - Official: https://docs.flutter.dev/ai/get-started ; https://docs.flutter.dev/ai/tools ; https://docs.flutter.dev/app-architecture/recommendations
 - Context7: https://context7.com/docs/tips ; https://context7.com/docs/api-guide
 - Review these setup links when the Flutter SDK is upgraded, a plugin is introduced or a new agent version changes MCP/skills handling. Keep project-specific rules concise and versioned.
+
+## Gemini CLI configuration
+The project-scoped `.gemini/settings.json` defines only the allowlisted Dart MCP launcher and read-only documentation retrieval via Context7 with `trust: false`. A project config is not proof of a connected server; run `/mcp` or `/mcp list` in Gemini CLI to inspect discovery, then try a narrowly scoped docs lookup. Avoid user-global MCP registration and never add Firebase cloud credentials.
+Reference: https://geminicli.com/docs/tools/mcp-server/

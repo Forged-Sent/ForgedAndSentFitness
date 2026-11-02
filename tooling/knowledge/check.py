@@ -2,6 +2,7 @@
 """Validate the Markdown knowledge index and metadata without external dependencies."""
 from __future__ import annotations
 
+import json
 import re
 from datetime import date
 from pathlib import Path
@@ -70,6 +71,22 @@ def validate(root: Path) -> list[str]:
         values = metadata(file.read_text(encoding="utf-8"))
         if values.get("status") != "archived" or not values.get("superseded_by"):
             errors.append(f"{file.relative_to(root)}: archived note needs status and superseded_by")
+    gemini = root / ".gemini" / "settings.json"
+    if gemini.is_file():
+        try:
+            settings = json.loads(gemini.read_text(encoding="utf-8"))
+            servers = settings.get("mcpServers", {})
+            if set(servers) != {"dart", "context7"}:
+                errors.append("Gemini project MCP allowlist must contain only dart and context7")
+            if any(server.get("trust", False) for server in servers.values()):
+                errors.append("Gemini MCP must not auto-trust tools")
+            if servers.get("context7", {}).get("httpUrl") != "https://mcp.context7.com/mcp":
+                errors.append("Gemini Context7 must use reviewed HTTP endpoint")
+            dart = servers.get("dart", {})
+            if dart.get("command") != "node" or dart.get("args") != ["tooling/mcp/launch.mjs", "dart"]:
+                errors.append("Gemini Dart MCP must use existing allowlisted launcher")
+        except (json.JSONDecodeError, AttributeError, TypeError):
+            errors.append("Invalid Gemini MCP settings JSON")
     return errors
 
 

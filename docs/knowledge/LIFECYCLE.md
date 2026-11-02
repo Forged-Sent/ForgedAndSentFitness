@@ -19,5 +19,8 @@ This policy applies to project knowledge notes, ADRs, agent skills, generated ma
 ## Obsidian use
 Open `docs/` as an Obsidian vault. Version-control Markdown, not local Obsidian state: `**/.obsidian/` and `**/.trash/` are Git-ignored. Obsidian is optional, and native Markdown links work without it. Do not introduce a second externally synced knowledge database or grant an Obsidian MCP unrestricted write access. A future MCP proposal needs a scoped, read-only proof before any write permissions.
 
+## Retiring executable code and old scaffolding
+For non-archival source files, first map every import, runtime caller, test, CI path and supported-platform build reference. Introduce the replacement behind a small tested interface or compatibility adapter, migrate callers, then delete only proven-dead code in a dedicated reviewable PR. Check migrations on supported platforms; an unused Dart symbol or lexical Atlas edge alone is not proof that an integration is safe to delete. Record the removal's commit/PR and user-visible behavior in the relevant handoff. Do not delete prototype `versions/` snapshots or alter stored event schemas without a migration plan.
+
 ## Handoff/status state
 For active task handoffs, the required YAML fields are `status` (active, completed or superseded), `updated` (YYYY-MM-DD), `owner`, `source_ref`, and `source_sha` (40-character Git SHA). Template files are exempt from validation. On merge, set completed and reference the merge PR. For abandoned work, set superseded and link the replacement. The check script verifies syntax, local references and that the active index doesn't point to archive files; it does not certify the content itself.

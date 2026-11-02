@@ -34,6 +34,17 @@ class KnowledgeValidationTest(unittest.TestCase):
         (self.notes / "handoffs" / "task.md").write_text("# Missing metadata", encoding="utf-8")
         self.assertTrue(any("missing metadata" in error for error in validate(self.root)))
 
+    def test_gemini_mcp_disallows_privileged_server(self):
+        import json
+        gemini = self.root / ".gemini"
+        gemini.mkdir()
+        (gemini / "settings.json").write_text(json.dumps({"mcpServers": {
+            "dart": {"command": "node", "args": ["tooling/mcp/launch.mjs", "dart"]},
+            "context7": {"httpUrl": "https://mcp.context7.com/mcp", "trust": False},
+            "firebase": {"command": "firebase"}
+        }}), encoding="utf-8")
+        self.assertTrue(any("allowlist" in error for error in validate(self.root)))
+
     def test_archive_not_in_current_index(self):
         archive = self.notes / "archive"
         archive.mkdir()
