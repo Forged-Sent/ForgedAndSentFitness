@@ -191,7 +191,9 @@
     out.appendChild(label);out.appendChild(node('h3',null,f.path));
     out.appendChild(node('p','detail-description',f.description));
     var tags=node('div','tag-row');drawTag(tags,f.symbols.length+' declarations','green');drawTag(tags,f.deps.length+' outgoing links');drawTag(tags,f.usedBy.length+' referencing files');
-    if(f.largeOrBinary)drawTag(tags,'Content not embedded','planned');out.appendChild(tags);
+    if(f.largeOrBinary)drawTag(tags,'Content not embedded','planned');
+    if(f.symbolOverflow)drawTag(tags,'First '+f.symbols.length+' of '+f.symbolCount+' detected declarations','planned');
+    out.appendChild(tags);
     var source=srcLink(f.path,0,'Read entire source on GitHub ↗');source.className='detail-source-link';out.appendChild(source);
     if(f.largeOrBinary)out.appendChild(node('p','truth-note','File is too large or not safely readable as text. Its path is indexed but source text was not embedded.'));
     var headings=f.symbols;
