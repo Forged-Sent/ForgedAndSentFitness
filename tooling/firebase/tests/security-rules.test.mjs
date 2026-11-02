@@ -3,7 +3,7 @@ import { readFileSync } from 'node:fs';
 import assert from 'node:assert/strict';
 import { initializeTestEnvironment, assertFails, assertSucceeds } from '@firebase/rules-unit-testing';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
-import { ref, uploadBytes } from 'firebase/storage';
+import { ref, uploadBytes, getMetadata } from 'firebase/storage';
 
 const PROJECT = 'demo-forgedandsent';
 let env;
@@ -62,4 +62,33 @@ test('Storage: anonymous and non-smoke objects are denied', async () => {
   const bucket = 'gs://demo-forgedandsent.appspot.com';
   await assertFails(uploadBytes(ref(guest.storage(bucket), 'developer_smoke/alice/guest.txt'), new Uint8Array([5])));
   await assertFails(uploadBytes(ref(alice.storage(bucket), 'private_prayers/secret.txt'), new Uint8Array([6])));
+});
+
+// The Flutter startup health check (forged_firebase_runtime.dart) reads the
+// developer_smoke/{uid} DOCUMENT itself and calls getMetadata on a missing
+// Storage object. These tests pin exactly those operations.
+test('Runtime health check: owner reads own developer_smoke/{uid} document', async () => {
+  const owner = env.authenticatedContext('anon-owner');
+  await assertSucceeds(getDoc(doc(owner.firestore(), 'developer_smoke', 'anon-owner')));
+});
+
+test('Runtime health check: other user and guest cannot read developer_smoke/{uid}', async () => {
+  const other = env.authenticatedContext('anon-other');
+  const guest = env.unauthenticatedContext();
+  await assertFails(getDoc(doc(other.firestore(), 'developer_smoke', 'anon-owner')));
+  await assertFails(getDoc(doc(guest.firestore(), 'developer_smoke', 'anon-owner')));
+});
+
+test('Runtime health check: owner getMetadata on a missing object is object-not-found', async () => {
+  const owner = env.authenticatedContext('anon-owner');
+  const target = ref(owner.storage('gs://demo-forgedandsent.appspot.com'),
+    'developer_smoke/anon-owner/__healthcheck_missing__.txt');
+  await assert.rejects(getMetadata(target), (e) => e.code === 'storage/object-not-found');
+});
+
+test('Runtime health check: guest getMetadata on the smoke path is denied', async () => {
+  const guest = env.unauthenticatedContext();
+  const target = ref(guest.storage('gs://demo-forgedandsent.appspot.com'),
+    'developer_smoke/anon-owner/__healthcheck_missing__.txt');
+  await assertFails(getMetadata(target));
 });
