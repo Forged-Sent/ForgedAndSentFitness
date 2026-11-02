@@ -15,6 +15,7 @@ Forged & Sent is a faith-centered devotional workout and group accountability pl
 
 ## Protected operations
 - GitHub rulesets, not instructions or AI reviews, enforce protected branches and mandatory checks. The live ruleset currently requires ci-gate but ZERO human approvals. Do NOT claim a second human review is enforced. Never push to main, force-push main, bypass protections, or merge before required checks pass.
+- **Agent push rule.** An AI agent may push commits to a non-`main` branch only when ALL of the following are confirmed immediately before the push: (1) a human explicitly authorized that push in the current session; (2) every review thread on the PR is closed (resolved or outdated), checked on GitHub rather than assumed; (3) `ci-gate` on the PR's current head is green, or the push is the fix for a failing `ci-gate`. Agents never push to `main`, force-push, approve or merge, even with authorization.
 - Deterministic CI is mandatory. As a solo maintainer, no second human or AI approval is required. For Flutter database, Firebase rules, private data or authorization work, recommend a non-author AI security review as an optional second opinion; record any unverified coverage.
 - Never use an AI agent's review as an approval. Agents must not self-approve, self-merge, change branch protections, or impersonate a human reviewer.
 - AI reviews are advisory and never satisfy required approval.
@@ -78,7 +79,7 @@ agent instructions are advisory. No cloud Firebase MCP is enabled by default.
 - Read docs/architecture/SYSTEM.md for current vs planned system boundaries and CODE-MAP.md for actual Dart symbols/imports.
 - Update SYSTEM.md/ADRs when boundaries change; run `python3 tooling/architecture/generate.py --write` for Dart changes.
 - Canonical skills are in .agents/skills; .claude/skills must match, enforced by `python3 tooling/skills/sync.py --check`.
-- Before pushing, run `python3 tooling/review/review.py --dry-run` and the appropriate independent review procedure.
+- Before pushing, run `python3 tooling/review/review.py --dry-run`; a non-author AI review is optional (recommended for Firebase/Auth/privacy/scoring changes).
 
 ## Architecture Explorer update contract
 
