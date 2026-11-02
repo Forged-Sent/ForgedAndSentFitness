@@ -176,6 +176,46 @@ def evaluate(root: Path) -> list[str]:
     except OSError:
         fail("docs/development/REPOSITORY-SECURITY.md", "required reviewer ruleset guide missing")
 
+    # Launchers must pass compile-time defines the app actually reads; a
+    # misspelled key silently drops the app into preview mode.
+    app_keys: set[str] = set()
+    for dart in (root / "mobile/lib").rglob("*.dart"):
+        try:
+            app_keys |= set(re.findall(r"fromEnvironment\(\s*'([A-Z][A-Z0-9_]*)'",
+                                       dart.read_text(encoding="utf-8")))
+        except OSError:
+            continue
+    launch_globs = ("tooling/**/*.ps1", "tooling/**/*.sh", "tooling/**/*.mjs",
+                    "*.cmd", "*.command", ".github/workflows/*.yml",
+                    "docs/**/*.md", "mobile/README.md")
+    for pattern in launch_globs:
+        for script in root.glob(pattern):
+            try:
+                text = script.read_text(encoding="utf-8")
+            except (OSError, UnicodeError):
+                continue
+            for key in re.findall(r"--dart-define=([A-Z][A-Z0-9_]*)=", text):
+                if key not in app_keys:
+                    fail(str(script.relative_to(root)),
+                         f"--dart-define={key} is never read by mobile/lib (known: {sorted(app_keys)})")
+
+    # Solo-maintainer policy: no instruction may mandate a second human or a
+    # second AI reviewer. Catch wording drift mechanically.
+    mandates = re.compile(r"plus another human|two independent provider reviews|"
+                          r"default two-reviewer|require[sd]? (?:the other person's|a second (?:human|person)'?s?) approv|"
+                          r"second human (?:review|approval) (?:is )?(?:required|mandatory)", re.I)
+    for pattern in ("*.md", ".github/**/*.md", ".claude/**/*.md", ".agents/**/*.md",
+                    "docs/**/*.md", "mobile/*.md"):
+        for doc in root.glob(pattern):
+            if "/versions/" in doc.as_posix():
+                continue
+            try:
+                hit = mandates.search(doc.read_text(encoding="utf-8"))
+            except (OSError, UnicodeError):
+                continue
+            if hit:
+                fail(str(doc.relative_to(root)), f"mandates an extra reviewer, contradicting solo-maintainer policy: '{hit.group(0)}'")
+
     if not (root / 'mobile/pubspec.lock').is_file():
         fail('mobile/pubspec.lock', 'reproducible app dependency lockfile must be committed')
     if not isinstance(versions, dict):

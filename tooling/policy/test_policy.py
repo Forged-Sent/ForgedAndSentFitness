@@ -23,6 +23,8 @@ PATHS = [
     "tooling/windows/setup.ps1",
     ".vscode/settings.json", "mobile/pubspec.lock",
     "docs/development/REPOSITORY-SECURITY.md",
+    "mobile/lib/main.dart", "mobile/lib/src/firebase/forged_firebase_runtime.dart",
+    "tooling/windows/run-emulator-app.ps1",
 ]
 
 class PolicyTests(unittest.TestCase):
@@ -41,6 +43,19 @@ class PolicyTests(unittest.TestCase):
 
     def test_clean_configuration(self):
         self.assertEqual(evaluate(self.root), [])
+
+    def test_launcher_dart_define_must_match_app_key(self):
+        # FNS_ENV vs FS_ENV previously sent the emulator launcher into preview mode.
+        launcher = self.root / "tooling/windows/run-emulator-app.ps1"
+        launcher.write_text(launcher.read_text(encoding="utf-8").replace(
+            "--dart-define=FS_ENV=", "--dart-define=FNS_ENV="), encoding="utf-8")
+        self.assert_violation("--dart-define=FNS_ENV is never read by mobile/lib")
+
+    def test_instruction_cannot_mandate_second_reviewer(self):
+        doc = self.root / "docs/development/ENGINEERING-RESEARCH.md"
+        doc.parent.mkdir(parents=True, exist_ok=True)
+        doc.write_text("Mode C: independent Firebase security review plus another human.\n", encoding="utf-8")
+        self.assert_violation("mandates an extra reviewer")
 
     def test_literal_google_api_key_is_rejected(self):
         path = self.root / ".vscode/mcp.json"
