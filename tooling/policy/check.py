@@ -91,6 +91,41 @@ def evaluate(root: Path) -> list[str]:
                 if server.get("url") != REMOTE_URLS[name]:
                     fail(filename, f"{name} must use approved URL")
 
+    # Gemini CLI loads project MCP servers from .gemini/settings.json and starts
+    # stdio servers at launch, so it gets the same allowlist as the configs above.
+    # It may declare a subset; every entry must be an approved, untrusted server.
+    gemini_path = root / ".gemini/settings.json"
+    if gemini_path.exists():
+        g = get_json(".gemini/settings.json")
+        if isinstance(g, dict):
+            if set(g) - {"mcpServers"}:
+                fail(".gemini/settings.json", f"unreviewed Gemini settings keys: {sorted(set(g) - {'mcpServers'})}")
+            gservers = g.get("mcpServers", {})
+            if not isinstance(gservers, dict):
+                fail(".gemini/settings.json", "mcpServers must be an object")
+                gservers = {}
+            extra = set(gservers) - (APPROVED - {"google-developer-knowledge"})
+            if extra:
+                fail(".gemini/settings.json", f"MCP names outside approved set: {sorted(extra)}")
+            for name, server in gservers.items():
+                if not isinstance(server, dict):
+                    fail(".gemini/settings.json", f"{name} must be an object")
+                    continue
+                if server.get("trust") is not False:
+                    fail(".gemini/settings.json", f"{name} must set trust: false")
+                if re.search(r"firebase(?:-tools)?", json.dumps(server).lower()):
+                    fail(".gemini/settings.json", f"{name} references forbidden Firebase cloud MCP")
+                if name in LOCAL:
+                    if set(server) != {"command", "args", "trust"}:
+                        fail(".gemini/settings.json", f"{name} local MCP has unapproved fields")
+                    if server.get("command") != "node" or server.get("args") != ["tooling/mcp/launch.mjs", name]:
+                        fail(".gemini/settings.json", f"{name} must invoke tooling/mcp/launch.mjs using its exact allowlisted tool name")
+                elif name in REMOTE:
+                    if set(server) != {"httpUrl", "trust"}:
+                        fail(".gemini/settings.json", f"{name} remote MCP has unapproved fields")
+                    if server.get("httpUrl") != REMOTE_URLS[name]:
+                        fail(".gemini/settings.json", f"{name} must use approved URL")
+
     expected_key = "$" + "{input:forgedGoogleKnowledgeApiKey}"
     if isinstance(v, dict):
         inp = v.get("inputs")
