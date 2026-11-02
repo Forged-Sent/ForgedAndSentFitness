@@ -27,6 +27,6 @@ Push-Location (Join-Path $root 'mobile')
 try {
   & $flutter.Source pub get
   if($LASTEXITCODE){throw 'Flutter pub get failed.'}
-  & $flutter.Source run -d chrome --dart-define=FNS_ENV=emulator
+  & $flutter.Source run -d chrome --dart-define=FS_ENV=emulator
   if($LASTEXITCODE){throw 'Flutter emulator-mode run failed.'}
 }finally{Pop-Location}
