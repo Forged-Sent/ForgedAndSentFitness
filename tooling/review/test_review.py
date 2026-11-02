@@ -3,7 +3,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from review import build_prompt, chunk_patch, chunk_manifest, command_for, parse_report, summarize
+from review import SENSITIVE, build_prompt, chunk_patch, chunk_manifest, command_for, parse_report, summarize
 
 
 class ReviewTests(unittest.TestCase):
@@ -69,6 +69,12 @@ class ReviewTests(unittest.TestCase):
             self.assertIn("BASELINE_REVIEW_GUIDE", prompt)
             self.assertNotIn("INJECTED_BRANCH_GUIDE", prompt)
             self.assertNotIn("trusted guidance", prompt)
+
+    def test_secret_signature_requires_actual_token(self):
+        self.assertIsNone(SENSITIVE.search("github_pat_[A-Za-z0-9_]{20,}"))
+        self.assertIsNone(SENSITIVE.search("ghp_[A-Za-z0-9]{20,}"))
+        self.assertIsNotNone(SENSITIVE.search("github_pat_" + "A" * 30))
+        self.assertIsNotNone(SENSITIVE.search("ghp_" + "B" * 30))
 
     def test_safe_commands(self):
         with tempfile.TemporaryDirectory() as tmp:
