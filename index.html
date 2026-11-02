@@ -961,6 +961,7 @@ button.fo-item { cursor: pointer; min-height: 44px; }
 .pbar{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;row-gap:6px}
 .pbar > .date, .pbar > .label-caps{min-width:0}
 @media (max-width:340px){ .pbar{gap:8px} .pbar .date{font-size:12px;letter-spacing:.04em} .help-right{gap:6px} }
+.prof-set{display:inline-flex;align-items:center;gap:6px}.prof-set svg{width:18px;height:18px;stroke:currentColor;stroke-width:2;fill:none;stroke-linecap:square}
 .icon-btn{width:44px;height:44px;border:1px solid var(--line);background:transparent;display:grid;place-items:center;color:var(--ink)}
 .icon-btn svg{width:24px;height:24px;stroke:currentColor;stroke-width:2;fill:none;stroke-linecap:square}
 .pcard{border:1px solid var(--line);background:var(--surface)}
@@ -991,6 +992,32 @@ button.fo-item { cursor: pointer; min-height: 44px; }
 .lg-d { color: var(--muted); font-size: 13px; min-width: 52px; } .lg-s { flex: 1; font-size: 14px; }
 .lg-pp { font-style: italic; color: var(--muted); margin: 0 0 6px; font-size: 14px; } .lg-full { white-space: pre-wrap; margin: 0 0 8px; line-height: 1.5; }
 .lg-ib { display: flex; gap: 8px; margin-bottom: 10px; }
+.cpg-hero { display: grid; grid-template-columns: 72px minmax(0, 1fr); gap: 14px; align-items: center; padding: 16px; margin: 0 0 12px; border: 1px solid var(--line); border-left: 3px solid var(--accent); border-radius: 10px; background: var(--surface); }
+.cpg-h { font-family: var(--f-label); font-weight: 800; text-transform: uppercase; letter-spacing: .05em; font-size: 24px; margin: 2px 0 4px; }
+.cpg-hero .note { margin: 0; }
+.cpg-champ, .cpg-team, .cpg-mtop { width: 100%; display: grid; grid-template-columns: 46px minmax(0, 1fr) auto; gap: 12px; align-items: center; padding: 12px; text-align: left; font: inherit; color: var(--ink); border: 1px solid var(--line); border-radius: 10px; background: var(--surface); cursor: pointer; }
+.cpg-champ { margin-bottom: 12px; grid-template-columns: 46px minmax(0, 1fr); }
+.cpg-champ span, .cpg-team span, .cpg-mtop > span:not(.chev) { display: grid; gap: 2px; min-width: 0; }
+.cpg-champ b, .cpg-team b { font-family: var(--f-label); font-weight: 800; text-transform: uppercase; letter-spacing: .04em; font-size: 17px; }
+.cpg-champ small, .cpg-team small, .cpg-mtop small { color: var(--muted); font-size: 13px; }
+.cpg-team { margin-top: 8px; } .cpg-team.me { border-color: var(--accent); }
+.cpg-sec { margin: 18px 0 0; } .cpg-sec h2 { margin: 0 0 8px; }
+.cpg-how { margin: 0; padding: 0; list-style: none; display: grid; gap: 8px; }
+.cpg-how li { position: relative; padding-left: 20px; font-size: 14.5px; line-height: 1.45; } .cpg-how li::before { content: "\2022"; position: absolute; left: 4px; color: var(--accent); font-weight: 700; }
+.cpg-wk { color: var(--muted); margin: 0 0 10px; }
+.cpg-mine { border: 1px solid var(--accent); border-radius: 12px; background: var(--surface); padding: 6px; margin-bottom: 12px; }
+.cpg-mine .cpg-mtop { border: 0; grid-template-columns: 72px minmax(0, 1fr) auto; }
+.cpg-mn { font-family: var(--f-label); font-weight: 800; text-transform: uppercase; letter-spacing: .04em; font-size: 22px; }
+.cpg-wall { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 10px 12px; border-top: 1px solid var(--line); font-size: 14.5px; }
+.cpg-dots { display: flex; gap: 5px; } .cpg-dots i { width: 12px; height: 12px; border-radius: 3px; border: 1px solid var(--line); } .cpg-dots i.on { background: var(--accent); border-color: var(--accent); }
+.cpg-chat { width: calc(100% - 12px); margin: 4px 6px 6px; }
+.cpg-stand { width: 100%; margin-top: 12px; }
+.cpg-owner { margin-top: 16px; }
+.tabbar button { min-width: 0; }
+.tabbar { padding-left: max(2px, env(safe-area-inset-left, 0px)); padding-right: max(2px, env(safe-area-inset-right, 0px)); }
+.tabbar.tabbar button { padding-left: 0; padding-right: 0; overflow: hidden; }
+@media (max-width: 430px) { .tabbar.tabbar button { font-size: 10.5px; letter-spacing: .02em; } }
+
 .lg-saved { display: grid; grid-template-columns: 40px minmax(0, 1fr); gap: 12px; align-items: start; margin: 8px 0 12px; padding: 14px; border: 1px solid var(--accent); border-radius: 10px; background: var(--surface); }
 .lg-ck { width: 36px; height: 36px; border-radius: 50%; background: var(--accent); display: grid; place-items: center; }
 .lg-ck svg { width: 20px; height: 20px; opacity: 1; stroke: var(--accent-ink, #111); stroke-width: 3; fill: none; stroke-linecap: square; }
@@ -2061,6 +2088,14 @@ header.hero .me-btn { border-color:#e87328; }
   </div>
 
   <!-- WEEKLY CHALLENGE -->
+  <div class="page" id="page-camp" hidden>
+    <header>
+      <div class="topline"><span class="date label-caps">Iron sharpens iron</span><button type="button" class="me-btn" data-open="me" aria-label="Your profile"></button></div>
+      <h1 class="pg">Campaign</h1>
+    </header>
+    <div id="camp-page"></div>
+  </div>
+
   <div class="page" id="page-team" hidden>
     <div class="pbar">
       <button class="mini" type="button" id="team-back">&lsaquo; Campaign</button>
@@ -2091,7 +2126,7 @@ header.hero .me-btn { border-color:#e87328; }
   <div class="page" id="page-profile" hidden>
     <div class="pbar">
       <button class="mini" type="button" id="prof-back">&lsaquo; Back</button>
-      <button class="icon-btn" type="button" id="prof-gear" aria-label="Settings"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3.2"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5.3 5.3l2.1 2.1M16.6 16.6l2.1 2.1M5.3 18.7l2.1-2.1M16.6 7.4l2.1-2.1"/></svg></button>
+      <button class="mini prof-set" type="button" id="prof-gear"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3.2"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5.3 5.3l2.1 2.1M16.6 16.6l2.1 2.1M5.3 18.7l2.1-2.1M16.6 7.4l2.1-2.1"/></svg>Settings</button>
     </div>
     <section class="pcard" aria-label="Profile">
       <div class="banner-img" id="p-banner"></div>
@@ -2345,8 +2380,8 @@ header.hero .me-btn { border-color:#e87328; }
   <button type="button" data-page="fuel"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3c2.5 3.5 6 6.5 6 11a6 6 0 0 1-12 0c0-2.5 1.2-4.3 2.5-5.5.3 2 1.3 3 2.5 3.5C11 9 11 6 12 3z"/><path d="M12 20.5a2.5 2.5 0 0 1-2.5-2.5c0-1.5 1.2-2.5 2.5-4 1.3 1.5 2.5 2.5 2.5 4a2.5 2.5 0 0 1-2.5 2.5z"/></svg>Fuel</button>
   <button type="button" data-page="train"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 9v6M6 7v10M18 7v10M21 9v6M6 12h12"/></svg>Train</button>
   <button type="button" data-page="board"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 20V10M12 20V4M19 20v-7"/></svg>Board</button>
+  <button type="button" data-page="camp"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3h14v12.6L12 21l-7-5.4Z"/><path d="M9 8.6h6M12 6v8"/></svg>Campaign</button>
   <button type="button" data-page="checkin"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v11H9l-5 4z"/></svg>Rally</button>
-  <button type="button" data-page="settings"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3.2"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5.3 5.3l2.1 2.1M16.6 16.6l2.1 2.1M5.3 18.7l2.1-2.1M16.6 7.4l2.1-2.1"/></svg>Settings</button>
 </nav>
 </div>
 
@@ -3126,9 +3161,9 @@ header.hero .me-btn { border-color:#e87328; }
     state.page = p;
     if (p !== "workout") { closeExPicker(); closeSwap(); }
     if (p !== "fuel") { state.add = null; var fsh = document.getElementById("fsheet"); if (fsh) fsh.remove(); }
-    ["today", "fuel", "train", "board", "checkin", "profile", "settings", "devo", "workout", "video", "chal", "ideas", "team"].forEach(function (n) { $("page-" + n).hidden = n !== p; });
+    ["today", "fuel", "train", "board", "checkin", "profile", "settings", "devo", "workout", "video", "chal", "ideas", "team", "camp"].forEach(function (n) { $("page-" + n).hidden = n !== p; });
     Array.prototype.forEach.call(document.querySelectorAll(".tabbar button"), function (b) {
-      if (b.dataset.page === (p === "workout" || p === "video" || p === "chal" ? "train" : p === "ideas" ? "fuel" : p === "team" || (p === "checkin" && state.chan) ? "board" : p)) b.setAttribute("aria-current", "page"); else b.removeAttribute("aria-current");
+      if (b.dataset.page === (p === "workout" || p === "video" || p === "chal" ? "train" : p === "ideas" ? "fuel" : p === "team" || (p === "checkin" && state.chan) ? "camp" : p)) b.setAttribute("aria-current", "page"); else b.removeAttribute("aria-current");
     });
     $("scroll").scrollTop = 0;
     if (p === "workout") startWkTick(); else if (p !== "video") { if (wkTick) saveWkNow(); stopWkTick(); cancelAllTones(); }
@@ -3140,6 +3175,7 @@ header.hero .me-btn { border-color:#e87328; }
     if (p === "chal") drawChallengePage();
     if (p === "ideas") drawIdeas();
     if (p === "team") drawTeamPage();
+    if (p === "camp") drawCampPage();
     $("scroll").classList.toggle("rally-mode", p === "checkin"); rlBadge();
     if (p === "checkin") { rlStick = true; drawFeed(true); }
     if (p === "devo") { sizeDevo(); $("scroll").scrollTop = 0; devoScroll(); }
@@ -6940,9 +6976,9 @@ header.hero .me-btn { border-color:#e87328; }
   function campDateText(k) { return parseKey(k).toLocaleDateString(undefined, { month: "short", day: "numeric" }); }
   function openCampBoard() { go("board"); state.boardView = "camp"; drawBoard(); }
   function openTeam(id) {
-    state.teamFrom = state.page === "today" ? "today" : (state.page === "team" || state.page === "checkin") ? (state.teamFrom || "board") : "board";
+    state.teamFrom = state.page === "today" ? "today" : state.page === "camp" ? "camp" : (state.page === "team" || state.page === "checkin") ? (state.teamFrom || "camp") : "board";
     var fromToday = state.teamFrom === "today";
-    $("team-back").textContent = fromToday ? "\u2039 Today" : "\u2039 Campaign"; $("team-camp").hidden = !fromToday;
+    $("team-back").textContent = fromToday ? "\u2039 Today" : state.teamFrom === "board" ? "\u2039 Standings" : "\u2039 Campaign"; $("team-camp").hidden = !fromToday;
     state.teamId = id; go("team"); drawTeamPage();
   }
 
@@ -6981,6 +7017,59 @@ header.hero .me-btn { border-color:#e87328; }
     tx.appendChild(el("small", null, "Counts double for every man in the battle, on his team and on his own Kingdom Warrior points.")); d.appendChild(tx); return d;
   }
 
+
+  /* Campaign tab: everything about campaigns except points and standings (those stay on the Board). */
+  function campHowItWorks(box) {
+    var sec = el("section", "cpg-sec"); sec.appendChild(el("h2", "label-caps", "How a campaign works"));
+    var ul = el("ul", "cpg-how");
+    ["A brother raises a banner and invites " + (CAMP_MIN - 1) + " to " + (CAMP_MAX - 1) + " men. Teams of " + CAMP_MIN + " to " + CAMP_MAX + " march.",
+     CAMP_WEEKS + " weeks, Monday to Sunday. Rosters lock on the first day.",
+     "Team score is the average Kingdom Warrior points per man each week. A brother who sits out a week doesn’t count against his team.",
+     "One box counts double each week for every man in the battle.",
+     "Wall Held: every man checks every box all 7 days and the team earns +" + WALL_BONUS + ".",
+     "The prize is bragging rights. Standings live on the Board."].forEach(function (t) { ul.appendChild(el("li", null, t)); });
+    sec.appendChild(ul); box.appendChild(sec);
+  }
+  function drawCampPage() {
+    var box = $("camp-page"); if (!box) return; box.textContent = "";
+    var ix = campIndex(), c = ix.c, ph = campPhase(c), n = c ? (c.n || 1) : 0, mine = c ? myTeam() : null;
+    if (!c || ph === "done" || ph === "soon") {
+      var tba = el("div", "cpg-hero"); tba.appendChild(bannerEl("trumpet", "big"));
+      var tx = el("div");
+      if (ph === "soon") { tx.appendChild(el("div", "label-caps cmp-k acc", "Campaign " + n)); tx.appendChild(el("h2", "cpg-h", "Sign-ups open " + campDateText(c.signup || c.start))); tx.appendChild(el("p", "note", "Starts " + longDate(c.start) + ". Start thinking about who you’ll march with.")); }
+      else { tx.appendChild(el("div", "label-caps cmp-k acc", "Next campaign")); tx.appendChild(el("h2", "cpg-h", "To be announced")); tx.appendChild(el("p", "note", "The next campaign date will be announced. Sign-ups will show here and on Today.")); }
+      tba.appendChild(tx); box.appendChild(tba);
+      if (c && ph === "done") {
+        var win = campStandings().filter(function (y) { return y.t.ok; })[0];
+        if (win) { var ch = el("button", "cpg-champ"); ch.type = "button"; ch.appendChild(bannerEl(win.t.banner)); var ct = el("span"); ct.appendChild(el("span", "label-caps cmp-k", "Campaign " + n + " champions")); ct.appendChild(el("b", null, win.t.name)); ct.appendChild(el("small", null, "Final standings are on the Board.")); ch.appendChild(ct); ch.addEventListener("click", openCampBoard); box.appendChild(ch); }
+      }
+    } else if (ph === "signup") {
+      var sg = el("div"); drawCampToday(sg); sg.hidden = false; Array.prototype.forEach.call(sg.querySelectorAll("button"), function (b) { if (b.textContent === "See the teams") b.remove(); }); box.appendChild(sg);
+      var teams = ix.teams || [];
+      var ts = el("section", "cpg-sec"); ts.appendChild(el("h2", "label-caps", "Teams forming · " + teams.length));
+      if (!teams.length) ts.appendChild(el("p", "note", "No banners raised yet. Be the first."));
+      teams.forEach(function (t) { var r = el("button", "cpg-team" + (mine && mine.id === t.id ? " me" : "")); r.type = "button"; r.appendChild(bannerEl(t.banner)); var rt = el("span"); rt.appendChild(el("b", null, t.name)); rt.appendChild(el("small", null, t.men.length + " of " + CAMP_MAX + " men" + (t.ok ? " · ready to march" : " · needs " + (CAMP_MIN - t.men.length) + " more") + " · Captain " + nameOf(t.cap))); r.appendChild(rt); r.appendChild(el("span", "chev", "›")); r.addEventListener("click", function () { openTeam(t.id); }); ts.appendChild(r); });
+      box.appendChild(ts);
+    } else {
+      var w = campWeekIdx(c, todayKey());
+      box.appendChild(el("p", "label-caps cpg-wk", "Campaign " + n + " · Week " + (w + 1) + " of " + CAMP_WEEKS + " · " + campDateText(c.start) + " – " + campDateText(campEnd(c))));
+      if (mine) {
+        var st = campStandings(), x = st.filter(function (y) { return y.t.id === mine.id; })[0] || {};
+        var yt = el("div", "cpg-mine"), top = el("button", "cpg-mtop"); top.type = "button"; top.appendChild(bannerEl(mine.banner, "big"));
+        var mt = el("span"); mt.appendChild(el("span", "label-caps cmp-k acc", "Your team")); mt.appendChild(el("b", "cpg-mn", mine.name)); mt.appendChild(el("small", null, mine.men.length + " men · Captain " + nameOf(mine.cap))); top.appendChild(mt); top.appendChild(el("span", "chev", "›"));
+        top.addEventListener("click", function () { openTeam(mine.id); }); yt.appendChild(top);
+        if (x.cur) { var wl = el("div", "cpg-wall"); var dots = el("span", "cpg-dots"); for (var i = 0; i < 7; i++) dots.appendChild(el("i", i < x.cur.wallDays ? "on" : "")); wl.appendChild(el("span", null, "Wall held " + x.cur.wallDays + " of 7 days")); wl.appendChild(dots); yt.appendChild(wl); }
+        var un = teamUnread(mine.id), chb = el("button", "btn ghost cpg-chat", "Team chat" + (un ? " · " + un + " new" : "")); chb.type = "button"; chb.addEventListener("click", function () { openTeamChat(mine.id); }); yt.appendChild(chb);
+        box.appendChild(yt);
+      } else {
+        var nt = el("div", "cpg-hero"); nt.appendChild(bannerEl("trumpet", "big")); var ntx = el("div"); ntx.appendChild(el("div", "label-caps cmp-k acc", "Not on a team")); ntx.appendChild(el("h2", "cpg-h", "The battle is on")); ntx.appendChild(el("p", "note", "You compete on the Individual board this campaign. Sign-ups for the next one show here.")); nt.appendChild(ntx); box.appendChild(nt);
+      }
+      if (campDoubleLabel(c, w)) box.appendChild(campDoubleCard(c, w));
+    }
+    var sb = el("button", "btn ghost cpg-stand", "Standings and points on the Board ›"); sb.type = "button"; sb.disabled = !c; sb.addEventListener("click", openCampBoard); if (c) box.appendChild(sb);
+    campHowItWorks(box);
+    if (state.isOwner) { var ow = el("button", "mini cpg-owner", "Owner settings"); ow.type = "button"; ow.addEventListener("click", function () { openSettingsSection("h-s-owner"); }); box.appendChild(ow); }
+  }
   /* Team page */
   function drawTeamPage() {
     var body = $("team-body"); if (!body) return; body.textContent = "";
@@ -7171,10 +7260,10 @@ header.hero .me-btn { border-color:#e87328; }
     }
     var b = el("button", "cmp-today"); b.type = "button"; b.appendChild(bannerEl(lead ? lead.t.banner : "trumpet"));
     var tx = el("span", "cmp-tx"); tx.appendChild(el("span", "label-caps cmp-k", k)); tx.appendChild(el("span", "cmp-nm", nm)); tx.appendChild(el("span", "cmp-sub", sub));
-    b.appendChild(tx); b.addEventListener("click", openCampBoard); box.appendChild(b); box.hidden = false;
+    b.appendChild(tx); b.addEventListener("click", function () { go("camp"); }); box.appendChild(b); box.hidden = false;
   }
-  function drawCampToday() {
-    var box = $("camp-today"); if (!box) return; box.textContent = ""; box.hidden = true;
+  function drawCampToday(into) {
+    var box = into || $("camp-today"); if (!box) return; box.textContent = ""; box.hidden = true;
     var ix = campIndex(), c = ix.c; if (!state.me) return; var ph = campPhase(c); if (ph !== "live" && ph !== "signup") { campSoonCard(box, c, ph); return; }
     var t = myTeam(), w = campWeekIdx(c, todayKey());
     if (t) {
@@ -7202,7 +7291,7 @@ header.hero .me-btn { border-color:#e87328; }
     });
     if (!invs.length) card.appendChild(el("span", "cmp-sub", "Teams of " + CAMP_MIN + " to " + CAMP_MAX + " battle for 6 weeks. Raise a team, or wait for a captain to invite you."));
     var two = el("div", "cmp-two"), rb = el("button", "btn ghost", "Raise a team"), sb = el("button", "btn ghost", "See the teams"); rb.type = "button"; sb.type = "button"; rb.disabled = !state.canWrite;
-    rb.addEventListener("click", openRaiseTeam); sb.addEventListener("click", openCampBoard); two.appendChild(rb); two.appendChild(sb); card.appendChild(two);
+    rb.addEventListener("click", openRaiseTeam); sb.addEventListener("click", function () { go("camp"); }); two.appendChild(rb); two.appendChild(sb); card.appendChild(two);
     box.appendChild(card); box.hidden = false;
   }
 
@@ -9015,8 +9104,9 @@ header.hero .me-btn { border-color:#e87328; }
     ["today", "Today", ["Tap a box when it's done. Boxes with an arrow open first, like the devotional, your creed and your steps.", "Some boxes fill themselves from Fuel, Train and Rally.", "Steps: 10,000 a day (7,000 on your Sabbath), plus bonus points past 10,000."]],
     ["fuel", "Fuel", ["Log meals with search, photo, voice or favorites.", "Tap the water buttons as you drink.", "Your Calories box checks when you land in your window: 15% under to 10% over when losing fat, within 5% when maintaining."]],
     ["train", "Train", ["Tap Start, pray the workout prayer, then tap Amen to start the clock.", "Log reps, then weight. Finish to earn 25 points for each lift PR.", "Weekly challenges are at the top. Due Sunday 8 AM Arizona time, with photo or video proof."]],
-    ["board", "Board", ["Kingdom Warrior ranks the men by points: Today, This week and All time.", "Use the menu to see top PRs on each lift.", "Tap How points work for the full breakdown."]],
-    ["checkin", "Rally", ["The group thread. Post a win, a photo or a word for a brother.", "Posting checks your Rally Call box. Hold a brother's post to react, or tap Reply.", "Keep it real. No judgment, no gossip."]]
+    ["board", "Board", ["Kingdom Warrior ranks the men by points: Today, This week and All time.", "Individual and Campaign buttons switch boards. The menu shows top PRs on each lift.", "Tap How points work for the full breakdown."]],
+    ["camp", "Campaign", ["Team battles of 6 to 8 men for 6 weeks. Raise a banner or answer a captain\u2019s invite.", "Your team, Wall Held, this week\u2019s double points and team chat live here.", "Standings and points stay on the Board."]],
+    ["checkin", "Rally", ["The group thread. Post a win, a photo or a word for a brother.", "Posting checks your Rally Call box. Hold a brother's post to react, or tap Reply.", "Keep it real. No judgment, no gossip.", "Settings: tap your picture at the top of any page, then Settings."]]
   ];
   var tourI = -1;
   function startTour() { tourI = 0; drawTour(); }
@@ -9057,7 +9147,7 @@ header.hero .me-btn { border-color:#e87328; }
       box.appendChild(r);
     });
   }
-  var APP_VERSION = "v222";
+  var APP_VERSION = "v223";
   /* ---------- Photo upload diagnostic (Settings > Testing) ---------- */
   async function runPhotoDiag() {
     var out = { at: new Date().toISOString(), version: APP_VERSION, ua: navigator.userAgent, steps: [] };
@@ -10164,8 +10254,8 @@ header.hero .me-btn { border-color:#e87328; }
       $(c[0]).addEventListener("change", function () { var a = afPrefs(); a[c[1]] = this.checked; state.settings.autofill = a; if (state.me && state.canWrite) saveSettings(); });
     });
     $("adj-targets").addEventListener("click", function () { openSettingsSection("h-s-tg"); });
-    $("team-back").addEventListener("click", function () { if (state.teamFrom === "today") go("today"); else openCampBoard(); });
-    $("team-camp").addEventListener("click", openCampBoard);
+    $("team-back").addEventListener("click", function () { if (state.teamFrom === "today") go("today"); else if (state.teamFrom === "board") openCampBoard(); else go("camp"); });
+    $("team-camp").addEventListener("click", function () { go("camp"); });
     $("fm-fuel-more").addEventListener("click", function () { fuelShowLog = !fuelShowLog; drawFuelMode(); });
     Array.prototype.forEach.call(document.querySelectorAll("[data-open]"), function (b) {
       b.addEventListener("click", function () { if (b.dataset.open === "settings") { state.viewUid = state.me; go("settings"); } else openProfile(null); });
@@ -10230,7 +10320,7 @@ header.hero .me-btn { border-color:#e87328; }
   function drawAll() {
     campDirty(); campWatchChecks(); campWatchTPosts();
     drawHeader(); drawCampToday(); drawToday(); drawYours(); drawFuel(); drawTrain(); drawBoard(); drawMeBtns(); drawProfile(); drawSettings();
-    drawDevo();
+    drawDevo(); if (state.page === "camp") drawCampPage();
   }
   async function loadProfiles() {
     var ids = {}; state.checks.forEach(function (c) { ids[c.uid] = true; }); state.posts.forEach(function (p) { ids[p.uid] = true; }); (state.replies || []).forEach(function (r) { ids[r.uid] = true; }); (state.ideas || []).forEach(function (r) { ids[r.uid] = true; });
