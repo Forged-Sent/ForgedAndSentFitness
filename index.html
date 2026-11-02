@@ -1144,6 +1144,32 @@ button.fo-item { cursor: pointer; min-height: 44px; }
 .rchips{display:flex;flex-wrap:wrap;gap:6px}
 .rchip.on{border-color:var(--brass,#b08d57);color:var(--brass,#b08d57)}
 .rchip{border:1px solid var(--line);background:transparent;padding:6px 10px;font-size:13px;min-height:36px}
+.lg-gate { position: fixed; inset: 0; z-index: 9990; background: var(--bg); overflow-y: auto; -webkit-overflow-scrolling: touch; }
+.lg-in { max-width: 460px; margin: 0 auto; min-height: 100%; display: flex; flex-direction: column; padding: max(28px, env(safe-area-inset-top)) 22px max(24px, env(safe-area-inset-bottom)); }
+.lg-emb svg { width: 120px; height: 86px; display: block; margin: 8px auto 4px; }
+.lg-emb path { fill: none; stroke: var(--accent); stroke-width: 4; stroke-linecap: round; stroke-linejoin: round; }
+.lg-h { font-family: var(--f-display, var(--f-label)); font-weight: 800; text-transform: uppercase; letter-spacing: .05em; font-size: 28px; text-align: center; margin: 8px 0 4px; }
+.lg-lead { text-align: center; color: var(--muted); font-size: 15px; margin: 0 0 14px; }
+.lg-pts { list-style: none; margin: 0 0 16px; padding: 0; display: grid; gap: 10px; }
+.lg-pts li { position: relative; padding: 10px 12px 10px 34px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); font-size: 14.5px; line-height: 1.4; }
+.lg-pts li::before { content: "\2713"; position: absolute; left: 12px; top: 10px; color: var(--accent); font-weight: 700; }
+.lg-agree { display: grid; grid-template-columns: 26px 1fr; gap: 10px; align-items: start; margin-top: auto; padding: 12px; border: 1px solid var(--accent); border-radius: 10px; background: var(--surface); font-size: 14.5px; line-height: 1.45; cursor: pointer; }
+.lg-agree input { width: 24px; height: 24px; margin: 0; accent-color: var(--accent); }
+.lg-link { display: inline; padding: 0; border: 0; background: none; color: var(--brass); font: inherit; text-decoration: underline; text-underline-offset: 2px; cursor: pointer; }
+.lg-go { width: 100%; margin-top: 12px; min-height: 52px; }
+.lg-go:disabled { opacity: .45; }
+.lg-fine { margin: 10px 0 0; text-align: center; font-size: 12.5px; color: var(--muted); }
+.lg-view { position: fixed; inset: 0; z-index: 9995; background: rgba(0,0,0,.6); display: flex; align-items: flex-end; justify-content: center; }
+.lg-vbox { width: 100%; max-width: 560px; max-height: 88vh; display: flex; flex-direction: column; background: var(--bg); border: 1px solid var(--line); border-radius: 14px 14px 0 0; }
+.lg-vhd { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 16px; border-bottom: 1px solid var(--line); }
+.lg-vhd h2 { margin: 0; font-family: var(--f-label); font-weight: 800; text-transform: uppercase; letter-spacing: .08em; font-size: 17px; }
+.lg-vbd { overflow-y: auto; padding: 14px 16px max(20px, env(safe-area-inset-bottom)); font-size: 14.5px; line-height: 1.5; }
+.lg-vbd p { margin: 0 0 10px; }
+.lg-draft { display: inline-block; padding: 3px 10px; border: 1px solid var(--accent); border-radius: 12px; color: var(--accent); font-family: var(--f-label); font-weight: 700; letter-spacing: .08em; text-transform: uppercase; font-size: 12px; }
+.lg-list { display: grid; gap: 8px; }
+.lg-list .btn { width: 100%; }
+.safe-line { margin: 8px 0 0; font-size: 13.5px; color: var(--muted); }
+.safe-line::before { content: "\26A0\FE0E  "; color: var(--accent); }
 .cp-chips{flex-wrap:nowrap;overflow:hidden}
 .cp-chips .rchip{flex:1 1 0;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .cp-pick{width:100%;display:flex;align-items:center;gap:12px;margin:12px 0 4px;padding:10px 12px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink);text-align:left;font:inherit;cursor:pointer}
@@ -2268,6 +2294,11 @@ header.hero .me-btn { border-color:#e87328; }
       <p class="note" style="margin-top:0">Scripture quotations are from the ESV&reg; Bible (The Holy Bible, English Standard Version&reg;), &copy; 2001 by Crossway, a publishing ministry of Good News Publishers. Used by permission. All rights reserved.</p>
     </section>
 
+    <section aria-labelledby="h-s-legal">
+      <div class="section-head"><h2 class="label-caps" id="h-s-legal" data-sub="Terms, health release, privacy and copyright.">Legal</h2></div>
+      <div id="legal-body"></div>
+    </section>
+
     <section aria-labelledby="h-s-acct">
       <div class="section-head"><h2 class="label-caps" id="h-s-acct" data-sub="Permanently delete everything you have saved in the app.">Delete your data</h2></div>
       <p class="note" id="acct-name" style="margin-top:0"></p>
@@ -3059,7 +3090,7 @@ header.hero .me-btn { border-color:#e87328; }
   }
   function saveSettings() {
     if (!B.db || !state.me) return;
-    var st = { blocked: state.settings.blocked || {}, targets: state.settings.targets || null, body: state.settings.body || null, reminders: state.settings.reminders || null, health: state.settings.health || null, plan: state.settings.plan || null, theme: state.settings.theme || null, autofill: state.settings.autofill || null, favs: state.settings.favs || [], myMeals: state.settings.myMeals || [], preps: state.settings.preps || [], swapAlways: state.settings.swapAlways || {}, dayMoves: state.settings.dayMoves || {}, fast: state.settings.fast || null, onboard: state.settings.onboard || null, freport: state.settings.freport || {}, junior: state.settings.junior || {}, routine: state.settings.routine || null, foodMode: foodMode() };
+    var st = { blocked: state.settings.blocked || {}, targets: state.settings.targets || null, body: state.settings.body || null, reminders: state.settings.reminders || null, health: state.settings.health || null, plan: state.settings.plan || null, theme: state.settings.theme || null, autofill: state.settings.autofill || null, favs: state.settings.favs || [], myMeals: state.settings.myMeals || [], preps: state.settings.preps || [], swapAlways: state.settings.swapAlways || {}, dayMoves: state.settings.dayMoves || {}, fast: state.settings.fast || null, onboard: state.settings.onboard || null, freport: state.settings.freport || {}, junior: state.settings.junior || {}, routine: state.settings.routine || null, foodMode: foodMode(), agreed: state.settings.agreed || null };
     writeChain = writeChain.then(function () { return B.saveSettings(state.me, st); }).catch(noop);
   }
 
@@ -6301,6 +6332,7 @@ header.hero .me-btn { border-color:#e87328; }
     head.appendChild(el("div", "label-caps ch-k", slot.label + " · Week " + w.week + (w.gauntlet ? " · Gauntlet" : "")));
     head.appendChild(el("h1", "pg", c.name.replace(/^Gauntlet:\s*/, "")));
     head.appendChild(el("p", "ch-desc", c.description));
+    head.appendChild(el("p", "safe-line", "Scale or skip anything. Stop if you feel pain."));
     body.appendChild(head);
     // Requirements
     var req = el("section", "ch-sec"); req.appendChild(el("h2", "label-caps", "The challenge"));
@@ -6878,7 +6910,7 @@ header.hero .me-btn { border-color:#e87328; }
     var hd = el("div", "cmp-head");
     hd.appendChild(el("div", "label-caps cmp-k", ph === "live" ? "Week " + (w + 1) + " of " + CAMP_WEEKS + " · " + campDateText(c.start) + " – " + campDateText(campEnd(c)) : ph === "signup" ? "Sign-ups open · starts " + longDate(c.start).split(",").slice(0, 2).join(",") : ph === "done" ? "Final · " + campDateText(c.start) + " – " + campDateText(campEnd(c)) : "Opens " + (c.signup ? longDate(c.signup).split(",").slice(0, 2).join(",") : "soon")));
     if (state.isOwner) { var gear = el("button", "mini cmp-gear", "Owner settings"); gear.type = "button"; gear.addEventListener("click", function () { openSettingsSection("h-s-owner"); }); hd.appendChild(gear); }
-    box.appendChild(hd);
+    box.appendChild(hd); box.appendChild(el("p", "safe-line", "Scale or skip anything. Stop if you feel pain."));
     if (ph === "live" && campDoubleLabel(c, w)) box.appendChild(campDoubleCard(c, w));
     if ((ph === "signup" || ph === "soon") && !mine && state.me && state.canWrite && ph === "signup") { var rb = el("button", "btn", "Raise a team"); rb.type = "button"; rb.addEventListener("click", openRaiseTeam); box.appendChild(rb); }
     var st = campStandings();
@@ -8980,7 +9012,7 @@ header.hero .me-btn { border-color:#e87328; }
       box.appendChild(r);
     });
   }
-  var APP_VERSION = "v219";
+  var APP_VERSION = "v220";
   /* ---------- Photo upload diagnostic (Settings > Testing) ---------- */
   async function runPhotoDiag() {
     var out = { at: new Date().toISOString(), version: APP_VERSION, ua: navigator.userAgent, steps: [] };
@@ -9644,7 +9676,68 @@ header.hero .me-btn { border-color:#e87328; }
     box.appendChild(el("p", "note", n ? "You\u2019ve brought in " + n + (n === 1 ? " brother" : " brothers") + " (+" + (n * RECRUIT_PTS) + " points)." : "Bring a man in. When he sets up and picks you under \u201CWho invited you?\u201D you get " + RECRUIT_PTS + " points on the Board."));
     var ib = el("button", "btn", "Invite a brother"); ib.type = "button"; ib.addEventListener("click", function () { inviteBrother(ib); }); box.appendChild(ib);
   }
+
+  /* ---------- Legal agreement (DRAFT pending attorney review). Bump LEGAL_VERSION to ask everyone again. ---------- */
+  var LEGAL_VERSION = "draft-1", LEGAL_DRAFT = true;
+  var LEGAL_DOCS = [["terms", "Terms of Use", "<p>These Terms are an agreement between you and the LLC that runs Forged &amp; Sent (&ldquo;Forged &amp; Sent,&rdquo; &ldquo;we&rdquo;). By using the app you agree to these Terms, the Health Disclaimer and Release, and the Privacy Policy.</p><p><b>1. Who can use the app.</b> You must be 18 or older. The app is built for men pursuing faith, brotherhood and fitness. We may approve, refuse or remove any account.</p><p><b>2. Your account.</b> Keep your login secure. You are responsible for activity on your account.</p><p><b>3. What the app is, and is not.</b> General fitness and faith content: workout plans, nutrition tracking, challenges, campaigns, devotionals and a community feed. It is not medical, nutritional, mental health or pastoral counseling. Coach Gideon is an automated guide, not a licensed professional.</p><p><b>4. Community rules.</b> Do not post anything unlawful, threatening, harassing, hateful or sexually explicit; other people&rsquo;s private information or photos without permission; content that infringes someone&rsquo;s copyright; spam or sales pitches; impersonation; or anything that tries to break the app.</p><p><b>5. Your content.</b> You own what you post. You give us a non-exclusive, royalty-free license to host and show it inside the app so the app works. You are responsible for what you post.</p><p><b>6. Moderation.</b> We do not review everything posted and are not responsible for what members post. We may remove content or end accounts at any time.</p><p><b>7. Team chat.</b> Team chats are meant for their members, but no online space is fully private. Don&rsquo;t post what you wouldn&rsquo;t want others to see.</p><p><b>8. Points, badges and campaigns.</b> For encouragement and bragging rights only. No cash value. We may change scoring, fix errors or reset results.</p><p><b>9. Media retention.</b> Rally and challenge-proof photos and videos are deleted after 30 days. Profile, progress and meal photos stay until you delete them.</p><p><b>10. Faith content.</b> The app includes Christian devotionals, Scripture and prayer features. Participation is voluntary.</p><p><b>11. Changes.</b> The app may change, pause or stop. If these Terms change in a material way, the app asks you to agree again.</p><p><b>12. No warranties.</b> To the fullest extent the law allows, the app is provided &ldquo;as is&rdquo; and &ldquo;as available.&rdquo;</p><p><b>13. Limitation of liability.</b> To the fullest extent the law allows, Forged &amp; Sent and its owners, leaders and volunteers are not liable for indirect, incidental, consequential or punitive damages, or for injury or loss from using the app or joining any workout, challenge, campaign or meet-up. Total liability for any claim is limited to the greater of what you paid us in the past 12 months or $100.</p><p><b>14. Indemnity.</b> You agree to hold Forged &amp; Sent harmless from claims arising from your content or your breaking these Terms.</p><p><b>15. Disputes.</b> Arizona law governs these Terms. (How disputes are resolved is pending legal review.)</p><p><b>16. Ending your account.</b> You can delete your data any time in Settings.</p><p><b>Contact.</b> the app owner (post in Rally or ask your Forged &amp; Sent leader).</p>"], ["health", "Health Disclaimer & Release", "<p><b>Not medical advice.</b> Forged &amp; Sent provides general fitness, nutrition and faith content. It does not replace a doctor, dietitian, physical therapist or counselor. Coach Gideon and all workout, step, calorie and macro targets are general guidance, not a plan made for your health.</p><p><b>See your doctor first.</b> Talk with your doctor before starting any exercise or nutrition program, especially if you have heart, blood pressure, joint, breathing or other health conditions, take medication, are recovering from injury, or haven&rsquo;t exercised in a while.</p><p><b>Stop if something is wrong.</b> Stop right away and get medical help if you feel chest pain, pressure, dizziness, faintness, unusual shortness of breath or sharp pain. Call 911 in an emergency.</p><p><b>You choose your effort.</b> You decide which workouts, challenges, campaigns, weights, distances and calorie levels to attempt, and you can scale, swap, rest or skip any of them. Points, streaks and team goals never require you to train through pain or illness.</p><p><b>Known risks.</b> Exercise and diet changes carry risks, including strains, sprains, fractures, joint injury, heat illness, dehydration, overtraining, falls, equipment failure, low blood sugar, heart attack, stroke and, rarely, death. Outdoor activities add traffic, weather and terrain risks. Group meet-ups add travel and other participants.</p><p><b>Assumption of risk.</b> I understand these risks. I choose to take part voluntarily and accept the risks, known and unknown, of any activity I do because of the app.</p><p><b>Release.</b> To the fullest extent Arizona law allows, I release the LLC that runs Forged &amp; Sent and its owners, leaders and volunteers from claims for injury, illness, death or property loss arising from my use of the app or my participation in its workouts, challenges, campaigns or meet-ups, including claims based on their ordinary negligence. This does not cover gross negligence or intentional misconduct.</p>"], ["privacy", "Privacy Policy", "<p>We collect only what the app needs to run, never sell your data, and let you delete it.</p><p><b>What we collect.</b> Account (name, email, profile photo, who invited you); fitness (workouts, PRs, steps, body weight, progress photos); nutrition (meals, meal photos, calories, macros); faith (devotional check-ins, prayer requests); community (Rally posts, comments, team chat, photos and videos you post); settings; and basic technical info to fix problems.</p><p><b>Who sees it.</b> Members see your name, photo, posts, PRs and points. Your meals, weight and settings are yours unless you post them. Prayer requests go to the members you share them with.</p><p><b>How we use it.</b> Only to run the app: your plan, points, boards, challenges, campaigns, posts and reminders, keeping the community safe, and fixing problems. Never for advertising.</p><p><b>Who we share it with.</b> Other members as above; the services that host the app, only to run it; authorities when the law requires or to protect someone&rsquo;s safety. We never sell your personal information.</p><p><b>How long we keep it.</b> Rally and challenge-proof media: 30 days. Profile, progress and meal photos: until you delete them. Everything else: while your account is open.</p><p><b>Your choices.</b> Edit or delete your posts, photos and logs; turn off food tracking; skip health data; or delete everything in Settings.</p><p><b>Age.</b> The app is for adults 18 and older.</p><p><b>Contact.</b> the app owner (post in Rally or ask your Forged &amp; Sent leader).</p>"], ["copyright", "Copyright Policy", "<p>We respect copyright and remove infringing content when properly notified.</p><p><b>To report infringement,</b> send the app owner your signature, the work you say was infringed, where it is in the app, your contact information, a good-faith statement that the use isn&rsquo;t authorized, and a statement under penalty of perjury that your notice is accurate.</p><p><b>Counter-notice.</b> If your content was removed by mistake, send a counter-notice with your signature, what was removed, a statement under penalty of perjury that it was a mistake, and consent to federal court jurisdiction.</p><p><b>Repeat infringers.</b> We end the accounts of members who repeatedly infringe.</p>"]];
+  function legalAgreed() { var a = state.settings && state.settings.agreed; return !!(a && a.v === LEGAL_VERSION); }
+  function openLegalDoc(key) {
+    var d = LEGAL_DOCS.filter(function (x) { return x[0] === key; })[0]; if (!d) return;
+    var old = $("lg-view"); if (old) old.remove();
+    var back = el("div", "lg-view"); back.id = "lg-view";
+    var box = el("div", "lg-vbox"); box.setAttribute("role", "dialog"); box.setAttribute("aria-modal", "true"); box.setAttribute("aria-labelledby", "lg-vt");
+    var hd = el("div", "lg-vhd"), t = el("h2", null, d[1]); t.id = "lg-vt"; hd.appendChild(t);
+    var x = el("button", "mini", "Close"); x.type = "button"; hd.appendChild(x); box.appendChild(hd);
+    var bd = el("div", "lg-vbd");
+    if (LEGAL_DRAFT) bd.appendChild(el("p", "lg-draft", "Draft · pending legal review"));
+    var c = el("div"); c.innerHTML = d[2]; bd.appendChild(c); box.appendChild(bd); back.appendChild(box);
+    function close() { back.remove(); }
+    x.addEventListener("click", close); back.addEventListener("click", function (ev) { if (ev.target === back) close(); });
+    back.addEventListener("keydown", function (ev) { if (ev.key === "Escape") { ev.stopPropagation(); close(); } });
+    document.body.appendChild(back); x.focus();
+  }
+  function legalLinks(p) {
+    LEGAL_DOCS.slice(0, 3).forEach(function (d, i) {
+      var a = el("a", "lg-link", d[1]); a.href = "#"; a.setAttribute("role", "button"); a.addEventListener("click", function (ev) { ev.preventDefault(); ev.stopPropagation(); openLegalDoc(d[0]); });
+      p.appendChild(a); p.appendChild(document.createTextNode(i === 0 ? ", " : i === 1 ? " and " : "."));
+    });
+  }
+  function legalMaybe() {
+    var g = $("lg-gate");
+    if (!state.me || !state.settingsLoaded || !state.canWrite || legalAgreed()) { if (g) g.remove(); return; }
+    if (g) return;
+    var updated = !!(state.settings.agreed && state.settings.agreed.v);
+    g = el("div", "lg-gate"); g.id = "lg-gate"; g.setAttribute("role", "dialog"); g.setAttribute("aria-modal", "true"); g.setAttribute("aria-labelledby", "lg-t");
+    var in_ = el("div", "lg-in");
+    var em = el("div", "lg-emb"); em.innerHTML = '<svg viewBox="0 0 180 130" aria-hidden="true"><path d="M8 109 L48 66 L61 79 L91 38 L127 81 L139 68 L172 109 M27 109 L49 88 M109 64 L130 109"/><path d="M91 9 V49 M77 23 H105"/></svg>'; in_.appendChild(em);
+    var h = el("h1", "lg-h", updated ? "We updated our terms" : "Before you begin"); h.id = "lg-t"; in_.appendChild(h);
+    in_.appendChild(el("p", "lg-lead", updated ? "Read what changed, then agree once to keep going." : "One step, one time. Here’s what you’re agreeing to."));
+    var ul = el("ul", "lg-pts");
+    ["Not medical advice. Check with your doctor before you start.", "You choose your effort. Scale, rest or skip anything, and stop if you feel pain.", "Be a brother online: no harassment, explicit content or other people’s private info.", "We never sell your data. Rally media is deleted after 30 days."].forEach(function (t) { ul.appendChild(el("li", null, t)); });
+    in_.appendChild(ul);
+    var lab = el("label", "lg-agree"), cb = el("input"); cb.type = "checkbox"; cb.id = "lg-cb"; lab.appendChild(cb);
+    var tx = el("span"); tx.appendChild(document.createTextNode("I’m 18 or older and agree to the ")); legalLinks(tx); lab.appendChild(tx); in_.appendChild(lab);
+    var go = el("button", "btn lg-go", "I agree"); go.type = "button"; go.disabled = true; in_.appendChild(go);
+    if (LEGAL_DRAFT) in_.appendChild(el("p", "lg-fine", "Draft documents pending legal review. You’ll be asked once more when they’re final."));
+    var err = el("p", "error"); err.hidden = true; in_.appendChild(err);
+    cb.addEventListener("change", function () { go.disabled = !cb.checked; });
+    go.addEventListener("click", function () {
+      go.disabled = true; go.textContent = "Saving…";
+      state.settings.agreed = { v: LEGAL_VERSION, at: Date.now() }; saveSettings();
+      writeChain.then(function () { var g2 = $("lg-gate"); if (g2) g2.remove(); drawSettings(); });
+    });
+    g.appendChild(in_); document.body.appendChild(g);
+  }
+  function drawLegalSettings() {
+    var box = $("legal-body"); if (!box) return; box.textContent = "";
+    var a = state.settings && state.settings.agreed;
+    box.appendChild(el("p", "note", a && a.at ? "You agreed " + new Date(a.at).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" }) + (LEGAL_DRAFT ? " · draft version, pending legal review." : ".") : "Not agreed yet."));
+    var g = el("div", "lg-list");
+    LEGAL_DOCS.forEach(function (d) { var b = el("button", "btn ghost", d[1]); b.type = "button"; b.addEventListener("click", function () { openLegalDoc(d[0]); }); g.appendChild(b); });
+    box.appendChild(g);
+  }
   function drawSettings() {
+    drawLegalSettings();
     paintTestCtl(); drawInviteSettings(); drawFoodMode(); drawCampOwner();
     var afp = afPrefs(); [["s-af-w", "w"], ["s-af-r", "r"]].forEach(function (c) { var x = $(c[0]); if (x) { x.checked = afp[c[1]]; x.disabled = !state.me || !state.canWrite; } });
     if (state.page !== "settings") return;
@@ -9869,7 +9962,7 @@ header.hero .me-btn { border-color:#e87328; }
       btn.addEventListener("click", function () { var open = body.hidden; body.hidden = !open; btn.setAttribute("aria-expanded", String(open)); });
       head.hidden = true; sec.classList.add("set-card"); sec.appendChild(btn); sec.appendChild(body);
     });
-    ["h-s-wk", "h-s-body", "h-s-goal", "h-s-food", "h-s-owner", "h-s-tg", "h-s-rem", "h-s-health", "h-s-safe", "h-s-test", "h-s-acct"].forEach(function (hid) {
+    ["h-s-wk", "h-s-body", "h-s-goal", "h-s-food", "h-s-owner", "h-s-tg", "h-s-rem", "h-s-health", "h-s-safe", "h-s-test", "h-s-legal", "h-s-acct"].forEach(function (hid) {
       var h = $(hid); if (!h) return; var sec = h.closest("section"), head = h.closest(".section-head"); if (!sec || !head) return;
       var body = el("div", "set-body"); body.id = hid + "-body"; body.hidden = true;
       while (head.nextSibling) body.appendChild(head.nextSibling);
@@ -10122,7 +10215,7 @@ header.hero .me-btn { border-color:#e87328; }
         drawToday(); onbMaybeStart();
       });
       B.watchSettings(state.me, function (st) {
-        state.settings = { blocked: (st && st.blocked) || {}, targets: (st && st.targets) || null, body: (st && st.body) || null, reminders: (st && st.reminders) || null, health: (st && st.health) || null, plan: (st && st.plan) || null, theme: (st && st.theme) || null, autofill: (st && st.autofill) || null, favs: (st && Array.isArray(st.favs)) ? st.favs.slice(0, 60) : [], myMeals: (st && Array.isArray(st.myMeals)) ? st.myMeals.slice(0, 30) : [], preps: (st && Array.isArray(st.preps)) ? st.preps.slice(0, 40) : [], swapAlways: (st && st.swapAlways && typeof st.swapAlways === "object") ? st.swapAlways : {}, dayMoves: normMoves(st && st.dayMoves), fast: normFast(st && st.fast), onboard: (st && st.onboard && typeof st.onboard === "object") ? st.onboard : null, freport: (st && st.freport && typeof st.freport === "object") ? st.freport : {}, junior: (st && st.junior && typeof st.junior === "object") ? st.junior : {}, routine: normRoutine(st && st.routine), foodMode: st && (st.foodMode === "elsewhere" || st.foodMode === "none") ? st.foodMode : "app" }; if (state.settings.theme) applyTheme(state.settings.theme, false); state.settingsLoaded = true; drawAll(); drawFeed(); refreshHealth(); onbMaybeStart();
+        state.settings = { blocked: (st && st.blocked) || {}, targets: (st && st.targets) || null, body: (st && st.body) || null, reminders: (st && st.reminders) || null, health: (st && st.health) || null, plan: (st && st.plan) || null, theme: (st && st.theme) || null, autofill: (st && st.autofill) || null, favs: (st && Array.isArray(st.favs)) ? st.favs.slice(0, 60) : [], myMeals: (st && Array.isArray(st.myMeals)) ? st.myMeals.slice(0, 30) : [], preps: (st && Array.isArray(st.preps)) ? st.preps.slice(0, 40) : [], swapAlways: (st && st.swapAlways && typeof st.swapAlways === "object") ? st.swapAlways : {}, dayMoves: normMoves(st && st.dayMoves), fast: normFast(st && st.fast), onboard: (st && st.onboard && typeof st.onboard === "object") ? st.onboard : null, freport: (st && st.freport && typeof st.freport === "object") ? st.freport : {}, junior: (st && st.junior && typeof st.junior === "object") ? st.junior : {}, routine: normRoutine(st && st.routine), foodMode: st && (st.foodMode === "elsewhere" || st.foodMode === "none") ? st.foodMode : "app", agreed: st && st.agreed && typeof st.agreed === "object" ? { v: String(st.agreed.v || ""), at: Number(st.agreed.at) || 0 } : null }; if (state.settings.theme) applyTheme(state.settings.theme, false); state.settingsLoaded = true; drawAll(); drawFeed(); refreshHealth(); onbMaybeStart(); legalMaybe();
       });
     }
     B.watchPosts(function (rows) { state.posts = rows; drawFeed(); loadProfiles(); drawTagBells(); });
