@@ -2,7 +2,7 @@
 
 Read `AGENTS.md` as the shared source of truth and `docs/development/START_HERE.md` before modifying files.
 
-Workflow: every change uses a short-lived branch and a pull request. The live ruleset currently requires ci-gate and zero human approvals; do not imply another person's approval is enforced. Request additional human review for high-risk authentication, privacy, security rules and scoring changes. Agents cannot approve, push or merge. Never bypass controls.
+Workflow: every change uses a short-lived branch and a pull request. The live ruleset currently requires ci-gate and zero human approvals; do not imply another person's approval is enforced. For Flutter database/Auth/privacy/security rules/scoring, offer an independent non-author AI security review, but no outside reviewer is mandatory. Agents cannot approve, push or merge. Never bypass controls.
 
 When working on the prototype (`index.html`, `versions/`, `seed/`, `dev/`):
 - Read the root `AGENTS.md`, including its HTML prototype workflow.
@@ -19,7 +19,7 @@ When implementing Flutter:
 - Do not introduce Firebase credentials or deploy cloud infrastructure.
 - Do not write competition scores from untrusted clients.
 - Do not add custom authentication or expose confidential group content.
-- Ask a human before changing accepted product decisions.
+- Escalate product decisions to the project maintainer, who may approve them without another reviewer.
 
 Repository agents live in `.claude/agents/` and repeatable workflows in `.claude/skills/`.
 

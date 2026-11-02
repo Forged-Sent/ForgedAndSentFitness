@@ -25,7 +25,7 @@ class ClassificationTests(unittest.TestCase):
         v = classify(["index.html", "mobile/lib/main.dart"])
         self.assertTrue(v["prototype"] and v["mobile"] and v["mac"])
 
-    def test_agent_instructions_rely_on_mandatory_policy(self):
+    def test_agent_instructions_do_not_require_platform_builds(self):
         v = classify(["AGENTS.md", "CLAUDE.md", ".claude/rules/prototype.md", ".github/instructions/flutter.instructions.md"])
         self.assertFalse(any(v.values()))
 
@@ -44,7 +44,7 @@ class ClassificationTests(unittest.TestCase):
     def test_protected_seed_rule_is_still_preview_code(self):
         self.assertTrue(classify(["seed/db-rules.json"])["prototype"])
 
-    def test_preview_python_code_is_reviewed_but_cheap_to_test(self):
+    def test_preview_python_code_is_risk_scoped_but_cheap_to_test(self):
         from path_scope import is_lightweight_path
         self.assertFalse(is_lightweight_path("dev/make_preview.py"))
         v = classify(["dev/make_preview.py", "dev/patches/repair.py"])
