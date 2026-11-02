@@ -9240,7 +9240,7 @@ header.hero .me-btn { border-color:#e87328; }
       box.appendChild(r);
     });
   }
-  var APP_VERSION = "v227";
+  var APP_VERSION = "v228";
   /* ---------- Photo upload diagnostic (Settings > Testing) ---------- */
   async function runPhotoDiag() {
     var out = { at: new Date().toISOString(), version: APP_VERSION, ua: navigator.userAgent, steps: [] };
@@ -10154,7 +10154,8 @@ header.hero .me-btn { border-color:#e87328; }
     var q3 = el("blockquote", "mem-v mi-v", "Iron sharpens iron, and one man sharpens another."); q3.appendChild(el("cite", null, "Proverbs 27:17")); box.appendChild(q3);
     var cl = el("button", "btn", "Got it"); cl.type = "button"; cl.addEventListener("click", function () { back.remove(); }); box.appendChild(cl);
     back.appendChild(box); back.addEventListener("click", function (ev) { if (ev.target === back) back.remove(); });
-    back.addEventListener("keydown", function (ev) { if (ev.key === "Escape") { ev.stopPropagation(); back.remove(); } }); document.body.appendChild(back); cl.focus();
+    back.addEventListener("keydown", function (ev) { if (ev.key === "Escape") { ev.stopPropagation(); back.remove(); } }); document.body.appendChild(back);
+    h.tabIndex = -1; try { h.focus({ preventScroll: true }); } catch (e) {} box.scrollTop = 0;
   }
   function drawMentorToday() {
     var box = $("mentor-today"); if (!box) return; box.textContent = ""; if (!state.me || !state.mentorLoaded) return;
