@@ -366,6 +366,7 @@ details.targets[open] summary::after { content: "\2212"; }
 .lb-pick { display: block; margin-bottom: 10px; }
 .cmp-soon { display: grid; grid-template-columns: 52px minmax(0, 1fr); gap: 12px; align-items: center; padding: 12px; margin-bottom: 10px; border: 1px solid var(--line); border-left: 3px solid var(--accent); border-radius: 8px; background: var(--surface); }
 .cmp-soon .cmp-tx { display: grid; gap: 2px; }
+.team-camp { margin-left: auto; }
 .bd-seg { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px; }
 .bd-seg button { display: flex; align-items: center; justify-content: center; gap: 8px; min-height: 48px; padding: 10px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); color: var(--ink); font-family: var(--f-label); font-weight: 800; font-size: 15px; letter-spacing: .1em; text-transform: uppercase; cursor: pointer; }
 .bd-seg button svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; flex: none; }
@@ -1985,6 +1986,7 @@ header.hero .me-btn { border-color:#e87328; }
     <div class="pbar">
       <button class="mini" type="button" id="team-back">&lsaquo; Campaign</button>
       <span class="date label-caps">Your team</span>
+      <button class="mini team-camp" type="button" id="team-camp" hidden>Campaign &rsaquo;</button>
     </div>
     <article id="team-body"></article>
   </div>
@@ -6803,7 +6805,12 @@ header.hero .me-btn { border-color:#e87328; }
   function r1c(v) { return (Math.round(v * 10) / 10).toLocaleString(); }
   function campDateText(k) { return parseKey(k).toLocaleDateString(undefined, { month: "short", day: "numeric" }); }
   function openCampBoard() { go("board"); state.boardView = "camp"; drawBoard(); }
-  function openTeam(id) { state.teamId = id; go("team"); drawTeamPage(); }
+  function openTeam(id) {
+    state.teamFrom = state.page === "today" ? "today" : (state.page === "team" || state.page === "checkin") ? (state.teamFrom || "board") : "board";
+    var fromToday = state.teamFrom === "today";
+    $("team-back").textContent = fromToday ? "\u2039 Today" : "\u2039 Campaign"; $("team-camp").hidden = !fromToday;
+    state.teamId = id; go("team"); drawTeamPage();
+  }
 
   /* Board: Campaign standings */
   function drawCampBoard() {
@@ -8916,7 +8923,7 @@ header.hero .me-btn { border-color:#e87328; }
       box.appendChild(r);
     });
   }
-  var APP_VERSION = "v215";
+  var APP_VERSION = "v216";
   /* ---------- Photo upload diagnostic (Settings > Testing) ---------- */
   async function runPhotoDiag() {
     var out = { at: new Date().toISOString(), version: APP_VERSION, ua: navigator.userAgent, steps: [] };
@@ -9814,7 +9821,8 @@ header.hero .me-btn { border-color:#e87328; }
       $(c[0]).addEventListener("change", function () { var a = afPrefs(); a[c[1]] = this.checked; state.settings.autofill = a; if (state.me && state.canWrite) saveSettings(); });
     });
     $("adj-targets").addEventListener("click", function () { openSettingsSection("h-s-tg"); });
-    $("team-back").addEventListener("click", openCampBoard);
+    $("team-back").addEventListener("click", function () { if (state.teamFrom === "today") go("today"); else openCampBoard(); });
+    $("team-camp").addEventListener("click", openCampBoard);
     $("fm-fuel-more").addEventListener("click", function () { fuelShowLog = !fuelShowLog; drawFuelMode(); });
     Array.prototype.forEach.call(document.querySelectorAll("[data-open]"), function (b) {
       b.addEventListener("click", function () { if (b.dataset.open === "settings") { state.viewUid = state.me; go("settings"); } else openProfile(null); });
