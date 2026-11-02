@@ -5,6 +5,11 @@ dev/preview.html
 # Generated offline architecture website (rebuild with build_explorer.py)
 build/architecture-explorer/
 
-# Obsidian UI/cache state belongs to local workstations, not the public knowledge repository
+# Python test/import artifacts must not enter AI review diff coverage
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# Optional local Obsidian metadata, never Git controlled
 **/.obsidian/
 **/.trash/

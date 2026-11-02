@@ -22,7 +22,7 @@ PROVIDERS = ("codex", "claude", "gemini")
 SEVERITIES = {"critical", "high", "medium", "low"}
 SENSITIVE = re.compile(
     r"-----BEGIN (?:RSA |EC |OPENSSH |)PRIVATE KEY-----|"
-    r"(?<![A-Za-z0-9])(?:ghp_|github_pat_|sk-[A-Za-z0-9]{20}|AIza[0-9A-Za-z_-]{30})",
+    r"(?<![A-Za-z0-9])(?:ghp_[A-Za-z0-9]{20,}|github_pat_[A-Za-z0-9_]{20,}|sk-[A-Za-z0-9]{20,}|AIza[0-9A-Za-z_-]{30})",
     re.I,
 )
 MAX_DIFF = 140_000
@@ -52,8 +52,8 @@ def patch_context(root: Path, base: str) -> tuple[str, str, str]:
         raise RuntimeError(f"No changes against {base}; choose a feature branch or base.")
     if SENSITIVE.search(patch):
         raise RuntimeError("Possible secret in diff. Stop and remove it BEFORE AI review.")
-    if "Binary files " in patch or "GIT binary patch" in patch:
-        raise RuntimeError("Binary changes need separate human inspection before AI review.")
+    if re.search(r"(?m)^(?:Binary files .+ differ|GIT binary patch)\s*$", patch):
+        raise RuntimeError("Binary changes are outside this text-only AI review.")
     digest = hashlib.sha256(patch.encode()).hexdigest()
     return head, digest, patch
 

@@ -3,7 +3,7 @@ status: active
 updated: 2026-11-02
 owner: project-maintainers
 source_ref: feature/contributor-emulator-onboarding
-source_sha: 53897bfe165e176f75f30e8b333a5c3e6b2a47b6
+source_sha: 4e796b556961a37505c367c3ed80a75bd30dfbcd
 ---
 
 # PR #4 foundation handoff (dated snapshot)
