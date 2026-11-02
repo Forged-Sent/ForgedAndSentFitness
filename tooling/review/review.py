@@ -264,7 +264,7 @@ def verify(root: Path, base: str, minimum: int) -> int:
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--base", default="origin/main")
-    parser.add_argument("--reviewers", default="codex,claude",
+    parser.add_argument("--reviewers", default="codex",
                         help="comma-separated independent reviewers: codex,claude,gemini")
     parser.add_argument("--author", choices=("human",) + PROVIDERS, default="human")
     parser.add_argument("--minimum", type=int, default=1)
