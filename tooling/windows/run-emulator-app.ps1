@@ -22,7 +22,7 @@ if(-not $flutter){
   if(Test-Path -LiteralPath $local){$flutter=[pscustomobject]@{Source=$local}}
 }
 if(-not $flutter){throw 'Flutter SDK missing. Run Preview setup.'}
-Write-Host 'Flutter will use only demo-forgedandsent emulators (FNS_ENV=emulator).' -ForegroundColor Cyan
+Write-Host 'Flutter will use only demo-forgedandsent emulators (FS_ENV=emulator).' -ForegroundColor Cyan
 Push-Location (Join-Path $root 'mobile')
 try {
   & $flutter.Source pub get

@@ -10,7 +10,7 @@ class ForgedFirebaseRuntime {
   static const projectId = 'demo-forgedandsent';
 
   static bool get emulatorRequested =>
-      const String.fromEnvironment('FNS_ENV', defaultValue: 'preview') ==
+      const String.fromEnvironment('FS_ENV', defaultValue: 'preview') ==
       'emulator';
 
   static String get emulatorHost {
@@ -37,12 +37,28 @@ class ForgedFirebaseRuntime {
         storageBucket: 'demo-forgedandsent.appspot.com',
       ),
     );
-    await FirebaseAuth.instanceFor(app: app).useAuthEmulator(emulatorHost, 9099);
-    FirebaseFirestore.instanceFor(app: app).useFirestoreEmulator(emulatorHost, 8080);
-    await FirebaseStorage.instanceFor(app: app).useStorageEmulator(emulatorHost, 9199);
+    final auth = FirebaseAuth.instanceFor(app: app);
+    final firestore = FirebaseFirestore.instanceFor(app: app);
+    final storage = FirebaseStorage.instanceFor(app: app);
+    await auth.useAuthEmulator(emulatorHost, 9099);
+    firestore.useFirestoreEmulator(emulatorHost, 8080);
+    await storage.useStorageEmulator(emulatorHost, 9199);
 
-    // Actually contact the Auth emulator rather than claiming that a configured
-    // SDK is connected. Failure is surfaced to the UI; never retries in cloud.
-    await FirebaseAuth.instanceFor(app: app).signInAnonymously();
+    // Real round-trips against all three emulators, not only configuration.
+    final credential = await auth.signInAnonymously()
+        .timeout(const Duration(seconds: 15));
+    final user = credential.user;
+    if (user == null) {
+      throw StateError('Anonymous emulator sign-in returned no user.');
+    }
+    await firestore.collection('developer_smoke').doc(user.uid)
+        .get(const GetOptions(source: Source.server))
+        .timeout(const Duration(seconds: 15));
+    try {
+      await storage.ref('developer_smoke/${user.uid}/__healthcheck_missing__.txt')
+          .getMetadata().timeout(const Duration(seconds: 15));
+    } on FirebaseException catch (error) {
+      if (error.code != 'object-not-found') rethrow;
+    }
   }
 }

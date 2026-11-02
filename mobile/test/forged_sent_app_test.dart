@@ -13,6 +13,10 @@ void main() {
     await tester.pumpWidget(const ForgedSentApp(mode: 'emulator', startupError: 'offline'));
     expect(find.text('Local emulator not available. No cloud fallback was attempted.'), findsOneWidget);
   });
+  testWidgets('verified emulator status is explicit', (tester) async {
+    await tester.pumpWidget(const ForgedSentApp(mode: 'emulator'));
+    expect(find.text('Verified local Auth, Firestore and Storage emulators (demo-forgedandsent).'), findsOneWidget);
+  });
   test('development project ID is demo-only', () {
     expect(ForgedFirebaseRuntime.projectId, startsWith('demo-'));
   });

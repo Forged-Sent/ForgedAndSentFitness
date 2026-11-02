@@ -9,12 +9,15 @@ From the repository root:
 
 From the mobile folder, after \`flutter pub get\`:
 
-\`flutter run -d chrome --dart-define=FNS_ENV=emulator\`
+\`flutter run -d chrome --dart-define=FS_ENV=emulator\`
 
 The app initializes SDKs with explicit demo-only FirebaseOptions, binds Auth
 port 9099, Firestore 8080, and Storage 9199 before any SDK operation, then
-signs in anonymously against the Auth emulator. Failure presents a visible
-error instead of falling back to cloud.
+signs in anonymously against Auth, fetches a user-owned Firestore smoke document
+from the server, and probes a known-missing user-owned Storage object. A
+Storage object-not-found response is expected; an unreachable or unauthorized
+service fails startup without any cloud fallback. These demo probes are not
+production authorization tests.
 
 For Android Emulator, the host default is \`10.0.2.2\`; browser and desktop use
 \`127.0.0.1\`. A physical Android device requires an explicit reachable LAN IP
