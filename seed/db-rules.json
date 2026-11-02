@@ -38,6 +38,29 @@
         {
           "path": "chsubs/{self}",
           "write": "interact"
+        },
+        {
+          "path": "camps",
+          "read": "view",
+          "write": "owner"
+        },
+        {
+          "path": "teams",
+          "read": "view",
+          "write": "owner"
+        },
+        {
+          "path": "teams/{self}",
+          "write": "interact"
+        },
+        {
+          "path": "tmembers",
+          "read": "view",
+          "write": "owner"
+        },
+        {
+          "path": "tmembers/{self}",
+          "write": "interact"
         }
       ]
     },

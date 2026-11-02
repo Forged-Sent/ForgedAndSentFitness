@@ -9,7 +9,7 @@ A men's fitness and accountability app for the Forged in Faith men's group. Men 
 | Path | What it is |
 |---|---|
 | `index.html` | Current version. A single self-contained file: HTML, CSS and JS. |
-| `versions/app-v1.html` ... `app-v209.html` | Every earlier iteration, kept for rollback. A new version file is created for each iteration; never overwrite old ones. |
+| `versions/app-v1.html` ... `app-v226.html` | Every earlier iteration, kept for rollback. A new version file is created for each iteration; never overwrite old ones. |
 | `seed/` | Starting data: `tasks.json` (standard daily list), `lifts.json` (core lifts), `devotionals.json` (366 daily devotionals, one per calendar date, also embedded in `index.html`), `db-rules.json` (access rules and runtime capabilities the page declares). `weekly-challenges.json` (52-week challenge program: one Family, one Iron and one Endure challenge per week, with the 0-100 age-bracket scoring rules, injury-friendly alternates and season metadata) and `movement-standards.json` (what counts as a rep). |
 | `dev/` | Local preview. `mock-claude.js` is an in-memory stand-in for `window.claude`; `make_preview.py` builds `dev/preview.html`. |
 | `docs/architecture-notes.md` | Architecture and store-readiness notes. |
@@ -17,13 +17,11 @@ A men's fitness and accountability app for the Forged in Faith men's group. Men 
 
 ## Working together
 
-All changes go through short-lived branches and pull requests to `main`.
-The HTML prototype's explicitly listed low-risk files (`index.html`,
-`versions/`, selected `dev/` and `seed/` content) stay fast with **optional
-human approval** and lightweight CI. Python scripts, Firebase configuration,
-onboarding, and any new or unfamiliar paths require independent inspection. Flutter (`mobile/`), CI/tooling, security settings and
-protected scoring/access rule files merit stronger independent review, with a second human for high-risk changes. GitHub currently requires ci-gate but ZERO human approvals. AI
-coding agents follow the same process using `AGENTS.md` and `CLAUDE.md`.
+All changes use short-lived branches and pull requests to protected `main`.
+The solo maintainer is not required to obtain a second human or independent AI approval.
+GitHub requires the deterministic `ci-gate` check. For Flutter database, Firebase
+rules, Auth, scoring or private-data changes, consider an optional non-author AI
+security review, alongside mandatory tests. AI agents must not self-merge.
 
 See [repository security and review rules](docs/development/REPOSITORY-SECURITY.md)
 for the exact path patterns and GitHub administrator setup. Those rules
@@ -54,6 +52,7 @@ The mock keeps data in memory only, shows one fake user, and cannot display uplo
   - `habits/{uid}` the man's three custom habits.
   - `profiles/{uid}` shared: `motto, avatarId, bannerId, prs {liftId: {w, reps, date}}`.
   - `posts/{id}`, `likes/{postId}_{uid}`, `reports/{id}` community thread.
+  - Campaigns (team battles): `camps/current` (owner-only: campaign number, sign-up and start dates, weekly double box) and `camps/hist_<id>` (closed campaign results); `teams/{captainUid}` (captain-only: name, banner, invites); `tmembers/{uid}` (each man: which team he joined, or invites he declined). Team score = average Kingdom Warrior points per man per week + 25 when every man checks every daily box all 7 days. Team chat: `tposts/{id}` (team id on each post; replies and reactions reuse Rally's). On claude.ai the app hides other teams' chats, but storage can't restrict reads by team; enforce with Firebase security rules after the move.
   - PRIVATE per user: `data/users/<id>/log/days/<date>` (water oz, calories, protein, fat, carbs totals, plus `meals` {breakfast, lunch, dinner, snack: [{id, name, kcal, p, f, c}]}) and `data/users/<id>/settings` (targets, body stats, reminder times, blocked users).
 - **Access rules** (see `seed/db-rules.json`): standard list and lifts are admin-write; each man writes only his own habits and profile; personal health data lives in the private subtree. A real backend must enforce the same rules server-side.
 
@@ -103,7 +102,7 @@ For a Mac, double-click **FIRST-RUN-MAC.command** from Finder. **SETUP-MAC.comma
 
 ## Shared agents, local code reviews and architecture
 
-- [Beginner AI-review walkthrough](docs/development/AI-REVIEW-WORKFLOW.md): Codex, Claude, and optional Gemini reviewers before pushing.
+- [Beginner AI-review walkthrough](docs/development/AI-REVIEW-WORKFLOW.md): Optional Codex, Claude, and Gemini reviews, especially for Flutter database changes.
 - [Living system architecture](docs/architecture/SYSTEM.md): current implementation, planned system and review pipeline diagrams.
 - [Generated Flutter code map](docs/architecture/CODE-MAP.md): actual Dart imports, classes and methods. CI checks drift.
 - Checked-in Codex `.agents/skills/` and Claude `.claude/skills/` workflows must match exactly.
