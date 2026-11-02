@@ -19,7 +19,7 @@
 2. Read `AGENTS.md`, `mobile/AGENTS.md` if relevant, the current ADRs, and this index.
 3. Read the single feature's acceptance criteria plus its active handoff; inspect the real Dart files and tests.
 4. Implement one vertical slice, then run applicable tests and update evidence in a dated handoff.
-5. Regenerate CODE-MAP and Atlas when required; request independent read-only review before proposing merge.
+5. Regenerate CODE-MAP and Atlas when required; optionally request a non-author read-only AI review (recommended for Firebase/Auth/privacy/scoring changes); the maintainer decides the merge.
 
 **Next recommended application milestone:** Define one Today/devotional/workout feature contract and a fake repository in Flutter; first resolve state-management and local outbox choices in an ADR. Keep the prototype unchanged until explicit parity tests exist.
 

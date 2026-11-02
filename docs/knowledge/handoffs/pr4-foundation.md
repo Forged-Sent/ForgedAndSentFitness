@@ -9,7 +9,7 @@ source_sha: edd1d4f0084dad1aa8fd0f27cdd5a6ade91753a4
 # PR #4 foundation handoff (dated snapshot)
 
 ## Goal and acceptance conditions
-Complete contributor onboarding, emulator-first Firebase foundation, two-provider advisory review and architecture Atlas without conflating a demo with production readiness. See [PR #4](https://github.com/Forged-Sent/ForgedAndSentFitness/pull/4).
+Complete contributor onboarding, emulator-first Firebase foundation, optional single-provider advisory AI review and architecture Atlas without conflating a demo with production readiness. See [PR #4](https://github.com/Forged-Sent/ForgedAndSentFitness/pull/4).
 
 ## Verified observations
 At this snapshot, PR #4 was draft/open and its head SHA was inspected after the current-main prototype reconciliation. Its tracked tree included `mobile/lib/main.dart`, emulator runtime, Windows/Mac setup, local Firebase rules tests, review.py, SYSTEM.md and CODE-MAP.md. None of those facts proves working device support.
