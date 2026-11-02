@@ -4,3 +4,7 @@ dev/preview.html
 
 # Generated offline architecture website (rebuild with build_explorer.py)
 build/architecture-explorer/
+
+# Obsidian UI/cache state belongs to local workstations, not the public knowledge repository
+**/.obsidian/
+**/.trash/

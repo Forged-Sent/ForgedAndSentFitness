@@ -86,3 +86,11 @@ agent instructions are advisory. No cloud Firebase MCP is enabled by default.
 - Keep the curated component/function glossary in `docs/architecture/explorer/model.json` aligned with `SYSTEM.md` and real code. Never label a proposed component as implemented.
 - For new components or meaningful behavior, update model descriptions, source paths, dependencies, and the appropriate ADR. CI builds the latest file/symbol index and rejects dangling model file references.
 - Never describe lexical file mentions or best-effort symbol detection as a complete runtime call graph. Explain uncertainty honestly.
+
+## Git-backed development memory and Flutter platform strategy
+- Start a new or resumed complex task at `docs/knowledge/INDEX.md` and `docs/knowledge/CURRENT.md`. Follow the scoped handoff, check exact PR/branch SHA and verify current tests before trusting a note.
+- On meaningful handoff, write a dated, task-specific `docs/knowledge/handoffs/<task>.md` with owner, full source SHA, verified observations, unrun tests, blockers and a concrete next action. Never overwrite parallel agent work.
+- Obsidian is an optional Markdown viewer/editor for `docs/`, NOT a second source of truth. Follow `docs/knowledge/LIFECYCLE.md` for superseding/archiving; never delete approved ADR history, generated docs or `versions/` snapshots.
+- Flutter app code is the target, while `index.html` is behavioral reference only. Follow `docs/knowledge/PROTOTYPE-PARITY.md` and `docs/knowledge/FLUTTER-PLATFORMS.md`. Android/iOS are first, web is a preview target; Windows/Linux/macOS require separate reviewed host/CI/runtime qualification.
+- For unfamiliar Flutter/Dart/package APIs, consult pinned source + official Flutter/Dart docs/Dart MCP, then version-specific Context7 when appropriate. Use `docs/knowledge/FLUTTER-AI-DOCS.md`; never paste large live docs into startup rules or silently install plugins.
+- Use `flutter-platform-parity` and `knowledge-steward` skills for the matching tasks. Recheck the generated architecture map and handoff links after documentation changes.
