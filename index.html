@@ -1467,6 +1467,15 @@ header.hero .me-btn { border-color:#e87328; }
 .fm-pb { width: 22px; height: 22px; border: 2px solid var(--line); border-radius: 4px; flex: none; }
 .fm-pr b { flex: 1; font-size: 16px; } .fm-pr i { font-style: normal; font-weight: 700; color: var(--accent); }
 .fm-box .btn { width: 100%; margin-top: 8px; }
+.od-box .btn { width: 100%; margin-top: 8px; }
+.od-lead { margin: 0 0 10px; font-size: 15px; color: var(--muted); }
+.od-card { border: 1px solid var(--line); border-radius: var(--radius, 4px); background: var(--surface); margin-bottom: 8px; }
+.od-card.on { border-color: var(--accent); box-shadow: inset 3px 0 0 var(--accent); }
+.od-card.on .fm-dot { border-color: var(--accent); background: radial-gradient(circle, var(--accent) 0 5px, transparent 6px); }
+.od-pick { display: grid; grid-template-columns: 22px minmax(0, 1fr); gap: 12px; align-items: start; width: 100%; padding: 12px; text-align: left; font: inherit; color: var(--ink); background: none; border: 0; cursor: pointer; }
+.od-pick:disabled { opacity: .55; cursor: default; }
+.od-note { display: grid; gap: 4px; padding: 0 12px 12px 46px; font-size: 13px; color: var(--muted); }
+.od-alt { width: 100%; margin-top: 8px; }
 .fm-fuel-card { border: 1px solid var(--line); border-left: 3px solid var(--accent); border-radius: var(--radius, 4px); background: var(--surface); padding: 12px; display: grid; gap: 10px; }
 .fmc-k { color: var(--muted); font-size: 12px; }
 .fmc-box { display: grid; grid-template-columns: 30px minmax(0, 1fr) auto; gap: 12px; align-items: center; width: 100%; padding: 10px; text-align: left; font: inherit; color: var(--ink); background: var(--bg); border: 1px solid var(--line); border-radius: var(--radius, 4px); cursor: pointer; }
@@ -2262,10 +2271,10 @@ header.hero .me-btn { border-color:#e87328; }
     watchChecks: function (low, cb) {
       return this.db.collection("checkins").where("date", ">=", low).onSnapshot(function (s) {
         cb(s.docs.map(function (d) { var x = d.data() || {}; var p = x.prs || {};
-          return { date: x.date, uid: x.uid, done: x.done || {}, prs: normPrs(p), steps: normSteps(x.steps), pbonus: !!x.pbonus, fast: !!x.fast }; }));
+          return { date: x.date, uid: x.uid, done: x.done || {}, prs: normPrs(p), steps: normSteps(x.steps), pbonus: !!x.pbonus, fast: !!x.fast, opt: normOpt(x.opt), onote: String(x.onote || "").slice(0, 140), obonus: !!x.obonus }; }));
       }, noop);
     },
-    saveDay: function (rec) { return this.db.doc("checkins/" + rec.date + "_" + rec.uid).set({ date: rec.date, uid: rec.uid, done: rec.done, prs: rec.prs, steps: normSteps(rec.steps), pbonus: !!rec.pbonus, fast: !!rec.fast }); },
+    saveDay: function (rec) { return this.db.doc("checkins/" + rec.date + "_" + rec.uid).set({ date: rec.date, uid: rec.uid, done: rec.done, prs: rec.prs, steps: normSteps(rec.steps), pbonus: !!rec.pbonus, fast: !!rec.fast, opt: normOpt(rec.opt), onote: String(rec.onote || "").slice(0, 140), obonus: !!rec.obonus }); },
     watchLogs: function (uid, low, cb) {
       return this.db.doc("data/users/" + uid + "/log").collection("days").where("date", ">=", low).onSnapshot(function (s) {
         cb(s.docs.map(function (d) { var x = d.data() || {};
@@ -2488,7 +2497,9 @@ header.hero .me-btn { border-color:#e87328; }
   function myDoc() { return recFor(todayKey()); }
   function customDone(done) { var n = 0; CUSTOM.forEach(function (k) { if (done && done[k]) n++; }); return n; }
   function stdDone(done) { var n = 0; state.tasks.forEach(function (t) { if (done && done[t.id]) n++; }); return n; }
-  function bonusOf(rec) { var p = rec.prs || {}; return (Number(p.n) || 0) * PR_PTS + stepBonus(rec.steps) + (rec.pbonus ? PROTEIN_BONUS : 0); }
+  var OPT_BONUS = 1; // finishing the optional 4th-day workout
+  function normOpt(v) { return v === "own" || v === "rest" ? v : ""; }
+  function bonusOf(rec) { var p = rec.prs || {}; return (Number(p.n) || 0) * PR_PTS + stepBonus(rec.steps) + (rec.pbonus ? PROTEIN_BONUS : 0) + (rec.obonus ? OPT_BONUS : 0); }
   function pointsOf(rec) {
     var done = rec.done || {}; var p = customDone(done) + bonusOf(rec);
     state.tasks.forEach(function (t) { if (done[t.id]) p += t.points; });
@@ -2673,7 +2684,45 @@ header.hero .me-btn { border-color:#e87328; }
     var fn = null;
     if (fn) { fn.hidden = cur === "app"; fn.textContent = ""; if (cur !== "app") { fn.appendChild(document.createTextNode(cur === "elsewhere" ? "You track food in another app. Logging here is optional. " : "You don’t count calories. Logging here is optional. ")); var ch = el("button", "linkish", "Change"); ch.type = "button"; ch.addEventListener("click", function () { openSettingsSection("h-s-food"); }); fn.appendChild(ch); } }
   }
+  /* ---------- Optional 4th day: workout, his own recovery, or full rest. Any of them checks the Workout box. ---------- */
+  function isOptDay(key) { var wf = workoutFor(key); return !!(wf && !wf.rt && wf.w && wf.w.templateDay === 6 && (wf.kind === "off" || wf.kind === "train")); }
+  function setOptChoice(v, note) {
+    writeDay(function (r) { r.opt = normOpt(v); r.onote = v === "own" ? String(note || "").trim().slice(0, 140) : ""; var hk = taskOfKind("workout"); if (hk && !v && !r.obonus) delete r.done[hk.id]; });
+  }
+  function openOptDay() {
+    var k = todayKey(), wf = workoutFor(k), rec = recFor(k), cur = normOpt(rec.opt), off = !state.me || !state.canWrite;
+    var old = $("cdlg"); if (old) old.remove();
+    var back = el("div", "cdlg"); back.id = "cdlg";
+    var box = el("div", "cdlg-box nw-box gb-box od-box"); box.setAttribute("role", "dialog"); box.setAttribute("aria-modal", "true"); box.setAttribute("aria-labelledby", "od-t");
+    var hd = el("div", "vd-coach"), bd = el("span", "vd-badge"); bd.innerHTML = GIDEON_BADGE; hd.appendChild(bd);
+    var nm = el("span"); nm.appendChild(el("b", null, COACH_LABEL)); nm.appendChild(el("small", null, "Your optional day")); hd.appendChild(nm); box.appendChild(hd);
+    var h = el("h2", "fm-h", "The 4th day is yours."); h.id = "od-t"; box.appendChild(h);
+    box.appendChild(el("p", "od-lead", "Any of these checks your Workout box. Finish the optional workout and you earn +" + OPT_BONUS + " bonus on top."));
+    function card(key, title, sub, extra) {
+      var c = el("div", "od-card" + (key && key === cur ? " on" : ""));
+      var b = el("button", "od-pick"); b.type = "button"; b.disabled = off; b.appendChild(el("span", "fm-dot"));
+      var tx = el("span", "fm-tx"); tx.appendChild(el("b", null, title)); tx.appendChild(el("span", null, sub)); b.appendChild(tx); c.appendChild(b);
+      if (extra) c.appendChild(extra); box.appendChild(c); return b;
+    }
+    var hasW = wf && wf.kind === "train";
+    var b1 = card("", "Do the optional workout", hasW ? wf.w.title.replace(/^Optional:\s*/, "") + " · " + (wf.w.minutes || 45) + " min · +" + OPT_BONUS + " bonus when you finish" : "Your plan has the 4th day off. Turn it on in Train › Workout plan to get a workout here.");
+    if (!hasW) b1.disabled = true;
+    b1.addEventListener("click", function () { back.remove(); openWorkout(k); });
+    var nw = el("label", "od-note"); nw.appendChild(el("span", null, "What did you do? (optional)")); var ni = el("input", "field"); ni.type = "text"; ni.maxLength = 140; ni.placeholder = "Walk, stretch, mobility, ruck, a game of ball"; ni.value = cur === "own" ? rec.onote || "" : ""; ni.disabled = off; nw.appendChild(ni);
+    var b2 = card("own", "I did my own recovery", "On your honor. Checks your Workout box.", nw);
+    b2.addEventListener("click", function () { back.remove(); setOptChoice("own", ni.value); });
+    var b3 = card("rest", "Full rest today", "Rest is part of the training. Sleep, eat well, be with your family.");
+    b3.addEventListener("click", function () { back.remove(); setOptChoice("rest"); });
+    if (cur && !rec.obonus) { var clr = el("button", "btn ghost", "Clear my choice"); clr.type = "button"; clr.disabled = off; clr.addEventListener("click", function () { back.remove(); setOptChoice(""); }); box.appendChild(clr); }
+    var no = el("button", "btn ghost", "Close"); no.type = "button"; box.appendChild(no);
+    function close() { back.remove(); }
+    no.addEventListener("click", close);
+    back.addEventListener("click", function (ev) { if (ev.target === back) close(); });
+    back.addEventListener("keydown", function (ev) { if (ev.key === "Escape") close(); });
+    back.appendChild(box); document.body.appendChild(back); no.focus({ preventScroll: true });
+  }
   function derive(rec, log) {
+    var hko = taskOfKind("workout"); if (hko && isOptDay(rec.date) && (normOpt(rec.opt) || rec.obonus)) rec.done[hko.id] = true;
     var wt = taskOfKind("water");
     if (wt) { if (log.water >= WATER_GOAL_OZ) rec.done[wt.id] = true; else delete rec.done[wt.id]; }
     var hs = taskOfKind("steps");
@@ -2772,7 +2821,7 @@ header.hero .me-btn { border-color:#e87328; }
     if (!state.me || !state.canWrite) return;
     var date = todayKey(), uid = state.me;
     var cur = recFor(date), cl = logFor(date);
-    var cp = normPrs(cur.prs), rec = { date: date, uid: uid, done: {}, prs: cp, steps: normSteps(cur.steps), pbonus: !!cur.pbonus };
+    var cp = normPrs(cur.prs), rec = { date: date, uid: uid, done: {}, prs: cp, steps: normSteps(cur.steps), pbonus: !!cur.pbonus, opt: normOpt(cur.opt), onote: String(cur.onote || ""), obonus: !!cur.obonus };
     Object.keys(cur.done || {}).forEach(function (k) { rec.done[k] = true; });
     var log = { date: date, water: cl.water, kcal: cl.kcal, p: cl.p, f: cl.f, c: cl.c, meals: cloneMeals(cl.meals), ext: normExt(cl.ext) };
     var wasAll = allBoxesDone(cur.done);
@@ -3209,7 +3258,8 @@ header.hero .me-btn { border-color:#e87328; }
     }
     tasks.forEach(function (tk) {
       var li = el("li", "item"), b = el("button", "hit"); b.type = "button";
-      var isDevo = tk.kind === "devo", fmOwn = tk.kind === "calories" && foodMode() !== "app" && !isFastDay(todayKey()), fmExt = fmOwn && foodMode() === "elsewhere" && !!normExt(log.ext), page = fmOwn && !fmExt ? null : AUTO_PAGE[tk.kind];
+      var optD = tk.kind === "workout" && isOptDay(todayKey()) && !isWeighDay(todayKey());
+      var isDevo = tk.kind === "devo", fmOwn = tk.kind === "calories" && foodMode() !== "app" && !isFastDay(todayKey()), fmExt = fmOwn && foodMode() === "elsewhere" && !!normExt(log.ext), page = (fmOwn && !fmExt) || optD ? null : AUTO_PAGE[tk.kind];
       var hAuto = (tk.kind === "steps" && healthHave("steps")) || (tk.kind === "weigh" && healthHave("weight"));
       b.setAttribute("role", "checkbox"); b.setAttribute("aria-checked", done[tk.id] ? "true" : "false");
       // Boxes owned by an area (Fuel, Train, Check-in, health data) are filled by the app. They are display-only here.
@@ -3226,6 +3276,7 @@ header.hero .me-btn { border-color:#e87328; }
       else if (fmOwn && foodMode() === "elsewhere" && normExt(log.ext)) sub = (function () { var e = normExt(log.ext), w = calWindow(Number((t || {}).kcal) || 0); return fmt(e.kcal) + " kcal, " + fmt(e.p) + " g protein from your app" + (done[tk.id] ? ". In range" : ". Range " + fmt(w[0]) + "\u2013" + fmt(w[1])) + (recFor(todayKey()).pbonus ? ". Protein bonus +" + PROTEIN_BONUS : ""); })();
       else if (fmOwn) sub = foodMode() === "elsewhere" ? (done[tk.id] ? "Hit my range today" : "Tap when you land in your range today. On your honor") : (done[tk.id] ? "Ate on purpose today" : "Protein at every meal, real food, nothing mindless after dinner");
       else if (tk.kind === "calories") sub = t && Number(t.kcal) ? (function () { var w = calWindow(Number(t.kcal)); var pb = recFor(todayKey()).pbonus; return fmt(log.kcal) + " of " + fmt(Number(t.kcal)) + " kcal. Checks at " + fmt(w[0]) + "\u2013" + fmt(w[1]) + (pb ? ". Protein bonus +" + PROTEIN_BONUS + " earned" : Number(t.p) ? ". Hit " + fmt(Number(t.p)) + " g protein too for +" + PROTEIN_BONUS : ""); })() : "Set your targets in Fuel";
+      else if (optD) { var orc = recFor(todayKey()); sub = orc.obonus ? "Optional workout done. +" + OPT_BONUS + " bonus" : orc.opt === "own" ? "Own recovery" + (orc.onote ? ": " + orc.onote : "") + ". Tap to change" : orc.opt === "rest" ? "Full rest today. Tap to change" : "Optional day. Tap to choose: workout, your own recovery or rest"; }
       else if (tk.kind === "workout") sub = isWeighDay(todayKey()) ? SABBATH_REST : done[tk.id] ? "Finished in Train" : "Checks itself when you finish a workout";
       else if (tk.kind === "checkin") sub = done[tk.id] ? "Posted in Rally today" : "Post in Rally to answer the call";
       else if (tk.kind === "photos") { var pc = normProg(progFor(todayKey()) || {}), nd = POSES.filter(function (p) { return pc[p[0]]; }).length; sub = done[tk.id] ? "Front, side and rear saved" : nd ? nd + " of 3 taken. Tap to finish" : "Front, side and rear. Tap to take them"; }
@@ -3238,9 +3289,10 @@ header.hero .me-btn { border-color:#e87328; }
       b.appendChild(txt);
       b.appendChild(el("span", "pts", "+" + tk.points + (tk.points === 1 ? " pt" : " pts")));
       if (isDevo || tk.id === "t_motto") b.appendChild(el("span", "chev", "›"));
-      if (tk.kind === "photos" || (tk.kind === "steps" && !hAuto) || (tk.kind === "weigh" && !hAuto)) b.appendChild(el("span", "chev", "\u203A"));
+      if (tk.kind === "photos" || (tk.kind === "steps" && !hAuto) || (tk.kind === "weigh" && !hAuto) || (optD && !recFor(todayKey()).obonus)) b.appendChild(el("span", "chev", "\u203A"));
+      if (optD) { b.removeAttribute("aria-readonly"); b.classList.remove("auto"); b.disabled = !state.me || !state.canWrite; b.setAttribute("aria-haspopup", "dialog"); }
       if (tk.kind === "steps" && !hAuto) { b.removeAttribute("aria-readonly"); b.classList.remove("auto"); b.disabled = !state.me || !state.canWrite; }
-      b.addEventListener("click", function () { if (isDevo) openDevo(); else if (tk.kind === "photos") openProgress(); else if (tk.kind === "steps") { if (!hAuto) openSteps(); } else if (tk.id === "t_motto") openMotto(tk.id); else if (tk.kind === "weigh" && !hAuto) openWeigh(); else if (!auto) toggle(tk.id); });
+      b.addEventListener("click", function () { if (optD) { if (!recFor(todayKey()).obonus) openOptDay(); return; } if (isDevo) openDevo(); else if (tk.kind === "photos") openProgress(); else if (tk.kind === "steps") { if (!hAuto) openSteps(); } else if (tk.id === "t_motto") openMotto(tk.id); else if (tk.kind === "weigh" && !hAuto) openWeigh(); else if (!auto) toggle(tk.id); });
       li.appendChild(b); list.appendChild(li);
     });
     if (isWeighDay(todayKey()) && state.me) {
@@ -4089,9 +4141,11 @@ header.hero .me-btn { border-color:#e87328; }
       if (wf.kind === "train") {
         var ob = chevRow("wk-open", wf.w.title, wf.w.sessionType + (wf.w.minutes ? " \u00B7 " + wf.w.minutes + " min" : "") + " \u00B7 Tap to open", "\u203A");
         ob.addEventListener("click", function () { openWorkout(sel); }); box.appendChild(ob);
+        if (isToday && isOptDay(sel) && !off) { var orb = el("button", "btn ghost od-alt", "Rest or own recovery instead"); orb.type = "button"; orb.addEventListener("click", openOptDay); box.appendChild(orb); }
       } else {
         var msg0 = wf.kind === "rest" ? "Sabbath. " + wf.w.exercises[0][1] : wf.kind === "off" ? (wf.rt ? "Rest day. Your routine is off today." : "Rest day. Turn on the 4th training day in your plan to see an optional workout here.") : wf.kind === "before" ? "Your plan starts " + longDate(p.start) + "." : (wf.rt ? "Your routine is finished. Run it again, add weeks, or switch back to the built-in program in Workout plan below." : "You finished all 365 days. Pick a new plan below to keep going.");
         box.appendChild(el("p", "note", msg0));
+        if (isToday && isOptDay(sel) && !off) { var orb2 = el("button", "btn ghost od-alt", "Log rest or own recovery"); orb2.type = "button"; orb2.addEventListener("click", openOptDay); box.appendChild(orb2); }
       }
     }
     if (wf && !wf.rt && !off && planSrc(sel) !== sel) box.appendChild(el("p", "note mv-note", "\u21C4 Moved here from " + longDate(planSrc(sel)).split(",")[0] + "."));
@@ -5143,7 +5197,7 @@ header.hero .me-btn { border-color:#e87328; }
     if (!S && (!wf || wf.kind !== "train")) { body.appendChild(el("p", "note", "No workout on this day.")); return; }
     var off = !state.me || !state.canWrite, isToday = key === todayKey(), rec = wk.rec || (S ? normSession({ id: sid }) : emptyWk(key));
     var w = S ? { title: rec.name, exercises: [] } : wf.w, th = S ? {} : wf.th, wkTask = taskOfKind("workout");
-    var done = S ? !!rec.finishedAt : !!((wkTask && recFor(key).done[wkTask.id]) || rec.finishedAt), started = !!rec.startedAt;
+    var done = S ? !!rec.finishedAt : !!((wkTask && recFor(key).done[wkTask.id] && !(isOptDay(key) && normOpt(recFor(key).opt))) || rec.finishedAt), started = !!rec.startedAt;
     var editing = !!wk.editing && done, locked = done && !editing && wk.loaded, live = editing || (isToday && started && !done);
     body.appendChild(el("div", "wk-meta", S ? "Your own workout" : "Week " + w.week + " \u00B7 Day " + w.day + (w.minutes ? " \u00B7 " + w.minutes + " min" : "")));
     body.appendChild(el("h1", "pg", w.title));
@@ -5287,7 +5341,10 @@ header.hero .me-btn { border-color:#e87328; }
       }
       var fb = el("button", "btn", "Finish workout"); fb.type = "button"; fb.disabled = off;
       var finishNow = function () {
-        if (wk && wk.rec) { wkFoldPause(wk.rec); wk.rec.finishedAt = Date.now(); } saveWkNow(); if (!S) { var wt = taskOfKind("workout"); if (wt && !recFor(key).done[wt.id]) previewWorkout(); } drawWorkoutPage(true);
+        if (wk && wk.rec) { wkFoldPause(wk.rec); wk.rec.finishedAt = Date.now(); } saveWkNow();
+        if (key === todayKey() && isOptDay(key)) { var nmS = S && wk && wk.rec ? wk.rec.name : ""; writeDay(function (r) { var hk2 = taskOfKind("workout"); if (hk2) r.done[hk2.id] = true; if (!S) { r.obonus = true; r.opt = ""; r.onote = ""; } else if (!r.obonus) { r.opt = "own"; r.onote = String(nmS || "My own workout").slice(0, 140); } }); }
+        else if (!S) { var wt = taskOfKind("workout"); if (wt && !recFor(key).done[wt.id]) previewWorkout(); }
+        drawWorkoutPage(true);
         if (wk && wk.root) {
           var info = workoutShareInfo(key, wk.root, S ? wk.rec : null, w);
           awardPRs(key, wk.root, 0, function (list) { openShare(info, list.filter(function (x) { return info.keys[x.k]; })); });
@@ -5811,11 +5868,11 @@ header.hero .me-btn { border-color:#e87328; }
     state.checks.forEach(function (c) { if (c.uid === uid) { seen[c.date] = 1; recs.push(c); } });
     if (range === "all") (state.allChecks || []).forEach(function (c) { if (c.uid === uid && !seen[c.date]) recs.push(c); });
     recs = recs.filter(function (c) { return c.date <= today && (range === "all" || c.date >= ws); });
-    var t = { boxes: 0, habits: 0, steps: 0, protein: 0, prs: 0 }, prList = [];
+    var t = { boxes: 0, habits: 0, steps: 0, protein: 0, prs: 0, opt: 0 }, prList = [];
     recs.forEach(function (c) {
       var d = c.done || {};
       state.tasks.forEach(function (tk) { if (d[tk.id]) t.boxes += tk.points; });
-      t.habits += customDone(d); t.steps += stepBonus(c.steps); t.protein += c.pbonus ? PROTEIN_BONUS : 0;
+      t.habits += customDone(d); t.steps += stepBonus(c.steps); t.protein += c.pbonus ? PROTEIN_BONUS : 0; t.opt += c.obonus ? OPT_BONUS : 0;
       var pr = normPrs(c.prs); t.prs += pr.n * PR_PTS; pr.list.forEach(function (x) { prList.push(Object.assign({ date: c.date }, x)); });
     });
     // Weekly challenges
@@ -5825,14 +5882,14 @@ header.hero .me-btn { border-color:#e87328; }
       w.challenges.forEach(function (c) { var r = chalStandings(c).filter(function (x) { return x.uid === uid; })[0]; if (r) ch[c.slot] += r.pts; });
     });
     var rcN = recruitsOf(uid).filter(function (r) { return r.at <= today && (range === "all" || r.at >= ws); }).length, rcPts = rcN * RECRUIT_PTS;
-    var kw = t.boxes + t.habits + t.steps + t.protein + t.prs + rcPts;
+    var kw = t.boxes + t.habits + t.steps + t.protein + t.prs + t.opt + rcPts;
     function group(title, rows, total) {
       var g = el("div", "pp-g"); g.appendChild(el("div", "pts-h", title));
       var tb = el("div", "pts-tbl"); rows.forEach(function (r) { var row = el("div", "pts-row"); row.appendChild(el("span", null, r[0])); row.appendChild(el("b", null, (Math.round(r[1] * 10) / 10).toLocaleString())); tb.appendChild(row); });
       if (total != null) { var tr = el("div", "pts-row pp-total"); tr.appendChild(el("span", null, "Total")); tr.appendChild(el("b", null, (Math.round(total * 10) / 10).toLocaleString())); tb.appendChild(tr); }
       g.appendChild(tb); box.appendChild(g);
     }
-    group("Kingdom Warrior", [["Daily habits", t.boxes + t.habits], ["Step bonus", t.steps], ["Protein bonus", t.protein], ["PRs (" + (t.prs / PR_PTS) + " × " + PR_PTS + ")", t.prs], ["Brothers recruited (" + rcN + " × " + RECRUIT_PTS + ")", rcPts]], kw);
+    group("Kingdom Warrior", [["Daily habits", t.boxes + t.habits], ["Step bonus", t.steps], ["Protein bonus", t.protein], ["Optional workout bonus", t.opt], ["PRs (" + (t.prs / PR_PTS) + " × " + PR_PTS + ")", t.prs], ["Brothers recruited (" + rcN + " × " + RECRUIT_PTS + ")", rcPts]], kw);
     group("Weekly challenges" + (range === "week" && !cw.pre ? " · Week " + cw.n : ""), [["Family", ch.family], ["Iron", ch.iron], ["Endure", ch.endure]], ch.family + ch.iron + ch.endure);
     if (cw.pre) box.appendChild(el("p", "fnote", "Weekly challenges start Monday, November 2."));
     // PR list
@@ -8312,7 +8369,7 @@ header.hero .me-btn { border-color:#e87328; }
       box.appendChild(r);
     });
   }
-  var APP_VERSION = "v210";
+  var APP_VERSION = "v211";
   /* ---------- Photo upload diagnostic (Settings > Testing) ---------- */
   async function runPhotoDiag() {
     var out = { at: new Date().toISOString(), version: APP_VERSION, ua: navigator.userAgent, steps: [] };
