@@ -991,6 +991,17 @@ button.fo-item { cursor: pointer; min-height: 44px; }
 .lg-d { color: var(--muted); font-size: 13px; min-width: 52px; } .lg-s { flex: 1; font-size: 14px; }
 .lg-pp { font-style: italic; color: var(--muted); margin: 0 0 6px; font-size: 14px; } .lg-full { white-space: pre-wrap; margin: 0 0 8px; line-height: 1.5; }
 .lg-ib { display: flex; gap: 8px; margin-bottom: 10px; }
+.lg-saved { display: grid; grid-template-columns: 40px minmax(0, 1fr); gap: 12px; align-items: start; margin: 8px 0 12px; padding: 14px; border: 1px solid var(--accent); border-radius: 10px; background: var(--surface); }
+.lg-ck { width: 36px; height: 36px; border-radius: 50%; background: var(--accent); display: grid; place-items: center; }
+.lg-ck svg { width: 20px; height: 20px; opacity: 1; stroke: var(--accent-ink, #111); stroke-width: 3; fill: none; stroke-linecap: square; }
+.lg-ct b { font-family: var(--f-label); font-weight: 800; letter-spacing: .08em; text-transform: uppercase; font-size: 16px; }
+.lg-prev { margin: 6px 0; font-size: 15px; line-height: 1.45; } .lg-ct small { color: var(--muted); font-size: 13px; }
+.lg-sbtns .btn { flex: 1; }
+.lg-new { background: color-mix(in srgb, var(--accent) 10%, transparent); border-radius: 6px; }
+.lg-newtag { flex: none; align-self: center; padding: 1px 8px; border: 1px solid var(--accent); border-radius: 10px; color: var(--accent); font-family: var(--f-label); font-weight: 700; font-size: 11.5px; letter-spacing: .08em; text-transform: uppercase; }
+.fr-li .fr-open.fr-done { border-style: solid; }
+.fr-done .box { background: var(--accent); border-color: var(--accent); } .fr-done .box svg { opacity: 1; }
+.fr-tag { color: var(--accent); }
 .ln-wrap { margin-top: 6px; }
 .ln-add { font-size: 13px; text-align: left; } .ln-add i { font-style: normal; font-weight: 700; color: var(--muted); }
 .ln-ta { width: 100%; font-size: 15px; }
@@ -3245,8 +3256,10 @@ header.hero .me-btn { border-color:#e87328; }
     var back = el("div", "cdlg"); back.id = "cdlg"; back.dataset.k = "legacy";
     var box = el("div", "cdlg-box nw-box lg-box"); box.setAttribute("role", "dialog"); box.setAttribute("aria-modal", "true"); box.setAttribute("aria-labelledby", "lg-t");
     box.appendChild(el("p", "fr-k", "Legacy log \u00B7 Week " + n));
-    var t = el("h2", null, F.edit ? "Edit your entry" : "Write it down for them."); t.id = "lg-t"; box.appendChild(t);
-    box.appendChild(el("p", "note", "Private. Only you can see this. It is never scored and never shows on the Board. When you're ready, give it to them."));
+    var savedMode = !!(F.saved && !F.edit && lg.e[F.saved]);
+    var t = el("h2", null, savedMode ? "Saved to your legacy log." : F.edit ? "Edit your entry" : "Write it down for them."); t.id = "lg-t"; box.appendChild(t);
+    if (!savedMode) box.appendChild(el("p", "note", "Private. Only you can see this. It is never scored and never shows on the Board. When you're ready, give it to them."));
+    var c0 = box.childNodes.length;
     var ed = F.edit ? lg.e[F.edit] : null, prompt = ed ? (ed.p || "") : legacyPrompt(n, F.off);
     var pq = el("blockquote", "mem-v lg-p", prompt || "Write anything you want them to have."); box.appendChild(pq);
     if (!ed) { var prow = el("div", "lg-prow"), nx = el("button", "linkish", "Different prompt"), own = el("button", "linkish", "Write my own"); nx.type = own.type = "button";
@@ -3270,11 +3283,23 @@ header.hero .me-btn { border-color:#e87328; }
       var v = ta.value.trim(); if (!v) { msg.textContent = "Write something first."; return; }
       var l2 = legacyOf(), e2 = Object.assign({}, l2.e), id = F.edit || ("l" + Date.now().toString(36));
       e2[id] = ed ? Object.assign({}, ed, { t: v, who: F.who }) : { w: n, d: todayKey(), who: F.who, p: prompt, t: v, at: Date.now() };
-      l2.e = e2; F.t = ""; F.edit = ""; F.off = 0; saveLegacyNow(l2); openLegacy({ msg: "Saved for " + e2[id].who + ". Only you can see it." });
+      l2.e = e2; F.t = ""; F.off = 0; F.saved = id; F.open = ""; F.edit = ""; saveLegacyNow(l2); drawAll(); openLegacy();
     });
     srow.appendChild(sv);
     if (ed) { var cx = el("button", "btn ghost", "Cancel"); cx.type = "button"; cx.addEventListener("click", function () { F.edit = ""; F.t = ""; openLegacy(); }); srow.appendChild(cx); }
     box.appendChild(srow); box.appendChild(msg);
+    if (savedMode) {
+      Array.prototype.slice.call(box.childNodes, c0).forEach(function (n) { n.remove(); });
+      var se = lg.e[F.saved], card = el("div", "lg-saved");
+      var ck = el("span", "lg-ck"); ck.innerHTML = CHECK_SVG; card.appendChild(ck);
+      var ct = el("div", "lg-ct"); ct.appendChild(el("b", null, "Saved for " + se.who));
+      ct.appendChild(el("p", "lg-prev", "\u201C" + se.t.replace(/\s+/g, " ").slice(0, 160) + (se.t.length > 160 ? "\u2026" : "") + "\u201D"));
+      ct.appendChild(el("small", null, "Only you can see it. Give it to them when you\u2019re ready.")); card.appendChild(ct); box.appendChild(card);
+      var sb2 = el("div", "cdlg-btns lg-sbtns"), more = el("button", "btn ghost", "+ Write another"), dn = el("button", "btn", "Done"); more.type = dn.type = "button";
+      more.addEventListener("click", function () { F.saved = ""; openLegacy(); });
+      dn.addEventListener("click", function () { F.saved = ""; back.remove(); });
+      sb2.appendChild(more); sb2.appendChild(dn); box.appendChild(sb2);
+    }
     // The log so far, by person
     var all = legacyEntries();
     if (all.length) {
@@ -3285,7 +3310,7 @@ header.hero .me-btn { border-color:#e87328; }
         var give = el("button", "mini", "Give it to them"); give.type = "button"; give.addEventListener("click", function () { giveLegacy(who, mine); }); hd.appendChild(give); grp.appendChild(hd);
         mine.forEach(function (x) {
           var it = el("div", "lg-it"), top = el("button", "lg-ih"); top.type = "button"; top.setAttribute("aria-expanded", F.open === x.id ? "true" : "false");
-          top.appendChild(el("span", "lg-d", shortDate(x.d))); top.appendChild(el("span", "lg-s", x.t.split(/\n/)[0].slice(0, 70) + (x.t.length > 70 ? "\u2026" : "")));
+          top.appendChild(el("span", "lg-d", shortDate(x.d))); top.appendChild(el("span", "lg-s", x.t.split(/\n/)[0].slice(0, 70) + (x.t.length > 70 ? "\u2026" : ""))); if (x.id === F.saved) { it.classList.add("lg-new"); top.appendChild(el("span", "lg-newtag", "New")); }
           top.addEventListener("click", function () { F.open = F.open === x.id ? "" : x.id; F.t = ta.value; openLegacy(); }); it.appendChild(top);
           if (F.open === x.id) {
             if (x.p) it.appendChild(el("p", "lg-pp", x.p)); it.appendChild(el("p", "lg-full", x.t));
@@ -3301,8 +3326,9 @@ header.hero .me-btn { border-color:#e87328; }
       box.appendChild(sec);
     }
     var row = el("div", "cdlg-btns"), cl = el("button", "btn ghost", "Close"); cl.type = "button"; row.appendChild(cl); box.appendChild(row);
-    cl.addEventListener("click", function () { back.remove(); }); back.addEventListener("click", function (ev) { if (ev.target === back) back.remove(); });
-    back.addEventListener("keydown", function (ev) { if (ev.key === "Escape") { ev.stopPropagation(); back.remove(); } });
+    if (savedMode) row.remove();
+    cl.addEventListener("click", function () { F.saved = ""; back.remove(); }); back.addEventListener("click", function (ev) { if (ev.target === back) { F.saved = ""; back.remove(); } });
+    back.addEventListener("keydown", function (ev) { if (ev.key === "Escape") { ev.stopPropagation(); F.saved = ""; back.remove(); } });
     back.appendChild(box); document.body.appendChild(back);
   }
   // Hand the entries for one person over as a letter: saved as a page he can print or send, or shared as text.
@@ -3344,7 +3370,7 @@ header.hero .me-btn { border-color:#e87328; }
   function openFamilyReport() {
     var old = $("cdlg"); if (old) old.remove();
     var rw = reportWeek(), st = reportStats(rw), fr = state.settings.freport || {}, saved = Object.assign({ line: "", gideon: "" }, fr[rw.key] || {});
-    function keep() { var f = Object.assign({}, state.settings.freport || {}); f[rw.key] = { line: saved.line.slice(0, 400), gideon: saved.gideon.slice(0, 800) }; var ks = Object.keys(f).sort(); while (ks.length > 12) delete f[ks.shift()]; state.settings.freport = f; saveSettings(); }
+    function keep() { var f = Object.assign({}, state.settings.freport || {}); f[rw.key] = { line: saved.line.slice(0, 400), gideon: saved.gideon.slice(0, 800), shared: !!saved.shared }; var ks = Object.keys(f).sort(); while (ks.length > 12) delete f[ks.shift()]; state.settings.freport = f; saveSettings(); }
     var back = el("div", "cdlg"); back.id = "cdlg";
     var box = el("div", "cdlg-box nw-box fr-box"); box.setAttribute("role", "dialog"); box.setAttribute("aria-modal", "true"); box.setAttribute("aria-labelledby", "fr-t");
     box.appendChild(el("p", "fr-k", "Family report \u00B7 Week of " + reportRange(rw)));
@@ -3377,9 +3403,12 @@ header.hero .me-btn { border-color:#e87328; }
     function close() { keep(); back.remove(); }
     cl.addEventListener("click", close); back.addEventListener("click", function (ev) { if (ev.target === back) close(); });
     back.addEventListener("keydown", function (ev) { if (ev.key === "Escape") { ev.stopPropagation(); close(); } });
-    sh.addEventListener("click", function () { keep(); var txt = reportText(rw, st, saved);
-      if (navigator.share) navigator.share({ title: "Family report", text: txt }).catch(noop);
-      else { try { navigator.clipboard.writeText(txt).then(function () { sh.textContent = "Copied. Paste it in a text."; }); } catch (e) {} } });
+    var shMsg = el("p", "note fr-shmsg"); shMsg.setAttribute("role", "status"); box.appendChild(shMsg);
+    sh.addEventListener("click", async function () { saved.shared = true; keep(); drawAll(); var txt = reportText(rw, st, saved);
+      function showText(why) { shMsg.textContent = why; var old2 = box.querySelector(".fr-copy"); if (old2) old2.remove(); var ta = el("textarea", "field fr-copy"); ta.readOnly = true; ta.rows = 8; ta.value = txt; shMsg.after(ta); try { ta.focus({ preventScroll: true }); ta.select(); } catch (e) {} ta.scrollIntoView({ block: "nearest" }); }
+      if (navigator.share) { try { await navigator.share({ title: "Family report", text: txt }); shMsg.textContent = "\u2713 Shared. Your report is marked done for today."; return; } catch (e) { if (e && e.name === "AbortError") { shMsg.textContent = "Share canceled. It\u2019s still marked done; tap Share again anytime."; return; } } }
+      try { await navigator.clipboard.writeText(txt); shMsg.textContent = "\u2713 Copied. Open Messages and paste it to your family."; sh.textContent = "Copied"; return; } catch (e) {}
+      showText("Your phone blocked sharing here. Press and hold the text below, Select All, then Copy and paste it in a text."); });
     back.appendChild(box); document.body.appendChild(back);
   }
   var OWN_IT_TEXT = ["Every man falls. What matters is what he does next. A man who hides it stays down; a man who brings it into the light gets back up.",
@@ -3500,12 +3529,17 @@ header.hero .me-btn { border-color:#e87328; }
     });
     if (isWeighDay(todayKey()) && state.me) {
       var fli = el("li", "item fr-li"), fb = el("button", "hit fr-open"); fb.type = "button";
-      fb.appendChild(el("span", "fr-ic", "\u2709")); var ftx = el("span", "txt"); ftx.appendChild(el("span", "name", "Family report"));
-      ftx.appendChild(el("span", "sub", ((state.settings.freport || {})[todayKey()] ? "Ready. Tap to review and share" : "Your week, ready to share with your family"))); fb.appendChild(ftx); fb.appendChild(el("span", "chev", "\u203A"));
+      var frx = (state.settings.freport || {})[todayKey()], frDone = !!(frx && frx.shared);
+      if (frDone) { fb.classList.add("fr-done"); var fbx = el("span", "box"); fbx.innerHTML = CHECK_SVG; fb.appendChild(fbx); } else fb.appendChild(el("span", "fr-ic", "\u2709"));
+      var ftx = el("span", "txt"); ftx.appendChild(el("span", "name", "Family report"));
+      ftx.appendChild(el("span", "sub", frDone ? "Shared with your family \u00B7 No points, just leadership" : frx ? "Ready. Tap to review and share" : "Your week, ready to share with your family")); fb.appendChild(ftx);
+      if (frDone) fb.appendChild(el("span", "pts fr-tag", "Done")); fb.appendChild(el("span", "chev", "\u203A"));
       fb.addEventListener("click", openFamilyReport); fli.appendChild(fb); list.appendChild(fli);
       var lcw = chalWeekFor(todayKey()), ln0 = lcw.pre ? 1 : lcw.n, lw = legacyThisWeek(ln0), lli = el("li", "item fr-li"), lb0 = el("button", "hit fr-open"); lb0.type = "button";
-      lb0.appendChild(el("span", "fr-ic", "\u270D\uFE0E")); var ltx = el("span", "txt"); ltx.appendChild(el("span", "name", "Legacy log"));
-      ltx.appendChild(el("span", "sub", lw ? "Written this week \u2713" : legacyPrompt(ln0, 0))); lb0.appendChild(ltx); lb0.appendChild(el("span", "chev", "\u203A"));
+      if (lw) { lb0.classList.add("fr-done"); var lbx = el("span", "box"); lbx.innerHTML = CHECK_SVG; lb0.appendChild(lbx); } else lb0.appendChild(el("span", "fr-ic", "\u270D\uFE0E"));
+      var ltx = el("span", "txt"); ltx.appendChild(el("span", "name", "Legacy log"));
+      ltx.appendChild(el("span", "sub", lw ? "Written this week \u00B7 Tap to add another" : legacyPrompt(ln0, 0))); lb0.appendChild(ltx);
+      if (lw) lb0.appendChild(el("span", "pts fr-tag", "Done")); lb0.appendChild(el("span", "chev", "\u203A"));
       lb0.addEventListener("click", function () { openLegacy(); }); lli.appendChild(lb0); list.appendChild(lli);
     }
     var wt = taskOfKind("weigh");
@@ -9023,7 +9057,7 @@ header.hero .me-btn { border-color:#e87328; }
       box.appendChild(r);
     });
   }
-  var APP_VERSION = "v221";
+  var APP_VERSION = "v222";
   /* ---------- Photo upload diagnostic (Settings > Testing) ---------- */
   async function runPhotoDiag() {
     var out = { at: new Date().toISOString(), version: APP_VERSION, ua: navigator.userAgent, steps: [] };
