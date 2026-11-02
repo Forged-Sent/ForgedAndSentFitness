@@ -15,7 +15,7 @@ Forged & Sent is a faith-centered devotional workout and group accountability pl
 
 ## Protected operations
 - GitHub rulesets, not instructions or AI reviews, enforce protected branches and mandatory checks. The live ruleset currently requires ci-gate but ZERO human approvals. Do NOT claim a second human review is enforced. Never push to main, force-push main, bypass protections, or merge before required checks pass.
-- Require deterministic CI and independent advisory reviews. For sensitive auth, privacy, scoring, Firebase rules or unfamiliar architecture changes request another human, even when GitHub's current minimum human approval count is zero.
+- Deterministic CI is mandatory. As a solo maintainer, no second human or AI approval is required. For Flutter database, Firebase rules, private data or authorization work, recommend a non-author AI security review as an optional second opinion; record any unverified coverage.
 - Never use an AI agent's review as an approval. Agents must not self-approve, self-merge, change branch protections, or impersonate a human reviewer.
 - AI reviews are advisory and never satisfy required approval.
 - No default cloud Firebase MCP, Firebase deployment, or PROD credentials on colleague devices.
@@ -26,7 +26,7 @@ Forged & Sent is a faith-centered devotional workout and group accountability pl
 ## Working agreement
 1. Read `docs/development/START_HERE.md` and any applicable ADR before work.
 2. One focused issue per branch. Never change `main` directly.
-3. Human product approval is required for new dependencies, authentication/data-access changes, scoring formula changes, health permissions, and public communication features, even if first explored in the prototype. Do not claim a prototype-only PR approves these decisions.
+3. The project maintainer makes explicit product decisions for dependencies, authentication/data access, scoring, health permissions and communications. A solo maintainer can make these decisions without a separate reviewer. Prototype-only changes do not implicitly approve production behavior.
 4. Prefer a minimal vertical slice with tests over a large unreviewable implementation.
 5. Keep Flutter features under `mobile/lib/src/features/`; UI depends on application/domain services, not Firebase SDK types.
 6. Do not commit credentials, Firebase service account JSON, signing keys, personal data, or large generated media.
@@ -43,10 +43,10 @@ Forged & Sent is a faith-centered devotional workout and group accountability pl
 
 ## Pull request classification
 - **Prototype (explicit exceptions only):** HTML/versions, mock and listed seed content. Lightweight preview CI, optional formal review, required PR. Executable preview scripts are *not* review-exempt.
-- **Application:** `mobile/` and production app architecture. Flutter CI and independent review, plus human attention for sensitive changes.
-- **Infrastructure/security:** `tooling/`, workflows, agent instructions, MCP settings, Firebase config, architecture ADRs and protected seed rules. Mandatory policy CI plus independent security review and a human decision.
+- **Application:** `mobile/` and production app architecture. Flutter CI required; an independent AI review is optional, particularly useful for Firebase/database changes.
+- **Infrastructure/security:** `tooling/`, workflows, agent instructions, MCP settings, Firebase config, architecture ADRs and protected seed rules. Mandatory policy CI; optional independent AI review and maintainer decision.
 - A mixed PR receives the strictest applicable checks and review requirements. Prefer splitting unrelated changes.
-- PR authors cannot approve their own GitHub PRs. AI reviews NEVER satisfy human-approval requirements. Read docs/development/AI-REVIEW-WORKFLOW.md and inspect live rules before merging.
+- The live GitHub ruleset requires `ci-gate` but zero outside approvals. AI reviews are voluntary and advisory. Maintainers choose whether to merge; agents never self-merge.
 
 ## Platform-specific onboarding
 - Windows bootstrap: FIRST-RUN-WINDOWS.cmd; Mac bootstrap: FIRST-RUN-MAC.command. Both must preserve emulator-first/no-cloud-Firebase MCP defaults.
@@ -62,7 +62,7 @@ Forged & Sent is a faith-centered devotional workout and group accountability pl
 - Flutter Builder: one vertical slice, widget tests, no backend policy changes.
 - Architecture Reviewer: independent read-only design and requirements assessment.
 - Firebase Security Reviewer: authentication, rules, functions, storage and adversarial access tests.
-Use one builder and at least two independent provider reviews when available; an authoring model must not review itself. Mark outages NOT VERIFIED. Avoid calling a large swarm for every minor change.
+Use one builder by default. Offer a non-author AI reviewer for Flutter database and security changes, or two if useful, without making either mandatory. If invoked, never count the authoring model as independent. Mark missing coverage NOT VERIFIED.
 
 ## Safe beginner Git collaboration (PR #4)
 
@@ -86,11 +86,10 @@ agent instructions are advisory. No cloud Firebase MCP is enabled by default.
 - Keep the curated component/function glossary in `docs/architecture/explorer/model.json` aligned with `SYSTEM.md` and real code. Never label a proposed component as implemented.
 - For new components or meaningful behavior, update model descriptions, source paths, dependencies, and the appropriate ADR. CI builds the latest file/symbol index and rejects dangling model file references.
 - Never describe lexical file mentions or best-effort symbol detection as a complete runtime call graph. Explain uncertainty honestly.
-
 ## Git-backed development memory and Flutter platform strategy
 - Start a new or resumed complex task at `docs/knowledge/INDEX.md` and `docs/knowledge/CURRENT.md`. Follow the scoped handoff, check exact PR/branch SHA and verify current tests before trusting a note.
 - On meaningful handoff, write a dated, task-specific `docs/knowledge/handoffs/<task>.md` with owner, full source SHA, verified observations, unrun tests, blockers and a concrete next action. Never overwrite parallel agent work.
 - Obsidian is an optional Markdown viewer/editor for `docs/`, NOT a second source of truth. Follow `docs/knowledge/LIFECYCLE.md` for superseding/archiving; never delete approved ADR history, generated docs or `versions/` snapshots.
 - Flutter app code is the target, while `index.html` is behavioral reference only. Follow `docs/knowledge/PROTOTYPE-PARITY.md` and `docs/knowledge/FLUTTER-PLATFORMS.md`. Android/iOS are first, web is a preview target; Windows/Linux/macOS require separate reviewed host/CI/runtime qualification.
-- For unfamiliar Flutter/Dart/package APIs, consult pinned source + official Flutter/Dart docs/Dart MCP, then version-specific Context7 when appropriate. Use `docs/knowledge/FLUTTER-AI-DOCS.md`; never paste large live docs into startup rules or silently install plugins.
+- For any Flutter/Dart/library/API question, check the installed/pinned SDK and current official docs or Dart MCP; use version-matched Context7 for third-party APIs when appropriate. Never treat stale snippets as project policy. Use `docs/knowledge/FLUTTER-AI-DOCS.md`; never paste large live docs into startup rules or silently install plugins.
 - Use `flutter-platform-parity` and `knowledge-steward` skills for the matching tasks. Recheck the generated architecture map and handoff links after documentation changes.

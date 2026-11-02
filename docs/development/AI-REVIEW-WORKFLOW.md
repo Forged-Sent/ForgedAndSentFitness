@@ -1,6 +1,6 @@
 # Independent agent review: beginner workflow
 
-**Start here:** The goal is for both contributors to use the same checked-in Codex and Claude skills, give changes to a reviewer that DID NOT write them, and receive a clear report before pushing. AI reviews are advisory. They do not substitute for server-enforced CI, Firebase security-rule tests, or another person's approval when required.
+**Start here:** Optional AI review is a second opinion for a solo maintainer, especially for Flutter database, Firebase rules, Auth, scoring and private data. It is not a required merge gate. Pick a model that did not author the change; deterministic CI and emulator tests remain required.
 
 ## The quick path (Windows)
 
@@ -8,14 +8,14 @@
 2. Ensure Python 3 is installed: open PowerShell and run `py -3 --version` (or `python --version`). Sign in to any CLI reviewer you choose to use.
 3. Save your files. If you added new files, stage them using VS Code Source Control (`+` beside each file) or `git add path/to/file`. The review stops if untracked files could be omitted.
 4. Double-click `REVIEW-WINDOWS.cmd`, or from VS Code Terminal run `py -3 tooling/review/review.py --dry-run` first. If the tool says `origin/main` is missing, run `git fetch origin main` and retry.
-5. For an actual review, run `py -3 tooling/review/review.py --reviewers codex,claude --author human`. Two installed/authenticated CLIs are needed by default. This may use paid AI quotas.
-6. Open `.review/summary.md` in VS Code. Critical/high findings, unavailable reviewers, invalid JSON, contradictory verdicts, or insufficient independent reviewers are **NOT VERIFIED**. Fix code and run review again.
+5. For optional review after Codex authored a Flutter database change: `py -3 tooling/review/review.py --reviewers claude --author codex --minimum 1`. If Claude authored it, choose Codex. For two providers specify both explicitly; this may consume paid usage.
+6. Inspect `.review/summary.md`. Critical/high findings, incomplete diff slices and invalid or missing reviewer responses are NOT VERIFIED. Resolve any material security defects before real-user data is deployed. The review itself is optional.
 7. Run `python tooling/skills/sync.py --check`, `python tooling/architecture/generate.py --write`, and your Flutter tests. Commit both source and generated CODE-MAP.md when Flutter declarations change.
-8. Run `git status`, commit the changes, **rerun the review after the commit** (a new HEAD invalidates the old report), then `git push` and open a Draft PR. Do not merge until GitHub required CI is green.
+8. Commit your changes, optionally rerun review for the exact new HEAD, then push and open a Draft PR. Do not merge until required GitHub CI passes.
 
 ## The quick path (Mac)
 
-Use Terminal in the same feature branch. Check `python3 --version`, then run `python3 tooling/review/review.py --dry-run`. The `REVIEW-MAC.command` double-click launcher is equivalent to running `python3 tooling/review/review.py --reviewers codex,claude --author human` from the repository root. Mac users also need the same authenticated provider CLIs. If macOS warns about the launcher, inspect its text in an editor before launching it.
+Use Terminal in the same feature branch. Check `python3 --version`, then run `python3 tooling/review/review.py --dry-run`. The `REVIEW-MAC.command` launcher is equivalent to running `python3 tooling/review/review.py` from the repository root. Mac users also need the same authenticated provider CLIs. If macOS warns about the launcher, inspect its text in an editor before launching it.
 
 ## When an AI wrote the code
 
@@ -26,7 +26,7 @@ Use Terminal in the same feature branch. Check `python3 --version`, then run `py
 | Claude | Codex + Gemini CLI | `--author claude --reviewers codex,gemini` |
 | Gemini | Codex + Claude | `--author gemini --reviewers codex,claude` |
 
-Agents must not count themselves as independent reviewers. The script enforces the `--author` exclusion. If you only have one independent provider, request a human review instead of claiming the two-provider process passed. **Never change `--author` merely to bypass this rule.**
+Agents must not count themselves as independent reviewers. The script enforces the `--author` exclusion. One independent provider is sufficient for the optional second opinion (`--minimum 1`). Never falsify the `--author` value to claim independence.
 
 ## One-time agent preparation on each computer
 
@@ -60,10 +60,10 @@ The existing repository pre-push hook runs Flutter analysis and tests. If you **
 ## Review quality and cost safeguards
 
 - Run cheap deterministic checks before spending tokens: Flutter analysis/tests, Python tests, `tooling/policy/check.py`, and architecture/skill drift checks.
-- Use small PRs and an explicit base commit. The reviewer rejects oversize diffs, binary patches, and some recognizable secret patterns, but that scanner is incomplete. A human must inspect sensitive content before using cloud AI.
+- Prefer focused PRs. Large text diffs are split into bounded hashed slices with required whole-diff coverage for any claimed advisory PASS; binary patches and possible secrets are refused. The secret scanner is incomplete; inspect sensitive code before passing it to cloud AI.
 - Reviewer findings must include severity, path/line, concrete impact and smallest fix. The runner rejects malformed JSON and fails closed on errors.
-- For high-risk rules, privacy, authentication and scoring changes, add **human approval** and adversarial Firebase emulator tests, even with green AI results.
-- For unsupported interfaces or paid services, skip the reviewer and record NOT VERIFIED instead of silently relaxing the quality gate.
+- For high-risk rules, privacy, authentication and scoring changes, offer a non-author AI security check, require adversarial Firebase emulator tests, and leave the final decision to the solo maintainer.
+- If paid services or tools are unavailable, skip optional AI review and record NOT VERIFIED without relaxing mandatory tests.
 
 ## How we keep the development architecture current
 
@@ -75,3 +75,6 @@ Start with [SYSTEM.md](../architecture/SYSTEM.md) for current-vs-planned compone
 - [Claude Code CLI](https://code.claude.com/docs/en/cli-reference) and [skills/agents best practices](https://claude.com/resources/articles/steering-claude-code-skills-hooks-rules-subagents-and-more).
 - [Gemini CLI docs](https://github.com/google-gemini/gemini-cli/blob/main/docs/cli/cli-reference.md).
 - [Flutter architecture](https://docs.flutter.dev/app-architecture/recommendations) and [Firebase emulator rules testing](https://firebase.google.com/docs/rules/unit-tests).
+
+## Solo-maintainer choices
+AI review is opt-in and never CI-required. Run `--dry-run` first to inspect complete diff coverage and cost. When using one reviewer, choose `--minimum 1`; for stronger database assurance choose two different non-author models with `--minimum 2`. The review runner uses trusted base-ref guidance only as reference data, not PR-editable instructions. Its bounded slices cover the full exact diff and verification binds the report to HEAD.

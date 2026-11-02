@@ -1,7 +1,7 @@
 # Agent operating model
 
 ## Default delegation
-One authoring agent handles a narrowly scoped task; a different model reviews the exact diff independently, with a second reviewer for architecture, security or high-impact features when available. Codex, Claude and Gemini are interchangeable implementations of roles, not authorities. The author cannot be counted as independent review. Run tooling/review/review.py where suitable and mark failed/missing reviews NOT VERIFIED.
+One authoring agent handles a narrowly scoped task. For Flutter database, Firebase rules, Auth or sensitive data, offer a different model as an optional independent reviewer; a second model may be useful for major changes. Neither is a required merge gate for the solo maintainer. Codex, Claude and Gemini are interchangeable implementations of roles, not authorities. The author cannot be counted as independent review. Run tooling/review/review.py where suitable and mark failed/missing reviews NOT VERIFIED.
 
 - Flutter builder: one view + view model + repository contract + tests. No direct Firebase SDK in widgets.
 - Architecture reviewer: compare accepted ADRs, real imports and generated CODE-MAP; never treat target diagrams as existing code.

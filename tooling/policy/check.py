@@ -140,12 +140,12 @@ def evaluate(root: Path) -> list[str]:
         entries = [line.split() for line in owners.splitlines()
                    if line.strip() and not line.lstrip().startswith("#")]
         mapped = {entry[0]: entry[1:] for entry in entries if len(entry) > 1}
-        expected_owners = ["@Chadillac12", "@sfcsmithc-afk"]
+        expected_owners = ["@Chadillac12"]
         required_paths = (
             "/mobile/", "/tooling/", "/.github/", "/.codex/", "/.claude/",
-            "/.agents/", "/.vscode/", "/docs/architecture/", "/firebase/",
+            "/.agents/", "/.gemini/", "/.vscode/", "/docs/architecture/", "/docs/knowledge/", "/firebase/",
             "/.mcp.json", "/.gitignore", "/.gitattributes", "/AGENTS.md",
-            "/CLAUDE.md", "/*.cmd", "/*.command", "*.rules",
+            "/CLAUDE.md", "/GEMINI.md", "/*.cmd", "/*.command", "*.rules",
             "/seed/db-rules.json", "/seed/weekly-challenges.json",
             "/seed/movement-standards.json", "/seed/tasks.json",
             "/dev/*.py", "/dev/patches/", "/dev/firebase/",

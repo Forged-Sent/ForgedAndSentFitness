@@ -3,7 +3,7 @@ status: active
 updated: 2026-11-02
 owner: project-maintainers
 source_ref: feature/contributor-emulator-onboarding
-source_sha: 12ba0a0b20fa9f39d4e810c0aa5298e24db43831
+source_sha: 53897bfe165e176f75f30e8b333a5c3e6b2a47b6
 ---
 
 # PR #4 foundation handoff (dated snapshot)
@@ -12,7 +12,7 @@ source_sha: 12ba0a0b20fa9f39d4e810c0aa5298e24db43831
 Complete contributor onboarding, emulator-first Firebase foundation, two-provider advisory review and architecture Atlas without conflating a demo with production readiness. See [PR #4](https://github.com/Forged-Sent/ForgedAndSentFitness/pull/4).
 
 ## Verified observations
-At this snapshot, PR #4 was draft/open and its head SHA was inspected. Its tracked tree included `mobile/lib/main.dart`, emulator runtime, Windows/Mac setup, local Firebase rules tests, review.py, SYSTEM.md and CODE-MAP.md. None of those facts proves working device support.
+At this snapshot, PR #4 was draft/open and its head SHA was inspected after the current-main prototype reconciliation. Its tracked tree included `mobile/lib/main.dart`, emulator runtime, Windows/Mac setup, local Firebase rules tests, review.py, SYSTEM.md and CODE-MAP.md. None of those facts proves working device support.
 
 ## Work performed
 This separate knowledge PR adds a Markdown-first handoff/index/research workflow, Flutter cross-platform proposal and Context7/official AI docs lookup rules; it does not change the mobile runtime.

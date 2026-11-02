@@ -20,6 +20,7 @@ SOURCE = ROOT / "docs/architecture/explorer"
 OUTPUT = ROOT / "build/architecture-explorer"
 REPO_URL = "https://github.com/Forged-Sent/ForgedAndSentFitness"
 MAX_SOURCE = 180_000
+MAX_ACTIVE_PROTOTYPE = 5_000_000  # hard cap for scanning current prototype only
 MAX_SYMBOLS = 150
 MAX_EXCERPT = 11
 
@@ -93,7 +94,8 @@ def purpose(path: str, model: dict) -> str:
 def file_data(root: Path, path: str) -> tuple[list[str], bool]:
     file = root / path
     try:
-        if file.stat().st_size > MAX_SOURCE:
+        limit = MAX_ACTIVE_PROTOTYPE if path == "index.html" else MAX_SOURCE
+        if file.stat().st_size > limit:
             return [], True
         return file.read_text(encoding="utf-8").splitlines(), False
     except (UnicodeError, OSError):
@@ -137,7 +139,7 @@ def symbols_for(path: str, lines: list[str], notes: dict) -> list[dict]:
                     out.append(make_symbol(path, name, "function", node.lineno, lines, notes, summary))
                     visit(node.body, name+".")
         visit(tree.body)
-    elif lang in ("dart", "javascript"):
+    elif lang in ("dart", "javascript", "html"):
         current_class = ""
         for idx, line in enumerate(lines, 1):
             c = (DART_CLASS if lang == "dart" else CLASS_JS).search(line)
@@ -173,7 +175,7 @@ def symbols_for(path: str, lines: list[str], notes: dict) -> list[dict]:
                 out.append(make_symbol(path, key, "config key", 1, lines, notes))
         except (ValueError, TypeError):
             pass
-    return out[:MAX_SYMBOLS]
+    return out
 
 
 def resolve_relative(path: str, target: str, known: set[str]) -> str | None:
@@ -211,7 +213,7 @@ def dependencies(path: str, lines: list[str], known: set[str], modules: dict) ->
             if existing is None or rank[kind] > rank[existing["kind"]]:
                 found[target] = {"target":target,"kind":kind,"line":line,"confidence":confidence}
     for ix, line in enumerate(lines, 1):
-        if lang in ("dart", "javascript"):
+        if lang in ("dart", "javascript", "html"):
             m = (IMPORT_DART if lang == "dart" else IMPORT_JS).match(line)
             if m:
                 value = m.group(1)
@@ -252,10 +254,14 @@ def build_catalog(root: Path, paths: list[str], model: dict, ref: str) -> dict:
     for p in paths:
         lines, omitted = file_data(root,p)
         edges, external = dependencies(p,lines,known,modules)
-        symbol_list = symbols_for(p,lines,model["symbolNotes"])
+        all_symbols = symbols_for(p,lines,model["symbolNotes"])
+        symbol_list = all_symbols[:MAX_SYMBOLS]
         catalog.append({
             "path":p,"category":category(p),"language":language(p),
-            "largeOrBinary":omitted,"symbols":symbol_list,"deps":edges,
+            "largeOrBinary":omitted,"symbols":symbol_list,
+            "symbolCount":len(all_symbols),
+            "symbolOverflow":len(all_symbols) > MAX_SYMBOLS,
+            "deps":edges,
             "externals":external,"description":purpose(p,model)
         })
     back: dict[str,set[str]] = {p:set() for p in paths}

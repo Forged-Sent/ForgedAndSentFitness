@@ -40,9 +40,9 @@ Keyboard shortcuts do not intercept text typed into an input or dropdown.
 
 ## How the source index is built
 
-- **Files:** all entries from `git ls-files`, sorted, classified and made searchable. Large archives remain in the index but their multi-megabyte source is deliberately not embedded.
+- **Files:** all entries from `git ls-files`, sorted, classified and made searchable. Archive source remains excluded. The active `index.html` is scanned up to 5 MB for lexical function locations but its full HTML source is never embedded. Symbols are capped at 150 per file and any overflow is displayed.
 - **Documentation:** all tracked Markdown files are embedded for safe in-browser reading. The browser renders a restricted subset without executing raw HTML or linked code.
-- **Definitions:** Python AST for classes/functions and docstrings; best-effort Dart, JS, PowerShell, shell, YAML CI jobs and Markdown headings from text patterns; JSON config keys for selected files. Names and source line numbers link to the exact Git revision used by the generator.
+- **Definitions:** Python AST for classes/functions and docstrings; best-effort Dart, active HTML inline JavaScript, JS, PowerShell, shell, YAML CI jobs and Markdown headings; JSON config keys for selected files. Names and source line numbers link to the exact Git revision used by the generator.
 - **Dependencies:** explicit Dart/JS imports, best-effort Python local imports, Markdown links and lexical file path mentions. Every edge has a kind and confidence label. The reverse index shows which tracked files refer to a given path.
 - **Behaviors:** descriptions in `model.json` are a **human-maintained** glossary for selected key functions and components; a declaration without a vetted description is identified as undocumented, never filled with invented behavior.
 - **Planned features:** sourced from `docs/architecture/SYSTEM.md` and maintained in `model.json`. They are not detected as implemented.

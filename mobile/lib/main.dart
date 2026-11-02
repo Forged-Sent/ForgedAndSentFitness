@@ -5,7 +5,7 @@ import 'src/firebase/forged_firebase_runtime.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  const mode = String.fromEnvironment('FNS_ENV', defaultValue: 'preview');
+  const mode = String.fromEnvironment('FS_ENV', defaultValue: 'preview');
   if (mode == 'preview') {
     runApp(const ForgedSentApp());
     return;

@@ -42,6 +42,26 @@ class ExplorerTests(unittest.TestCase):
         self.assertEqual(files["versions/app-v1.html"]["symbols"],[])
         self.assertEqual(doc["stats"]["archived"],1)
 
+    def test_active_large_html_source_is_indexed_but_bounded(self):
+        active = self.root / "index.html"
+        active.write_text("<script>\n" + "function activeFeature() {}\n" +
+                          ("x" * 200) * 1100 + "\n</script>", encoding="utf-8")
+        doc = build_catalog(self.root, self.paths + ["index.html"], self.model, "abc123")
+        file = next(f for f in doc["files"] if f["path"] == "index.html")
+        self.assertFalse(file["largeOrBinary"])
+        self.assertIn("activeFeature", [s["name"] for s in file["symbols"]])
+        self.assertLessEqual(len(file["symbols"]), 150)
+
+    def test_symbol_overflow_is_reported(self):
+        active = self.root / "index.html"
+        active.write_text("\n".join("function feature%d() {}" % i
+                       for i in range(180)), encoding="utf-8")
+        doc = build_catalog(self.root, self.paths + ["index.html"], self.model, "abc123")
+        file = next(f for f in doc["files"] if f["path"] == "index.html")
+        self.assertEqual(len(file["symbols"]), 150)
+        self.assertEqual(file["symbolCount"], 180)
+        self.assertTrue(file["symbolOverflow"])
+
     def test_invalid_model_owned_file_is_rejected(self):
         self.model["systems"][0]["files"]=["mobile/lib/never-existed.dart"]
         with self.assertRaisesRegex(ValueError,"absent file"):

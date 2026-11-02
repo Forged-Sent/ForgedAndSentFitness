@@ -33,7 +33,7 @@ class FoundationHomeScreen extends StatelessWidget {
     final status = startupError != null
         ? 'Local emulator not available. No cloud fallback was attempted.'
         : mode == 'emulator'
-            ? 'Connected to local Firebase emulators (demo-forgedandsent).'
+            ? 'Verified local Auth, Firestore and Storage emulators (demo-forgedandsent).'
             : 'Preview mode. No Firebase cloud connection configured.';
 
     return Scaffold(

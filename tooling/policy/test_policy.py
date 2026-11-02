@@ -153,6 +153,14 @@ class PolicyTests(unittest.TestCase):
         path.write_text(path.read_text().replace("/mobile/ @Chadillac12", "/mobile/ @someoneelse"))
         self.assert_violation("protected path is unowned: /mobile/")
 
+    def test_gemini_and_knowledge_paths_have_maintainer_routing(self):
+        path = self.root / ".github/CODEOWNERS"
+        original = path.read_text(encoding="utf-8")
+        path.write_text(original.replace("/.gemini/ @Chadillac12", ""))
+        self.assert_violation("protected path is unowned: /.gemini/")
+        path.write_text(original.replace("/docs/knowledge/ @Chadillac12", ""))
+        self.assert_violation("protected path is unowned: /docs/knowledge/")
+
     def test_proto_changes_must_not_be_owned_by_repository_wildcard(self):
         path = self.root / ".github/CODEOWNERS"
         path.write_text("* @Chadillac12 @sfcsmithc-afk\n" + path.read_text())
