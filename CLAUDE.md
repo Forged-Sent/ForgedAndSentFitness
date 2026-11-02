@@ -2,7 +2,7 @@
 
 Read `AGENTS.md` as the shared source of truth and `docs/development/START_HERE.md` before modifying files.
 
-Workflow: every change uses a short-lived branch and a pull request. The live ruleset currently requires ci-gate and zero human approvals; do not imply another person's approval is enforced. For Flutter database/Auth/privacy/security rules/scoring, offer an independent non-author AI security review, but no outside reviewer is mandatory. Agents cannot approve, push or merge. Never bypass controls.
+Workflow: every change uses a short-lived branch and a pull request. The live ruleset currently requires ci-gate and zero human approvals; do not imply another person's approval is enforced. For Flutter database/Auth/privacy/security rules/scoring, offer an independent non-author AI security review, but no outside reviewer is mandatory. Agents may push to a non-`main` branch only under the agent push rule in `AGENTS.md`: explicit human authorization in this session, all PR review threads closed, and `ci-gate` green (or the push fixes a red `ci-gate`). Agents never push to `main`, force-push, approve or merge. Never bypass controls.
 
 When working on the prototype (`index.html`, `versions/`, `seed/`, `dev/`):
 - Read the root `AGENTS.md`, including its HTML prototype workflow.
