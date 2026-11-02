@@ -1,0 +1,89 @@
+{
+ "capabilities": {
+  "db": {
+   "rules": [
+    {
+     "path": "tasks",
+     "read": "view",
+     "write": "admin"
+    },
+    {
+     "path": "lifts",
+     "read": "view",
+     "write": "admin"
+    },
+    {
+     "path": "habits",
+     "read": "view",
+     "write": "owner"
+    },
+    {
+     "path": "habits/{self}",
+     "write": "interact"
+    },
+    {
+     "path": "profiles",
+     "read": "view",
+     "write": "owner"
+    },
+    {
+     "path": "profiles/{self}",
+     "write": "interact"
+    },
+    {
+     "path": "chsubs",
+     "read": "view",
+     "write": "owner"
+    },
+    {
+     "path": "chsubs/{self}",
+     "write": "interact"
+    },
+    {
+     "path": "camps",
+     "read": "view",
+     "write": "owner"
+    },
+    {
+     "path": "teams",
+     "read": "view",
+     "write": "owner"
+    },
+    {
+     "path": "teams/{self}",
+     "write": "interact"
+    },
+    {
+     "path": "tmembers",
+     "read": "view",
+     "write": "owner"
+    },
+    {
+     "path": "tmembers/{self}",
+     "write": "interact"
+    },
+    {
+     "path": "mentor",
+     "read": "view",
+     "write": "owner"
+    },
+    {
+     "path": "mentor/{self}",
+     "write": "interact"
+    }
+   ]
+  },
+  "user": {
+   "scopes": [
+    "profile"
+   ]
+  },
+  "assets": {
+   "upload": "interact"
+  },
+  "sample": {
+   "images": true
+  },
+  "downloads": true
+ }
+}

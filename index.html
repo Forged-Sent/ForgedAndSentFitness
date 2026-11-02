@@ -1006,6 +1006,43 @@ button.fo-item { cursor: pointer; min-height: 44px; }
 .cpg-how li { position: relative; padding-left: 20px; font-size: 14.5px; line-height: 1.45; } .cpg-how li::before { content: "\2022"; position: absolute; left: 4px; color: var(--accent); font-weight: 700; }
 .cpg-wk { color: var(--muted); margin: 0 0 10px; }
 .cpg-sh { margin: 0 0 8px; }
+#mentor-today:empty { display: none; }
+.men-card { border: 1px solid var(--accent); border-radius: 10px; background: var(--surface); padding: 10px 12px; margin: 0 0 14px; }
+.men-k { color: var(--accent); font-size: 12px; }
+.men-row { width: 100%; display: grid; grid-template-columns: 42px minmax(0, 1fr) auto; gap: 10px; align-items: center; padding: 9px 0; background: none; border: 0; border-top: 1px solid var(--line); color: var(--ink); font: inherit; text-align: left; cursor: pointer; }
+.men-card .men-row:first-of-type, .men-sec h2 + .men-row { border-top: 0; }
+.men-av { width: 40px; height: 40px; border-radius: 50%; border: 2px solid var(--accent); background: var(--surface-2); display: grid; place-items: center; overflow: hidden; font-family: var(--f-label); font-weight: 800; }
+.men-av img { width: 100%; height: 100%; object-fit: cover; }
+.men-tx { display: grid; gap: 1px; min-width: 0; } .men-tx b { font-size: 15px; } .men-tx small { color: var(--muted); font-size: 12.5px; }
+.men-tag { font-family: var(--f-label); font-weight: 700; font-size: 11.5px; letter-spacing: .08em; text-transform: uppercase; padding: 3px 9px; border-radius: 10px; border: 1px solid var(--line); color: var(--muted); white-space: nowrap; }
+.men-tag.ok, .men-tag.acc { color: var(--accent); border-color: var(--accent); } .men-tag.hot { background: #c0392b; border-color: #c0392b; color: #fff; }
+.men-nudge { margin: 6px 0 2px; padding: 8px 10px; border-radius: 8px; background: color-mix(in srgb, var(--accent) 14%, transparent); font-size: 14px; }
+.men-empty { width: 100%; display: grid; gap: 2px; padding: 8px 0 2px; background: none; border: 0; color: var(--ink); font: inherit; text-align: left; cursor: pointer; } .men-empty small { color: var(--muted); }
+.men-sec { margin-top: 16px; } .men-sec h2 { margin: 0 0 6px; }
+.men-req { display: grid; grid-template-columns: 42px minmax(0, 1fr) auto auto; gap: 8px; align-items: center; padding: 8px 0; border-top: 1px solid var(--line); }
+.men-wide { width: 100%; margin-top: 8px; }
+.men-kh { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.men-ib { flex: none; }
+.men-intro { width: 100%; display: grid; gap: 4px; margin: 6px 0 4px; padding: 12px; text-align: left; font: inherit; color: var(--ink); background: var(--surface); border: 1px solid var(--line); border-radius: 10px; cursor: pointer; } .men-intro span { color: var(--muted); font-size: 14px; } .men-intro b { color: var(--accent); font-family: var(--f-label); letter-spacing: .08em; text-transform: uppercase; font-size: 13.5px; }
+.men-info { max-height: 88vh; overflow-y: auto; }
+.mi-p { margin: 0 0 10px; line-height: 1.5; }
+.mi-v { margin: 8px 0; } .mi-v cite { display: block; margin-top: 4px; font-style: normal; font-family: var(--f-label); font-weight: 700; letter-spacing: .08em; text-transform: uppercase; font-size: 12px; color: var(--accent); }
+.mi-key { font-size: 17px; }
+.mi-chain { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 6px 0 12px; } .mi-gen { padding: 6px 10px; border: 1px solid var(--accent); border-radius: 16px; font-family: var(--f-label); font-weight: 700; letter-spacing: .06em; text-transform: uppercase; font-size: 13px; } .mi-arr { color: var(--accent); font-weight: 700; }
+.mi-list { margin: 0 0 10px; padding-left: 18px; display: grid; gap: 6px; line-height: 1.45; }
+.men-chk { border: 1px solid var(--line); border-radius: 10px; background: var(--surface); padding: 12px; margin-top: 10px; display: grid; gap: 8px; }
+.men-priv { margin: 0; padding: 8px 10px; border: 1px dashed var(--accent); border-radius: 8px; font-size: 13px; }
+.men-q { font-size: 14.5px; } .men-how { display: flex; gap: 8px; flex-wrap: wrap; }
+.men-talk { display: grid; grid-template-columns: 24px 1fr; gap: 10px; align-items: center; padding: 10px; border: 1px solid var(--line); border-radius: 8px; cursor: pointer; } .men-talk input { width: 22px; height: 22px; margin: 0; accent-color: var(--accent); } .men-talk span { display: grid; } .men-talk small { color: var(--muted); font-size: 12.5px; }
+.men-head { display: flex; gap: 12px; align-items: center; margin: 12px 0 6px; } .men-head .men-av { width: 56px; height: 56px; font-size: 22px; } .men-name { margin: 2px 0 0; font-family: var(--f-label); font-weight: 800; text-transform: uppercase; font-size: 24px; }
+.men-alert { margin: 8px 0; padding: 10px 12px; border: 1px solid #c0392b; background: color-mix(in srgb, #c0392b 18%, transparent); border-radius: 10px; font-size: 14.5px; }
+.men-stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin-top: 8px; } .men-stats div { border: 1px solid var(--line); border-radius: 8px; padding: 8px; text-align: center; background: var(--surface); } .men-stats b { display: block; font-family: var(--f-label); font-size: 22px; } .men-stats small { color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: .06em; }
+.men-howv { margin: 0; font-weight: 600; }
+.men-sent { margin: 0; color: var(--accent); font-weight: 600; font-size: 14px; } .men-quote { margin: 0; padding: 4px 10px; border-left: 3px solid var(--line); }
+.men-end { margin-top: 14px; display: block; }
+.men-pick { max-height: 85vh; display: flex; flex-direction: column; gap: 8px; } .men-plist { overflow-y: auto; flex: 1; min-height: 120px; }
+.o-pair { display: grid; gap: 1px; padding: 8px 0; border-top: 1px solid var(--line); } .o-pair span { color: var(--muted); font-size: 13.5px; }
+.o-assign { margin-top: 12px; display: grid; gap: 8px; }
 .set-ownrow { width: 100%; display: flex; align-items: center; gap: 12px; margin: 0 0 14px; padding: 14px; text-align: left; font: inherit; color: var(--ink); border: 1px solid var(--accent); border-radius: 10px; background: var(--surface); cursor: pointer; }
 .set-ownrow .sc-txt { flex: 1; display: grid; gap: 2px; } .set-ownrow .sc-txt > span { font-family: var(--f-label); font-weight: 800; letter-spacing: .1em; text-transform: uppercase; font-size: 16px; color: var(--accent); } .set-ownrow small { color: var(--muted); font-size: 13px; }
 .set-ownrow .sc-chev { color: var(--accent); font-size: 22px; }
@@ -1865,6 +1902,7 @@ header.hero .me-btn { border-color:#e87328; }
     <div class="ready" id="ready" hidden></div>
 
     <div class="cmp-today-wrap" id="camp-today" hidden></div>
+    <div id="mentor-today"></div>
     <section aria-labelledby="h-today">
       <div class="section-head">
         <h2 class="label-caps" id="h-today">Today's boxes</h2>
@@ -2102,6 +2140,15 @@ header.hero .me-btn { border-color:#e87328; }
   </div>
 
   <!-- WEEKLY CHALLENGE -->
+  <div class="page" id="page-mentor" hidden>
+    <div class="pbar">
+      <button class="mini" type="button" id="men-back">&lsaquo; Today</button>
+      <span class="date label-caps">Iron sharpens iron</span>
+    </div>
+    <h1 class="pg">Paul &amp; Timothy</h1>
+    <div id="men-body"></div>
+  </div>
+
   <div class="page" id="page-owner" hidden>
     <div class="pbar">
       <button class="mini" type="button" id="own-back">&lsaquo; Settings</button>
@@ -2109,6 +2156,11 @@ header.hero .me-btn { border-color:#e87328; }
     </div>
     <h1 class="pg">Owner tools</h1>
     <p class="note">Everything you need to run Forged &amp; Sent, in one place.</p>
+
+    <section aria-labelledby="h-o-pairs">
+      <div class="section-head"><h2 class="label-caps" id="h-o-pairs" data-sub="Who is walking with whom. Assign or clear a brother’s Paul.">Paul &amp; Timothy pairs</h2></div>
+      <div id="o-pairs"></div>
+    </section>
 
     <section aria-labelledby="h-o-rep">
       <div class="section-head"><h2 class="label-caps" id="h-o-rep" data-sub="Posts brothers flagged. Keep them or remove them.">Reports</h2></div>
@@ -3199,9 +3251,9 @@ header.hero .me-btn { border-color:#e87328; }
     state.page = p;
     if (p !== "workout") { closeExPicker(); closeSwap(); }
     if (p !== "fuel") { state.add = null; var fsh = document.getElementById("fsheet"); if (fsh) fsh.remove(); }
-    ["today", "fuel", "train", "board", "checkin", "profile", "settings", "devo", "workout", "video", "chal", "ideas", "team", "camp", "owner"].forEach(function (n) { $("page-" + n).hidden = n !== p; });
+    ["today", "fuel", "train", "board", "checkin", "profile", "settings", "devo", "workout", "video", "chal", "ideas", "team", "camp", "owner", "mentor"].forEach(function (n) { $("page-" + n).hidden = n !== p; });
     Array.prototype.forEach.call(document.querySelectorAll(".tabbar button"), function (b) {
-      if (b.dataset.page === (p === "workout" || p === "video" || p === "chal" ? "train" : p === "ideas" ? "fuel" : p === "team" || (p === "checkin" && state.chan) ? "camp" : p)) b.setAttribute("aria-current", "page"); else b.removeAttribute("aria-current");
+      if (b.dataset.page === (p === "workout" || p === "video" || p === "chal" ? "train" : p === "ideas" ? "fuel" : p === "mentor" ? "today" : p === "team" || (p === "checkin" && state.chan) ? "camp" : p)) b.setAttribute("aria-current", "page"); else b.removeAttribute("aria-current");
     });
     $("scroll").scrollTop = 0;
     if (p === "workout") startWkTick(); else if (p !== "video") { if (wkTick) saveWkNow(); stopWkTick(); cancelAllTones(); }
@@ -3214,7 +3266,8 @@ header.hero .me-btn { border-color:#e87328; }
     if (p === "ideas") drawIdeas();
     if (p === "team") drawTeamPage();
     if (p === "camp") drawCampPage();
-    if (p === "owner") { ownerWatch(); drawOwner(); }
+    if (p === "owner") { ownerWatch(); drawOwner(); drawOwnerPairs(); }
+    if (p === "mentor") drawMentorPage();
     $("scroll").classList.toggle("rally-mode", p === "checkin"); rlBadge();
     if (p === "checkin") { rlStick = true; drawFeed(true); }
     if (p === "devo") { sizeDevo(); $("scroll").scrollTop = 0; devoScroll(); }
@@ -9187,7 +9240,7 @@ header.hero .me-btn { border-color:#e87328; }
       box.appendChild(r);
     });
   }
-  var APP_VERSION = "v226";
+  var APP_VERSION = "v227";
   /* ---------- Photo upload diagnostic (Settings > Testing) ---------- */
   async function runPhotoDiag() {
     var out = { at: new Date().toISOString(), version: APP_VERSION, ua: navigator.userAgent, steps: [] };
@@ -10031,6 +10084,187 @@ header.hero .me-btn { border-color:#e87328; }
     box.appendChild(el("p", "fnote", (expMsg ? expMsg + " " : "") + (last ? "Last download " + expTimeText(last) + ". " : "") + "One download a day. Only your own data is included, never other brothers’ posts or team chat."));
   }
 
+
+  /* ---------- Paul & Timothy mentoring ---------- */
+  var MEN_HOW = [["strong", "Strong"], ["steady", "Steady"], ["struggling", "Struggling"]];
+  function uidOk(u) { return /^[A-Za-z0-9_-]{1,80}$/.test(String(u || "")); }
+  function normMentor(x) {
+    x = x || {}; var arr = function (a) { return (Array.isArray(a) ? a : []).filter(uidOk).slice(0, 40); };
+    var chk = {}; if (x.chk && typeof x.chk === "object") Object.keys(x.chk).sort().slice(-12).forEach(function (k) { var c = x.chk[k] || {}; if (/^\d{4}-\d{2}-\d{2}$/.test(k)) chk[k] = { at: Number(c.at) || 0, how: ["strong", "steady", "struggling"].indexOf(c.how) >= 0 ? c.how : "", pray: String(c.pray || "").slice(0, 280), talk: !!c.talk }; });
+    var sh = x.share && typeof x.share === "object" ? x.share : {};
+    return { paul: uidOk(x.paul) ? String(x.paul) : "", timothys: arr(x.timothys), declined: arr(x.declined), share: { stats: sh.stats !== false, checkin: sh.checkin !== false }, chk: chk, nudged: (function () { var o = {}; if (x.nudged && typeof x.nudged === "object") Object.keys(x.nudged).forEach(function (k) { if (uidOk(k)) o[k] = Number(x.nudged[k]) || 0; }); return o; })() };
+  }
+  function menOf(u) { return (state.mentor || {})[u] || normMentor({}); }
+  function menSave(u, m) { (state.mentor = state.mentor || {})[u] = m; return B.db.doc("mentor/" + u).set(JSON.parse(JSON.stringify(m))).catch(noop); }
+  function pairOn(p, t) { return !!p && !!t && p !== t && menOf(t).paul === p && menOf(p).timothys.indexOf(t) >= 0; }
+  function myPaul() { var me = state.me, p = menOf(me).paul; return p && pairOn(p, me) ? p : ""; }
+  function myTimothys() { var me = state.me; return menOf(me).timothys.filter(function (t) { return pairOn(me, t); }); }
+  function menWeek() { return mondayKey(todayKey()); }
+  // Requests waiting on me: brothers who named me as Paul (I haven't added them), or added me as Timothy (I haven't named them).
+  function menRequests() {
+    var me = state.me, M = state.mentor || {}, mine = menOf(me), out = [];
+    Object.keys(M).forEach(function (u) { if (u === me) return; var m = M[u];
+      if (m.paul === me && mine.timothys.indexOf(u) < 0 && mine.declined.indexOf(u) < 0) out.push({ uid: u, role: "timothy" });
+      if (m.timothys.indexOf(me) >= 0 && mine.paul !== u && mine.declined.indexOf(u) < 0) out.push({ uid: u, role: "paul" }); });
+    return out;
+  }
+  // A brother you invited is your Timothy automatically (both sides), unless either of you ended it.
+  function mentorAuto() {
+    var me = state.me; if (!me || !state.canWrite || !state.mentorLoaded || !B.db) return;
+    var mine = menOf(me), changed = false, P = state.pubProfiles || {}, inv = (P[me] || {}).invitedBy;
+    var m2 = JSON.parse(JSON.stringify(mine));
+    if (!m2.paul && uidOk(inv) && m2.declined.indexOf(inv) < 0 && menOf(inv).declined.indexOf(me) < 0) { m2.paul = inv; changed = true; }
+    Object.keys(P).forEach(function (u) { if (u === me || (P[u] || {}).invitedBy !== me) return; var t = menOf(u);
+      if ((t.paul === me || !t.paul) && m2.timothys.indexOf(u) < 0 && m2.declined.indexOf(u) < 0 && t.declined.indexOf(me) < 0) { m2.timothys.push(u); changed = true; } });
+    if (changed) menSave(me, m2);
+  }
+  function menStats(u) {
+    var dt = devoTask(), wt = taskOfKind("workout"), t = todayKey(), o = { devo: 0, wk: 0, days: 0 };
+    for (var i = 0; i < 7; i++) { var k = addDays(t, -i), r = (state.checks || []).filter(function (c) { return c.uid === u && c.date === k; })[0]; if (!r) continue; o.days++; if (dt && r.done[dt.id]) o.devo++; if (wt && r.done[wt.id]) o.wk++; }
+    return o;
+  }
+  function menAv(u) { var a = el("span", "men-av"); var src = avatarSrc(u); if (src) { var im = el("img"); im.alt = ""; im.src = src; a.appendChild(im); } else a.textContent = String(nameOf(u) || "?").charAt(0).toUpperCase(); return a; }
+  function menRow(u, sub, tag, tagCls, onClick) {
+    var b = el("button", "men-row"); b.type = "button"; b.appendChild(menAv(u));
+    var tx = el("span", "men-tx"); tx.appendChild(el("b", null, nameOf(u))); tx.appendChild(el("small", null, sub)); b.appendChild(tx);
+    if (tag) b.appendChild(el("span", "men-tag " + (tagCls || ""), tag)); if (onClick) b.addEventListener("click", onClick); return b;
+  }
+  function timStatus(t) { var c = menOf(t).chk[menWeek()]; if (c && c.talk) return ["Asked to talk", "Reach out", "hot"]; if (c) return ["Checked in " + new Date(c.at).toLocaleDateString(undefined, { weekday: "short" }), "✓ Done", "ok"]; return ["No check-in yet this week", "", ""]; }
+
+  function menInfoBtn() { var b = el("button", "onb-ib men-ib", "i"); b.type = "button"; b.setAttribute("aria-label", "About Paul and Timothy in the Bible"); b.addEventListener("click", function (ev) { ev.stopPropagation(); openMentorInfo(); }); return b; }
+  function openMentorInfo() {
+    var old = $("cdlg"); if (old) old.remove(); var back = el("div", "cdlg"); back.id = "cdlg";
+    var box = el("div", "cdlg-box nw-box men-info"); box.setAttribute("role", "dialog"); box.setAttribute("aria-modal", "true"); box.setAttribute("aria-labelledby", "mi-t");
+    box.appendChild(el("p", "fr-k", "Paul & Timothy in Scripture"));
+    var h = el("h2", null, "One man pours into another, who pours into others."); h.id = "mi-t"; box.appendChild(h);
+    box.appendChild(el("p", "mi-p", "Paul met Timothy as a young believer in Lystra and took him along on his journeys (Acts 16:1–3). He taught him, trusted him with churches, and called him his son in the faith."));
+    [["To Timothy, my true child in the faith.", "1 Timothy 1:2"],
+     ["But you know Timothy’s proven worth, how as a son with a father he has served with me in the gospel.", "Philippians 2:22"],
+     ["That is why I sent you Timothy, my beloved and faithful child in the Lord, to remind you of my ways in Christ.", "1 Corinthians 4:17"]].forEach(function (v) { var q = el("blockquote", "mem-v mi-v", v[0]); q.appendChild(el("cite", null, v[1])); box.appendChild(q); });
+    box.appendChild(el("div", "fr-h", "The charge: four generations"));
+    var q2 = el("blockquote", "mem-v mi-v mi-key", "And what you have heard from me in the presence of many witnesses entrust to faithful men, who will be able to teach others also."); q2.appendChild(el("cite", null, "2 Timothy 2:2")); box.appendChild(q2);
+    var ch = el("div", "mi-chain"); ["Paul", "Timothy", "Faithful men", "Others also"].forEach(function (t, i) { if (i) ch.appendChild(el("span", "mi-arr", "→")); ch.appendChild(el("span", "mi-gen", t)); }); box.appendChild(ch);
+    box.appendChild(el("div", "fr-h", "What it looks like here"));
+    var ul = el("ul", "mi-list");
+    [["Your Paul", "an older or further-along brother who walks with you, prays for you and asks the hard questions."],
+     ["Your Timothy", "a newer brother you walk with. You check on him, pray for him and show him the way you live."],
+     ["Every week", "your Timothy checks in, and you reach out when he needs to talk."],
+     ["The goal", "every Timothy becomes a Paul. Disciples who make disciples."]].forEach(function (r) { var li = el("li"); li.appendChild(el("b", null, r[0] + ": ")); li.appendChild(document.createTextNode(r[1])); ul.appendChild(li); });
+    box.appendChild(ul);
+    var q3 = el("blockquote", "mem-v mi-v", "Iron sharpens iron, and one man sharpens another."); q3.appendChild(el("cite", null, "Proverbs 27:17")); box.appendChild(q3);
+    var cl = el("button", "btn", "Got it"); cl.type = "button"; cl.addEventListener("click", function () { back.remove(); }); box.appendChild(cl);
+    back.appendChild(box); back.addEventListener("click", function (ev) { if (ev.target === back) back.remove(); });
+    back.addEventListener("keydown", function (ev) { if (ev.key === "Escape") { ev.stopPropagation(); back.remove(); } }); document.body.appendChild(back); cl.focus();
+  }
+  function drawMentorToday() {
+    var box = $("mentor-today"); if (!box) return; box.textContent = ""; if (!state.me || !state.mentorLoaded) return;
+    var me = state.me, p = myPaul(), ts = myTimothys(), req = menRequests(), mine = menOf(me), wk = mine.chk[menWeek()];
+    var card = el("section", "men-card"); var kh = el("div", "men-kh"); kh.appendChild(el("span", "label-caps men-k", "Walk with your brothers")); kh.appendChild(menInfoBtn()); card.appendChild(kh);
+    var nAt = p ? (menOf(p).nudged || {})[me] || 0 : 0; if (nAt && Date.now() - nAt < 3 * 86400000) card.appendChild(el("p", "men-nudge", nameOf(p) + " is checking on you, brother."));
+    if (p) card.appendChild(menRow(p, wk ? "You checked in this week" : "Your Paul · weekly check-in due by Sunday", wk ? "✓ Done" : "Check in", wk ? "ok" : "acc", function () { state.menView = ""; state.menCheck = !wk; go("mentor"); }));
+    ts.forEach(function (t) { var st = timStatus(t); card.appendChild(menRow(t, "Your Timothy · " + st[0], st[1], st[2], function () { state.menView = t; go("mentor"); })); });
+    if (req.length) card.appendChild(menRow(req[0].uid, req[0].role === "timothy" ? "Asked you to be his Paul" : "Asked to be your Paul", req.length > 1 ? req.length + " requests" : "Answer", "acc", function () { state.menView = ""; go("mentor"); }));
+    if (!p && !ts.length && !req.length) { var e = el("button", "men-empty"); e.type = "button"; e.appendChild(el("b", null, "Find a Paul. Walk with a Timothy.")); e.appendChild(el("small", null, "A Paul walks with a newer brother. Tap to start.")); e.addEventListener("click", function () { state.menView = ""; go("mentor"); }); card.appendChild(e); }
+    box.appendChild(card);
+  }
+  function menPick(title, exclude, onPick) {
+    var old = $("cdlg"); if (old) old.remove(); var back = el("div", "cdlg"); back.id = "cdlg";
+    var box = el("div", "cdlg-box nw-box men-pick"); box.setAttribute("role", "dialog"); box.setAttribute("aria-modal", "true");
+    box.appendChild(el("h2", null, title)); var q = el("input", "field"); q.type = "search"; q.placeholder = "Search brothers"; q.setAttribute("aria-label", "Search brothers"); box.appendChild(q);
+    var list = el("div", "men-plist"); box.appendChild(list);
+    function paint() { list.textContent = ""; var term = q.value.trim().toLowerCase();
+      Object.keys(state.pubProfiles || {}).filter(function (u) { return u !== state.me && exclude.indexOf(u) < 0 && (!term || String(nameOf(u)).toLowerCase().indexOf(term) >= 0); }).sort(function (a, b) { return String(nameOf(a)).localeCompare(String(nameOf(b))); }).slice(0, 60)
+        .forEach(function (u) { list.appendChild(menRow(u, "@" + (((state.pubProfiles[u] || {}).handle) || ""), "Ask", "acc", function () { back.remove(); onPick(u); })); }); }
+    q.addEventListener("input", paint); paint();
+    var cl = el("button", "btn ghost", "Cancel"); cl.type = "button"; cl.addEventListener("click", function () { back.remove(); }); box.appendChild(cl);
+    back.appendChild(box); back.addEventListener("click", function (ev) { if (ev.target === back) back.remove(); }); document.body.appendChild(back); q.focus();
+  }
+  function menEnd(other, iAmPaul) {
+    confirmDelete({ neutral: true, title: "End this pairing?", message: "You and " + nameOf(other) + " will no longer be paired. You can pair again later.", yes: "End it" }, function () {
+      var m = JSON.parse(JSON.stringify(menOf(state.me)));
+      if (iAmPaul) m.timothys = m.timothys.filter(function (x) { return x !== other; }); else if (m.paul === other) m.paul = "";
+      if (m.declined.indexOf(other) < 0) m.declined.push(other); menSave(state.me, m).then(function () { state.menView = ""; drawAll(); });
+    });
+  }
+  function drawMentorPage() {
+    var box = $("men-body"); if (!box) return; box.textContent = ""; var me = state.me; if (!me) return;
+    var mine = menOf(me), p = myPaul(), ts = myTimothys(), req = menRequests(), off = !state.canWrite;
+    var view = state.menView;
+    if (view && pairOn(me, view)) { drawTimothy(box, view); return; }
+    var intro = el("button", "men-intro"); intro.type = "button"; intro.appendChild(el("span", null, "A Paul walks with a newer brother. A Timothy is the brother you walk with. One Paul, a few Timothys.")); intro.appendChild(el("b", null, "Why Paul & Timothy? ›")); intro.addEventListener("click", openMentorInfo); box.appendChild(intro);
+    if (req.length) { var rs = el("section", "men-sec"); rs.appendChild(el("h2", "label-caps", "Requests"));
+      req.forEach(function (r) { var row = el("div", "men-req"); row.appendChild(menAv(r.uid)); var tx = el("span", "men-tx"); tx.appendChild(el("b", null, nameOf(r.uid))); tx.appendChild(el("small", null, r.role === "timothy" ? "Asked you to be his Paul" : "Asked to be your Paul")); row.appendChild(tx);
+        var a = el("button", "mini on", "Accept"), d = el("button", "mini", "Decline"); a.type = d.type = "button"; a.disabled = d.disabled = off;
+        a.addEventListener("click", function () { var m = JSON.parse(JSON.stringify(menOf(me))); if (r.role === "timothy") { if (m.timothys.indexOf(r.uid) < 0) m.timothys.push(r.uid); } else m.paul = r.uid; menSave(me, m).then(drawAll); });
+        d.addEventListener("click", function () { var m = JSON.parse(JSON.stringify(menOf(me))); if (m.declined.indexOf(r.uid) < 0) m.declined.push(r.uid); menSave(me, m).then(drawAll); });
+        row.appendChild(a); row.appendChild(d); rs.appendChild(row); });
+      box.appendChild(rs); }
+    // My Paul + weekly check-in
+    var ps = el("section", "men-sec"); ps.appendChild(el("h2", "label-caps", "My Paul"));
+    if (p) {
+      ps.appendChild(menRow(p, (((state.pubProfiles || {})[me] || {}).invitedBy === p ? "Invited you · " : "") + "Walking with you", "End", "", function () { menEnd(p, false); }));
+      var wk = menWeek(), c = mine.chk[wk] || null, f = el("div", "men-chk"); f.appendChild(el("div", "label-caps men-k", "Weekly check-in · week of " + shortDate(wk)));
+      f.appendChild(el("p", "men-priv", "🔒︎ Shown only to " + nameOf(p) + " in the app. Keep details for your conversation; private written check-ins come with the next version of the app."));
+      var S = state.menDraft = state.menDraft && state.menDraft.wk === wk ? state.menDraft : { wk: wk, how: c ? c.how : "", pray: c ? c.pray : "", talk: c ? c.talk : false };
+      f.appendChild(el("b", "men-q", "How was your week?")); var hw = el("div", "men-how");
+      MEN_HOW.forEach(function (h) { var b = el("button", "mini" + (S.how === h[0] ? " on" : ""), h[1]); b.type = "button"; b.setAttribute("aria-pressed", String(S.how === h[0])); b.disabled = off; b.addEventListener("click", function () { S.how = h[0]; drawMentorPage(); }); hw.appendChild(b); }); f.appendChild(hw);
+      f.appendChild(el("b", "men-q", "How can " + nameOf(p) + " pray for you?")); var pr = el("input", "field"); pr.maxLength = 280; pr.placeholder = "One line is enough"; pr.value = S.pray; pr.disabled = off; pr.addEventListener("input", function () { S.pray = pr.value; }); f.appendChild(pr);
+      var tl = el("label", "men-talk"), cb = el("input"); cb.type = "checkbox"; cb.checked = S.talk; cb.disabled = off; cb.addEventListener("change", function () { S.talk = cb.checked; }); tl.appendChild(cb); var tt = el("span"); tt.appendChild(el("b", null, "I need to talk")); tt.appendChild(el("small", null, nameOf(p) + " gets a nudge to reach out today")); tl.appendChild(tt); f.appendChild(tl);
+      if (c) f.appendChild(el("p", "men-sent", "\u2713 Sent to " + nameOf(p) + " " + new Date(c.at).toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric" }) + ". You can update it until Sunday."));
+      var sv = el("button", "btn", c ? "Update check-in" : "Send to " + nameOf(p)); sv.type = "button"; sv.disabled = off;
+      var msg = el("p", "note"); msg.setAttribute("role", "status");
+      sv.addEventListener("click", function () { if (!S.how) { msg.textContent = "Pick how your week went first."; return; } var m = JSON.parse(JSON.stringify(menOf(me))); m.chk[wk] = { at: Date.now(), how: S.how, pray: String(S.pray || "").trim().slice(0, 280), talk: !!S.talk }; menSave(me, m).then(function () { state.menCheck = false; msg.textContent = "✓ Sent to " + nameOf(p) + "."; drawMentorToday(); }); });
+      f.appendChild(sv); f.appendChild(msg); ps.appendChild(f);
+      if (state.menCheck) setTimeout(function () { f.scrollIntoView({ block: "start", behavior: "smooth" }); }, 60);
+    } else {
+      var pend = mine.paul && !pairOn(mine.paul, me) ? mine.paul : "";
+      if (pend) ps.appendChild(menRow(pend, "Waiting for him to accept", "Cancel", "", function () { var m = JSON.parse(JSON.stringify(menOf(me))); m.paul = ""; menSave(me, m).then(drawAll); }));
+      else { var ab = el("button", "btn ghost men-wide", "Ask a brother to be your Paul"); ab.type = "button"; ab.disabled = off; ab.addEventListener("click", function () { menPick("Who should be your Paul?", ts, function (u) { var m = JSON.parse(JSON.stringify(menOf(me))); m.paul = u; m.declined = m.declined.filter(function (x) { return x !== u; }); menSave(me, m).then(drawAll); }); }); ps.appendChild(ab); }
+    }
+    box.appendChild(ps);
+    // My Timothys
+    var tsec = el("section", "men-sec"); tsec.appendChild(el("h2", "label-caps", "My Timothys · " + ts.length));
+    ts.forEach(function (t) { var st = timStatus(t); tsec.appendChild(menRow(t, st[0], st[1] || "Open", st[2], function () { state.menView = t; drawMentorPage(); })); });
+    mine.timothys.filter(function (t) { return !pairOn(me, t); }).forEach(function (t) { tsec.appendChild(menRow(t, "Waiting for him to accept", "Cancel", "", function () { var m = JSON.parse(JSON.stringify(menOf(me))); m.timothys = m.timothys.filter(function (x) { return x !== t; }); menSave(me, m).then(drawAll); })); });
+    var at = el("button", "btn ghost men-wide", "Ask a brother to be your Timothy"); at.type = "button"; at.disabled = off;
+    at.addEventListener("click", function () { menPick("Who will you walk with?", mine.timothys.concat(p ? [p] : []), function (u) { var m = JSON.parse(JSON.stringify(menOf(me))); if (m.timothys.indexOf(u) < 0) m.timothys.push(u); m.declined = m.declined.filter(function (x) { return x !== u; }); menSave(me, m).then(drawAll); }); });
+    tsec.appendChild(at); tsec.appendChild(el("p", "fnote", "Brothers you invite become your Timothys automatically.")); box.appendChild(tsec);
+  }
+  function drawTimothy(box, t) {
+    var tm = menOf(t), c = tm.chk[menWeek()], st = menStats(t), back = el("button", "mini", "‹ Paul & Timothy"); back.type = "button"; back.addEventListener("click", function () { state.menView = ""; drawMentorPage(); }); box.appendChild(back);
+    var hd = el("div", "men-head"); hd.appendChild(menAv(t)); var ht = el("span"); ht.appendChild(el("span", "label-caps men-k", "Your Timothy")); ht.appendChild(el("h2", "men-name", nameOf(t))); hd.appendChild(ht); box.appendChild(hd);
+    if (c && c.talk) box.appendChild(el("div", "men-alert", nameOf(t) + " asked to talk. Reach out today: call or text him from your phone."));
+    if (tm.share.stats) { var g = el("div", "men-stats"); [[st.days + "/7", "Days checked in"], [st.devo + "/7", "Devotional"], [String(st.wk), "Workouts"]].forEach(function (x) { var d = el("div"); d.appendChild(el("b", null, x[0])); d.appendChild(el("small", null, x[1])); g.appendChild(d); }); box.appendChild(g); }
+    var cc = el("div", "men-chk"); cc.appendChild(el("div", "label-caps men-k", "Check-in · week of " + shortDate(menWeek())));
+    if (c) { cc.appendChild(el("p", "men-howv", "Week: " + ((MEN_HOW.filter(function (h) { return h[0] === c.how; })[0] || ["", "—"])[1]))); if (c.pray) cc.appendChild(el("p", "men-quote", "Prayer request: " + c.pray)); }
+    else cc.appendChild(el("p", "note", "No check-in yet this week."));
+    box.appendChild(cc);
+    var sentN = Date.now() - ((menOf(state.me).nudged || {})[t] || 0) < 86400000;
+    var nb = el("button", "btn men-wide", sentN ? "\u2713 Nudge sent today" : "Send “Checking on you, brother”"); nb.type = "button"; nb.disabled = !state.canWrite || sentN;
+    var nm = el("p", "note"); nm.setAttribute("role", "status");
+    nb.addEventListener("click", function () { var m = JSON.parse(JSON.stringify(menOf(state.me))); m.nudged = m.nudged || {}; m.nudged[t] = Date.now(); menSave(state.me, m).then(function () { drawAll(); }); });
+    box.appendChild(nb); box.appendChild(nm);
+    var en = el("button", "linkish men-end", "End this pairing"); en.type = "button"; en.addEventListener("click", function () { menEnd(t, true); }); box.appendChild(en);
+  }
+  function drawOwnerPairs() {
+    var box = $("o-pairs"); if (!box || !state.isOwner) return; box.textContent = ""; var M = state.mentor || {}, pairs = [], pend = [];
+    Object.keys(M).forEach(function (t) { var p = M[t].paul; if (!p) return; (pairOn(p, t) ? pairs : pend).push([p, t]); });
+    Object.keys(M).forEach(function (p) { M[p].timothys.forEach(function (t) { if (!pairOn(p, t)) pend.push([p, t]); }); });
+    if (!pairs.length) box.appendChild(el("p", "note", "No pairs yet."));
+    var byP = {}; pairs.forEach(function (x) { (byP[x[0]] = byP[x[0]] || []).push(x[1]); });
+    Object.keys(byP).sort(function (a, b) { return String(nameOf(a)).localeCompare(String(nameOf(b))); }).forEach(function (p) { var r = el("div", "o-pair"); r.appendChild(el("b", null, nameOf(p))); r.appendChild(el("span", null, "Paul to " + byP[p].map(nameOf).join(", "))); box.appendChild(r); });
+    if (pend.length) { box.appendChild(el("p", "fnote", "Waiting to accept: " + pend.map(function (x) { return nameOf(x[0]) + " → " + nameOf(x[1]); }).filter(function (v, i, a) { return a.indexOf(v) === i; }).join(" · "))); }
+    var asg = el("div", "o-assign"); asg.appendChild(el("div", "label-caps men-k", "Assign a Paul"));
+    var ids = Object.keys(state.pubProfiles || {}).sort(function (a, b) { return String(nameOf(a)).localeCompare(String(nameOf(b))); });
+    function sel(lbl) { var l = el("label", "flabel", lbl), s2 = el("select", "field"); var o0 = el("option", null, "Pick a brother"); o0.value = ""; s2.appendChild(o0); ids.forEach(function (u) { var o = el("option", null, nameOf(u)); o.value = u; s2.appendChild(o); }); l.appendChild(s2); asg.appendChild(l); return s2; }
+    var sp = sel("Paul"), st2 = sel("Timothy"), go2 = el("button", "btn", "Pair them"), clr = el("button", "btn ghost", "Clear Timothy’s Paul"), om = el("p", "note"); go2.type = clr.type = "button";
+    go2.addEventListener("click", function () { var p = sp.value, t = st2.value; if (!p || !t || p === t) { om.textContent = "Pick two different brothers."; return; }
+      var mt = JSON.parse(JSON.stringify(menOf(t))), mp = JSON.parse(JSON.stringify(menOf(p))); var oldP = mt.paul; mt.paul = p; mt.declined = mt.declined.filter(function (x) { return x !== p; }); if (mp.timothys.indexOf(t) < 0) mp.timothys.push(t); mp.declined = mp.declined.filter(function (x) { return x !== t; });
+      var ws = [menSave(t, mt), menSave(p, mp)]; if (oldP && oldP !== p) { var mo = JSON.parse(JSON.stringify(menOf(oldP))); mo.timothys = mo.timothys.filter(function (x) { return x !== t; }); ws.push(menSave(oldP, mo)); }
+      Promise.all(ws).then(function () { om.textContent = "✓ " + nameOf(p) + " is now " + nameOf(t) + "’s Paul."; drawAll(); }); });
+    clr.addEventListener("click", function () { var t = st2.value; if (!t) { om.textContent = "Pick the Timothy."; return; } var mt = JSON.parse(JSON.stringify(menOf(t))), p = mt.paul; mt.paul = ""; var ws = [menSave(t, mt)]; if (p) { var mp = JSON.parse(JSON.stringify(menOf(p))); mp.timothys = mp.timothys.filter(function (x) { return x !== t; }); ws.push(menSave(p, mp)); } Promise.all(ws).then(function () { om.textContent = "✓ Cleared."; drawAll(); }); });
+    var rw = el("div", "cdlg-btns"); rw.appendChild(go2); rw.appendChild(clr); asg.appendChild(rw); asg.appendChild(om); box.appendChild(asg);
+  }
   /* ---------- Owner tools ---------- */
   var ownerUnsub = null;
   function ownerWatch() {
@@ -10291,7 +10525,7 @@ header.hero .me-btn { border-color:#e87328; }
       btn.addEventListener("click", function () { var open = body.hidden; body.hidden = !open; btn.setAttribute("aria-expanded", String(open)); });
       head.hidden = true; sec.classList.add("set-card"); sec.appendChild(btn); sec.appendChild(body);
     });
-    ["h-s-wk", "h-s-body", "h-s-goal", "h-s-food", "h-s-owner", "h-s-tg", "h-s-rem", "h-s-health", "h-s-safe", "h-s-test", "h-s-export", "h-s-legal", "h-s-acct", "h-o-rep"].forEach(function (hid) {
+    ["h-s-wk", "h-s-body", "h-s-goal", "h-s-food", "h-s-owner", "h-s-tg", "h-s-rem", "h-s-health", "h-s-safe", "h-s-test", "h-s-export", "h-s-legal", "h-s-acct", "h-o-rep", "h-o-pairs"].forEach(function (hid) {
       var h = $(hid); if (!h) return; var sec = h.closest("section"), head = h.closest(".section-head"); if (!sec || !head) return;
       var body = el("div", "set-body"); body.id = hid + "-body"; body.hidden = true;
       while (head.nextSibling) body.appendChild(head.nextSibling);
@@ -10339,6 +10573,7 @@ header.hero .me-btn { border-color:#e87328; }
     $("set-back").addEventListener("click", function () { state.viewUid = state.me; go("profile"); });
     $("set-owner").addEventListener("click", function () { go("owner"); });
     $("own-back").addEventListener("click", function () { go("settings"); });
+    $("men-back").addEventListener("click", function () { go("today"); });
     $("page-settings").addEventListener("input", function (ev) {
       var f = ev.target.closest ? ev.target.closest("[data-form]") : null;
       if (f) state.dirty[f.dataset.form] = true;
@@ -10396,7 +10631,7 @@ header.hero .me-btn { border-color:#e87328; }
   function drawAll() {
     campDirty(); campWatchChecks(); campWatchTPosts();
     drawHeader(); drawCampToday(); drawToday(); drawYours(); drawFuel(); drawTrain(); drawBoard(); drawMeBtns(); drawProfile(); drawSettings();
-    drawDevo(); if (state.page === "camp") drawCampPage();
+    drawDevo(); if (state.page === "camp") drawCampPage(); drawMentorToday(); if (state.page === "mentor") drawMentorPage(); if (state.page === "owner") drawOwnerPairs();
   }
   async function loadProfiles() {
     var ids = {}; state.checks.forEach(function (c) { ids[c.uid] = true; }); state.posts.forEach(function (p) { ids[p.uid] = true; }); (state.replies || []).forEach(function (r) { ids[r.uid] = true; }); (state.ideas || []).forEach(function (r) { ids[r.uid] = true; });
@@ -10520,6 +10755,7 @@ header.hero .me-btn { border-color:#e87328; }
     if (!B.canUpload()) $("attach-label").hidden = true;
     B.watchTasks(function (rows) { state.tasks = rows; drawAll(); });
     B.watchProfiles(function (map) { state.pubProfiles = map; drawAll(); loadProfiles(); });
+    try { B.db.collection("mentor").onSnapshot(function (s) { var m = {}; s.docs.forEach(function (d) { m[d.id] = normMentor(d.data()); }); state.mentor = m; state.mentorLoaded = true; mentorAuto(); drawAll(); }, noop); } catch (e) {}
     B.watchLifts(function (rows) { state.lifts = rows; drawAll(); });
     try { state.isOwner = !!(B.user && B.user.isOwner && B.user.isOwner()); } catch (e) { state.isOwner = false; }
     B.watchCamps(function (m) { state.camps = m; campDirty(); drawAll(); if (state.page === "team") drawTeamPage(); });
