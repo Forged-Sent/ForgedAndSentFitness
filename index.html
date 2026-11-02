@@ -3099,8 +3099,10 @@ header.hero .me-btn { border-color:#e87328; }
     det.appendChild(inner); box.appendChild(det);
   }
   // fn(rec, log) edits today's shared record and private log; return true from fn if it changed the log.
-  function writeDay(fn) {
+  function writeDay(fn, tries) {
     if (!state.me || !state.canWrite) return;
+    // Never build today's save from an empty day: wait until today's check-ins and food log have loaded.
+    if (B.db && (!state.checksLoaded || !state.logsLoaded)) { tries = (tries || 0) + 1; if (tries <= 60) setTimeout(function () { writeDay(fn, tries); }, 250); return; }
     var date = todayKey(), uid = state.me;
     var cur = recFor(date), cl = logFor(date);
     var cp = normPrs(cur.prs), rec = { date: date, uid: uid, done: {}, prs: cp, steps: normSteps(cur.steps), pbonus: !!cur.pbonus, opt: normOpt(cur.opt), onote: String(cur.onote || ""), obonus: !!cur.obonus };
@@ -9185,7 +9187,7 @@ header.hero .me-btn { border-color:#e87328; }
       box.appendChild(r);
     });
   }
-  var APP_VERSION = "v225";
+  var APP_VERSION = "v226";
   /* ---------- Photo upload diagnostic (Settings > Testing) ---------- */
   async function runPhotoDiag() {
     var out = { at: new Date().toISOString(), version: APP_VERSION, ua: navigator.userAgent, steps: [] };
@@ -10414,11 +10416,11 @@ header.hero .me-btn { border-color:#e87328; }
     var low = lowKey();
     if (subscribed.checks !== low) {
       if (unsub.checks) unsub.checks(); subscribed.checks = low;
-      unsub.checks = B.watchChecks(low, function (rows) { state.checks = keepLocal(rows, state.checks, function (c) { return c.uid === state.me && c.date === todayKey(); }); drawAll(); loadProfiles(); });
+      state.checksLoaded = false; unsub.checks = B.watchChecks(low, function (rows) { state.checksLoaded = true; state.checks = keepLocal(rows, state.checks, function (c) { return c.uid === state.me && c.date === todayKey(); }); drawAll(); loadProfiles(); });
     }
     if (state.me && subscribed.logs !== low) {
       if (unsub.logs) unsub.logs(); subscribed.logs = low;
-      unsub.logs = B.watchLogs(state.me, low, function (rows) { state.logs = keepLocal(rows, state.logs, function (l) { return l.date === todayKey(); }); drawAll(); });
+      state.logsLoaded = false; unsub.logs = B.watchLogs(state.me, low, function (rows) { state.logsLoaded = true; state.logs = keepLocal(rows, state.logs, function (l) { return l.date === todayKey(); }); drawAll(); });
     }
   }
 
