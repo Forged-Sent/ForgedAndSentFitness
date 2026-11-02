@@ -24,11 +24,11 @@
 
 ## Team-specific multi-agent operating modes
 
-**Mode A: a routine UI/content edit.** One builder; format/analyze/test; architecture/code map only when changed; one focused independent review; human decides to merge after `ci-gate`. The default two-reviewer tool may be omitted as long as the missing independent coverage is documented, never misrepresented as a pass.
+**Mode A: a routine UI/content edit.** One builder; format/analyze/test; architecture/code map only when changed; an optional non-author AI review; the maintainer decides to merge after `ci-gate`. If no AI review was run, say so rather than implying one passed.
 
-**Mode B: a new Flutter feature.** Read `flutter-vertical-slice` skill and existing ADRs; define user outcome, error/offline path, repositories and widget/unit tests; two independent provider reviews; run complete platform CI and update SYSTEM.md on boundary changes.
+**Mode B: a new Flutter feature.** Read `flutter-vertical-slice` skill and existing ADRs; define user outcome, error/offline path, repositories and widget/unit tests; an optional non-author AI review (one provider is enough); run complete platform CI and update SYSTEM.md on boundary changes.
 
-**Mode C: identity, Firebase rules, group membership, private data or scoring.** Model abuse cases first; deny-by-default rules; run emulator negative tests for anonymous, different user, different group, role revoked and malformed input; independent Firebase security review plus another human; do not deploy cloud services without separate approval.
+**Mode C: identity, Firebase rules, group membership, private data or scoring.** Model abuse cases first; deny-by-default rules; run emulator negative tests for anonymous, different user, different group, role revoked and malformed input; a non-author AI Firebase security review is strongly recommended but optional, and no second human is required (the maintainer decides); do not deploy cloud services without separate approval.
 
 **Mode D: tooling, GitHub CI or agent instructions.** Confirm no secrets or privilege escalation; run lint/policy/skills/code-map checks; verify path classifier covers new files; review all automation from read-only perspective. Ensure agents cannot claim to be authorized to merge.
 

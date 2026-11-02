@@ -1,7 +1,10 @@
 # Solo-maintainer ownership routing (advisory, not an approval requirement).
 # GitHub requires ci-gate and currently zero approving reviews.
 # CODEOWNERS does not enforce approval counts.
-# CODEOWNERS cannot negate patterns; the catch-all lives in the GitHub\n# Required reviewers ruleset, not here. Do NOT add '*' or '/*': ordinary\n# prototype-only PRs must not trigger blanket code owner requests.\n# The ruleset protects ALL new or unrecognized files by default.
+# CODEOWNERS cannot negate patterns; the catch-all lives in the GitHub
+# Required reviewers ruleset, not here. Do NOT add '*' or '/*': ordinary
+# prototype-only PRs must not trigger blanket code owner requests.
+# The ruleset protects ALL new or unrecognized files by default.
 /mobile/ @Chadillac12
 /tooling/ @Chadillac12
 /.github/ @Chadillac12
