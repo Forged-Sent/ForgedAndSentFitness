@@ -1005,6 +1005,7 @@ button.fo-item { cursor: pointer; min-height: 44px; }
 .cpg-how { margin: 0; padding: 0; list-style: none; display: grid; gap: 8px; }
 .cpg-how li { position: relative; padding-left: 20px; font-size: 14.5px; line-height: 1.45; } .cpg-how li::before { content: "\2022"; position: absolute; left: 4px; color: var(--accent); font-weight: 700; }
 .cpg-wk { color: var(--muted); margin: 0 0 10px; }
+.cpg-sh { margin: 0 0 8px; }
 .cpg-mine { border: 1px solid var(--accent); border-radius: 12px; background: var(--surface); padding: 6px; margin-bottom: 12px; }
 .cpg-mine .cpg-mtop { border: 0; grid-template-columns: 72px minmax(0, 1fr) auto; }
 .cpg-mn { font-family: var(--f-label); font-weight: 800; text-transform: uppercase; letter-spacing: .04em; font-size: 22px; }
@@ -7052,17 +7053,18 @@ header.hero .me-btn { border-color:#e87328; }
       box.appendChild(ts);
     } else {
       var w = campWeekIdx(c, todayKey());
-      box.appendChild(el("p", "label-caps cpg-wk", "Campaign " + n + " · Week " + (w + 1) + " of " + CAMP_WEEKS + " · " + campDateText(c.start) + " – " + campDateText(campEnd(c))));
+      var wkLine = "Campaign " + n + " · Week " + (w + 1) + " of " + CAMP_WEEKS + " · " + campDateText(c.start) + " – " + campDateText(campEnd(c));
+      box.appendChild(el("h2", "label-caps cpg-sh", mine ? "My team" : "This campaign"));
       if (mine) {
         var st = campStandings(), x = st.filter(function (y) { return y.t.id === mine.id; })[0] || {};
         var yt = el("div", "cpg-mine"), top = el("button", "cpg-mtop"); top.type = "button"; top.appendChild(bannerEl(mine.banner, "big"));
-        var mt = el("span"); mt.appendChild(el("span", "label-caps cmp-k acc", "Your team")); mt.appendChild(el("b", "cpg-mn", mine.name)); mt.appendChild(el("small", null, mine.men.length + " men · Captain " + nameOf(mine.cap))); top.appendChild(mt); top.appendChild(el("span", "chev", "›"));
+        var mt = el("span"); mt.appendChild(el("span", "label-caps cmp-k acc", wkLine)); mt.appendChild(el("b", "cpg-mn", mine.name)); mt.appendChild(el("small", null, mine.men.length + " men · Captain " + nameOf(mine.cap))); top.appendChild(mt); top.appendChild(el("span", "chev", "›"));
         top.addEventListener("click", function () { openTeam(mine.id); }); yt.appendChild(top);
         if (x.cur) { var wl = el("div", "cpg-wall"); var dots = el("span", "cpg-dots"); for (var i = 0; i < 7; i++) dots.appendChild(el("i", i < x.cur.wallDays ? "on" : "")); wl.appendChild(el("span", null, "Wall held " + x.cur.wallDays + " of 7 days")); wl.appendChild(dots); yt.appendChild(wl); }
         var un = teamUnread(mine.id), chb = el("button", "btn ghost cpg-chat", "Team chat" + (un ? " · " + un + " new" : "")); chb.type = "button"; chb.addEventListener("click", function () { openTeamChat(mine.id); }); yt.appendChild(chb);
         box.appendChild(yt);
       } else {
-        var nt = el("div", "cpg-hero"); nt.appendChild(bannerEl("trumpet", "big")); var ntx = el("div"); ntx.appendChild(el("div", "label-caps cmp-k acc", "Not on a team")); ntx.appendChild(el("h2", "cpg-h", "The battle is on")); ntx.appendChild(el("p", "note", "You compete on the Individual board this campaign. Sign-ups for the next one show here.")); nt.appendChild(ntx); box.appendChild(nt);
+        var nt = el("div", "cpg-hero"); nt.appendChild(bannerEl("trumpet", "big")); var ntx = el("div"); ntx.appendChild(el("div", "label-caps cmp-k acc", wkLine)); ntx.appendChild(el("h2", "cpg-h", "The battle is on")); ntx.appendChild(el("p", "note", "You compete on the Individual board this campaign. Sign-ups for the next one show here.")); nt.appendChild(ntx); box.appendChild(nt);
       }
       if (campDoubleLabel(c, w)) box.appendChild(campDoubleCard(c, w));
     }
@@ -9147,7 +9149,7 @@ header.hero .me-btn { border-color:#e87328; }
       box.appendChild(r);
     });
   }
-  var APP_VERSION = "v223";
+  var APP_VERSION = "v224";
   /* ---------- Photo upload diagnostic (Settings > Testing) ---------- */
   async function runPhotoDiag() {
     var out = { at: new Date().toISOString(), version: APP_VERSION, ua: navigator.userAgent, steps: [] };
