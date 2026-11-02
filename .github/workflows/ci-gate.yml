@@ -67,6 +67,8 @@ jobs:
     timeout-minutes: 5
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          fetch-depth: 0
       - name: Enforce MCP, API-key, reviewer, ownership and pinning policies
         run: |
           python3 --version
@@ -79,6 +81,14 @@ jobs:
           python3 tooling/architecture/build_explorer.py --check
           python3 -m unittest discover -s tooling/review -p 'test_*.py' -v
           python3 tooling/review/review.py --help
+      - name: Validate exact PR diff is reviewable in bounded slices (no AI calls)
+        if: github.event_name == 'pull_request'
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 tooling/review/review.py --dry-run --base "$BASE_SHA" --reviewers codex --minimum 1
 
   windows-checks:
     needs: changes
