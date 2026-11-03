@@ -155,7 +155,7 @@ $config=Join-Path $root '.vscode\mcp.json'
 if(Test-Path -LiteralPath $config) {
   try {
     $mcp=Get-Content -LiteralPath $config -Raw|ConvertFrom-Json
-    foreach($id in @('dart','playwright','github','context7','figma','maestro','google-developer-knowledge')){
+    foreach($id in @('dart','playwright','context7')){
       if($mcp.servers.PSObject.Properties.Name -contains $id){
         $checks.Add((New-FSCheck "MCP:$id" ConfiguredNotConnected 'MCP is declared, but tools/list handshake was not performed.' 'Start the MCP in VS Code and verify tools/list before claiming Ready.'))
       }else{$checks.Add((New-FSCheck "MCP:$id" Missing 'MCP declaration is missing.' 'Restore .vscode/mcp.json from the approved Git branch.'))}

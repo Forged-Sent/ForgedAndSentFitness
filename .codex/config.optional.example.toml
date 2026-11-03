@@ -1,0 +1,12 @@
+# Optional project MCP servers, not loaded by default.
+# Add only after the provider and device tools are available, and review permissions.
+
+[mcp_servers.github]
+url = "https://api.githubcopilot.com/mcp/readonly"
+
+[mcp_servers.figma]
+url = "https://mcp.figma.com/mcp"
+
+[mcp_servers.maestro]
+command = "node"
+args =

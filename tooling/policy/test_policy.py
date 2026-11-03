@@ -13,6 +13,7 @@ from check import evaluate
 ROOT = Path(__file__).resolve().parents[2]
 PATHS = [
     ".vscode/mcp.json", ".mcp.json", ".codex/config.toml",
+    ".vscode/mcp-optional.example.json", ".mcp.optional.example.json", ".codex/config.optional.example.toml",
     ".github/CODEOWNERS", ".github/agents/architecture-reviewer.agent.md",
     ".github/agents/firebase-security.agent.md",
     ".claude/agents/architecture-reviewer.md", ".claude/agents/firebase-security.md",
@@ -58,7 +59,7 @@ class PolicyTests(unittest.TestCase):
         self.assert_violation("mandates an extra reviewer")
 
     def test_literal_google_api_key_is_rejected(self):
-        path = self.root / ".vscode/mcp.json"
+        path = self.root / ".vscode/mcp-optional.example.json"
         obj = json.loads(path.read_text())
         obj["servers"]["google-developer-knowledge"]["headers"]["X-Goog-Api-Key"] = "FAKE_TEST_VALUE_ONLY"
         path.write_text(json.dumps(obj))
@@ -71,7 +72,7 @@ class PolicyTests(unittest.TestCase):
         self.assert_violation("MCP names differ")
 
     def test_renamed_firebase_executable_rejected(self):
-        path = self.root / ".mcp.json"
+        path = self.root / ".mcp.optional.example.json"
         obj = json.loads(path.read_text())
         obj["mcpServers"]["maestro"] = {"command":"firebase-tools","args":["mcp"]}
         path.write_text(json.dumps(obj))
