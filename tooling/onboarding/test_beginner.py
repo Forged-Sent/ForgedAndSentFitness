@@ -61,6 +61,8 @@ class BeginnerContractTests(unittest.TestCase):
         self.assertIn("fs_ensure_python", setup)
         self.assertIn("GitIdentity", diag)
         self.assertIn("FlutterOnPath", diag)
+        self.assertIn("/bin/zsh -lc 'command -v flutter'", diag)
+        self.assertNotIn('if fs_has flutter && [ "$(command -v flutter)"', diag)
         self.assertNotIn("fs_brew_cask codex '' codex\n  fs_brew_cask claude-code '' claude", setup)
 
     def test_default_mcp_only_has_beginner_servers(self):

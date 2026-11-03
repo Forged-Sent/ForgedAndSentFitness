@@ -15,7 +15,9 @@ case "$FS_PROFILE" in Preview|Contributor|Mobile|Maintainer) ;; *) fs_fail 'Unkn
 fs_required(){
   case "$1" in
     AppleCLT|Git|Flutter|Chrome|VSCode|FirebaseMCPIsolation) return 0;;
-    Node|Npm|GitHubCLI|FirebaseCLI|Java21|DemoConfig|GitIdentity|Gitleaks|Hooks|Python|FlutterOnPath) [ "$FS_PROFILE" != Preview ]; return;;
+    Node|Npm|GitHubCLI|FirebaseCLI|Java21|DemoConfig|GitIdentity|Gitleaks|Hooks|Python) [ "$FS_PROFILE" != Preview ]; return;;
+    # PATH editing is optional: absolute SDK launchers work without changing shell settings.
+    FlutterOnPath) return 1;;
     AndroidStudio|Maestro|Java) [ "$FS_PROFILE" = Mobile ] || [ "$FS_PROFILE" = Maintainer ]; return;;
     DevCloudIdentity) [ "$FS_PROFILE" = Maintainer ]; return;;
     *) return 1;;
@@ -80,10 +82,16 @@ if { fs_has python3.12 && python3.12 -c 'import sys;sys.exit(0 if sys.version_in
 else
   fs_record Python Missing 'Python 3.11+ needed for Atlas and review.' 'Rerun Mac Contributor setup.'
 fi
-if fs_has flutter && [ "$(command -v flutter)" = "$FS_FLUTTER" ]; then
+# Check a clean new login shell rather than this script's temporary PATH.
+# common.sh adds Flutter for launchers and cannot prove the next Terminal's PATH.
+fs_login_flutter=''
+if [ -x /bin/zsh ]; then
+  fs_login_flutter="$(env -i HOME="$HOME" USER="${USER:-}" SHELL=/bin/zsh PATH='/usr/bin:/bin:/usr/sbin:/sbin' /bin/zsh -lc 'command -v flutter' 2>/dev/null || true)"
+fi
+if [ "$fs_login_flutter" = "$FS_FLUTTER" ]; then
   fs_record FlutterOnPath Ready '' ''
 else
-  fs_record FlutterOnPath Missing 'The pinned Flutter SDK is not first on Terminal PATH.' 'Accept the optional ~/.zprofile change in Contributor setup, then reopen Terminal; or use ~/develop/flutter/bin/flutter explicitly.'
+  fs_record FlutterOnPath ConfiguredNotConnected 'A fresh login Terminal may not find Flutter by command name.' 'Optional: accept the ~/.zprofile PATH update in Contributor setup, then open a new Terminal; otherwise use ~/develop/flutter/bin/flutter explicitly.'
 fi
 if [ -d '/Applications/Google Chrome.app' ] || [ -d "$HOME/Applications/Google Chrome.app" ]; then fs_record Chrome Ready '' ''; else fs_record Chrome Missing 'Chrome not found.' 'Run SETUP-MAC.command.'; fi
 if fs_code >/dev/null 2>&1; then fs_record VSCode Ready '' ''; else fs_record VSCode Missing 'VS Code not found.' 'Run SETUP-MAC.command.'; fi
