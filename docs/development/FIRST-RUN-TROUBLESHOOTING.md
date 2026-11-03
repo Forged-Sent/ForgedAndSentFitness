@@ -12,19 +12,23 @@ Official installation instructions: https://learn.microsoft.com/en-us/powershell
 
 ## One entry point for everyone
 
-Extract the ZIP of the reviewed feature branch into a normal folder (not inside Downloads ZIP preview), then double-click **FIRST-RUN-WINDOWS.cmd**.
+Open the **existing Git clone**, switch to the PR #4 feature branch (`git fetch origin`, `git switch feature/contributor-emulator-onboarding`, `git pull --ff-only`), then double-click **FIRST-RUN-WINDOWS.cmd**. No ZIP is needed. If you do not have a clone, follow [Windows quickstart](WINDOWS-QUICKSTART.md) to install Git and clone the branch. Always preserve uncommitted work before switching.
 
 The menu is designed for people who are not software developers:
 
 | Option | Purpose |
 |---|---|
-| 1 | Full development setup / repair: Flutter, VS Code, CLI tools, MCPs, AI extensions, optional Android Studio |
+| 1 | Choose Preview, Contributor, Mobile or Maintainer tools and run the guided setup |
 | 2 | Preview only: installs fewer dependencies, then launch in Chrome |
 | 3 | Check requirements: prints each missing component, why it is needed, and how to fix it |
 | 4 | Sign into GitHub only if requested; never enters passwords in a script |
 | 5 | Open VS Code and guide MCP trust/authorization |
 | 6 | Launch the Flutter starter in Chrome |
 | 7 | Open troubleshooting instructions |
+| 8 | Show project-only MCP configuration |
+| 9 | Start demo Firebase Auth/Firestore/Storage emulators |
+| 10 | Clone Git repository, only if not already cloned |
+| 11 | Run Flutter against locally running Firebase emulators |
 
 The initial Flutter app is a basic starter screen. The original web prototype is not yet migrated.
 
@@ -68,12 +72,12 @@ The wizard offers to **copy the AI prompt to the clipboard**, but it does **not 
 | Flutter not found | SDK download failed, PATH not refreshed | Rerun setup, restart terminal |
 | Android build unavailable | Android Studio, SDK licenses or emulator not ready | Run SETUP-ANDROID.cmd, complete first-run wizard and licenses |
 | Maestro missing | Native CLI ZIP or Java 17 install failed | Rerun developer setup, check Java/WinGet and download restrictions |
-| Firebase cloud MCP unavailable | Disabled deliberately for Contributors | Use emulator-first development after PR #4; DEV cloud access is Maintainer-only |
+| Firebase cloud MCP unavailable | Disabled deliberately for Contributors | Use PR #4 local emulators now; a separate cloud DEV project can be created later |
 | Figma MCP won't connect | Figma account authorization pending | Start server in VS Code, sign into Figma |
 | Google Knowledge 401/403 | Google Cloud API not enabled or invalid/restricted key | Enable Developer Knowledge API, create/restrict API key, reconnect |
 | GitHub MCP won't connect | OAuth not granted | Sign in to GitHub and reauthorize read-only MCP |
 | Context7 unavailable | Internet, service or API quota | Check network and provider status |
-| VS Code MCP missing | Wrong workspace, restricted trust or extension support | Open extracted repository folder, review trust, run MCP: List Servers |
+| VS Code MCP missing | Wrong workspace, restricted trust or extension support | Open the cloned repository folder, review trust, run MCP: List Servers |
 | Claude/Codex extension missing | Store/network/IT policy or account plan | Reinstall from VS Code Extensions; sign in individually |
 | Company laptop blocks setup | Organization installation restrictions | Ask IT; never bypass enterprise policies |
 

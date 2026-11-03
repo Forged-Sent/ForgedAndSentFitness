@@ -15,7 +15,7 @@ case "$FS_PROFILE" in Preview|Contributor|Mobile|Maintainer) ;; *) fs_fail 'Unkn
 fs_required(){
   case "$1" in
     AppleCLT|Git|Flutter|Chrome|VSCode|FirebaseMCPIsolation) return 0;;
-    Node|Npm|GitHubCLI|FirebaseCLI|CodexCLI|ClaudeCLI|EmulatorWiring) [ "$FS_PROFILE" != Preview ]; return;;
+    Node|Npm|GitHubCLI|FirebaseCLI|Java21|DemoConfig) [ "$FS_PROFILE" != Preview ]; return;;
     AndroidStudio|Maestro|Java) [ "$FS_PROFILE" = Mobile ] || [ "$FS_PROFILE" = Maintainer ]; return;;
     DevCloudIdentity) [ "$FS_PROFILE" = Maintainer ]; return;;
     *) return 1;;
@@ -25,6 +25,8 @@ if [ "$FS_SELFTEST" -eq 1 ]; then
   fs_required Git || exit 1
   FS_PROFILE=Preview; if fs_required Maestro; then exit 1; fi
   FS_PROFILE=Mobile; fs_required Maestro || exit 1
+  FS_PROFILE=Contributor; fs_required Java21 || exit 1
+  if fs_required EmulatorWiring; then fs_fail 'Live handshake must not be a static readiness requirement.'; exit 1; fi
   fs_ok 'Mac diagnostic profile self-tests passed. No system state was changed.'
   exit 0
 fi
@@ -49,7 +51,7 @@ fs_probe(){
 fs_line "Forged & Sent MacBook diagnostic | $FS_PROFILE"
 fs_line 'Configured MCP servers are NOT Ready until a live initialize + tools/list handshake succeeds.'
 fs_line 'No user names, account tokens, project IDs or private file paths are included.'
-fs_line 'NotApplicable means deferred to PR #4; passing local installation checks is NOT full Contributor readiness.'
+fs_line 'Installed tools are separate from live emulator and MCP connections; no Firebase cloud account is required.'
 if xcode-select -p >/dev/null 2>&1; then fs_record AppleCLT Ready '' ''; else fs_record AppleCLT Missing 'Apple Command Line Tools missing.' 'Complete the macOS developer tools installation dialog.'; fi
 fs_probe Git git 'Install Apple Command Line Tools.'
 if [ -d '/Applications/Google Chrome.app' ] || [ -d "$HOME/Applications/Google Chrome.app" ]; then fs_record Chrome Ready '' ''; else fs_record Chrome Missing 'Chrome not found.' 'Run SETUP-MAC.command.'; fi
@@ -63,9 +65,29 @@ fs_probe CodexCLI codex 'Run Contributor setup. Sign in separately.'
 fs_probe ClaudeCLI claude 'Run Contributor setup. Sign in separately.'
 if [ -d '/Applications/Android Studio.app' ]; then fs_record AndroidStudio Ready '' ''; else fs_record AndroidStudio Missing 'Android Studio not installed.' 'Mobile setup is PR #4.'; fi
 fs_probe Maestro maestro 'Maestro mobile runner is part of PR #4.'
-fs_probe Java java 'JDK 21 configuration belongs to PR #4.'
-fs_record EmulatorWiring NotApplicable 'Firebase emulator-to-app wiring is not implemented in PR #3.' 'Complete demo-* emulator tests in PR #4.'
-fs_record DevCloudIdentity AuthRequired 'Maintainer cloud credentials are not configured.' 'PR #4 DEV-only, least-privilege opt-in; no production credentials.'
+fs_probe Java java 'Java is optional for Preview; Contributor uses JDK 21.'
+if fs_java21_home >/dev/null 2>&1; then
+  fs_record Java21 Ready '' ''
+else
+  fs_record Java21 Missing 'JDK 21 is unavailable for local Firebase emulators.' 'Run SETUP-DEVELOPER-MAC.command; do not use Firebase cloud login.'
+fi
+if [ -f "$FS_ROOT/.firebaserc" ] && [ -f "$FS_ROOT/firebase.json" ] &&
+   grep -Eq '"default"[[:space:]]*:[[:space:]]*"demo-forgedandsent"' "$FS_ROOT/.firebaserc"; then
+  fs_record DemoConfig Ready '' ''
+else
+  fs_record DemoConfig Missing 'Demo Firebase config is missing or not the demo project.' 'Use the complete current PR #4 Git branch.'
+fi
+fs_all_emulators=1
+for fs_port in 9099 8080 9199; do
+  if ! fs_has nc || ! nc -G 2 -z 127.0.0.1 "$fs_port" >/dev/null 2>&1; then fs_all_emulators=0; fi
+done
+if [ "$fs_all_emulators" -eq 1 ]; then
+  fs_record EmulatorPorts Ready 'Three local TCP ports respond, but this is not an app handshake.' ''
+else
+  fs_record EmulatorPorts ConfiguredNotConnected 'One or more local Auth/Firestore/Storage ports are not listening.' 'Run START-EMULATORS-MAC.command in another Terminal window.'
+fi
+fs_record EmulatorWiring ConfiguredNotConnected 'The Flutter SDK is wired to the demo emulators, but diagnostics cannot verify a live app round-trip.' 'Run RUN-EMULATOR-APP-MAC.command after starting emulators and check its status.'
+fs_record DevCloudIdentity AuthRequired 'Cloud DEV access is not included in local setup.' 'Provision a separate least-privilege DEV project later if needed; no PROD credentials.'
 if [ ! -f "$FS_ROOT/.vscode/mcp.json" ] || [ ! -f "$FS_ROOT/.mcp.json" ]; then
   fs_record FirebaseMCPIsolation Failed 'One or more required project MCP configurations are missing.' 'Restore the complete trusted project files.'
 elif grep -Eq '"firebase"[[:space:]]*:' "$FS_ROOT/.vscode/mcp.json" "$FS_ROOT/.mcp.json"; then

@@ -43,6 +43,7 @@ if [ "$FS_PROFILE" = Contributor ]; then
   if [ "$fs_node_major" -lt 20 ]; then fs_fail 'Node.js 20+ is required for the pinned Firebase CLI. Update Node before retrying; no existing install was changed.'; exit 1; fi
   fs_brew_formula gh gh
   fs_npm_firebase
+  fs_ensure_java21
   fs_brew_cask codex '' codex
   fs_brew_cask claude-code '' claude
   fs_info 'No Firebase cloud authentication, production access, or Firebase cloud MCP is installed.'
@@ -54,5 +55,8 @@ cd "$FS_ROOT/mobile"
 "$FS_FLUTTER" test
 "$FS_FLUTTER" build web --release
 fs_ok 'Flutter browser preview build and tests passed.'
-if [ "$FS_PROFILE" = Contributor ]; then fs_warn 'App-to-emulator wiring remains a PR #4 requirement; Contributor readiness is incomplete.'; fi
+if [ "$FS_PROFILE" = Contributor ]; then
+  fs_info 'Local Firebase wiring is implemented. Test it with START-EMULATORS-MAC.command and RUN-EMULATOR-APP-MAC.command.'
+  fs_warn 'Live emulator handshake and agent MCP connections still require hands-on verification.'
+fi
 fs_info 'Double-click RUN-APP-MAC.command to launch Chrome.'
