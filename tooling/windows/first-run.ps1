@@ -40,15 +40,15 @@ function SetGitIdentity {
 function RunSetup([string]$profile){
   $script:SelectedProfile=$profile
   Banner "Set up $profile"
-  $args=@('-TargetProfile',$profile)
+  $setupArgs=@('-TargetProfile',$profile)
   if($profile -ne 'Preview'){
     Write-Host 'Choose ONE optional AI assistant: 0=None, 1=Codex, 2=Claude, 3=GitHub Copilot.'
     $answer=Read-Host 'Assistant [0]'
     $agent= switch($answer){'1'{'Codex'} '2'{'Claude'} '3'{'Copilot'} default{'None'}}
-    $args+=@('-AIChoice',$agent)
+    $setupArgs+=@('-AIChoice',$agent)
     Write-Host "Selected: $agent. No AI account is needed to use Flutter or the demo Firebase emulators."
   }
-  $status=RunScript $profileScript $args
+  $status=RunScript $profileScript $setupArgs
   if($status){
     Write-Host 'One or more installs require attention. Check the error and rerun when resolved.' -ForegroundColor Yellow
   }else{
