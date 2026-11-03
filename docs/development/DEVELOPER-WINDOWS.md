@@ -17,7 +17,7 @@ Official installation instructions: https://learn.microsoft.com/en-us/powershell
 - Optional Android phone development: run SETUP-ANDROID.cmd. Complete Android Studio setup, licenses and device pairing yourself.
 - Local iOS builds require a Mac and Xcode.
 
-Download the GitHub branch ZIP and **extract all** before double-clicking the script. Only run scripts from a repository you trust. If an installer or corporate security policy blocks setup, stop and ask for help rather than disabling security software.
+Use your existing **Git clone**. Before testing PR #4, run `git status`, `git fetch origin`, `git switch feature/contributor-emulator-onboarding`, and `git pull --ff-only` from the repo folder. If the branch is not present locally, use `git switch --track origin/feature/contributor-emulator-onboarding`. Only if you have no clone: `git clone --branch feature/contributor-emulator-onboarding https://github.com/Forged-Sent/ForgedAndSentFitness.git`. Do not overwrite or force-reset local work. Only run scripts from this repository when you trust them. Corporate security restrictions should not be bypassed.
 
 ## What full setup adds
 
@@ -40,7 +40,7 @@ It generates a **secret-free AI troubleshooting prompt** in the Windows temporar
 The project VS Code MCP file configures seven servers (no Firebase cloud MCP):
 
 1. Dart MCP: analyzer, tests and Flutter app context via dart mcp-server. Runs from the Flutter SDK.
-2. No Firebase cloud MCP is installed by default. Firebase CLI itself is retained for future local emulators (PR #4).
+2. No Firebase cloud MCP is installed by default. The Firebase CLI runs PR #4's local Auth, Firestore and Storage emulators using the fake `demo-forgedandsent` project; no account or login is required.
 3. Playwright MCP: browser automation against Chrome for Flutter web UI.
 4. GitHub hosted MCP: read-only repository/issue/PR context via OAuth.
 
@@ -55,8 +55,8 @@ The shared .vscode/mcp.json works for VS Code and Copilot. Claude uses the proje
 3. Open the Codex extension and sign in with your account, if eligible.
 4. Open the Claude Code extension and sign in with your own account, if eligible.
 5. Use VS Code Command Palette > MCP: List Servers to review and start project MCPs.
-6. Do not run firebase login as a Contributor. PR #4 includes the local emulators; DEV cloud credentials are Maintainer-only and separately approved.
-7. Run RUN-APP.cmd for the Flutter browser preview. Keep the command window open while testing.
+6. Do not run `firebase login` as a Contributor. PR #4 includes the demo local emulators; cloud DEV access is separately provisioned later.
+7. Run `RUN-APP.cmd` for plain Flutter Preview. To test live demo Firebase, start `START-EMULATORS-WINDOWS.cmd`, then `RUN-EMULATOR-APP-WINDOWS.cmd` in a second window. Leave both consoles open.
 
 A free public GitHub Actions runner does not make Claude/Codex/Copilot usage free. No agent is authorized to deploy, commit secrets, or change accepted architecture just because its extension is installed.
 

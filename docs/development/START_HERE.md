@@ -5,7 +5,7 @@ This branch introduces an intentionally small Flutter scaffold and CI, **not a p
 
 ## Guided Windows and MacBook setup
 
-On Windows use FIRST-RUN-WINDOWS.cmd. On a MacBook use FIRST-RUN-MAC.command. Both provide a safe Flutter browser Preview and developer tool setup, without Firebase cloud MCP or login. See docs/development/MACBOOK-QUICKSTART.md for Mac prerequisites. Full iOS/Android device tooling is PR #4.
+Start from your existing **Git clone**, not a downloaded ZIP. Run `git fetch origin`, `git switch feature/contributor-emulator-onboarding`, and `git pull --ff-only` after confirming `git status` is safe. On Windows use `FIRST-RUN-WINDOWS.cmd`; on Mac use `FIRST-RUN-MAC.command`. Both support safe Flutter Preview and local Contributor tools without Firebase cloud login. PR #4 adds demo Firebase launchers on both OSes; Android/iOS device setup still requires manual platform tools. See [Windows quickstart](WINDOWS-QUICKSTART.md) and [Mac quickstart](MACBOOK-QUICKSTART.md).
 
 ## Branches, pull requests and reviews
 
@@ -43,7 +43,7 @@ flutter run
 
 ## Architecture starting point
 - Mobile: Flutter feature-first architecture with UI, domain/application services, repositories and adapters.
-- Firebase: local Auth, Firestore and Storage emulators are connected in the Flutter foundation, but production Firebase is not configured. DEV/PROD deployment is a separate future decision.
+- Firebase: local Auth, Firestore and Storage emulators are connected in the Flutter foundation, but **no Firebase cloud account or project is required for local tests**. DEV/PROD projects, real accounts and deployment are later decisions.
 - Auth and Firestore/Storage access must be deny-by-default with emulator tests before use.
 - Offline workouts need a local durable database, outbox and upload lifecycle in a follow-up slice.
 - Faith content can be before/after/during safe rest periods or elsewhere in the day; private reflections stay private.
@@ -60,7 +60,7 @@ flutter run
 ## Security
 This is a public repo. Never commit API secrets, signing credentials, real prayers, health data, member records or test media. Be especially cautious before running AI agents on external PRs or user input. Keep workflow permissions read-only by default.
 
-For Android host compilation, CI temporarily generates Android platform files; Xcode/iOS provisioning and reviewed native projects are PR #4. Preview contributors generate only the web host.
+For Android/iOS compilation, CI temporarily generates the native host files and checks Android debug and unsigned iOS simulator builds. Real signing, full Xcode/Android Studio workstation configuration and reviewed committed native hosts remain future steps. Preview contributors generate only the web host.
 
 ## Architecture and optional local AI review
 
