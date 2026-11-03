@@ -158,7 +158,7 @@ def evaluate(root: Path) -> list[str]:
         required_paths = (
             "/mobile/", "/tooling/", "/.github/", "/.codex/", "/.claude/",
             "/.agents/", "/.gemini/", "/.vscode/", "/docs/architecture/", "/docs/knowledge/", "/firebase/",
-            "/.mcp.json", "/.gitignore", "/.gitattributes", "/AGENTS.md",
+            "/.mcp.json", "/.mcp.optional.example.json", "/.gitignore", "/.gitattributes", "/AGENTS.md",
             "/CLAUDE.md", "/GEMINI.md", "/*.cmd", "/*.command", "*.rules",
             "/seed/db-rules.json", "/seed/weekly-challenges.json",
             "/seed/movement-standards.json", "/seed/tasks.json",

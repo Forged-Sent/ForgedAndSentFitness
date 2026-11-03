@@ -18,3 +18,5 @@ On Windows start `START-EMULATORS-WINDOWS.cmd`, then `RUN-EMULATOR-APP-WINDOWS.c
 On Mac start `START-EMULATORS-MAC.command`, then `RUN-EMULATOR-APP-MAC.command` in another window. Mac Contributor setup installs a dedicated JDK 21 without changing global Java settings.
 
 Tools being installed does not prove that emulators, device workflows or MCP handshakes are working. Verify live operation independently. The setup never automatically runs `firebase login`, `flutterfire configure`, accepts SDK licenses, or deploys to production.
+
+Beginner default MCPs are Dart, Playwright and Context7. Advanced accounts/device tools are opt-in; see [MCP security](MCP-SECURITY.md). The two setup wizards each offer **one** optional AI assistant rather than installing several by default.

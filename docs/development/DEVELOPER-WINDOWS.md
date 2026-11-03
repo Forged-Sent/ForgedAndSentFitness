@@ -21,9 +21,9 @@ Use your existing **Git clone**. For normal setup after PR #4 merges, run `git s
 
 ## What full setup adds
 
-- Node.js LTS/npm, GitHub CLI and Firebase CLI.
+- Node.js LTS/npm, GitHub CLI, local Firebase CLI, Python 3.11+ and JDK 21.
 - Playwright MCP package is fetched by the pinned project launcher on first use; no global installation.
-- VS Code extensions: Dart, Flutter, GitHub Copilot, Copilot Chat, GitHub Pull Requests, Codex, Claude Code, YAML, EditorConfig and PowerShell.
+- VS Code extensions: Dart, Flutter, GitHub Pull Requests, YAML, EditorConfig and PowerShell. Exactly one optional AI assistant extension is selected in the first-run wizard.
 - Optional Codex and Claude Code command-line tools, using project-scoped `.codex/config.toml` / `.mcp.json` (no global registration).
 - Shared VS Code MCP configuration, committed at .vscode/mcp.json.
 
@@ -37,28 +37,27 @@ It generates a **secret-free AI troubleshooting prompt** in the Windows temporar
 
 ## MCP integrations
 
-The project VS Code MCP file configures seven servers (no Firebase cloud MCP):
+The project VS Code MCP file configures three default servers (no Firebase cloud MCP):
 
 1. Dart MCP: analyzer, tests and Flutter app context via dart mcp-server. Runs from the Flutter SDK.
 2. No Firebase cloud MCP is installed by default. The Firebase CLI runs PR #4's local Auth, Firestore and Storage emulators using the fake `demo-forgedandsent` project; no account or login is required.
 3. Playwright MCP: browser automation against Chrome for Flutter web UI.
-4. GitHub hosted MCP: read-only repository/issue/PR context via OAuth.
+4. GitHub hosted MCP, Figma, Maestro and Google Developer Knowledge are **optional**, documented in [MCP security](MCP-SECURITY.md); they are not loaded at first run.
 
 **Safety:** MCP providers can execute code or access external data. VS Code asks you to trust servers. Firebase cloud MCP is deliberately absent. DEV cloud authorization belongs to Maintainer opt-in in PR #4. No Firebase project or API key is created by this bootstrap.
 
-The shared .vscode/mcp.json works for VS Code and Copilot. Claude uses the project-scoped .mcp.json and Codex uses .codex/config.toml after trust. No user-global Firebase/cloud MCP is registered. Google Developer Knowledge prompts for a masked API key in VS Code.
+The shared .vscode/mcp.json is for VS Code and Copilot. Claude uses .mcp.json and Codex uses .codex/config.toml after trust. The audited optional manifests provide Google Developer Knowledge through a masked key prompt only when the maintainer explicitly opts in. No global Firebase/cloud MCP registration is performed.
 
 ## Sign-in after setup
 
 1. Open the repository folder in VS Code.
-2. Sign into GitHub and Copilot if you have an eligible plan.
-3. Open the Codex extension and sign in with your account, if eligible.
-4. Open the Claude Code extension and sign in with your own account, if eligible.
-5. Use VS Code Command Palette > MCP: List Servers to review and start project MCPs.
-6. Do not run `firebase login` as a Contributor. PR #4 includes the demo local emulators; cloud DEV access is separately provisioned later.
-7. Run `RUN-APP.cmd` for plain Flutter Preview. To test live demo Firebase, start `START-EMULATORS-WINDOWS.cmd`, then `RUN-EMULATOR-APP-WINDOWS.cmd` in a second window. Leave both consoles open.
+2. Sign into GitHub so you can publish a branch and open a draft PR.
+3. Sign into **only the AI assistant you selected**, if you want AI-assisted work. Other assistants are optional.
+4. Use VS Code Command Palette > MCP: List Servers to verify Dart, Context7 and Playwright. Configured alone does not mean connected.
+5. Do not run `firebase login` as a Contributor. PR #4 includes the demo local emulators; cloud DEV access is separately provisioned later.
+6. Run `RUN-APP.cmd` for plain Flutter Preview. To test live demo Firebase, start `START-EMULATORS-WINDOWS.cmd`, then `RUN-EMULATOR-APP-WINDOWS.cmd` in a second window. Leave both consoles open.
 
-A free public GitHub Actions runner does not make Claude/Codex/Copilot usage free. No agent is authorized to deploy, commit secrets, or change accepted architecture just because its extension is installed.
+Follow the cross-platform [first-contribution guide](FIRST-CONTRIBUTION.md) to create a branch, edit one line, run tests and open a Draft PR. A free public GitHub Actions runner does not make Claude/Codex/Copilot usage free. No agent is authorized to deploy, commit secrets, or change accepted architecture just because its extension is installed.
 
 ## Flutter/Dart agent skills
 

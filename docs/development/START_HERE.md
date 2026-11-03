@@ -28,8 +28,9 @@ flutter create --platforms=web --org=com.forgedandsent --project-name=forged_and
 flutter pub get
 flutter analyze
 flutter test
-flutter run
+flutter run -d chrome
 ```
+For demo Firebase testing, start the three local emulators first and instead run `flutter run -d chrome --dart-define=FS_ENV=emulator`. Browser Preview is not an emulator connection test.
 
 `flutter create` is an interim bootstrap because generated native Android/iOS platform folders are not part of this initial PR. Commit reviewed platform projects in a dedicated follow-up PR once package IDs, signing approach and Xcode minimum are agreed. iOS compilation requires macOS/Xcode; Android and Dart tests run on Linux.
 

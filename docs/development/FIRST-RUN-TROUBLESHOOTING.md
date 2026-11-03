@@ -14,49 +14,36 @@ Official installation instructions: https://learn.microsoft.com/en-us/powershell
 
 Open the **existing Git clone**, switch to `main` (`git switch main`, `git fetch origin`, `git pull --ff-only`). For testing PR #4 while still a Draft, follow [Windows quickstart](WINDOWS-QUICKSTART.md), then double-click **FIRST-RUN-WINDOWS.cmd**. No ZIP is needed. If you do not have a clone, follow [Windows quickstart](WINDOWS-QUICKSTART.md) to install Git and clone the repository. Always preserve uncommitted work before switching.
 
-The menu is designed for people who are not software developers:
+The wizard keeps the primary choices short:
 
-| Option | Purpose |
-|---|---|
-| 1 | Choose Preview, Contributor, Mobile or Maintainer tools and run the guided setup |
-| 2 | Preview only: installs fewer dependencies, then launch in Chrome |
-| 3 | Check requirements: prints each missing component, why it is needed, and how to fix it |
-| 4 | Sign into GitHub only if requested; never enters passwords in a script |
-| 5 | Open VS Code and guide MCP trust/authorization |
-| 6 | Launch the Flutter starter in Chrome |
-| 7 | Open troubleshooting instructions |
-| 8 | Show project-only MCP configuration |
-| 9 | Start demo Firebase Auth/Firestore/Storage emulators |
-| 10 | Open the first-contribution guide (a new clone is not needed if this folder has Git) |
-| 11 | Run Flutter against locally running Firebase emulators |
+| Option | What it does |
+| --- | --- |
+| 1 | Preview the Flutter starter |
+| 2 | Install Contributor tools, optionally choose one AI assistant, and check Git identity |
+| 3 | Diagnose missing tools with WHY/FIX explanations |
+| 4 | Run Flutter in Chrome |
+| 5 | Launch the demo Firebase emulators in a **separate** window |
+| 6 | Run Flutter against the emulators (after option 5 reports ready) |
+| 7 | Open VS Code and the [first contribution guide](FIRST-CONTRIBUTION.md) |
+| 8 | Advanced: Android, GitHub sign-in, Git identity, project MCP locations |
 
 The initial Flutter app is a basic starter screen. The original web prototype is not yet migrated.
 
-## Installed/configured MCP servers
+## AI and MCP tools
 
-The version-controlled VS Code MCP configuration contains **seven** integrations, no Firebase cloud MCP, and no Sentry:
+Contributor setup offers **one optional assistant** (Codex, Claude, GitHub Copilot, or none). No paid AI subscription is required to compile Flutter. The default MCP files configure only **Dart, Playwright and Context7**. Each must initialize and return tools/list before it is considered connected.
 
-1. Dart / Flutter MCP (local Dart SDK)
-2. Playwright MCP (Node.js, Chrome)
-3. GitHub hosted MCP (read-only, OAuth)
-4. Context7 hosted MCP (current programming documentation)
-5. Figma hosted MCP (OAuth)
-6. Maestro CLI MCP (local Java 17+, plus Android emulator/phone for actual tests)
-7. Google Developer Knowledge hosted MCP (Google Cloud project + API enabled + personal API key)
+GitHub read-only MCP, Figma, Maestro and Google Developer Knowledge are **advanced opt-ins**; see [MCP security](MCP-SECURITY.md) and the project's audited `mcp-optional.example` manifests. A Google Developer Knowledge key is never required for the normal setup. No cloud Firebase MCP or PROD credentials are enabled.
 
-The last four are not required merely to preview the app. Remote MCPs may require network access, terms, a paid plan or quota. Installing a config does not mean a server is authenticated or connected.
-
-**Google key handling:** VS Code will prompt for the key as a password field, based on an input variable in mcp.json. Never paste it into a repository file, issue, or AI conversation. Enable Google Developer Knowledge API and create a restricted personal key in your Google Cloud account before attempting connection.
-
-**Maestro:** Native Windows installation uses the official GitHub ZIP and Java 17 JDK. It does not provide an Android emulator by itself. Android Studio and device pairing are optional separate steps. A Mac is required for iOS simulator work.
+Maestro requires an actual mobile device/emulator; its Windows installer uses a version-pinned release ZIP **for the Maestro tool only**. You never download the Forged & Sent repository as a ZIP.
 
 ## The setup tells you why it failed
 
 Run menu option 3 or VERIFY-DEVELOPER-WINDOWS.cmd. The diagnostic prints lines like:
 
-[MISSING] Maestro
- WHY: Maestro CLI is missing, so Android/iOS UI automation MCP cannot start.
- FIX: Rerun developer setup and verify Java 17.
+[MISSING] Python
+ WHY: Python 3.11+ is required to generate the Architecture Atlas.
+ FIX: Run Contributor setup, restart the terminal and retry.
 
 It creates two files in the Windows temporary folder:
 - ForgedAndSent-Diagnostics-YYYYMMDD-HHMMSS.txt: a detailed local report
@@ -71,14 +58,16 @@ The wizard offers to **copy the AI prompt to the clipboard**, but it does **not 
 | WinGet not found | App Installer missing or Windows update pending | Install/update App Installer in Microsoft Store, restart |
 | Flutter not found | SDK download failed, PATH not refreshed | Rerun setup, restart terminal |
 | Android build unavailable | Android Studio, SDK licenses or emulator not ready | Run SETUP-ANDROID.cmd, complete first-run wizard and licenses |
-| Maestro missing | Native CLI ZIP or Java 17 install failed | Rerun developer setup, check Java/WinGet and download restrictions |
+| Python missing | Python 3.11+ is not available for Atlas/review | Rerun Contributor setup, reopen terminal |
+| Git identity missing | A new Git install cannot label commits | Use wizard > More options > Git name/email (GitHub noreply is fine) |
+| Maestro missing (optional) | Mobile-only CLI or Java not installed | Install Mobile tools only when you need native device tests |
 | Firebase cloud MCP unavailable | Disabled deliberately for Contributors | Use PR #4 local emulators now; a separate cloud DEV project can be created later |
-| Figma MCP won't connect | Figma account authorization pending | Start server in VS Code, sign into Figma |
-| Google Knowledge 401/403 | Google Cloud API not enabled or invalid/restricted key | Enable Developer Knowledge API, create/restrict API key, reconnect |
-| GitHub MCP won't connect | OAuth not granted | Sign in to GitHub and reauthorize read-only MCP |
+| Figma MCP won't connect (optional) | Figma access not provisioned | Only enable the optional server after authorizing Figma |
+| Google Knowledge 401/403 (optional) | Google Cloud API access missing | Leave this optional server disabled unless you need it |
+| GitHub MCP won't connect (optional) | OAuth not granted | Use VS Code Source Control and GitHub login for PRs; enable read-only MCP later if desired |
 | Context7 unavailable | Internet, service or API quota | Check network and provider status |
 | VS Code MCP missing | Wrong workspace, restricted trust or extension support | Open the cloned repository folder, review trust, run MCP: List Servers |
-| Claude/Codex extension missing | Store/network/IT policy or account plan | Reinstall from VS Code Extensions; sign in individually |
+| AI extension missing | Your chosen assistant was not installed or authorized | Rerun Contributor setup and select that assistant, or install its official VS Code extension |
 | Company laptop blocks setup | Organization installation restrictions | Ask IT; never bypass enterprise policies |
 
 ## What should you ask AI?
