@@ -1,14 +1,20 @@
-# Outcome-based Windows onboarding
+# Forged & Sent: development profiles and platform support
 
-**Preview:** Git, Chrome, Flutter. Ready when Chrome app launches.
-**Contributor:** Preview + VS Code, Node, GitHub CLI, Firebase CLI,
-JDK 21, FlutterFire CLI, and demo local emulators. No Firebase login.
-Ready when app and tests run locally and a draft PR can be created.
-**Mobile:** Contributor + Android Studio/SDK/licenses and Maestro.
-Ready when app and one Maestro flow pass on a real emulator/device.
-**Maintainer:** Mobile plus separately granted DEV-only IAM; no PROD
-credentials on developer workstations. Cloud Firebase MCP is not default.
+The four outcome-based profiles are currently automated on **Windows**.
 
-Run START-EMULATORS-WINDOWS.cmd before launching emulator-mode Flutter.
-The SDK explicitly rejects any cloud Firebase environment in this branch.
-The installer never runs flutterfire configure or accepts SDK licenses.
+| Profile | Purpose | Windows | Mac |
+| --- | --- | --- | --- |
+| Preview | Flutter web in Chrome | Guided | Guided |
+| Contributor | VS Code, Node, GitHub CLI, Firebase CLI, JDK 21 and demo emulators | Guided | Guided; live emulator acceptance manual |
+| Mobile | Android Studio/SDK/licensing and Maestro | Guided setup plus manual device steps | Manual platform setup |
+| Maintainer | Separately authorized DEV cloud administration | IAM not provisioned automatically | IAM not provisioned automatically |
+
+Use a **Git clone**, not a ZIP copy, for development. For PR #4 testing, select `feature/contributor-emulator-onboarding`. Keep local changes safe when switching branches.
+
+Neither Preview nor Contributor requires a Firebase account or cloud Firebase project. The `demo-forgedandsent` suite runs locally only.
+
+On Windows start `START-EMULATORS-WINDOWS.cmd`, then `RUN-EMULATOR-APP-WINDOWS.cmd` in another window.
+
+On Mac start `START-EMULATORS-MAC.command`, then `RUN-EMULATOR-APP-MAC.command` in another window. Mac Contributor setup installs a dedicated JDK 21 without changing global Java settings.
+
+Tools being installed does not prove that emulators, device workflows or MCP handshakes are working. Verify live operation independently. The setup never automatically runs `firebase login`, `flutterfire configure`, accepts SDK licenses, or deploys to production.
