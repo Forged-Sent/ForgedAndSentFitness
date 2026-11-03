@@ -93,6 +93,17 @@ class PreviewServerTest(unittest.TestCase):
         (self.root / "index.html").symlink_to(target)
         self.assert_rejected("/index.html")
 
+    def test_symlink_cannot_reveal_internal_git_config(self) -> None:
+        (self.root / "index.html").unlink()
+        (self.root / "index.html").symlink_to(self.root / ".git" / "config")
+        self.assert_rejected("/index.html")
+
+    def test_generated_atlas_symlink_cannot_reveal_git_config(self) -> None:
+        atlas = self.root / ATLAS.lstrip("/")
+        atlas.unlink()
+        atlas.symlink_to(self.root / ".git" / "config")
+        self.assert_rejected(ATLAS)
+
     def test_missing_atlas_is_not_replaced_with_other_files(self) -> None:
         (self.root / ATLAS.lstrip("/")).unlink()
         self.assert_rejected(ATLAS)

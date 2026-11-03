@@ -106,6 +106,15 @@ class FeatureContractTest(unittest.TestCase):
         self.spec("second", feature_id="FNS-043")
         self.assertTrue(any("reciprocally declare" in e for e in validate(self.root)))
 
+    def test_duplicate_yaml_key_is_rejected(self):
+        self.spec(extra="status: approved\n")
+        self.assertTrue(any("duplicate metadata key status" in e for e in validate(self.root)))
+
+    def test_malformed_yaml_frontmatter_is_rejected(self):
+        path = self.spec()
+        path.write_text("not frontmatter\n", encoding="utf-8")
+        self.assertTrue(any("missing opening YAML frontmatter" in e for e in validate(self.root)))
+
     def test_invalid_source_sha_and_missing_metadata(self):
         self.spec(extra="source_sha: bad\n")
         self.assertTrue(any("source_sha must be" in e for e in validate(self.root)))

@@ -10,6 +10,7 @@ import argparse
 import mimetypes
 import subprocess
 import sys
+import threading
 import webbrowser
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
@@ -69,7 +70,14 @@ class PreviewHandler(BaseHTTPRequestHandler):
             return
 
         root = self.server.project_root
-        file = (root / path.lstrip("/")).resolve()
+        candidate = root / path.lstrip("/")
+        # A tracked file can itself be a symlink into .git or other private
+        # paths. Refuse every symlink component, even if it stays inside root.
+        if any(p.is_symlink() for p in (candidate, *candidate.parents)
+               if p != root and p.is_relative_to(root)):
+            self.send_error(404, "Symlinks are not preview files")
+            return
+        file = candidate.resolve()
         if not file.is_relative_to(root) or not file.is_file():
             self.send_error(404, "Preview file unavailable")
             return
@@ -77,15 +85,19 @@ class PreviewHandler(BaseHTTPRequestHandler):
         if content_type.startswith(("text/", "application/javascript")):
             content_type += "; charset=utf-8"
         try:
-            with file.open("rb") as stream:
-                size = file.stat().st_size
-                self._send(200, content_type, size)
-                if body:
-                    import shutil
-                    shutil.copyfileobj(stream, self.wfile)
+            stream = file.open("rb")
         except OSError:
             # A concurrent Atlas regeneration may briefly replace files.
             self.send_error(404, "Preview file unavailable")
+            return
+        with stream:
+            self._send(200, content_type, file.stat().st_size)
+            if body:
+                import shutil
+                try:
+                    shutil.copyfileobj(stream, self.wfile)
+                except (BrokenPipeError, ConnectionResetError):
+                    pass  # Browser navigated away after receiving headers.
 
     def _send(self, code: int, content_type: str, size: int) -> None:
         self.send_response(code)
@@ -144,7 +156,8 @@ def main() -> int:
     print("Paste a URL into Obsidian's core Web viewer or use your normal browser.", flush=True)
     print("Read-only allowlisted preview; no Firebase/cloud login. Press Ctrl+C to stop.\n", flush=True)
     if args.open_browser:
-        webbrowser.open(url + "/")
+        # Some platform browser launchers block; never delay the HTTP loop.
+        threading.Thread(target=webbrowser.open, args=(url + "/",), daemon=True).start()
     try:
         server.serve_forever(poll_interval=0.2)
     except KeyboardInterrupt:

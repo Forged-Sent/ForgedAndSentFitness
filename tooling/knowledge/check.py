@@ -114,6 +114,28 @@ def _repo_file(root: Path, value: str) -> Path | None:
     return target if target.is_relative_to(root.resolve()) and target.is_file() else None
 
 
+def strict_feature_metadata(text: str) -> tuple[dict[str, str], list[str]]:
+    """Parse the deliberately simple one-line YAML subset without ambiguity."""
+    if not text.startswith("---\n"):
+        return {}, ["missing opening YAML frontmatter"]
+    header, separator, _ = text[4:].partition("\n---\n")
+    if not separator:
+        return {}, ["missing closing YAML frontmatter"]
+    values: dict[str, str] = {}
+    issues: list[str] = []
+    for line in header.splitlines():
+        if not line.strip():
+            continue
+        if not re.fullmatch(r"[a-z_][a-z0-9_]*: .+", line):
+            issues.append("invalid one-line YAML metadata syntax")
+            continue
+        key, value = line.split(":", 1)
+        if key in values:
+            issues.append(f"duplicate metadata key {key}")
+        values[key] = value.strip()
+    return values, issues
+
+
 def validate_feature_contracts(root: Path, errors: list[str]) -> None:
     """Validate declared intent and evidence paths, not approval or test success."""
     folder = root / "docs" / "features"
@@ -128,7 +150,8 @@ def validate_feature_contracts(root: Path, errors: list[str]) -> None:
             continue
         file = found[0]
         name = file.relative_to(root).as_posix()
-        values = metadata(file.read_text(encoding="utf-8"))
+        values, syntax_issues = strict_feature_metadata(file.read_text(encoding="utf-8"))
+        errors.extend(f"{name}: {issue}" for issue in syntax_issues)
         missing = FEATURE_REQUIRED - values.keys()
         if missing:
             errors.append(f"{name}: missing feature metadata {sorted(missing)}")
