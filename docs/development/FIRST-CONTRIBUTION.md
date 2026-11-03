@@ -1,0 +1,45 @@
+# Your first Forged & Sent contribution
+
+**One friendly path, on Windows or Mac.** You do not need to know Flutter, Firebase, Git commands, or MCPs in advance. This is a small practice change, not a production feature.
+
+## What you need
+
+- The public repository cloned with Git (see [Windows](WINDOWS-QUICKSTART.md) or [Mac](MACBOOK-QUICKSTART.md)).
+- Contributor setup completed, with the project opened in Visual Studio Code.
+- A free GitHub account. If you plan to push to the shared `Forged-Sent` repository, ask the maintainer to invite you as a collaborator. Otherwise use a fork and open a PR back to the shared repo.
+- Optional: **one** assistant you already use: Codex, Claude, or GitHub Copilot. You don't need all three.
+- No Firebase cloud account or paid AI plan is required for a first practice edit.
+
+## Follow this once
+
+1. **Open the correct project.** In VS Code select **File > Open Folder** and choose `ForgedAndSentFitness`. Open **Source Control** (branch icon). Confirm there are no unexpected unsaved edits.
+2. **Create your own branch before editing.** Click the current branch name in VS Code's bottom bar (normally `main`). Choose **Create new branch...** and name it `feature/my-first-change`. Do not edit or commit directly on `main`.
+3. **Choose your assistant, if desired.** Open the assistant extension you already use. Sign in through its official account flow. You can also complete the next step by hand.
+4. **Make a tiny change.** Give your assistant this prompt:
+
+   > In `mobile/lib/src/app/forged_sent_app.dart`, change only the welcome-screen subtitle text to "Faith. Training. Brotherhood. Together." Do not change any other behavior, access rules or files. Explain what changed and show me the diff before saving.
+
+5. **Review before saving.** In VS Code, open **Source Control**. Click the changed file and compare the red/green lines. Make sure only the requested welcome text changed. Undo any unrelated edits.
+6. **Check the Flutter app.** Open VS Code's terminal from the **Terminal** menu, then:
+
+```sh
+cd mobile
+flutter analyze
+flutter test
+```
+
+   Both commands should finish without errors. If `flutter` is missing, rerun Contributor diagnostics. On Mac, reopen Terminal after enabling Flutter PATH. You may also launch the app with `RUN-APP.cmd` (Windows) or `RUN-APP-MAC.command` (Mac).
+7. **Set Git identity, once.** If your first commit says "Please tell me who you are", configure a name and email using the guided wizard or [Git basics](GIT-101.md). Your GitHub noreply email keeps your personal email off public commits.
+8. **Commit your change.** Back in Source Control, enter `Practice: update welcome subtitle` and select **Commit**. If you see a Gitleaks or Dart formatting warning, follow its fix instructions; don't bypass hooks.
+9. **Publish safely.** Select **Publish Branch**. If GitHub says you lack write access, ask for an invitation or use your own fork. Do not force-push.
+10. **Open a Draft PR.** Use the **GitHub Pull Requests** VS Code extension (or GitHub's website). Set the target to `Forged-Sent/ForgedAndSentFitness:main`. Choose **Draft** and explain this is a practice change.
+11. **Watch CI.** In the PR, open **Checks** and find required `ci-gate`. Green means automated checks passed; red means click the failing job and inspect the error. Never bypass required CI.
+12. **You're finished for today.** Leave the PR as a Draft. A maintainer makes the merge decision; agents must not merge automatically. On your next day, open the same clone and branch, check Git status, and keep working. No reinstall needed.
+
+## What "ready" means
+
+You can launch Flutter in Chrome, check the local demo Firebase emulators, run analysis and tests, access one chosen AI assistant if you use one, inspect Source Control, and open a draft PR. A configured MCP server isn't "working" until it connects and lists tools.
+
+For a more detailed source map, double-click `ARCHITECTURE-WINDOWS.cmd` or `ARCHITECTURE-MAC.command`. For local Firebase, follow [Firebase emulator testing](FIREBASE-EMULATOR.md). Neither requires a cloud account.
+
+If the Git command reports divergence, if a setup step asks for unexpected credentials, or if a tool wants to push to `main`, stop and ask for help rather than resetting anything.

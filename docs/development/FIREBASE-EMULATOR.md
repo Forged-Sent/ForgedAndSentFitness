@@ -2,7 +2,7 @@
 
 **You do not need to create a Firebase account or Firebase/Google Cloud project for these tests.** The Firebase CLI runs Auth, Firestore and Storage emulators on your own machine, using the deliberately fake project `demo-forgedandsent`. No `firebase login` or `flutterfire configure` is needed.
 
-First use Git to check out PR #4's branch: `feature/contributor-emulator-onboarding`. Install the Contributor tools for your operating system.
+Use a Git clone of `main` after PR #4 merges. To test the open Draft before merge, follow the PR #4 checkout note in the Windows/Mac quickstart. Install the Contributor tools for your operating system.
 
 ## Windows, one-click launchers
 

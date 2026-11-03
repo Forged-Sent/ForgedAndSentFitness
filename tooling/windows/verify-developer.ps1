@@ -39,11 +39,32 @@ Check Node node.exe @((Join-Path $env:ProgramFiles 'nodejs\node.exe')) 'Run deve
 Check Npm npm.cmd @((Join-Path $env:ProgramFiles 'nodejs\npm.cmd')) 'Reinstall Node.js LTS, then restart Windows.'
 Check GitHubCLI gh.exe @((Join-Path $env:ProgramFiles 'GitHub CLI\gh.exe')) 'Run developer setup for GitHub CLI.'
 Check FirebaseCLI firebase.cmd @((Join-Path $env:APPDATA 'npm\firebase.cmd')) 'Run developer setup for local Firebase CLI. No Firebase login required for Preview.'
+$pyVersion=''
+foreach($candidate in @(@('py.exe','-3'),@('python.exe'))) {
+  $tool=Get-Command $candidate[0] -ErrorAction SilentlyContinue|Select-Object -First 1
+  if(-not $tool){continue}
+  try{
+    $versionArgs=if($candidate.Count -gt 1){@($candidate[1])}else{@()}
+    $verText=(& $tool.Source @versionArgs --version 2>&1|Out-String)
+    if($LASTEXITCODE -eq 0 -and $verText -match 'Python (\d+)\.(\d+)'){
+      if([int]$Matches[1] -gt 3 -or ([int]$Matches[1] -eq 3 -and [int]$Matches[2] -ge 11)){$pyVersion="$($Matches[1]).$($Matches[2])";break}
+    }
+  }catch{}
+}
+if($pyVersion){$checks.Add((New-FSCheck Python Ready 'Python 3.11+ available for Atlas/review.' '' $pyVersion))}
+else{$checks.Add((New-FSCheck Python Missing 'Python 3.11+ not found; the Atlas and AI review tools cannot run.' 'Run Contributor setup to install Python 3.12.'))}
 # Contributor profiles require a real clone, local SDK/CLI and running emulators.
 $gitFolder=Join-Path $root '.git'
 if(Test-Path -LiteralPath $gitFolder){
   $checks.Add((New-FSCheck GitRepo Ready 'This is a Git clone.' ''))
-}else{$checks.Add((New-FSCheck GitRepo Missing 'This folder was extracted from ZIP; it cannot create PRs.' 'Use wizard option 10 to clone the repository.'))}
+  $gitName=(& git -C $root config --get user.name 2>$null|Out-String).Trim()
+  $gitEmail=(& git -C $root config --get user.email 2>$null|Out-String).Trim()
+  if($gitName -and $gitEmail){$checks.Add((New-FSCheck GitIdentity Ready 'Git commit identity is configured.' ''))}
+  else{$checks.Add((New-FSCheck GitIdentity Missing 'New Git commits need a name and email.' 'Use the first-run wizard Git identity option; a GitHub noreply email is recommended.'))}
+}else{
+  $checks.Add((New-FSCheck GitRepo Missing 'This folder is not a Git clone.' 'Use Git to clone Forged-Sent/ForgedAndSentFitness; see WINDOWS-QUICKSTART.md.'))
+  $checks.Add((New-FSCheck GitIdentity Missing 'No repository exists for local Git identity.' 'First clone the repository with Git.'))
+}
 Check FlutterFireCLI flutterfire.bat @((Join-Path $env:LOCALAPPDATA 'Pub\Cache\bin\flutterfire.bat')) 'Run Contributor setup to install FlutterFire CLI. Do not run flutterfire configure automatically.'
 $demo=(Join-Path $root '.firebaserc')
 $configFile=(Join-Path $root 'firebase.json')
@@ -54,8 +75,16 @@ if((Test-Path -LiteralPath $demo) -and (Test-Path -LiteralPath $configFile)){
     else{$checks.Add((New-FSCheck DemoConfig Failed 'Firebase project is not demo-forgedandsent.' 'Restore the checked-in demo .firebaserc.'))}
   }catch{$checks.Add((New-FSCheck DemoConfig Failed 'Local demo configuration could not be parsed.' 'Restore firebase.json and .firebaserc.'))}
 }else{$checks.Add((New-FSCheck DemoConfig Missing 'Firebase emulator files are missing.' 'Checkout PR #4 complete files.'))}
-$javaHome=[Environment]::GetEnvironmentVariable('JAVA_HOME','User')
+$javaHome=[Environment]::GetEnvironmentVariable('JAVA_HOME','Process')
 $javaPath=if($javaHome){Join-Path $javaHome 'bin\java.exe'}else{''}
+if(-not $javaPath -or -not (Test-Path -LiteralPath $javaPath)){
+  $adoptium=Join-Path $env:ProgramFiles 'Eclipse Adoptium'
+  if(Test-Path -LiteralPath $adoptium){
+    $javaPath=Get-ChildItem $adoptium -Directory -Filter 'jdk-21*' -ErrorAction SilentlyContinue|
+      ForEach-Object {Join-Path $_.FullName 'bin\java.exe'}|
+      Where-Object {Test-Path -LiteralPath $_}|Select-Object -First 1
+  }
+}
 if($javaPath -and (Test-Path -LiteralPath $javaPath)){
   $javaText=(& cmd.exe /c ('"'+$javaPath+'" -version 2>&1')|Out-String)
   if($javaText -match '(?:version|openjdk)\s+"?(\d+)'){
@@ -63,7 +92,7 @@ if($javaPath -and (Test-Path -LiteralPath $javaPath)){
     if($javaMajor -ge 21){$checks.Add((New-FSCheck Java21 Ready 'JDK 21+ is installed.' '' "$javaMajor"))}
     else{$checks.Add((New-FSCheck Java21 Outdated 'JDK 21+ is required.' 'Run the Contributor setup JDK installer.' "$javaMajor"))}
   }else{$checks.Add((New-FSCheck Java21 Failed 'Could not read JAVA_HOME Java version.' 'Rerun Contributor setup.'))}
-}else{$checks.Add((New-FSCheck Java21 Missing 'Java 21 not detected in the user development profile.' 'Run Contributor setup; restart Windows if needed.'))}
+}else{$checks.Add((New-FSCheck Java21 Missing 'Java 21 not found in the development profile or standard installation path.' 'Run Contributor setup; restart Windows if needed.'))}
 $listen=@(8080,9099,9199)
 $closed=New-Object System.Collections.Generic.List[int]
 foreach($port in $listen) {
@@ -110,7 +139,7 @@ if($java) {
   if($found.Success){
     $major=[int]$found.Groups['major'].Value
     if($major -eq 1 -and $verLine -match '1\.(\d+)'){$major=[int]$Matches[1]}
-    if($major -ge 17){$checks.Add((New-FSCheck Java Ready 'Java meets Maestro minimum; PR #4 will standardize JDK 21.' '' "$major"))}
+    if($major -ge 17){$checks.Add((New-FSCheck Java Ready 'Java meets Maestro minimum; local Firebase uses a dedicated JDK 21.' '' "$major"))}
     else{$checks.Add((New-FSCheck Java Outdated 'Maestro requires Java 17+.' 'Install supported JDK, then restart terminal.' "$major"))}
   }else{$checks.Add((New-FSCheck Java Failed 'Could not parse Java version.' 'Run java -version and check installation.'))}
 }else{$checks.Add((New-FSCheck Java Missing 'Java is not installed.' 'Mobile setup will install a suitable JDK.'))}
@@ -122,26 +151,26 @@ if($demoCheck.Count -gt 0 -and $emulatorCheck.Count -gt 0 -and $demoCheck[0].Sta
 }else{
   $checks.Add((New-FSCheck EmulatorWiring ConfiguredNotConnected 'Demo Firebase configuration or running emulators are missing.' 'Start START-EMULATORS-WINDOWS.cmd and the local Flutter app.'))
 }
-$checks.Add((New-FSCheck DevCloudIdentity AuthRequired 'Maintainer DEV credentials are not configured in the default bootstrap.' 'PR #4 will add explicit restricted DEV access; do not use PROD credentials.'))
+$checks.Add((New-FSCheck DevCloudIdentity AuthRequired 'Maintainer DEV credentials are not configured in the default bootstrap.' 'Request separately authorized DEV-only IAM when needed; do not use PROD credentials.'))
 $config=Join-Path $root '.vscode\mcp.json'
 if(Test-Path -LiteralPath $config) {
   try {
     $mcp=Get-Content -LiteralPath $config -Raw|ConvertFrom-Json
-    foreach($id in @('dart','playwright','github','context7','figma','maestro','google-developer-knowledge')){
+    foreach($id in @('dart','playwright','context7')){
       if($mcp.servers.PSObject.Properties.Name -contains $id){
         $checks.Add((New-FSCheck "MCP:$id" ConfiguredNotConnected 'MCP is declared, but tools/list handshake was not performed.' 'Start the MCP in VS Code and verify tools/list before claiming Ready.'))
-      }else{$checks.Add((New-FSCheck "MCP:$id" Missing 'MCP declaration is missing.' 'Restore .vscode/mcp.json from the approved PR.'))}
+      }else{$checks.Add((New-FSCheck "MCP:$id" Missing 'MCP declaration is missing.' 'Restore .vscode/mcp.json from the approved Git branch.'))}
     }
     if($mcp.servers.PSObject.Properties.Name -contains 'firebase'){
       $checks.Add((New-FSCheck 'CloudFirebaseMCP' Failed 'Default cloud Firebase MCP violates security policy.' 'Remove Firebase MCP from all default configs.'))
     }
   }catch{$checks.Add((New-FSCheck 'MCPConfig' Failed 'MCP configuration could not be parsed.' 'Restore the approved .vscode/mcp.json.'))}
-}else{$checks.Add((New-FSCheck 'MCPConfig' Missing 'VS Code MCP configuration is absent.' 'Extract the entire repository.'))}
+}else{$checks.Add((New-FSCheck 'MCPConfig' Missing 'VS Code MCP configuration is absent.' 'Use the complete Git clone; check that .vscode/mcp.json exists.'))}
 $results=@($checks.ToArray())
 $exit=Get-FSExitCode $TargetProfile $results
 $lines=New-Object System.Collections.Generic.List[string]
 $lines.Add("Forged & Sent environment check | Profile: $TargetProfile | Result: $(if($exit){'NEEDS REPAIR'}else{'INSTALL CHECKS PASSED'})")
-$lines.Add('INSTALL CHECKS PASSED verifies local tools only. Deferred/NotApplicable items, Firebase emulator wiring and live MCP handshakes remain PR #4.')
+$lines.Add('INSTALL CHECKS PASSED covers installed tools; real emulator app calls, GitHub auth, devices and MCP handshakes must be tested separately.')
 $lines.Add('No usernames, filesystem paths, tokens or Firebase project IDs are included in the report body.')
 if($results | Where-Object { $_.Status -eq 'NotApplicable' -and (Get-FSNeed $TargetProfile $_.Id) -eq 'Required' }){$lines.Add('DEFERRED: This profile has unimplemented PR #4 capabilities; installation success is NOT full readiness.')}
 $lines.Add('')

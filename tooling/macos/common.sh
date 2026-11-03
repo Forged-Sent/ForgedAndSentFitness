@@ -71,15 +71,30 @@ fs_ensure_flutter(){
   fs_flutter_version_ok || { fs_fail 'Pinned Flutter could not initialize.'; return 1; }
 }
 fs_editor_extensions(){
+  fs_ai_choice="${1:-none}"
   fs_code_bin="$(fs_code || true)"
   if [ -z "$fs_code_bin" ]; then fs_warn 'VS Code shell command missing. Add Flutter extension from VS Code itself.'; return 0; fi
-  for fs_ext in Dart-Code.dart-code Dart-Code.flutter GitHub.copilot-chat GitHub.vscode-pull-request-github OpenAI.chatgpt Anthropic.claude-code redhat.vscode-yaml EditorConfig.EditorConfig; do
+  for fs_ext in Dart-Code.dart-code Dart-Code.flutter GitHub.vscode-pull-request-github redhat.vscode-yaml EditorConfig.EditorConfig; do
     if "$fs_code_bin" --list-extensions 2>/dev/null | grep -Fxiq "$fs_ext"; then fs_ok "$fs_ext already installed."
     elif "$fs_code_bin" --install-extension "$fs_ext"; then fs_ok "$fs_ext installed."
     else
       case "$fs_ext" in Dart-Code.dart-code|Dart-Code.flutter) fs_fail "Required Flutter extension failed: $fs_ext"; return 1;; *) fs_warn "Optional VS Code extension unavailable: $fs_ext";; esac
     fi
   done
+  case "$fs_ai_choice" in
+    codex) fs_ai_ext=OpenAI.chatgpt;;
+    claude) fs_ai_ext=Anthropic.claude-code;;
+    copilot) fs_ai_ext=GitHub.copilot-chat;;
+    none) fs_ai_ext='';;
+    *) fs_warn 'Unknown AI choice; no AI extension installed.'; fs_ai_ext='';;
+  esac
+  if [ -n "$fs_ai_ext" ]; then
+    if "$fs_code_bin" --list-extensions 2>/dev/null | grep -Fxiq "$fs_ai_ext"; then
+      fs_ok "$fs_ai_ext already installed."
+    elif ! "$fs_code_bin" --install-extension "$fs_ai_ext"; then
+      fs_warn "Optional AI extension unavailable: $fs_ai_ext"
+    fi
+  fi
 }
 fs_npm_firebase(){
   fs_has npm || { fs_fail 'npm is missing. Install Node first.'; return 1; }
@@ -116,4 +131,74 @@ fs_ensure_java21(){
   home_dir="$(fs_java21_home || true)"
   [ -n "$home_dir" ] || { fs_fail 'JDK 21 is not detectable after install. Rerun Contributor setup.'; return 1; }
   fs_ok 'JDK 21 ready; no system-wide Java settings were changed.'
+}
+
+# Settings below are local to this clone, and never include cloud credentials.
+fs_ensure_git_identity(){
+  fs_has git || { fs_fail 'Git is missing. Complete Apple Command Line Tools installation.'; return 1; }
+  git -C "$FS_ROOT" rev-parse --is-inside-work-tree >/dev/null 2>&1 || {
+    fs_fail 'This is not a Git clone. Follow MACBOOK-QUICKSTART.md before contributing.'; return 1;
+  }
+  fs_git_name="$(git -C "$FS_ROOT" config --get user.name 2>/dev/null || true)"
+  fs_git_email="$(git -C "$FS_ROOT" config --get user.email 2>/dev/null || true)"
+  if [ -n "$fs_git_name" ] && [ -n "$fs_git_email" ]; then fs_ok 'Git commit identity already configured.'; return 0; fi
+  fs_info 'Git commits need a name and email. Both appear in public history.'
+  fs_info 'For privacy, look up your GitHub noreply email in GitHub Settings > Emails.'
+  if [ -z "$fs_git_name" ]; then
+    printf 'Display name for commits: '
+    IFS= read -r fs_git_name || return 1
+    [ -n "$fs_git_name" ] || { fs_fail 'Name was not entered; nothing changed.'; return 1; }
+  fi
+  if [ -z "$fs_git_email" ]; then
+    printf 'Email for commits (GitHub noreply recommended): '
+    IFS= read -r fs_git_email || return 1
+  fi
+  case "$fs_git_email" in *@*.*) ;; *) fs_fail 'Valid Git email was not entered; nothing changed.'; return 1;; esac
+  case "$fs_git_name$fs_git_email" in *'
+'*) fs_fail 'Invalid Git identity input.'; return 1;; esac
+  git -C "$FS_ROOT" config --local user.name "$fs_git_name" || return 1
+  git -C "$FS_ROOT" config --local user.email "$fs_git_email" || return 1
+  fs_ok 'Git identity saved to this repository only.'
+}
+fs_offer_flutter_path(){
+  fs_line='export PATH="$HOME/develop/flutter/bin:$PATH"'
+  fs_profile="$HOME/.zprofile"
+  if [ -f "$fs_profile" ] && grep -Fqx "$fs_line" "$fs_profile"; then
+    fs_ok 'Flutter is already configured in ~/.zprofile.'; return 0
+  fi
+  fs_info 'Flutter launchers work already; plain terminal flutter commands need PATH.'
+  if [ -t 0 ] && fs_question 'Add the project Flutter SDK path to ~/.zprofile for future Terminal sessions?'; then
+    printf '\n%s\n' "$fs_line" >> "$fs_profile"
+    fs_ok 'Added one idempotent line to ~/.zprofile. Open a new Terminal window to use flutter.'
+  else
+    fs_warn 'No shell settings changed. Run ~/develop/flutter/bin/flutter directly, or add its bin directory later.'
+  fi
+}
+fs_ensure_python(){
+  if fs_has python3.12 && python3.12 -c 'import sys;sys.exit(0 if sys.version_info >= (3,11) else 1)' >/dev/null 2>&1; then
+    fs_ok 'Python 3.12 available for Atlas/review.'
+    return 0
+  fi
+  if fs_has python3 && python3 -c 'import sys;sys.exit(0 if sys.version_info >= (3,11) else 1)' >/dev/null 2>&1; then
+    fs_ok 'Python 3.11+ available for Atlas/review.'
+    return 0
+  fi
+  fs_require_brew || return 1
+  fs_info 'Installing Python 3.12 for Architecture Atlas and review tools.'
+  brew install python@3.12 || return 1
+  fs_has python3.12 && python3.12 -c 'import sys;sys.exit(0 if sys.version_info >= (3,11) else 1)' || {
+    fs_fail 'Python 3.12 not available after install. Reopen Terminal and rerun Contributor setup.'; return 1;
+  }
+}
+fs_enable_git_hooks(){
+  git -C "$FS_ROOT" rev-parse --is-inside-work-tree >/dev/null 2>&1 || {
+    fs_warn 'No Git clone detected. Hooks can be enabled after cloning.'; return 0;
+  }
+  fs_existing_hooks="$(git -C "$FS_ROOT" config --local --get core.hooksPath 2>/dev/null || true)"
+  if [ -n "$fs_existing_hooks" ] && [ "$fs_existing_hooks" != '.githooks' ]; then
+    fs_warn 'Custom local Git hooks already configured; leaving them unchanged. Ask before replacing.'
+    return 0
+  fi
+  git -C "$FS_ROOT" config --local core.hooksPath .githooks
+  fs_ok 'Project Git hooks enabled in this clone, same as Windows.'
 }

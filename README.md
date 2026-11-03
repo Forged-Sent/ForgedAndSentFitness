@@ -96,9 +96,13 @@ Steps, Weigh-In and Workout can be filled from Apple Health or Health Connect on
 Private, unreleased. No license granted yet.
 
 
+## First-time developer onboarding
+
+Start with [Windows Quickstart](docs/development/WINDOWS-QUICKSTART.md) or [Mac Quickstart](docs/development/MACBOOK-QUICKSTART.md), then complete the shared [First Contribution](docs/development/FIRST-CONTRIBUTION.md). Use Git and a feature branch; no Firebase cloud account is needed for local emulators. Sign into one AI coding assistant only if you choose to use one.
+
 ## MacBook development
 
-For a Mac, double-click **FIRST-RUN-MAC.command** from Finder. **SETUP-MAC.command** sets up the browser preview, and **SETUP-DEVELOPER-MAC.command** adds contributor tools. See [MacBook Quickstart](docs/development/MACBOOK-QUICKSTART.md). Full iOS/Android device onboarding is reserved for PR #4.
+For a Mac, double-click **FIRST-RUN-MAC.command** from Finder. **SETUP-MAC.command** sets up browser Preview, and **SETUP-DEVELOPER-MAC.command** adds Contributor tools and local demo Firebase support. See [MacBook Quickstart](docs/development/MACBOOK-QUICKSTART.md) and [Your first contribution](docs/development/FIRST-CONTRIBUTION.md). iOS/Android device provisioning is a separate manual step.
 
 ## Shared agents, local code reviews and architecture
 

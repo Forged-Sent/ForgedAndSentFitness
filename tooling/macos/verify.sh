@@ -15,7 +15,7 @@ case "$FS_PROFILE" in Preview|Contributor|Mobile|Maintainer) ;; *) fs_fail 'Unkn
 fs_required(){
   case "$1" in
     AppleCLT|Git|Flutter|Chrome|VSCode|FirebaseMCPIsolation) return 0;;
-    Node|Npm|GitHubCLI|FirebaseCLI|Java21|DemoConfig) [ "$FS_PROFILE" != Preview ]; return;;
+    Node|Npm|GitHubCLI|FirebaseCLI|Java21|DemoConfig|GitIdentity|Gitleaks|Hooks|Python|FlutterOnPath) [ "$FS_PROFILE" != Preview ]; return;;
     AndroidStudio|Maestro|Java) [ "$FS_PROFILE" = Mobile ] || [ "$FS_PROFILE" = Maintainer ]; return;;
     DevCloudIdentity) [ "$FS_PROFILE" = Maintainer ]; return;;
     *) return 1;;
@@ -26,6 +26,8 @@ if [ "$FS_SELFTEST" -eq 1 ]; then
   FS_PROFILE=Preview; if fs_required Maestro; then exit 1; fi
   FS_PROFILE=Mobile; fs_required Maestro || exit 1
   FS_PROFILE=Contributor; fs_required Java21 || exit 1
+  fs_required GitIdentity || exit 1
+  fs_required Python || exit 1
   if fs_required EmulatorWiring; then fs_fail 'Live handshake must not be a static readiness requirement.'; exit 1; fi
   fs_ok 'Mac diagnostic profile self-tests passed. No system state was changed.'
   exit 0
@@ -54,6 +56,35 @@ fs_line 'No user names, account tokens, project IDs or private file paths are in
 fs_line 'Installed tools are separate from live emulator and MCP connections; no Firebase cloud account is required.'
 if xcode-select -p >/dev/null 2>&1; then fs_record AppleCLT Ready '' ''; else fs_record AppleCLT Missing 'Apple Command Line Tools missing.' 'Complete the macOS developer tools installation dialog.'; fi
 fs_probe Git git 'Install Apple Command Line Tools.'
+if git -C "$FS_ROOT" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+  fs_git_name="$(git -C "$FS_ROOT" config --get user.name 2>/dev/null || true)"
+  fs_git_email="$(git -C "$FS_ROOT" config --get user.email 2>/dev/null || true)"
+  if [ -n "$fs_git_name" ] && [ -n "$fs_git_email" ]; then
+    fs_record GitIdentity Ready '' ''
+  else
+    fs_record GitIdentity Missing 'Git commits need a name and email.' 'Use the Mac wizard Git identity option; GitHub noreply email is recommended.'
+  fi
+  if [ "$(git -C "$FS_ROOT" config --local --get core.hooksPath 2>/dev/null || true)" = '.githooks' ]; then
+    fs_record Hooks Ready '' ''
+  else
+    fs_record Hooks Missing 'Project Git hooks are not active in this clone.' 'Rerun Mac Contributor setup; existing custom hooks are preserved.'
+  fi
+else
+  fs_record GitIdentity Missing 'Not a Git clone.' 'Clone the repo with Git and rerun.'
+  fs_record Hooks Missing 'Not a Git clone.' 'Clone the repo with Git and rerun.'
+fi
+fs_probe Gitleaks gitleaks 'Run Mac Contributor setup to install Gitleaks.'
+if { fs_has python3.12 && python3.12 -c 'import sys;sys.exit(0 if sys.version_info >= (3,11) else 1)' >/dev/null 2>&1; } ||
+   { fs_has python3 && python3 -c 'import sys;sys.exit(0 if sys.version_info >= (3,11) else 1)' >/dev/null 2>&1; }; then
+  fs_record Python Ready '' ''
+else
+  fs_record Python Missing 'Python 3.11+ needed for Atlas and review.' 'Rerun Mac Contributor setup.'
+fi
+if fs_has flutter && [ "$(command -v flutter)" = "$FS_FLUTTER" ]; then
+  fs_record FlutterOnPath Ready '' ''
+else
+  fs_record FlutterOnPath Missing 'The pinned Flutter SDK is not first on Terminal PATH.' 'Accept the optional ~/.zprofile change in Contributor setup, then reopen Terminal; or use ~/develop/flutter/bin/flutter explicitly.'
+fi
 if [ -d '/Applications/Google Chrome.app' ] || [ -d "$HOME/Applications/Google Chrome.app" ]; then fs_record Chrome Ready '' ''; else fs_record Chrome Missing 'Chrome not found.' 'Run SETUP-MAC.command.'; fi
 if fs_code >/dev/null 2>&1; then fs_record VSCode Ready '' ''; else fs_record VSCode Missing 'VS Code not found.' 'Run SETUP-MAC.command.'; fi
 if fs_flutter_version_ok; then fs_record Flutter Ready '' ''; else fs_record Flutter Outdated 'Flutter 3.47.8 not available in the project-pinned SDK location.' 'Run SETUP-MAC.command.'; fi
@@ -61,10 +92,10 @@ fs_probe Node node 'Run SETUP-DEVELOPER-MAC.command.'
 fs_probe Npm npm 'Install Node with Contributor setup.'
 fs_probe GitHubCLI gh 'Run SETUP-DEVELOPER-MAC.command.'
 if fs_has firebase && [ "$(firebase --version 2>/dev/null || true)" = "$FS_FIREBASE_VERSION" ]; then fs_record FirebaseCLI Ready '' ''; else fs_record FirebaseCLI Outdated 'Pinned local Firebase CLI unavailable.' 'Run SETUP-DEVELOPER-MAC.command, no Firebase login needed.'; fi
-fs_probe CodexCLI codex 'Run Contributor setup. Sign in separately.'
-fs_probe ClaudeCLI claude 'Run Contributor setup. Sign in separately.'
-if [ -d '/Applications/Android Studio.app' ]; then fs_record AndroidStudio Ready '' ''; else fs_record AndroidStudio Missing 'Android Studio not installed.' 'Mobile setup is PR #4.'; fi
-fs_probe Maestro maestro 'Maestro mobile runner is part of PR #4.'
+fs_probe CodexCLI codex 'Optional: choose Codex as your AI assistant and sign in separately.'
+fs_probe ClaudeCLI claude 'Optional: choose Claude as your AI assistant and sign in separately.'
+if [ -d '/Applications/Android Studio.app' ]; then fs_record AndroidStudio Ready '' ''; else fs_record AndroidStudio Missing 'Android Studio not installed.' 'Install Android Studio manually for Mobile workflows.'; fi
+fs_probe Maestro maestro 'Optional: install Maestro when you are ready for native device tests.'
 fs_probe Java java 'Java is optional for Preview; Contributor uses JDK 21.'
 if fs_java21_home >/dev/null 2>&1; then
   fs_record Java21 Ready '' ''
@@ -87,13 +118,13 @@ else
   fs_record EmulatorPorts ConfiguredNotConnected 'One or more local Auth/Firestore/Storage ports are not listening.' 'Run START-EMULATORS-MAC.command in another Terminal window.'
 fi
 fs_record EmulatorWiring ConfiguredNotConnected 'The Flutter SDK is wired to the demo emulators, but diagnostics cannot verify a live app round-trip.' 'Run RUN-EMULATOR-APP-MAC.command after starting emulators and check its status.'
-fs_record DevCloudIdentity AuthRequired 'Cloud DEV access is not included in local setup.' 'Provision a separate least-privilege DEV project later if needed; no PROD credentials.'
+fs_record DevCloudIdentity AuthRequired 'Cloud DEV access is not included in local setup.' 'A separate least-privilege DEV project can be provisioned later; no PROD credentials.'
 if [ ! -f "$FS_ROOT/.vscode/mcp.json" ] || [ ! -f "$FS_ROOT/.mcp.json" ]; then
   fs_record FirebaseMCPIsolation Failed 'One or more required project MCP configurations are missing.' 'Restore the complete trusted project files.'
 elif grep -Eq '"firebase"[[:space:]]*:' "$FS_ROOT/.vscode/mcp.json" "$FS_ROOT/.mcp.json"; then
   fs_record FirebaseMCPIsolation Failed 'Firebase cloud MCP found in default settings.' 'Remove default Firebase MCP.'
 else fs_record FirebaseMCPIsolation Ready '' ''; fi
-for fs_mcp in dart playwright maestro github context7 figma google-developer-knowledge; do
+for fs_mcp in dart playwright context7; do
   if grep -Eq "^[[:space:]]{4}\"$fs_mcp\"[[:space:]]*:" "$FS_ROOT/.vscode/mcp.json"; then
     fs_record "MCP:$fs_mcp" ConfiguredNotConnected 'Configured but no MCP tools/list handshake performed.' 'Connect from VS Code to verify tools/list.'
   else fs_record "MCP:$fs_mcp" Missing 'MCP declaration not found.' 'Restore .vscode/mcp.json.'; fi

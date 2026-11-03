@@ -15,6 +15,7 @@
 /docs/architecture/ @Chadillac12
 /firebase/ @Chadillac12
 /.mcp.json @Chadillac12
+/.mcp.optional.example.json @Chadillac12
 /.gitignore @Chadillac12
 /.gitattributes @Chadillac12
 /AGENTS.md @Chadillac12

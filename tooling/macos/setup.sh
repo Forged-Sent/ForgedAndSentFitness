@@ -15,7 +15,7 @@ while [ "$#" -gt 0 ]; do
 done
 case "$FS_PROFILE" in
   Preview|Contributor) ;;
-  Mobile|Maintainer) fs_fail 'Full Mobile and Maintainer installers are scheduled for PR #4.'; exit 2;;
+  Mobile|Maintainer) fs_fail 'Mac automatic setup currently supports Preview and Contributor. Native device setup and cloud DEV authorization are separate manual workflows.'; exit 2;;
   *) fs_fail 'Unknown profile'; exit 2;;
 esac
 if [ "$FS_SELFTEST" -eq 1 ]; then
@@ -36,7 +36,13 @@ fs_brew_cask visual-studio-code 'Visual Studio Code.app' code
 fs_brew_cask google-chrome 'Google Chrome.app' ''
 fs_ensure_flutter
 "$FS_FLUTTER" config --enable-web
-fs_editor_extensions
+FS_AI_CHOICE=none
+if [ "$FS_PROFILE" = Contributor ] && [ -t 0 ]; then
+  printf '\nOptional AI assistant (one is enough): 0=None, 1=Codex, 2=Claude, 3=GitHub Copilot [0]: '
+  IFS= read -r fs_choice || fs_choice=0
+  case "$fs_choice" in 1) FS_AI_CHOICE=codex;; 2) FS_AI_CHOICE=claude;; 3) FS_AI_CHOICE=copilot;; esac
+fi
+fs_editor_extensions "$FS_AI_CHOICE"
 if [ "$FS_PROFILE" = Contributor ]; then
   fs_brew_formula node node
   fs_node_major="$(node -p 'Number(process.versions.node.split(".")[0])' 2>/dev/null || printf '0')"
@@ -44,8 +50,13 @@ if [ "$FS_PROFILE" = Contributor ]; then
   fs_brew_formula gh gh
   fs_npm_firebase
   fs_ensure_java21
-  fs_brew_cask codex '' codex
-  fs_brew_cask claude-code '' claude
+  fs_ensure_python
+  fs_brew_formula gitleaks gitleaks
+  fs_enable_git_hooks
+  if [ "$FS_AI_CHOICE" = codex ]; then fs_brew_cask codex '' codex; fi
+  if [ "$FS_AI_CHOICE" = claude ]; then fs_brew_cask claude-code '' claude; fi
+  fs_offer_flutter_path
+  if [ -t 0 ] && fs_question 'Set/check your Git commit name and email now?'; then fs_ensure_git_identity; fi
   fs_info 'No Firebase cloud authentication, production access, or Firebase cloud MCP is installed.'
 fi
 cd "$FS_ROOT/mobile"

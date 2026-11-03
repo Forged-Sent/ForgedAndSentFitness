@@ -73,7 +73,7 @@ try {
     $selected = $entries[$Mode]
     $script = Join-Path $PSScriptRoot $selected.File
     if(-not (Test-Path -LiteralPath $script)){
-        throw "Setup file $($selected.File) is missing. Extract the complete repository ZIP and retry."
+        throw "Setup file $($selected.File) is missing. Use the complete Git clone and retry."
     }
     if($SelfTest){
         Write-Host "Bootstrap self-test: mode=$Mode; target=$($selected.File); minimum=$minimum"

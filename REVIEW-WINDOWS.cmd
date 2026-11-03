@@ -1,16 +1,22 @@
 @echo off
 setlocal
 cd /d "%~dp0"
-echo Forged ^& Sent: independent pre-push code review
-echo This uses your signed-in AI CLIs and may count against their usage.
-where py >nul 2>nul
-if %errorlevel%==0 (
-  py -3 "tooling\review\review.py" %*
-) else (
-  python "tooling\review\review.py" %*
+echo Forged ^& Sent: optional independent AI review
+echo This uses any signed-in reviewer CLI you select and may incur usage charges.
+set "PYTHON_CMD="
+py -3 -c "import sys;sys.exit(0 if sys.version_info >= (3,11) else 1)" >nul 2>nul
+if not errorlevel 1 set "PYTHON_CMD=py -3"
+if not defined PYTHON_CMD (
+  python -c "import sys;sys.exit(0 if sys.version_info >= (3,11) else 1)" >nul 2>nul
+  if not errorlevel 1 set "PYTHON_CMD=python"
 )
+if not defined PYTHON_CMD (
+  echo Python 3.11+ is missing. Run the Contributor setup in FIRST-RUN-WINDOWS.cmd.
+  pause
+  exit /b 1
+)
+%PYTHON_CMD% tooling\review\review.py %*
 set "RESULT=%errorlevel%"
-echo.
-if "%RESULT%"=="0" (echo Review preparation/verification succeeded.) else (echo Review did NOT pass. Read .review\summary.md if generated.)
+if "%RESULT%"=="0" (echo Review preparation or verification completed.) else (echo Review NOT verified. Read .review\summary.md if generated.)
 if not defined CI pause
 exit /b %RESULT%

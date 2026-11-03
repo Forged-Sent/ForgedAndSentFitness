@@ -1,5 +1,6 @@
 #requires -Version 7.6
-param([ValidateSet('Preview','Contributor','Mobile','Maintainer')][string]$TargetProfile='Preview')
+param([ValidateSet('Preview','Contributor','Mobile','Maintainer')][string]$TargetProfile='Preview',
+      [ValidateSet('None','Codex','Claude','Copilot')][string]$AIChoice='None')
 Set-StrictMode -Version Latest
 $ErrorActionPreference='Stop'
 function Run([string]$path,[string[]]$arguments=@()){
@@ -9,7 +10,7 @@ function Run([string]$path,[string[]]$arguments=@()){
 Write-Host "Forged & Sent: Installing $TargetProfile profile" -ForegroundColor Cyan
 Run (Join-Path $PSScriptRoot 'setup.ps1')
 if($TargetProfile -eq 'Preview'){exit 0}
-Run (Join-Path $PSScriptRoot 'setup-developer.ps1') @('-SkipBase','-SkipMaestro')
+Run (Join-Path $PSScriptRoot 'setup-developer.ps1') @('-SkipBase','-SkipMaestro','-AIChoice',$AIChoice)
 Run (Join-Path $PSScriptRoot 'ensure-java21.ps1')
 $dart=Join-Path $env:USERPROFILE 'develop\flutter\bin\dart.bat'
 if(-not (Test-Path $dart)){
@@ -37,7 +38,7 @@ if(Test-Path -LiteralPath (Join-Path $root '.git')){
   & git -C $root config fetch.prune true
   Write-Host 'Installed repository-scoped Git hooks and safe defaults.'
 }else{
-  Write-Host 'This folder came from a ZIP. Use the Git clone option in the wizard before contributing.' -ForegroundColor Yellow
+  Write-Host 'This folder is not a Git repository. Follow WINDOWS-QUICKSTART.md to clone with Git before contributing.' -ForegroundColor Yellow
 }
 Write-Host 'FlutterFire CLI activated; flutterfire configure was NOT run.' -ForegroundColor Green
 Write-Host 'Firebase emulator project is demo-forgedandsent. No cloud login required.'

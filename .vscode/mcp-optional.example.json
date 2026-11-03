@@ -1,0 +1,35 @@
+{
+  "inputs": [
+    {
+      "id": "forgedGoogleKnowledgeApiKey",
+      "type": "promptString",
+      "description": "Personal Google Developer Knowledge API key (from your own Google Cloud project). Never share or commit it.",
+      "password": true
+    }
+  ],
+  "servers": {
+    "github": {
+      "type": "http",
+      "url": "https://api.githubcopilot.com/mcp/readonly"
+    },
+    "figma": {
+      "type": "http",
+      "url": "https://mcp.figma.com/mcp"
+    },
+    "maestro": {
+      "type": "stdio",
+      "command": "node",
+      "args": [
+        "${workspaceFolder}/tooling/mcp/launch.mjs",
+        "maestro"
+      ]
+    },
+    "google-developer-knowledge": {
+      "type": "http",
+      "url": "https://developerknowledge.googleapis.com/mcp",
+      "headers": {
+        "X-Goog-Api-Key": "${input:forgedGoogleKnowledgeApiKey}"
+      }
+    }
+  }
+}

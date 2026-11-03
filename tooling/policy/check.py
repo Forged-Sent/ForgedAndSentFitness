@@ -11,6 +11,9 @@ from review_scope import REVIEW_RULESET_PATTERNS
 LOCAL = {"dart", "playwright", "maestro"}
 REMOTE = {"github", "context7", "figma", "google-developer-knowledge"}
 APPROVED = LOCAL | REMOTE
+DEFAULT_SERVERS = {"dart", "playwright", "context7"}
+OPTIONAL_VSCODE = {"github", "figma", "maestro", "google-developer-knowledge"}
+OPTIONAL_CLI = {"github", "figma", "maestro"}
 REMOTE_URLS = {
     "github": "https://api.githubcopilot.com/mcp/readonly",
     "context7": "https://mcp.context7.com/mcp",
@@ -33,6 +36,8 @@ def evaluate(root: Path) -> list[str]:
 
     v = get_json(".vscode/mcp.json")
     c = get_json(".mcp.json")
+    v_optional = get_json(".vscode/mcp-optional.example.json")
+    c_optional = get_json(".mcp.optional.example.json")
     versions = get_json("tooling/versions.json")
     try:
         codex = tomllib.loads((root / ".codex/config.toml").read_text(encoding="utf-8"))
@@ -40,16 +45,23 @@ def evaluate(root: Path) -> list[str]:
         fail(".codex/config.toml", f"cannot parse TOML ({type(e).__name__})")
         codex = None
 
+    try:
+        codex_optional = tomllib.loads((root / ".codex/config.optional.example.toml").read_text(encoding="utf-8"))
+    except (OSError, ValueError) as e:
+        fail(".codex/config.optional.example.toml", f"cannot parse TOML ({type(e).__name__})")
+        codex_optional = None
     configs = (
-        (".vscode/mcp.json", v.get("servers") if isinstance(v, dict) else None),
-        (".mcp.json", c.get("mcpServers") if isinstance(c, dict) else None),
-        (".codex/config.toml", codex.get("mcp_servers") if isinstance(codex, dict) else None),
+        (".vscode/mcp.json", v.get("servers") if isinstance(v, dict) else None, DEFAULT_SERVERS),
+        (".mcp.json", c.get("mcpServers") if isinstance(c, dict) else None, DEFAULT_SERVERS),
+        (".codex/config.toml", codex.get("mcp_servers") if isinstance(codex, dict) else None, DEFAULT_SERVERS),
+        (".vscode/mcp-optional.example.json", v_optional.get("servers") if isinstance(v_optional, dict) else None, OPTIONAL_VSCODE),
+        (".mcp.optional.example.json", c_optional.get("mcpServers") if isinstance(c_optional, dict) else None, OPTIONAL_CLI),
+        (".codex/config.optional.example.toml", codex_optional.get("mcp_servers") if isinstance(codex_optional, dict) else None, OPTIONAL_CLI),
     )
-    for filename, servers in configs:
+    for filename, servers, expected in configs:
         if not isinstance(servers, dict):
             fail(filename, "MCP server map is missing")
             continue
-        expected = APPROVED if filename.endswith(".vscode/mcp.json") else (APPROVED - {"google-developer-knowledge"})
         if set(servers) != expected:
             fail(filename, f"MCP names differ from approved set: missing={sorted(expected-set(servers))}, extra={sorted(set(servers)-expected)}")
         for name, server in servers.items():
@@ -63,11 +75,11 @@ def evaluate(root: Path) -> list[str]:
                 # MCP names are not security boundaries; disallow extra executable
                 # fields even if a trusted name and launcher are still present.
                 expected_keys = {"command", "args"}
-                if filename == ".vscode/mcp.json":
+                if filename.startswith(".vscode/"):
                     expected_keys.add("type")
                     if server.get("type") != "stdio":
                         fail(filename, f"{name} local MCP must use stdio")
-                elif filename == ".codex/config.toml":
+                elif filename.startswith(".codex/"):
                     expected_keys.add("startup_timeout_sec")
                 if set(server) != expected_keys:
                     fail(filename, f"{name} local MCP has unapproved fields")
@@ -81,12 +93,12 @@ def evaluate(root: Path) -> list[str]:
                         or args[1] != name):
                     fail(filename, f"{name} must invoke tooling/mcp/launch.mjs using its exact allowlisted tool name")
             elif name in REMOTE:
-                expected_keys = {"url"} if filename == ".codex/config.toml" else {"type", "url"}
+                expected_keys = {"url"} if filename.startswith(".codex/") else {"type", "url"}
                 if name == "google-developer-knowledge":
                     expected_keys.add("headers")
                 if set(server) != expected_keys:
                     fail(filename, f"{name} remote MCP has unapproved fields")
-                if filename != ".codex/config.toml" and server.get("type") != "http":
+                if not filename.startswith(".codex/") and server.get("type") != "http":
                     fail(filename, f"{name} remote MCP must use HTTP")
                 if server.get("url") != REMOTE_URLS[name]:
                     fail(filename, f"{name} must use approved URL")
@@ -127,13 +139,15 @@ def evaluate(root: Path) -> list[str]:
                         fail(".gemini/settings.json", f"{name} must use approved URL")
 
     expected_key = "$" + "{input:forgedGoogleKnowledgeApiKey}"
-    if isinstance(v, dict):
-        inp = v.get("inputs")
+    if isinstance(v, dict) and (v.get("inputs") or []):
+        fail(".vscode/mcp.json", "Default MCP must not prompt for cloud API keys")
+    if isinstance(v_optional, dict):
+        inp = v_optional.get("inputs")
         if not isinstance(inp, list) or len(inp) != 1 or not isinstance(inp[0], dict) or inp[0].get("id") != "forgedGoogleKnowledgeApiKey" or inp[0].get("password") is not True:
-            fail(".vscode/mcp.json", "Google Knowledge input must use the single masked password prompt")
-        google = (v.get("servers") or {}).get("google-developer-knowledge", {})
+            fail(".vscode/mcp-optional.example.json", "Google Knowledge input must use the single masked password prompt")
+        google = (v_optional.get("servers") or {}).get("google-developer-knowledge", {})
         if google.get("headers", {}).get("X-Goog-Api-Key") != expected_key:
-            fail(".vscode/mcp.json", "Google API key must be the runtime input placeholder, never a literal")
+            fail(".vscode/mcp-optional.example.json", "Google API key must be the runtime input placeholder, never a literal")
 
     for settings in (root / ".claude").glob("settings*.json"):
         obj = get_json(str(settings.relative_to(root)))
@@ -179,7 +193,7 @@ def evaluate(root: Path) -> list[str]:
         required_paths = (
             "/mobile/", "/tooling/", "/.github/", "/.codex/", "/.claude/",
             "/.agents/", "/.gemini/", "/.vscode/", "/docs/architecture/", "/docs/knowledge/", "/firebase/",
-            "/.mcp.json", "/.gitignore", "/.gitattributes", "/AGENTS.md",
+            "/.mcp.json", "/.mcp.optional.example.json", "/.gitignore", "/.gitattributes", "/AGENTS.md",
             "/CLAUDE.md", "/GEMINI.md", "/*.cmd", "/*.command", "*.rules",
             "/seed/db-rules.json", "/seed/weekly-challenges.json",
             "/seed/movement-standards.json", "/seed/tasks.json",

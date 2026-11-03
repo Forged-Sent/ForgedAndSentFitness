@@ -1,6 +1,6 @@
 # Independent agent review: beginner workflow
 
-**Start here:** Optional AI review is a second opinion for a solo maintainer, especially for Flutter database, Firebase rules, Auth, scoring and private data. It is not a required merge gate. Pick a model that did not author the change; deterministic CI and emulator tests remain required.
+**Start here:** Contributor setup uses one chosen AI coding assistant by default. Independent AI review requires a separate, independently authorized reviewer CLI and remains completely optional. Optional AI review is a second opinion for a solo maintainer, especially for Flutter database, Firebase rules, Auth, scoring and private data. It is not a required merge gate. Pick a model that did not author the change; deterministic CI and emulator tests remain required.
 
 ## The quick path (Windows)
 

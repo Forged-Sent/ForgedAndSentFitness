@@ -4,11 +4,12 @@ function Assert-FSRepo {
   & git rev-parse --show-toplevel 2>$null | Out-Null
   if($LASTEXITCODE){throw 'Open the cloned Forged & Sent repository in VS Code first.'}
 }
-function FSBranch { (& git branch --show-current).Trim() }
+function FSBranch { return ((& git branch --show-current | Out-String).Trim()) }
 function Assert-FeatureBranch {
   Assert-FSRepo
   $branch=FSBranch
-  if(-not $branch -or $branch -eq 'main'){throw 'You are on the shared main branch. Use fs-start first.'}
+  if(-not $branch){throw 'Git is not on a branch (detached HEAD). Select a feature branch before editing; do not reset or force push.'}
+  if($branch -eq 'main'){throw 'You are on the shared main branch. Use fs-start first.'}
 }
 function FSClean {
   return -not [bool](@(& git status --porcelain).Count)
@@ -17,7 +18,7 @@ function fs-status {
   Assert-FSRepo
   $branch=FSBranch
   $changes=@(& git status --porcelain).Count
-  Write-Host ("Working on: " + $(if($branch -eq 'main'){'MAIN (start a branch before editing)'}else{$branch}))
+  Write-Host ("Working on: " + $(if(-not $branch){'DETACHED HEAD (select a branch)'}elseif($branch -eq 'main'){'MAIN (start a branch before editing)'}else{$branch}))
   Write-Host "$changes uncommitted change(s)."
   & git status -sb
   if($branch -eq 'main'){Write-Host 'Next: fs-start "describe your change"'}
@@ -33,7 +34,7 @@ function fs-start([string]$description) {
   $slug=$slug.Substring(0,[Math]::Min(40,$slug.Length))
   & git fetch origin main
   if($LASTEXITCODE){throw 'Unable to download latest main. Check internet/GitHub login.'}
-  & git switch -c ("feature/"+$slug) origin/main
+  & git switch --no-track -c ("feature/"+$slug) origin/main
   if($LASTEXITCODE){throw 'Branch name already used. Try a different description.'}
   Write-Host 'Your own working branch is ready. Make changes, then run fs-save.'
 }
@@ -50,10 +51,31 @@ function FSCheck {
     if($LASTEXITCODE){throw 'Flutter tests failed. Fix them before sharing.'}
   }finally{Pop-Location}
 }
+function Ensure-FSGitIdentity {
+  Assert-FSRepo
+  $name=((& git config --get user.name 2>$null | Out-String).Trim())
+  $email=((& git config --get user.email 2>$null | Out-String).Trim())
+  if($name -and $email){return}
+  Write-Host 'Git needs a public commit name and email. A GitHub noreply email protects your personal address.' -ForegroundColor Yellow
+  if(-not $name){
+    $name=Read-Host 'Name shown on commits'
+    if(-not $name -or $name -match '[\r\n]'){throw 'Enter a name before saving. Git settings were not changed.'}
+  }
+  if(-not $email){
+    $email=Read-Host 'Git email (GitHub noreply recommended)'
+    if(-not $email -or $email -notmatch '^[^\s@]+@[^\s@]+\.[^\s@]+$'){throw 'Enter a valid email before saving. Git settings were not changed.'}
+  }
+  & git config --local user.name $name
+  if($LASTEXITCODE){throw 'Could not set local Git name.'}
+  & git config --local user.email $email
+  if($LASTEXITCODE){throw 'Could not set local Git email.'}
+  Write-Host 'Git identity saved in this repository only (not globally).' -ForegroundColor Green
+}
 function fs-save([string]$message) {
   Assert-FeatureBranch
   if(-not $message){throw 'Example: fs-save "added workout timer button"'}
   if(FSClean){Write-Host 'Nothing changed since the last save.';return}
+  Ensure-FSGitIdentity
   & git add -A
   if($LASTEXITCODE){throw 'Unable to stage changes.'}
   $staged=@(& git diff --cached --name-only)
@@ -78,8 +100,18 @@ function fs-sync {
   if($LASTEXITCODE){throw 'Could not fetch latest main.'}
   & git merge-base --is-ancestor origin/main HEAD
   if($LASTEXITCODE -eq 0){Write-Host 'Your branch already includes the latest main.';return}
-  Write-Host 'Main has new changes. Automatic history rewriting is disabled for safety.' -ForegroundColor Yellow
-  Write-Host 'Ask an AI reviewer: How do I safely bring origin/main into this branch?'
+  Write-Host 'Merging latest main into your feature branch without rewriting history...'
+  & git merge --no-edit origin/main
+  if($LASTEXITCODE){
+    $mergeHead=(& git rev-parse -q --verify MERGE_HEAD 2>$null | Out-String).Trim()
+    if($mergeHead){
+      & git merge --abort
+      if($LASTEXITCODE){throw 'Merge conflicted and abort failed. Stop and ask for help before changing anything.'}
+      throw 'Merge conflict. The feature branch has been restored. Ask for help resolving it without force-pushing.'
+    }
+    throw 'Git could not complete the merge. Check git status before proceeding.'
+  }
+  Write-Host 'Latest main merged safely. Run your tests before sharing.' -ForegroundColor Green
 }
 function fs-share {
   Assert-FeatureBranch
@@ -92,7 +124,7 @@ function fs-share {
     Write-Host 'A PR may already exist. Checking for a URL.'
     & gh pr view --web
   }
-  Write-Host 'Your changes are shared in a DRAFT PR. A human must review and merge them.'
+  Write-Host 'Your changes are in a Draft PR. CI must pass; the maintainer makes the final merge decision.'
 }
 function fs-undo {
   Assert-FeatureBranch
@@ -117,10 +149,10 @@ function fs-undo {
   Write-Host 'Last unshared commit undone; file changes were preserved.'
 }
 function fs-help {
-  Write-Host 'Branch = your own copy. Save (commit) = checkpoint. Draft PR = request human review.'
+  Write-Host 'Branch = isolated work. Save (commit) = checkpoint. Draft PR = changes proposed to main.'
   Write-Host 'fs-start "new feature" : make a safe branch'
   Write-Host 'fs-save "my change"   : scan secrets and save'
-  Write-Host 'fs-sync               : check for changes on main safely'
+  Write-Host 'fs-sync               : merge current main into your feature branch safely'
   Write-Host 'fs-share              : test and open a draft PR'
   Write-Host 'fs-status             : explain your current work'
   Write-Host 'fs-undo               : undo only the last unpublished save'

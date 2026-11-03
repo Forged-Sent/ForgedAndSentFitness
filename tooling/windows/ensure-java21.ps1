@@ -1,4 +1,5 @@
 #requires -Version 7.6
+param([switch]$PrintHome)
 Set-StrictMode -Version Latest
 $ErrorActionPreference='Stop'
 function Find-Java21 {
@@ -29,13 +30,8 @@ if(-not $jdk){
   $jdk=Find-Java21
 }
 if(-not $jdk){throw 'Java 21 not detected. Restart Windows or ask IT to install Temurin 21, then rerun.'}
-[Environment]::SetEnvironmentVariable('JAVA_HOME',$jdk,'User')
-$javaBin=Join-Path $jdk 'bin'
-$userPath=[Environment]::GetEnvironmentVariable('Path','User')
-if(($userPath -split ';') -notcontains $javaBin){
-  [Environment]::SetEnvironmentVariable('Path',($javaBin+';'+$userPath),'User')
-}
-$env:JAVA_HOME=$jdk
-$env:Path=$javaBin+';'+$env:Path
-Write-Host "JDK 21 located: $jdk" -ForegroundColor Green
+# This script never alters user or machine JAVA_HOME/PATH. Callers set only their
+# current emulator-process environment using the returned JDK path.
+if($PrintHome){[Console]::Out.WriteLine($jdk)}
+else{Write-Host 'JDK 21 available for local Firebase. No global Java settings changed.' -ForegroundColor Green}
 exit 0

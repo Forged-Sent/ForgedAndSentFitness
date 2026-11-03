@@ -1,22 +1,14 @@
-# Default AI tool access and project scope
+# MCP security and optional tooling
 
-**Contributor default:** no Firebase cloud MCP. An authenticated Firebase CLI is
-not a safe authorization boundary for a demo project. Keep production credentials
-off developer machines. Firebase Local Emulator Suite is implemented in PR #4.
+**Default Contributor tools:** Dart, Playwright and Context7. Each is configured in the VS Code, Claude and Codex project files. They still require an actual initialize + tools/list handshake before anyone calls them connected. No cloud Firebase MCP is included. Demo Firebase Auth/Firestore/Storage use the local CLI, not an MCP server.
 
-The common workspace MCP list is Dart, Playwright, Maestro, Context7, Figma,
-and read-only GitHub. Google Developer Knowledge is available in VS Code through
-a local masked API-key prompt. Claude uses .mcp.json; Codex uses trusted
-.codex/config.toml. Some remote services require personal authorization and
-may not be usable on all accounts.
+To reduce confusing first-run errors, GitHub read-only MCP, Figma, Maestro and Google Developer Knowledge are **opt-in**. See the audited example manifests:
+- `.vscode/mcp-optional.example.json` for VS Code (includes masked Google API key prompt)
+- `.mcp.optional.example.json` for Claude
+- `.codex/config.optional.example.toml` for Codex
 
-Do not run the legacy global MCP registration process. Repo configuration is
-reviewable and reduces accidental tool leakage into unrelated projects.
-**Configured is not Connected:** mark a tool Ready only after an actual MCP
-initialize and tools/list exchange. A file and executable check means configured.
+They are intentionally **not auto-loaded** by the clients. A maintainer can review the needed optional server and explicitly add it to the project/client MCP settings after installing its prerequisites and authorizing the provider. Do not commit personal keys. Client-specific behavior may change; confirm connectivity in **MCP: List Servers** or the provider's equivalent.
 
-Maintainers may later add narrowly scoped DEV cloud MCP through a separate,
-reviewed opt-in. No Firebase CLI login occurs in the Contributor wizard.
-Review ADR-0002 and never give production access to agents or colleagues.
+You do not need Maestro without a mobile device-testing setup, Figma without a Figma account, or Google Developer Knowledge without its own Google API key. The optional GitHub MCP is read-only; GitHub CLI/VS Code Source Control is sufficient for beginners to create PRs.
 
-The three local stdio MCPs use an allowlisted Node 18+ launcher (`tooling/mcp/launch.mjs`) on Windows and macOS. It can launch Dart, Playwright, or optional Maestro; never Firebase cloud MCP. An installed/declared tool is **not** marked Ready until a live protocol handshake succeeds. Mac setup uses project-scoped configurations; no global MCP registrations.
+The project Node launcher `tooling/mcp/launch.mjs` allowlists Dart, Playwright and optional Maestro. Production Firebase credentials, cloud deployment, auto-login and default cloud Firebase MCP are forbidden. Review ADR-0002 before adding any DEV-only cloud integration.

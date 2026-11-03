@@ -9,8 +9,8 @@ echo Close the window to stop the preview.
 echo.
 if not exist "%~dp0tooling\windows\bootstrap-pwsh.ps1" (
   echo ERROR: The required setup files are missing.
-  echo In File Explorer, choose Extract All on the downloaded ZIP, then open the extracted folder.
-  echo Never run launchers from inside the ZIP preview.
+  echo Use a full Git clone of Forged-Sent/ForgedAndSentFitness; see the Windows quickstart.
+  echo Do not run a partial copy of the repository.
   pause
   exit /b 1
 )
