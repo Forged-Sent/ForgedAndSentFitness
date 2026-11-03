@@ -12,7 +12,7 @@ Official installation instructions: https://learn.microsoft.com/en-us/powershell
 
 ## One entry point for everyone
 
-Open the **existing Git clone**, switch to the PR #4 feature branch (`git fetch origin`, `git switch feature/contributor-emulator-onboarding`, `git pull --ff-only`), then double-click **FIRST-RUN-WINDOWS.cmd**. No ZIP is needed. If you do not have a clone, follow [Windows quickstart](WINDOWS-QUICKSTART.md) to install Git and clone the branch. Always preserve uncommitted work before switching.
+Open the **existing Git clone**, switch to `main` (`git switch main`, `git fetch origin`, `git pull --ff-only`). For testing PR #4 while still a Draft, follow [Windows quickstart](WINDOWS-QUICKSTART.md), then double-click **FIRST-RUN-WINDOWS.cmd**. No ZIP is needed. If you do not have a clone, follow [Windows quickstart](WINDOWS-QUICKSTART.md) to install Git and clone the repository. Always preserve uncommitted work before switching.
 
 The menu is designed for people who are not software developers:
 
@@ -27,7 +27,7 @@ The menu is designed for people who are not software developers:
 | 7 | Open troubleshooting instructions |
 | 8 | Show project-only MCP configuration |
 | 9 | Start demo Firebase Auth/Firestore/Storage emulators |
-| 10 | Clone Git repository, only if not already cloned |
+| 10 | Open the first-contribution guide (a new clone is not needed if this folder has Git) |
 | 11 | Run Flutter against locally running Firebase emulators |
 
 The initial Flutter app is a basic starter screen. The original web prototype is not yet migrated.

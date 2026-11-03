@@ -17,7 +17,7 @@ Official installation instructions: https://learn.microsoft.com/en-us/powershell
 - Optional Android phone development: run SETUP-ANDROID.cmd. Complete Android Studio setup, licenses and device pairing yourself.
 - Local iOS builds require a Mac and Xcode.
 
-Use your existing **Git clone**. Before testing PR #4, run `git status`, `git fetch origin`, `git switch feature/contributor-emulator-onboarding`, and `git pull --ff-only` from the repo folder. If the branch is not present locally, use `git switch --track origin/feature/contributor-emulator-onboarding`. Only if you have no clone: `git clone --branch feature/contributor-emulator-onboarding https://github.com/Forged-Sent/ForgedAndSentFitness.git`. Do not overwrite or force-reset local work. Only run scripts from this repository when you trust them. Corporate security restrictions should not be bypassed.
+Use your existing **Git clone**. For normal setup after PR #4 merges, run `git status`, `git switch main`, `git fetch origin`, and `git pull --ff-only`. When testing the still-open Draft PR #4 before merge, see the PR checkout instructions in [Windows quickstart](WINDOWS-QUICKSTART.md). Only if you have no clone: `git clone https://github.com/Forged-Sent/ForgedAndSentFitness.git`. Do not overwrite or force-reset local work. Only run scripts from this repository when you trust them. Corporate security restrictions should not be bypassed.
 
 ## What full setup adds
 

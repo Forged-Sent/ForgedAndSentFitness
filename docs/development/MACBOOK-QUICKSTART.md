@@ -1,74 +1,46 @@
-# Forged & Sent: MacBook quickstart using Git
+# Forged & Sent: MacBook quickstart (Git, not ZIP)
 
-This document tests the unmerged PR #4 development foundation on your Mac. Local Flutter preview and the Firebase emulator suite need **no Firebase account, cloud project, Firebase login or paid plan**.
+**Start here.** You do not need programming experience or a Firebase cloud account. This project uses local demo Firebase emulators. The Flutter UI is currently a starter screen.
 
-## 1. Update your existing Git clone
+## First time: get the repository
 
-Use the repository you already cloned. Open Terminal in the `ForgedAndSentFitness` directory:
-
-```bash
-git status
-git fetch origin
-git switch feature/contributor-emulator-onboarding
-git pull --ff-only
-```
-
-If this is your first checkout of the feature branch and `git switch` doesn't find it, run `git switch --track origin/feature/contributor-emulator-onboarding`. Resolve any local edits before switching. Never force-reset just to run setup.
-
-If you have not cloned the repository yet, install Apple's Command Line Tools if prompted and run:
+1. Open Terminal. Run `git --version`. If macOS requests Apple Command Line Tools, approve the official Apple installer and reopen Terminal. You can also use [GitHub Desktop](https://desktop.github.com/) for a graphical clone.
+2. Clone the shared project:
 
 ```bash
-git clone --branch feature/contributor-emulator-onboarding https://github.com/Forged-Sent/ForgedAndSentFitness.git
+git clone https://github.com/Forged-Sent/ForgedAndSentFitness.git
 cd ForgedAndSentFitness
+git status
 ```
 
-Normal `main` currently contains PR #3 only. Keep PR #4's feature branch selected for testing.
+Already have a clone? Reuse it: check `git status`, then `git switch main`, `git fetch origin`, `git pull --ff-only`. Never force-reset unsaved work.
 
-## 2. Preview setup
+**While PR #4 remains a Draft**, a tester can choose its code explicitly: `git fetch origin pull/4/head:pr4-workstation-test`, then `git switch pr4-workstation-test`. The regular instructions intentionally target `main` so they work **after** PR #4 merges.
 
-Double-click `FIRST-RUN-MAC.command` from Finder, or run it from the repository folder using `bash FIRST-RUN-MAC.command`.
+## Setup and preview
 
-Choose **Set up browser Preview**. If Command Line Tools or Homebrew is missing, the wizard directs you through their official, user-approved installation. It reuses existing tools and pins Flutter 3.47.8 at `~/develop/flutter`. It will not overwrite a different SDK.
+From Finder, double-click `FIRST-RUN-MAC.command`, or from Terminal run `bash FIRST-RUN-MAC.command`. Choose **Preview** and follow the official Command Line Tools and Homebrew instructions. Homebrew's signed `.pkg` installer on its [official releases](https://github.com/Homebrew/brew/releases) may be easier than a Terminal install, if available for your Mac.
 
-Then launch `RUN-APP-MAC.command` to open the small Flutter starter screen in Chrome.
+Then launch `RUN-APP-MAC.command` to see the Forged & Sent Flutter starter in Chrome.
 
-## 3. Contributor and Firebase emulator tests
+Choose **Contributor** to set up VS Code, Node, GitHub CLI, local Firebase CLI, JDK 21 and other development tools. Configure a Git name/email when prompted; a GitHub noreply address is fine. Choose **one** optional AI assistant. The setup does not require Codex, Claude and Copilot subscriptions together.
 
-Choose **Set up Contributor tools** or double-click `SETUP-DEVELOPER-MAC.command`. This adds Node.js, GitHub CLI, Firebase CLI 15.34.2, a usable JDK 21, and optional Codex/Claude CLIs. It does **not** authenticate with Firebase or deploy anything. The demo app connection is already implemented in PR #4.
+With your consent, the setup can add the project's Flutter SDK folder to your `~/.zprofile` PATH. Reopen Terminal and check `flutter --version`. If you decline, use `~/develop/flutter/bin/flutter` explicitly for manual commands.
 
-Open `START-EMULATORS-MAC.command` in its **own Terminal window**. Leave it running. Then run `RUN-EMULATOR-APP-MAC.command` in another window. Both are also available as choices 7 and 8 in `FIRST-RUN-MAC.command`.
+## Test demo Firebase
 
-Successful emulator-mode startup verifies the local Auth, Firestore and Storage services. If an emulator is missing, the app should display an error rather than try cloud Firebase.
+Start `START-EMULATORS-MAC.command` in a separate Terminal window. Wait for emulator readiness, then run `RUN-EMULATOR-APP-MAC.command` in another window. Confirm that the app reports verified local Auth, Firestore and Storage.
 
-Equivalent manual commands, if needed:
+Neither script requires `firebase login` or a cloud project. Stop one emulator and restart the app to verify visible failure without cloud fallback.
 
-```bash
-# Terminal 1, from the repository root
-firebase emulators:start --project demo-forgedandsent --only auth,firestore,storage
-```
+## Your first small contribution
 
-```bash
-# Terminal 2, from the repository root
-cd mobile
-flutter pub get
-flutter run -d chrome --dart-define=FS_ENV=emulator
-```
+Use **[FIRST-CONTRIBUTION.md](FIRST-CONTRIBUTION.md)**, a shared Windows/Mac guide using VS Code Source Control, not Windows-only shell aliases. Ask for an organization/repository invitation before pushing to the shared repository; without it, use a fork and PR.
 
-The launchers select the dedicated JDK 21 even if your normal shell uses a different Java version.
+Run `VERIFY-DEVELOPER-MAC.command` for installed-tool diagnostics, and `ARCHITECTURE-MAC.command` to generate the offline Atlas. Open **MCP: List Servers** in VS Code and verify real connections rather than assuming configured means working.
 
-## 4. Validate the workstation
+You can run `flutter analyze` and `flutter test` from `mobile` after PATH is enabled (or use the full SDK path). Native Android/iOS simulator builds require separate platform setup; full Xcode and an iOS simulator are not installed by this wizard.
 
-Run `VERIFY-DEVELOPER-MAC.command` and inspect the report. Diagnostics confirm installed tools and may check emulator TCP ports, but they cannot independently certify the Flutter service handshake or live MCP authorization.
+If Gatekeeper blocks a trusted launcher, use System Settings > Privacy & Security > Open Anyway for just that file, or run `bash FIRST-RUN-MAC.command`. Never globally disable Gatekeeper or remove quarantine.
 
-Open the repo in VS Code and verify the configured Dart/Playwright/MCP servers with real initialize and tools/list calls. Use `ARCHITECTURE-MAC.command` to generate the offline architecture explorer, then test source navigation and documentation.
-
-Run `flutter analyze` and `flutter test` in the `mobile` folder. The setup scripts support **Preview and Contributor** on Mac. Android Studio, full Xcode/iOS simulator setup, native device operation and Maestro are separate manual workflows. Passing hosted Mac CI is not proof that your own Mac's first-time installs work.
-
-## Mac-specific safety and troubleshooting
-
-- Do not disable Gatekeeper or globally remove quarantine flags. If Finder blocks a trusted launcher, use System Settings > Privacy & Security > Open Anyway for that file, or invoke `bash FIRST-RUN-MAC.command` from Terminal.
-- Homebrew's first installation and Apple's Command Line Tools need your approval; the repository does not silently execute a remotely downloaded installer.
-- The SDK and Firebase CLI may require network access for installation, but using local demo emulators does not require Firebase cloud credentials.
-- GitHub, Codex and Claude have their own optional sign-ins. No Google/Firebase cloud sign-in is required for local emulators.
-
-See [Firebase emulator testing](FIREBASE-EMULATOR.md), [review workflow](AI-REVIEW-WORKFLOW.md), and [Architecture Atlas](../architecture/explorer/README.md).
+More detail: [Firebase emulators](FIREBASE-EMULATOR.md), [Architecture Atlas](../architecture/explorer/README.md), [optional AI review](AI-REVIEW-WORKFLOW.md).

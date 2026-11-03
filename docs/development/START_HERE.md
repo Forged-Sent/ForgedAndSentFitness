@@ -5,7 +5,7 @@ This branch introduces an intentionally small Flutter scaffold and CI, **not a p
 
 ## Guided Windows and MacBook setup
 
-Start from your existing **Git clone**, not a downloaded ZIP. Run `git fetch origin`, `git switch feature/contributor-emulator-onboarding`, and `git pull --ff-only` after confirming `git status` is safe. On Windows use `FIRST-RUN-WINDOWS.cmd`; on Mac use `FIRST-RUN-MAC.command`. Both support safe Flutter Preview and local Contributor tools without Firebase cloud login. PR #4 adds demo Firebase launchers on both OSes; Android/iOS device setup still requires manual platform tools. See [Windows quickstart](WINDOWS-QUICKSTART.md) and [Mac quickstart](MACBOOK-QUICKSTART.md).
+**For first-time contributors:** follow [Your first contribution](FIRST-CONTRIBUTION.md) after [Windows quickstart](WINDOWS-QUICKSTART.md) or [Mac quickstart](MACBOOK-QUICKSTART.md). Use an existing **Git clone**, not a ZIP. Check `git status`, then `git switch main`, `git fetch origin`, `git pull --ff-only`. The current Draft PR #4 can be tested separately as described in the quickstarts. On Windows use `FIRST-RUN-WINDOWS.cmd`; on Mac use `FIRST-RUN-MAC.command`. Both support safe Flutter Preview and local Contributor tools without Firebase cloud login. PR #4 adds demo Firebase launchers on both OSes; Android/iOS device setup still requires manual platform tools. See [Windows quickstart](WINDOWS-QUICKSTART.md) and [Mac quickstart](MACBOOK-QUICKSTART.md).
 
 ## Branches, pull requests and reviews
 
