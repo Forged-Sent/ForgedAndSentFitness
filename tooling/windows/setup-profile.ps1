@@ -37,7 +37,7 @@ if(Test-Path -LiteralPath (Join-Path $root '.git')){
   & git -C $root config fetch.prune true
   Write-Host 'Installed repository-scoped Git hooks and safe defaults.'
 }else{
-  Write-Host 'This folder came from a ZIP. Use the Git clone option in the wizard before contributing.' -ForegroundColor Yellow
+  Write-Host 'This folder is not a Git repository. Follow WINDOWS-QUICKSTART.md to clone with Git before contributing.' -ForegroundColor Yellow
 }
 Write-Host 'FlutterFire CLI activated; flutterfire configure was NOT run.' -ForegroundColor Green
 Write-Host 'Firebase emulator project is demo-forgedandsent. No cloud login required.'

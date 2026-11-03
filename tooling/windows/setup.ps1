@@ -89,7 +89,7 @@ try {
     Write-Host 'No Firebase account or credentials are needed for this early preview.'
     Write-Host ('Setup log: ' + $log)
     if (-not (Test-Path -LiteralPath (Join-Path $mobileRoot 'pubspec.yaml'))) {
-        throw 'mobile\pubspec.yaml is missing. Download and unzip the entire GitHub branch, then run SETUP-WINDOWS.cmd from the extracted folder.'
+        throw 'mobile\pubspec.yaml is missing. Use the full Git clone of Forged-Sent/ForgedAndSentFitness and rerun setup.'
     }
 
     Announce 'Git for Windows'
