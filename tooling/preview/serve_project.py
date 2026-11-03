@@ -1,0 +1,158 @@
+#!/usr/bin/env python3
+"""Serve only the public prototype and generated Atlas on IPv4 loopback.
+
+No dependencies, cloud access, repository-wide file serving or authentication.
+The JavaScript pages remain untrusted previews; do not enter real credentials.
+"""
+from __future__ import annotations
+
+import argparse
+import mimetypes
+import subprocess
+import sys
+import webbrowser
+from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+from pathlib import Path
+from urllib.parse import urlsplit
+
+ROOT = Path(__file__).resolve().parents[2]
+DEFAULT_PORT = 43117
+ATLAS = "/build/architecture-explorer/Architecture-Atlas.html"
+ALLOWED_FILES = frozenset({
+    "/index.html",
+    ATLAS,
+    "/build/architecture-explorer/index.html",
+    "/build/architecture-explorer/site.css",
+    "/build/architecture-explorer/site.js",
+    "/build/architecture-explorer/data.js",
+})
+LANDING = """<!doctype html>
+<html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Forged &amp; Sent Knowledge Workspace</title>
+<h1>Forged &amp; Sent / Knowledge Workspace</h1>
+<p>These are local, JavaScript-enabled previews of the current Git checkout, not a production app.</p>
+<ul><li><a href="/index.html">Open the actual HTML prototype</a></li>
+<li><a href="/build/architecture-explorer/Architecture-Atlas.html">Open the generated Architecture Atlas</a></li></ul>
+<p>For Obsidian, open docs/ as your vault and paste this URL into the core Web viewer.</p>
+<p>Do not enter personal information, secrets or production credentials. Close the terminal to stop serving.</p>
+""".encode("utf-8")
+
+
+class PreviewHandler(BaseHTTPRequestHandler):
+    """Explicit-path static handler; never exposes arbitrary repository files."""
+
+    server_version = "ForgedSentPreview/1.0"
+    sys_version = ""
+
+    def do_GET(self) -> None:
+        self._serve(body=True)
+
+    def do_HEAD(self) -> None:
+        self._serve(body=False)
+
+    def _serve(self, *, body: bool) -> None:
+        # Reject DNS rebinding and other unexpected Host headers even though
+        # the socket binds only to IPv4 loopback.
+        expected = f"127.0.0.1:{self.server.server_port}"
+        if self.headers.get("Host", "") != expected:
+            self.send_error(400, "Use the printed 127.0.0.1 URL")
+            return
+
+        path = urlsplit(self.path).path
+        if path == "/":
+            self._send(200, "text/html; charset=utf-8", len(LANDING))
+            if body:
+                self.wfile.write(LANDING)
+            return
+        if path not in ALLOWED_FILES:
+            self.send_error(404, "Not an allowed preview path")
+            return
+
+        root = self.server.project_root
+        file = (root / path.lstrip("/")).resolve()
+        if not file.is_relative_to(root) or not file.is_file():
+            self.send_error(404, "Preview file unavailable")
+            return
+        content_type = mimetypes.guess_type(file.name)[0] or "application/octet-stream"
+        if content_type.startswith(("text/", "application/javascript")):
+            content_type += "; charset=utf-8"
+        try:
+            with file.open("rb") as stream:
+                size = file.stat().st_size
+                self._send(200, content_type, size)
+                if body:
+                    import shutil
+                    shutil.copyfileobj(stream, self.wfile)
+        except OSError:
+            # A concurrent Atlas regeneration may briefly replace files.
+            self.send_error(404, "Preview file unavailable")
+
+    def _send(self, code: int, content_type: str, size: int) -> None:
+        self.send_response(code)
+        self.send_header("Content-Type", content_type)
+        self.send_header("Content-Length", str(size))
+        self.send_header("Cache-Control", "no-store")
+        self.send_header("X-Content-Type-Options", "nosniff")
+        self.send_header("Referrer-Policy", "no-referrer")
+        self.end_headers()
+
+
+class PreviewServer(ThreadingHTTPServer):
+    daemon_threads = True
+
+    def __init__(self, root: Path, port: int = DEFAULT_PORT):
+        self.project_root = root.resolve()
+        super().__init__(("127.0.0.1", port), PreviewHandler)
+
+
+def make_server(root: Path = ROOT, port: int = DEFAULT_PORT) -> PreviewServer:
+    """Create a bound server. Port zero is supported for isolated tests."""
+    return PreviewServer(root, port)
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--build-atlas", action="store_true", help="Regenerate Atlas from this Git checkout")
+    parser.add_argument("--open-browser", action="store_true", help="Open the landing page in the default browser")
+    parser.add_argument("--port", type=int, default=DEFAULT_PORT, help="Loopback port (default: 43117)")
+    args = parser.parse_args()
+    if not 1 <= args.port <= 65535:
+        parser.error("port must be between 1 and 65535")
+    if sys.version_info < (3, 11):
+        print("Python 3.11+ is required.", file=sys.stderr)
+        return 1
+    if args.build_atlas:
+        result = subprocess.run(
+            [sys.executable, str(ROOT / "tooling/architecture/build_explorer.py"), "--write"],
+            cwd=ROOT, check=False,
+        )
+        if result.returncode:
+            print("Atlas generation failed; no preview server was started.", file=sys.stderr)
+            return result.returncode
+    if not (ROOT / "index.html").is_file():
+        print("Missing root index.html; use a complete Git checkout.", file=sys.stderr)
+        return 1
+    try:
+        server = make_server(ROOT, args.port)
+    except OSError as exc:
+        print(f"Could not bind 127.0.0.1:{args.port}: {exc}", file=sys.stderr)
+        return 1
+    url = f"http://127.0.0.1:{server.server_port}"
+    print(f"\nKnowledge workspace: {url}/", flush=True)
+    print(f"Prototype: {url}/index.html", flush=True)
+    print(f"Atlas: {url}{ATLAS}", flush=True)
+    print("Paste a URL into Obsidian's core Web viewer or use your normal browser.", flush=True)
+    print("Read-only allowlisted preview; no Firebase/cloud login. Press Ctrl+C to stop.\n", flush=True)
+    if args.open_browser:
+        webbrowser.open(url + "/")
+    try:
+        server.serve_forever(poll_interval=0.2)
+    except KeyboardInterrupt:
+        pass
+    finally:
+        server.server_close()
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
