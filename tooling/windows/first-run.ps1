@@ -37,11 +37,11 @@ function SetGitIdentity {
     Ensure-FSGitIdentity
   }finally{Pop-Location}
 }
-function RunSetup([string]$profile){
-  $script:SelectedProfile=$profile
-  Banner "Set up $profile"
-  $setupArgs=@('-TargetProfile',$profile)
-  if($profile -ne 'Preview'){
+function RunSetup([string]$targetProfile){
+  $script:SelectedProfile=$targetProfile
+  Banner "Set up $targetProfile"
+  $setupArgs=@('-TargetProfile',$targetProfile)
+  if($targetProfile -ne 'Preview'){
     Write-Host 'Choose ONE optional AI assistant: 0=None, 1=Codex, 2=Claude, 3=GitHub Copilot.'
     $answer=Read-Host 'Assistant [0]'
     $agent= switch($answer){'1'{'Codex'} '2'{'Claude'} '3'{'Copilot'} default{'None'}}
@@ -53,7 +53,7 @@ function RunSetup([string]$profile){
     Write-Host 'One or more installs require attention. Check the error and rerun when resolved.' -ForegroundColor Yellow
   }else{
     Write-Host 'Tools installed. This does not automatically sign in or verify emulator connections.' -ForegroundColor Green
-    if($profile -ne 'Preview' -and (Ask 'Check your Git commit name/email now?')){SetGitIdentity}
+    if($targetProfile -ne 'Preview' -and (Ask 'Check your Git commit name/email now?')){SetGitIdentity}
   }
   CheckTools
 }
