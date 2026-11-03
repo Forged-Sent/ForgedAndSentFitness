@@ -76,6 +76,7 @@ jobs:
           python3 tooling/policy/check.py
           python3 -m unittest discover -s tooling/knowledge -p 'test_*.py' -v
           python3 tooling/knowledge/check.py
+          python3 -m unittest discover -s tooling/preview -p 'test_*.py' -v
           python3 -m unittest discover -s tooling/onboarding -p 'test_*.py' -v
           python3 -m unittest discover -s tooling/skills -p 'test_*.py' -v
           python3 tooling/skills/sync.py --check

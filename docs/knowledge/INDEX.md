@@ -3,6 +3,9 @@
 This is a Git-tracked, Markdown-first second brain. Obsidian may open the repository's docs/ directory as a vault, but Obsidian is a viewing and authoring interface, not a second source of truth. See [lifecycle](LIFECYCLE.md) before archiving material.
 
 ## Start here
+- [Beginner knowledge home and optional Obsidian vault](../HOME.md)
+- [Risk-based approved feature contracts](../features/README.md)
+- [Interactive prototype and Atlas knowledge workspace](../development/KNOWLEDGE-WORKSPACE.md)
 - [Current verified and unverified state](CURRENT.md)
 - [Agent operating model and task handoffs](AGENT-OPERATIONS.md)
 - [Flutter targets and cross-platform verification](FLUTTER-PLATFORMS.md)

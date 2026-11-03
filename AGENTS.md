@@ -94,3 +94,10 @@ agent instructions are advisory. No cloud Firebase MCP is enabled by default.
 - Flutter app code is the target, while `index.html` is behavioral reference only. Follow `docs/knowledge/PROTOTYPE-PARITY.md` and `docs/knowledge/FLUTTER-PLATFORMS.md`. Android/iOS are first, web is a preview target; Windows/Linux/macOS require separate reviewed host/CI/runtime qualification.
 - For any Flutter/Dart/library/API question, check the installed/pinned SDK and current official docs or Dart MCP; use version-matched Context7 for third-party APIs when appropriate. Never treat stale snippets as project policy. Use `docs/knowledge/FLUTTER-AI-DOCS.md`; never paste large live docs into startup rules or silently install plugins.
 - Use `flutter-platform-parity` and `knowledge-steward` skills for the matching tasks. Recheck the generated architecture map and handoff links after documentation changes.
+
+
+## Risk-based approved requirements and optional knowledge preview
+
+- Read docs/HOME.md and docs/features/README.md when starting a new product behavior task. Agents may propose but not approve requirements. High-risk Auth, Firebase rules, scoring, group privacy, offline sync, health-related data and architectural changes require the maintainer's approved requirements/design/tasks contract; never infer product rules from the HTML prototype.
+- One task owner per branch/worktree and a commit-SHA-bound handoff. CURRENT.md and Markdown ledgers are orientation only, never locks. Reconcile overlapping edits in PR review.
+- OPEN-KNOWLEDGE-WINDOWS.cmd / OPEN-KNOWLEDGE-MAC.command launch a read-only allowlisted localhost preview of root index.html and the generated Atlas. Obsidian may open docs/ as a vault but is not required. Never serve the whole repo, expose credentials, or claim live Windows/Mac/Obsidian tests passed based on CI.

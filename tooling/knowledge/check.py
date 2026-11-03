@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import re
+import subprocess
 from datetime import date
 from pathlib import Path
 from urllib.parse import unquote
@@ -34,7 +35,10 @@ def validate(root: Path) -> list[str]:
     notes = root / "docs" / "knowledge"
     if not (notes / "INDEX.md").is_file():
         return ["Missing docs/knowledge/INDEX.md"]
-    for file in sorted(notes.rglob("*.md")):
+    pages = set(notes.rglob("*.md")) | set((root / "docs" / "features").rglob("*.md"))
+    if (root / "docs" / "HOME.md").is_file():
+        pages.add(root / "docs" / "HOME.md")
+    for file in sorted(pages):
         body = file.read_text(encoding="utf-8")
         for match in LINK.finditer(body):
             raw = match.group(1).strip().split()[0].strip("<>")
@@ -87,7 +91,97 @@ def validate(root: Path) -> list[str]:
                 errors.append("Gemini Dart MCP must use existing allowlisted launcher")
         except (json.JSONDecodeError, AttributeError, TypeError):
             errors.append("Invalid Gemini MCP settings JSON")
+    validate_feature_contracts(root, errors)
     return errors
+
+
+FEATURE_STATES = {"proposed", "approved", "implemented", "superseded"}
+FEATURE_RISKS = {"low", "medium", "high", "security-critical"}
+FEATURE_REQUIRED = {"kind", "feature_id", "status", "risk", "owner", "source_sha"}
+FEATURE_ID = re.compile(r"^FNS-[0-9]{3,}$")
+
+
+def _paths(value: str) -> list[str]:
+    return [part.strip() for part in value.split(",") if part.strip() and part.strip() != "none"]
+
+
+def _repo_file(root: Path, value: str) -> Path | None:
+    """Reject absolute and escaping paths before checking existence."""
+    candidate = Path(value)
+    if candidate.is_absolute():
+        return None
+    target = (root / candidate).resolve()
+    return target if target.is_relative_to(root.resolve()) and target.is_file() else None
+
+
+def validate_feature_contracts(root: Path, errors: list[str]) -> None:
+    """Validate declared intent and evidence paths, not approval or test success."""
+    folder = root / "docs" / "features"
+    if not folder.is_dir():
+        return
+    active: dict[str, str] = {}
+    for feature_dir in sorted(p for p in folder.iterdir() if p.is_dir()):
+        candidates = [feature_dir / "feature.md", feature_dir / "requirements.md"]
+        found = [p for p in candidates if p.is_file()]
+        if len(found) != 1:
+            errors.append(f"{feature_dir.relative_to(root)}: expected exactly one canonical feature.md or requirements.md")
+            continue
+        file = found[0]
+        name = file.relative_to(root).as_posix()
+        values = metadata(file.read_text(encoding="utf-8"))
+        missing = FEATURE_REQUIRED - values.keys()
+        if missing:
+            errors.append(f"{name}: missing feature metadata {sorted(missing)}")
+            continue
+        if values["kind"] != "feature-spec":
+            errors.append(f"{name}: kind must be feature-spec")
+        if not FEATURE_ID.fullmatch(values["feature_id"]):
+            errors.append(f"{name}: feature_id must look like FNS-042")
+        if values["status"] not in FEATURE_STATES:
+            errors.append(f"{name}: invalid feature status")
+        if values["risk"] not in FEATURE_RISKS:
+            errors.append(f"{name}: invalid feature risk")
+        if not values["owner"]:
+            errors.append(f"{name}: owner cannot be empty")
+        sha = values["source_sha"]
+        if not SHA.fullmatch(sha):
+            errors.append(f"{name}: source_sha must be a full 40-character lowercase commit SHA")
+        elif (root / ".git").exists():
+            result = subprocess.run(["git", "cat-file", "-e", f"{sha}^{{commit}}"],
+                                    cwd=root, capture_output=True, check=False)
+            if result.returncode:
+                errors.append(f"{name}: source_sha is not an available Git commit")
+        if values["status"] != "superseded":
+            other = active.get(values["feature_id"])
+            if other:
+                errors.append(f"{name}: duplicate active feature_id also in {other}")
+            active[values["feature_id"]] = name
+        if values["status"] in ("approved", "implemented"):
+            if values.get("approved_by", "none") in ("", "none"):
+                errors.append(f"{name}: approved behavior requires an explicit maintainer approved_by")
+        if values["risk"] in ("high", "security-critical") and values["status"] in ("approved", "implemented"):
+            if file.name != "requirements.md" or not all((feature_dir / n).is_file()
+                                                         for n in ("design.md", "tasks.md")):
+                errors.append(f"{name}: approved high-risk feature needs requirements.md, design.md and tasks.md")
+            if values.get("test_plan", "none") in ("", "none"):
+                errors.append(f"{name}: approved high-risk feature needs a test_plan")
+        if values["status"] == "implemented":
+            if values.get("verification", "none") in ("", "none"):
+                errors.append(f"{name}: implemented feature needs verification evidence")
+            for key in ("verified_tests", "implementation_paths"):
+                paths = _paths(values.get(key, "none"))
+                if not paths:
+                    errors.append(f"{name}: implemented feature needs {key}")
+                for path in paths:
+                    if _repo_file(root, path) is None:
+                        errors.append(f"{name}: missing or escaping {key} path {path}")
+        if values["status"] == "superseded":
+            successor = values.get("superseded_by", "")
+            target = _repo_file(root, successor) if successor else None
+            if target is None or not target.is_relative_to(folder):
+                errors.append(f"{name}: superseded feature needs a valid superseded_by path")
+            elif metadata(target.read_text(encoding="utf-8")).get("supersedes") != name:
+                errors.append(f"{name}: successor must reciprocally declare supersedes: {name}")
 
 
 def main() -> int:

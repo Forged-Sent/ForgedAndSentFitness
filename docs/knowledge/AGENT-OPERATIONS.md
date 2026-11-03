@@ -29,3 +29,10 @@ One authoring agent handles a narrowly scoped task. For Flutter database, Fireba
 
 ## Security/cost controls
 No production credentials, persistent remote-vault writes or GitHub write MCP for independent reviewers. Prefer direct file reads and existing Dart MCP. Do not install a new MCP, install packages, login, or use paid remote services without authorization. Tool availability is not proof that a connection handshake or test was successful.
+
+
+## Feature contracts and concurrent editing
+
+Before changing user-visible behavior, check [risk-based feature contracts](../features/README.md). A low-risk change can use one feature.md; Auth, scoring, group privacy, Firebase rules, offline sync, health-related data and architectural changes need an approved requirements.md/design.md/tasks.md triad. Agents may draft proposed requirements but may not self-promote them to approved or implemented. No feature contract overrides code/tests as evidence of what currently runs.
+
+Each active task has one authoring agent and its own Git branch or worktree, plus a SHA-bound task handoff. A Markdown ledger or CURRENT.md is **not an atomic mutex**. Reserve shared security rules, ADRs and scoring contracts for one task owner at a time; resolve cross-branch semantic conflicts through PR review and the maintainer's merge decision. Recheck source SHA, unresolved review threads and exact-head CI before handoff/push. Optional independent Claude/Codex/Gemini review is advisory, never an approval gate.

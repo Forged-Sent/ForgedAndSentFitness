@@ -40,6 +40,8 @@ flutter test
 
 You can launch Flutter in Chrome, check the local demo Firebase emulators, run analysis and tests, access one chosen AI assistant if you use one, inspect Source Control, and open a draft PR. A configured MCP server isn't "working" until it connects and lists tools.
 
+For an optional Git-backed knowledge workspace, open [the knowledge home](../HOME.md) in VS Code, GitHub or Obsidian (vault root: docs/). Double-click OPEN-KNOWLEDGE-WINDOWS.cmd or OPEN-KNOWLEDGE-MAC.command to view the live HTML prototype and regenerated Atlas on loopback. This is not needed for your first Flutter contribution. See [knowledge workspace safety and acceptance](KNOWLEDGE-WORKSPACE.md).
+
 For a more detailed source map, double-click `ARCHITECTURE-WINDOWS.cmd` or `ARCHITECTURE-MAC.command`. For local Firebase, follow [Firebase emulator testing](FIREBASE-EMULATOR.md). Neither requires a cloud account.
 
 If the Git command reports divergence, if a setup step asks for unexpected credentials, or if a tool wants to push to `main`, stop and ask for help rather than resetting anything.
