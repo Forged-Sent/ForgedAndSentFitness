@@ -6,6 +6,8 @@ if [ "$#" -gt 0 ] && [ "$1" = --self-test ]; then
   /bin/bash "$FS_ROOT/tooling/macos/setup.sh" --profile Preview --self-test
   /bin/bash "$FS_ROOT/tooling/macos/setup.sh" --profile Contributor --self-test
   /bin/bash "$FS_ROOT/tooling/macos/verify.sh" --self-test
+  /bin/bash "$FS_ROOT/tooling/macos/start-emulators.sh" --self-test
+  /bin/bash "$FS_ROOT/tooling/macos/run-emulator-app.sh" --self-test
   fs_ok 'Mac wizard self-test passed.'
   exit 0
 fi
@@ -14,7 +16,7 @@ FS_SELECTED_PROFILE=Preview
 printf '\n===== Forged & Sent MacBook first run =====\n'
 printf 'No Firebase login, PROD credentials, or remote script execution is automatic.\n'
 while :; do
-  printf '\n1. Set up browser Preview\n2. Set up Contributor tools\n3. Diagnose Mac setup\n4. Run Flutter preview in Chrome\n5. Sign in to GitHub (optional)\n6. Read Mac quickstart\n0. Exit\nYour choice: '
+  printf '\n1. Set up browser Preview\n2. Set up Contributor tools\n3. Diagnose Mac setup\n4. Run Flutter preview in Chrome\n5. Sign in to GitHub (optional)\n6. Read Mac quickstart\n7. Start local Firebase emulators in another Terminal window\n8. Open Flutter against the local emulators\n0. Exit\nYour choice: '
   IFS= read -r fs_choice || break
   case "$fs_choice" in
     1) FS_SELECTED_PROFILE=Preview; /bin/bash "$FS_ROOT/tooling/macos/setup.sh" --profile Preview || true;;
@@ -23,6 +25,8 @@ while :; do
     4) /bin/bash "$FS_ROOT/tooling/macos/run-app.sh" || true;;
     5) if fs_has gh && fs_question 'Run interactive GitHub login?'; then gh auth login; else fs_warn 'GitHub login declined or CLI missing.'; fi;;
     6) open "$FS_ROOT/docs/development/MACBOOK-QUICKSTART.md";;
+    7) open "$FS_ROOT/START-EMULATORS-MAC.command";;
+    8) open "$FS_ROOT/RUN-EMULATOR-APP-MAC.command";;
     0) break;;
     *) fs_warn 'Choose one of the menu numbers.';;
   esac

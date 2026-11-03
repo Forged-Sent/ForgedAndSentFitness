@@ -84,7 +84,36 @@ fs_editor_extensions(){
 fs_npm_firebase(){
   fs_has npm || { fs_fail 'npm is missing. Install Node first.'; return 1; }
   if fs_has firebase && [ "$(firebase --version 2>/dev/null)" = "$FS_FIREBASE_VERSION" ]; then fs_ok 'Pinned Firebase CLI already available. No login performed.'; return 0; fi
-  fs_info "Installing Firebase CLI $FS_FIREBASE_VERSION for future local emulators."
+  fs_info "Installing Firebase CLI $FS_FIREBASE_VERSION for local demo emulators."
   npm install --global "firebase-tools@$FS_FIREBASE_VERSION"
   fs_has firebase && [ "$(firebase --version 2>/dev/null)" = "$FS_FIREBASE_VERSION" ] || { fs_fail 'Firebase CLI did not install as expected.'; return 1; }
+}
+
+# Use a dedicated JDK 21 without modifying the user's global Java settings.
+fs_java21_home(){
+  local home_dir prefix
+  home_dir="$(/usr/libexec/java_home -v 21 2>/dev/null || true)"
+  if [ -n "$home_dir" ] && [ -x "$home_dir/bin/java" ]; then
+    printf '%s\n' "$home_dir"
+    return 0
+  fi
+  if fs_has brew; then
+    prefix="$(brew --prefix openjdk@21 2>/dev/null || true)"
+    if [ -n "$prefix" ] && [ -x "$prefix/libexec/openjdk.jdk/Contents/Home/bin/java" ]; then
+      printf '%s\n' "$prefix/libexec/openjdk.jdk/Contents/Home"
+      return 0
+    fi
+  fi
+  return 1
+}
+fs_ensure_java21(){
+  local home_dir
+  home_dir="$(fs_java21_home || true)"
+  if [ -n "$home_dir" ]; then fs_ok 'JDK 21 available for local Firebase emulators.'; return 0; fi
+  fs_require_brew || return 1
+  fs_info 'Installing Homebrew openjdk@21 for local Firebase emulators.'
+  brew install openjdk@21 || return 1
+  home_dir="$(fs_java21_home || true)"
+  [ -n "$home_dir" ] || { fs_fail 'JDK 21 is not detectable after install. Rerun Contributor setup.'; return 1; }
+  fs_ok 'JDK 21 ready; no system-wide Java settings were changed.'
 }
