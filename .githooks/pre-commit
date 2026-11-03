@@ -24,7 +24,7 @@ if command -v dart >/dev/null 2>&1; then
   git diff --cached --name-only --diff-filter=ACM -- '*.dart' |
     while IFS= read -r path; do
       if [ -f "$path" ]; then
-        dart format --output=none --set-exit-if-changed "$path" || exit 1
+        dart format --output=none --set-exit-if-changed "$path" || { echo "Formatting is required: from mobile/ run dart format . then try the commit again." >&2; exit 1; }
       fi
     done
 fi

@@ -2,16 +2,21 @@
 set -euo pipefail
 cd "$(dirname "$0")"
 printf '\n  FORGED & SENT / ARCHITECTURE ATLAS\n'
-printf '  Indexing checked-in files, functions and dependencies...\n\n'
-if ! command -v python3 >/dev/null 2>&1; then
-  echo 'Install Python 3 first, then reopen this launcher.'
-  if [ -t 0 ]; then read -r -p 'Press Enter to close...' _answer; fi
+printf '  Indexing checked-in files, functions and dependencies...\n'
+fs_python=''
+if command -v python3.12 >/dev/null 2>&1 && python3.12 -c 'import sys; sys.exit(0 if sys.version_info >= (3,11) else 1)'; then
+  fs_python=python3.12
+elif command -v python3 >/dev/null 2>&1 && python3 -c 'import sys; sys.exit(0 if sys.version_info >= (3,11) else 1)'; then
+  fs_python=python3
+else
+  echo 'Python 3.11+ is missing. Run SETUP-DEVELOPER-MAC.command then reopen Terminal.'
+  if [ -t 0 ]; then read -r -p 'Press Return to close...' _answer; fi
   exit 1
 fi
-if ! python3 tooling/architecture/build_explorer.py --write; then
-  echo 'Generation failed. Confirm this is a real Git clone.'
-  if [ -t 0 ]; then read -r -p 'Press Enter to close...' _answer; fi
+if ! "$fs_python" tooling/architecture/build_explorer.py --write; then
+  echo 'Architecture Atlas generation failed. Check the error and confirm a complete Git clone.'
+  if [ -t 0 ]; then read -r -p 'Press Return to close...' _answer; fi
   exit 1
 fi
 open "build/architecture-explorer/Architecture-Atlas.html"
-printf 'Opened your local offline architecture explorer.\n'
+echo 'Offline Architecture Atlas opened.'

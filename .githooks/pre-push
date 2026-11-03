@@ -20,6 +20,14 @@ if [ "${FS_REQUIRE_AI_REVIEW:-0}" = "1" ]; then
     exit 1
   fi
 fi
+if command -v flutter >/dev/null 2>&1; then
+  fs_flutter=flutter
+elif [ -x "$HOME/develop/flutter/bin/flutter" ]; then
+  fs_flutter="$HOME/develop/flutter/bin/flutter"
+else
+  echo "Flutter not found. Run Contributor setup; on Mac, reopen Terminal after enabling PATH." >&2
+  exit 1
+fi
 cd mobile
-flutter analyze
-flutter test
+"$fs_flutter" analyze
+"$fs_flutter" test

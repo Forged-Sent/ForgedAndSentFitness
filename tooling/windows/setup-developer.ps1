@@ -221,7 +221,7 @@ try {
   Attempt 'Developer diagnostics' {
     & (Join-Path $PSHOME 'pwsh.exe') -NoProfile -ExecutionPolicy Bypass -File (Join-Path $PSScriptRoot 'verify-developer.ps1') -TargetProfile Contributor
     Check-Exit 'Developer diagnostics'
-  }
+  } -Optional
 
   Write-Host ''
   if ($issues.Count) {

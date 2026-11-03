@@ -44,7 +44,8 @@ foreach($candidate in @(@('py.exe','-3'),@('python.exe'))) {
   $tool=Get-Command $candidate[0] -ErrorAction SilentlyContinue|Select-Object -First 1
   if(-not $tool){continue}
   try{
-    $verText=(& $tool.Source @($candidate[1..($candidate.Count-1)]) --version 2>&1|Out-String)
+    $versionArgs=if($candidate.Count -gt 1){@($candidate[1])}else{@()}
+    $verText=(& $tool.Source @versionArgs --version 2>&1|Out-String)
     if($LASTEXITCODE -eq 0 -and $verText -match 'Python (\d+)\.(\d+)'){
       if([int]$Matches[1] -gt 3 -or ([int]$Matches[1] -eq 3 -and [int]$Matches[2] -ge 11)){$pyVersion="$($Matches[1]).$($Matches[2])";break}
     }
