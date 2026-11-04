@@ -4661,14 +4661,23 @@ header.hero .me-btn { border-color:#e87328; }
   /* ---------- Weekly volume chart ---------- */
   var wkDocCache = {}, wkDocAsked = {}, volCache = {}, volAsked = {}, SVGNS = "http://www.w3.org/2000/svg";
   function volTotal(root, key) { var t = volOf(root, key); ((root && root.sessions) || []).forEach(function (x) { t += volOf(x, key, true); }); return t; }
+  // Body weight for volume on a given day: latest weigh-in on or before it, else the latest one, else the Service record.
+  function bwAsOf(key) {
+    var m = weights(), ks = Object.keys(m).filter(function (k) { return Number(m[k]) > 0; }).sort(), on = ks.filter(function (k) { return k <= key; });
+    var k = on.length ? on[on.length - 1] : ks[ks.length - 1]; if (k) return Number(m[k]);
+    var b = state.settings && state.settings.body; return b && Number(b.wt) > 0 ? Number(b.wt) : 0;
+  }
   function volOf(rec, key, own) {
     if (!rec || !rec.ex) return 0;
     var wf = workoutFor(key), xs = normExtra(rec.extra).map(function (x) { return [x.g, x.rx]; });
-    var exs = own ? xs : wf && wf.kind === "train" && wf.w ? wf.w.exercises.concat(xs) : null, tot = 0;
+    var exs = own ? xs : wf && wf.kind === "train" && wf.w ? wf.w.exercises.concat(xs) : null, tot = 0, eq = (planCfg() || {}).equip, bwk = null;
     Object.keys(rec.ex).forEach(function (k) {
       var arr = rec.ex[k]; if (!Array.isArray(arr)) return;
       var ps = exs && exs[+k] ? parseSets(exs[+k][1]) : null; if (ps && ps.time) return;
-      arr.forEach(function (s) { if (!s || s.k === "w") return; var w = parseFloat(s.w), r = parseFloat(s.r); if (w > 0 && r > 0) tot += w * r; });
+      var g = exs && exs[+k] ? exs[+k][0] : null; if (g && !own && wf && wf.w && +k < wf.w.exercises.length) { try { g = effMove(rec, +k, g); } catch (e) {} }
+      var isBw = false; try { isBw = !!g && !needsWeight(g, eq); } catch (e) { isBw = false; }
+      if (isBw && bwk === null) bwk = bwAsOf(key) || 0;
+      arr.forEach(function (s) { if (!s || s.k === "w") return; var w = parseFloat(s.w), r = parseFloat(s.r); if (isBw) w = (w > 0 ? w : 0) + bwk; if (w > 0 && r > 0) tot += w * r; });
     });
     return Math.round(tot);
   }
@@ -8649,7 +8658,7 @@ header.hero .me-btn { border-color:#e87328; }
       "Tap Start workout. Pray the workout prayer, then tap Amen to start the clock.",
       "Warm-ups go round by round. Enter reps, and weight where the lift needs it.",
       "Dumbbells: enter the weight of one dumbbell, not both added together.",
-      "Bodyweight lifts like push-ups, pull-ups and dips: don\u2019t enter a weight. Leave the + box empty unless you add weight with a vest, belt or plate, and then enter only that added weight.",
+      "Bodyweight lifts like push-ups, pull-ups and dips: don\u2019t enter a weight. Your training volume counts your most recent weigh-in for you. Leave the + box empty unless you add weight with a vest, belt or plate, and then enter only that added weight. PRs on these lifts still come from reps and added weight.",
       "Supersets: both lifts share one card. Each set shows A1 and A2 together. Do A1, go straight to A2, then rest.",
       "A set's check lights up once you've entered it. Rest timers count down and beep at the end.",
       "Tap an exercise name to see how to do it. Tap Alternate to swap it if you lack the equipment or have an injury.",
@@ -9425,7 +9434,7 @@ header.hero .me-btn { border-color:#e87328; }
       box.appendChild(r);
     });
   }
-  var APP_VERSION = "v232";
+  var APP_VERSION = "v233";
   /* ---------- Photo upload diagnostic (Settings > Testing) ---------- */
   async function runPhotoDiag() {
     var out = { at: new Date().toISOString(), version: APP_VERSION, ua: navigator.userAgent, steps: [] };
