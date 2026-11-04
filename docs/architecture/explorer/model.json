@@ -364,7 +364,7 @@
     "windows": [
       [
         "Open the guided setup",
-        "Run FIRST-RUN-WINDOWS.cmd from a real Git clone"
+        "Run START-WINDOWS.cmd from a real Git clone"
       ],
       [
         "Check local tools",
@@ -390,7 +390,7 @@
     "mac": [
       [
         "Open the guided setup",
-        "Run FIRST-RUN-MAC.command from a real Git clone"
+        "Run START-MAC.command from a real Git clone"
       ],
       [
         "Check local tools",

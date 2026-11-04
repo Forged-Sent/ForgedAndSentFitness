@@ -31,10 +31,10 @@ if($SelfTest){
   Write-Host 'Self-test passed: profile-aware statuses and optional/required exit logic.'
   exit 0
 }
-Check Git git.exe @((Join-Path $env:ProgramFiles 'Git\cmd\git.exe')) 'Run SETUP-WINDOWS.cmd, then restart the terminal.'
-Check Chrome chrome.exe @((Join-Path $env:ProgramFiles 'Google\Chrome\Application\chrome.exe'),(Join-Path $env:LOCALAPPDATA 'Google\Chrome\Application\chrome.exe')) 'Run SETUP-WINDOWS.cmd to install Chrome.'
-Check Flutter flutter.bat @((Join-Path $env:USERPROFILE 'develop\flutter\bin\flutter.bat')) 'Run SETUP-WINDOWS.cmd, then check flutter doctor.'
-Check VSCode code.cmd @((Join-Path $env:LOCALAPPDATA 'Programs\Microsoft VS Code\bin\code.cmd'),(Join-Path $env:ProgramFiles 'Microsoft VS Code\bin\code.cmd')) 'Install VS Code with SETUP-DEVELOPER-WINDOWS.cmd.'
+Check Git git.exe @((Join-Path $env:ProgramFiles 'Git\cmd\git.exe')) 'Run launchers\windows\1 - Set up this computer.cmd, then restart the terminal.'
+Check Chrome chrome.exe @((Join-Path $env:ProgramFiles 'Google\Chrome\Application\chrome.exe'),(Join-Path $env:LOCALAPPDATA 'Google\Chrome\Application\chrome.exe')) 'Run launchers\windows\1 - Set up this computer.cmd to install Chrome.'
+Check Flutter flutter.bat @((Join-Path $env:USERPROFILE 'develop\flutter\bin\flutter.bat')) 'Run launchers\windows\1 - Set up this computer.cmd, then check flutter doctor.'
+Check VSCode code.cmd @((Join-Path $env:LOCALAPPDATA 'Programs\Microsoft VS Code\bin\code.cmd'),(Join-Path $env:ProgramFiles 'Microsoft VS Code\bin\code.cmd')) 'Install VS Code with launchers\windows\1 - Set up this computer.cmd.'
 Check Node node.exe @((Join-Path $env:ProgramFiles 'nodejs\node.exe')) 'Run developer setup for Node.js LTS.'
 Check Npm npm.cmd @((Join-Path $env:ProgramFiles 'nodejs\npm.cmd')) 'Reinstall Node.js LTS, then restart Windows.'
 Check GitHubCLI gh.exe @((Join-Path $env:ProgramFiles 'GitHub CLI\gh.exe')) 'Run developer setup for GitHub CLI.'
@@ -105,7 +105,7 @@ foreach($port in $listen) {
   finally{$client.Close()}
 }
 if($closed.Count){
-  $checks.Add((New-FSCheck EmulatorOnline ConfiguredNotConnected 'Local emulator ports are not all reachable.' 'Run START-EMULATORS-WINDOWS.cmd. Check ports 8080, 9099, 9199.'))
+  $checks.Add((New-FSCheck EmulatorOnline ConfiguredNotConnected 'Local emulator ports are not all reachable.' 'Run launchers\windows\3 - Start practice Firebase.cmd. Check ports 8080, 9099, 9199.'))
 }else{
   $checks.Add((New-FSCheck EmulatorOnline Ready 'Local Auth/Firestore/Storage TCP ports respond; app integration still needs a real UI test.' ''))
 }
@@ -118,7 +118,7 @@ if($gh){
 $checks.Add((New-FSCheck AndroidDevice ConfiguredNotConnected 'A native Android device and Maestro flow were not run by this diagnostic.' 'Run flutter devices and one Maestro flow on an emulator or phone.'))
 
 Check Maestro maestro.bat @((Join-Path $env:LOCALAPPDATA 'Programs\Maestro\bin\maestro.bat')) 'Run setup for mobile testing. Java and a phone/emulator are required.'
-Check AndroidStudio studio64.exe @((Join-Path $env:ProgramFiles 'Android\Android Studio\bin\studio64.exe')) 'Run SETUP-ANDROID.cmd and complete the Android SDK setup wizard.'
+Check AndroidStudio studio64.exe @((Join-Path $env:ProgramFiles 'Android\Android Studio\bin\studio64.exe')) 'Run launchers\windows\more\Android setup.cmd and complete the Android SDK setup wizard.'
 Check ClaudeCLI claude.exe @((Join-Path $env:USERPROFILE '.local\bin\claude.exe')) 'Optional: run the developer setup or use VS Code extension.'
 Check CodexCLI codex.cmd @((Join-Path $env:APPDATA 'npm\codex.cmd')) 'Optional: run developer setup or use Codex VS Code extension.'
 $pwsh=(Get-Command pwsh.exe -ErrorAction SilentlyContinue|Select-Object -First 1)
@@ -129,9 +129,9 @@ if(Test-Path -LiteralPath $pwshPath){
     $v=[version](([string]($vers|Select-Object -First 1)) -replace '-.*$','')
     $requiredPwsh=if($TargetProfile -eq 'Preview'){[version]'7.4.0'}else{[version]'7.6.0'}
     if($v -ge $requiredPwsh){$checks.Add((New-FSCheck PowerShell7 Ready 'Version meets baseline.' '' $v.ToString()))}
-    else{$checks.Add((New-FSCheck PowerShell7 Outdated 'PowerShell version is below the chosen profile minimum.' 'Run FIRST-RUN-WINDOWS.cmd to update PowerShell.' $v.ToString()))}
+    else{$checks.Add((New-FSCheck PowerShell7 Outdated 'PowerShell version is below the chosen profile minimum.' 'Run START-WINDOWS.cmd to update PowerShell.' $v.ToString()))}
   }catch{$checks.Add((New-FSCheck PowerShell7 Failed 'PowerShell 7 could not start.' 'Restart terminal or ask IT to repair PowerShell 7.'))}
-}else{$checks.Add((New-FSCheck PowerShell7 Missing 'PowerShell 7 not found.' 'Run FIRST-RUN-WINDOWS.cmd to install it.'))}
+}else{$checks.Add((New-FSCheck PowerShell7 Missing 'PowerShell 7 not found.' 'Run START-WINDOWS.cmd to install it.'))}
 $java=Get-Command java.exe -ErrorAction SilentlyContinue|Select-Object -First 1
 if($java) {
   $verLine=(& cmd.exe /c 'java -version 2>&1'|Out-String)
@@ -147,9 +147,9 @@ if($java) {
 $demoCheck=@($checks | Where-Object {$_.Id -eq 'DemoConfig'})
 $emulatorCheck=@($checks | Where-Object {$_.Id -eq 'EmulatorOnline'})
 if($demoCheck.Count -gt 0 -and $emulatorCheck.Count -gt 0 -and $demoCheck[0].Status -eq 'Ready' -and $emulatorCheck[0].Status -eq 'Ready'){
-  $checks.Add((New-FSCheck EmulatorWiring ConfiguredNotConnected 'Emulator ports and demo configuration detected; Flutter app handshake is still required.' 'Launch RUN-EMULATOR-APP-WINDOWS.cmd and verify successful local sign-in.'))
+  $checks.Add((New-FSCheck EmulatorWiring ConfiguredNotConnected 'Emulator ports and demo configuration detected; Flutter app handshake is still required.' 'Launch launchers\windows\4 - Run app with practice Firebase.cmd and verify successful local sign-in.'))
 }else{
-  $checks.Add((New-FSCheck EmulatorWiring ConfiguredNotConnected 'Demo Firebase configuration or running emulators are missing.' 'Start START-EMULATORS-WINDOWS.cmd and the local Flutter app.'))
+  $checks.Add((New-FSCheck EmulatorWiring ConfiguredNotConnected 'Demo Firebase configuration or running emulators are missing.' 'Start launchers\windows\3 - Start practice Firebase.cmd and the local Flutter app.'))
 }
 $checks.Add((New-FSCheck DevCloudIdentity AuthRequired 'Maintainer DEV credentials are not configured in the default bootstrap.' 'Request separately authorized DEV-only IAM when needed; do not use PROD credentials.'))
 $config=Join-Path $root '.vscode\mcp.json'

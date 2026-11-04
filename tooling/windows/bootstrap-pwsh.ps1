@@ -5,9 +5,11 @@ Run by the repository's .cmd entrypoints; never changes execution policy globall
 #>
 param(
     [Parameter(Mandatory = $true)]
-    [ValidateSet('wizard','developer','setup','android','run','verify','emulators','run-emulator')]
+    [ValidateSet('wizard','contributor','check','preview','developer','setup','android','run','verify','emulators','run-emulator')]
     [string]$Mode,
-    [switch]$SelfTest
+    [switch]$SelfTest,
+    # Report which PowerShell 7 was found and why a candidate failed; installs nothing.
+    [switch]$ProbeOnly
 )
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
@@ -17,6 +19,10 @@ $preferred = [version]'7.6.0'
 $minimum = if($Mode -in @('setup','android','run')){[version]'7.4.0'}else{[version]'7.6.0'}
 $entries = @{
     wizard    = @{File='first-run.ps1'; Args=@(); Update=$true}
+    # Numbered launchers in launchers\windows run one wizard step and exit.
+    contributor = @{File='first-run.ps1'; Args=@('-Action','contributor'); Update=$true}
+    check     = @{File='first-run.ps1'; Args=@('-Action','check'); Update=$false}
+    preview   = @{File='first-run.ps1'; Args=@('-Action','preview'); Update=$true}
     developer = @{File='setup-developer.ps1'; Args=@(); Update=$true}
     setup     = @{File='setup.ps1'; Args=@(); Update=$true}
     android   = @{File='setup.ps1'; Args=@('-Android'); Update=$true}
@@ -25,25 +31,65 @@ $entries = @{
     emulators = @{File='start-emulators.ps1'; Args=@(); Update=$false}
     'run-emulator' = @{File='run-emulator-app.ps1'; Args=@(); Update=$false}
 }
-function Locate-Pwsh {
-    $command = Get-Command 'pwsh.exe' -ErrorAction SilentlyContinue | Select-Object -First 1
-    if($command){return $command.Source}
-    $candidates = @(
-        (Join-Path $env:ProgramFiles 'PowerShell\7\pwsh.exe'),
-        (Join-Path $env:LOCALAPPDATA 'Microsoft\WindowsApps\pwsh.exe')
-    )
-    foreach($path in $candidates){
-        if($path -and (Test-Path -LiteralPath $path)){return $path}
+$script:PwshProbe = New-Object System.Collections.Generic.List[string]
+function Get-PwshCandidates {
+    # Prefer the real MSI install over PATH entries or Store app-execution aliases.
+    $list = New-Object System.Collections.Generic.List[string]
+    foreach($dir in @($env:ProgramFiles, $env:ProgramW6432)){
+        if($dir){$list.Add((Join-Path $dir 'PowerShell\7\pwsh.exe'))}
+    }
+    foreach($command in @(Get-Command 'pwsh.exe' -All -ErrorAction SilentlyContinue)){
+        if($command.Source){$list.Add($command.Source)}
+    }
+    if($env:LOCALAPPDATA){$list.Add((Join-Path $env:LOCALAPPDATA 'Microsoft\WindowsApps\pwsh.exe'))}
+    $seen = @{}
+    foreach($path in $list){
+        if(-not $seen.ContainsKey($path) -and (Test-Path -LiteralPath $path)){
+            $seen[$path] = $true
+            $path
+        }
+    }
+}
+function PwshVersion([string]$path) {
+    # Windows PowerShell 5.1 pitfalls avoided on purpose: no Select-Object -First on
+    # native output (can leave $LASTEXITCODE unset or stale), no stderr redirection
+    # under 'Stop' (any stderr text throws), and $LASTEXITCODE is primed so a stale
+    # value from WinGet can never be mistaken for this probe's result.
+    if(-not $path){return $null}
+    $previous = $ErrorActionPreference
+    try {
+        $ErrorActionPreference = 'Continue'
+        $global:LASTEXITCODE = -999
+        $output = @(& $path -NoLogo -NoProfile -NonInteractive -Command '$PSVersionTable.PSVersion.ToString()' 2>&1)
+        $code = $global:LASTEXITCODE
+        $stdout = (@($output | Where-Object { $_ -isnot [System.Management.Automation.ErrorRecord] }) | ForEach-Object { "$_" }) -join ' '
+        $stderr = (@($output | Where-Object { $_ -is [System.Management.Automation.ErrorRecord] }) | ForEach-Object { "$_" }) -join ' '
+        if($code -eq 0 -and $stdout -match '(\d+)\.(\d+)\.(\d+)'){
+            return [version]('{0}.{1}.{2}' -f $Matches[1], $Matches[2], $Matches[3])
+        }
+        $script:PwshProbe.Add(("{0}: exit code {1}; output '{2}'; errors '{3}'" -f $path, $code, $stdout.Trim(), $stderr.Trim()))
+    } catch {
+        $script:PwshProbe.Add(("{0}: could not start ({1})" -f $path, $_.Exception.Message))
+    } finally {
+        $ErrorActionPreference = $previous
     }
     return $null
 }
-function PwshVersion([string]$path) {
-    if(-not $path){return $null}
-    try {
-        $raw = (& $path -NoLogo -NoProfile -NonInteractive -Command '$PSVersionTable.PSVersion.ToString()' 2>$null | Select-Object -First 1)
-        if($LASTEXITCODE -ne 0){return $null}
-        return [version]([string]$raw).Trim()
-    } catch {return $null}
+function Find-Pwsh {
+    # Returns the first candidate that actually runs, plus its version.
+    $script:PwshProbe.Clear()
+    $first = $null
+    foreach($path in @(Get-PwshCandidates)){
+        if(-not $first){$first = $path}
+        $found = PwshVersion $path
+        if($found){return [pscustomobject]@{Path=$path; Version=$found}}
+    }
+    if(-not $first){$script:PwshProbe.Add('No pwsh.exe found in Program Files, PATH or WindowsApps.')}
+    return [pscustomobject]@{Path=$first; Version=$null}
+}
+function Probe-Details {
+    if($script:PwshProbe.Count){return (' Details: ' + ($script:PwshProbe -join ' | '))}
+    return ''
 }
 function Refresh-Path {
     $env:Path = [Environment]::GetEnvironmentVariable('Path','Machine') + ';' +
@@ -78,34 +124,50 @@ try {
     if($SelfTest){
         Write-Host "Bootstrap self-test: mode=$Mode; target=$($selected.File); minimum=$minimum"
         if($Mode -eq 'android' -and $selected.Args[0] -ne '-Android'){throw 'Android argument mapping failed.'}
+        if($Mode -in @('contributor','check','preview') -and ($selected.Args -join ' ') -ne "-Action $Mode"){throw 'Wizard step mapping failed.'}
         if($selected.File -notmatch '\.ps1$'){throw 'Invalid script mapping.'}
         Write-Host 'Bootstrap mapping valid. No programs installed.'
         exit 0
     }
-    $pwsh = Locate-Pwsh
-    $version = PwshVersion $pwsh
-    if($Mode -eq 'verify' -and (-not $version -or $version -lt $minimum)){
+    $found = Find-Pwsh
+    $pwsh = $found.Path
+    $version = $found.Version
+    if($ProbeOnly){
+        Write-Host ("PowerShell 7 probe: path='{0}' version='{1}'.{2}" -f $pwsh, $version, (Probe-Details))
+        if($version){exit 0}else{exit 1}
+    }
+    if($Mode -in @('verify','check') -and (-not $version -or $version -lt $minimum)){
+        # first-run.ps1 needs PowerShell 7.6, so "check" falls back to the 5.1-safe diagnostics.
         Write-Host 'PowerShell 7 is not ready. Running read-only diagnostics in Windows PowerShell 5.1.' -ForegroundColor Yellow
-        & powershell.exe -NoProfile -ExecutionPolicy Bypass -File $script
+        $checkProfile='Contributor'
+        if($Mode -eq 'check'){
+            . (Join-Path $PSScriptRoot 'diagnostic-model.ps1')
+            $checkProfile=Get-FSRememberedProfile $root 'Contributor'
+        }
+        & powershell.exe -NoProfile -ExecutionPolicy Bypass -File (Join-Path $PSScriptRoot 'verify-developer.ps1') -TargetProfile $checkProfile
         exit [int]$LASTEXITCODE
     }
     if(-not $version) {
         Install-Pwsh
-        $pwsh = Locate-Pwsh
-        $version = PwshVersion $pwsh
+        $found = Find-Pwsh
+        $pwsh = $found.Path
+        $version = $found.Version
     } elseif($selected.Update -and $version -lt $preferred) {
         try {
             Update-Pwsh
-            $candidate = Locate-Pwsh
-            $candidateVersion = PwshVersion $candidate
-            if($candidateVersion){$pwsh=$candidate;$version=$candidateVersion}
+            $candidate = Find-Pwsh
+            if($candidate.Version){$pwsh=$candidate.Path;$version=$candidate.Version}
         } catch {
             if($version -lt $minimum){throw}
             Write-Warning "PowerShell upgrade unavailable; installed $version still satisfies this script's minimum $minimum."
         }
     }
     if(-not $version -or $version -lt $minimum){
-        throw "PowerShell 7.6 LTS or newer could not be started. Restart Windows after installation. Current version: $version. Run FIRST-RUN-WINDOWS.cmd again."
+        if($version){
+            throw "PowerShell $version was found at $pwsh, but this step needs $minimum or newer. Double-click START-WINDOWS.cmd again to update it."
+        }
+        throw ("PowerShell 7 is installed but could not be started from Windows PowerShell." + (Probe-Details) +
+               " If it was installed just now, restart Windows and double-click START-WINDOWS.cmd again; if this repeats, send this whole message.")
     }
     Write-Host "Using PowerShell $version ($pwsh)" -ForegroundColor Green
     $scriptArguments = [string[]]$selected.Args

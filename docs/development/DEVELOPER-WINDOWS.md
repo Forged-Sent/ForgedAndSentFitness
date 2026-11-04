@@ -4,7 +4,7 @@
 
 **PowerShell 7.6 LTS or newer is the standard for this repo.** The double-click .cmd entrypoints begin with the built-in Windows PowerShell 5.1 only to run tooling/windows/bootstrap-pwsh.ps1. The bootstrap checks for pwsh, installs or updates PowerShell using the official WinGet ID Microsoft.PowerShell, checks it is at least 7.6, and launches all developer scripts with pwsh.exe. Windows PowerShell 5.1 stays installed; don't remove it. The launchers do not permanently change execution policy.
 
-The full and preview installers check for updates. RUN-APP.cmd does not check for updates every time. If WinGet/App Installer is missing, installer permission is declined, or a restart is needed, the wizard prints a clear fix and stops rather than silently using 5.1.
+The full and preview installers check for updates. `launchers/windows/2 - Run the app.cmd` does not check for updates every time. If WinGet/App Installer is missing, installer permission is declined, or a restart is needed, the wizard prints a clear fix and stops rather than silently using 5.1.
 
 Run pwsh --version to check it yourself. VS Code now defaults to the PowerShell 7 terminal for this workspace. PowerShell 7 is installed side-by-side with 5.1.
 
@@ -12,9 +12,9 @@ Official installation instructions: https://learn.microsoft.com/en-us/powershell
 
 ## Two setups, for different teammates
 
-- Preview-only: run SETUP-WINDOWS.cmd, then RUN-APP.cmd. This opens the Flutter starter in Chrome, without accounts.
-- Full development: run SETUP-DEVELOPER-WINDOWS.cmd, then VERIFY-DEVELOPER-WINDOWS.cmd and RUN-APP.cmd.
-- Optional Android phone development: run SETUP-ANDROID.cmd. Complete Android Studio setup, licenses and device pairing yourself.
+- Preview-only: run `launchers/windows/more/Preview-only setup.cmd`, then `launchers/windows/2 - Run the app.cmd`. This opens the Flutter starter in Chrome, without accounts.
+- Full development: run `launchers/windows/1 - Set up this computer.cmd`, then `launchers/windows/5 - Check my setup.cmd` and `launchers/windows/2 - Run the app.cmd`.
+- Optional Android phone development: run `launchers/windows/more/Android setup.cmd`. Complete Android Studio setup, licenses and device pairing yourself.
 - Local iOS builds require a Mac and Xcode.
 
 Use your existing **Git clone**. For normal setup after PR #4 merges, run `git status`, `git switch main`, `git fetch origin`, and `git pull --ff-only`. When testing the still-open Draft PR #4 before merge, see the PR checkout instructions in [Windows quickstart](WINDOWS-QUICKSTART.md). Only if you have no clone: `git clone https://github.com/Forged-Sent/ForgedAndSentFitness.git`. Do not overwrite or force-reset local work. Only run scripts from this repository when you trust them. Corporate security restrictions should not be bypassed.
@@ -31,7 +31,7 @@ Tools are reused when found; project-scoped MCPs depend on Node and require user
 
 ## Guided first run
 
-Start with **FIRST-RUN-WINDOWS.cmd**. The wizard offers developer/preview installation, account sign-ins, MCP setup, launching the app, and an explicit "check everything" command that explains each missing dependency and gives a repair step.
+Start with **START-WINDOWS.cmd**. The wizard offers developer/preview installation, account sign-ins, MCP setup, launching the app, and an explicit "check everything" command that explains each missing dependency and gives a repair step.
 
 It generates a **secret-free AI troubleshooting prompt** in the Windows temporary folder and offers to copy it to the clipboard. It does not paste or send it automatically. See docs/development/FIRST-RUN-TROUBLESHOOTING.md.
 
@@ -55,7 +55,7 @@ The shared .vscode/mcp.json is for VS Code and Copilot. Claude uses .mcp.json an
 3. Sign into **only the AI assistant you selected**, if you want AI-assisted work. Other assistants are optional.
 4. Use VS Code Command Palette > MCP: List Servers to verify Dart, Context7 and Playwright. Configured alone does not mean connected.
 5. Do not run `firebase login` as a Contributor. PR #4 includes the demo local emulators; cloud DEV access is separately provisioned later.
-6. Run `RUN-APP.cmd` for plain Flutter Preview. To test live demo Firebase, start `START-EMULATORS-WINDOWS.cmd`, then `RUN-EMULATOR-APP-WINDOWS.cmd` in a second window. Leave both consoles open.
+6. Run `launchers/windows/2 - Run the app.cmd` for plain Flutter Preview. To test live demo Firebase, start `launchers/windows/3 - Start practice Firebase.cmd`, then `launchers/windows/4 - Run app with practice Firebase.cmd` in a second window. Leave both consoles open.
 
 Follow the cross-platform [first-contribution guide](FIRST-CONTRIBUTION.md) to create a branch, edit one line, run tests and open a Draft PR. A free public GitHub Actions runner does not make Claude/Codex/Copilot usage free. No agent is authorized to deploy, commit secrets, or change accepted architecture just because its extension is installed.
 
@@ -85,7 +85,7 @@ Review and commit only intentional skill changes. The Flutter app still needs fu
 
 ## Verification and support
 
-VERIFY-DEVELOPER-WINDOWS.cmd checks local executables, key VS Code extensions, and MCP JSON structure. It writes a diagnostics-only report to the TEMP folder. It cannot prove MCP handshakes, logins, or a fresh machine installation succeeded.
+`launchers/windows/5 - Check my setup.cmd` checks local executables, key VS Code extensions, and MCP JSON structure. It writes a diagnostics-only report to the TEMP folder. It cannot prove MCP handshakes, logins, or a fresh machine installation succeeded.
 
 For errors, send a screenshot and the diagnostics report, **never API keys or credentials**.
 

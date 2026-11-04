@@ -15,20 +15,27 @@ git status
 
 If you've already cloned it, **reuse that folder**. Do not download a ZIP or make a second checkout. Check `git status` first, then `git switch main`, `git fetch origin` and `git pull --ff-only`. If Git reports unsaved changes or divergence, stop rather than resetting or deleting work.
 
-**While PR #4 is still unmerged:** an advanced tester may explicitly choose the PR branch using `git fetch origin pull/4/head:pr4-workstation-test` and `git switch pr4-workstation-test`. This is for reviewing PR #4 *before* it lands. All normal contributor instructions use `main` so they remain valid after merge.
+**While PR #4 is still unmerged:** an advanced tester may explicitly choose the PR branch using `git fetch origin pull/4/head:pr4-workstation-test` and `git switch pr4-workstation-test`. To pick up later PR updates while on that branch, run `git pull --ff-only origin pull/4/head`. This is for reviewing PR #4 *before* it lands. All normal contributor instructions use `main` so they remain valid after merge.
 
-## Setup and preview
+## Set up and run (double-click only)
 
-From the cloned folder, double-click `FIRST-RUN-WINDOWS.cmd`. Choose **Preview**, approve only trusted installer prompts, and launch `RUN-APP.cmd` to see the small Forged & Sent screen in Chrome.
+Open the cloned `ForgedAndSentFitness` folder in **File Explorer**. Then open `launchers`, then `windows`, and double-click the files in number order:
 
-To make changes, run the wizard again and choose **Contributor**. It installs/checks Flutter, VS Code, Node, GitHub CLI, Firebase CLI, JDK 21, Python 3, and developer guardrails. The wizard helps set a Git commit name and email. Use your GitHub `noreply` address if you prefer not to publish your personal email.
+1. **`1 - Set up this computer.cmd`** installs or reuses Flutter, VS Code, Node, GitHub CLI, Firebase CLI, JDK 21, Python 3 and developer guardrails. Approve only trusted installer prompts. It asks you to choose **one** optional AI assistant and helps set a Git commit name and email (a GitHub `noreply` address is fine). Safe to rerun.
+2. **`2 - Run the app.cmd`** opens the small Forged & Sent screen in Chrome.
+3. **`3 - Start practice Firebase.cmd`** and **`4 - Run app with practice Firebase.cmd`** are explained in the next section.
+4. **`5 - Check my setup.cmd`** explains anything missing, with a WHY and FIX line for each item.
 
-Choose **one** AI assistant to sign into if desired. Codex, Claude and Copilot are alternatives, not three required subscriptions. Flutter/Dart tools are independent of a paid AI plan.
+Prefer a menu? Double-click **`START-WINDOWS.cmd`** in the main folder instead; it offers the same steps plus extras. If Windows SmartScreen appears, choose **More info**, then **Run anyway**, only for these project files.
+
+Only want to look at the app, not edit it? Use `launchers/windows/more/Preview-only setup.cmd` instead of step 1.
+
+Codex, Claude and Copilot are alternatives, not three required subscriptions. Flutter/Dart tools are independent of a paid AI plan.
 
 ## Verify local Firebase
 
-1. Open `START-EMULATORS-WINDOWS.cmd` and keep that window running. Wait until the Firebase CLI reports the services are ready.
-2. In another window open `RUN-EMULATOR-APP-WINDOWS.cmd`.
+1. Open `launchers/windows/3 - Start practice Firebase.cmd` and keep that window running. Wait until it says **All emulators ready! It is now safe to connect your app.** If it instead says a port "is already in use" ("Are you running another copy of the emulator suite?"), close the other emulator window or development server, or restart the computer, and try again. Don't edit `firebase.json`.
+2. In another window open `launchers/windows/4 - Run app with practice Firebase.cmd`.
 3. Confirm the Flutter screen reports verified local Auth, Firestore and Storage. Stopping one emulator and starting the app again must produce an error, **never cloud fallback**.
 
 No Firebase account, `firebase login`, `flutterfire configure`, or production credentials are required.
@@ -37,7 +44,7 @@ No Firebase account, `firebase login`, `flutterfire configure`, or production cr
 
 Follow **[FIRST-CONTRIBUTION.md](FIRST-CONTRIBUTION.md)** for a graphical Windows/Mac route: VS Code Source Control, one harmless edit, Flutter tests, a new branch, draft PR and GitHub `ci-gate`. Ask the maintainer for GitHub organization/repository write access before trying to publish a branch; without it, use the normal fork/PR route.
 
-Use `VERIFY-DEVELOPER-WINDOWS.cmd` to diagnose missing tools, `ARCHITECTURE-WINDOWS.cmd` for the offline Architecture Atlas, and `REVIEW-WINDOWS.cmd` for **optional** non-author AI review.
+Use `launchers/windows/5 - Check my setup.cmd` to diagnose missing tools, `launchers/windows/more/Architecture Atlas.cmd` for the offline Architecture Atlas, and `launchers/windows/more/AI code review.cmd` for **optional** non-author AI review.
 
 Optional Android development requires Android Studio, SDK licenses and a configured emulator/device; Windows cannot run the iOS simulator.
 

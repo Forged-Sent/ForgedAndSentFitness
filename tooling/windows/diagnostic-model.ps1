@@ -17,6 +17,28 @@ function Get-FSNeed {
   if($script:FSProfiles[$TargetProfile] -contains $Id){return 'Required'}
   return 'Optional'
 }
+# The wizard remembers the last chosen profile inside this clone's private Git
+# directory (never committed, never global) so "Check my setup" grades a
+# returning Contributor as a Contributor, not as Preview.
+function Get-FSProfileFile([string]$Root){
+  try{
+    $gitDir=(& git -C $Root rev-parse --absolute-git-dir 2>$null | Out-String).Trim()
+    if($LASTEXITCODE -ne 0 -or -not $gitDir){return $null}
+    return (Join-Path $gitDir 'forged-sent-profile')
+  }catch{return $null}
+}
+function Save-FSProfile([string]$Root,[ValidateSet('Preview','Contributor','Mobile','Maintainer')][string]$TargetProfile){
+  $file=Get-FSProfileFile $Root
+  if($file){try{Set-Content -LiteralPath $file -Value $TargetProfile -Encoding ascii}catch{}}
+}
+function Get-FSRememberedProfile([string]$Root,[ValidateSet('Preview','Contributor','Mobile','Maintainer')][string]$Fallback='Preview'){
+  $file=Get-FSProfileFile $Root
+  if($file -and (Test-Path -LiteralPath $file)){
+    $saved=((Get-Content -LiteralPath $file -TotalCount 1 -ErrorAction SilentlyContinue) | Out-String).Trim()
+    if($saved -and $script:FSProfiles.ContainsKey($saved)){return $saved}
+  }
+  return $Fallback
+}
 function Get-FSExitCode {
   param([ValidateSet('Preview','Contributor','Mobile','Maintainer')][string]$TargetProfile,[object[]]$Checks)
   foreach($c in $Checks) {

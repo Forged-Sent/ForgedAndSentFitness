@@ -194,7 +194,7 @@ def evaluate(root: Path) -> list[str]:
             "/mobile/", "/tooling/", "/.github/", "/.codex/", "/.claude/",
             "/.agents/", "/.gemini/", "/.vscode/", "/docs/architecture/", "/docs/knowledge/", "/firebase/",
             "/.mcp.json", "/.mcp.optional.example.json", "/.gitignore", "/.gitattributes", "/AGENTS.md",
-            "/CLAUDE.md", "/GEMINI.md", "/*.cmd", "/*.command", "*.rules",
+            "/CLAUDE.md", "/GEMINI.md", "/*.cmd", "/*.command", "/launchers/", "*.rules",
             "/seed/db-rules.json", "/seed/weekly-challenges.json",
             "/seed/movement-standards.json", "/seed/tasks.json",
             "/dev/*.py", "/dev/patches/", "/dev/firebase/",
@@ -235,7 +235,8 @@ def evaluate(root: Path) -> list[str]:
         except OSError:
             continue
     launch_globs = ("tooling/**/*.ps1", "tooling/**/*.sh", "tooling/**/*.mjs",
-                    "*.cmd", "*.command", ".github/workflows/*.yml",
+                    "*.cmd", "*.command", "launchers/**/*.cmd", "launchers/**/*.command",
+                    ".github/workflows/*.yml",
                     "docs/**/*.md", "mobile/README.md")
     for pattern in launch_globs:
         for script in root.glob(pattern):

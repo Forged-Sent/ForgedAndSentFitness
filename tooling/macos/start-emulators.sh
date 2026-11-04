@@ -8,9 +8,9 @@ if [ "${1:-}" = "--self-test" ]; then
   exit 0
 fi
 [ "$(uname -s)" = Darwin ] || { fs_fail 'Mac Firebase launcher requires macOS.'; exit 1; }
-fs_has firebase || { fs_fail 'Firebase CLI missing. Run SETUP-DEVELOPER-MAC.command.'; exit 1; }
+fs_has firebase || { fs_fail 'Firebase CLI missing. Run launchers/mac/1 - Set up this computer.command.'; exit 1; }
 fs_home="$(fs_java21_home || true)"
-[ -n "$fs_home" ] || { fs_fail 'JDK 21 missing. Run SETUP-DEVELOPER-MAC.command.'; exit 1; }
+[ -n "$fs_home" ] || { fs_fail 'JDK 21 missing. Run launchers/mac/1 - Set up this computer.command.'; exit 1; }
 export JAVA_HOME="$fs_home"
 export PATH="$JAVA_HOME/bin:$PATH"
 cd "$FS_ROOT"
