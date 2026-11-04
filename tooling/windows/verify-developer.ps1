@@ -31,6 +31,10 @@ if($SelfTest){
   Write-Host 'Self-test passed: profile-aware statuses and optional/required exit logic.'
   exit 0
 }
+# Progress lines so a long check never looks frozen; the full report prints at the end.
+function Say([string]$what){Write-Host ('  checking '+$what+'...') -ForegroundColor DarkGray}
+Write-Host "Checking your computer for the $TargetProfile setup (usually under a minute; the report prints at the end)." -ForegroundColor Cyan
+Say 'Git, Chrome, Flutter, VS Code, Node and command-line tools'
 Check Git git.exe @((Join-Path $env:ProgramFiles 'Git\cmd\git.exe')) 'Run launchers\windows\1 - Set up this computer.cmd, then restart the terminal.'
 Check Chrome chrome.exe @((Join-Path $env:ProgramFiles 'Google\Chrome\Application\chrome.exe'),(Join-Path $env:LOCALAPPDATA 'Google\Chrome\Application\chrome.exe')) 'Run launchers\windows\1 - Set up this computer.cmd to install Chrome.'
 # The project (launchers, VS Code dart.flutterSdkPath) uses the pinned SDK in the user folder.
@@ -43,6 +47,7 @@ Check Node node.exe @((Join-Path $env:ProgramFiles 'nodejs\node.exe')) 'Run deve
 Check Npm npm.cmd @((Join-Path $env:ProgramFiles 'nodejs\npm.cmd')) 'Reinstall Node.js LTS, then restart Windows.'
 Check GitHubCLI gh.exe @((Join-Path $env:ProgramFiles 'GitHub CLI\gh.exe')) 'Run developer setup for GitHub CLI.'
 Check FirebaseCLI firebase.cmd @((Join-Path $env:APPDATA 'npm\firebase.cmd')) 'Run developer setup for local Firebase CLI. No Firebase login required for Preview.'
+Say 'Python'
 $pyVersion=''
 foreach($candidate in @(@('py.exe','-3'),@('python.exe'))) {
   $tool=Get-Command $candidate[0] -ErrorAction SilentlyContinue|Select-Object -First 1
@@ -79,6 +84,7 @@ if((Test-Path -LiteralPath $demo) -and (Test-Path -LiteralPath $configFile)){
     else{$checks.Add((New-FSCheck DemoConfig Failed 'Firebase project is not demo-forgedandsent.' 'Restore the checked-in demo .firebaserc.'))}
   }catch{$checks.Add((New-FSCheck DemoConfig Failed 'Local demo configuration could not be parsed.' 'Restore firebase.json and .firebaserc.'))}
 }else{$checks.Add((New-FSCheck DemoConfig Missing 'Firebase emulator files are missing.' 'Checkout PR #4 complete files.'))}
+Say 'Java 21 for practice Firebase'
 $javaHome=[Environment]::GetEnvironmentVariable('JAVA_HOME','Process')
 $javaPath=if($javaHome){Join-Path $javaHome 'bin\java.exe'}else{''}
 if(-not $javaPath -or -not (Test-Path -LiteralPath $javaPath)){
@@ -97,6 +103,7 @@ if($javaPath -and (Test-Path -LiteralPath $javaPath)){
     else{$checks.Add((New-FSCheck Java21 Outdated 'JDK 21+ is required.' 'Run the Contributor setup JDK installer.' "$javaMajor"))}
   }else{$checks.Add((New-FSCheck Java21 Failed 'Could not read JAVA_HOME Java version.' 'Rerun Contributor setup.'))}
 }else{$checks.Add((New-FSCheck Java21 Missing 'Java 21 not found in the development profile or standard installation path.' 'Run Contributor setup; restart Windows if needed.'))}
+Say 'practice Firebase ports 8080, 9099, 9199'
 $listen=@(8080,9099,9199)
 $closed=New-Object System.Collections.Generic.List[int]
 foreach($port in $listen) {
@@ -115,9 +122,18 @@ if($closed.Count){
 }
 $gh=Get-Command gh.exe -ErrorAction SilentlyContinue|Select-Object -First 1
 if($gh){
-  $null=& $gh.Source auth status 2>&1
-  if($LASTEXITCODE -eq 0){$checks.Add((New-FSCheck GitHubAuth Ready 'GitHub CLI account is authenticated.' ''))}
-  else{$checks.Add((New-FSCheck GitHubAuth AuthRequired 'GitHub account not authorized for draft PRs.' 'Run wizard option 4 to sign in.'))}
+  Say 'GitHub sign-in (needs the internet; gives up after 15 seconds)'
+  # gh contacts GitHub to validate a saved token; never let a slow network freeze setup.
+  $ghOut=[System.IO.Path]::GetTempFileName(); $ghErr=[System.IO.Path]::GetTempFileName()
+  try{
+    $ghProc=Start-Process -FilePath $gh.Source -ArgumentList @('auth','status') -NoNewWindow -PassThru -RedirectStandardOutput $ghOut -RedirectStandardError $ghErr
+    if(-not $ghProc.WaitForExit(15000)){
+      try{$ghProc.Kill()}catch{}
+      $checks.Add((New-FSCheck GitHubAuth AuthRequired 'GitHub sign-in check timed out (no reply from GitHub within 15 seconds).' 'Check the internet connection, then run 5 - Check my setup.cmd again.'))
+    }elseif($ghProc.ExitCode -eq 0){$checks.Add((New-FSCheck GitHubAuth Ready 'GitHub CLI account is authenticated.' ''))}
+    else{$checks.Add((New-FSCheck GitHubAuth AuthRequired 'GitHub account not authorized for draft PRs.' 'In START-WINDOWS.cmd choose 8 (More options), then 3 to sign in to GitHub.'))}
+  }catch{$checks.Add((New-FSCheck GitHubAuth Failed 'GitHub CLI could not be started.' 'Rerun launchers\windows\1 - Set up this computer.cmd.'))}
+  finally{Remove-Item -LiteralPath $ghOut,$ghErr -Force -ErrorAction SilentlyContinue}
 }else{$checks.Add((New-FSCheck GitHubAuth Missing 'GitHub CLI missing.' 'Run Contributor setup.'))}
 $checks.Add((New-FSCheck AndroidDevice ConfiguredNotConnected 'A native Android device and Maestro flow were not run by this diagnostic.' 'Run flutter devices and one Maestro flow on an emulator or phone.'))
 
@@ -125,6 +141,7 @@ Check Maestro maestro.bat @((Join-Path $env:LOCALAPPDATA 'Programs\Maestro\bin\m
 Check AndroidStudio studio64.exe @((Join-Path $env:ProgramFiles 'Android\Android Studio\bin\studio64.exe')) 'Run launchers\windows\more\Android setup.cmd and complete the Android SDK setup wizard.'
 Check ClaudeCLI claude.exe @((Join-Path $env:USERPROFILE '.local\bin\claude.exe')) 'Optional: run the developer setup or use VS Code extension.'
 Check CodexCLI codex.cmd @((Join-Path $env:APPDATA 'npm\codex.cmd')) 'Optional: run developer setup or use Codex VS Code extension.'
+Say 'PowerShell 7 and VS Code MCP configuration'
 $pwsh=(Get-Command pwsh.exe -ErrorAction SilentlyContinue|Select-Object -First 1)
 $pwshPath=if($pwsh){$pwsh.Source}else{Join-Path $env:ProgramFiles 'PowerShell\7\pwsh.exe'}
 if(Test-Path -LiteralPath $pwshPath){
