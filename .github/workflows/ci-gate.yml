@@ -171,6 +171,17 @@ jobs:
           if($LASTEXITCODE){throw 'Diagnostic selftest failed'}
           & pwsh -NoProfile -File tooling/windows/first-run.ps1 -SelfTest
           if($LASTEXITCODE){throw 'Wizard selftest failed'}
+      - name: Knowledge preview server on Windows (exclusive port, allowlist, real process)
+        shell: pwsh
+        run: |
+          $ErrorActionPreference='Stop'
+          python --version
+          python -c "import sys; sys.exit(0 if sys.version_info >= (3,11) else 1)"
+          if($LASTEXITCODE){throw 'Runner Python is older than 3.11, the preview launcher minimum'}
+          python -m unittest discover -s tooling/preview -p 'test_*.py' -v
+          if($LASTEXITCODE){throw 'Knowledge preview tests failed on Windows'}
+          $launcher=Get-Content OPEN-KNOWLEDGE-WINDOWS.cmd -Raw
+          if($launcher -notmatch 'tooling\\preview\\serve_project\.py'){throw 'OPEN-KNOWLEDGE-WINDOWS.cmd must start tooling\preview\serve_project.py'}
 
   windows-preview:
     needs: changes
@@ -260,6 +271,13 @@ jobs:
           bash tooling/macos/setup.sh --profile Contributor --self-test
           bash tooling/macos/verify.sh --self-test
           bash tooling/macos/first-run.sh --self-test
+      - name: Knowledge preview server on macOS (allowlist, real process, start/stop)
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 --version
+          python3 -c 'import sys; sys.exit(0 if sys.version_info >= (3,11) else 1)' || { echo "::error::Runner python3 is older than 3.11"; exit 1; }
+          python3 -m unittest discover -s tooling/preview -p 'test_*.py' -v
       - name: Test cross-platform MCP allowlist
         shell: bash
         run: |
