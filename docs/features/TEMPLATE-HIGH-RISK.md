@@ -9,6 +9,7 @@ feature_id: FNS-000
 status: proposed
 risk: high
 owner: maintainer
+source_ref: PR-000
 source_sha: 0000000000000000000000000000000000000000
 approved_by: none
 test_plan: name planned positive and negative tests

@@ -9,6 +9,7 @@ feature_id: FNS-000
 status: proposed
 risk: low
 owner: maintainer
+source_ref: PR-000
 source_sha: 0000000000000000000000000000000000000000
 approved_by: none
 test_plan: manual acceptance to be defined

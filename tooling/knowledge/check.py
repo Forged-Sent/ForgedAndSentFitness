@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import os
 import re
 import subprocess
 from datetime import date
@@ -114,6 +115,46 @@ def _repo_file(root: Path, value: str) -> Path | None:
     return target if target.is_relative_to(root.resolve()) and target.is_file() else None
 
 
+# source_sha is the stable BASELINE commit a spec was derived from, so it must
+# already be on the canonical base branch. A PR-branch commit could vanish after
+# a squash merge and branch deletion; PR provenance belongs in source_ref (and an
+# optional decision_ref), and Git history already records which commit added the spec.
+BASE_REF_ENV = "FNS_KNOWLEDGE_BASE"
+DEFAULT_BASE_REFS = ("origin/main", "main")
+
+
+def _git(root: Path, *args: str) -> subprocess.CompletedProcess:
+    return subprocess.run(["git", *args], cwd=root, capture_output=True, text=True, check=False)
+
+
+def canonical_base(root: Path) -> str | None:
+    """First resolvable base ref: $FNS_KNOWLEDGE_BASE if set, else origin/main, else main."""
+    override = os.environ.get(BASE_REF_ENV, "").strip()
+    for ref in ((override,) if override else DEFAULT_BASE_REFS):
+        if _git(root, "rev-parse", "--verify", "--quiet", f"{ref}^{{commit}}").returncode == 0:
+            return ref
+    return None
+
+
+def _source_sha_problem(root: Path, sha: str, cache: dict[str, str | None]) -> str | None:
+    try:
+        if _git(root, "cat-file", "-e", f"{sha}^{{commit}}").returncode:
+            return "source_sha is not an available Git commit"
+        if "base" not in cache:
+            cache["base"] = canonical_base(root)
+        base = cache["base"]
+        if base is None:
+            return (f"cannot verify source_sha: no origin/main or main ref here "
+                    f"(fetch main, or set {BASE_REF_ENV} to the canonical base ref)")
+        if _git(root, "merge-base", "--is-ancestor", sha, base).returncode:
+            return (f"source_sha must already be on {base}: use the stable baseline commit the spec "
+                    f"was derived from (for example the PR's merge-base with main), not a PR-branch "
+                    f"commit; record PR provenance in source_ref")
+    except FileNotFoundError:
+        return "git executable not found; cannot verify source_sha"
+    return None
+
+
 def strict_feature_metadata(text: str) -> tuple[dict[str, str], list[str]]:
     """Parse the deliberately simple one-line YAML subset without ambiguity."""
     if not text.startswith("---\n"):
@@ -142,6 +183,7 @@ def validate_feature_contracts(root: Path, errors: list[str]) -> None:
     if not folder.is_dir():
         return
     active: dict[str, str] = {}
+    base_cache: dict[str, str | None] = {}
     for feature_dir in sorted(p for p in folder.iterdir() if p.is_dir()):
         candidates = [feature_dir / "feature.md", feature_dir / "requirements.md"]
         found = [p for p in candidates if p.is_file()]
@@ -170,10 +212,9 @@ def validate_feature_contracts(root: Path, errors: list[str]) -> None:
         if not SHA.fullmatch(sha):
             errors.append(f"{name}: source_sha must be a full 40-character lowercase commit SHA")
         elif (root / ".git").exists():
-            result = subprocess.run(["git", "cat-file", "-e", f"{sha}^{{commit}}"],
-                                    cwd=root, capture_output=True, check=False)
-            if result.returncode:
-                errors.append(f"{name}: source_sha is not an available Git commit")
+            problem = _source_sha_problem(root, sha, base_cache)
+            if problem:
+                errors.append(f"{name}: {problem}")
         if values["status"] != "superseded":
             other = active.get(values["feature_id"])
             if other:
