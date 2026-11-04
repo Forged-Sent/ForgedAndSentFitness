@@ -13,7 +13,7 @@ function Check-Port([int]$port){
 }
 foreach($port in @(9099,8080,9199)){
   if(-not (Check-Port $port)){
-    throw "Local Firebase emulator port $port is unavailable. First run START-EMULATORS-WINDOWS.cmd."
+    throw "Local Firebase emulator port $port is unavailable. First run launchers\windows\3 - Start practice Firebase.cmd."
   }
 }
 $flutter=Get-Command flutter.bat -ErrorAction SilentlyContinue|Select-Object -First 1

@@ -4,7 +4,7 @@
 
 **PowerShell 7.6 LTS or newer is the standard for this repo.** The double-click .cmd entrypoints begin with the built-in Windows PowerShell 5.1 only to run tooling/windows/bootstrap-pwsh.ps1. The bootstrap checks for pwsh, installs or updates PowerShell using the official WinGet ID Microsoft.PowerShell, checks it is at least 7.6, and launches all developer scripts with pwsh.exe. Windows PowerShell 5.1 stays installed; don't remove it. The launchers do not permanently change execution policy.
 
-The full and preview installers check for updates. RUN-APP.cmd does not check for updates every time. If WinGet/App Installer is missing, installer permission is declined, or a restart is needed, the wizard prints a clear fix and stops rather than silently using 5.1.
+The full and preview installers check for updates. `launchers/windows/2 - Run the app.cmd` does not check for updates every time. If WinGet/App Installer is missing, installer permission is declined, or a restart is needed, the wizard prints a clear fix and stops rather than silently using 5.1.
 
 Run pwsh --version to check it yourself. VS Code now defaults to the PowerShell 7 terminal for this workspace. PowerShell 7 is installed side-by-side with 5.1.
 
@@ -12,7 +12,7 @@ Official installation instructions: https://learn.microsoft.com/en-us/powershell
 
 ## One entry point for everyone
 
-Open the **existing Git clone**, switch to `main` (`git switch main`, `git fetch origin`, `git pull --ff-only`). For testing PR #4 while still a Draft, follow [Windows quickstart](WINDOWS-QUICKSTART.md), then double-click **FIRST-RUN-WINDOWS.cmd**. No ZIP is needed. If you do not have a clone, follow [Windows quickstart](WINDOWS-QUICKSTART.md) to install Git and clone the repository. Always preserve uncommitted work before switching.
+Open the **existing Git clone**, switch to `main` (`git switch main`, `git fetch origin`, `git pull --ff-only`). For testing PR #4 while still a Draft, follow [Windows quickstart](WINDOWS-QUICKSTART.md), then double-click **START-WINDOWS.cmd**. No ZIP is needed. If you do not have a clone, follow [Windows quickstart](WINDOWS-QUICKSTART.md) to install Git and clone the repository. Always preserve uncommitted work before switching.
 
 The wizard keeps the primary choices short:
 
@@ -39,7 +39,7 @@ Maestro requires an actual mobile device/emulator; its Windows installer uses a 
 
 ## The setup tells you why it failed
 
-Run menu option 3 or VERIFY-DEVELOPER-WINDOWS.cmd. The diagnostic prints lines like:
+Run menu option 3 or `launchers/windows/5 - Check my setup.cmd`. The diagnostic prints lines like:
 
 [MISSING] Python
  WHY: Python 3.11+ is required to generate the Architecture Atlas.
@@ -57,7 +57,7 @@ The wizard offers to **copy the AI prompt to the clipboard**, but it does **not 
 |---|---|---|
 | WinGet not found | App Installer missing or Windows update pending | Install/update App Installer in Microsoft Store, restart |
 | Flutter not found | SDK download failed, PATH not refreshed | Rerun setup, restart terminal |
-| Android build unavailable | Android Studio, SDK licenses or emulator not ready | Run SETUP-ANDROID.cmd, complete first-run wizard and licenses |
+| Android build unavailable | Android Studio, SDK licenses or emulator not ready | Run `launchers/windows/more/Android setup.cmd`, complete first-run wizard and licenses |
 | Python missing | Python 3.11+ is not available for Atlas/review | Rerun Contributor setup, reopen terminal |
 | Git identity missing | A new Git install cannot label commits | Use wizard > More options > Git name/email (GitHub noreply is fine) |
 | Maestro missing (optional) | Mobile-only CLI or Java not installed | Install Mobile tools only when you need native device tests |

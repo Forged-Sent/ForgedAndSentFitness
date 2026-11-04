@@ -5,7 +5,7 @@ Run by the repository's .cmd entrypoints; never changes execution policy globall
 #>
 param(
     [Parameter(Mandatory = $true)]
-    [ValidateSet('wizard','developer','setup','android','run','verify','emulators','run-emulator')]
+    [ValidateSet('wizard','contributor','check','preview','developer','setup','android','run','verify','emulators','run-emulator')]
     [string]$Mode,
     [switch]$SelfTest,
     # Report which PowerShell 7 was found and why a candidate failed; installs nothing.
@@ -19,6 +19,10 @@ $preferred = [version]'7.6.0'
 $minimum = if($Mode -in @('setup','android','run')){[version]'7.4.0'}else{[version]'7.6.0'}
 $entries = @{
     wizard    = @{File='first-run.ps1'; Args=@(); Update=$true}
+    # Numbered launchers in launchers\windows run one wizard step and exit.
+    contributor = @{File='first-run.ps1'; Args=@('-Action','contributor'); Update=$true}
+    check     = @{File='first-run.ps1'; Args=@('-Action','check'); Update=$false}
+    preview   = @{File='first-run.ps1'; Args=@('-Action','preview'); Update=$true}
     developer = @{File='setup-developer.ps1'; Args=@(); Update=$true}
     setup     = @{File='setup.ps1'; Args=@(); Update=$true}
     android   = @{File='setup.ps1'; Args=@('-Android'); Update=$true}
@@ -120,6 +124,7 @@ try {
     if($SelfTest){
         Write-Host "Bootstrap self-test: mode=$Mode; target=$($selected.File); minimum=$minimum"
         if($Mode -eq 'android' -and $selected.Args[0] -ne '-Android'){throw 'Android argument mapping failed.'}
+        if($Mode -in @('contributor','check','preview') -and ($selected.Args -join ' ') -ne "-Action $Mode"){throw 'Wizard step mapping failed.'}
         if($selected.File -notmatch '\.ps1$'){throw 'Invalid script mapping.'}
         Write-Host 'Bootstrap mapping valid. No programs installed.'
         exit 0
@@ -131,9 +136,15 @@ try {
         Write-Host ("PowerShell 7 probe: path='{0}' version='{1}'.{2}" -f $pwsh, $version, (Probe-Details))
         if($version){exit 0}else{exit 1}
     }
-    if($Mode -eq 'verify' -and (-not $version -or $version -lt $minimum)){
+    if($Mode -in @('verify','check') -and (-not $version -or $version -lt $minimum)){
+        # first-run.ps1 needs PowerShell 7.6, so "check" falls back to the 5.1-safe diagnostics.
         Write-Host 'PowerShell 7 is not ready. Running read-only diagnostics in Windows PowerShell 5.1.' -ForegroundColor Yellow
-        & powershell.exe -NoProfile -ExecutionPolicy Bypass -File $script
+        $checkProfile='Contributor'
+        if($Mode -eq 'check'){
+            . (Join-Path $PSScriptRoot 'diagnostic-model.ps1')
+            $checkProfile=Get-FSRememberedProfile $root 'Contributor'
+        }
+        & powershell.exe -NoProfile -ExecutionPolicy Bypass -File (Join-Path $PSScriptRoot 'verify-developer.ps1') -TargetProfile $checkProfile
         exit [int]$LASTEXITCODE
     }
     if(-not $version) {
@@ -153,10 +164,10 @@ try {
     }
     if(-not $version -or $version -lt $minimum){
         if($version){
-            throw "PowerShell $version was found at $pwsh, but this step needs $minimum or newer. Run FIRST-RUN-WINDOWS.cmd again to update it."
+            throw "PowerShell $version was found at $pwsh, but this step needs $minimum or newer. Double-click START-WINDOWS.cmd again to update it."
         }
         throw ("PowerShell 7 is installed but could not be started from Windows PowerShell." + (Probe-Details) +
-               " If it was installed just now, restart Windows and run FIRST-RUN-WINDOWS.cmd again; if this repeats, send this whole message.")
+               " If it was installed just now, restart Windows and double-click START-WINDOWS.cmd again; if this repeats, send this whole message.")
     }
     Write-Host "Using PowerShell $version ($pwsh)" -ForegroundColor Green
     $scriptArguments = [string[]]$selected.Args

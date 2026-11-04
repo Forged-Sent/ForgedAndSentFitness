@@ -50,7 +50,7 @@ Forged & Sent is a faith-centered devotional workout and group accountability pl
 - The live GitHub ruleset requires `ci-gate` but zero outside approvals. AI reviews are voluntary and advisory. Maintainers choose whether to merge; agents never self-merge.
 
 ## Platform-specific onboarding
-- Windows bootstrap: FIRST-RUN-WINDOWS.cmd; Mac bootstrap: FIRST-RUN-MAC.command. Both must preserve emulator-first/no-cloud-Firebase MCP defaults.
+- Windows bootstrap: START-WINDOWS.cmd; Mac bootstrap: START-MAC.command. Both must preserve emulator-first/no-cloud-Firebase MCP defaults.
 - Mac bootstrap support in PR #3 covers Preview and tool-only Contributor foundation. Do not claim iOS/Android device integration or Firebase emulator readiness until PR #4.
 - Project MCP stdio commands use the allowlisted Node launcher on both platforms. Never add Firebase cloud MCP or automatically request credentials.
 

@@ -7,7 +7,7 @@
 1. Open the repository's **feature branch**, not `main`. In VS Code Terminal, run `git branch --show-current` to verify.
 2. Ensure Python 3 is installed: open PowerShell and run `py -3 --version` (or `python --version`). Sign in to any CLI reviewer you choose to use.
 3. Save your files. If you added new files, stage them using VS Code Source Control (`+` beside each file) or `git add path/to/file`. The review stops if untracked files could be omitted.
-4. Double-click `REVIEW-WINDOWS.cmd`, or from VS Code Terminal run `py -3 tooling/review/review.py --dry-run` first. If the tool says `origin/main` is missing, run `git fetch origin main` and retry.
+4. Double-click `launchers/windows/more/AI code review.cmd`, or from VS Code Terminal run `py -3 tooling/review/review.py --dry-run` first. If the tool says `origin/main` is missing, run `git fetch origin main` and retry.
 5. For optional review after Codex authored a Flutter database change: `py -3 tooling/review/review.py --reviewers claude --author codex --minimum 1`. If Claude authored it, choose Codex. For two providers specify both explicitly; this may consume paid usage.
 6. Inspect `.review/summary.md`. Critical/high findings, incomplete diff slices and invalid or missing reviewer responses are NOT VERIFIED. Resolve any material security defects before real-user data is deployed. The review itself is optional.
 7. Run `python tooling/skills/sync.py --check`, `python tooling/architecture/generate.py --write`, and your Flutter tests. Commit both source and generated CODE-MAP.md when Flutter declarations change.
@@ -15,7 +15,7 @@
 
 ## The quick path (Mac)
 
-Use Terminal in the same feature branch. Check `python3 --version`, then run `python3 tooling/review/review.py --dry-run`. The `REVIEW-MAC.command` launcher is equivalent to running `python3 tooling/review/review.py` from the repository root. Mac users also need the same authenticated provider CLIs. If macOS warns about the launcher, inspect its text in an editor before launching it.
+Use Terminal in the same feature branch. Check `python3 --version`, then run `python3 tooling/review/review.py --dry-run`. The `launchers/mac/more/AI code review.command` launcher is equivalent to running `python3 tooling/review/review.py` from the repository root. Mac users also need the same authenticated provider CLIs. If macOS warns about the launcher, inspect its text in an editor before launching it.
 
 ## When an AI wrote the code
 

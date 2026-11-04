@@ -13,7 +13,7 @@ export function commandFor(tool, platform=process.platform, home=homedir()){
       // Native SDK executable avoids cmd.exe searching the working directory for dart.bat.
       const dartExe = join(home, 'develop', 'flutter', 'bin', 'cache', 'dart-sdk', 'bin', 'dart.exe');
       if (!existsSync(dartExe)) {
-        throw new Error('Pinned Flutter Dart SDK missing. Run SETUP-WINDOWS.cmd before starting the Dart MCP.');
+        throw new Error('Pinned Flutter Dart SDK missing. Run launchers/windows/1 - Set up this computer.cmd before starting the Dart MCP.');
       }
       return {command:dartExe,args:['mcp-server']};
     }

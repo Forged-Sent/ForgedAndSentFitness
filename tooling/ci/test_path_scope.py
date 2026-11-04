@@ -25,6 +25,16 @@ class ClassificationTests(unittest.TestCase):
         v = classify(["index.html", "mobile/lib/main.dart"])
         self.assertTrue(v["prototype"] and v["mobile"] and v["mac"])
 
+    def test_launchers_route_to_their_platform(self):
+        win = classify(["START-WINDOWS.cmd", "launchers/windows/2 - Run the app.cmd",
+                        "launchers/windows/more/Android setup.cmd"])
+        self.assertTrue(win["windows"])
+        self.assertFalse(win["mac"] or win["mobile"] or win["prototype"])
+        mac = classify(["START-MAC.command", "launchers/mac/2 - Run the app.command",
+                        "launchers/mac/more/Architecture Atlas.command"])
+        self.assertTrue(mac["mac"])
+        self.assertFalse(mac["windows"] or mac["mobile"] or mac["prototype"])
+
     def test_agent_instructions_do_not_require_platform_builds(self):
         v = classify(["AGENTS.md", "CLAUDE.md", ".claude/rules/prototype.md", ".github/instructions/flutter.instructions.md"])
         self.assertFalse(any(v.values()))

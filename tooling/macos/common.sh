@@ -58,7 +58,7 @@ fs_ensure_flutter(){
     if fs_flutter_version_ok; then fs_ok 'Flutter 3.47.8 already present.'; return 0; fi
     if [ -d "$HOME/develop/flutter/.git" ] &&
        [ "$(git -C "$HOME/develop/flutter" describe --tags --exact-match 2>/dev/null || true)" = "3.47.8" ]; then
-      fs_fail 'Pinned Flutter 3.47.8 checkout found, but Dart initialization is incomplete. Check network access and rerun SETUP-MAC.command; no SDK files were deleted.'; return 1
+      fs_fail 'Pinned Flutter 3.47.8 checkout found, but Dart initialization is incomplete. Check network access and rerun launchers/mac/1 - Set up this computer.command; no SDK files were deleted.'; return 1
     fi
     fs_fail 'Found a different Flutter SDK in ~/develop/flutter. Choose the pinned 3.47.8 version manually; existing SDKs will not be overwritten.'; return 1
   fi
@@ -204,7 +204,7 @@ fs_enable_git_hooks(){
 }
 
 # The wizard remembers the last chosen profile inside this clone's private Git
-# directory (never committed, never global) so "Diagnose setup" grades a
+# directory (never committed, never global) so "Check my setup" grades a
 # returning Contributor as a Contributor, not as Preview.
 fs_profile_file(){
   fs_git_dir="$(git -C "$FS_ROOT" rev-parse --absolute-git-dir 2>/dev/null)" || return 1

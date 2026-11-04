@@ -76,11 +76,85 @@ class BeginnerContractTests(unittest.TestCase):
         self.assertNotIn("firebase", json.dumps(vs).lower())
         self.assertNotIn("firebase", json.dumps(optional).lower())
 
-    def test_emulator_launchers_exist_on_both_platforms(self):
-        for file in ("START-EMULATORS-WINDOWS.cmd", "RUN-EMULATOR-APP-WINDOWS.cmd",
-                     "START-EMULATORS-MAC.command", "RUN-EMULATOR-APP-MAC.command"):
-            with self.subTest(file=file):
-                self.assertTrue((ROOT / file).is_file())
+    # One double-click start file per OS at the root; every other launcher lives in
+    # launchers/<os>/ (numbered steps) or launchers/<os>/more/ (optional extras).
+    WINDOWS_STEPS = ("1 - Set up this computer.cmd", "2 - Run the app.cmd",
+                     "3 - Start practice Firebase.cmd", "4 - Run app with practice Firebase.cmd",
+                     "5 - Check my setup.cmd")
+    MAC_STEPS = tuple(name.replace(".cmd", ".command") for name in WINDOWS_STEPS)
+
+    @staticmethod
+    def launchers(suffix: str) -> list[pathlib.Path]:
+        folder = "windows" if suffix == ".cmd" else "mac"
+        return sorted([*ROOT.glob(f"*{suffix}"), *(ROOT / "launchers" / folder).rglob(f"*{suffix}")])
+
+    def test_root_has_only_one_start_file_per_os(self):
+        self.assertEqual([p.name for p in ROOT.glob("*.cmd")], ["START-WINDOWS.cmd"])
+        self.assertEqual([p.name for p in ROOT.glob("*.command")], ["START-MAC.command"])
+        for name in self.WINDOWS_STEPS:
+            self.assertTrue((ROOT / "launchers/windows" / name).is_file(), name)
+        for name in self.MAC_STEPS:
+            self.assertTrue((ROOT / "launchers/mac" / name).is_file(), name)
+
+    def test_every_launcher_resolves_the_repository_root_and_its_target(self):
+        import re
+        modes = set(re.findall(r"^\s+'?([a-z-]+)'?\s*=\s*@\{File=",
+                               read("tooling/windows/bootstrap-pwsh.ps1"), re.M))
+        self.assertTrue({"wizard", "contributor", "check", "preview"} <= modes, modes)
+        for launcher in self.launchers(".cmd"):
+            with self.subTest(launcher=str(launcher.relative_to(ROOT))):
+                raw = launcher.read_bytes()
+                self.assertNotIn(b"\n", raw.replace(b"\r\n", b""), "Windows launchers need CRLF")
+                text = raw.decode("ascii")
+                up = re.findall(r'^cd /d "%~dp0((?:\.\.\\?)*)"\r?$', text, re.M)
+                self.assertEqual(len(up), 1, "exactly one cd /d %~dp0 line")
+                self.assertEqual((launcher.parent / up[0].replace("\\", "/")).resolve(), ROOT)
+                mode = re.search(r"bootstrap-pwsh\.ps1\" -Mode ([a-z-]+)", text)
+                target = re.search(r"tooling\\[a-z]+\\[a-z_]+\.py", text)
+                self.assertTrue(mode or target, "launcher must start a known tool")
+                if mode:
+                    self.assertIn(mode.group(1), modes)
+                if target:
+                    self.assertTrue((ROOT / target.group(0).replace("\\", "/")).is_file())
+        for launcher in self.launchers(".command"):
+            with self.subTest(launcher=str(launcher.relative_to(ROOT))):
+                text = launcher.read_text(encoding="utf-8")
+                self.assertTrue(text.startswith("#!/bin/bash\n"))
+                up = re.findall(r'^cd "\$\(dirname "\$0"\)((?:/\.\.)*)"', text, re.M)
+                self.assertEqual(len(up), 1, "exactly one cd to the launcher folder")
+                self.assertEqual((launcher.parent / ("." + up[0])).resolve(), ROOT)
+                for target in re.findall(r"tooling/[a-z]+/[a-z_-]+\.(?:sh|py)", text):
+                    self.assertTrue((ROOT / target).is_file(), target)
+                mode = subprocess.run(["git", "-C", str(ROOT), "ls-files", "-s", "--",
+                                       str(launcher.relative_to(ROOT))],
+                                      capture_output=True, text=True).stdout
+                if mode:  # tracked: Finder needs the executable bit
+                    self.assertTrue(mode.startswith("100755"), mode)
+
+    def test_mac_launchers_run_from_any_folder(self):
+        for rel in ("START-MAC.command", "launchers/mac/3 - Start practice Firebase.command",
+                    "launchers/mac/4 - Run app with practice Firebase.command"):
+            with self.subTest(launcher=rel), tempfile.TemporaryDirectory() as elsewhere:
+                result = subprocess.run(["bash", str(ROOT / rel), "--self-test"], cwd=elsewhere,
+                                        stdin=subprocess.DEVNULL, capture_output=True, text=True,
+                                        env={**__import__("os").environ, "CI": "1"})
+                self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+                self.assertNotIn("missing", result.stdout.lower())
+
+    def test_readme_start_here_links_every_numbered_step(self):
+        from urllib.parse import unquote
+        text = read("README.md")
+        self.assertIn("## New here? Start here", text)
+        links = {unquote(link) for link in __import__("re").findall(r"\]\(([^)#]+)\)", text)}
+        for rel in ("START-WINDOWS.cmd", "START-MAC.command",
+                    *(f"launchers/windows/{n}" for n in self.WINDOWS_STEPS),
+                    *(f"launchers/mac/{n}" for n in self.MAC_STEPS)):
+            with self.subTest(link=rel):
+                self.assertIn(rel, links)
+        for link in links:
+            if not link.startswith(("http:", "https:", "mailto:")):
+                with self.subTest(target=link):
+                    self.assertTrue((ROOT / link).exists(), link)
 
     def test_default_branch_clone_survives_feature_branch_deletion(self):
         with tempfile.TemporaryDirectory() as directory:

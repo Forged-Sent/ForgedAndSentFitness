@@ -1,6 +1,6 @@
 #requires -Version 7.6
 <#
-Run from SETUP-DEVELOPER-WINDOWS.cmd.
+Run through launchers\windows\1 - Set up this computer.cmd (Contributor profile).
 Installs developer dependencies and VS Code extensions; rerunnable.
 It never deploys Firebase, logs into paid services, or stores credentials.
 #>
@@ -57,7 +57,7 @@ function Code {
     (Join-Path $env:LOCALAPPDATA 'Programs\Microsoft VS Code\bin\code.cmd'),
     (Join-Path $env:ProgramFiles 'Microsoft VS Code\bin\code.cmd')
   )
-  if (-not $candidate) { throw 'VS Code launcher missing. Rerun SETUP-WINDOWS.cmd.' }
+  if (-not $candidate) { throw 'VS Code launcher missing. Rerun launchers\windows\1 - Set up this computer.cmd.' }
   return $candidate
 }
 try {

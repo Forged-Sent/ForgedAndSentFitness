@@ -8,10 +8,10 @@ if [ "${1:-}" = "--self-test" ]; then
   exit 0
 fi
 [ "$(uname -s)" = Darwin ] || { fs_fail 'Mac Flutter emulator launcher requires macOS.'; exit 1; }
-fs_flutter_version_ok || { fs_fail 'Pinned Flutter SDK missing. Run SETUP-MAC.command.'; exit 1; }
+fs_flutter_version_ok || { fs_fail 'Pinned Flutter SDK missing. Run launchers/mac/1 - Set up this computer.command.'; exit 1; }
 for fs_port in 9099 8080 9199; do
   if ! fs_has nc || ! nc -G 2 -z 127.0.0.1 "$fs_port" >/dev/null 2>&1; then
-    fs_fail "Local Firebase emulator port $fs_port is not responding. Start START-EMULATORS-MAC.command first."
+    fs_fail "Local Firebase emulator port $fs_port is not responding. Start launchers/mac/3 - Start practice Firebase.command first."
     exit 1
   fi
 done

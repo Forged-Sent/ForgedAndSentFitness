@@ -6,7 +6,8 @@
   Installs Git, Visual Studio Code, Chrome and the stable Flutter SDK using official
   GitHub/WinGet sources. Optional -Android adds Android Studio but cannot finish the
   interactive SDK/license/device setup. No Firebase credentials or cloud changes.
-  Launch through SETUP-WINDOWS.cmd or SETUP-ANDROID.cmd.
+  Launch through launchers\windows\1 - Set up this computer.cmd, launchers\windows\more\Preview-only setup.cmd
+  or launchers\windows\more\Android setup.cmd.
 #>
 param(
     [switch]$Android
@@ -48,7 +49,7 @@ function Locate-Program([string]$command, [string[]]$candidates) {
 
 function Ensure-Winget {
     if (-not (Get-Command winget.exe -ErrorAction SilentlyContinue)) {
-        throw 'WinGet was not found. Install/update "App Installer" from Microsoft Store, restart the PC, and rerun SETUP-WINDOWS.cmd.'
+        throw 'WinGet was not found. Install/update "App Installer" from Microsoft Store, restart the PC, and rerun launchers\windows\1 - Set up this computer.cmd.'
     }
 }
 
@@ -222,7 +223,7 @@ try {
     }
 
     Announce 'Finished'
-    Write-Host 'Browser preview is installed. Double-click RUN-APP.cmd to see the app.'
+    Write-Host 'Browser preview is installed. Double-click launchers\windows\2 - Run the app.cmd to see the app.'
     Write-Host 'You can rerun this setup later; it skips installed tools.'
     if ($Android) {
         Write-Host ''

@@ -1,15 +1,18 @@
 #!/bin/bash
 set -euo pipefail
-cd "$(dirname "$0")"
+# Architecture Atlas. Finder double-click entrypoint; does not bypass macOS security dialogs.
+cd "$(dirname "$0")/../../.."
 printf '\n  FORGED & SENT / ARCHITECTURE ATLAS\n'
 printf '  Indexing checked-in files, functions and dependencies...\n'
 fs_python=''
-if command -v python3.12 >/dev/null 2>&1 && python3.12 -c 'import sys; sys.exit(0 if sys.version_info >= (3,11) else 1)'; then
-  fs_python=python3.12
-elif command -v python3 >/dev/null 2>&1 && python3 -c 'import sys; sys.exit(0 if sys.version_info >= (3,11) else 1)'; then
-  fs_python=python3
-else
-  echo 'Python 3.11+ is missing. Run SETUP-DEVELOPER-MAC.command then reopen Terminal.'
+for fs_candidate in python3.13 python3.12 python3.11 python3; do
+  if command -v "$fs_candidate" >/dev/null 2>&1 &&
+     "$fs_candidate" -c 'import sys; sys.exit(0 if sys.version_info >= (3,11) else 1)' 2>/dev/null; then
+    fs_python="$fs_candidate"; break
+  fi
+done
+if [ -z "$fs_python" ]; then
+  echo 'Python 3.11+ is missing. Double-click START-MAC.command, choose 2 to set up as a Contributor, and retry.'
   if [ -t 0 ]; then read -r -p 'Press Return to close...' _answer; fi
   exit 1
 fi

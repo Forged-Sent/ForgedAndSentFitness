@@ -6,14 +6,14 @@ Use a Git clone of `main` after PR #4 merges. To test the open Draft before merg
 
 ## Windows, one-click launchers
 
-1. Double-click `START-EMULATORS-WINDOWS.cmd` and leave the console running until it says **All emulators ready! It is now safe to connect your app.**
-2. In a separate console, double-click `RUN-EMULATOR-APP-WINDOWS.cmd`.
+1. Double-click `launchers/windows/3 - Start practice Firebase.cmd` and leave the console running until it says **All emulators ready! It is now safe to connect your app.**
+2. In a separate console, double-click `launchers/windows/4 - Run app with practice Firebase.cmd`.
 
 ## Mac, one-click launchers
 
-1. Run `SETUP-DEVELOPER-MAC.command` once to install/reuse JDK 21 and the local Firebase CLI.
-2. Double-click `START-EMULATORS-MAC.command` and keep Terminal open until it says **All emulators ready! It is now safe to connect your app.**
-3. In a **second** Terminal window, run `RUN-EMULATOR-APP-MAC.command`.
+1. Run `launchers/mac/1 - Set up this computer.command` once to install/reuse JDK 21 and the local Firebase CLI.
+2. Double-click `launchers/mac/3 - Start practice Firebase.command` and keep Terminal open until it says **All emulators ready! It is now safe to connect your app.**
+3. In a **second** Terminal window, run `launchers/mac/4 - Run app with practice Firebase.command`.
 
 The Mac wizard offers those actions as menu choices 5 and 6. If it instead says a port "is already in use" ("Are you running another copy of the emulator suite?"), close the other emulator window or development server, or restart the computer, and try again. Don't edit `firebase.json`.
 

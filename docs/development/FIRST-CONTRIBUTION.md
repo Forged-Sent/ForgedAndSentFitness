@@ -28,7 +28,7 @@ flutter analyze
 flutter test
 ```
 
-   Both commands should finish without errors. If `flutter` is missing, rerun Contributor diagnostics. On Mac, reopen Terminal after enabling Flutter PATH. You may also launch the app with `RUN-APP.cmd` (Windows) or `RUN-APP-MAC.command` (Mac).
+   Both commands should finish without errors. If `flutter` is missing, rerun Contributor diagnostics. On Mac, reopen Terminal after enabling Flutter PATH. You may also launch the app with `launchers/windows/2 - Run the app.cmd` (Windows) or `launchers/mac/2 - Run the app.command` (Mac).
 7. **Set Git identity, once.** If your first commit says "Please tell me who you are", configure a name and email using the guided wizard or [Git basics](GIT-101.md). Your GitHub noreply email keeps your personal email off public commits.
 8. **Commit your change.** Back in Source Control, enter `Practice: update welcome subtitle` and select **Commit**. If you see a Gitleaks or Dart formatting warning, follow its fix instructions; don't bypass hooks.
 9. **Publish safely.** Select **Publish Branch**. The first time, VS Code asks you to **sign in to GitHub** in your browser; approve it. If you aren't a project collaborator yet, VS Code offers **Create Fork**: choose it, and your branch is published to your own copy of the project. Do not force-push.
@@ -40,6 +40,6 @@ flutter test
 
 You can launch Flutter in Chrome, check the local demo Firebase emulators, run analysis and tests, access one chosen AI assistant if you use one, inspect Source Control, and open a draft PR. A configured MCP server isn't "working" until it connects and lists tools.
 
-For a more detailed source map, double-click `ARCHITECTURE-WINDOWS.cmd` or `ARCHITECTURE-MAC.command`. For local Firebase, follow [Firebase emulator testing](FIREBASE-EMULATOR.md). Neither requires a cloud account.
+For a more detailed source map, double-click `launchers/windows/more/Architecture Atlas.cmd` or `launchers/mac/more/Architecture Atlas.command`. For local Firebase, follow [Firebase emulator testing](FIREBASE-EMULATOR.md). Neither requires a cloud account.
 
 If the Git command reports divergence, if a setup step asks for unexpected credentials, or if a tool wants to push to `main`, stop and ask for help rather than resetting anything.

@@ -59,7 +59,7 @@ if [ "$FS_PROFILE" = Contributor ]; then
   # A typo here must never abort the rest of setup. The wizard asks again after
   # setup (even a failed one), so it sets FS_FROM_WIZARD to avoid a double prompt.
   if [ -t 0 ] && [ -z "${FS_FROM_WIZARD:-}" ]; then
-    fs_ensure_git_identity || fs_warn 'Git name/email not set yet. Before your first commit: FIRST-RUN-MAC.command > 8 > 1.'
+    fs_ensure_git_identity || fs_warn 'Git name/email not set yet. Before your first commit: START-MAC.command > 8 > 1.'
   fi
   fs_info 'No Firebase cloud authentication, production access, or Firebase cloud MCP is installed.'
 fi
@@ -71,7 +71,7 @@ cd "$FS_ROOT/mobile"
 "$FS_FLUTTER" build web --release
 fs_ok 'Flutter browser preview build and tests passed.'
 if [ "$FS_PROFILE" = Contributor ]; then
-  fs_info 'Local Firebase wiring is implemented. Test it with START-EMULATORS-MAC.command and RUN-EMULATOR-APP-MAC.command.'
+  fs_info 'Local Firebase wiring is implemented. Test it with launchers/mac/3 - Start practice Firebase.command and launchers/mac/4 - Run app with practice Firebase.command.'
   fs_warn 'Live emulator handshake and agent MCP connections still require hands-on verification.'
 fi
-fs_info 'Double-click RUN-APP-MAC.command to launch Chrome.'
+fs_info 'Double-click launchers/mac/2 - Run the app.command to launch Chrome.'
