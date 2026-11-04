@@ -168,6 +168,20 @@ jobs:
           if($LASTEXITCODE){throw 'Diagnostic selftest failed'}
           & pwsh -NoProfile -File tooling/windows/first-run.ps1 -SelfTest
           if($LASTEXITCODE){throw 'Wizard selftest failed'}
+      - name: Windows PowerShell 5.1 can find and start PowerShell 7 (real bootstrap probe)
+        shell: pwsh
+        run: |
+          $ErrorActionPreference='Stop'
+          $bootstrap=(Resolve-Path tooling/windows/bootstrap-pwsh.ps1).Path
+          # Fresh 5.1 process: $LASTEXITCODE starts unset (first-run case on a new PC).
+          $out=(& powershell.exe -NoProfile -ExecutionPolicy Bypass -File $bootstrap -Mode wizard -ProbeOnly 2>&1 | Out-String)
+          Write-Host $out
+          if($LASTEXITCODE -ne 0 -or $out -notmatch "version='7\.\d+\.\d+'"){throw 'Bootstrap could not start PowerShell 7 from a fresh Windows PowerShell 5.1'}
+          # Stale non-zero exit code first, as a WinGet "no upgrade available" rerun leaves it.
+          $command="cmd.exe /c exit 7; & '$bootstrap' -Mode wizard -ProbeOnly; exit `$LASTEXITCODE"
+          $out=(& powershell.exe -NoProfile -ExecutionPolicy Bypass -Command $command 2>&1 | Out-String)
+          Write-Host $out
+          if($LASTEXITCODE -ne 0 -or $out -notmatch "version='7\.\d+\.\d+'"){throw 'Bootstrap probe failed after a stale non-zero exit code'}
 
   windows-preview:
     needs: changes
