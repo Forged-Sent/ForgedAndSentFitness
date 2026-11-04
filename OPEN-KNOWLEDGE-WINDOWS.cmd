@@ -19,7 +19,8 @@ if not defined PYTHON_CMD (
   popd
   exit /b 1
 )
-echo  The preview will run only while this window stays open. Press Ctrl+C to stop.
+echo  The preview runs only while this window stays open.
+echo  To stop: close this window, or press Ctrl+C and answer Y to "Terminate batch job (Y/N)?".
 %PYTHON_CMD% tooling\preview\serve_project.py --build-atlas --open-browser
 if errorlevel 1 (
   echo Preview could not start. Read the error above and check port 43117.

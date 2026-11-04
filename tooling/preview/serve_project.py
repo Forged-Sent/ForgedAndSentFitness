@@ -7,7 +7,11 @@ The JavaScript pages remain untrusted previews; do not enter real credentials.
 from __future__ import annotations
 
 import argparse
+import errno
 import mimetypes
+import os
+import shutil
+import socket
 import subprocess
 import sys
 import threading
@@ -34,8 +38,12 @@ LANDING = """<!doctype html>
 <p>These are local, JavaScript-enabled previews of the current Git checkout, not a production app.</p>
 <ul><li><a href="/index.html">Open the actual HTML prototype</a></li>
 <li><a href="/build/architecture-explorer/Architecture-Atlas.html">Open the generated Architecture Atlas</a></li></ul>
-<p>For Obsidian, open docs/ as your vault and paste this URL into the core Web viewer.</p>
-<p>Do not enter personal information, secrets or production credentials. Close the terminal to stop serving.</p>
+<p><strong>Expected prototype limits:</strong> the HTML prototype was built for the Claude-hosted runtime
+(<code>window.claude</code>) and its <code>/_blob/</code> media service. Here, sign-in identity, saved data,
+sharing and uploaded photos or PDFs are missing. That is expected and is <em>not</em> a Flutter or Firebase failure.</p>
+<p>For Obsidian (desktop app only), open docs/ as your vault and paste this URL into the core Web viewer.</p>
+<p>Do not enter personal information, secrets or production credentials.
+To stop, close the terminal window (or press Ctrl+C; on Windows answer Y if asked to terminate the batch job).</p>
 """.encode("utf-8")
 
 
@@ -91,9 +99,10 @@ class PreviewHandler(BaseHTTPRequestHandler):
             self.send_error(404, "Preview file unavailable")
             return
         with stream:
-            self._send(200, content_type, file.stat().st_size)
+            # Size of the file actually opened, not a later path lookup that a
+            # concurrent Atlas regeneration could have replaced.
+            self._send(200, content_type, os.fstat(stream.fileno()).st_size)
             if body:
-                import shutil
                 try:
                     shutil.copyfileobj(stream, self.wfile)
                 except (BrokenPipeError, ConnectionResetError):
@@ -110,11 +119,30 @@ class PreviewHandler(BaseHTTPRequestHandler):
 
 
 class PreviewServer(ThreadingHTTPServer):
+    """Loopback server that owns its port exclusively.
+
+    http.server.HTTPServer sets allow_reuse_address = 1, so SO_REUSEADDR would be
+    applied. On Windows that lets a second process bind the same port, and which
+    listener answers becomes nondeterministic. On Windows we therefore disable it
+    and request SO_EXCLUSIVEADDRUSE. POSIX keeps SO_REUSEADDR: there it never
+    permits two active listeners, it only allows a quick restart after Ctrl+C
+    while old connections sit in TIME_WAIT.
+    """
+
     daemon_threads = True
+    allow_reuse_address = sys.platform != "win32"
 
     def __init__(self, root: Path, port: int = DEFAULT_PORT):
         self.project_root = root.resolve()
         super().__init__(("127.0.0.1", port), PreviewHandler)
+
+    def server_bind(self) -> None:
+        if sys.platform == "win32":
+            exclusive = getattr(socket, "SO_EXCLUSIVEADDRUSE", None)
+            if exclusive is None:  # Should not happen on CPython for Windows.
+                raise OSError("SO_EXCLUSIVEADDRUSE unavailable; refusing a shareable port")
+            self.socket.setsockopt(socket.SOL_SOCKET, exclusive, 1)
+        super().server_bind()
 
 
 def make_server(root: Path = ROOT, port: int = DEFAULT_PORT) -> PreviewServer:
@@ -126,10 +154,11 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--build-atlas", action="store_true", help="Regenerate Atlas from this Git checkout")
     parser.add_argument("--open-browser", action="store_true", help="Open the landing page in the default browser")
-    parser.add_argument("--port", type=int, default=DEFAULT_PORT, help="Loopback port (default: 43117)")
+    parser.add_argument("--port", type=int, default=DEFAULT_PORT,
+                        help="Loopback port (default: 43117; 0 picks a free port, used by tests)")
     args = parser.parse_args()
-    if not 1 <= args.port <= 65535:
-        parser.error("port must be between 1 and 65535")
+    if not 0 <= args.port <= 65535:
+        parser.error("port must be between 0 and 65535")
     if sys.version_info < (3, 11):
         print("Python 3.11+ is required.", file=sys.stderr)
         return 1
@@ -147,14 +176,25 @@ def main() -> int:
     try:
         server = make_server(ROOT, args.port)
     except OSError as exc:
-        print(f"Could not bind 127.0.0.1:{args.port}: {exc}", file=sys.stderr)
+        # 10048 = WSAEADDRINUSE; 10013 = WSAEACCES, returned on Windows when an
+        # exclusive (SO_EXCLUSIVEADDRUSE) listener already owns the port.
+        in_use = exc.errno == errno.EADDRINUSE or getattr(exc, "winerror", None) in (10048, 10013)
+        if in_use:
+            print(f"Port {args.port} is already in use, so no preview was started.\n"
+                  "Another preview window may still be open: close it and retry. If you just closed one,\n"
+                  "wait about a minute and retry. Don't trust a page on this port unless a preview\n"
+                  "window says it is serving.", file=sys.stderr)
+        else:
+            print(f"Could not bind 127.0.0.1:{args.port}: {exc}", file=sys.stderr)
         return 1
     url = f"http://127.0.0.1:{server.server_port}"
     print(f"\nKnowledge workspace: {url}/", flush=True)
     print(f"Prototype: {url}/index.html", flush=True)
     print(f"Atlas: {url}{ATLAS}", flush=True)
     print("Paste a URL into Obsidian's core Web viewer or use your normal browser.", flush=True)
-    print("Read-only allowlisted preview; no Firebase/cloud login. Press Ctrl+C to stop.\n", flush=True)
+    print("Read-only allowlisted preview; no Firebase/cloud login.", flush=True)
+    print("To stop: close this window, or press Ctrl+C (Windows may ask 'Terminate batch job?': answer Y).\n",
+          flush=True)
     if args.open_browser:
         # Some platform browser launchers block; never delay the HTTP loop.
         threading.Thread(target=webbrowser.open, args=(url + "/",), daemon=True).start()
