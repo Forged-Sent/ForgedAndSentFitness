@@ -25,7 +25,9 @@ function Find-Java21 {
 $jdk=Find-Java21
 if(-not $jdk){
   Write-Host 'Installing JDK 21 via WinGet...'
-  & winget.exe install --id EclipseAdoptium.Temurin.21.JDK --exact --source winget --accept-source-agreements --accept-package-agreements
+  # Installer progress must go to the console, never to stdout: callers capture
+  # stdout from -PrintHome as the JDK path.
+  & winget.exe install --id EclipseAdoptium.Temurin.21.JDK --exact --source winget --accept-source-agreements --accept-package-agreements | Out-Host
   if($LASTEXITCODE -ne 0){Write-Warning 'Java installation may need approval or a reboot.'}
   $jdk=Find-Java21
 }

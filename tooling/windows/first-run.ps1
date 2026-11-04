@@ -7,7 +7,12 @@ $root=(Resolve-Path (Join-Path $PSScriptRoot '..\..')).Path
 $verify=Join-Path $PSScriptRoot 'verify-developer.ps1'
 $profileScript=Join-Path $PSScriptRoot 'setup-profile.ps1'
 $previewScript=Join-Path $PSScriptRoot 'setup.ps1'
-$script:SelectedProfile='Preview'
+. (Join-Path $PSScriptRoot 'diagnostic-model.ps1')
+# Grade "Check my setup" against the profile this clone was set up for. If none was
+# saved yet, a present Firebase CLI means Contributor tools were installed earlier.
+$firebaseFound=([bool](Get-Command firebase.cmd -ErrorAction SilentlyContinue) -or
+  [bool]($env:APPDATA -and (Test-Path -LiteralPath (Join-Path $env:APPDATA 'npm\firebase.cmd'))))
+$script:SelectedProfile=Get-FSRememberedProfile $root $(if($firebaseFound){'Contributor'}else{'Preview'})
 function Banner([string]$message){Write-Host '';Write-Host ("=== "+$message+" ===") -ForegroundColor Cyan}
 function Ask([string]$question){return ((Read-Host "$question [y/N]") -match '^(y|yes)$')}
 function RunScript([string]$path,[string[]]$params=@()){
@@ -16,6 +21,7 @@ function RunScript([string]$path,[string[]]$params=@()){
 }
 function CheckTools {
   Banner 'Your setup report'
+  Write-Host "Checking your setup as: $script:SelectedProfile (choose 1 or 2 to switch)." -ForegroundColor Cyan
   $status=RunScript $verify @('-TargetProfile',$script:SelectedProfile)
   if($status){Write-Host 'Some tools need attention. Follow each WHY/FIX line.' -ForegroundColor Yellow}
   else{Write-Host 'Installed-tool checks passed. Live Firebase and MCP tests are separate.' -ForegroundColor Green}
@@ -35,10 +41,12 @@ function SetGitIdentity {
   try{
     . (Join-Path $root 'tooling\shell\fs-tools.ps1')
     Ensure-FSGitIdentity
+    Write-Host 'Git commit name and email are set for this project.' -ForegroundColor Green
   }finally{Pop-Location}
 }
 function RunSetup([string]$targetProfile){
   $script:SelectedProfile=$targetProfile
+  Save-FSProfile $root $targetProfile
   Banner "Set up $targetProfile"
   $setupArgs=@('-TargetProfile',$targetProfile)
   if($targetProfile -ne 'Preview'){
@@ -53,7 +61,12 @@ function RunSetup([string]$targetProfile){
     Write-Host 'One or more installs require attention. Check the error and rerun when resolved.' -ForegroundColor Yellow
   }else{
     Write-Host 'Tools installed. This does not automatically sign in or verify emulator connections.' -ForegroundColor Green
-    if($targetProfile -ne 'Preview' -and (Ask 'Check your Git commit name/email now?')){SetGitIdentity}
+  }
+  if($targetProfile -ne 'Preview'){
+    # Always offered, even after an install warning; only prompts if not yet set.
+    Banner 'Your Git commit name and email'
+    try{SetGitIdentity}
+    catch{Write-Host ('Not set yet: '+$_.Exception.Message+' Set it later with 8 > 5 before your first commit.') -ForegroundColor Yellow}
   }
   CheckTools
 }
