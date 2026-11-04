@@ -782,7 +782,10 @@ button.fo-item { cursor: pointer; min-height: 44px; }
 .sup-rh span { color: var(--muted); font-weight: 700; font-size: 12.5px; letter-spacing: .08em; }
 .sup-round.done .sup-rh span { color: var(--accent); }
 #wkp-body .sup-round .setrow:not(.one) { grid-template-columns: 96px minmax(0, 1fr) minmax(0, 1fr) 26px 32px; }
-.sup-round .sn .sn-l span { font-size: 12px; hyphens: auto; overflow-wrap: anywhere; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.sup-round .sn { align-items: center; text-align: center; }
+.sup-round .sn .sn-prev { align-self: center; text-align: center; }
+.sup-round .sn .sn-l.sup-l { flex-direction: column; align-items: center; gap: 1px; width: 100%; }
+.sup-round .sn .sn-l span { font-family: var(--f-label); font-weight: 600; font-size: 14px; line-height: 1.1; letter-spacing: .01em; hyphens: none; overflow-wrap: normal; word-break: keep-all; width: 100%; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 .sup-round .sn .sn-l { display: flex; gap: 5px; align-items: baseline; text-transform: none; letter-spacing: 0; font-family: var(--f-body); font-size: 12.5px; color: var(--ink); line-height: 1.2; }
 .sup-round .sn .sn-l i { font-style: normal; font-family: var(--f-label); font-weight: 800; color: var(--accent); font-size: 14px; letter-spacing: .04em; }
 .sup-round .rest { margin-top: 8px; }
@@ -5667,6 +5670,13 @@ header.hero .me-btn { border-color:#e87328; }
   }
   function supRestText(rx) { var m = /rest\s+([^.,]*?\d[^.,]*?(?:sec|min))/i.exec(String(rx || "")); return m ? m[1].replace(/\s+/g, " ") : "about a minute"; }
   function supShortRx(rx) { return String(rx || "").replace(/^\s*Superset\s+[A-Z]\d+:\s*/i, "").split(/\.\s/)[0].replace(/\.$/, ""); }
+  function supFit(card) {
+    Array.prototype.forEach.call(card.querySelectorAll(".sup-round .sn-l span"), function (sp) {
+      var fs = 14; sp.style.webkitLineClamp = "unset"; sp.style.display = "block"; sp.style.fontSize = fs + "px";
+      function bad() { var lh = fs * 1.1; return sp.scrollWidth > sp.clientWidth + 1 || sp.scrollHeight > lh * 2 + 2; }
+      while (bad() && fs > 9.5) { fs -= 0.5; sp.style.fontSize = fs + "px"; }
+    });
+  }
   function supGroup(body, L, items) {
     // items: [{ ex, e, idx, name, ps }] for A1 and A2, already rendered as .wx cards in body
     var A = items[0], Bx = items[1], card = el("div", "wx sup-card"); body.insertBefore(card, A.ex);
@@ -5682,9 +5692,10 @@ header.hero .me-btn { border-color:#e87328; }
       });
       var top = it.ex.querySelector(".wx-top"); if (top) top.insertBefore(el("span", "sup-tag", tag), top.firstChild);
       it.ex.classList.add("sup-lift"); card.appendChild(it.ex);
-      [w, s].forEach(function (list) { list.forEach(function (r) { var lb = r.querySelector(".sn-l"); if (lb) { lb.textContent = ""; lb.appendChild(el("i", null, tag)); lb.appendChild(el("span", null, it.name.replace(/^(Dumbbell|Barbell|Cable|Kettlebell|EZ[- ]Bar|Machine|Band|Banded|Smith Machine)\s+/i, ""))); lb.title = it.name; } }); });
+      [w, s].forEach(function (list) { list.forEach(function (r) { var lb = r.querySelector(".sn-l"); if (lb) { lb.textContent = ""; lb.classList.add("sup-l"); lb.appendChild(el("i", null, tag)); lb.appendChild(el("span", null, it.name.replace(/^(Dumbbell|Barbell|Cable|Kettlebell|EZ[- ]Bar|Machine|Band|Banded|Smith Machine)\s+/i, ""))); lb.title = it.name; } }); });
       rows.push({ w: w, s: s });
     });
+    setTimeout(function () { supFit(card); }, 0);
     var nSets = Math.max(rows[0].s.length, rows[1].s.length);
     var hd = el("div", "sup-hd"); hd.appendChild(el("div", "sup-k", "Superset " + L + " · " + nSets + (nSets === 1 ? " set" : " sets")));
     hd.appendChild(el("div", "sup-rx", "Each set: " + L + "1 then " + L + "2 back to back. Rest " + supRestText(Bx.e[1]) + " after " + L + "2."));
@@ -9434,7 +9445,7 @@ header.hero .me-btn { border-color:#e87328; }
       box.appendChild(r);
     });
   }
-  var APP_VERSION = "v233";
+  var APP_VERSION = "v234";
   /* ---------- Photo upload diagnostic (Settings > Testing) ---------- */
   async function runPhotoDiag() {
     var out = { at: new Date().toISOString(), version: APP_VERSION, ua: navigator.userAgent, steps: [] };
