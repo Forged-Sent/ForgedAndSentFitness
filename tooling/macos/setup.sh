@@ -56,7 +56,11 @@ if [ "$FS_PROFILE" = Contributor ]; then
   if [ "$FS_AI_CHOICE" = codex ]; then fs_brew_cask codex '' codex; fi
   if [ "$FS_AI_CHOICE" = claude ]; then fs_brew_cask claude-code '' claude; fi
   fs_offer_flutter_path
-  if [ -t 0 ] && fs_question 'Set/check your Git commit name and email now?'; then fs_ensure_git_identity; fi
+  # A typo here must never abort the rest of setup. The wizard asks again after
+  # setup (even a failed one), so it sets FS_FROM_WIZARD to avoid a double prompt.
+  if [ -t 0 ] && [ -z "${FS_FROM_WIZARD:-}" ]; then
+    fs_ensure_git_identity || fs_warn 'Git name/email not set yet. Before your first commit: FIRST-RUN-MAC.command > 8 > 1.'
+  fi
   fs_info 'No Firebase cloud authentication, production access, or Firebase cloud MCP is installed.'
 fi
 cd "$FS_ROOT/mobile"

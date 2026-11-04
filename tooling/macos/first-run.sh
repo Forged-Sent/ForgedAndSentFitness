@@ -13,16 +13,22 @@ if [ "${1:-}" = "--self-test" ]; then
   exit 0
 fi
 [ "$(uname -s)" = Darwin ] || { fs_fail 'This wizard requires macOS.'; exit 1; }
-FS_SELECTED_PROFILE=Preview
+FS_SELECTED_PROFILE="$(fs_installed_profile)"
 printf '\n==== Forged & Sent: first run on Mac ===\n'
 printf 'Uses your existing Git clone. Firebase cloud and paid AI accounts are not required.\n'
 while :; do
   printf '\n1. Just preview the Flutter app\n2. Set up Contributor tools\n3. Diagnose setup\n4. Run Flutter in Chrome\n5. Start local Firebase emulators in another window\n6. Run Flutter with local Firebase\n7. Open VS Code and first-contribution guide\n8. More options (Git identity, sign-in, Atlas)\n0. Exit\nYour choice: '
   IFS= read -r fs_choice || break
   case "$fs_choice" in
-    1) FS_SELECTED_PROFILE=Preview; /bin/bash "$FS_ROOT/tooling/macos/setup.sh" --profile Preview || true;;
-    2) FS_SELECTED_PROFILE=Contributor; /bin/bash "$FS_ROOT/tooling/macos/setup.sh" --profile Contributor || true;;
-    3) /bin/bash "$FS_ROOT/tooling/macos/verify.sh" --profile "$FS_SELECTED_PROFILE" || true;;
+    1) FS_SELECTED_PROFILE=Preview; fs_remember_profile Preview; /bin/bash "$FS_ROOT/tooling/macos/setup.sh" --profile Preview || true;;
+    2)
+      FS_SELECTED_PROFILE=Contributor; fs_remember_profile Contributor
+      FS_FROM_WIZARD=1 /bin/bash "$FS_ROOT/tooling/macos/setup.sh" --profile Contributor || fs_warn 'Contributor setup needs attention; see the messages above, then choose 3.'
+      # Always offered, even after an install warning; only prompts if not yet set.
+      printf '\n=== Your Git commit name and email ===\n'
+      fs_ensure_git_identity || fs_warn 'Git name/email not set yet. Before your first commit: 8 > 1.'
+      ;;
+    3) printf 'Checking your setup as: %s (choose 1 or 2 to switch).\n' "$FS_SELECTED_PROFILE"; /bin/bash "$FS_ROOT/tooling/macos/verify.sh" --profile "$FS_SELECTED_PROFILE" || true;;
     4) /bin/bash "$FS_ROOT/tooling/macos/run-app.sh" || true;;
     5) open "$FS_ROOT/START-EMULATORS-MAC.command";;
     6) open "$FS_ROOT/RUN-EMULATOR-APP-MAC.command";;

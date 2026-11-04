@@ -202,3 +202,24 @@ fs_enable_git_hooks(){
   git -C "$FS_ROOT" config --local core.hooksPath .githooks
   fs_ok 'Project Git hooks enabled in this clone, same as Windows.'
 }
+
+# The wizard remembers the last chosen profile inside this clone's private Git
+# directory (never committed, never global) so "Diagnose setup" grades a
+# returning Contributor as a Contributor, not as Preview.
+fs_profile_file(){
+  fs_git_dir="$(git -C "$FS_ROOT" rev-parse --absolute-git-dir 2>/dev/null)" || return 1
+  [ -n "$fs_git_dir" ] || return 1
+  printf '%s/forged-sent-profile\n' "$fs_git_dir"
+}
+fs_remember_profile(){
+  fs_pf="$(fs_profile_file)" || return 0
+  printf '%s\n' "$1" > "$fs_pf" 2>/dev/null || true
+}
+fs_installed_profile(){
+  fs_pf="$(fs_profile_file || true)"
+  if [ -n "$fs_pf" ] && [ -f "$fs_pf" ]; then
+    fs_saved="$(head -n 1 "$fs_pf" 2>/dev/null || true)"
+    case "$fs_saved" in Preview|Contributor) printf '%s\n' "$fs_saved"; return 0;; esac
+  fi
+  if fs_has firebase; then printf 'Contributor\n'; else printf 'Preview\n'; fi
+}
