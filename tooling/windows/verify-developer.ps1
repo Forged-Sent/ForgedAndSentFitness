@@ -33,7 +33,11 @@ if($SelfTest){
 }
 Check Git git.exe @((Join-Path $env:ProgramFiles 'Git\cmd\git.exe')) 'Run launchers\windows\1 - Set up this computer.cmd, then restart the terminal.'
 Check Chrome chrome.exe @((Join-Path $env:ProgramFiles 'Google\Chrome\Application\chrome.exe'),(Join-Path $env:LOCALAPPDATA 'Google\Chrome\Application\chrome.exe')) 'Run launchers\windows\1 - Set up this computer.cmd to install Chrome.'
-Check Flutter flutter.bat @((Join-Path $env:USERPROFILE 'develop\flutter\bin\flutter.bat')) 'Run launchers\windows\1 - Set up this computer.cmd, then check flutter doctor.'
+# The project (launchers, VS Code dart.flutterSdkPath) uses the pinned SDK in the user folder.
+$pinnedFlutter=Join-Path $env:USERPROFILE 'develop\flutter\bin\flutter.bat'
+if(Test-Path -LiteralPath $pinnedFlutter){$checks.Add((New-FSCheck Flutter Ready 'Pinned project SDK found. Live runtime testing is separate.' ''))}
+elseif(Get-Command flutter.bat -ErrorAction SilentlyContinue){$checks.Add((New-FSCheck Flutter Outdated 'A different Flutter SDK is on PATH; this project uses its own pinned 3.47.8 in your user folder.' 'Run launchers\windows\1 - Set up this computer.cmd. It installs 3.47.8 side by side and leaves the other SDK alone.'))}
+else{$checks.Add((New-FSCheck Flutter Missing 'Flutter SDK was not located.' 'Run launchers\windows\1 - Set up this computer.cmd, then check flutter doctor.'))}
 Check VSCode code.cmd @((Join-Path $env:LOCALAPPDATA 'Programs\Microsoft VS Code\bin\code.cmd'),(Join-Path $env:ProgramFiles 'Microsoft VS Code\bin\code.cmd')) 'Install VS Code with launchers\windows\1 - Set up this computer.cmd.'
 Check Node node.exe @((Join-Path $env:ProgramFiles 'nodejs\node.exe')) 'Run developer setup for Node.js LTS.'
 Check Npm npm.cmd @((Join-Path $env:ProgramFiles 'nodejs\npm.cmd')) 'Reinstall Node.js LTS, then restart Windows.'

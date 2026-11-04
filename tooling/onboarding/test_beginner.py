@@ -156,6 +156,98 @@ class BeginnerContractTests(unittest.TestCase):
                 with self.subTest(target=link):
                     self.assertTrue((ROOT / link).exists(), link)
 
+    def _flutter_sandbox(self, tmp: pathlib.Path, *, free_gb: int, fail_clone: bool = False):
+        """Fake HOME whose git clone of Flutter uses a local repo and whose df reports free_gb."""
+        origin = tmp / "flutter-origin"
+        (origin / "bin").mkdir(parents=True)
+        (origin / "engine").mkdir()
+        flutter = origin / "bin" / "flutter"
+        flutter.write_text("#!/bin/bash\necho '{\"frameworkVersion\": \"3.47.8\"}'\n")
+        flutter.chmod(0o755)
+        for n in range(5):
+            (origin / "engine" / f"part{n}.cc").write_text(f"// {n}\n")
+        git = ["git", "-c", "user.name=T", "-c", "user.email=t@example.invalid"]
+        subprocess.run(["git", "init", "-q", str(origin)], check=True)
+        subprocess.run([*git, "-C", str(origin), "add", "-A"], check=True)
+        subprocess.run([*git, "-C", str(origin), "commit", "-qm", "sdk"], check=True)
+        subprocess.run([*git, "-C", str(origin), "tag", "3.47.8"], check=True)
+        home = tmp / "home"
+        fake = home / ".local" / "bin"
+        fake.mkdir(parents=True)
+        real_git = subprocess.run(["bash", "-c", "command -v git"], capture_output=True, text=True).stdout.strip()
+        partial = ('d="${!#}"; "$REAL_GIT" "${args[@]}" || exit $?; '
+                   'rm -f "$d"/engine/part3.cc "$d"/engine/part4.cc; '
+                   'echo "error: unable to create file engine/part3.cc: No space left on device" >&2; exit 128'
+                   if fail_clone else 'exec "$REAL_GIT" "${args[@]}"')
+        (fake / "git").write_text(
+            "#!/bin/bash\nargs=()\nfor a in \"$@\"; do\n"
+            f"  [ \"$a\" = https://github.com/flutter/flutter.git ] && a='{origin}'\n"
+            "  args+=(\"$a\")\ndone\n"
+            "case \" $* \" in *\" clone \"*) " + partial + ";; esac\n"
+            "exec \"$REAL_GIT\" \"$@\"\n")
+        (fake / "df").write_text("#!/bin/bash\necho 'Filesystem 1024-blocks Used Available Capacity Mounted'\n"
+                                 f"echo 'disk 100 1 {free_gb * 1048576} 1% /'\n")
+        for tool in ("git", "df"):
+            (fake / tool).chmod(0o755)
+        env = {"HOME": str(home), "PATH": f"{fake}:/usr/bin:/bin", "REAL_GIT": real_git}
+        return home, env
+
+    def _ensure_flutter(self, env: dict) -> subprocess.CompletedProcess:
+        script = f'. "{ROOT}/tooling/macos/common.sh"; fs_ensure_flutter'
+        return subprocess.run(["bash", "-c", script], env=env, capture_output=True, text=True)
+
+    def test_mac_flutter_download_checks_disk_space_first(self):
+        with tempfile.TemporaryDirectory() as directory:
+            home, env = self._flutter_sandbox(pathlib.Path(directory), free_gb=2)
+            result = self._ensure_flutter(env)
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn("almost out of disk space: 2 GB free", result.stderr)
+            self.assertFalse((home / "develop" / "flutter").exists())
+
+    def test_mac_failed_flutter_download_leaves_nothing_half_written(self):
+        with tempfile.TemporaryDirectory() as directory:
+            home, env = self._flutter_sandbox(pathlib.Path(directory), free_gb=50, fail_clone=True)
+            result = self._ensure_flutter(env)
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn("No space left on device", result.stderr)
+            self.assertIn("partial download was removed", result.stderr)
+            self.assertEqual(list((home / "develop").iterdir()), [])
+
+    def test_mac_repairs_a_flutter_checkout_that_stopped_part_way(self):
+        # The state a full disk left behind before staged downloads existed.
+        with tempfile.TemporaryDirectory() as directory:
+            home, env = self._flutter_sandbox(pathlib.Path(directory), free_gb=50)
+            sdk = home / "develop" / "flutter"
+            subprocess.run(["git", "clone", "-q", "--branch", "3.47.8",
+                            str(pathlib.Path(directory) / "flutter-origin"), str(sdk)],
+                           check=True, capture_output=True)
+            (sdk / "engine" / "part4.cc").unlink()
+            subprocess.run(["git", "-C", str(sdk), "rm", "-q", "--cached", "engine/part3.cc"], check=True)
+            (sdk / "engine" / "part3.cc").unlink()
+            result = self._ensure_flutter(env)
+            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+            self.assertIn("stopped part-way", result.stderr)
+            self.assertTrue((sdk / "engine" / "part3.cc").is_file())
+            self.assertTrue((sdk / "engine" / "part4.cc").is_file())
+
+    def test_mac_never_overwrites_a_changed_flutter_checkout(self):
+        with tempfile.TemporaryDirectory() as directory:
+            home, env = self._flutter_sandbox(pathlib.Path(directory), free_gb=50)
+            sdk = home / "develop" / "flutter"
+            subprocess.run(["git", "clone", "-q", "--branch", "3.47.8",
+                            str(pathlib.Path(directory) / "flutter-origin"), str(sdk)],
+                           check=True, capture_output=True)
+            (sdk / "engine" / "part1.cc").write_text("// my local change\n")
+            (sdk / "engine" / "part4.cc").unlink()
+            self._ensure_flutter(env)
+            self.assertEqual((sdk / "engine" / "part1.cc").read_text(), "// my local change\n")
+
+    def test_numbered_setup_does_not_say_next_step_after_a_failure(self):
+        for path, marker in (("tooling/macos/first-run.sh", "Setup did not finish"),
+                             ("tooling/windows/first-run.ps1", "Setup did not finish")):
+            with self.subTest(path=path):
+                self.assertIn(marker, read(path))
+
     def test_default_branch_clone_survives_feature_branch_deletion(self):
         with tempfile.TemporaryDirectory() as directory:
             tmp = pathlib.Path(directory)

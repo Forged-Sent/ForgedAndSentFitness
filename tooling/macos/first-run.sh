@@ -43,6 +43,13 @@ if [ "${1:-}" = "--action" ]; then
     check) fs_check_setup || fs_status=$?;;
     *) fs_fail "Unknown action '${2:-}'. Use contributor, preview or check."; exit 2;;
   esac
+  if [ "$fs_status" -ne 0 ] && [ "${2:-}" != check ]; then
+    printf '\n=== Setup did not finish ===\n'
+    printf 'Fix the first [ERROR] shown above (it says what to do), then double-click the same\n'
+    printf 'setup file again. Finished parts are reused, so nothing is downloaded twice.\n'
+    printf 'Still stuck? Run 5 - Check my setup.command.\n'
+    exit "$fs_status"
+  fi
   printf '\n=== What to do next ===\n'
   printf 'Open the launchers/mac folder and double-click the next numbered file:\n'
   printf '  2 - Run the app.command                     (the app in Chrome)\n'
