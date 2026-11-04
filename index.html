@@ -305,6 +305,9 @@ details.targets[open] summary::after { content: "\2212"; }
 .rate-l { display: block; font-size: 12.5px; color: var(--muted); margin: 8px 0 4px; }
 .rate-chips { display: flex; flex-wrap: wrap; gap: 6px; }
 .rate-chips .mini { min-height: 34px; padding: 4px 10px; font-size: 12px; }
+.rir-q .rate-chips { flex-wrap: nowrap; gap: 4px; }
+.rir-q .rate-chips .mini { flex: 1 1 auto; min-width: 0; min-height: 34px; padding: 4px 2px; font-size: clamp(9px, 2.75vw, 11.5px); letter-spacing: 0; white-space: nowrap; }
+.sup-card .rir-q .rate-chips .mini { font-size: clamp(8.5px, 2.6vw, 11.5px); padding: 4px 1px; }
 .rate-g { margin: 10px 0 0; font-size: 13.5px; line-height: 1.4; color: var(--accent); }
 .rate-n { margin: 10px 0 0; font-size: 12.5px; color: var(--muted); }
 .rir-q { margin-top: 8px; padding-top: 8px; border-top: 1px dashed var(--line); }
@@ -9445,7 +9448,7 @@ header.hero .me-btn { border-color:#e87328; }
       box.appendChild(r);
     });
   }
-  var APP_VERSION = "v234";
+  var APP_VERSION = "v235";
   /* ---------- Photo upload diagnostic (Settings > Testing) ---------- */
   async function runPhotoDiag() {
     var out = { at: new Date().toISOString(), version: APP_VERSION, ua: navigator.userAgent, steps: [] };
