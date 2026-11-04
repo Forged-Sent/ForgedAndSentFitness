@@ -57,6 +57,7 @@ function Ensure-FSGitIdentity {
   $email=((& git config --get user.email 2>$null | Out-String).Trim())
   if($name -and $email){return}
   Write-Host 'Git needs a public commit name and email. A GitHub noreply email protects your personal address.' -ForegroundColor Yellow
+  Write-Host 'Find it at github.com > Settings > Emails (it looks like 12345+name@users.noreply.github.com).'
   if(-not $name){
     $name=Read-Host 'Name shown on commits'
     if(-not $name -or $name -match '[\r\n]'){throw 'Enter a name before saving. Git settings were not changed.'}

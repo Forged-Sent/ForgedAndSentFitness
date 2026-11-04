@@ -11,16 +11,16 @@
 
 ## Windows
 
-1. Use a **Git clone** and the existing `FIRST-RUN-WINDOWS.cmd` Contributor setup. Python 3.11+ is required.
-2. Double-click `OPEN-KNOWLEDGE-WINDOWS.cmd` from the repository root. Keep its terminal window open while browsing. It regenerates the Atlas and starts a loopback-only server.
+1. Use a **Git clone** set up with `launchers/windows/1 - Set up this computer.cmd` (Contributor). Python 3.11+ is required.
+2. Double-click `launchers/windows/more/Knowledge workspace.cmd` in File Explorer. Keep its terminal window open while browsing. It regenerates the Atlas and starts a loopback-only server.
 3. Open the printed landing URL in Chrome/Edge, or in **desktop** Obsidian's core Web viewer. If you use Obsidian, open the `docs` folder as a vault and select **Open web page** in Web viewer; paste the URL.
 4. Test the prototype's menus and JavaScript controls (see [what the prototype can and cannot do here](#what-the-prototype-can-and-cannot-do-here)), and the Atlas tabs, source search and documentation.
 5. To stop, close the terminal window. Ctrl+C also works; if Windows asks `Terminate batch job (Y/N)?`, answer **Y**.
 
 ## Mac
 
-1. Use a Git clone and the existing `FIRST-RUN-MAC.command` Contributor setup. Python 3.11+ is required.
-2. Double-click `OPEN-KNOWLEDGE-MAC.command` (or run `bash OPEN-KNOWLEDGE-MAC.command` from Terminal). Keep its terminal window open.
+1. Use a Git clone set up with `launchers/mac/1 - Set up this computer.command` (Contributor). Python 3.11+ is required.
+2. Double-click `launchers/mac/more/Knowledge workspace.command` (or run `bash "launchers/mac/more/Knowledge workspace.command"` from Terminal). Keep its terminal window open.
 3. Open the printed URL in Safari/Chrome or **desktop** Obsidian's core Web viewer, with `docs/` as the vault.
 4. Repeat the interaction checks. To stop, press Ctrl+C or close the Terminal window. If Finder blocks the script, inspect the file and use Terminal rather than disabling system security globally.
 
@@ -66,7 +66,7 @@ To click through those flows with in-memory fake data, use the existing mock pre
 5. Request `/.git/config`, `/docs/HOME.md` and `/seed/` and confirm rejection. Stop server and confirm URLs no longer respond.
 6. Repeat in Obsidian Web viewer and external browser; record differences, screenshots, OS/version and tested Git SHA.
 
-**Fallback:** the existing `ARCHITECTURE-WINDOWS.cmd` or `ARCHITECTURE-MAC.command` opens the self-contained Atlas offline; the original `index.html` can be opened in a regular browser when compatible. No localhost or Obsidian integration is required to continue Flutter development.
+**Fallback:** the existing `launchers/windows/more/Architecture Atlas.cmd` or `launchers/mac/more/Architecture Atlas.command` opens the self-contained Atlas offline; the original `index.html` can be opened in a regular browser when compatible. No localhost or Obsidian integration is required to continue Flutter development.
 
 ## Next phases and rollback
 

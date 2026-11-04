@@ -13,9 +13,9 @@ Use a **Git clone**, not a ZIP copy, for development. Use `main` for normal onbo
 
 Neither Preview nor Contributor requires a Firebase account or cloud Firebase project. The `demo-forgedandsent` suite runs locally only.
 
-On Windows start `START-EMULATORS-WINDOWS.cmd`, then `RUN-EMULATOR-APP-WINDOWS.cmd` in another window.
+On Windows start `launchers/windows/3 - Start practice Firebase.cmd`, then `launchers/windows/4 - Run app with practice Firebase.cmd` in another window.
 
-On Mac start `START-EMULATORS-MAC.command`, then `RUN-EMULATOR-APP-MAC.command` in another window. Mac Contributor setup installs a dedicated JDK 21 without changing global Java settings.
+On Mac start `launchers/mac/3 - Start practice Firebase.command`, then `launchers/mac/4 - Run app with practice Firebase.command` in another window. Mac Contributor setup installs a dedicated JDK 21 without changing global Java settings.
 
 Tools being installed does not prove that emulators, device workflows or MCP handshakes are working. Verify live operation independently. The setup never automatically runs `firebase login`, `flutterfire configure`, accepts SDK licenses, or deploys to production.
 

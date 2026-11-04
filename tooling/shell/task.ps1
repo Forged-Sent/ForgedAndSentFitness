@@ -7,6 +7,6 @@ switch($Action){
   'start' {fs-start (Read-Host 'What are you working on?')}
   'share' {fs-share}
   'verify' {& pwsh -NoProfile -File (Join-Path $root 'tooling/windows/verify-developer.ps1') -Profile Contributor}
-  'run' {& (Join-Path $root 'RUN-APP.cmd')}
-  'emulators' {& (Join-Path $root 'START-EMULATORS-WINDOWS.cmd')}
+  'run' {& (Join-Path $root 'launchers\windows\2 - Run the app.cmd')}
+  'emulators' {& (Join-Path $root 'launchers\windows\3 - Start practice Firebase.cmd')}
 }

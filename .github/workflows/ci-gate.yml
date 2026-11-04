@@ -121,8 +121,11 @@ jobs:
           if($v.servers.PSObject.Properties.Name -contains 'sentry'){throw 'Sentry excluded'}
           $opt=Get-Content '.vscode/mcp-optional.example.json' -Raw|ConvertFrom-Json
           if($opt.servers.github.url -notmatch '/readonly$'){throw 'Optional GitHub MCP must be read-only'}
-          foreach($launcher in @('SETUP-WINDOWS.cmd','SETUP-DEVELOPER-WINDOWS.cmd','SETUP-ANDROID.cmd','RUN-APP.cmd','VERIFY-DEVELOPER-WINDOWS.cmd','FIRST-RUN-WINDOWS.cmd')){
-            if((Get-Content $launcher -Raw) -notmatch 'bootstrap-pwsh.ps1'){throw "$launcher must use the PowerShell 5.1 bridge"}
+          $python=@('Architecture Atlas.cmd','AI code review.cmd','Knowledge workspace.cmd')
+          $launchers=@(Get-Item -LiteralPath 'START-WINDOWS.cmd') + @(Get-ChildItem -LiteralPath 'launchers/windows','launchers/windows/more' -Filter '*.cmd' -File)
+          if($launchers.Count -lt 11){throw "Expected 11 Windows launchers, found $($launchers.Count)"}
+          foreach($launcher in $launchers){
+            if($launcher.Name -notin $python -and (Get-Content -LiteralPath $launcher.FullName -Raw) -notmatch 'bootstrap-pwsh.ps1'){throw "$($launcher.Name) must use the PowerShell 5.1 bridge"}
           }
           $settings=Get-Content '.vscode/settings.json' -Raw|ConvertFrom-Json
           if($settings.'terminal.integrated.defaultProfile.windows' -notin @('PowerShell 7','Forged & Sent')){throw 'Windows VS Code terminal must use a PowerShell 7 profile'}
@@ -180,8 +183,45 @@ jobs:
           if($LASTEXITCODE){throw 'Runner Python is older than 3.11, the preview launcher minimum'}
           python -m unittest discover -s tooling/preview -p 'test_*.py' -v
           if($LASTEXITCODE){throw 'Knowledge preview tests failed on Windows'}
-          $launcher=Get-Content OPEN-KNOWLEDGE-WINDOWS.cmd -Raw
-          if($launcher -notmatch 'tooling\\preview\\serve_project\.py'){throw 'OPEN-KNOWLEDGE-WINDOWS.cmd must start tooling\preview\serve_project.py'}
+          $launcher=Get-Content -LiteralPath 'launchers/windows/more/Knowledge workspace.cmd' -Raw
+          if($launcher -notmatch 'tooling\\preview\\serve_project\.py'){throw 'Knowledge workspace.cmd must start tooling\preview\serve_project.py'}
+      - name: Every Windows launcher reaches the project folder (real cmd.exe)
+        shell: pwsh
+        run: |
+          $ErrorActionPreference='Stop'
+          $launchers=@(Get-Item -LiteralPath 'START-WINDOWS.cmd') + @(Get-ChildItem -LiteralPath 'launchers/windows','launchers/windows/more' -Filter '*.cmd' -File)
+          foreach($launcher in $launchers){
+            # Run the launcher's own "cd /d" line from a probe in the same folder, so %~dp0 is identical.
+            $cd=@(Get-Content -LiteralPath $launcher.FullName | Where-Object {$_ -match '^cd /d '})
+            if($cd.Count -ne 1){throw "$($launcher.Name) needs exactly one 'cd /d' line"}
+            $probe=Join-Path $launcher.DirectoryName 'zz-root-probe.cmd'
+            Set-Content -LiteralPath $probe -Encoding ascii -Value @('@echo off',$cd[0],'if exist "tooling\windows\bootstrap-pwsh.ps1" if exist "AGENTS.md" exit /b 0','exit /b 9')
+            try{& $probe; $rc=$LASTEXITCODE}finally{Remove-Item -LiteralPath $probe -Force}
+            if($rc -ne 0){throw "$($launcher.FullName) does not reach the repository root"}
+            Write-Host "OK  $($launcher.Name)"
+          }
+          # A real double-click-style run of a launcher whose name has spaces, started from another folder.
+          Push-Location $env:RUNNER_TEMP
+          try{& (Join-Path $env:GITHUB_WORKSPACE 'launchers\windows\more\AI code review.cmd') --help; $rc=$LASTEXITCODE}finally{Pop-Location}
+          if($rc){throw 'Launcher with spaces in its name failed to run from another folder'}
+          foreach($mode in 'contributor','check','preview','run','emulators','run-emulator'){
+            & powershell.exe -NoProfile -ExecutionPolicy Bypass -File tooling/windows/bootstrap-pwsh.ps1 -Mode $mode -SelfTest
+            if($LASTEXITCODE){throw "Bootstrap mode $mode mapping failed"}
+          }
+      - name: Windows PowerShell 5.1 can find and start PowerShell 7 (real bootstrap probe)
+        shell: pwsh
+        run: |
+          $ErrorActionPreference='Stop'
+          $bootstrap=(Resolve-Path tooling/windows/bootstrap-pwsh.ps1).Path
+          # Fresh 5.1 process: $LASTEXITCODE starts unset (first-run case on a new PC).
+          $out=(& powershell.exe -NoProfile -ExecutionPolicy Bypass -File $bootstrap -Mode wizard -ProbeOnly 2>&1 | Out-String)
+          Write-Host $out
+          if($LASTEXITCODE -ne 0 -or $out -notmatch "version='7\.\d+\.\d+'"){throw 'Bootstrap could not start PowerShell 7 from a fresh Windows PowerShell 5.1'}
+          # Stale non-zero exit code first, as a WinGet "no upgrade available" rerun leaves it.
+          $command="cmd.exe /c exit 7; & '$bootstrap' -Mode wizard -ProbeOnly; exit `$LASTEXITCODE"
+          $out=(& powershell.exe -NoProfile -ExecutionPolicy Bypass -Command $command 2>&1 | Out-String)
+          Write-Host $out
+          if($LASTEXITCODE -ne 0 -or $out -notmatch "version='7\.\d+\.\d+'"){throw 'Bootstrap probe failed after a stale non-zero exit code'}
 
   windows-preview:
     needs: changes
@@ -263,10 +303,15 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          for s in tooling/macos/*.sh *-MAC.command; do
+          for s in tooling/macos/*.sh START-MAC.command launchers/mac/*.command launchers/mac/more/*.command; do
             bash -n "$s"
             test -x "$s" || { echo "::error::$s must be executable"; exit 1; }
           done
+          # Run real launchers from another folder: each must find the project root itself.
+          root="$PWD"
+          (cd /tmp && CI=1 "$root/START-MAC.command" --self-test </dev/null)
+          (cd /tmp && CI=1 "$root/launchers/mac/3 - Start practice Firebase.command" --self-test </dev/null)
+          (cd /tmp && CI=1 "$root/launchers/mac/4 - Run app with practice Firebase.command" --self-test </dev/null)
           bash tooling/macos/setup.sh --profile Preview --self-test
           bash tooling/macos/setup.sh --profile Contributor --self-test
           bash tooling/macos/verify.sh --self-test

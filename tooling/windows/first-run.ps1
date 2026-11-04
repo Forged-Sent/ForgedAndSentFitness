@@ -1,13 +1,23 @@
 #requires -Version 7.6
 # Beginner-friendly Windows wizard. Git checkout required; no unattended logins.
-param([switch]$SelfTest)
+param(
+  [switch]$SelfTest,
+  # Used by the numbered launchers in launchers\windows: run one step, then exit.
+  [ValidateSet('menu','contributor','check','preview')][string]$Action='menu'
+)
 Set-StrictMode -Version Latest
 $ErrorActionPreference='Stop'
 $root=(Resolve-Path (Join-Path $PSScriptRoot '..\..')).Path
 $verify=Join-Path $PSScriptRoot 'verify-developer.ps1'
 $profileScript=Join-Path $PSScriptRoot 'setup-profile.ps1'
 $previewScript=Join-Path $PSScriptRoot 'setup.ps1'
-$script:SelectedProfile='Preview'
+. (Join-Path $PSScriptRoot 'diagnostic-model.ps1')
+# Grade "Check my setup" against the profile this clone was set up for. If none was
+# saved yet, a present Firebase CLI means Contributor tools were installed earlier.
+$firebaseFound=([bool](Get-Command firebase.cmd -ErrorAction SilentlyContinue) -or
+  [bool]($env:APPDATA -and (Test-Path -LiteralPath (Join-Path $env:APPDATA 'npm\firebase.cmd'))))
+$script:LastCheckStatus=0
+$script:SelectedProfile=Get-FSRememberedProfile $root $(if($firebaseFound){'Contributor'}else{'Preview'})
 function Banner([string]$message){Write-Host '';Write-Host ("=== "+$message+" ===") -ForegroundColor Cyan}
 function Ask([string]$question){return ((Read-Host "$question [y/N]") -match '^(y|yes)$')}
 function RunScript([string]$path,[string[]]$params=@()){
@@ -16,7 +26,9 @@ function RunScript([string]$path,[string[]]$params=@()){
 }
 function CheckTools {
   Banner 'Your setup report'
+  Write-Host "Checking your setup as: $script:SelectedProfile (choose 1 or 2 to switch)." -ForegroundColor Cyan
   $status=RunScript $verify @('-TargetProfile',$script:SelectedProfile)
+  $script:LastCheckStatus=$status
   if($status){Write-Host 'Some tools need attention. Follow each WHY/FIX line.' -ForegroundColor Yellow}
   else{Write-Host 'Installed-tool checks passed. Live Firebase and MCP tests are separate.' -ForegroundColor Green}
   $help=Get-ChildItem -LiteralPath $env:TEMP -Filter 'ForgedAndSent-AskAI-*.txt' -File -ErrorAction SilentlyContinue|
@@ -35,10 +47,12 @@ function SetGitIdentity {
   try{
     . (Join-Path $root 'tooling\shell\fs-tools.ps1')
     Ensure-FSGitIdentity
+    Write-Host 'Git commit name and email are set for this project.' -ForegroundColor Green
   }finally{Pop-Location}
 }
 function RunSetup([string]$targetProfile){
   $script:SelectedProfile=$targetProfile
+  Save-FSProfile $root $targetProfile
   Banner "Set up $targetProfile"
   $setupArgs=@('-TargetProfile',$targetProfile)
   if($targetProfile -ne 'Preview'){
@@ -53,7 +67,12 @@ function RunSetup([string]$targetProfile){
     Write-Host 'One or more installs require attention. Check the error and rerun when resolved.' -ForegroundColor Yellow
   }else{
     Write-Host 'Tools installed. This does not automatically sign in or verify emulator connections.' -ForegroundColor Green
-    if($targetProfile -ne 'Preview' -and (Ask 'Check your Git commit name/email now?')){SetGitIdentity}
+  }
+  if($targetProfile -ne 'Preview'){
+    # Always offered, even after an install warning; only prompts if not yet set.
+    Banner 'Your Git commit name and email'
+    try{SetGitIdentity}
+    catch{Write-Host ('Not set yet: '+$_.Exception.Message+' Set it later with 8 > 5 before your first commit.') -ForegroundColor Yellow}
   }
   CheckTools
 }
@@ -75,7 +94,7 @@ function StartEmulators {
   Banner 'Demo-only Firebase emulators'
   Write-Host 'No Firebase account is needed. Emulators open in a SEPARATE window.'
   if(Ask 'Start local Auth, Firestore and Storage?'){
-    $launcher=Join-Path $root 'START-EMULATORS-WINDOWS.cmd'
+    $launcher=Join-Path $root 'launchers\windows\3 - Start practice Firebase.cmd'
     if(-not (Test-Path -LiteralPath $launcher)){throw 'Local emulator launcher is missing. Use the complete Git clone.'}
     Start-Process -FilePath $launcher -WorkingDirectory $root
     Write-Host 'Keep the new window open until the emulators report ready.'
@@ -107,19 +126,33 @@ function MoreOptions {
 }
 if($SelfTest){
   if(-not (Test-Path -LiteralPath (Join-Path $root 'docs\development\FIRST-CONTRIBUTION.md'))){throw 'First-contribution guide missing.'}
-  foreach($launcher in @('START-EMULATORS-WINDOWS.cmd','RUN-EMULATOR-APP-WINDOWS.cmd')){
+  foreach($launcher in @('START-WINDOWS.cmd','launchers\windows\3 - Start practice Firebase.cmd','launchers\windows\4 - Run app with practice Firebase.cmd')){
     if(-not (Test-Path -LiteralPath (Join-Path $root $launcher))){throw "Missing $launcher"}
   }
   if((RunScript $verify @('-SelfTest')) -ne 0){throw 'Diagnostic self-test failed.'}
   Write-Host 'Wizard self-test passed.';exit 0
+}
+if($Action -ne 'menu'){
+  switch($Action){
+    'contributor' {RunSetup 'Contributor'}
+    'preview' {RunSetup 'Preview'}
+    'check' {CheckTools}
+  }
+  Banner 'What to do next'
+  Write-Host 'Open the launchers\windows folder and double-click the next numbered file:'
+  Write-Host '  2 - Run the app.cmd                     (the app in Chrome)'
+  Write-Host '  3 - Start practice Firebase.cmd         (local practice database; keep it open)'
+  Write-Host '  4 - Run app with practice Firebase.cmd  (after step 3 says ready)'
+  Write-Host 'Then read docs\development\FIRST-CONTRIBUTION.md to make your first change.'
+  exit $script:LastCheckStatus
 }
 Banner 'Forged & Sent: first run'
 Write-Host 'This wizard uses the current Git clone, not a ZIP or an extra copy.'
 Write-Host 'No production Firebase credentials or paid AI account is required.'
 do {
   Write-Host ''
-  Write-Host '  1. Just preview the Flutter app (recommended first)'
-  Write-Host '  2. Set up as a Contributor (edit, test, and submit PRs)'
+  Write-Host '  1. Just preview the Flutter app (quickest; view only)'
+  Write-Host '  2. Set up as a Contributor (full setup: edit, test, and submit PRs)'
   Write-Host '  3. Check or repair my setup'
   Write-Host '  4. Run the Flutter app in Chrome'
   Write-Host '  5. Start local Firebase emulators in a separate window'

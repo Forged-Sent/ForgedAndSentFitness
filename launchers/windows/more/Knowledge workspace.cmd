@@ -1,7 +1,6 @@
 @echo off
 setlocal EnableExtensions
-pushd "%~dp0"
-if errorlevel 1 (echo Could not open project folder.& pause & exit /b 1)
+cd /d "%~dp0..\..\.."
 echo.
 echo  FORGED ^& SENT / KNOWLEDGE WORKSPACE
 echo  No cloud account or Obsidian plugin required.
@@ -14,9 +13,8 @@ if not defined PYTHON_CMD (
   if not errorlevel 1 set "PYTHON_CMD=python"
 )
 if not defined PYTHON_CMD (
-  echo Python 3.11+ is required. Run FIRST-RUN-WINDOWS.cmd, choose Contributor, and retry.
+  echo Python 3.11+ is required. Double-click START-WINDOWS.cmd, choose 2 to set up as a Contributor, and retry.
   pause
-  popd
   exit /b 1
 )
 echo  The preview runs only while this window stays open.
@@ -25,8 +23,6 @@ echo  To stop: close this window, or press Ctrl+C and answer Y to "Terminate bat
 if errorlevel 1 (
   echo Preview could not start. Read the error above and check port 43117.
   pause
-  popd
   exit /b 1
 )
-popd
 exit /b 0

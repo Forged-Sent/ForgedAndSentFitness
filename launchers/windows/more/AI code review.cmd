@@ -1,6 +1,7 @@
 @echo off
 setlocal
-cd /d "%~dp0"
+title Forged and Sent - Optional AI code review
+cd /d "%~dp0..\..\.."
 echo Forged ^& Sent: optional independent AI review
 echo This uses any signed-in reviewer CLI you select and may incur usage charges.
 set "PYTHON_CMD="
@@ -11,7 +12,7 @@ if not defined PYTHON_CMD (
   if not errorlevel 1 set "PYTHON_CMD=python"
 )
 if not defined PYTHON_CMD (
-  echo Python 3.11+ is missing. Run the Contributor setup in FIRST-RUN-WINDOWS.cmd.
+  echo Python 3.11+ is missing. Double-click START-WINDOWS.cmd, choose 2 to set up as a Contributor, and retry.
   pause
   exit /b 1
 )

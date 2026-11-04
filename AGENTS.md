@@ -50,7 +50,7 @@ Forged & Sent is a faith-centered devotional workout and group accountability pl
 - The live GitHub ruleset requires `ci-gate` but zero outside approvals. AI reviews are voluntary and advisory. Maintainers choose whether to merge; agents never self-merge.
 
 ## Platform-specific onboarding
-- Windows bootstrap: FIRST-RUN-WINDOWS.cmd; Mac bootstrap: FIRST-RUN-MAC.command. Both must preserve emulator-first/no-cloud-Firebase MCP defaults.
+- Windows bootstrap: START-WINDOWS.cmd; Mac bootstrap: START-MAC.command. Both must preserve emulator-first/no-cloud-Firebase MCP defaults.
 - Mac bootstrap support in PR #3 covers Preview and tool-only Contributor foundation. Do not claim iOS/Android device integration or Firebase emulator readiness until PR #4.
 - Project MCP stdio commands use the allowlisted Node launcher on both platforms. Never add Firebase cloud MCP or automatically request credentials.
 
@@ -100,4 +100,4 @@ agent instructions are advisory. No cloud Firebase MCP is enabled by default.
 
 - Read docs/HOME.md and docs/features/README.md when starting a new product behavior task. Agents may propose but not approve requirements. High-risk Auth, Firebase rules, scoring, group privacy, offline sync, health-related data and architectural changes require the maintainer's approved requirements/design/tasks contract; never infer product rules from the HTML prototype.
 - One task owner per branch/worktree and a commit-SHA-bound handoff. CURRENT.md and Markdown ledgers are orientation only, never locks. Reconcile overlapping edits in PR review.
-- OPEN-KNOWLEDGE-WINDOWS.cmd / OPEN-KNOWLEDGE-MAC.command launch a read-only allowlisted localhost preview of root index.html and the generated Atlas. Obsidian may open docs/ as a vault but is not required. Never serve the whole repo, expose credentials, or claim live Windows/Mac/Obsidian tests passed based on CI.
+- `launchers/windows/more/Knowledge workspace.cmd` / `launchers/mac/more/Knowledge workspace.command` launch a read-only allowlisted localhost preview of root index.html and the generated Atlas. Obsidian may open docs/ as a vault but is not required. Never serve the whole repo, expose credentials, or claim live Windows/Mac/Obsidian tests passed based on CI.

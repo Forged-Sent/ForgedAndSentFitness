@@ -4,10 +4,10 @@ Open the architecture as a **real webpage**, not a static image. The HTML/CSS/Ja
 
 ## One-click entrypoints
 
-For a combined Obsidian/browser preview of the **actual root prototype** and this generated Atlas without copying sources, use [the optional knowledge workspace](../../development/KNOWLEDGE-WORKSPACE.md) and its OPEN-KNOWLEDGE-WINDOWS.cmd / OPEN-KNOWLEDGE-MAC.command launchers. The existing offline Atlas entrypoints below remain fully supported.
+For a combined Obsidian/browser preview of the **actual root prototype** and this generated Atlas without copying sources, use [the optional knowledge workspace](../../development/KNOWLEDGE-WORKSPACE.md) and its `launchers/windows/more/Knowledge workspace.cmd` / `launchers/mac/more/Knowledge workspace.command` launchers. The existing offline Atlas entrypoints below remain fully supported.
 
-- **Windows:** double-click `ARCHITECTURE-WINDOWS.cmd` from the repository root.
-- **Mac:** double-click `ARCHITECTURE-MAC.command` from the repository root.
+- **Windows:** double-click `launchers/windows/more/Architecture Atlas.cmd` from the repository root.
+- **Mac:** double-click `launchers/mac/more/Architecture Atlas.command` from the repository root.
 - **Any OS:** `python3 tooling/architecture/build_explorer.py --write`, then open `build/architecture-explorer/Architecture-Atlas.html` in a browser. This **single HTML file** contains its own styling, JavaScript and generated catalog, so it can be emailed or shared without companion files.
 - **GitHub Actions:** each PR run produces a downloadable `forged-sent-architecture-atlas` artifact. Download and extract the entire artifact, then open `Architecture-Atlas.html` locally. It is fully self-contained. The archive also includes `index.html`, `site.css`, `site.js` and generated `data.js` for conventional web hosting.
 

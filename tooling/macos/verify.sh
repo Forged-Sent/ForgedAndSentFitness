@@ -93,13 +93,13 @@ if [ "$fs_login_flutter" = "$FS_FLUTTER" ]; then
 else
   fs_record FlutterOnPath ConfiguredNotConnected 'A fresh login Terminal may not find Flutter by command name.' 'Optional: accept the ~/.zprofile PATH update in Contributor setup, then open a new Terminal; otherwise use ~/develop/flutter/bin/flutter explicitly.'
 fi
-if [ -d '/Applications/Google Chrome.app' ] || [ -d "$HOME/Applications/Google Chrome.app" ]; then fs_record Chrome Ready '' ''; else fs_record Chrome Missing 'Chrome not found.' 'Run SETUP-MAC.command.'; fi
-if fs_code >/dev/null 2>&1; then fs_record VSCode Ready '' ''; else fs_record VSCode Missing 'VS Code not found.' 'Run SETUP-MAC.command.'; fi
-if fs_flutter_version_ok; then fs_record Flutter Ready '' ''; else fs_record Flutter Outdated 'Flutter 3.47.8 not available in the project-pinned SDK location.' 'Run SETUP-MAC.command.'; fi
-fs_probe Node node 'Run SETUP-DEVELOPER-MAC.command.'
+if [ -d '/Applications/Google Chrome.app' ] || [ -d "$HOME/Applications/Google Chrome.app" ]; then fs_record Chrome Ready '' ''; else fs_record Chrome Missing 'Chrome not found.' 'Run launchers/mac/1 - Set up this computer.command.'; fi
+if fs_code >/dev/null 2>&1; then fs_record VSCode Ready '' ''; else fs_record VSCode Missing 'VS Code not found.' 'Run launchers/mac/1 - Set up this computer.command.'; fi
+if fs_flutter_version_ok; then fs_record Flutter Ready '' ''; else fs_record Flutter Outdated 'Flutter 3.47.8 not available in the project-pinned SDK location.' 'Run launchers/mac/1 - Set up this computer.command.'; fi
+fs_probe Node node 'Run launchers/mac/1 - Set up this computer.command.'
 fs_probe Npm npm 'Install Node with Contributor setup.'
-fs_probe GitHubCLI gh 'Run SETUP-DEVELOPER-MAC.command.'
-if fs_has firebase && [ "$(firebase --version 2>/dev/null || true)" = "$FS_FIREBASE_VERSION" ]; then fs_record FirebaseCLI Ready '' ''; else fs_record FirebaseCLI Outdated 'Pinned local Firebase CLI unavailable.' 'Run SETUP-DEVELOPER-MAC.command, no Firebase login needed.'; fi
+fs_probe GitHubCLI gh 'Run launchers/mac/1 - Set up this computer.command.'
+if fs_has firebase && [ "$(firebase --version 2>/dev/null || true)" = "$FS_FIREBASE_VERSION" ]; then fs_record FirebaseCLI Ready '' ''; else fs_record FirebaseCLI Outdated 'Pinned local Firebase CLI unavailable.' 'Run launchers/mac/1 - Set up this computer.command, no Firebase login needed.'; fi
 fs_probe CodexCLI codex 'Optional: choose Codex as your AI assistant and sign in separately.'
 fs_probe ClaudeCLI claude 'Optional: choose Claude as your AI assistant and sign in separately.'
 if [ -d '/Applications/Android Studio.app' ]; then fs_record AndroidStudio Ready '' ''; else fs_record AndroidStudio Missing 'Android Studio not installed.' 'Install Android Studio manually for Mobile workflows.'; fi
@@ -108,7 +108,7 @@ fs_probe Java java 'Java is optional for Preview; Contributor uses JDK 21.'
 if fs_java21_home >/dev/null 2>&1; then
   fs_record Java21 Ready '' ''
 else
-  fs_record Java21 Missing 'JDK 21 is unavailable for local Firebase emulators.' 'Run SETUP-DEVELOPER-MAC.command; do not use Firebase cloud login.'
+  fs_record Java21 Missing 'JDK 21 is unavailable for local Firebase emulators.' 'Run launchers/mac/1 - Set up this computer.command; do not use Firebase cloud login.'
 fi
 if [ -f "$FS_ROOT/.firebaserc" ] && [ -f "$FS_ROOT/firebase.json" ] &&
    grep -Eq '"default"[[:space:]]*:[[:space:]]*"demo-forgedandsent"' "$FS_ROOT/.firebaserc"; then
@@ -123,9 +123,9 @@ done
 if [ "$fs_all_emulators" -eq 1 ]; then
   fs_record EmulatorPorts Ready 'Three local TCP ports respond, but this is not an app handshake.' ''
 else
-  fs_record EmulatorPorts ConfiguredNotConnected 'One or more local Auth/Firestore/Storage ports are not listening.' 'Run START-EMULATORS-MAC.command in another Terminal window.'
+  fs_record EmulatorPorts ConfiguredNotConnected 'One or more local Auth/Firestore/Storage ports are not listening.' 'Run launchers/mac/3 - Start practice Firebase.command in another Terminal window.'
 fi
-fs_record EmulatorWiring ConfiguredNotConnected 'The Flutter SDK is wired to the demo emulators, but diagnostics cannot verify a live app round-trip.' 'Run RUN-EMULATOR-APP-MAC.command after starting emulators and check its status.'
+fs_record EmulatorWiring ConfiguredNotConnected 'The Flutter SDK is wired to the demo emulators, but diagnostics cannot verify a live app round-trip.' 'Run launchers/mac/4 - Run app with practice Firebase.command after starting emulators and check its status.'
 fs_record DevCloudIdentity AuthRequired 'Cloud DEV access is not included in local setup.' 'A separate least-privilege DEV project can be provisioned later; no PROD credentials.'
 if [ ! -f "$FS_ROOT/.vscode/mcp.json" ] || [ ! -f "$FS_ROOT/.mcp.json" ]; then
   fs_record FirebaseMCPIsolation Failed 'One or more required project MCP configurations are missing.' 'Restore the complete trusted project files.'
