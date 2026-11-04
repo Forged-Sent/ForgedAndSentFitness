@@ -31,9 +31,9 @@ flutter test
    Both commands should finish without errors. If `flutter` is missing, rerun Contributor diagnostics. On Mac, reopen Terminal after enabling Flutter PATH. You may also launch the app with `RUN-APP.cmd` (Windows) or `RUN-APP-MAC.command` (Mac).
 7. **Set Git identity, once.** If your first commit says "Please tell me who you are", configure a name and email using the guided wizard or [Git basics](GIT-101.md). Your GitHub noreply email keeps your personal email off public commits.
 8. **Commit your change.** Back in Source Control, enter `Practice: update welcome subtitle` and select **Commit**. If you see a Gitleaks or Dart formatting warning, follow its fix instructions; don't bypass hooks.
-9. **Publish safely.** Select **Publish Branch**. If GitHub says you lack write access, ask for an invitation or use your own fork. Do not force-push.
-10. **Open a Draft PR.** Use the **GitHub Pull Requests** VS Code extension (or GitHub's website). Set the target to `Forged-Sent/ForgedAndSentFitness:main`. Choose **Draft** and explain this is a practice change.
-11. **Watch CI.** In the PR, open **Checks** and find required `ci-gate`. Green means automated checks passed; red means click the failing job and inspect the error. Never bypass required CI.
+9. **Publish safely.** Select **Publish Branch**. The first time, VS Code asks you to **sign in to GitHub** in your browser; approve it. If you aren't a project collaborator yet, VS Code offers **Create Fork**: choose it, and your branch is published to your own copy of the project. Do not force-push.
+10. **Open a Draft PR.** Use the **GitHub Pull Requests** VS Code extension (or GitHub's website). Set the target to `Forged-Sent/ForgedAndSentFitness:main` (also when you published to a fork). Choose **Draft** and explain this is a practice change.
+11. **Watch CI.** In the PR, open **Checks** and find required `ci-gate`. Green means automated checks passed; red means click the failing job and inspect the error. If a PR from a fork shows checks **waiting for approval**, that's a GitHub safety step for new contributors: the maintainer clicks **Approve and run** once. Never bypass required CI.
 12. **You're finished for today.** Leave the PR as a Draft. A maintainer makes the merge decision; agents must not merge automatically. On your next day, open the same clone and branch, check Git status, and keep working. No reinstall needed.
 
 ## What "ready" means

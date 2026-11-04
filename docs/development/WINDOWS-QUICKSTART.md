@@ -15,7 +15,7 @@ git status
 
 If you've already cloned it, **reuse that folder**. Do not download a ZIP or make a second checkout. Check `git status` first, then `git switch main`, `git fetch origin` and `git pull --ff-only`. If Git reports unsaved changes or divergence, stop rather than resetting or deleting work.
 
-**While PR #4 is still unmerged:** an advanced tester may explicitly choose the PR branch using `git fetch origin pull/4/head:pr4-workstation-test` and `git switch pr4-workstation-test`. This is for reviewing PR #4 *before* it lands. All normal contributor instructions use `main` so they remain valid after merge.
+**While PR #4 is still unmerged:** an advanced tester may explicitly choose the PR branch using `git fetch origin pull/4/head:pr4-workstation-test` and `git switch pr4-workstation-test`. To pick up later PR updates while on that branch, run `git pull --ff-only origin pull/4/head`. This is for reviewing PR #4 *before* it lands. All normal contributor instructions use `main` so they remain valid after merge.
 
 ## Setup and preview
 
@@ -27,7 +27,7 @@ Choose **one** AI assistant to sign into if desired. Codex, Claude and Copilot a
 
 ## Verify local Firebase
 
-1. Open `START-EMULATORS-WINDOWS.cmd` and keep that window running. Wait until the Firebase CLI reports the services are ready.
+1. Open `START-EMULATORS-WINDOWS.cmd` and keep that window running. Wait until it says **All emulators ready! It is now safe to connect your app.** If it instead says a port "is already in use" ("Are you running another copy of the emulator suite?"), close the other emulator window or development server, or restart the computer, and try again. Don't edit `firebase.json`.
 2. In another window open `RUN-EMULATOR-APP-WINDOWS.cmd`.
 3. Confirm the Flutter screen reports verified local Auth, Firestore and Storage. Stopping one emulator and starting the app again must produce an error, **never cloud fallback**.
 

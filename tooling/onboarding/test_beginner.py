@@ -101,5 +101,104 @@ class BeginnerContractTests(unittest.TestCase):
             self.assertEqual(branch.strip(), "main")
 
 
+def isolated_git_env(home: pathlib.Path) -> dict:
+    """No global/system Git identity, like a brand-new computer."""
+    import os
+    env = {k: v for k, v in os.environ.items() if not k.startswith("GIT_")}
+    env.update(HOME=str(home), GIT_CONFIG_NOSYSTEM="1", GIT_CONFIG_GLOBAL=str(home / "none"))
+    return env
+
+
+class SetupRegressionTests(unittest.TestCase):
+    """Regression tests for the 2026-11-03 nontechnical onboarding audit (F1-F5)."""
+
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.tmp.cleanup)
+        self.home = pathlib.Path(self.tmp.name) / "home"
+        self.home.mkdir()
+        self.repo = pathlib.Path(self.tmp.name) / "clone"
+        self.env = isolated_git_env(self.home)
+        subprocess.run(["git", "init", "-q", str(self.repo)], check=True, env=self.env)
+
+    def mac(self, body: str, stdin: str = "") -> subprocess.CompletedProcess:
+        """Run Mac common.sh helpers (portable Bash) against the temp clone."""
+        script = (f'set -euo pipefail; . "{ROOT / "tooling/macos/common.sh"}"; '
+                  f'FS_ROOT="{self.repo}"; {body}')
+        return subprocess.run(["bash", "-c", script], input=stdin, text=True,
+                              capture_output=True, env=self.env, check=False)
+
+    def test_f1_mac_check_uses_remembered_profile(self):
+        r = self.mac('fs_has(){ return 1; }; a="$(fs_installed_profile)"; '
+                     'fs_remember_profile Contributor; b="$(fs_installed_profile)"; '
+                     'printf "Administrator\\n" > "$(fs_profile_file)"; c="$(fs_installed_profile)"; '
+                     'fs_has(){ [ "$1" = firebase ]; }; rm "$(fs_profile_file)"; d="$(fs_installed_profile)"; '
+                     'echo "$a $b $c $d"')
+        self.assertEqual(r.returncode, 0, r.stderr)
+        self.assertEqual(r.stdout.split(), ["Preview", "Contributor", "Preview", "Contributor"])
+        status = subprocess.run(["git", "-C", str(self.repo), "status", "--porcelain",
+                                 "--untracked-files=all"], capture_output=True, text=True, env=self.env)
+        self.assertEqual(status.stdout, "", "profile memory must live inside .git")
+
+    def test_f1_both_wizards_announce_and_save_the_checked_profile(self):
+        win, mac = read("tooling/windows/first-run.ps1"), read("tooling/macos/first-run.sh")
+        self.assertIn("Get-FSRememberedProfile", win)
+        self.assertIn("Save-FSProfile $root $targetProfile", win)
+        self.assertIn("Checking your setup as:", win)
+        self.assertNotIn("$script:SelectedProfile='Preview'", win)
+        self.assertIn('FS_SELECTED_PROFILE="$(fs_installed_profile)"', mac)
+        self.assertIn("fs_remember_profile Contributor", mac)
+        self.assertIn("Checking your setup as:", mac)
+
+    def test_f2_mac_identity_typo_never_aborts_setup(self):
+        r = self.mac("fs_ensure_git_identity || fs_warn 'later'; echo REACHED_FLUTTER_STEPS",
+                     stdin="A Friend\nnot-an-email\n")
+        self.assertEqual(r.returncode, 0, r.stderr)
+        self.assertIn("REACHED_FLUTTER_STEPS", r.stdout)
+        email = subprocess.run(["git", "-C", str(self.repo), "config", "--local", "--get", "user.email"],
+                               capture_output=True, text=True, env=self.env)
+        self.assertEqual(email.stdout.strip(), "", "invalid email must not be saved")
+        setup = read("tooling/macos/setup.sh")
+        self.assertIn("fs_ensure_git_identity || fs_warn", setup)
+        self.assertNotIn("then fs_ensure_git_identity; fi", setup)
+
+    def test_f2_mac_identity_saved_locally_not_globally(self):
+        r = self.mac("fs_ensure_git_identity",
+                     stdin="A Friend\n12345+friend@users.noreply.github.com\n")
+        self.assertEqual(r.returncode, 0, r.stderr)
+        get = lambda *a: subprocess.run(["git", "-C", str(self.repo), "config", *a],
+                                        capture_output=True, text=True, env=self.env).stdout.strip()
+        self.assertEqual(get("--local", "--get", "user.email"), "12345+friend@users.noreply.github.com")
+        self.assertFalse((self.home / "none").exists() and (self.home / "none").read_text().strip())
+
+    def test_f4_identity_offered_after_contributor_even_with_warnings(self):
+        win, mac = read("tooling/windows/first-run.ps1"), read("tooling/macos/first-run.sh")
+        self.assertIn("try{SetGitIdentity}", win)
+        self.assertNotIn("Ask 'Check your Git commit name/email now?'", win)
+        self.assertIn("FS_FROM_WIZARD=1", mac)
+        self.assertIn("fs_ensure_git_identity || fs_warn", mac)
+        self.assertIn("users.noreply.github.com", read("tooling/shell/fs-tools.ps1"))
+
+    def test_f3_winget_output_cannot_pollute_jdk_path(self):
+        script = read("tooling/windows/ensure-java21.ps1")
+        for line in script.splitlines():
+            if "winget.exe" in line and not line.lstrip().startswith("#"):
+                self.assertTrue(line.rstrip().endswith("| Out-Host"), line)
+        self.assertNotIn("Write-Output", script)
+        self.assertEqual(script.count("[Console]::Out.WriteLine"), 1)
+
+    def test_f5_first_pr_and_emulator_readiness_are_explained(self):
+        guide = read("docs/development/FIRST-CONTRIBUTION.md")
+        for phrase in ("sign in to GitHub", "Create Fork", "Approve and run"):
+            self.assertIn(phrase, guide)
+        ready = "All emulators ready! It is now safe to connect your app."
+        for doc in ("docs/development/WINDOWS-QUICKSTART.md", "docs/development/MACBOOK-QUICKSTART.md",
+                    "docs/development/FIREBASE-EMULATOR.md"):
+            self.assertIn(ready, read(doc), doc)
+        self.assertIn("menu choices 5 and 6", read("docs/development/FIREBASE-EMULATOR.md"))
+        for doc in ("docs/development/WINDOWS-QUICKSTART.md", "docs/development/MACBOOK-QUICKSTART.md"):
+            self.assertIn("git pull --ff-only origin pull/4/head", read(doc))
+
+
 if __name__ == "__main__":
     unittest.main()

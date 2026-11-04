@@ -15,7 +15,7 @@ git status
 
 Already have a clone? Reuse it: check `git status`, then `git switch main`, `git fetch origin`, `git pull --ff-only`. Never force-reset unsaved work.
 
-**While PR #4 remains a Draft**, a tester can choose its code explicitly: `git fetch origin pull/4/head:pr4-workstation-test`, then `git switch pr4-workstation-test`. The regular instructions intentionally target `main` so they work **after** PR #4 merges.
+**While PR #4 remains a Draft**, a tester can choose its code explicitly: `git fetch origin pull/4/head:pr4-workstation-test`, then `git switch pr4-workstation-test`. To pick up later PR updates while on that branch, run `git pull --ff-only origin pull/4/head`. The regular instructions intentionally target `main` so they work **after** PR #4 merges.
 
 ## Setup and preview
 
@@ -29,7 +29,7 @@ With your consent, the setup can add the project's Flutter SDK folder to your `~
 
 ## Test demo Firebase
 
-Start `START-EMULATORS-MAC.command` in a separate Terminal window. Wait for emulator readiness, then run `RUN-EMULATOR-APP-MAC.command` in another window. Confirm that the app reports verified local Auth, Firestore and Storage.
+Start `START-EMULATORS-MAC.command` in a separate Terminal window. Wait until it says **All emulators ready! It is now safe to connect your app.** If it instead says a port "is already in use" ("Are you running another copy of the emulator suite?"), close the other emulator window or development server, or restart the computer, and try again. Don't edit `firebase.json`. Then run `RUN-EMULATOR-APP-MAC.command` in another window. Confirm that the app reports verified local Auth, Firestore and Storage.
 
 Neither script requires `firebase login` or a cloud project. Stop one emulator and restart the app to verify visible failure without cloud fallback.
 
