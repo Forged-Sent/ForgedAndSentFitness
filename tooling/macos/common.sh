@@ -53,7 +53,37 @@ fs_flutter_version_ok(){
   [ -x "$FS_FLUTTER" ] || return 1
   "$FS_FLUTTER" --version --machine 2>/dev/null | grep -Eq '"frameworkVersion"[[:space:]]*:[[:space:]]*"3\.47\.8"'
 }
+# Free space (whole GB) on the volume holding a path; empty if unknown.
+fs_free_gb(){ df -Pk "${1:-$HOME}" 2>/dev/null | awk 'NR==2 {print int($4/1048576)}'; }
+FS_FLUTTER_MIN_FREE_GB=6
+fs_require_space(){
+  local fs_need="$1" fs_what="$2" fs_free
+  fs_free="$(fs_free_gb "$HOME")"
+  [ -n "$fs_free" ] || return 0
+  if [ "$fs_free" -lt "$fs_need" ]; then
+    fs_fail "Your Mac is almost out of disk space: ${fs_free} GB free, about ${fs_need} GB needed for ${fs_what}. Free up space (Apple menu > System Settings > General > Storage), then double-click 1 - Set up this computer again. Nothing was downloaded."
+    return 1
+  fi
+}
+# A pinned clone whose checkout stopped part-way (for example the disk filled up)
+# is missing files but has nothing changed or added: restoring only writes the
+# missing tracked files back, so no user change can be overwritten.
+fs_flutter_checkout_incomplete(){
+  local fs_dir="$HOME/develop/flutter" fs_changes
+  [ -d "$fs_dir/.git" ] || return 1
+  [ "$(git -C "$fs_dir" describe --tags --exact-match 2>/dev/null || true)" = "3.47.8" ] || return 1
+  fs_changes="$(git -C "$fs_dir" status --porcelain --untracked-files=no 2>/dev/null)" || return 1
+  [ -n "$fs_changes" ] || return 1
+  ! printf '%s\n' "$fs_changes" | grep -Ev '^( D|D |DD) ' >/dev/null
+}
 fs_ensure_flutter(){
+  if fs_flutter_checkout_incomplete; then
+    fs_warn 'The Flutter download in ~/develop/flutter stopped part-way (often a full disk). Finishing it now.'
+    fs_require_space "$FS_FLUTTER_MIN_FREE_GB" 'the rest of the Flutter SDK' || return 1
+    git -C "$HOME/develop/flutter" restore --source=HEAD --staged --worktree :/ || {
+      fs_fail "Finishing the Flutter download failed ($(fs_free_gb "$HOME") GB free). Free up space or check the internet, then run step 1 again."; return 1; }
+    fs_ok 'Flutter SDK files restored.'
+  fi
   if [ -x "$FS_FLUTTER" ]; then
     if fs_flutter_version_ok; then fs_ok 'Flutter 3.47.8 already present.'; return 0; fi
     if [ -d "$HOME/develop/flutter/.git" ] &&
@@ -63,12 +93,22 @@ fs_ensure_flutter(){
     fs_fail 'Found a different Flutter SDK in ~/develop/flutter. Choose the pinned 3.47.8 version manually; existing SDKs will not be overwritten.'; return 1
   fi
   if [ -e "$HOME/develop/flutter" ]; then
-    fs_fail 'An incomplete Flutter clone exists. Inspect or move that folder aside before rerunning. Setup never deletes an existing SDK.'; return 1
+    fs_fail 'An unfinished or unknown Flutter folder exists at ~/develop/flutter. Setup never deletes an existing SDK. To start over, rename it (in Terminal: mv ~/develop/flutter ~/develop/flutter-old), then run step 1 again.'; return 1
   fi
+  fs_require_space "$FS_FLUTTER_MIN_FREE_GB" 'the Flutter SDK' || return 1
   mkdir -p "$HOME/develop"
+  # Download into a private staging folder and move it into place only when complete,
+  # so an interrupted download never leaves a half-written ~/develop/flutter behind.
+  rm -rf "$HOME/develop/.flutter-download-"* 2>/dev/null || true
+  local fs_staged="$HOME/develop/.flutter-download-$$"
   fs_info 'Downloading Flutter 3.47.8 into your home folder.'
-  git clone --depth 1 --branch 3.47.8 https://github.com/flutter/flutter.git "$HOME/develop/flutter"
-  fs_flutter_version_ok || { fs_fail 'Pinned Flutter could not initialize.'; return 1; }
+  if ! git -c advice.detachedHead=false clone --depth 1 --branch 3.47.8 https://github.com/flutter/flutter.git "$fs_staged"; then
+    rm -rf "$fs_staged"
+    fs_fail "The Flutter download did not finish ($(fs_free_gb "$HOME") GB free now). If the lines above say 'No space left on device', free up space (System Settings > General > Storage); otherwise check the internet connection. Then run step 1 again; the partial download was removed."
+    return 1
+  fi
+  mv "$fs_staged" "$HOME/develop/flutter"
+  fs_flutter_version_ok || { fs_fail "Pinned Flutter could not initialize ($(fs_free_gb "$HOME") GB free). Check disk space and the internet, then run step 1 again."; return 1; }
 }
 fs_editor_extensions(){
   fs_ai_choice="${1:-none}"

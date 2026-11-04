@@ -17,6 +17,7 @@ $previewScript=Join-Path $PSScriptRoot 'setup.ps1'
 $firebaseFound=([bool](Get-Command firebase.cmd -ErrorAction SilentlyContinue) -or
   [bool]($env:APPDATA -and (Test-Path -LiteralPath (Join-Path $env:APPDATA 'npm\firebase.cmd'))))
 $script:LastCheckStatus=0
+$script:LastSetupStatus=0
 $script:SelectedProfile=Get-FSRememberedProfile $root $(if($firebaseFound){'Contributor'}else{'Preview'})
 function Banner([string]$message){Write-Host '';Write-Host ("=== "+$message+" ===") -ForegroundColor Cyan}
 function Ask([string]$question){return ((Read-Host "$question [y/N]") -match '^(y|yes)$')}
@@ -63,6 +64,7 @@ function RunSetup([string]$targetProfile){
     Write-Host "Selected: $agent. No AI account is needed to use Flutter or the demo Firebase emulators."
   }
   $status=RunScript $profileScript $setupArgs
+  $script:LastSetupStatus=$status
   if($status){
     Write-Host 'One or more installs require attention. Check the error and rerun when resolved.' -ForegroundColor Yellow
   }else{
@@ -137,6 +139,13 @@ if($Action -ne 'menu'){
     'contributor' {RunSetup 'Contributor'}
     'preview' {RunSetup 'Preview'}
     'check' {CheckTools}
+  }
+  if($Action -ne 'check' -and $script:LastSetupStatus){
+    Banner 'Setup did not finish'
+    Write-Host 'Fix the first error shown above (it says what to do), then double-click the same' -ForegroundColor Yellow
+    Write-Host 'setup file again. Finished parts are reused, so nothing is downloaded twice.' -ForegroundColor Yellow
+    Write-Host 'Still stuck? Run 5 - Check my setup.cmd and share its redacted help report.'
+    exit 1
   }
   Banner 'What to do next'
   Write-Host 'Open the launchers\windows folder and double-click the next numbered file:'

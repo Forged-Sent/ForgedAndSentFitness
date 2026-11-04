@@ -13,6 +13,8 @@ param(
 )
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
+# Show Flutter/Git UTF-8 output (box drawing, bullets) correctly instead of mojibake.
+try { [Console]::OutputEncoding = [System.Text.Encoding]::UTF8 } catch { }
 . (Join-Path $PSScriptRoot 'winget.ps1')
 $root = (Resolve-Path (Join-Path $PSScriptRoot '..\..')).Path
 $preferred = [version]'7.6.0'
