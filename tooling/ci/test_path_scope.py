@@ -26,7 +26,7 @@ class ClassificationTests(unittest.TestCase):
             with self.subTest(path=path):
                 self.assertTrue(all(classify([path]).values()))
 
-    def test_design_assets_still_require_human_review(self):
+    def test_design_assets_remain_outside_lightweight_exceptions(self):
         from review_scope import requires_human_review
         for path in ("docs/design/sign-in-mockup.html", "docs/design/sign-in-mockup.png"):
             with self.subTest(path=path):

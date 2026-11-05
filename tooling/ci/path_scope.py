@@ -14,8 +14,8 @@ from review_scope import is_lightweight_path
 
 
 # Static documentation assets (screenshots, diagrams). Design mockup HTML is
-# only allowed under docs/design/; CI never executes either, so they need the
-# policy job and human review, not platform builds.
+# only allowed under docs/design/; CI never executes either, so the policy
+# job remains mandatory while platform builds are unnecessary. Review is advisory.
 DOC_ASSET_SUFFIXES = (".png", ".jpg", ".jpeg", ".gif", ".svg", ".webp")
 
 
