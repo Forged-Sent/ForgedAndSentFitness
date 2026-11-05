@@ -33,26 +33,6 @@ if($SelfTest){
 }
 # Progress lines so a long check never looks frozen; the full report prints at the end.
 function Say([string]$what){Write-Host ('  checking '+$what+'...') -ForegroundColor DarkGray}
-# Every program this check starts gets an empty input and a time limit. Output is
-# captured (so it is invisible), so a first-run question such as the Python install
-# manager's welcome prompt would otherwise wait forever for an answer nobody can see.
-function Invoke-FSProbe([string]$file,[string[]]$arguments=@(),[int]$timeoutMs=15000){
-  $in=[System.IO.Path]::GetTempFileName(); $out=[System.IO.Path]::GetTempFileName(); $err=[System.IO.Path]::GetTempFileName()
-  try{
-    $startArgs=@{FilePath=$file;NoNewWindow=$true;PassThru=$true;RedirectStandardInput=$in;RedirectStandardOutput=$out;RedirectStandardError=$err}
-    if($arguments.Count){$startArgs.ArgumentList=$arguments}
-    $proc=Start-Process @startArgs
-    $null=$proc.Handle  # keeps ExitCode readable after exit in Windows PowerShell 5.1
-    if(-not $proc.WaitForExit($timeoutMs)){
-      try{$proc.Kill()}catch{}
-      return [pscustomobject]@{TimedOut=$true;ExitCode=-1;Text=''}
-    }
-    $proc.WaitForExit()
-    $text=((Get-Content -LiteralPath $out -Raw -ErrorAction SilentlyContinue),(Get-Content -LiteralPath $err -Raw -ErrorAction SilentlyContinue) -join "`n")
-    return [pscustomobject]@{TimedOut=$false;ExitCode=[int]$proc.ExitCode;Text=$text}
-  }catch{return [pscustomobject]@{TimedOut=$false;ExitCode=-1;Text=''}}
-  finally{Remove-Item -LiteralPath $in,$out,$err -Force -ErrorAction SilentlyContinue}
-}
 Write-Host "Checking your computer for the $TargetProfile setup (usually under a minute; the report prints at the end)." -ForegroundColor Cyan
 Say 'Git, Chrome, Flutter, VS Code, Node and command-line tools'
 Check Git git.exe @((Join-Path $env:ProgramFiles 'Git\cmd\git.exe')) 'Run launchers\windows\1 - Set up this computer.cmd, then restart the terminal.'
@@ -109,24 +89,10 @@ if((Test-Path -LiteralPath $demo) -and (Test-Path -LiteralPath $configFile)){
   }catch{$checks.Add((New-FSCheck DemoConfig Failed 'Local demo configuration could not be parsed.' 'Restore firebase.json and .firebaserc.'))}
 }else{$checks.Add((New-FSCheck DemoConfig Missing 'Firebase emulator files are missing.' 'Checkout PR #4 complete files.'))}
 Say 'Java 21 for practice Firebase'
-$javaHome=[Environment]::GetEnvironmentVariable('JAVA_HOME','Process')
-$javaPath=if($javaHome){Join-Path $javaHome 'bin\java.exe'}else{''}
-if(-not $javaPath -or -not (Test-Path -LiteralPath $javaPath)){
-  $adoptium=Join-Path $env:ProgramFiles 'Eclipse Adoptium'
-  if(Test-Path -LiteralPath $adoptium){
-    $javaPath=Get-ChildItem $adoptium -Directory -Filter 'jdk-21*' -ErrorAction SilentlyContinue|
-      ForEach-Object {Join-Path $_.FullName 'bin\java.exe'}|
-      Where-Object {Test-Path -LiteralPath $_}|Select-Object -First 1
-  }
-}
-if($javaPath -and (Test-Path -LiteralPath $javaPath)){
-  $javaText=(Invoke-FSProbe $javaPath @('-version')).Text
-  if($javaText -match '(?:version|openjdk)\s+"?(\d+)'){
-    $javaMajor=[int]$Matches[1]
-    if($javaMajor -ge 21){$checks.Add((New-FSCheck Java21 Ready 'JDK 21+ is installed.' '' "$javaMajor"))}
-    else{$checks.Add((New-FSCheck Java21 Outdated 'JDK 21+ is required.' 'Run the Contributor setup JDK installer.' "$javaMajor"))}
-  }else{$checks.Add((New-FSCheck Java21 Failed 'Could not read JAVA_HOME Java version.' 'Rerun Contributor setup.'))}
-}else{$checks.Add((New-FSCheck Java21 Missing 'Java 21 not found in the development profile or standard installation path.' 'Run Contributor setup; restart Windows if needed.'))}
+$jdk=Find-FSJava21
+if($jdk -and $jdk.Major -ge 21){$checks.Add((New-FSCheck Java21 Ready 'JDK 21+ found for practice Firebase (your JAVA_HOME is not changed).' '' "$($jdk.Major)"))}
+elseif($jdk){$checks.Add((New-FSCheck Java21 Outdated "Only Java $($jdk.Major) was found; practice Firebase needs JDK 21+." 'Run launchers\windows\1 - Set up this computer.cmd. It adds Temurin JDK 21 next to your current Java and does not change JAVA_HOME.' "$($jdk.Major)"))}
+else{$checks.Add((New-FSCheck Java21 Missing 'Java 21 was not found (checked JAVA_HOME, PATH and Eclipse Adoptium).' 'Run launchers\windows\1 - Set up this computer.cmd; restart Windows if the JDK was just installed.'))}
 Say 'practice Firebase ports 8080, 9099, 9199'
 $listen=@(8080,9099,9199)
 $closed=New-Object System.Collections.Generic.List[int]

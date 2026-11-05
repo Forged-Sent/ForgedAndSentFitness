@@ -379,6 +379,16 @@ class SetupRegressionTests(unittest.TestCase):
         self.assertNotIn("Write-Output", script)
         self.assertEqual(script.count("[Console]::Out.WriteLine"), 1)
 
+    def test_setup_check_and_jdk_installer_share_one_java21_search(self):
+        # An older JAVA_HOME must not make "Check my setup" disagree with the
+        # installer/emulator launcher, which ignore it when a JDK 21 exists.
+        model = read("tooling/windows/diagnostic-model.ps1")
+        self.assertIn("function Find-FSJava21", model)
+        self.assertLess(model.index("if($env:JAVA_HOME)"), model.index("$adoptium=Join-Path"))
+        self.assertIn("Find-FSJava21", read("tooling/windows/verify-developer.ps1"))
+        self.assertIn("Find-FSJava21", read("tooling/windows/ensure-java21.ps1"))
+        self.assertNotIn("GetEnvironmentVariable('JAVA_HOME'", read("tooling/windows/verify-developer.ps1"))
+
     def test_f5_first_pr_and_emulator_readiness_are_explained(self):
         guide = read("docs/development/FIRST-CONTRIBUTION.md")
         for phrase in ("sign in to GitHub", "Create Fork", "Approve and run"):
@@ -387,7 +397,7 @@ class SetupRegressionTests(unittest.TestCase):
         for doc in ("docs/development/WINDOWS-QUICKSTART.md", "docs/development/MACBOOK-QUICKSTART.md",
                     "docs/development/FIREBASE-EMULATOR.md"):
             self.assertIn(ready, read(doc), doc)
-        self.assertIn("menu choices 5 and 6", read("docs/development/FIREBASE-EMULATOR.md"))
+        self.assertIn("menu choices 3 and 4", read("docs/development/FIREBASE-EMULATOR.md"))
         for doc in ("docs/development/WINDOWS-QUICKSTART.md", "docs/development/MACBOOK-QUICKSTART.md"):
             self.assertIn("git pull --ff-only origin pull/4/head", read(doc))
 

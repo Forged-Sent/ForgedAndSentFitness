@@ -15,7 +15,7 @@ Use a Git clone of `main` after PR #4 merges. To test the open Draft before merg
 2. Double-click `launchers/mac/3 - Start practice Firebase.command` and keep Terminal open until it says **All emulators ready! It is now safe to connect your app.**
 3. In a **second** Terminal window, run `launchers/mac/4 - Run app with practice Firebase.command`.
 
-The Mac wizard offers those actions as menu choices 5 and 6. If it instead says a port "is already in use" ("Are you running another copy of the emulator suite?"), close the other emulator window or development server, or restart the computer, and try again. Don't edit `firebase.json`.
+The Mac wizard offers those actions as menu choices 3 and 4. If it instead says a port "is already in use" ("Are you running another copy of the emulator suite?"), close the other emulator window or development server, or restart the computer, and try again. Don't edit `firebase.json`.
 
 ## Manual commands on either computer
 
