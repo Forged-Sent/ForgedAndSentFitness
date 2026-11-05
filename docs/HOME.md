@@ -4,7 +4,7 @@ Welcome. **Git stores project decisions and history; code and tests establish wh
 
 ## Start with one path
 
-1. [Set up Windows or Mac](development/START_HERE.md) using the existing first-run wizard.
+1. [Set up Windows or Mac](development/START_HERE.md): double-click `START-WINDOWS.cmd` / `START-MAC.command`, or the numbered files in `launchers/<os>/`.
 2. [Read the current knowledge index](knowledge/INDEX.md) and [what is verified](knowledge/CURRENT.md).
 3. [Browse the live HTML prototype and Architecture Atlas](development/KNOWLEDGE-WORKSPACE.md). These are interactive webpages, not Markdown previews.
 4. [Choose a feature contract](features/README.md) before changing app behavior.
