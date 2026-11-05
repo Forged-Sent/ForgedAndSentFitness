@@ -1,0 +1,17 @@
+const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const vm = require('node:vm');
+const html = fs.readFileSync('index.html','utf8');
+const start = html.indexOf('  var wkDocCache = '), end = html.indexOf('  function drawVolume(sel)',start);
+const ctx = {state:{weights:{},settings:{body:{wt:180}}},weights(){return this.state.weights},workoutFor(){return {kind:'train',w:{exercises:[['pushup','10 reps']]}}},normExtra(){return []},planCfg(){return {equip:'bodyweight'}},parseSets(){return {time:false}},effMove(r,k,g){return g},needsWeight(){return false}};
+ctx.weights=()=>ctx.state.weights;
+vm.createContext(ctx);vm.runInContext(html.slice(start,end),ctx);
+const date='2026-11-05';
+vm.runInContext('wkDocCache["'+date+'"]={ex:{0:[{r:"10",w:""}]}};',ctx);
+ctx.refreshVolumeCache();assert.equal(ctx.volCache[date],1800);
+ctx.state.weights[date]=200;ctx.refreshVolumeCache();assert.equal(ctx.volCache[date],2000);
+ctx.state.weights[date]=220;ctx.refreshVolumeCache();assert.equal(ctx.volCache[date],2200);
+ctx.state.weights={};ctx.state.settings.body.wt=190;ctx.refreshVolumeCache();assert.equal(ctx.volCache[date],1900);
+assert.match(html,/state\.weights = normWeights\(m\);[^\n]*drawVolume/);
+for (const [,script] of html.matchAll(/<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/g)) new vm.Script(script);
+console.log('PASS: cached volume follows delayed/corrected weigh-ins and settings fallback; inline scripts parse');

@@ -4686,7 +4686,13 @@ header.hero .me-btn { border-color:#e87328; }
   }
   function fmtVol(n) { return n >= 10000 ? (Math.round(n / 100) / 10) + "k" : String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ","); }
   function svgEl(n, a) { var e = document.createElementNS(SVGNS, n); for (var k in a) e.setAttribute(k, a[k]); return e; }
+  function refreshVolumeCache() {
+    // Weigh-ins/settings arrive independently from workout logs and can change
+    // the bodyweight contribution after a workout total was first cached.
+    Object.keys(wkDocCache).forEach(function (k) { volCache[k] = volTotal(wkDocCache[k], k); });
+  }
   function drawVolume(sel) {
+    refreshVolumeCache();
     var sec = $("vol-sec"), body = $("vol-body"), p = planCfg(); sec.hidden = !p; if (!p) return;
     var mon = mondayKey(sel), today = todayKey(), prev = addDays(mon, -7), keys = [], pkeys = [];
     for (var i = 0; i < 7; i++) { keys.push(addDays(mon, i)); pkeys.push(addDays(prev, i)); }
@@ -11002,7 +11008,7 @@ header.hero .me-btn { border-color:#e87328; }
         drawChallengeButtons(); if (state.page === "chal" && !(chalForm && chalForm.busy)) drawChallengePage(); loadProfiles();
       });
       B.watchProgress(state.me, function (rows) { state.progress = rows.map(normProg).filter(function (x) { return /^\d{4}-\d{2}-\d{2}$/.test(x.date); }); drawProgress(); drawToday(); });
-      B.watchWeights(state.me, function (m) { state.weights = normWeights(m); drawToday(); if (!$("page-train").hidden) drawWeightChart(); });
+      B.watchWeights(state.me, function (m) { state.weights = normWeights(m); drawToday(); if (!$("page-train").hidden) { drawWeightChart(); drawVolume(state.trainDay || todayKey()); } });
       if (B.watchLiftNotes) B.watchLiftNotes(state.me, function (m) { state.liftNotes = m || {}; });
       if (B.watchJournal) B.watchJournal(state.me, function (rows) { state.journal = rows.filter(function (x) { return x && x.t; }); drawToday(); if (state.page === "journal") drawJournalPage(); });
       if (B.watchLegacy) B.watchLegacy(state.me, function (m) { state.legacy = normLegacy(m); drawToday(); var lg = $("cdlg"); if (lg && lg.dataset.k === "legacy" && !lg.contains(document.activeElement)) openLegacy(); });
