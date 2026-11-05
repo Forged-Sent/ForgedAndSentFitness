@@ -1,15 +1,15 @@
-"""Single source of truth for risk-based GitHub Required reviewers paths.
+"""Advisory risk-based path classification, not a required-review policy.
 
-The GitHub ruleset uses .gitignore-style matching, evaluated top to bottom.
-The catch-all intentionally comes FIRST: future paths require review unless
-explicitly named as low-risk prototype content. GitHub enforces the ruleset;
-this module keeps tests, CI classification and documentation aligned.
+The legacy constant name is retained for CI/documentation compatibility.
+GitHub's current live branch rules require ci-gate and ZERO outside approvals.
+The patterns distinguish lightweight prototype changes from other code so
+CI can select proportionate checks; no path imposes human approval.
 """
 from __future__ import annotations
 
 from pathlib import PurePosixPath
 
-# Paste into GitHub > Rulesets > Require pull request > Required reviewers.
+# Advisory reference only. Do not configure mandatory external approvers for solo work.
 REVIEW_RULESET_PATTERNS = (
     "**",
     "!index.html",
@@ -41,5 +41,5 @@ def is_lightweight_path(path: str) -> bool:
 
 
 def requires_human_review(path: str) -> bool:
-    """Unknown/new paths are protected by default."""
+    """Legacy function name: risk-sensitive path, NOT an approval requirement."""
     return not is_lightweight_path(path)

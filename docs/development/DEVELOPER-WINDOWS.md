@@ -4,7 +4,7 @@
 
 **PowerShell 7.6 LTS or newer is the standard for this repo.** The double-click .cmd entrypoints begin with the built-in Windows PowerShell 5.1 only to run tooling/windows/bootstrap-pwsh.ps1. The bootstrap checks for pwsh, installs or updates PowerShell using the official WinGet ID Microsoft.PowerShell, checks it is at least 7.6, and launches all developer scripts with pwsh.exe. Windows PowerShell 5.1 stays installed; don't remove it. The launchers do not permanently change execution policy.
 
-The full and preview installers check for updates. RUN-APP.cmd does not check for updates every time. If WinGet/App Installer is missing, installer permission is declined, or a restart is needed, the wizard prints a clear fix and stops rather than silently using 5.1.
+The full and preview installers check for updates. `launchers/windows/2 - Run the app.cmd` does not check for updates every time. If WinGet/App Installer is missing, installer permission is declined, or a restart is needed, the wizard prints a clear fix and stops rather than silently using 5.1.
 
 Run pwsh --version to check it yourself. VS Code now defaults to the PowerShell 7 terminal for this workspace. PowerShell 7 is installed side-by-side with 5.1.
 
@@ -12,18 +12,18 @@ Official installation instructions: https://learn.microsoft.com/en-us/powershell
 
 ## Two setups, for different teammates
 
-- Preview-only: run SETUP-WINDOWS.cmd, then RUN-APP.cmd. This opens the Flutter starter in Chrome, without accounts.
-- Full development: run SETUP-DEVELOPER-WINDOWS.cmd, then VERIFY-DEVELOPER-WINDOWS.cmd and RUN-APP.cmd.
-- Optional Android phone development: run SETUP-ANDROID.cmd. Complete Android Studio setup, licenses and device pairing yourself.
+- Preview-only: run `launchers/windows/more/Preview-only setup.cmd`, then `launchers/windows/2 - Run the app.cmd`. This opens the Flutter starter in Chrome, without accounts.
+- Full development: run `launchers/windows/1 - Set up this computer.cmd`, then `launchers/windows/5 - Check my setup.cmd` and `launchers/windows/2 - Run the app.cmd`.
+- Optional Android phone development: run `launchers/windows/more/Android setup.cmd`. Complete Android Studio setup, licenses and device pairing yourself.
 - Local iOS builds require a Mac and Xcode.
 
-Download the GitHub branch ZIP and **extract all** before double-clicking the script. Only run scripts from a repository you trust. If an installer or corporate security policy blocks setup, stop and ask for help rather than disabling security software.
+Use your existing **Git clone**. For normal setup after PR #4 merges, run `git status`, `git switch main`, `git fetch origin`, and `git pull --ff-only`. When testing the still-open Draft PR #4 before merge, see the PR checkout instructions in [Windows quickstart](WINDOWS-QUICKSTART.md). Only if you have no clone: `git clone https://github.com/Forged-Sent/ForgedAndSentFitness.git`. Do not overwrite or force-reset local work. Only run scripts from this repository when you trust them. Corporate security restrictions should not be bypassed.
 
 ## What full setup adds
 
-- Node.js LTS/npm, GitHub CLI and Firebase CLI.
+- Node.js LTS/npm, GitHub CLI, local Firebase CLI, Python 3.11+ and JDK 21.
 - Playwright MCP package is fetched by the pinned project launcher on first use; no global installation.
-- VS Code extensions: Dart, Flutter, GitHub Copilot, Copilot Chat, GitHub Pull Requests, Codex, Claude Code, YAML, EditorConfig and PowerShell.
+- VS Code extensions: Dart, Flutter, GitHub Pull Requests, YAML, EditorConfig and PowerShell. The extensions for any AI assistants you pick in setup are added too (Codex, Claude Code, Copilot); Antigravity is a terminal CLI (`agy`) installed with WinGet.
 - Optional Codex and Claude Code command-line tools, using project-scoped `.codex/config.toml` / `.mcp.json` (no global registration).
 - Shared VS Code MCP configuration, committed at .vscode/mcp.json.
 
@@ -31,34 +31,33 @@ Tools are reused when found; project-scoped MCPs depend on Node and require user
 
 ## Guided first run
 
-Start with **FIRST-RUN-WINDOWS.cmd**. The wizard offers developer/preview installation, account sign-ins, MCP setup, launching the app, and an explicit "check everything" command that explains each missing dependency and gives a repair step.
+Start with **START-WINDOWS.cmd**. The wizard offers developer/preview installation, account sign-ins, MCP setup, launching the app, and an explicit "check everything" command that explains each missing dependency and gives a repair step.
 
 It generates a **secret-free AI troubleshooting prompt** in the Windows temporary folder and offers to copy it to the clipboard. It does not paste or send it automatically. See docs/development/FIRST-RUN-TROUBLESHOOTING.md.
 
 ## MCP integrations
 
-The project VS Code MCP file configures seven servers (no Firebase cloud MCP):
+The project VS Code MCP file configures three default servers (no Firebase cloud MCP):
 
 1. Dart MCP: analyzer, tests and Flutter app context via dart mcp-server. Runs from the Flutter SDK.
-2. No Firebase cloud MCP is installed by default. Firebase CLI itself is retained for future local emulators (PR #4).
+2. No Firebase cloud MCP is installed by default. The Firebase CLI runs PR #4's local Auth, Firestore and Storage emulators using the fake `demo-forgedandsent` project; no account or login is required.
 3. Playwright MCP: browser automation against Chrome for Flutter web UI.
-4. GitHub hosted MCP: read-only repository/issue/PR context via OAuth.
+4. GitHub hosted MCP, Figma, Maestro and Google Developer Knowledge are **optional**, documented in [MCP security](MCP-SECURITY.md); they are not loaded at first run.
 
 **Safety:** MCP providers can execute code or access external data. VS Code asks you to trust servers. Firebase cloud MCP is deliberately absent. DEV cloud authorization belongs to Maintainer opt-in in PR #4. No Firebase project or API key is created by this bootstrap.
 
-The shared .vscode/mcp.json works for VS Code and Copilot. Claude uses the project-scoped .mcp.json and Codex uses .codex/config.toml after trust. No user-global Firebase/cloud MCP is registered. Google Developer Knowledge prompts for a masked API key in VS Code.
+The shared .vscode/mcp.json is for VS Code and Copilot. Claude uses .mcp.json and Codex uses .codex/config.toml after trust. The audited optional manifests provide Google Developer Knowledge through a masked key prompt only when the maintainer explicitly opts in. No global Firebase/cloud MCP registration is performed.
 
 ## Sign-in after setup
 
 1. Open the repository folder in VS Code.
-2. Sign into GitHub and Copilot if you have an eligible plan.
-3. Open the Codex extension and sign in with your account, if eligible.
-4. Open the Claude Code extension and sign in with your own account, if eligible.
-5. Use VS Code Command Palette > MCP: List Servers to review and start project MCPs.
-6. Do not run firebase login as a Contributor. PR #4 will install the local emulators; DEV cloud credentials are Maintainer-only and separately approved.
-7. Run RUN-APP.cmd for the Flutter browser preview. Keep the command window open while testing.
+2. Sign into GitHub so you can publish a branch and open a draft PR.
+3. Sign into **only the AI assistant you selected**, if you want AI-assisted work. Other assistants are optional.
+4. Use VS Code Command Palette > MCP: List Servers to verify Dart, Context7 and Playwright. Configured alone does not mean connected.
+5. Do not run `firebase login` as a Contributor. PR #4 includes the demo local emulators; cloud DEV access is separately provisioned later.
+6. Run `launchers/windows/2 - Run the app.cmd` for plain Flutter Preview. To test live demo Firebase, start `launchers/windows/3 - Start practice Firebase.cmd`, then `launchers/windows/4 - Run app with practice Firebase.cmd` in a second window. Leave both consoles open.
 
-A free public GitHub Actions runner does not make Claude/Codex/Copilot usage free. No agent is authorized to deploy, commit secrets, or change accepted architecture just because its extension is installed.
+Follow the cross-platform [first-contribution guide](FIRST-CONTRIBUTION.md) to create a branch, edit one line, run tests and open a Draft PR. A free public GitHub Actions runner does not make Claude/Codex/Copilot usage free. No agent is authorized to deploy, commit secrets, or change accepted architecture just because its extension is installed.
 
 ## Flutter/Dart agent skills
 
@@ -86,7 +85,7 @@ Review and commit only intentional skill changes. The Flutter app still needs fu
 
 ## Verification and support
 
-VERIFY-DEVELOPER-WINDOWS.cmd checks local executables, key VS Code extensions, and MCP JSON structure. It writes a diagnostics-only report to the TEMP folder. It cannot prove MCP handshakes, logins, or a fresh machine installation succeeded.
+`launchers/windows/5 - Check my setup.cmd` checks local executables, key VS Code extensions, and MCP JSON structure. It writes a diagnostics-only report to the TEMP folder. It cannot prove MCP handshakes, logins, or a fresh machine installation succeeded.
 
 For errors, send a screenshot and the diagnostics report, **never API keys or credentials**.
 
