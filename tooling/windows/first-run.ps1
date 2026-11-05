@@ -27,7 +27,7 @@ function RunScript([string]$path,[string[]]$params=@()){
 }
 function CheckTools {
   Banner 'Your setup report'
-  Write-Host "Checking your setup as: $script:SelectedProfile (choose 1 or 2 to switch)." -ForegroundColor Cyan
+  Write-Host "Checking your setup as: $script:SelectedProfile (choose 1 or 6 in the menu to switch)." -ForegroundColor Cyan
   $status=RunScript $verify @('-TargetProfile',$script:SelectedProfile)
   $script:LastCheckStatus=$status
   if($status){Write-Host 'Some tools need attention. Follow each WHY/FIX line.' -ForegroundColor Yellow}
@@ -57,11 +57,9 @@ function RunSetup([string]$targetProfile){
   Banner "Set up $targetProfile"
   $setupArgs=@('-TargetProfile',$targetProfile)
   if($targetProfile -ne 'Preview'){
-    Write-Host 'Choose ONE optional AI assistant: 0=None, 1=Codex, 2=Claude, 3=GitHub Copilot.'
-    $answer=Read-Host 'Assistant [0]'
-    $agent= switch($answer){'1'{'Codex'} '2'{'Claude'} '3'{'Copilot'} default{'None'}}
-    $setupArgs+=@('-AIChoice',$agent)
-    Write-Host "Selected: $agent. No AI account is needed to use Flutter or the demo Firebase emulators."
+    $agents=Select-FSAssistants
+    $setupArgs+=@('-AIChoice',($agents -join ','))
+    Write-Host ("Selected: "+($agents -join ', ')+". No AI account is needed to use Flutter or the demo Firebase emulators.")
   }
   $status=RunScript $profileScript $setupArgs
   $script:LastSetupStatus=$status
@@ -102,6 +100,26 @@ function StartEmulators {
     Write-Host 'Keep the new window open until the emulators report ready.'
   }
 }
+# Optional AI assistants: pick any combination (or none). Each one is installed
+# separately; signing in to its account is always a separate, manual step.
+$script:FSAssistants=[ordered]@{'1'='Codex';'2'='Claude';'3'='Copilot';'4'='Antigravity'}
+function ConvertTo-FSAssistants([string]$answer){
+  $picked=New-Object System.Collections.Generic.List[string]
+  foreach($token in @(($answer -replace '[^0-9]',' ').Trim() -split '\s+' | Where-Object {$_})){
+    foreach($digit in $token.ToCharArray()){
+      $name=$script:FSAssistants[[string]$digit]
+      if($name -and -not $picked.Contains($name)){$picked.Add($name)}
+    }
+  }
+  if($picked.Count -eq 0){return @('None')}
+  return @($picked.ToArray())
+}
+function Select-FSAssistants {
+  Write-Host 'Optional AI assistants. Pick any you use, or none:'
+  Write-Host '  1 = Codex (OpenAI)   2 = Claude Code   3 = GitHub Copilot   4 = Antigravity CLI (Google Gemini)'
+  Write-Host '  Type the numbers separated by commas, for example 2,4. Press Enter for none.'
+  return @(ConvertTo-FSAssistants (Read-Host 'Assistants [none]'))
+}
 function MoreOptions {
   Banner 'More options (optional)'
   Write-Host '  1. Mobile/Android tools'
@@ -119,7 +137,8 @@ function MoreOptions {
       else{Write-Host 'GitHub CLI missing. Run Contributor setup first.'}
     }
     '4' {
-      Write-Host '.vscode/mcp.json (VS Code), .mcp.json (Claude), .codex/config.toml (Codex).'
+      Write-Host '.vscode/mcp.json (VS Code, Copilot), .mcp.json (Claude), .codex/config.toml (Codex).'
+      Write-Host 'Antigravity CLI reads AGENTS.md and .agents/skills; its MCP servers are not preconfigured yet.'
       Write-Host 'Configured does NOT mean connected. Authenticate providers independently.'
     }
     '5' {SetGitIdentity}
@@ -128,6 +147,9 @@ function MoreOptions {
 }
 if($SelfTest){
   if(-not (Test-Path -LiteralPath (Join-Path $root 'docs\development\FIRST-CONTRIBUTION.md'))){throw 'First-contribution guide missing.'}
+  $parsed=(ConvertTo-FSAssistants '2, 4 4') -join ','
+  if($parsed -ne 'Claude,Antigravity'){throw "Assistant parsing failed: $parsed"}
+  if(((ConvertTo-FSAssistants '') -join ',') -ne 'None' -or ((ConvertTo-FSAssistants '1234') -join ',') -ne 'Codex,Claude,Copilot,Antigravity'){throw 'Assistant parsing failed.'}
   foreach($launcher in @('START-WINDOWS.cmd','launchers\windows\3 - Start practice Firebase.cmd','launchers\windows\4 - Run app with practice Firebase.cmd')){
     if(-not (Test-Path -LiteralPath (Join-Path $root $launcher))){throw "Missing $launcher"}
   }
@@ -160,31 +182,32 @@ Write-Host 'This wizard uses the current Git clone, not a ZIP or an extra copy.'
 Write-Host 'No production Firebase credentials or paid AI account is required.'
 do {
   Write-Host ''
-  Write-Host '  1. Just preview the Flutter app (quickest; view only)'
-  Write-Host '  2. Set up as a Contributor (full setup: edit, test, and submit PRs)'
-  Write-Host '  3. Check or repair my setup'
-  Write-Host '  4. Run the Flutter app in Chrome'
-  Write-Host '  5. Start local Firebase emulators in a separate window'
-  Write-Host '  6. Run Flutter connected to local Firebase'
+  # 1-5 match the numbered files in launchers\windows.
+  Write-Host '  1. Set up this computer (full setup: edit, test, and submit PRs)'
+  Write-Host '  2. Run the app in Chrome'
+  Write-Host '  3. Start practice Firebase (opens a separate window)'
+  Write-Host '  4. Run the app with practice Firebase'
+  Write-Host '  5. Check my setup'
+  Write-Host '  6. Preview-only setup (quickest; view only)'
   Write-Host '  7. Open VS Code and the first-contribution guide'
   Write-Host '  8. More options (Android, maintainer, GitHub sign-in)'
   Write-Host '  0. Exit'
   $choice=Read-Host 'Choose a number'
   try{
     switch($choice){
-      '1' {RunSetup 'Preview'}
-      '2' {RunSetup 'Contributor'}
-      '3' {CheckTools}
-      '4' {
+      '1' {RunSetup 'Contributor'}
+      '2' {
         $rc=RunScript (Join-Path $PSScriptRoot 'run-app.ps1')
-        if($rc){Write-Host 'Flutter did not launch. Run Preview setup and diagnostics.' -ForegroundColor Yellow}
+        if($rc){Write-Host 'Flutter did not launch. Run option 1 (setup), then option 5 (check).' -ForegroundColor Yellow}
       }
-      '5' {StartEmulators}
-      '6' {
-        Write-Host 'Start the emulators using option 5 first and wait for readiness.'
+      '3' {StartEmulators}
+      '4' {
+        Write-Host 'Start practice Firebase with option 3 first and wait until it says ready.'
         $rc=RunScript (Join-Path $PSScriptRoot 'run-emulator-app.ps1')
         if($rc){Write-Host 'Emulator-mode app failed. Check that all three local services are running.' -ForegroundColor Yellow}
       }
+      '5' {CheckTools}
+      '6' {RunSetup 'Preview'}
       '7' {OpenVSCode;OpenGuide}
       '8' {MoreOptions}
       '0' {Write-Host 'You can reopen this wizard any time; no reinstall is needed.'}

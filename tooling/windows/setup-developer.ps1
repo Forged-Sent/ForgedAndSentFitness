@@ -5,13 +5,15 @@ Installs developer dependencies and VS Code extensions; rerunnable.
 It never deploys Firebase, logs into paid services, or stores credentials.
 #>
 param([switch]$SkipBase,[switch]$SkipAgentCLIs,[switch]$Android,[switch]$SkipMaestro,
-  [ValidateSet('None','Codex','Claude','Copilot')][string]$AIChoice='None')
+  [ValidatePattern('^(None|(Codex|Claude|Copilot|Antigravity)(,(Codex|Claude|Copilot|Antigravity))*)$')][string]$AIChoice='None')
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 . (Join-Path $PSScriptRoot 'winget.ps1')
 $root = (Resolve-Path (Join-Path $PSScriptRoot '..\..')).Path
 $log = Join-Path $env:TEMP ('ForgedAndSent-developer-{0:yyyyMMdd-HHmmss}.log' -f (Get-Date))
 $issues = New-Object System.Collections.Generic.List[string]
+# Any combination of optional assistants, e.g. 'Claude,Antigravity'; 'None' means none.
+$assistants = @($AIChoice -split ',' | Where-Object { $_ -and $_ -ne 'None' })
 $logged = $false
 
 function Refresh-Path {
@@ -164,11 +166,10 @@ try {
       'EditorConfig.EditorConfig',
       'ms-vscode.powershell'
     )
-    switch($AIChoice){
-      Codex {$extensions+='OpenAI.chatgpt'}
-      Claude {$extensions+='Anthropic.claude-code'}
-      Copilot {$extensions+='GitHub.copilot-chat'}
-    }
+    # Antigravity is a terminal CLI (agy); it has no VS Code extension to add here.
+    if('Codex' -in $assistants){$extensions+='OpenAI.chatgpt'}
+    if('Claude' -in $assistants){$extensions+='Anthropic.claude-code'}
+    if('Copilot' -in $assistants){$extensions+='GitHub.copilot-chat'}
     $installed=@(& $code --list-extensions)
     foreach ($id in $extensions) {
       try {
@@ -183,7 +184,7 @@ try {
     }
   }
 
-  if (-not $SkipAgentCLIs -and $AIChoice -eq 'Codex') {
+  if (-not $SkipAgentCLIs -and 'Codex' -in $assistants) {
     Attempt 'Codex CLI' {
       $npm=Npm
       $codex=Find-Tool 'codex.cmd' @((Join-Path $env:APPDATA 'npm\codex.cmd'))
@@ -198,7 +199,7 @@ try {
 
     }
   }
-  if (-not $SkipAgentCLIs -and $AIChoice -eq 'Claude') {
+  if (-not $SkipAgentCLIs -and 'Claude' -in $assistants) {
     Attempt 'Claude Code CLI' {
       $claude=Find-Tool 'claude.exe' @((Join-Path $env:USERPROFILE '.local\bin\claude.exe'))
       if (-not $claude) { Package 'Anthropic.ClaudeCode' }
@@ -210,14 +211,28 @@ try {
     }
   }
 
-  if(-not $SkipAgentCLIs -and $AIChoice -in @('Codex','Claude')){
+  if (-not $SkipAgentCLIs -and 'Antigravity' -in $assistants) {
+    Attempt 'Antigravity CLI (Google Gemini)' {
+      $agyLink=Join-Path $env:LOCALAPPDATA 'Microsoft\WinGet\Links\agy.exe'
+      $agy=Find-Tool 'agy.exe' @($agyLink)
+      # Google's signed portable build, hash-checked by WinGet (package Google.AntigravityCLI).
+      if (-not $agy) { Package 'Google.AntigravityCLI' }
+      Refresh-Path
+      $agy=Find-Tool 'agy.exe' @($agyLink)
+      if (-not $agy) { throw 'Antigravity CLI (agy) not detected after install; open a new terminal and run agy --version' }
+      & $agy --version; Check-Exit 'Antigravity CLI'
+      Write-Host 'Antigravity reads AGENTS.md and the shared .agents/skills. Sign in later by running agy in this folder.'
+    }
+  }
+
+  if(-not $SkipAgentCLIs -and (@($assistants | Where-Object {$_ -in @('Codex','Claude')}).Count -gt 0)){
     Attempt 'Display safe project-only MCP setup for chosen AI CLI' {
       & (Join-Path $PSHOME 'pwsh.exe') -NoProfile -ExecutionPolicy Bypass -File (Join-Path $PSScriptRoot 'register-cli-mcps.ps1')
       Check-Exit 'Claude/Codex MCP registration'
     }
   }
 
-  Write-Host "AI choice: $AIChoice. One assistant is sufficient; no AI is required for Flutter tests."
+  Write-Host ("AI assistants: "+$(if($assistants.Count){$assistants -join ', '}else{'none'})+". Any combination works; no AI is required for Flutter tests.")
   Attempt 'Developer diagnostics' {
     & (Join-Path $PSHOME 'pwsh.exe') -NoProfile -ExecutionPolicy Bypass -File (Join-Path $PSScriptRoot 'verify-developer.ps1') -TargetProfile Contributor
     Check-Exit 'Developer diagnostics'

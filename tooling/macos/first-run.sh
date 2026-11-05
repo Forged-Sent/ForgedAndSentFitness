@@ -31,7 +31,7 @@ fs_setup_contributor() {
   return "$fs_status"
 }
 fs_check_setup() {
-  printf 'Checking your setup as: %s (choose 1 or 2 in START-MAC.command to switch).\n' "$FS_SELECTED_PROFILE"
+  printf 'Checking your setup as: %s (choose 1 or 6 in START-MAC.command to switch).\n' "$FS_SELECTED_PROFILE"
   /bin/bash "$FS_ROOT/tooling/macos/verify.sh" --profile "$FS_SELECTED_PROFILE"
 }
 # Numbered launchers in launchers/mac run one step, then show what to do next.
@@ -61,15 +61,16 @@ fi
 printf '\n==== Forged & Sent: first run on Mac ===\n'
 printf 'Uses your existing Git clone. Firebase cloud and paid AI accounts are not required.\n'
 while :; do
-  printf '\n1. Just preview the Flutter app (quickest; view only)\n2. Set up as a Contributor (full setup: edit, test, submit PRs)\n3. Check or repair my setup\n4. Run Flutter in Chrome\n5. Start local Firebase emulators in another window\n6. Run Flutter with local Firebase\n7. Open VS Code and first-contribution guide\n8. More options (Git identity, sign-in, Atlas)\n0. Exit\nYour choice: '
+  # 1-5 match the numbered files in launchers/mac.
+  printf '\n1. Set up this computer (full setup: edit, test, submit PRs)\n2. Run the app in Chrome\n3. Start practice Firebase (opens another window)\n4. Run the app with practice Firebase\n5. Check my setup\n6. Preview-only setup (quickest; view only)\n7. Open VS Code and first-contribution guide\n8. More options (Git identity, sign-in, Atlas)\n0. Exit\nYour choice: '
   IFS= read -r fs_choice || break
   case "$fs_choice" in
-    1) fs_setup_preview || true;;
-    2) fs_setup_contributor || true;;
-    3) fs_check_setup || true;;
-    4) /bin/bash "$FS_ROOT/tooling/macos/run-app.sh" || true;;
-    5) open "$FS_ROOT/launchers/mac/3 - Start practice Firebase.command";;
-    6) open "$FS_ROOT/launchers/mac/4 - Run app with practice Firebase.command";;
+    1) fs_setup_contributor || true;;
+    2) /bin/bash "$FS_ROOT/tooling/macos/run-app.sh" || true;;
+    3) open "$FS_ROOT/launchers/mac/3 - Start practice Firebase.command";;
+    4) open "$FS_ROOT/launchers/mac/4 - Run app with practice Firebase.command";;
+    5) fs_check_setup || true;;
+    6) fs_setup_preview || true;;
     7)
       fs_code_bin="$(fs_code || true)"
       if [ -n "$fs_code_bin" ]; then "$fs_code_bin" "$FS_ROOT"; else fs_warn 'VS Code missing. Run Contributor setup.'; fi

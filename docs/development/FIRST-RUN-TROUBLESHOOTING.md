@@ -18,12 +18,12 @@ The wizard keeps the primary choices short:
 
 | Option | What it does |
 | --- | --- |
-| 1 | Preview the Flutter starter |
-| 2 | Install Contributor tools, optionally choose one AI assistant, and check Git identity |
-| 3 | Diagnose missing tools with WHY/FIX explanations |
-| 4 | Run Flutter in Chrome |
-| 5 | Launch the demo Firebase emulators in a **separate** window |
-| 6 | Run Flutter against the emulators (after option 5 reports ready) |
+| 1 | Set up this computer: Contributor tools, any optional AI assistants, and Git identity (same as `launchers/<os>/1 - Set up this computer`) |
+| 2 | Run Flutter in Chrome (same as launcher 2) |
+| 3 | Start practice Firebase (the demo emulators) in a **separate** window (launcher 3) |
+| 4 | Run Flutter against practice Firebase, after option 3 reports ready (launcher 4) |
+| 5 | Check my setup: missing tools with WHY/FIX explanations (launcher 5) |
+| 6 | Preview-only setup (view the app without editing tools) |
 | 7 | Open VS Code and the [first contribution guide](FIRST-CONTRIBUTION.md) |
 | 8 | Advanced: Android, GitHub sign-in, Git identity, project MCP locations |
 
@@ -31,7 +31,7 @@ The initial Flutter app is a basic starter screen. The original web prototype is
 
 ## AI and MCP tools
 
-Contributor setup offers **one optional assistant** (Codex, Claude, GitHub Copilot, or none). No paid AI subscription is required to compile Flutter. The default MCP files configure only **Dart, Playwright and Context7**. Each must initialize and return tools/list before it is considered connected.
+Contributor setup lets you pick **any combination** of optional assistants (Codex, Claude Code, GitHub Copilot, Google's Antigravity CLI) or none; type the numbers, for example `2,4`. No paid AI subscription is required to compile Flutter. The default MCP files configure only **Dart, Playwright and Context7**. Each must initialize and return tools/list before it is considered connected.
 
 GitHub read-only MCP, Figma, Maestro and Google Developer Knowledge are **advanced opt-ins**; see [MCP security](MCP-SECURITY.md) and the project's audited `mcp-optional.example` manifests. A Google Developer Knowledge key is never required for the normal setup. No cloud Firebase MCP or PROD credentials are enabled.
 
@@ -39,7 +39,7 @@ Maestro requires an actual mobile device/emulator; its Windows installer uses a 
 
 ## The setup tells you why it failed
 
-Run menu option 3 or `launchers/windows/5 - Check my setup.cmd`. The diagnostic prints lines like:
+Run menu option 5 or `launchers/windows/5 - Check my setup.cmd`. The diagnostic prints lines like:
 
 [MISSING] Python
  WHY: Python 3.11+ is required to generate the Architecture Atlas.

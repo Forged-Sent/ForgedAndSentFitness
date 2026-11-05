@@ -19,4 +19,4 @@ On Mac start `launchers/mac/3 - Start practice Firebase.command`, then `launcher
 
 Tools being installed does not prove that emulators, device workflows or MCP handshakes are working. Verify live operation independently. The setup never automatically runs `firebase login`, `flutterfire configure`, accepts SDK licenses, or deploys to production.
 
-Beginner default MCPs are Dart, Playwright and Context7. Advanced accounts/device tools are opt-in; see [MCP security](MCP-SECURITY.md). The two setup wizards each offer **one** optional AI assistant rather than installing several by default.
+Beginner default MCPs are Dart, Playwright and Context7. Advanced accounts/device tools are opt-in; see [MCP security](MCP-SECURITY.md). The setup wizards install no AI assistant by default; the person picks any combination of Codex, Claude Code, GitHub Copilot and Antigravity CLI (or none).

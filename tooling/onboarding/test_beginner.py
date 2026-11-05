@@ -242,6 +242,32 @@ class BeginnerContractTests(unittest.TestCase):
             self._ensure_flutter(env)
             self.assertEqual((sdk / "engine" / "part1.cc").read_text(), "// my local change\n")
 
+    def test_wizard_menu_numbers_match_the_launcher_numbers(self):
+        mac = read("tooling/macos/first-run.sh")
+        for line in ("1) fs_setup_contributor", 'run-app.sh" || true;;', "3) open \"$FS_ROOT/launchers/mac/3 - ",
+                     "4) open \"$FS_ROOT/launchers/mac/4 - ", "5) fs_check_setup", "6) fs_setup_preview"):
+            self.assertIn(line, mac)
+        self.assertIn("2) /bin/bash \"$FS_ROOT/tooling/macos/run-app.sh\"", mac)
+        win = read("tooling/windows/first-run.ps1")
+        for line in ("'1' {RunSetup 'Contributor'}", "'3' {StartEmulators}", "'5' {CheckTools}",
+                     "'6' {RunSetup 'Preview'}"):
+            self.assertIn(line, win)
+        self.assertRegex(win, r"'2' \{\s+\$rc=RunScript \(Join-Path \$PSScriptRoot 'run-app.ps1'\)")
+        self.assertRegex(win, r"'4' \{[^}]*run-emulator-app.ps1")
+
+    def test_any_combination_of_ai_assistants_can_be_picked_on_mac(self):
+        cases = {"": "", "0": "", "2": "claude", "2,4": "claude antigravity",
+                 "1 2 3 4": "codex claude copilot antigravity", "4, 4,9": "antigravity"}
+        for answer, expected in cases.items():
+            with self.subTest(answer=answer):
+                out = subprocess.run(["bash", "-c", f'. "{ROOT}/tooling/macos/common.sh"; fs_parse_assistants "$1"',
+                                      "_", answer], capture_output=True, text=True, check=True).stdout.strip()
+                self.assertEqual(out, expected)
+        for path in ("tooling/windows/setup-profile.ps1", "tooling/windows/setup-developer.ps1"):
+            self.assertIn("Codex|Claude|Copilot|Antigravity", read(path))
+        self.assertIn("Google.AntigravityCLI", read("tooling/windows/setup-developer.ps1"))
+        self.assertIn("https://antigravity.google/cli/install.sh", read("tooling/macos/common.sh"))
+
     def test_numbered_setup_does_not_say_next_step_after_a_failure(self):
         for path, marker in (("tooling/macos/first-run.sh", "Setup did not finish"),
                              ("tooling/windows/first-run.ps1", "Setup did not finish")):
