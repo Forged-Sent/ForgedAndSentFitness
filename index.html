@@ -10307,6 +10307,7 @@ header.hero .me-btn { border-color:#e87328; }
   // read that collection, even for pairing, until server-side access is enforced.
   function myPaul() { return ""; }
 
+  var PEN_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true" style="width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round"><path d="M4 20h4L19 9l-4-4L4 16v4z"/><path d="M13.5 6.5l4 4"/></svg>';
   var JR_TAGS = [["grateful", "Grateful"], ["prayer", "Prayer"], ["win", "Win"], ["struggle", "Struggle"], ["god", "God showed me"]];
   function jrLabel(k) { for (var i = 0; i < JR_TAGS.length; i++) if (JR_TAGS[i][0] === k) return JR_TAGS[i][1]; return k; }
   function journalSorted() { return (state.journal || []).slice().sort(function (a, b) { return (b.at || 0) - (a.at || 0); }); }
