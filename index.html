@@ -1006,6 +1006,43 @@ button.fo-item { cursor: pointer; min-height: 44px; }
 .cpg-how li { position: relative; padding-left: 20px; font-size: 14.5px; line-height: 1.45; } .cpg-how li::before { content: "\2022"; position: absolute; left: 4px; color: var(--accent); font-weight: 700; }
 .cpg-wk { color: var(--muted); margin: 0 0 10px; }
 .cpg-sh { margin: 0 0 8px; }
+#mentor-today:empty { display: none; }
+.men-card { border: 1px solid var(--accent); border-radius: 10px; background: var(--surface); padding: 10px 12px; margin: 0 0 14px; }
+.men-k { color: var(--accent); font-size: 12px; }
+.men-row { width: 100%; display: grid; grid-template-columns: 42px minmax(0, 1fr) auto; gap: 10px; align-items: center; padding: 9px 0; background: none; border: 0; border-top: 1px solid var(--line); color: var(--ink); font: inherit; text-align: left; cursor: pointer; }
+.men-card .men-row:first-of-type, .men-sec h2 + .men-row { border-top: 0; }
+.men-av { width: 40px; height: 40px; border-radius: 50%; border: 2px solid var(--accent); background: var(--surface-2); display: grid; place-items: center; overflow: hidden; font-family: var(--f-label); font-weight: 800; }
+.men-av img { width: 100%; height: 100%; object-fit: cover; }
+.men-tx { display: grid; gap: 1px; min-width: 0; } .men-tx b { font-size: 15px; } .men-tx small { color: var(--muted); font-size: 12.5px; }
+.men-tag { font-family: var(--f-label); font-weight: 700; font-size: 11.5px; letter-spacing: .08em; text-transform: uppercase; padding: 3px 9px; border-radius: 10px; border: 1px solid var(--line); color: var(--muted); white-space: nowrap; }
+.men-tag.ok, .men-tag.acc { color: var(--accent); border-color: var(--accent); } .men-tag.hot { background: #c0392b; border-color: #c0392b; color: #fff; }
+.men-nudge { margin: 6px 0 2px; padding: 8px 10px; border-radius: 8px; background: color-mix(in srgb, var(--accent) 14%, transparent); font-size: 14px; }
+.men-empty { width: 100%; display: grid; gap: 2px; padding: 8px 0 2px; background: none; border: 0; color: var(--ink); font: inherit; text-align: left; cursor: pointer; } .men-empty small { color: var(--muted); }
+.men-sec { margin-top: 16px; } .men-sec h2 { margin: 0 0 6px; }
+.men-req { display: grid; grid-template-columns: 42px minmax(0, 1fr) auto auto; gap: 8px; align-items: center; padding: 8px 0; border-top: 1px solid var(--line); }
+.men-wide { width: 100%; margin-top: 8px; }
+.men-kh { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.men-ib { flex: none; }
+.men-intro { width: 100%; display: grid; gap: 4px; margin: 6px 0 4px; padding: 12px; text-align: left; font: inherit; color: var(--ink); background: var(--surface); border: 1px solid var(--line); border-radius: 10px; cursor: pointer; } .men-intro span { color: var(--muted); font-size: 14px; } .men-intro b { color: var(--accent); font-family: var(--f-label); letter-spacing: .08em; text-transform: uppercase; font-size: 13.5px; }
+.men-info { max-height: 88vh; overflow-y: auto; }
+.mi-p { margin: 0 0 10px; line-height: 1.5; }
+.mi-v { margin: 8px 0; } .mi-v cite { display: block; margin-top: 4px; font-style: normal; font-family: var(--f-label); font-weight: 700; letter-spacing: .08em; text-transform: uppercase; font-size: 12px; color: var(--accent); }
+.mi-key { font-size: 17px; }
+.mi-chain { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 6px 0 12px; } .mi-gen { padding: 6px 10px; border: 1px solid var(--accent); border-radius: 16px; font-family: var(--f-label); font-weight: 700; letter-spacing: .06em; text-transform: uppercase; font-size: 13px; } .mi-arr { color: var(--accent); font-weight: 700; }
+.mi-list { margin: 0 0 10px; padding-left: 18px; display: grid; gap: 6px; line-height: 1.45; }
+.men-chk { border: 1px solid var(--line); border-radius: 10px; background: var(--surface); padding: 12px; margin-top: 10px; display: grid; gap: 8px; }
+.men-priv { margin: 0; padding: 8px 10px; border: 1px dashed var(--accent); border-radius: 8px; font-size: 13px; }
+.men-q { font-size: 14.5px; } .men-how { display: flex; gap: 8px; flex-wrap: wrap; }
+.men-talk { display: grid; grid-template-columns: 24px 1fr; gap: 10px; align-items: center; padding: 10px; border: 1px solid var(--line); border-radius: 8px; cursor: pointer; } .men-talk input { width: 22px; height: 22px; margin: 0; accent-color: var(--accent); } .men-talk span { display: grid; } .men-talk small { color: var(--muted); font-size: 12.5px; }
+.men-head { display: flex; gap: 12px; align-items: center; margin: 12px 0 6px; } .men-head .men-av { width: 56px; height: 56px; font-size: 22px; } .men-name { margin: 2px 0 0; font-family: var(--f-label); font-weight: 800; text-transform: uppercase; font-size: 24px; }
+.men-alert { margin: 8px 0; padding: 10px 12px; border: 1px solid #c0392b; background: color-mix(in srgb, #c0392b 18%, transparent); border-radius: 10px; font-size: 14.5px; }
+.men-stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin-top: 8px; } .men-stats div { border: 1px solid var(--line); border-radius: 8px; padding: 8px; text-align: center; background: var(--surface); } .men-stats b { display: block; font-family: var(--f-label); font-size: 22px; } .men-stats small { color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: .06em; }
+.men-howv { margin: 0; font-weight: 600; }
+.men-sent { margin: 0; color: var(--accent); font-weight: 600; font-size: 14px; } .men-quote { margin: 0; padding: 4px 10px; border-left: 3px solid var(--line); }
+.men-end { margin-top: 14px; display: block; }
+.men-pick { max-height: 85vh; display: flex; flex-direction: column; gap: 8px; } .men-plist { overflow-y: auto; flex: 1; min-height: 120px; }
+.o-pair { display: grid; gap: 1px; padding: 8px 0; border-top: 1px solid var(--line); } .o-pair span { color: var(--muted); font-size: 13.5px; }
+.o-assign { margin-top: 12px; display: grid; gap: 8px; }
 .set-ownrow { width: 100%; display: flex; align-items: center; gap: 12px; margin: 0 0 14px; padding: 14px; text-align: left; font: inherit; color: var(--ink); border: 1px solid var(--accent); border-radius: 10px; background: var(--surface); cursor: pointer; }
 .set-ownrow .sc-txt { flex: 1; display: grid; gap: 2px; } .set-ownrow .sc-txt > span { font-family: var(--f-label); font-weight: 800; letter-spacing: .1em; text-transform: uppercase; font-size: 16px; color: var(--accent); } .set-ownrow small { color: var(--muted); font-size: 13px; }
 .set-ownrow .sc-chev { color: var(--accent); font-size: 22px; }
@@ -1865,6 +1902,7 @@ header.hero .me-btn { border-color:#e87328; }
     <div class="ready" id="ready" hidden></div>
 
     <div class="cmp-today-wrap" id="camp-today" hidden></div>
+    <div id="mentor-today"></div>
     <section aria-labelledby="h-today">
       <div class="section-head">
         <h2 class="label-caps" id="h-today">Today's boxes</h2>
@@ -2102,6 +2140,15 @@ header.hero .me-btn { border-color:#e87328; }
   </div>
 
   <!-- WEEKLY CHALLENGE -->
+  <div class="page" id="page-mentor" hidden>
+    <div class="pbar">
+      <button class="mini" type="button" id="men-back">&lsaquo; Today</button>
+      <span class="date label-caps">Iron sharpens iron</span>
+    </div>
+    <h1 class="pg">Paul &amp; Timothy</h1>
+    <div id="men-body"></div>
+  </div>
+
   <div class="page" id="page-owner" hidden>
     <div class="pbar">
       <button class="mini" type="button" id="own-back">&lsaquo; Settings</button>
@@ -2109,6 +2156,11 @@ header.hero .me-btn { border-color:#e87328; }
     </div>
     <h1 class="pg">Owner tools</h1>
     <p class="note">Everything you need to run Forged &amp; Sent, in one place.</p>
+
+    <section aria-labelledby="h-o-pairs">
+      <div class="section-head"><h2 class="label-caps" id="h-o-pairs" data-sub="Pair management is deferred until private access is enforced.">Paul &amp; Timothy pairs</h2></div>
+      <div id="o-pairs"></div>
+    </section>
 
     <section aria-labelledby="h-o-rep">
       <div class="section-head"><h2 class="label-caps" id="h-o-rep" data-sub="Posts brothers flagged. Keep them or remove them.">Reports</h2></div>
@@ -3199,9 +3251,9 @@ header.hero .me-btn { border-color:#e87328; }
     state.page = p;
     if (p !== "workout") { closeExPicker(); closeSwap(); }
     if (p !== "fuel") { state.add = null; var fsh = document.getElementById("fsheet"); if (fsh) fsh.remove(); }
-    ["today", "fuel", "train", "board", "checkin", "profile", "settings", "devo", "workout", "video", "chal", "ideas", "team", "camp", "owner"].forEach(function (n) { $("page-" + n).hidden = n !== p; });
+    ["today", "fuel", "train", "board", "checkin", "profile", "settings", "devo", "workout", "video", "chal", "ideas", "team", "camp", "owner", "mentor"].forEach(function (n) { $("page-" + n).hidden = n !== p; });
     Array.prototype.forEach.call(document.querySelectorAll(".tabbar button"), function (b) {
-      if (b.dataset.page === (p === "workout" || p === "video" || p === "chal" ? "train" : p === "ideas" ? "fuel" : p === "team" || (p === "checkin" && state.chan) ? "camp" : p)) b.setAttribute("aria-current", "page"); else b.removeAttribute("aria-current");
+      if (b.dataset.page === (p === "workout" || p === "video" || p === "chal" ? "train" : p === "ideas" ? "fuel" : p === "mentor" ? "today" : p === "team" || (p === "checkin" && state.chan) ? "camp" : p)) b.setAttribute("aria-current", "page"); else b.removeAttribute("aria-current");
     });
     $("scroll").scrollTop = 0;
     if (p === "workout") startWkTick(); else if (p !== "video") { if (wkTick) saveWkNow(); stopWkTick(); cancelAllTones(); }
@@ -3214,7 +3266,8 @@ header.hero .me-btn { border-color:#e87328; }
     if (p === "ideas") drawIdeas();
     if (p === "team") drawTeamPage();
     if (p === "camp") drawCampPage();
-    if (p === "owner") { ownerWatch(); drawOwner(); }
+    if (p === "owner") { ownerWatch(); drawOwner(); drawOwnerPairs(); }
+    if (p === "mentor") drawMentorPage();
     $("scroll").classList.toggle("rally-mode", p === "checkin"); rlBadge();
     if (p === "checkin") { rlStick = true; drawFeed(true); }
     if (p === "devo") { sizeDevo(); $("scroll").scrollTop = 0; devoScroll(); }
@@ -9187,7 +9240,7 @@ header.hero .me-btn { border-color:#e87328; }
       box.appendChild(r);
     });
   }
-  var APP_VERSION = "v226";
+  var APP_VERSION = "v227";
   /* ---------- Photo upload diagnostic (Settings > Testing) ---------- */
   async function runPhotoDiag() {
     var out = { at: new Date().toISOString(), version: APP_VERSION, ua: navigator.userAgent, steps: [] };
@@ -10031,6 +10084,52 @@ header.hero .me-btn { border-color:#e87328; }
     box.appendChild(el("p", "fnote", (expMsg ? expMsg + " " : "") + (last ? "Last download " + expTimeText(last) + ". " : "") + "One download a day. Only your own data is included, never other brothers’ posts or team chat."));
   }
 
+
+  /* ---------- Paul & Timothy: information only until private access is enforced ---------- */
+  // Existing mentor documents mix pair metadata with sensitive check-ins. Do not
+  // read that collection, even for pairing, until server-side access is enforced.
+  function myPaul() { return ""; }
+  function openMentorInfo() {
+    var old = $("cdlg"); if (old) old.remove(); var back = el("div", "cdlg"); back.id = "cdlg";
+    var box = el("div", "cdlg-box nw-box men-info"); box.setAttribute("role", "dialog"); box.setAttribute("aria-modal", "true"); box.setAttribute("aria-labelledby", "mi-t");
+    box.appendChild(el("p", "fr-k", "Paul & Timothy in Scripture"));
+    var h = el("h2", null, "One man pours into another, who pours into others."); h.id = "mi-t"; box.appendChild(h);
+    box.appendChild(el("p", "mi-p", "Paul met Timothy as a young believer in Lystra and took him along on his journeys (Acts 16:1–3). He taught him, trusted him with churches, and called him his son in the faith."));
+    [["To Timothy, my true child in the faith.", "1 Timothy 1:2"],
+     ["But you know Timothy’s proven worth, how as a son with a father he has served with me in the gospel.", "Philippians 2:22"],
+     ["That is why I sent you Timothy, my beloved and faithful child in the Lord, to remind you of my ways in Christ.", "1 Corinthians 4:17"]].forEach(function (v) { var q = el("blockquote", "mem-v mi-v", v[0]); q.appendChild(el("cite", null, v[1])); box.appendChild(q); });
+    box.appendChild(el("div", "fr-h", "The charge: four generations"));
+    var q2 = el("blockquote", "mem-v mi-v mi-key", "And what you have heard from me in the presence of many witnesses entrust to faithful men, who will be able to teach others also."); q2.appendChild(el("cite", null, "2 Timothy 2:2")); box.appendChild(q2);
+    var ch = el("div", "mi-chain"); ["Paul", "Timothy", "Faithful men", "Others also"].forEach(function (t, i) { if (i) ch.appendChild(el("span", "mi-arr", "→")); ch.appendChild(el("span", "mi-gen", t)); }); box.appendChild(ch);
+    box.appendChild(el("div", "fr-h", "What it looks like here"));
+    var ul = el("ul", "mi-list");
+    [["Your Paul", "an older or further-along brother who walks with you, prays for you and asks the hard questions."],
+     ["Your Timothy", "a newer brother you walk with. You check on him, pray for him and show him the way you live."],
+     ["Every week", "make time to talk, pray together and encourage each other."],
+     ["The goal", "every Timothy becomes a Paul. Disciples who make disciples."]].forEach(function (r) { var li = el("li"); li.appendChild(el("b", null, r[0] + ": ")); li.appendChild(document.createTextNode(r[1])); ul.appendChild(li); });
+    box.appendChild(ul);
+    var q3 = el("blockquote", "mem-v mi-v", "Iron sharpens iron, and one man sharpens another."); q3.appendChild(el("cite", null, "Proverbs 27:17")); box.appendChild(q3);
+    var cl = el("button", "btn", "Got it"); cl.type = "button"; cl.addEventListener("click", function () { back.remove(); }); box.appendChild(cl);
+    back.appendChild(box); back.addEventListener("click", function (ev) { if (ev.target === back) back.remove(); });
+    back.addEventListener("keydown", function (ev) { if (ev.key === "Escape") { ev.stopPropagation(); back.remove(); } }); document.body.appendChild(back); cl.focus();
+  }
+  function drawMentorToday() {
+    var box = $("mentor-today"); if (!box) return; box.textContent = "";
+    var b = el("button", "men-empty"); b.type = "button";
+    b.appendChild(el("b", null, "Paul & Timothy"));
+    b.appendChild(el("small", null, "Learn about walking with a brother. In-app pairing and check-ins are coming later."));
+    b.addEventListener("click", function () { go("mentor"); }); box.appendChild(b);
+  }
+  function drawMentorPage() {
+    var box = $("men-body"); if (!box) return; box.textContent = "";
+    box.appendChild(el("p", "note", "In-app pairing and check-ins are paused until private access is enforced. Talk or pray with your brother directly; do not enter personal requests here."));
+    var b = el("button", "btn ghost", "Why Paul & Timothy?"); b.type = "button";
+    b.addEventListener("click", openMentorInfo); box.appendChild(b);
+  }
+  function drawOwnerPairs() {
+    var box = $("o-pairs"); if (!box) return;
+    box.textContent = "Pair management is paused until mentor records have enforced private access.";
+  }
   /* ---------- Owner tools ---------- */
   var ownerUnsub = null;
   function ownerWatch() {
@@ -10291,7 +10390,7 @@ header.hero .me-btn { border-color:#e87328; }
       btn.addEventListener("click", function () { var open = body.hidden; body.hidden = !open; btn.setAttribute("aria-expanded", String(open)); });
       head.hidden = true; sec.classList.add("set-card"); sec.appendChild(btn); sec.appendChild(body);
     });
-    ["h-s-wk", "h-s-body", "h-s-goal", "h-s-food", "h-s-owner", "h-s-tg", "h-s-rem", "h-s-health", "h-s-safe", "h-s-test", "h-s-export", "h-s-legal", "h-s-acct", "h-o-rep"].forEach(function (hid) {
+    ["h-s-wk", "h-s-body", "h-s-goal", "h-s-food", "h-s-owner", "h-s-tg", "h-s-rem", "h-s-health", "h-s-safe", "h-s-test", "h-s-export", "h-s-legal", "h-s-acct", "h-o-rep", "h-o-pairs"].forEach(function (hid) {
       var h = $(hid); if (!h) return; var sec = h.closest("section"), head = h.closest(".section-head"); if (!sec || !head) return;
       var body = el("div", "set-body"); body.id = hid + "-body"; body.hidden = true;
       while (head.nextSibling) body.appendChild(head.nextSibling);
@@ -10339,6 +10438,7 @@ header.hero .me-btn { border-color:#e87328; }
     $("set-back").addEventListener("click", function () { state.viewUid = state.me; go("profile"); });
     $("set-owner").addEventListener("click", function () { go("owner"); });
     $("own-back").addEventListener("click", function () { go("settings"); });
+    $("men-back").addEventListener("click", function () { go("today"); });
     $("page-settings").addEventListener("input", function (ev) {
       var f = ev.target.closest ? ev.target.closest("[data-form]") : null;
       if (f) state.dirty[f.dataset.form] = true;
@@ -10396,7 +10496,7 @@ header.hero .me-btn { border-color:#e87328; }
   function drawAll() {
     campDirty(); campWatchChecks(); campWatchTPosts();
     drawHeader(); drawCampToday(); drawToday(); drawYours(); drawFuel(); drawTrain(); drawBoard(); drawMeBtns(); drawProfile(); drawSettings();
-    drawDevo(); if (state.page === "camp") drawCampPage();
+    drawDevo(); if (state.page === "camp") drawCampPage(); drawMentorToday(); if (state.page === "mentor") drawMentorPage(); if (state.page === "owner") drawOwnerPairs();
   }
   async function loadProfiles() {
     var ids = {}; state.checks.forEach(function (c) { ids[c.uid] = true; }); state.posts.forEach(function (p) { ids[p.uid] = true; }); (state.replies || []).forEach(function (r) { ids[r.uid] = true; }); (state.ideas || []).forEach(function (r) { ids[r.uid] = true; });

@@ -13,10 +13,12 @@ Future<void> main() async {
   if (mode != 'emulator') {
     // In this development foundation, cloud DEV/PROD modes are deliberately
     // unavailable. Never silently fall back from emulator to cloud.
-    runApp(const ForgedSentApp(
-      mode: 'unsupported',
-      startupError: 'Cloud Firebase modes are disabled in this build.',
-    ));
+    runApp(
+      const ForgedSentApp(
+        mode: 'unsupported',
+        startupError: 'Cloud Firebase modes are disabled in this build.',
+      ),
+    );
     return;
   }
 
@@ -24,9 +26,11 @@ Future<void> main() async {
     await ForgedFirebaseRuntime.connectEmulators();
     runApp(const ForgedSentApp(mode: 'emulator'));
   } catch (error) {
-    runApp(const ForgedSentApp(
-      mode: 'emulator',
-      startupError: 'Emulator startup check failed.',
-    ));
+    runApp(
+      const ForgedSentApp(
+        mode: 'emulator',
+        startupError: 'Emulator startup check failed.',
+      ),
+    );
   }
 }

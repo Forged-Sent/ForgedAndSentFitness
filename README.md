@@ -46,7 +46,7 @@ Stuck? Run step 5, then see [First-run troubleshooting](docs/development/FIRST-R
 | Path | What it is |
 |---|---|
 | `index.html` | Current version. A single self-contained file: HTML, CSS and JS. |
-| `versions/app-v1.html` ... `app-v226.html` | Every earlier iteration, kept for rollback. A new version file is created for each iteration; never overwrite old ones. |
+| `versions/app-v1.html` ... `app-v227.html` | Every earlier iteration, kept for rollback. A new version file is created for each iteration; never overwrite old ones. |
 | `seed/` | Starting data: `tasks.json` (standard daily list), `lifts.json` (core lifts), `devotionals.json` (366 daily devotionals, one per calendar date, also embedded in `index.html`), `db-rules.json` (access rules and runtime capabilities the page declares). `weekly-challenges.json` (52-week challenge program: one Family, one Iron and one Endure challenge per week, with the 0-100 age-bracket scoring rules, injury-friendly alternates and season metadata) and `movement-standards.json` (what counts as a rep). |
 | `START-WINDOWS.cmd`, `START-MAC.command`, `launchers/` | Double-click setup and run launchers (see "New here? Start here"). The scripts they call are in `tooling/`. |
 | `dev/` | Local preview. `mock-claude.js` is an in-memory stand-in for `window.claude`; `make_preview.py` builds `dev/preview.html`. |
@@ -153,3 +153,14 @@ See [New here? Start here](#new-here-start-here) above. Details: [Windows Quicks
 - **Any OS:** run `python3 tooling/architecture/build_explorer.py --write` and open `build/architecture-explorer/Architecture-Atlas.html` (a single standalone webpage).
 
 The [Architecture Atlas guide](docs/architecture/explorer/README.md) covers keyboard shortcuts, interactive component ownership, source functions and reverse dependencies, independent AI reviewer models, and the full tracked-file index. CI also produces an offline `forged-sent-architecture-atlas` artifact for every PR.
+
+### Mentor feature readiness
+
+Paul & Timothy currently provides Scripture and explanatory content only. Pairing,
+weekly check-ins and nudges are deferred until server-side private access is
+enforced. Existing mentor documents mix pair metadata with sensitive requests,
+so the active prototype does not read or write that collection. The v227
+capability manifest no longer grants mentor access. Historical `versions/` files
+and patch scripts are reference snapshots, not safe deployment configurations.
+Previously stored runtime data has not been deleted or verified by this change;
+the maintainer must revoke any previously deployed mentor grant in that runtime.
