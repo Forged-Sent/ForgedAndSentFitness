@@ -36,12 +36,15 @@ fs_brew_cask visual-studio-code 'Visual Studio Code.app' code
 fs_brew_cask google-chrome 'Google Chrome.app' ''
 fs_ensure_flutter
 "$FS_FLUTTER" config --enable-web
-FS_AI_CHOICE=none
+FS_AI_CHOICE=''
 if [ "$FS_PROFILE" = Contributor ] && [ -t 0 ]; then
-  printf '\nOptional AI assistant (one is enough): 0=None, 1=Codex, 2=Claude, 3=GitHub Copilot [0]: '
-  IFS= read -r fs_choice || fs_choice=0
-  case "$fs_choice" in 1) FS_AI_CHOICE=codex;; 2) FS_AI_CHOICE=claude;; 3) FS_AI_CHOICE=copilot;; esac
+  printf '\nOptional AI assistants. Pick any you use, or none:\n'
+  printf '  1 = Codex (OpenAI)   2 = Claude Code   3 = GitHub Copilot   4 = Antigravity CLI (Google Gemini)\n'
+  printf '  Type the numbers separated by commas, for example 2,4. Press Return for none.\nAssistants [none]: '
+  IFS= read -r fs_choice || fs_choice=''
+  FS_AI_CHOICE="$(fs_parse_assistants "$fs_choice")"
 fi
+fs_info "AI assistants: ${FS_AI_CHOICE:-none}. Any combination works; no AI is required for Flutter tests."
 fs_editor_extensions "$FS_AI_CHOICE"
 if [ "$FS_PROFILE" = Contributor ]; then
   fs_brew_formula node node
@@ -53,8 +56,9 @@ if [ "$FS_PROFILE" = Contributor ]; then
   fs_ensure_python
   fs_brew_formula gitleaks gitleaks
   fs_enable_git_hooks
-  if [ "$FS_AI_CHOICE" = codex ]; then fs_brew_cask codex '' codex; fi
-  if [ "$FS_AI_CHOICE" = claude ]; then fs_brew_cask claude-code '' claude; fi
+  if fs_wants_assistant codex; then fs_brew_cask codex '' codex || fs_warn 'Codex CLI install needs attention; setup continues.'; fi
+  if fs_wants_assistant claude; then fs_brew_cask claude-code '' claude || fs_warn 'Claude Code install needs attention; setup continues.'; fi
+  if fs_wants_assistant antigravity; then fs_ensure_antigravity || fs_warn 'Antigravity CLI install needs attention; setup continues.'; fi
   fs_offer_flutter_path
   # A typo here must never abort the rest of setup. The wizard asks again after
   # setup (even a failed one), so it sets FS_FROM_WIZARD to avoid a double prompt.

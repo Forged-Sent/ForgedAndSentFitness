@@ -102,6 +102,7 @@ fs_probe GitHubCLI gh 'Run launchers/mac/1 - Set up this computer.command.'
 if fs_has firebase && [ "$(firebase --version 2>/dev/null || true)" = "$FS_FIREBASE_VERSION" ]; then fs_record FirebaseCLI Ready '' ''; else fs_record FirebaseCLI Outdated 'Pinned local Firebase CLI unavailable.' 'Run launchers/mac/1 - Set up this computer.command, no Firebase login needed.'; fi
 fs_probe CodexCLI codex 'Optional: choose Codex as your AI assistant and sign in separately.'
 fs_probe ClaudeCLI claude 'Optional: choose Claude as your AI assistant and sign in separately.'
+fs_probe AntigravityCLI agy 'Optional: pick Antigravity (4) during setup, then sign in by running agy.'
 if [ -d '/Applications/Android Studio.app' ]; then fs_record AndroidStudio Ready '' ''; else fs_record AndroidStudio Missing 'Android Studio not installed.' 'Install Android Studio manually for Mobile workflows.'; fi
 fs_probe Maestro maestro 'Optional: install Maestro when you are ready for native device tests.'
 fs_probe Java java 'Java is optional for Preview; Contributor uses JDK 21.'

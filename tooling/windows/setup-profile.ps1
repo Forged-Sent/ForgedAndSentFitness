@@ -1,6 +1,6 @@
 #requires -Version 7.6
 param([ValidateSet('Preview','Contributor','Mobile','Maintainer')][string]$TargetProfile='Preview',
-      [ValidateSet('None','Codex','Claude','Copilot')][string]$AIChoice='None')
+      [ValidatePattern('^(None|(Codex|Claude|Copilot|Antigravity)(,(Codex|Claude|Copilot|Antigravity))*)$')][string]$AIChoice='None')
 Set-StrictMode -Version Latest
 $ErrorActionPreference='Stop'
 function Run([string]$path,[string[]]$arguments=@()){

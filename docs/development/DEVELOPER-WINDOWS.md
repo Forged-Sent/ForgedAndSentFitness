@@ -23,7 +23,7 @@ Use your existing **Git clone**. For normal setup after PR #4 merges, run `git s
 
 - Node.js LTS/npm, GitHub CLI, local Firebase CLI, Python 3.11+ and JDK 21.
 - Playwright MCP package is fetched by the pinned project launcher on first use; no global installation.
-- VS Code extensions: Dart, Flutter, GitHub Pull Requests, YAML, EditorConfig and PowerShell. Exactly one optional AI assistant extension is selected in the first-run wizard.
+- VS Code extensions: Dart, Flutter, GitHub Pull Requests, YAML, EditorConfig and PowerShell. The extensions for any AI assistants you pick in setup are added too (Codex, Claude Code, Copilot); Antigravity is a terminal CLI (`agy`) installed with WinGet.
 - Optional Codex and Claude Code command-line tools, using project-scoped `.codex/config.toml` / `.mcp.json` (no global registration).
 - Shared VS Code MCP configuration, committed at .vscode/mcp.json.
 

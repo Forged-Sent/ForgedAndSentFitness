@@ -141,6 +141,7 @@ Check Maestro maestro.bat @((Join-Path $env:LOCALAPPDATA 'Programs\Maestro\bin\m
 Check AndroidStudio studio64.exe @((Join-Path $env:ProgramFiles 'Android\Android Studio\bin\studio64.exe')) 'Run launchers\windows\more\Android setup.cmd and complete the Android SDK setup wizard.'
 Check ClaudeCLI claude.exe @((Join-Path $env:USERPROFILE '.local\bin\claude.exe')) 'Optional: run the developer setup or use VS Code extension.'
 Check CodexCLI codex.cmd @((Join-Path $env:APPDATA 'npm\codex.cmd')) 'Optional: run developer setup or use Codex VS Code extension.'
+Check AntigravityCLI agy.exe @((Join-Path $env:LOCALAPPDATA 'Microsoft\WinGet\Links\agy.exe')) 'Optional: pick Antigravity (4) during setup, then sign in by running agy.'
 Say 'PowerShell 7 and VS Code MCP configuration'
 $pwsh=(Get-Command pwsh.exe -ErrorAction SilentlyContinue|Select-Object -First 1)
 $pwshPath=if($pwsh){$pwsh.Source}else{Join-Path $env:ProgramFiles 'PowerShell\7\pwsh.exe'}
