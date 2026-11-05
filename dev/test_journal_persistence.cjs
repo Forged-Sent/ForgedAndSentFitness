@@ -19,11 +19,12 @@ const flush=async()=>{for(let i=0;i<8;i++)await Promise.resolve()};
  ctx.B.deleteJournal=()=>Promise.resolve(); await ctx.jrDelete('j1'); assert.equal(ctx.state.journal.length,0);
  const button={disabled:false}, message={textContent:''};
  assert.equal(await ctx.jrAction(button,message,()=>Promise.reject(new Error('fail'))),false);
- assert.match(message.textContent,/Could not save/); assert.equal(button.disabled,false);
+ assert.match(message.textContent,/Could not confirm/); assert.equal(button.disabled,false);
  let release; let calls=0; const first=ctx.jrAction(button,message,()=>{calls++;return new Promise(r=>release=r)});
  assert.equal(await ctx.jrAction(button,message,()=>{calls++}),false); assert.equal(calls,1); release(); assert.equal(await first,true);
  const input={disabled:false}, preDisabled={disabled:true};
- const scope={dataset:{},querySelectorAll:()=>[button,input,preDisabled]};button.closest=()=>scope;
+ const retryNotice={hidden:true};
+ const scope={dataset:{},querySelector:()=>retryNotice,querySelectorAll:()=>[button,input,preDisabled]};button.closest=()=>scope;
  const pending=ctx.jrAction(button,message,()=>new Promise(r=>release=r));
  assert.equal(input.disabled,true);assert.equal(scope.dataset.jrBusy,'1');release();await pending;
  assert.equal(input.disabled,false);assert.equal(preDisabled.disabled,true);assert.equal(scope.dataset.jrBusy,undefined);
@@ -33,9 +34,20 @@ const flush=async()=>{for(let i=0;i<8;i++)await Promise.resolve()};
  const saveStart=editor.indexOf('sv.addEventListener("click", function () {'), saveEnd=editor.indexOf('      cx.addEventListener(',saveStart);
  assert.ok(saveStart>=0&&saveEnd>saveStart);
  let saveClick;const editorDraft={t:'old text',tags:[]};
- const editorCtx={sv:{addEventListener(event,fn){saveClick=fn}},F:editorDraft,ta:{value:'retained editor words'},msg:{},ed:null,todayKey:()=> '2026-11-05',jrDraftId:ctx.jrDraftId,jrAction(){},openJournal(){}};
+ const editorCtx={sv:{disabled:false,closest:()=>scope,addEventListener(event,fn){saveClick=fn}},F:editorDraft,ta:{value:'retained editor words'},msg:{},ed:null,state:ctx.state,todayKey:()=> '2026-11-05',jrDraftId:ctx.jrDraftId,jrAction(){},openJournal(){}};
  vm.createContext(editorCtx);vm.runInContext(editor.slice(saveStart,saveEnd),editorCtx);saveClick();
  assert.equal(editorDraft.t,'retained editor words');assert.equal(editorDraft.resumeDraft,true);
+ // The actual editor failure path reveals its same-entry notice/control now,
+ // before any close/reopen; empty validation does not claim an attempted write.
+ editorCtx.jrAction=ctx.jrAction;editorCtx.jrSave=ctx.jrSave;ctx.B.saveJournal=()=>Promise.reject(Error('rejected'));
+ retryNotice.hidden=true;saveClick();await flush();assert.equal(retryNotice.hidden,false);assert.equal(editorCtx.sv.disabled,false);assert.match(editorCtx.msg.textContent,/Could not confirm/);
+ assert.match(editor,/retry\.dataset\.jrRetry = "1"; retry\.hidden = !F\.resumeDraft/);
+ editorDraft.resumeDraft=false;editorCtx.ta.value='';saveClick();assert.equal(editorDraft.resumeDraft,false);
+ // Retry of the same document preserves confirmed fields received meanwhile.
+ editorDraft.tags=['prayer'];editorCtx.ta.value='revised prayer';ctx.state.journal=[{id:editorDraft.jrId,t:'confirmed',tags:['prayer'],ans:123,src:'pen'}];
+ let retryPayload;ctx.B.saveJournal=async(uid,x)=>{retryPayload=x};editorCtx.openJournal=()=>{};saveClick();await flush();assert.equal(retryPayload.ans,123);
+ ctx.state.journal=[];
+
  // Execute openJournal itself up to rendering: a sentinel prevents a fake
  // layout engine from hiding whether navigation erased the draft first.
  let removed=0, confirmations=0, acceptDiscard=false;
@@ -72,7 +84,7 @@ const flush=async()=>{for(let i=0;i<8;i++)await Promise.resolve()};
  await flush(); assert.equal(input.disabled,true);assert.equal(scope.dataset.jrBusy,'1');
  const timeout=[...timers.values()][0];timeout();assert.equal(await stuck,false);
  assert.equal(input.disabled,false);assert.equal(preDisabled.disabled,true);assert.equal(scope.dataset.jrBusy,undefined);
- assert.equal(draft.t,'words to keep');assert.equal(ui.saved,false);assert.match(message.textContent,/not confirmed/);
+ assert.equal(draft.t,'words to keep');assert.equal(ui.saved,false);assert.match(message.textContent,/not confirmed/);assert.equal(retryNotice.hidden,false);
  // Dismissal is allowed once jrBusy is cleared. Simulate closing the old scope
  // and creating a newer draft before the old backend acknowledgement arrives.
  assert.match(html,/function close\(\) \{ if \(!back\.dataset\.jrBusy\) back\.remove\(\); \}/);
@@ -102,6 +114,23 @@ const flush=async()=>{for(let i=0;i<8;i++)await Promise.resolve()};
  const deleting=ctx.jrAction(button,message,attempt=>ctx.jrDelete(stable,attempt));await flush();
  [...timers.values()][0]();assert.equal(await deleting,false);deleteLate();await flush();
  assert.equal(ctx.state.journal.length,beforeDelete);assert.equal(timers.size,0);
+ // Execute the devotional reset binding: decline preserves text/id, accept
+ // explicitly starts a new logical entry, and stale completion cannot clear it.
+ let resetClick, acceptReset=false, resetPrompts=0;
+ const devoTa={value:'old devotional',dataset:{jrOwner:'test-user'},focus(){}};const oldId=ctx.jrDraftId(devoTa.dataset);
+ const devoRetry={hidden:false}, devoMessage={textContent:'unconfirmed'}, devoScope={dataset:{},querySelector:()=>devoRetry,querySelectorAll:()=>[button,devoTa]};
+ const devoNodes={'jr-devo-new':{addEventListener(event,fn){resetClick=fn}},'jr-devo':devoScope,'jr-devo-ta':devoTa,'jr-devo-retry':devoRetry,'jr-devo-msg':devoMessage};
+ const resetCtx={$:id=>devoNodes[id],jrDevoOwner:ctx.jrDevoOwner,confirm(){resetPrompts++;return acceptReset}};
+ const wire=html.slice(html.indexOf('  function wireJournal('),html.indexOf('  var jrUI ='));
+ const resetStart=wire.indexOf('$("jr-devo-new").addEventListener('),resetEnd=wire.indexOf('    $("jr-devo-save").addEventListener(',resetStart);
+ assert.ok(resetStart>=0&&resetEnd>resetStart);vm.createContext(resetCtx);vm.runInContext(wire.slice(resetStart,resetEnd),resetCtx);
+ devoScope.dataset.jrBusy='1';resetClick();assert.equal(resetPrompts,0);delete devoScope.dataset.jrBusy;
+ resetClick();assert.equal(devoTa.value,'old devotional');assert.equal(devoTa.dataset.jrId,oldId);assert.equal(devoRetry.hidden,false);
+ button.closest=()=>devoScope;let lateDevo;ctx.B.saveJournal=()=>new Promise(r=>lateDevo=r);
+ const waitingDevo=ctx.jrAction(button,devoMessage,async attempt=>{await ctx.jrSave({id:oldId,t:devoTa.value},attempt);devoTa.value=''});await flush();
+ [...timers.values()][0]();assert.equal(await waitingDevo,false);acceptReset=true;resetClick();
+ assert.equal(devoTa.value,'');assert.equal(devoTa.dataset.jrId,undefined);assert.equal(devoRetry.hidden,true);
+ const newId=ctx.jrDraftId(devoTa.dataset);assert.notEqual(newId,oldId);devoTa.value='new devotional';lateDevo();await flush();assert.equal(devoTa.value,'new devotional');
  // Execute the real deletion method with a DB stand-in and failed unrelated delete.
  const start=html.indexOf('    deleteMyData: async function (uid) {');
  const end=html.indexOf('\n    }\n  };',start);
