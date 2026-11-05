@@ -15,7 +15,7 @@ git status
 
 If you've already cloned it, **reuse that folder**. Do not download a ZIP or make a second checkout. Check `git status` first, then `git switch main`, `git fetch origin` and `git pull --ff-only`. If Git reports unsaved changes or divergence, stop rather than resetting or deleting work.
 
-**While PR #4 is still unmerged:** an advanced tester may explicitly choose the PR branch using `git fetch origin pull/4/head:pr4-workstation-test` and `git switch pr4-workstation-test`. To pick up later PR updates while on that branch, run `git pull --ff-only origin pull/4/head`. This is for reviewing PR #4 *before* it lands. All normal contributor instructions use `main` so they remain valid after merge.
+**Testing an open pull request before it merges** (advanced): `git fetch origin pull/<number>/head:pr<number>-test`, then `git switch pr<number>-test`; return with `git switch main`. Everyone else stays on `main`.
 
 ## Set up and run (double-click only)
 

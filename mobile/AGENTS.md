@@ -9,3 +9,7 @@ Read the repository root `AGENTS.md` and accepted architecture ADRs before editi
 - Do not add real Firebase credentials, production deployment, cloud MCP access, or automatic `flutterfire configure`.
 - Tests are required for new behavior. Run `flutter analyze` and `flutter test`; document any platform build that was not run.
 - For Firebase/Auth/privacy/rules/scoring changes, recommend one non-author AI reviewer as a voluntary second opinion. CI and emulator tests remain required; no second human approval is needed. Never merge or bypass rules as an agent. Keep SYSTEM.md current and regenerate CODE-MAP.md for Dart changes.
+## Platform, prototype and doc retrieval
+- Read `docs/knowledge/FLUTTER-PLATFORMS.md` before a new plugin or platform-specific feature, and `docs/knowledge/PROTOTYPE-PARITY.md` before reproducing a prototype screen. Never translate the HTML/JS Backend adapter's auth or client point totals directly into production Dart.
+- Each PR must distinguish validated Android/iOS/web behavior from hypothetical Windows/Linux/macOS support and record host-specific NOT VERIFIED checks.
+- For Flutter/Dart/library API questions check `pubspec.lock`, live official Flutter/Dart docs, Dart MCP, and focused Context7 requests using the process in `docs/knowledge/FLUTTER-AI-DOCS.md`.

@@ -9,3 +9,7 @@ build/architecture-explorer/
 __pycache__/
 *.py[cod]
 .pytest_cache/
+
+# Optional local Obsidian metadata, never Git controlled
+**/.obsidian/
+**/.trash/

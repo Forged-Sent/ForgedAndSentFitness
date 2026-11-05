@@ -1,0 +1,16 @@
+{
+  "mcpServers": {
+    "dart": {
+      "command": "node",
+      "args": [
+        "tooling/mcp/launch.mjs",
+        "dart"
+      ],
+      "trust": false
+    },
+    "context7": {
+      "httpUrl": "https://mcp.context7.com/mcp",
+      "trust": false
+    }
+  }
+}

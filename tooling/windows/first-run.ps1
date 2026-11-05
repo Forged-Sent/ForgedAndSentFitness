@@ -149,7 +149,7 @@ function OpenVSCode {
   if(-not (Test-Path -LiteralPath $path)){Write-Host 'VS Code missing. Run Contributor setup.';return}
   & $path $root
   Write-Host 'In VS Code, use Source Control for Git and MCP: List Servers for agent tools.'
-  Write-Host 'One signed-in AI assistant is enough; Dart/Context7/Playwright are the basic MCPs.'
+  Write-Host 'Sign in only to the AI assistants you picked; Dart/Context7/Playwright are the basic MCPs.'
 }
 function StartEmulators {
   Banner 'Demo-only Firebase emulators'
@@ -198,7 +198,7 @@ function MoreOptions {
       else{Write-Host 'GitHub CLI missing. Run Contributor setup first.'}
     }
     '4' {
-      Write-Host '.vscode/mcp.json (VS Code, Copilot), .mcp.json (Claude), .codex/config.toml (Codex).'
+      Write-Host '.vscode/mcp.json (VS Code, Copilot), .mcp.json (Claude), .codex/config.toml (Codex), .gemini/settings.json (Gemini CLI).'
       Write-Host 'Antigravity CLI reads AGENTS.md and .agents/skills; its MCP servers are not preconfigured yet.'
       Write-Host 'Configured does NOT mean connected. Authenticate providers independently.'
     }

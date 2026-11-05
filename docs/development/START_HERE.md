@@ -1,11 +1,11 @@
 # Start here: Flutter + GitHub agents foundation
 
 ## Baseline
-This branch introduces an intentionally small Flutter scaffold and CI, **not a production app**. Existing `index.html` and `seed/` are the behavioral reference. PR #4 was reconciled with newer main prototype releases through app-v226; confirm current main again when merging.
+`main` contains an intentionally small Flutter scaffold, beginner setup and CI, **not a production app** (merged in PR #4). Existing `index.html` and `seed/` are the behavioral reference.
 
 ## Guided Windows and MacBook setup
 
-**For first-time contributors:** follow [Your first contribution](FIRST-CONTRIBUTION.md) after [Windows quickstart](WINDOWS-QUICKSTART.md) or [Mac quickstart](MACBOOK-QUICKSTART.md). Use an existing **Git clone**, not a ZIP. Check `git status`, then `git switch main`, `git fetch origin`, `git pull --ff-only`. The current Draft PR #4 can be tested separately as described in the quickstarts. On Windows use `START-WINDOWS.cmd`; on Mac use `START-MAC.command`. Both support safe Flutter Preview and local Contributor tools without Firebase cloud login. PR #4 adds demo Firebase launchers on both OSes; Android/iOS device setup still requires manual platform tools. See [Windows quickstart](WINDOWS-QUICKSTART.md) and [Mac quickstart](MACBOOK-QUICKSTART.md).
+**For first-time contributors:** follow [Your first contribution](FIRST-CONTRIBUTION.md) after [Windows quickstart](WINDOWS-QUICKSTART.md) or [Mac quickstart](MACBOOK-QUICKSTART.md). Use an existing **Git clone**, not a ZIP. Check `git status`, then `git switch main`, `git fetch origin`, `git pull --ff-only`. On Windows use `START-WINDOWS.cmd`; on Mac use `START-MAC.command` (or the numbered files in `launchers/<os>/`). Both set up Preview or Contributor tools, including the local practice Firebase, without Firebase cloud login. Android (Windows) and iPhone simulator (Mac) setup are optional extras; device testing still needs manual platform steps. See [Windows quickstart](WINDOWS-QUICKSTART.md) and [Mac quickstart](MACBOOK-QUICKSTART.md).
 
 ## Branches, pull requests and reviews
 

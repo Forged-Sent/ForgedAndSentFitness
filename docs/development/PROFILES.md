@@ -9,7 +9,7 @@ The four outcome-based profiles are currently automated on **Windows**.
 | Mobile | Android Studio/SDK/licensing and Maestro | Guided setup plus manual device steps | Manual platform setup |
 | Maintainer | Separately authorized DEV cloud administration | IAM not provisioned automatically | IAM not provisioned automatically |
 
-Use a **Git clone**, not a ZIP copy, for development. Use `main` for normal onboarding after PR #4 merges; for testing the open Draft first, see the explicit PR checkout in the quickstarts. Keep local changes safe when switching branches.
+Use a **Git clone**, not a ZIP copy, for development. Use `main` for normal onboarding. Keep local changes safe when switching branches.
 
 Neither Preview nor Contributor requires a Firebase account or cloud Firebase project. The `demo-forgedandsent` suite runs locally only.
 

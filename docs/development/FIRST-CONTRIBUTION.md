@@ -38,7 +38,7 @@ flutter test
 
 ## What "ready" means
 
-You can launch Flutter in Chrome, check the local demo Firebase emulators, run analysis and tests, access one chosen AI assistant if you use one, inspect Source Control, and open a draft PR. A configured MCP server isn't "working" until it connects and lists tools.
+You can launch Flutter in Chrome, check the local demo Firebase emulators, run analysis and tests, use any AI assistants you picked, inspect Source Control, and open a draft PR. A configured MCP server isn't "working" until it connects and lists tools.
 
 For a more detailed source map, double-click `launchers/windows/more/Architecture Atlas.cmd` or `launchers/mac/more/Architecture Atlas.command`. For local Firebase, follow [Firebase emulator testing](FIREBASE-EMULATOR.md). Neither requires a cloud account.
 
