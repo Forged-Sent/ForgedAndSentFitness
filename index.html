@@ -10389,8 +10389,8 @@ header.hero .me-btn { border-color:#e87328; }
       ct.appendChild(el("p", "lg-prev", "“" + sv0.t.replace(/\s+/g, " ").slice(0, 160) + (sv0.t.length > 160 ? "…" : "") + "”"));
       ct.appendChild(el("small", null, "Only you can read it.")); card.appendChild(ct); box.appendChild(card);
       if ((sv0.tags || []).indexOf("prayer") >= 0) {
-        var pp = el("p", "jr-ph", "\uD83D\uDE4F\uFE0E Saved to Praying for. When God answers it, open it and tap Mark answered. It moves to Answered so you can look back on what He has done."); box.appendChild(pp);
-        var sp = el("button", "btn ghost", "See my prayers"); sp.type = "button"; sp.addEventListener("click", function () { F.saved = ""; close(); jrUI.tab = "pray"; jrUI.q = ""; go("journal"); }); box.appendChild(sp);
+        var pp = el("p", "jr-ph", sv0.ans ? "Saved to Answered. You can look back on this prayer in My journal." : "\uD83D\uDE4F\uFE0E Saved to Praying for. When God answers it, open it and tap Mark answered. It moves to Answered so you can look back on what He has done."); box.appendChild(pp);
+        var sp = el("button", "btn ghost", sv0.ans ? "See answered prayers" : "See my prayers"); sp.type = "button"; sp.addEventListener("click", function () { F.saved = ""; close(); jrUI.tab = sv0.ans ? "ans" : "pray"; jrUI.q = ""; go("journal"); }); box.appendChild(sp);
       }
       var smsg = el("p", "note", "");
       if (myPaul()) { var shp = el("button", "btn ghost", "Share this entry with my Paul"); shp.type = "button"; shp.addEventListener("click", function () { jrShare(sv0, smsg); }); box.appendChild(shp); box.appendChild(smsg); }
@@ -10410,7 +10410,7 @@ header.hero .me-btn { border-color:#e87328; }
       if (ed && (ed.tags || []).indexOf("prayer") >= 0) {
         var abar = el("div", "jr-ansbar" + (ed.ans ? " done" : "")), atx = el("span", null, ed.ans ? "\u2713 Answered " + new Date(ed.ans).toLocaleDateString(undefined, { month: "short", day: "numeric" }) + ". Praise God." : "Still praying for this?");
         var ab2 = el("button", "mini" + (ed.ans ? "" : " on"), ed.ans ? "Undo" : "Mark answered"); ab2.type = "button";
-        ab2.addEventListener("click", function () { var y = Object.assign({}, ed); if (y.ans) delete y.ans; else y.ans = Date.now(); jrSave(y); F.t = ta.value; openJournal({ edit: y.id, keep: true }); });
+        ab2.addEventListener("click", function () { var y = Object.assign({}, ed); if (y.ans) delete y.ans; else y.ans = Date.now(); jrAction(ab2, msg, async function () { await jrSave(y); F.t = ta.value; openJournal({ edit: y.id, keep: true }); }); });
         abar.appendChild(atx); abar.appendChild(ab2); box.appendChild(abar);
       }
       var ta = el("textarea", "field jr-ta"); ta.rows = 7; ta.maxLength = 4000; ta.placeholder = "What happened today? Something you noticed in your workout, a win at work, a moment at home, what God is showing you."; ta.setAttribute("aria-label", "Your journal entry"); ta.value = F.t;
