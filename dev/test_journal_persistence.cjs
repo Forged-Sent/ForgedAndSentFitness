@@ -27,6 +27,17 @@ const flush=async()=>{for(let i=0;i<8;i++)await Promise.resolve()};
  const pending=ctx.jrAction(button,message,()=>new Promise(r=>release=r));
  assert.equal(input.disabled,true);assert.equal(scope.dataset.jrBusy,'1');release();await pending;
  assert.equal(input.disabled,false);assert.equal(preDisabled.disabled,true);assert.equal(scope.dataset.jrBusy,undefined);
+ // Execute the actual editor click binding, not a copy of its draft logic.
+ const openStart=html.indexOf('  function openJournal('), openEnd=html.indexOf('  function drawJournalDevo(',openStart);
+ const editor=html.slice(openStart,openEnd);
+ const saveStart=editor.indexOf('sv.addEventListener("click", function () {'), saveEnd=editor.indexOf('      cx.addEventListener(',saveStart);
+ assert.ok(saveStart>=0&&saveEnd>saveStart);
+ let saveClick;const editorDraft={t:'old text',tags:[]};
+ const editorCtx={sv:{addEventListener(event,fn){saveClick=fn}},F:editorDraft,ta:{value:'retained editor words'},msg:{},ed:null,todayKey:()=> '2026-11-05',jrDraftId:ctx.jrDraftId,jrAction(){},openJournal(){}};
+ vm.createContext(editorCtx);vm.runInContext(editor.slice(saveStart,saveEnd),editorCtx);saveClick();
+ assert.equal(editorDraft.t,'retained editor words');assert.equal(editorDraft.resumeDraft,true);
+ assert.match(editor,/if \(opts\.fresh && F\.resumeDraft && F\.t && !F\.saved\) opts\.fresh = false/);
+ assert.doesNotMatch(html.slice(0,openStart),/F\.resumeDraft = true/, 'journal draft changes must not alter legacy save handler');
  // A never-settling request releases the UI after a bounded wait, without
  // treating an unconfirmed remote operation as cancelled or successful.
  const draft={t:'words to keep'}, ui={saved:false}, pendingEntry={id:'pending',t:draft.t};

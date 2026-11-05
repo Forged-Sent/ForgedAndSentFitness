@@ -3461,7 +3461,7 @@ header.hero .me-btn { border-color:#e87328; }
     var msg = el("p", "note lg-msg", opts.msg || ""); 
     var srow = el("div", "cdlg-btns"), sv = el("button", "btn", ed ? "Save changes" : "Save to my legacy log"); sv.type = "button";
     sv.addEventListener("click", function () {
-      F.t = ta.value; F.resumeDraft = true; var v = ta.value.trim(); if (!v) { msg.textContent = "Write something first."; return; }
+      var v = ta.value.trim(); if (!v) { msg.textContent = "Write something first."; return; }
       var l2 = legacyOf(), e2 = Object.assign({}, l2.e), id = F.edit || ("l" + Date.now().toString(36));
       e2[id] = ed ? Object.assign({}, ed, { t: v, who: F.who }) : { w: n, d: todayKey(), who: F.who, p: prompt, t: v, at: Date.now() };
       l2.e = e2; F.t = ""; F.off = 0; F.saved = id; F.open = ""; F.edit = ""; saveLegacyNow(l2); drawAll(); openLegacy();
@@ -10275,7 +10275,7 @@ header.hero .me-btn { border-color:#e87328; }
       box.appendChild(el("p", "note jr-tip", "Tip: tap the microphone on your keyboard to talk instead of type."));
       var msg = el("p", "note", ""), row = el("div", "cdlg-btns"), sv = el("button", "btn", ed ? "Save changes" : "Save"), cx = el("button", "btn ghost", "Close"); sv.type = cx.type = "button";
       sv.addEventListener("click", function () {
-        var v = ta.value.trim(); if (!v) { msg.textContent = "Write something first."; return; }
+        F.t = ta.value; F.resumeDraft = true; var v = ta.value.trim(); if (!v) { msg.textContent = "Write something first."; return; }
         var x = ed ? Object.assign({}, ed, { t: v, tags: F.tags.slice(), edited: Date.now() }) : { id: jrDraftId(F), d: todayKey(), at: Number(F.jrAt), t: v, tags: F.tags.slice(), src: "pen" };
         if (x.ans && x.tags.indexOf("prayer") < 0) delete x.ans;
         jrAction(sv, msg, async function (attempt) {
