@@ -1,22 +1,22 @@
 ## Summary
-What changed, why, and the issue/decision this addresses:
+What changed, why, and which issue or decision it addresses:
 
 ## Scope
-- [ ] Low-risk preview files ONLY (exact GitHub rule exceptions documented in `tooling/policy/review_scope.py`)
-- [ ] Flutter app (`mobile/`)
-- [ ] Tooling, CI, MCP, agent policy or security-sensitive configuration
-- [ ] Protected scoring/data-access seed rules or sensitive product decision
+- [ ] HTML prototype or content
+- [ ] Flutter app or cross-platform architecture
+- [ ] Firebase/Auth/Firestore/Storage/scoring/private data
+- [ ] Tooling, CI, agent instructions or security settings
 
-## Verification
-Tests or manual checks actually run (include any not run):
+## Verification (required)
+Commands/tests actually run, plus NOT VERIFIED checks:
 
-## UI preview (when relevant)
-Screenshot, short recording or description of the changed flow:
+## UI / device evidence (if applicable)
+Screenshots, emulator logs, browser test notes or known gaps:
 
-## Review and risk
-- [ ] No credentials, real member information or personal health data added
-- [ ] No unapproved auth, privacy, scoring, dependency or architecture changes
-- [ ] Human review requested if any protected paths or sensitive decisions changed
+## Security and review
+- [ ] No credentials or real member, health or prayer records added
+- [ ] Any auth/data access/scoring changes have negative/positive tests
+- [ ] Maintainer considered the implications of any changed product decisions
+- [ ] Optional non-author AI security review was run (attach evidence), OR clearly marked NOT VERIFIED
 
-Only prototype changes may merge after required CI without an approval.
-Required human reviews are enforced by the GitHub ruleset, not this template.
+**Solo-maintainer policy:** `ci-gate` is required; another human or AI approval is not required. AI agents must not self-merge. The final merge decision stays with the maintainer.

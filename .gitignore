@@ -1,2 +1,11 @@
 dev/preview.html
 .DS_Store
+.review/
+
+# Generated offline architecture website (rebuild with build_explorer.py)
+build/architecture-explorer/
+
+# Python test/import artifacts must not enter AI review diff coverage
+__pycache__/
+*.py[cod]
+.pytest_cache/

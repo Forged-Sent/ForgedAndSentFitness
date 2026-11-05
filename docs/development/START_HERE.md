@@ -1,25 +1,23 @@
 # Start here: Flutter + GitHub agents foundation
 
 ## Baseline
-This branch introduces an intentionally small Flutter scaffold and CI, **not a production app**. Existing `index.html` and `seed/` are the functional reference. Repo main was v182 when this work started.
+This branch introduces an intentionally small Flutter scaffold and CI, **not a production app**. Existing `index.html` and `seed/` are the behavioral reference. PR #4 was reconciled with newer main prototype releases through app-v226; confirm current main again when merging.
 
 ## Guided Windows and MacBook setup
 
-On Windows use FIRST-RUN-WINDOWS.cmd. On a MacBook use FIRST-RUN-MAC.command. Both provide a safe Flutter browser Preview and developer tool setup, without Firebase cloud MCP or login. See docs/development/MACBOOK-QUICKSTART.md for Mac prerequisites. Full iOS/Android device tooling is PR #4.
+**For first-time contributors:** follow [Your first contribution](FIRST-CONTRIBUTION.md) after [Windows quickstart](WINDOWS-QUICKSTART.md) or [Mac quickstart](MACBOOK-QUICKSTART.md). Use an existing **Git clone**, not a ZIP. Check `git status`, then `git switch main`, `git fetch origin`, `git pull --ff-only`. The current Draft PR #4 can be tested separately as described in the quickstarts. On Windows use `START-WINDOWS.cmd`; on Mac use `START-MAC.command`. Both support safe Flutter Preview and local Contributor tools without Firebase cloud login. PR #4 adds demo Firebase launchers on both OSes; Android/iOS device setup still requires manual platform tools. See [Windows quickstart](WINDOWS-QUICKSTART.md) and [Mac quickstart](MACBOOK-QUICKSTART.md).
 
 ## Branches, pull requests and reviews
 
 - Every contributor works on a short-lived branch and opens a pull request
   to `main`. Do not commit or merge directly to the default branch.
 - Prototype-only UI and content changes need passing `ci-gate` but no
-  mandatory human approval by default. Run `python3 dev/make_preview.py`
+  mandatory human approval, as do Flutter and security changes. Run `python3 dev/make_preview.py`
   and inspect the generated HTML locally.
-- Flutter and security-sensitive changes require one approval by the
-  other developer. Cross-cutting PRs inherit the stricter review process.
+- Flutter database, Firebase rules, Auth/privacy/scoring changes benefit from an optional independent non-author AI security review. Neither AI nor second-human approval is mandatory for this solo-maintainer project. The live ruleset requires `ci-gate` and zero approving reviews.
 - Agents use the repository root `AGENTS.md`, Claude `CLAUDE.md`, and
   matching path instructions. Agent reviews are advisory only.
-- A GitHub administrator must enable the path-specific required-reviewer
-  ruleset. See `docs/development/REPOSITORY-SECURITY.md`.
+- The ruleset is active; retain required CI and protected-main safeguards. See `docs/development/REPOSITORY-SECURITY.md` for the solo workflow and live-rule verification.
 
 ## Local setup
 Install the stable Flutter SDK and run:
@@ -30,8 +28,9 @@ flutter create --platforms=web --org=com.forgedandsent --project-name=forged_and
 flutter pub get
 flutter analyze
 flutter test
-flutter run
+flutter run -d chrome
 ```
+For demo Firebase testing, start the three local emulators first and instead run `flutter run -d chrome --dart-define=FS_ENV=emulator`. Browser Preview is not an emulator connection test.
 
 `flutter create` is an interim bootstrap because generated native Android/iOS platform folders are not part of this initial PR. Commit reviewed platform projects in a dedicated follow-up PR once package IDs, signing approach and Xcode minimum are agreed. iOS compilation requires macOS/Xcode; Android and Dart tests run on Linux.
 
@@ -45,7 +44,7 @@ flutter run
 
 ## Architecture starting point
 - Mobile: Flutter feature-first architecture with UI, domain/application services, repositories and adapters.
-- Firebase: preferred backend, not yet connected. Establish separate DEV and PROD projects; STAGING can be added at release hardening.
+- Firebase: local Auth, Firestore and Storage emulators are connected in the Flutter foundation, but **no Firebase cloud account or project is required for local tests**. DEV/PROD projects, real accounts and deployment are later decisions.
 - Auth and Firestore/Storage access must be deny-by-default with emulator tests before use.
 - Offline workouts need a local durable database, outbox and upload lifecycle in a follow-up slice.
 - Faith content can be before/after/during safe rest periods or elsewhere in the day; private reflections stay private.
@@ -62,4 +61,14 @@ flutter run
 ## Security
 This is a public repo. Never commit API secrets, signing credentials, real prayers, health data, member records or test media. Be especially cautious before running AI agents on external PRs or user input. Keep workflow permissions read-only by default.
 
-For Android host compilation, CI temporarily generates Android platform files; Xcode/iOS provisioning and reviewed native projects are PR #4. Preview contributors generate only the web host.
+For Android/iOS compilation, CI temporarily generates the native host files and checks Android debug and unsigned iOS simulator builds. Real signing, full Xcode/Android Studio workstation configuration and reviewed committed native hosts remain future steps. Preview contributors generate only the web host.
+
+## Architecture and optional local AI review
+
+- [SYSTEM.md](../architecture/SYSTEM.md): living Mermaid design, current vs planned.
+- [CODE-MAP.md](../architecture/CODE-MAP.md): generated Dart file/function inventory; refresh with `python3 tooling/architecture/generate.py --write`.
+- [AI-REVIEW-WORKFLOW.md](AI-REVIEW-WORKFLOW.md): Windows/Mac setup for independent Codex/Claude/Gemini reviews, optional pre-push verification, costs and limitations.
+
+## Visual architecture Explorer
+
+To understand all tracked files and the current/planned architecture, open the [Architecture Atlas guide](../architecture/explorer/README.md). Windows: `launchers/windows/more/Architecture Atlas.cmd`; Mac: `launchers/mac/more/Architecture Atlas.command`. The launcher opens the single-file offline `Architecture-Atlas.html`. Click any system node or source function to see its responsibilities, owning file, dependencies and exact source line. Open the Documentation tab to read the actual Markdown and ADRs in the browser. Use `/` for search, `5` for documents and `?` for hotkeys. New design boundaries require updates to `docs/architecture/SYSTEM.md` and `docs/architecture/explorer/model.json`.
