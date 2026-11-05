@@ -107,7 +107,7 @@ const flush=async()=>{for(let i=0;i<8;i++)await Promise.resolve()};
  const retryHolder={};
  for(let n=0;n<2;n++){const x={id:ctx.jrDraftId(retryHolder),at:Number(retryHolder.jrAt),t:'retry text'};await ctx.jrAction(button,message,attempt=>ctx.jrSave(x,attempt))}
  assert.equal(ids.length,2);assert.equal(ids[0],ids[1]);
- assert.match(html,/id: jrDraftId\(F\)/);assert.match(html,/id: jrDraftId\(ta\.dataset\)/);
+ assert.match(html,/id: jrDraftId\(F\)/);assert.match(html,/id = jrDraftId\(ta\.dataset\)/);
  // A late deletion must not mutate a replacement view after its deadline.
  let deleteLate;ctx.B.deleteJournal=()=>new Promise(r=>deleteLate=r);
  const beforeDelete=ctx.state.journal.length;
@@ -131,6 +131,26 @@ const flush=async()=>{for(let i=0;i<8;i++)await Promise.resolve()};
  [...timers.values()][0]();assert.equal(await waitingDevo,false);acceptReset=true;resetClick();
  assert.equal(devoTa.value,'');assert.equal(devoTa.dataset.jrId,undefined);assert.equal(devoRetry.hidden,true);
  const newId=ctx.jrDraftId(devoTa.dataset);assert.notEqual(newId,oldId);devoTa.value='new devotional';lateDevo();await flush();assert.equal(devoTa.value,'new devotional');
+ // Actual devotional Save merges a confirmed same-ID entry instead of
+ // rebuilding it and dropping tags/answered/provenance from a late snapshot.
+ let devoSaveClick, devoPayload;
+ const confirmedDevo={id:'devo-known',t:'confirmed words',tags:['prayer','grateful'],ans:444,p:'original prompt',src:'devo',d:'2026-11-04',at:100};
+ ctx.state.journal=[confirmedDevo];devoTa.value='revised reflection';devoTa.dataset.jrId='devo-known';devoTa.dataset.jrAt='100';
+ const devoSaveButton={disabled:false,closest:()=>devoScope,addEventListener(event,fn){devoSaveClick=fn}};devoNodes['jr-devo-save']=devoSaveButton;
+ ctx.B.saveJournal=async(uid,x)=>{devoPayload=x};
+ const saveCtx={$:id=>devoNodes[id],state:ctx.state,jrDevoOwner:ctx.jrDevoOwner,jrDraftId:ctx.jrDraftId,jrAction:ctx.jrAction,jrSave:ctx.jrSave,devoToday:()=>({e:{reflect:'different prompt'}}),todayKey:()=> '2026-11-05'};
+ const devoSaveStart=wire.indexOf('$("jr-devo-save").addEventListener(');
+ vm.createContext(saveCtx);vm.runInContext(wire.slice(devoSaveStart,wire.lastIndexOf('\n  }')),saveCtx);devoSaveClick();await flush();await flush();
+ assert.equal(devoPayload.t,'revised reflection');for(const key of ['id','ans','p','src','d','at'])assert.equal(devoPayload[key],confirmedDevo[key]);assert.deepEqual(Array.from(devoPayload.tags),confirmedDevo.tags);
+ // A stale answered button applies its displayed intent to the latest record,
+ // without replacing newer text or tags with the captured row's old fields.
+ let answeredClick, answeredPayload;
+ const rowStart=html.indexOf('ab.addEventListener("click", function () {',html.indexOf('  function drawJournalPage(')),rowEnd=html.indexOf('; var jm',rowStart);
+ assert.ok(rowStart>=0&&rowEnd>rowStart);
+ const answeredCtx={ab:{addEventListener(event,fn){answeredClick=fn}},jm:{},state:{journal:[{id:'row1',t:'newer words',tags:['prayer','family'],ans:777}]},x:{id:'row1',t:'stale words',tags:['prayer']},jrAction(button,message,action){return action({})},async jrSave(y){answeredPayload=y}};
+ vm.createContext(answeredCtx);vm.runInContext(html.slice(rowStart,rowEnd+1),answeredCtx);answeredClick();await flush();
+ assert.equal(answeredPayload.t,'newer words');assert.deepEqual(Array.from(answeredPayload.tags),['prayer','family']);assert.ok(answeredPayload.ans,'Mark answered intent must not undo a newer answered value');
+ answeredCtx.x.ans=111;answeredClick();await flush();assert.equal(answeredPayload.ans,undefined);assert.equal(answeredPayload.t,'newer words');
  // Execute the real deletion method with a DB stand-in and failed unrelated delete.
  const start=html.indexOf('    deleteMyData: async function (uid) {');
  const end=html.indexOf('\n    }\n  };',start);
