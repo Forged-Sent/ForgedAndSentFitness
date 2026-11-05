@@ -2146,6 +2146,10 @@ header.hero .me-btn { border-color:#e87328; }
         <textarea class="field" id="jr-devo-ta" rows="5" maxlength="4000" aria-label="Your journal entry" placeholder="Answer it honestly. Only you can read this."></textarea>
         <button class="btn" type="button" id="jr-devo-save">Save to my journal</button>
         <p class="note jr-ok" id="jr-devo-msg" aria-live="polite"></p>
+        <div id="jr-devo-retry" data-jr-retry hidden>
+          <p class="note">Saving here updates the same journal entry, even if the earlier request finishes. To write a separate entry, discard this draft first.</p>
+          <button class="linkish" type="button" id="jr-devo-new">Discard draft and start a different entry</button>
+        </div>
         <p class="note" style="margin:6px 0 0">Today&rsquo;s reflection question starts the entry. Private, and never scored.</p>
       </section>
       <div class="devo-end">
@@ -10234,7 +10238,11 @@ header.hero .me-btn { border-color:#e87328; }
       active = false; var error = new Error("Journal confirmation timed out."); error.jrTimeout = true; reject(error);
     }, 15000); });
     try { await Promise.race([action(attempt), deadline]); if (!active) throw new Error("Journal action expired."); message.textContent = ""; return true; }
-    catch (e) { message.textContent = e && e.jrTimeout ? "Save not confirmed yet. Your entry is still here. You can close this window and retry; the earlier change may still finish." : e && e.jrPending ? "An earlier change is still unconfirmed. Your entry is still here; try again after it finishes." : "Could not save that change. Your entry is still here. Please try again."; return false; }
+    catch (e) {
+      message.textContent = e && e.jrTimeout ? "Change not confirmed yet. Keep this text until you know the result; the earlier request may still finish." : e && e.jrPending ? "An earlier change is still unconfirmed. Your entry is still here; try again after it finishes." : "Could not confirm that change. Your entry is still here. Please try again.";
+      var retry = scope && scope.querySelector ? scope.querySelector("[data-jr-retry]") : null; if (retry) retry.hidden = false;
+      return false;
+    }
     finally { active = false; clearTimeout(timer); if (scope) delete scope.dataset.jrBusy; controls.forEach(function (c) { c[0].disabled = c[1]; }); }
   }
   function jrWhen(x) {
@@ -10258,7 +10266,7 @@ header.hero .me-btn { border-color:#e87328; }
     var contextual = opts.p !== undefined || opts.src !== undefined || opts.tags !== undefined || opts.discardDraft;
     var sameEntry = opts.edit !== undefined && opts.edit === (F.edit || F.jrId);
     if (retained && (sameEntry || (opts.fresh && !contextual))) { delete opts.edit; opts.fresh = false; }
-    else if (retained && (opts.edit !== undefined || opts.fresh)) {
+    else if ((retained || (opts.discardDraft && F.t)) && (opts.edit !== undefined || opts.fresh)) {
       if (!confirm("Discard this local journal draft and open a different entry? Its earlier unconfirmed save may still finish.")) return;
       opts.keep = false;
     }
@@ -10287,11 +10295,10 @@ header.hero .me-btn { border-color:#e87328; }
       r.appendChild(more); r.appendChild(all); r.appendChild(dn); box.appendChild(r);
     } else {
       var pv = el("p", "jr-priv"); pv.textContent = "🔒︎ Private. Only you can read your journal. It is never scored."; box.appendChild(pv);
-      if (F.resumeDraft) {
-        box.appendChild(el("p", "note", "This is the same entry you tried to save. Saving updates that entry, even if the earlier request finishes."));
-        var discard = el("button", "linkish", "Discard draft and start a different entry"); discard.type = "button";
-        discard.addEventListener("click", function () { openJournal({ fresh: true, discardDraft: true }); }); box.appendChild(discard);
-      }
+      var retry = el("div", "jr-retry"); retry.dataset.jrRetry = "1"; retry.hidden = !F.resumeDraft;
+      retry.appendChild(el("p", "note", "Saving here updates the same journal entry, even if an earlier request finishes. To write a separate entry, discard this draft first."));
+      var discard = el("button", "linkish", "Discard draft and start a different entry"); discard.type = "button";
+      discard.addEventListener("click", function () { openJournal({ fresh: true, discardDraft: true }); }); retry.appendChild(discard); box.appendChild(retry);
       if (ed && ed.p) box.appendChild(el("blockquote", "mem-v lg-p", ed.p));
       var chips = el("div", "lg-chips"); chips.setAttribute("role", "group"); chips.setAttribute("aria-label", "Tags");
       JR_TAGS.forEach(function (tg) { var on = F.tags.indexOf(tg[0]) >= 0, c = el("button", "mini" + (on ? " on" : ""), tg[1]); c.type = "button"; c.setAttribute("aria-pressed", on ? "true" : "false");
@@ -10302,8 +10309,9 @@ header.hero .me-btn { border-color:#e87328; }
       box.appendChild(el("p", "note jr-tip", "Tip: tap the microphone on your keyboard to talk instead of type."));
       var msg = el("p", "note", ""), row = el("div", "cdlg-btns"), sv = el("button", "btn", ed ? "Save changes" : "Save"), cx = el("button", "btn ghost", "Close"); sv.type = cx.type = "button";
       sv.addEventListener("click", function () {
-        F.t = ta.value; F.resumeDraft = true; var v = ta.value.trim(); if (!v) { msg.textContent = "Write something first."; return; }
-        var x = ed ? Object.assign({}, ed, { t: v, tags: F.tags.slice(), edited: Date.now() }) : { id: jrDraftId(F), d: todayKey(), at: Number(F.jrAt), t: v, tags: F.tags.slice(), src: "pen" };
+        F.t = ta.value; var v = ta.value.trim(); if (!v) { msg.textContent = "Write something first."; return; } F.resumeDraft = true;
+        var prior = (state.journal || []).filter(function (y) { return y.id === (F.edit || F.jrId); })[0] || ed;
+        var x = prior ? Object.assign({}, prior, { t: v, tags: F.tags.slice(), edited: Date.now() }) : { id: jrDraftId(F), d: todayKey(), at: Number(F.jrAt), t: v, tags: F.tags.slice(), src: "pen" };
         if (x.ans && x.tags.indexOf("prayer") < 0) delete x.ans;
         jrAction(sv, msg, async function (attempt) {
           await jrSave(x, attempt); F.resumeDraft = false; F.saved = x.id; F.edit = ""; F.t = ""; F.tags = []; openJournal();
@@ -10344,11 +10352,18 @@ header.hero .me-btn { border-color:#e87328; }
     $("jr-back").addEventListener("click", function () { go("today"); });
     $("jr-new").innerHTML = PEN_SVG; $("jr-new").addEventListener("click", function () { openJournal({ fresh: true }); });
     jrDevoOwner($("jr-devo-ta"));
+    $("jr-devo-new").addEventListener("click", function () {
+      if ($("jr-devo").dataset.jrBusy) return;
+      var ta = $("jr-devo-ta"); jrDevoOwner(ta);
+      if (!confirm("Discard this local journal draft and start a different entry? Its earlier unconfirmed save may still finish.")) return;
+      ta.value = ""; delete ta.dataset.jrId; delete ta.dataset.jrAt;
+      $("jr-devo-retry").hidden = true; $("jr-devo-msg").textContent = ""; ta.focus();
+    });
     $("jr-devo-save").addEventListener("click", function () {
       var ta = $("jr-devo-ta"); jrDevoOwner(ta); var v = ta.value.trim(), m = $("jr-devo-msg"); if (!v) { m.textContent = "Write something first."; ta.focus(); return; }
       var t = devoToday(), x = { id: jrDraftId(ta.dataset), d: todayKey(), at: Number(ta.dataset.jrAt), t: v, tags: [], src: "devo", p: t && t.e ? t.e.reflect : "" };
       jrAction($("jr-devo-save"), m, async function (attempt) {
-        await jrSave(x, attempt); ta.value = ""; delete ta.dataset.jrId; delete ta.dataset.jrAt;
+        await jrSave(x, attempt); ta.value = ""; delete ta.dataset.jrId; delete ta.dataset.jrAt; $("jr-devo-retry").hidden = true;
       }).then(function (saved) { if (saved) m.textContent = "✓ Saved to your journal. Only you can read it."; });
     });
   }
