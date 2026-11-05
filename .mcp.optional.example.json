@@ -1,0 +1,19 @@
+{
+  "mcpServers": {
+    "github": {
+      "type": "http",
+      "url": "https://api.githubcopilot.com/mcp/readonly"
+    },
+    "figma": {
+      "type": "http",
+      "url": "https://mcp.figma.com/mcp"
+    },
+    "maestro": {
+      "command": "node",
+      "args": [
+        "tooling/mcp/launch.mjs",
+        "maestro"
+      ]
+    }
+  }
+}

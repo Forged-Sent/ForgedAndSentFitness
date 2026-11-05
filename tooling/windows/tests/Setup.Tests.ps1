@@ -27,3 +27,33 @@ Describe 'Profile-aware diagnostic exit codes' {
     $item.Status | Should -Not -Be Ready
   }
 }
+Describe 'Remembered setup profile for Check my setup (real local Git)' {
+  BeforeEach {
+    $script:repo=Join-Path $TestDrive ([guid]::NewGuid().ToString('n'))
+    & git init --quiet $script:repo | Out-Null
+    if($LASTEXITCODE){throw 'Git init failed'}
+  }
+  It 'uses the fallback until a profile is saved, then remembers it' {
+    Get-FSRememberedProfile $script:repo 'Contributor' | Should -Be 'Contributor'
+    Save-FSProfile $script:repo 'Preview'
+    Get-FSRememberedProfile $script:repo 'Contributor' | Should -Be 'Preview'
+    Save-FSProfile $script:repo 'Contributor'
+    Get-FSRememberedProfile $script:repo 'Preview' | Should -Be 'Contributor'
+  }
+  It 'stores the choice inside .git so it is never committed' {
+    Save-FSProfile $script:repo 'Contributor'
+    (& git -C $script:repo status --porcelain --untracked-files=all) | Should -BeNullOrEmpty
+  }
+  It 'ignores an unexpected saved value' {
+    $file=Get-FSProfileFile $script:repo
+    Set-Content -LiteralPath $file -Value 'Administrator' -Encoding ascii
+    Get-FSRememberedProfile $script:repo 'Preview' | Should -Be 'Preview'
+  }
+  It 'falls back without throwing outside a Git clone' {
+    $plain=Join-Path $TestDrive ([guid]::NewGuid().ToString('n'))
+    New-Item -ItemType Directory -Path $plain | Out-Null
+    {Get-FSRememberedProfile $plain 'Preview'} | Should -Not -Throw
+    Get-FSRememberedProfile $plain 'Preview' | Should -Be 'Preview'
+    {Save-FSProfile $plain 'Contributor'} | Should -Not -Throw
+  }
+}
