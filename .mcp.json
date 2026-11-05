@@ -14,24 +14,9 @@
         "playwright"
       ]
     },
-    "maestro": {
-      "command": "node",
-      "args": [
-        "tooling/mcp/launch.mjs",
-        "maestro"
-      ]
-    },
     "context7": {
       "type": "http",
       "url": "https://mcp.context7.com/mcp"
-    },
-    "figma": {
-      "type": "http",
-      "url": "https://mcp.figma.com/mcp"
-    },
-    "github": {
-      "type": "http",
-      "url": "https://api.githubcopilot.com/mcp/readonly"
     }
   }
 }

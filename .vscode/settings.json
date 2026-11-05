@@ -3,9 +3,26 @@
     "PowerShell 7": {
       "path": "pwsh.exe",
       "icon": "terminal-powershell"
+    },
+    "Forged & Sent": {
+      "path": "pwsh.exe",
+      "args": [
+        "-NoLogo",
+        "-NoExit",
+        "-Command",
+        ". \"${workspaceFolder}/tooling/shell/forged-shell.ps1\""
+      ],
+      "icon": "terminal-powershell"
     }
   },
-  "terminal.integrated.defaultProfile.windows": "PowerShell 7",
+  "terminal.integrated.defaultProfile.windows": "Forged & Sent",
   "terminal.integrated.defaultProfile.osx": "zsh",
-  "dart.flutterSdkPath": "~/develop/flutter"
+  "dart.flutterSdkPath": "~/develop/flutter",
+  "git.autofetch": true,
+  "git.confirmSync": true,
+  "git.pruneOnFetch": true,
+  "git.branchProtection": [
+    "main"
+  ],
+  "git.branchProtectionPrompt": "alwaysCommitToNewBranch"
 }
