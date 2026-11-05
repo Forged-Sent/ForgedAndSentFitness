@@ -2,7 +2,7 @@
 <#
 .SYNOPSIS
   Starts the local Forged & Sent Flutter preview in Chrome.
-  Run with RUN-APP.cmd; no Firebase setup is required for the foundation screen.
+  Run with launchers\windows\2 - Run the app.cmd; no Firebase setup is required for the foundation screen.
 #>
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
@@ -18,7 +18,7 @@ if (Test-Path -LiteralPath $localFlutter) {
     if ($command) { $flutter = $command.Source }
 }
 if (-not $flutter) {
-    Write-Host 'Flutter is not installed. Double-click SETUP-WINDOWS.cmd first.' -ForegroundColor Yellow
+    Write-Host 'Flutter is not installed. Double-click launchers\windows\1 - Set up this computer.cmd first.' -ForegroundColor Yellow
     exit 1
 }
 

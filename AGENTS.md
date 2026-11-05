@@ -14,8 +14,9 @@ Forged & Sent is a faith-centered devotional workout and group accountability pl
 - Initially adult men's groups; design domain boundaries for future households and youth without enabling youth functionality by default.
 
 ## Protected operations
-- GitHub rulesets, not these instructions, enforce protected branches and path-specific human approval. Never push to main, force-push main, bypass protections, or merge a PR before required checks/reviews pass.
-- ONLY explicit low-risk exceptions in `tooling/policy/review_scope.py` may merge without an approval when all GitHub-required checks pass. Every other path, including new files, Flutter, security tooling, Python preview scripts, onboarding and Firebase configuration, requires one other human reviewer through the path-specific ruleset.
+- GitHub rulesets, not instructions or AI reviews, enforce protected branches and mandatory checks. The live ruleset currently requires ci-gate but ZERO human approvals. Do NOT claim a second human review is enforced. Never push to main, force-push main, bypass protections, or merge before required checks pass.
+- **Agent push rule.** An AI agent may push commits to a non-`main` branch only when ALL of the following are confirmed immediately before the push: (1) a human explicitly authorized that push in the current session; (2) every review thread on the PR is closed (resolved or outdated), checked on GitHub rather than assumed; (3) `ci-gate` on the PR's current head is green, or the push is the fix for a failing `ci-gate`. Agents never push to `main`, force-push, approve or merge, even with authorization.
+- Deterministic CI is mandatory. As a solo maintainer, no second human or AI approval is required. For Flutter database, Firebase rules, private data or authorization work, recommend a non-author AI security review as an optional second opinion; record any unverified coverage.
 - Never use an AI agent's review as an approval. Agents must not self-approve, self-merge, change branch protections, or impersonate a human reviewer.
 - AI reviews are advisory and never satisfy required approval.
 - No default cloud Firebase MCP, Firebase deployment, or PROD credentials on colleague devices.
@@ -26,7 +27,7 @@ Forged & Sent is a faith-centered devotional workout and group accountability pl
 ## Working agreement
 1. Read `docs/development/START_HERE.md` and any applicable ADR before work.
 2. One focused issue per branch. Never change `main` directly.
-3. Human product approval is required for new dependencies, authentication/data-access changes, scoring formula changes, health permissions, and public communication features, even if first explored in the prototype. Do not claim a prototype-only PR approves these decisions.
+3. The project maintainer makes explicit product decisions for dependencies, authentication/data access, scoring, health permissions and communications. A solo maintainer can make these decisions without a separate reviewer. Prototype-only changes do not implicitly approve production behavior.
 4. Prefer a minimal vertical slice with tests over a large unreviewable implementation.
 5. Keep Flutter features under `mobile/lib/src/features/`; UI depends on application/domain services, not Firebase SDK types.
 6. Do not commit credentials, Firebase service account JSON, signing keys, personal data, or large generated media.
@@ -43,13 +44,13 @@ Forged & Sent is a faith-centered devotional workout and group accountability pl
 
 ## Pull request classification
 - **Prototype (explicit exceptions only):** HTML/versions, mock and listed seed content. Lightweight preview CI, optional formal review, required PR. Executable preview scripts are *not* review-exempt.
-- **Application:** `mobile/` and production app architecture. Flutter CI plus required human review.
-- **Infrastructure/security:** `tooling/`, workflows, agent instructions, MCP settings, Firebase config, architecture ADRs and protected seed rules. Mandatory policy CI plus required human review.
+- **Application:** `mobile/` and production app architecture. Flutter CI required; an independent AI review is optional, particularly useful for Firebase/database changes.
+- **Infrastructure/security:** `tooling/`, workflows, agent instructions, MCP settings, Firebase config, architecture ADRs and protected seed rules. Mandatory policy CI; optional independent AI review and maintainer decision.
 - A mixed PR receives the strictest applicable checks and review requirements. Prefer splitting unrelated changes.
-- Ask the other developer for review on required PRs. A PR author cannot provide their own required approval. Do not enable broad one-approval rules that unnecessarily block prototype-only PRs.
+- The live GitHub ruleset requires `ci-gate` but zero outside approvals. AI reviews are voluntary and advisory. Maintainers choose whether to merge; agents never self-merge.
 
 ## Platform-specific onboarding
-- Windows bootstrap: FIRST-RUN-WINDOWS.cmd; Mac bootstrap: FIRST-RUN-MAC.command. Both must preserve emulator-first/no-cloud-Firebase MCP defaults.
+- Windows bootstrap: START-WINDOWS.cmd; Mac bootstrap: START-MAC.command. Both must preserve emulator-first/no-cloud-Firebase MCP defaults.
 - Mac bootstrap support in PR #3 covers Preview and tool-only Contributor foundation. Do not claim iOS/Android device integration or Firebase emulator readiness until PR #4.
 - Project MCP stdio commands use the allowlisted Node launcher on both platforms. Never add Firebase cloud MCP or automatically request credentials.
 
@@ -62,4 +63,27 @@ Forged & Sent is a faith-centered devotional workout and group accountability pl
 - Flutter Builder: one vertical slice, widget tests, no backend policy changes.
 - Architecture Reviewer: independent read-only design and requirements assessment.
 - Firebase Security Reviewer: authentication, rules, functions, storage and adversarial access tests.
-Run 1 builder plus 1 reviewer per PR by default; do not run every agent for every issue.
+Use one builder by default. Offer a non-author AI reviewer for Flutter database and security changes, or two if useful, without making either mandatory. If invoked, never count the authoring model as independent. Mark missing coverage NOT VERIFIED.
+
+## Safe beginner Git collaboration (PR #4)
+
+Use project-local fs-start / fs-save / fs-sync / fs-share / fs-status helpers
+for contributor workflow. Never directly commit or push to main. Only open
+draft PRs for teammates. Do not run firebase deploy, overwrite production
+configurations, force-push, or merge PRs without explicit human approval.
+GitHub server rules are the actual enforcement boundary; local prompts and
+agent instructions are advisory. No cloud Firebase MCP is enabled by default.
+
+## Living architecture and shared agent instructions
+
+- Read docs/architecture/SYSTEM.md for current vs planned system boundaries and CODE-MAP.md for actual Dart symbols/imports.
+- Update SYSTEM.md/ADRs when boundaries change; run `python3 tooling/architecture/generate.py --write` for Dart changes.
+- Canonical skills are in .agents/skills; .claude/skills must match, enforced by `python3 tooling/skills/sync.py --check`.
+- Before pushing, run `python3 tooling/review/review.py --dry-run`; a non-author AI review is optional (recommended for Firebase/Auth/privacy/scoring changes).
+
+## Architecture Explorer update contract
+
+- The clickable static site is generated via `python3 tooling/architecture/build_explorer.py --write`. The source UI lives under `docs/architecture/explorer/`, and the generated site lives in the ignored `build/architecture-explorer/` directory.
+- Keep the curated component/function glossary in `docs/architecture/explorer/model.json` aligned with `SYSTEM.md` and real code. Never label a proposed component as implemented.
+- For new components or meaningful behavior, update model descriptions, source paths, dependencies, and the appropriate ADR. CI builds the latest file/symbol index and rejects dangling model file references.
+- Never describe lexical file mentions or best-effort symbol detection as a complete runtime call graph. Explain uncertainty honestly.

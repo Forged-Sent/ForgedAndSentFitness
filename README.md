@@ -4,6 +4,43 @@ A men's fitness and accountability app for the Forged in Faith men's group. Men 
 
 **Status: working prototype, not yet store-ready.** It runs today as a [claude.ai Artifact](https://claude.ai) (a private hosted page). It does **not** run as a plain static site, because its database, user identity and file storage come from the claude.ai runtime (`window.claude`). See "Running it" and "Path to the App Store and Google Play".
 
+## New here? Start here
+
+You only need to double-click files. No typing commands, no cloud accounts.
+
+> Web pages cannot run programs, so clicking a launcher link below on GitHub only shows its text.
+> Click links to *find* the right file, then double-click that file inside your own copy of the
+> project in **File Explorer** (Windows) or **Finder** (Mac).
+
+**Step 0: get the project onto your computer (once).** Follow the first section of the
+[Windows quickstart](docs/development/WINDOWS-QUICKSTART.md) or the
+[Mac quickstart](docs/development/MACBOOK-QUICKSTART.md). A ZIP download will not work; you need a Git clone.
+
+**Easiest way:** double-click the one start file for your computer and pick from the menu.
+
+| Windows | Mac |
+|---|---|
+| [`START-WINDOWS.cmd`](START-WINDOWS.cmd) | [`START-MAC.command`](START-MAC.command) |
+
+**Or go step by step.** Open the `launchers` folder, then `windows` or `mac`, and double-click the files in number order:
+
+| Step | What it does | Windows | Mac |
+|---|---|---|---|
+| 1 | Installs everything you need to edit, test and share changes, then offers a 2-minute **Try it now** walkthrough (practice Firebase + the app) and a checklist. The first run can take a while; it is safe to rerun. | [1 - Set up this computer.cmd](launchers/windows/1%20-%20Set%20up%20this%20computer.cmd) | [1 - Set up this computer.command](launchers/mac/1%20-%20Set%20up%20this%20computer.command) |
+| 2 | Opens the app in Chrome. | [2 - Run the app.cmd](launchers/windows/2%20-%20Run%20the%20app.cmd) | [2 - Run the app.command](launchers/mac/2%20-%20Run%20the%20app.command) |
+| 3 | Starts the practice Firebase database on your computer only. Leave its window open. | [3 - Start practice Firebase.cmd](launchers/windows/3%20-%20Start%20practice%20Firebase.cmd) | [3 - Start practice Firebase.command](launchers/mac/3%20-%20Start%20practice%20Firebase.command) |
+| 4 | Runs the app connected to the practice database (after step 3 says *All emulators ready*). | [4 - Run app with practice Firebase.cmd](launchers/windows/4%20-%20Run%20app%20with%20practice%20Firebase.cmd) | [4 - Run app with practice Firebase.command](launchers/mac/4%20-%20Run%20app%20with%20practice%20Firebase.command) |
+| 5 | Checks your setup and explains how to fix anything missing. | [5 - Check my setup.cmd](launchers/windows/5%20-%20Check%20my%20setup.cmd) | [5 - Check my setup.command](launchers/mac/5%20-%20Check%20my%20setup.command) |
+
+Optional extras live in [`launchers/windows/more`](launchers/windows/more) and [`launchers/mac/more`](launchers/mac/more):
+preview-only setup (view the app without editing tools), Android tools (Windows), the iPhone simulator (Mac), the Architecture Atlas, and an optional AI code review.
+
+**Then make your first change:** [Your first contribution](docs/development/FIRST-CONTRIBUTION.md).
+Stuck? Run step 5, then see [First-run troubleshooting](docs/development/FIRST-RUN-TROUBLESHOOTING.md).
+
+**First time on a Mac:** if macOS says the file "cannot be opened", right-click it, choose **Open**, then **Open** again (once per file).
+**First time on Windows:** if SmartScreen appears, choose **More info**, then **Run anyway**.
+
 ## Repo layout
 
 | Path | What it is |
@@ -11,19 +48,18 @@ A men's fitness and accountability app for the Forged in Faith men's group. Men 
 | `index.html` | Current version. A single self-contained file: HTML, CSS and JS. |
 | `versions/app-v1.html` ... `app-v226.html` | Every earlier iteration, kept for rollback. A new version file is created for each iteration; never overwrite old ones. |
 | `seed/` | Starting data: `tasks.json` (standard daily list), `lifts.json` (core lifts), `devotionals.json` (366 daily devotionals, one per calendar date, also embedded in `index.html`), `db-rules.json` (access rules and runtime capabilities the page declares). `weekly-challenges.json` (52-week challenge program: one Family, one Iron and one Endure challenge per week, with the 0-100 age-bracket scoring rules, injury-friendly alternates and season metadata) and `movement-standards.json` (what counts as a rep). |
+| `START-WINDOWS.cmd`, `START-MAC.command`, `launchers/` | Double-click setup and run launchers (see "New here? Start here"). The scripts they call are in `tooling/`. |
 | `dev/` | Local preview. `mock-claude.js` is an in-memory stand-in for `window.claude`; `make_preview.py` builds `dev/preview.html`. |
 | `docs/architecture-notes.md` | Architecture and store-readiness notes. |
 | `docs/health-integration.md` | Apple Health and Health Connect plan, bridge contract and store requirements. |
 
 ## Working together
 
-All changes go through short-lived branches and pull requests to `main`.
-The HTML prototype's explicitly listed low-risk files (`index.html`,
-`versions/`, selected `dev/` and `seed/` content) stay fast with **optional
-human approval** and lightweight CI. Python scripts, Firebase configuration,
-onboarding, and any new or unfamiliar paths require human approval. Flutter (`mobile/`), CI/tooling, security settings and
-protected scoring/access rule files require a second human review. AI
-coding agents follow the same process using `AGENTS.md` and `CLAUDE.md`.
+All changes use short-lived branches and pull requests to protected `main`.
+The solo maintainer is not required to obtain a second human or independent AI approval.
+GitHub requires the deterministic `ci-gate` check. For Flutter database, Firebase
+rules, Auth, scoring or private-data changes, consider an optional non-author AI
+security review, alongside mandatory tests. AI agents must not self-merge.
 
 See [repository security and review rules](docs/development/REPOSITORY-SECURITY.md)
 for the exact path patterns and GitHub administrator setup. Those rules
@@ -98,6 +134,22 @@ Steps, Weigh-In and Workout can be filled from Apple Health or Health Connect on
 Private, unreleased. No license granted yet.
 
 
-## MacBook development
+## First-time developer onboarding
 
-For a Mac, double-click **FIRST-RUN-MAC.command** from Finder. **SETUP-MAC.command** sets up the browser preview, and **SETUP-DEVELOPER-MAC.command** adds contributor tools. See [MacBook Quickstart](docs/development/MACBOOK-QUICKSTART.md). Full iOS/Android device onboarding is reserved for PR #4.
+See [New here? Start here](#new-here-start-here) above. Details: [Windows Quickstart](docs/development/WINDOWS-QUICKSTART.md), [Mac Quickstart](docs/development/MACBOOK-QUICKSTART.md) and [First Contribution](docs/development/FIRST-CONTRIBUTION.md). Use Git and a feature branch; no Firebase cloud account is needed for the local practice database. AI coding assistants are optional; sign in only to the ones you pick during setup. iOS/Android device provisioning is a separate manual step.
+
+## Shared agents, local code reviews and architecture
+
+- [Beginner AI-review walkthrough](docs/development/AI-REVIEW-WORKFLOW.md): Optional Codex, Claude, and Gemini reviews, especially for Flutter database changes.
+- [Living system architecture](docs/architecture/SYSTEM.md): current implementation, planned system and review pipeline diagrams.
+- [Generated Flutter code map](docs/architecture/CODE-MAP.md): actual Dart imports, classes and methods. CI checks drift.
+- Checked-in Codex `.agents/skills/` and Claude `.claude/skills/` workflows must match exactly.
+- Windows: `launchers/windows/more/AI code review.cmd`. Mac: `launchers/mac/more/AI code review.command`. Try `--dry-run` before making paid AI requests.
+
+## Explore the engineering architecture as a webpage
+
+- **Windows:** double-click `launchers/windows/more/Architecture Atlas.cmd` in the cloned repository.
+- **Mac:** double-click `launchers/mac/more/Architecture Atlas.command`.
+- **Any OS:** run `python3 tooling/architecture/build_explorer.py --write` and open `build/architecture-explorer/Architecture-Atlas.html` (a single standalone webpage).
+
+The [Architecture Atlas guide](docs/architecture/explorer/README.md) covers keyboard shortcuts, interactive component ownership, source functions and reverse dependencies, independent AI reviewer models, and the full tracked-file index. CI also produces an offline `forged-sent-architecture-atlas` artifact for every PR.
