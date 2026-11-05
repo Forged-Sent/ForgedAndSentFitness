@@ -1,52 +1,22 @@
-# Forged & Sent: GitHub governance and administrator checklist
+# Forged & Sent: solo-maintainer GitHub governance
 
-The intent: every change arrives through a pull request; low-risk HTML
-prototype iterations are fast, while **every other file is human-reviewed by
-default**, including new files nobody anticipated. The server-side ruleset is
-the security boundary. AGENTS.md, CODEOWNERS and CI do NOT activate it.
+One maintainer can deliver changes without independent human approvals. The repository still requires a pull request and the deterministic `ci-gate` on protected `main`. Optional AI security reviews are recommended for Flutter databases, Firebase rules, Auth and sensitive data; they are not mandatory.
 
-## 1. Organization team and identities
+## Live protection, observed 2026-11-02
+The current GitHub main ruleset requires `ci-gate`, with **zero required approving reviews**. No second-person approval should be configured for ordinary or security changes unless the maintainer separately chooses to change this. Never self-merge as an AI agent. CODEOWNERS routes responsibility but does not itself require approval.
 
-Create `Forged-Sent/app-reviewers`, add `@Chadillac12` and
-`@sfcsmithc-afk`, and grant the **team** repository Write permission or
-higher. PR authors cannot count as their own approving reviewer.
-Review the install permissions for all AI agent/GitHub Apps, especially the
-ChatGPT integration: where possible prefer PR creation without merge
-permission, limit installations to the necessary repos, and avoid bot bypasses.
-GitHub may not offer distinct PR-create and merge scopes for a given app.
-If a write-capable integration can still merge zero-review prototype PRs,
-record that as a **known residual risk**. Instructions telling agents not
-to merge are not technical enforcement.
+## Solo-maintainer workflow
+1. Make a focused branch and pull request. Preserve the existing HTML prototype and historical `versions/` snapshots.
+2. Run required CI, unit/widget tests, policy checks, and positive/negative emulator tests for database rules. Report test gaps accurately.
+3. For Flutter database/rules/authorization/privacy changes, **offer** a non-author AI review with `tooling/review/review.py`. The maintainer may skip it and document NOT VERIFIED.
+4. Only the maintainer decides to merge, after `ci-gate` passes. A green CI does not prove production data safety or manual device acceptance.
+5. Never deploy real Firebase credentials or production changes through demo contributor setup.
 
-## 2. Create an ACTIVE branch ruleset on main
+## Optional ownership routing
+The CODEOWNERS file associates changes with the maintainer. It includes `mobile/`, `firebase/`, `.gemini/`, `docs/knowledge/`, tools and agent instructions. No outside person is required to approve. Ruleset settings, not CODEOWNERS or Markdown, determine enforcement.
 
-Open: https://github.com/Forged-Sent/ForgedAndSentFitness/settings/rules
-
-- Target **main**; require pull requests. No direct `main` pushes, force
-  pushes, branch deletion or standard bypass actors, including admins/bots.
-- Require the always-created **`ci-gate`** GitHub Actions check. Never
-  individually require conditional Flutter/platform jobs, which can skip.
-- Under pull request rules, set general required approval count to **0**.
-  Do not enable blanket CODEOWNERS approval, or prototype-only changes would
-  lose their fast merge flow.
-- Set **Dismiss stale pull request approvals when new commits are pushed**.
-  This prevents previously approved code being modified without another
-  human review. Unlike required last-push approval, it is not a standing
-  requirement for prototype-only PRs; still validate the actual interaction
-  with Required reviewers on GitHub before relying on it.
-- Under **Required reviewers**, select team **app-reviewers** with
-  **1 required approval** and paste EACH pattern below **in this order**.
-  GitHub documents that negative patterns cancel earlier matches.
-- Prefer squash merging, delete merged working branches and verify required
-  reviews are still current immediately before the merge.
-
-### Required reviewers path patterns (canonical list)
-
-These patterns are also defined in `tooling/policy/review_scope.py`, and
-checked against this document by `tooling/policy/check.py`.
-**Start with the default-protected `**`**. Later `!` patterns carve out
-only the low-risk prototype files; unrecognized and newly added files
-still need a human reviewer.
+## Scope classification (advisory)
+Keep these patterns synchronized with `tooling/policy/review_scope.py`. They classify changes that deserve scrutiny; **they are not required reviewer rules**.
 
 <!-- BEGIN REQUIRED_REVIEW_RULESET_PATTERNS -->
 ```gitignore
@@ -62,69 +32,20 @@ still need a human reviewer.
 ```
 <!-- END REQUIRED_REVIEW_RULESET_PATTERNS -->
 
-**Requires review:** `mobile/**`, workflows and agents, all tooling, all
-Python preview scripts such as `dev/make_preview.py` and
-`dev/patches/*.py`, onboarding `docs/development/**`, rules/score
-content such as `seed/db-rules.json`, `seed/tasks.json`,
-`dev/firebase/**`, `firebase.json`, `.firebaserc`,
-`firestore.indexes.json`, `functions/**` and ANY future path not
-explicitly excluded above.
+Files outside the exceptions, especially executable tooling and data policy, deserve additional care. Even prototype changes to scoring, privacy or access rules may be security-sensitive.
 
-**No review required by default:** changes affecting only
-`index.html`, `versions/**`, root `dev/*.html`,
-`dev/mock-claude.js`, the explicitly listed low-risk seed data and
-`README.md`. A PR mixing exception and protected files requires review.
-An agent must still escalate auth, privacy, security or scoring changes
-even inside `index.html`; path rules alone cannot inspect semantics.
+## Security controls to keep
+- Require `ci-gate` for protected `main`; avoid force pushes, direct pushes or agent bypass actors.
+- Preserve SHA-pinned Actions, dependency lockfiles, secret scanning/push protection where available.
+- Keep cloud Firebase MCP and PROD credentials off contributor machines.
+- Review and restrict GitHub App access; CODEOWNERS and prompts alone are not security controls.
+- Require maintainer approval for production deployment; AI reviewers never count as humans.
 
-The `.github/CODEOWNERS` file requests review on known protected paths.
-It cannot use `!` negations, so it is **not** a complete mirror of this
-fail-closed ruleset and it does not replace it.
+## Optional independent AI database review
+Example when Codex wrote the Flutter/Firebase change:
 
-## 3. Enable repository security
+```sh
+python3 tooling/review/review.py --author codex --reviewers claude --minimum 1
+```
 
-Repository Settings > Security > Code security and analysis:
-
-- Secret scanning and push protection, where supported
-- Dependabot alerts and security updates, where supported
-- Check app permissions and audit existing/personal user-scope MCP server
-  registrations on both developer machines; project MCP files cannot remove
-  user-installed servers
-
-Do not test with real tokens or credentials.
-
-## 4. Validate the actual GitHub enforcement (do not assume!)
-
-After enabling the ruleset and merging PR #3, use harmless test PRs:
-
-1. `prototype/ui-test` edits only `index.html`: `ci-gate` runs,
-   `prototype-checks` runs, Flutter jobs may skip, and no approval is
-   required.
-2. `feature/flutter-test` touches `mobile/`: one `app-reviewers`
-   approval must be required.
-3. `security/new-file-test` adds a new `firebase.json` or an unfamiliar
-   root config: **one approval must be required**. Repeat with
-   `dev/firebase/storage-lifecycle.json` and `dev/make_preview.py`.
-4. In a protected test PR, approve, then push a new commit; verify the
-   approval is dismissed and the merge is blocked until reapproval.
-5. Confirm direct/force pushes to `main` are rejected, and a failing
-   `ci-gate` blocks merging.
-6. Inspect the effective ruleset in GitHub after saving, including pattern
-   order and the team member permissions, to detect server-side drift.
-
-Do not deliberately weaken main or expose real secrets to test this.
-A separate temporary test PR is sufficient; close it unmerged.
-
-## 5. Daily development
-
-- HTML prototype: `prototype/<topic>` branch -> PR -> lightweight CI ->
-  human manually decides when to merge (formal approval optional).
-- Flutter: `feature/<topic>` branch -> tests -> PR -> other developer
-  approves -> required CI -> merge.
-- Security/tooling: `security/<topic>` or `chore/<topic>` branch ->
-  focused negative tests -> PR -> other developer approves -> CI -> merge.
-- Codex, Claude and Copilot follow the same flow. They must never
-  self-approve or self-merge, but app permission controls must also be
-  reviewed; instructions alone are not enforcement.
-
-PR #4 covers the full device/emulator/MCP onboarding not completed in PR #3.
+Review is advisory, never auto-run by CI, and does not require another person. If unavailable, report NOT VERIFIED and retain deterministic checks. See [AI review workflow](AI-REVIEW-WORKFLOW.md).

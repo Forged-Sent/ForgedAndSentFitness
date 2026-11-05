@@ -11,6 +11,9 @@ from review_scope import REVIEW_RULESET_PATTERNS
 LOCAL = {"dart", "playwright", "maestro"}
 REMOTE = {"github", "context7", "figma", "google-developer-knowledge"}
 APPROVED = LOCAL | REMOTE
+DEFAULT_SERVERS = {"dart", "playwright", "context7"}
+OPTIONAL_VSCODE = {"github", "figma", "maestro", "google-developer-knowledge"}
+OPTIONAL_CLI = {"github", "figma", "maestro"}
 REMOTE_URLS = {
     "github": "https://api.githubcopilot.com/mcp/readonly",
     "context7": "https://mcp.context7.com/mcp",
@@ -33,6 +36,8 @@ def evaluate(root: Path) -> list[str]:
 
     v = get_json(".vscode/mcp.json")
     c = get_json(".mcp.json")
+    v_optional = get_json(".vscode/mcp-optional.example.json")
+    c_optional = get_json(".mcp.optional.example.json")
     versions = get_json("tooling/versions.json")
     try:
         codex = tomllib.loads((root / ".codex/config.toml").read_text(encoding="utf-8"))
@@ -40,16 +45,23 @@ def evaluate(root: Path) -> list[str]:
         fail(".codex/config.toml", f"cannot parse TOML ({type(e).__name__})")
         codex = None
 
+    try:
+        codex_optional = tomllib.loads((root / ".codex/config.optional.example.toml").read_text(encoding="utf-8"))
+    except (OSError, ValueError) as e:
+        fail(".codex/config.optional.example.toml", f"cannot parse TOML ({type(e).__name__})")
+        codex_optional = None
     configs = (
-        (".vscode/mcp.json", v.get("servers") if isinstance(v, dict) else None),
-        (".mcp.json", c.get("mcpServers") if isinstance(c, dict) else None),
-        (".codex/config.toml", codex.get("mcp_servers") if isinstance(codex, dict) else None),
+        (".vscode/mcp.json", v.get("servers") if isinstance(v, dict) else None, DEFAULT_SERVERS),
+        (".mcp.json", c.get("mcpServers") if isinstance(c, dict) else None, DEFAULT_SERVERS),
+        (".codex/config.toml", codex.get("mcp_servers") if isinstance(codex, dict) else None, DEFAULT_SERVERS),
+        (".vscode/mcp-optional.example.json", v_optional.get("servers") if isinstance(v_optional, dict) else None, OPTIONAL_VSCODE),
+        (".mcp.optional.example.json", c_optional.get("mcpServers") if isinstance(c_optional, dict) else None, OPTIONAL_CLI),
+        (".codex/config.optional.example.toml", codex_optional.get("mcp_servers") if isinstance(codex_optional, dict) else None, OPTIONAL_CLI),
     )
-    for filename, servers in configs:
+    for filename, servers, expected in configs:
         if not isinstance(servers, dict):
             fail(filename, "MCP server map is missing")
             continue
-        expected = APPROVED if filename.endswith(".vscode/mcp.json") else (APPROVED - {"google-developer-knowledge"})
         if set(servers) != expected:
             fail(filename, f"MCP names differ from approved set: missing={sorted(expected-set(servers))}, extra={sorted(set(servers)-expected)}")
         for name, server in servers.items():
@@ -63,11 +75,11 @@ def evaluate(root: Path) -> list[str]:
                 # MCP names are not security boundaries; disallow extra executable
                 # fields even if a trusted name and launcher are still present.
                 expected_keys = {"command", "args"}
-                if filename == ".vscode/mcp.json":
+                if filename.startswith(".vscode/"):
                     expected_keys.add("type")
                     if server.get("type") != "stdio":
                         fail(filename, f"{name} local MCP must use stdio")
-                elif filename == ".codex/config.toml":
+                elif filename.startswith(".codex/"):
                     expected_keys.add("startup_timeout_sec")
                 if set(server) != expected_keys:
                     fail(filename, f"{name} local MCP has unapproved fields")
@@ -81,24 +93,26 @@ def evaluate(root: Path) -> list[str]:
                         or args[1] != name):
                     fail(filename, f"{name} must invoke tooling/mcp/launch.mjs using its exact allowlisted tool name")
             elif name in REMOTE:
-                expected_keys = {"url"} if filename == ".codex/config.toml" else {"type", "url"}
+                expected_keys = {"url"} if filename.startswith(".codex/") else {"type", "url"}
                 if name == "google-developer-knowledge":
                     expected_keys.add("headers")
                 if set(server) != expected_keys:
                     fail(filename, f"{name} remote MCP has unapproved fields")
-                if filename != ".codex/config.toml" and server.get("type") != "http":
+                if not filename.startswith(".codex/") and server.get("type") != "http":
                     fail(filename, f"{name} remote MCP must use HTTP")
                 if server.get("url") != REMOTE_URLS[name]:
                     fail(filename, f"{name} must use approved URL")
 
     expected_key = "$" + "{input:forgedGoogleKnowledgeApiKey}"
-    if isinstance(v, dict):
-        inp = v.get("inputs")
+    if isinstance(v, dict) and (v.get("inputs") or []):
+        fail(".vscode/mcp.json", "Default MCP must not prompt for cloud API keys")
+    if isinstance(v_optional, dict):
+        inp = v_optional.get("inputs")
         if not isinstance(inp, list) or len(inp) != 1 or not isinstance(inp[0], dict) or inp[0].get("id") != "forgedGoogleKnowledgeApiKey" or inp[0].get("password") is not True:
-            fail(".vscode/mcp.json", "Google Knowledge input must use the single masked password prompt")
-        google = (v.get("servers") or {}).get("google-developer-knowledge", {})
+            fail(".vscode/mcp-optional.example.json", "Google Knowledge input must use the single masked password prompt")
+        google = (v_optional.get("servers") or {}).get("google-developer-knowledge", {})
         if google.get("headers", {}).get("X-Goog-Api-Key") != expected_key:
-            fail(".vscode/mcp.json", "Google API key must be the runtime input placeholder, never a literal")
+            fail(".vscode/mcp-optional.example.json", "Google API key must be the runtime input placeholder, never a literal")
 
     for settings in (root / ".claude").glob("settings*.json"):
         obj = get_json(str(settings.relative_to(root)))
@@ -140,12 +154,12 @@ def evaluate(root: Path) -> list[str]:
         entries = [line.split() for line in owners.splitlines()
                    if line.strip() and not line.lstrip().startswith("#")]
         mapped = {entry[0]: entry[1:] for entry in entries if len(entry) > 1}
-        expected_owners = ["@Chadillac12", "@sfcsmithc-afk"]
+        expected_owners = ["@Chadillac12"]
         required_paths = (
             "/mobile/", "/tooling/", "/.github/", "/.codex/", "/.claude/",
-            "/.agents/", "/.vscode/", "/docs/architecture/", "/firebase/",
-            "/.mcp.json", "/.gitignore", "/.gitattributes", "/AGENTS.md",
-            "/CLAUDE.md", "/*.cmd", "/*.command", "*.rules",
+            "/.agents/", "/.gemini/", "/.vscode/", "/docs/architecture/", "/docs/knowledge/", "/firebase/",
+            "/.mcp.json", "/.mcp.optional.example.json", "/.gitignore", "/.gitattributes", "/AGENTS.md",
+            "/CLAUDE.md", "/GEMINI.md", "/*.cmd", "/*.command", "/launchers/", "*.rules",
             "/seed/db-rules.json", "/seed/weekly-challenges.json",
             "/seed/movement-standards.json", "/seed/tasks.json",
             "/dev/*.py", "/dev/patches/", "/dev/firebase/",
@@ -175,6 +189,47 @@ def evaluate(root: Path) -> list[str]:
                  "Required reviewers patterns must match the default-protected source of truth")
     except OSError:
         fail("docs/development/REPOSITORY-SECURITY.md", "required reviewer ruleset guide missing")
+
+    # Launchers must pass compile-time defines the app actually reads; a
+    # misspelled key silently drops the app into preview mode.
+    app_keys: set[str] = set()
+    for dart in (root / "mobile/lib").rglob("*.dart"):
+        try:
+            app_keys |= set(re.findall(r"fromEnvironment\(\s*'([A-Z][A-Z0-9_]*)'",
+                                       dart.read_text(encoding="utf-8")))
+        except OSError:
+            continue
+    launch_globs = ("tooling/**/*.ps1", "tooling/**/*.sh", "tooling/**/*.mjs",
+                    "*.cmd", "*.command", "launchers/**/*.cmd", "launchers/**/*.command",
+                    ".github/workflows/*.yml",
+                    "docs/**/*.md", "mobile/README.md")
+    for pattern in launch_globs:
+        for script in root.glob(pattern):
+            try:
+                text = script.read_text(encoding="utf-8")
+            except (OSError, UnicodeError):
+                continue
+            for key in re.findall(r"--dart-define=([A-Z][A-Z0-9_]*)=", text):
+                if key not in app_keys:
+                    fail(str(script.relative_to(root)),
+                         f"--dart-define={key} is never read by mobile/lib (known: {sorted(app_keys)})")
+
+    # Solo-maintainer policy: no instruction may mandate a second human or a
+    # second AI reviewer. Catch wording drift mechanically.
+    mandates = re.compile(r"plus another human|two independent provider reviews|"
+                          r"default two-reviewer|require[sd]? (?:the other person's|a second (?:human|person)'?s?) approv|"
+                          r"second human (?:review|approval) (?:is )?(?:required|mandatory)", re.I)
+    for pattern in ("*.md", ".github/**/*.md", ".claude/**/*.md", ".agents/**/*.md",
+                    "docs/**/*.md", "mobile/*.md"):
+        for doc in root.glob(pattern):
+            if "/versions/" in doc.as_posix():
+                continue
+            try:
+                hit = mandates.search(doc.read_text(encoding="utf-8"))
+            except (OSError, UnicodeError):
+                continue
+            if hit:
+                fail(str(doc.relative_to(root)), f"mandates an extra reviewer, contradicting solo-maintainer policy: '{hit.group(0)}'")
 
     if not (root / 'mobile/pubspec.lock').is_file():
         fail('mobile/pubspec.lock', 'reproducible app dependency lockfile must be committed')

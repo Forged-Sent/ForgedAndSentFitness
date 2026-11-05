@@ -1,16 +1,19 @@
 #requires -Version 7.6
 <#
-Run from SETUP-DEVELOPER-WINDOWS.cmd.
+Run through launchers\windows\1 - Set up this computer.cmd (Contributor profile).
 Installs developer dependencies and VS Code extensions; rerunnable.
 It never deploys Firebase, logs into paid services, or stores credentials.
 #>
-param([switch]$SkipBase,[switch]$SkipAgentCLIs,[switch]$Android)
+param([switch]$SkipBase,[switch]$SkipAgentCLIs,[switch]$Android,[switch]$SkipMaestro,
+  [ValidatePattern('^(None|(Codex|Claude|Copilot|Antigravity)(,(Codex|Claude|Copilot|Antigravity))*)$')][string]$AIChoice='None')
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 . (Join-Path $PSScriptRoot 'winget.ps1')
 $root = (Resolve-Path (Join-Path $PSScriptRoot '..\..')).Path
 $log = Join-Path $env:TEMP ('ForgedAndSent-developer-{0:yyyyMMdd-HHmmss}.log' -f (Get-Date))
 $issues = New-Object System.Collections.Generic.List[string]
+# Any combination of optional assistants, e.g. 'Claude,Antigravity'; 'None' means none.
+$assistants = @($AIChoice -split ',' | Where-Object { $_ -and $_ -ne 'None' })
 $logged = $false
 
 function Refresh-Path {
@@ -56,7 +59,7 @@ function Code {
     (Join-Path $env:LOCALAPPDATA 'Programs\Microsoft VS Code\bin\code.cmd'),
     (Join-Path $env:ProgramFiles 'Microsoft VS Code\bin\code.cmd')
   )
-  if (-not $candidate) { throw 'VS Code launcher missing. Rerun SETUP-WINDOWS.cmd.' }
+  if (-not $candidate) { throw 'VS Code launcher missing. Rerun launchers\windows\1 - Set up this computer.cmd.' }
   return $candidate
 }
 try {
@@ -83,6 +86,23 @@ try {
     if (-not $node) { throw 'Node.js not detected after install' }
     & $node --version; Check-Exit 'Node.js'
     $npm=Npm; & $npm --version; Check-Exit 'npm'
+  }
+
+  Attempt 'Python 3.11+ (Atlas and review tools)' {
+    function GoodPython([string]$exe,[string[]]$arguments=@()){
+      if(-not $exe){return $false}
+      $ver=(& $exe @arguments --version 2>&1|Out-String)
+      if($LASTEXITCODE -ne 0 -or $ver -notmatch 'Python (\d+)\.(\d+)'){return $false}
+      return ([int]$Matches[1] -gt 3 -or ([int]$Matches[1] -eq 3 -and [int]$Matches[2] -ge 11))
+    }
+    $py=Find-Tool 'py.exe'
+    $python=Find-Tool 'python.exe'
+    if(-not ((GoodPython $py @('-3')) -or (GoodPython $python))){
+      Package 'Python.Python.3.12'
+      Refresh-Path
+      $py=Find-Tool 'py.exe'; $python=Find-Tool 'python.exe'
+    }
+    if(-not ((GoodPython $py @('-3')) -or (GoodPython $python))){throw 'Python 3.11+ not detected after install. Restart and rerun Contributor setup.'}
   }
 
   Attempt 'GitHub CLI' {
@@ -112,7 +132,7 @@ try {
 
   Write-Host 'Playwright MCP uses the repository-pinned npx package on first start; no redundant global install.'
 
-  if($Android){
+  if($Android -and -not $SkipMaestro){
   Attempt 'Maestro Windows CLI and Java 17+' {
     & (Join-Path $PSHOME 'pwsh.exe') -NoProfile -ExecutionPolicy Bypass -File (Join-Path $PSScriptRoot 'install-maestro.ps1')
     Check-Exit 'Maestro installer'
@@ -126,14 +146,14 @@ try {
 
   Attempt 'Approved MCP server manifest' {
     $config = Join-Path $root '.vscode\mcp.json'
-    if(-not (Test-Path -LiteralPath $config)){throw 'Shared .vscode/mcp.json missing. Extract the full branch.'}
+    if(-not (Test-Path -LiteralPath $config)){throw 'Shared .vscode/mcp.json missing. Use a complete Git clone.'}
     $definition=Get-Content -LiteralPath $config -Raw | ConvertFrom-Json
-    foreach($name in @('dart','playwright','github','context7','figma','maestro','google-developer-knowledge')){
+    foreach($name in @('dart','playwright','context7')){
       if(-not ($definition.servers.PSObject.Properties.Name -contains $name)){throw "Missing approved MCP $name"}
     }
     if($definition.servers.PSObject.Properties.Name -contains 'sentry'){throw 'Sentry must not be enabled'}
     if($definition.servers.PSObject.Properties.Name -contains 'firebase'){throw 'Cloud Firebase MCP must not be enabled by default'}
-    Write-Host 'Seven safe-by-default MCPs configured in VS Code. No Firebase cloud MCP.'
+    Write-Host 'Project MCP servers are configured, not necessarily connected. Start Dart/Context7/Playwright first; mobile/account-based tools are optional.'
   }
 
   Attempt 'Visual Studio Code extensions' {
@@ -141,14 +161,15 @@ try {
     $extensions=@(
       'Dart-Code.dart-code',
       'Dart-Code.flutter',
-      'GitHub.copilot-chat',
       'GitHub.vscode-pull-request-github',
-      'OpenAI.chatgpt',
-      'Anthropic.claude-code',
       'redhat.vscode-yaml',
       'EditorConfig.EditorConfig',
       'ms-vscode.powershell'
     )
+    # Antigravity is a terminal CLI (agy); it has no VS Code extension to add here.
+    if('Codex' -in $assistants){$extensions+='OpenAI.chatgpt'}
+    if('Claude' -in $assistants){$extensions+='Anthropic.claude-code'}
+    if('Copilot' -in $assistants){$extensions+='GitHub.copilot-chat'}
     $installed=@(& $code --list-extensions)
     foreach ($id in $extensions) {
       try {
@@ -163,7 +184,7 @@ try {
     }
   }
 
-  if (-not $SkipAgentCLIs) {
+  if (-not $SkipAgentCLIs -and 'Codex' -in $assistants) {
     Attempt 'Codex CLI' {
       $npm=Npm
       $codex=Find-Tool 'codex.cmd' @((Join-Path $env:APPDATA 'npm\codex.cmd'))
@@ -177,6 +198,8 @@ try {
       & $codex --version; Check-Exit 'Codex CLI'
 
     }
+  }
+  if (-not $SkipAgentCLIs -and 'Claude' -in $assistants) {
     Attempt 'Claude Code CLI' {
       $claude=Find-Tool 'claude.exe' @((Join-Path $env:USERPROFILE '.local\bin\claude.exe'))
       if (-not $claude) { Package 'Anthropic.ClaudeCode' }
@@ -188,24 +211,39 @@ try {
     }
   }
 
-  if(-not $SkipAgentCLIs){
-    Attempt 'Register safe no-cloud MCPs with Claude and Codex' {
+  if (-not $SkipAgentCLIs -and 'Antigravity' -in $assistants) {
+    Attempt 'Antigravity CLI (Google Gemini)' {
+      $agyLink=Join-Path $env:LOCALAPPDATA 'Microsoft\WinGet\Links\agy.exe'
+      $agy=Find-Tool 'agy.exe' @($agyLink)
+      # Google's signed portable build, hash-checked by WinGet (package Google.AntigravityCLI).
+      if (-not $agy) { Package 'Google.AntigravityCLI' }
+      Refresh-Path
+      $agy=Find-Tool 'agy.exe' @($agyLink)
+      if (-not $agy) { throw 'Antigravity CLI (agy) not detected after install; open a new terminal and run agy --version' }
+      & $agy --version; Check-Exit 'Antigravity CLI'
+      Write-Host 'Antigravity reads AGENTS.md and the shared .agents/skills. Sign in later by running agy in this folder.'
+    }
+  }
+
+  if(-not $SkipAgentCLIs -and (@($assistants | Where-Object {$_ -in @('Codex','Claude')}).Count -gt 0)){
+    Attempt 'Display safe project-only MCP setup for chosen AI CLI' {
       & (Join-Path $PSHOME 'pwsh.exe') -NoProfile -ExecutionPolicy Bypass -File (Join-Path $PSScriptRoot 'register-cli-mcps.ps1')
       Check-Exit 'Claude/Codex MCP registration'
     }
   }
 
+  Write-Host ("AI assistants: "+$(if($assistants.Count){$assistants -join ', '}else{'none'})+". Any combination works; no AI is required for Flutter tests.")
   Attempt 'Developer diagnostics' {
     & (Join-Path $PSHOME 'pwsh.exe') -NoProfile -ExecutionPolicy Bypass -File (Join-Path $PSScriptRoot 'verify-developer.ps1') -TargetProfile Contributor
     Check-Exit 'Developer diagnostics'
-  }
+  } -Optional
 
   Write-Host ''
   if ($issues.Count) {
     Write-Host "$($issues.Count) part(s) require attention. Restart and rerun safely:" -ForegroundColor Yellow
     $issues | ForEach-Object { Write-Host (' - ' + $_) }
   } else {
-    Write-Host 'Installation checks complete. Full Contributor readiness requires emulator wiring from PR #4.' -ForegroundColor Green
+    Write-Host 'Installed tools are ready for local tests. Start demo Firebase emulators and verify a Flutter handshake; no cloud account is needed.' -ForegroundColor Green
   }
   Write-Host 'See docs/development/DEVELOPER-WINDOWS.md for MCP trust and account sign-in.'
 } finally {
