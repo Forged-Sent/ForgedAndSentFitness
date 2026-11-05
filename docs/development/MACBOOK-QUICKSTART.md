@@ -15,7 +15,7 @@ git status
 
 Already have a clone? Reuse it: check `git status`, then `git switch main`, `git fetch origin`, `git pull --ff-only`. Never force-reset unsaved work.
 
-**While PR #4 remains a Draft**, a tester can choose its code explicitly: `git fetch origin pull/4/head:pr4-workstation-test`, then `git switch pr4-workstation-test`. To pick up later PR updates while on that branch, run `git pull --ff-only origin pull/4/head`. The regular instructions intentionally target `main` so they work **after** PR #4 merges.
+**Testing an open pull request before it merges** (advanced): `git fetch origin pull/<number>/head:pr<number>-test`, then `git switch pr<number>-test`; return with `git switch main`. Everyone else stays on `main`.
 
 ## Set up and run (double-click only)
 

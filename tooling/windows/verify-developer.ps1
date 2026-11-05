@@ -87,7 +87,7 @@ if((Test-Path -LiteralPath $demo) -and (Test-Path -LiteralPath $configFile)){
     if($id -eq 'demo-forgedandsent'){$checks.Add((New-FSCheck DemoConfig Ready 'Local demo Firebase config found.' ''))}
     else{$checks.Add((New-FSCheck DemoConfig Failed 'Firebase project is not demo-forgedandsent.' 'Restore the checked-in demo .firebaserc.'))}
   }catch{$checks.Add((New-FSCheck DemoConfig Failed 'Local demo configuration could not be parsed.' 'Restore firebase.json and .firebaserc.'))}
-}else{$checks.Add((New-FSCheck DemoConfig Missing 'Firebase emulator files are missing.' 'Checkout PR #4 complete files.'))}
+}else{$checks.Add((New-FSCheck DemoConfig Missing 'Firebase emulator files are missing.' 'Use a complete Git clone of main; restore .firebaserc and firebase.json if edited.'))}
 Say 'Java 21 for practice Firebase'
 $jdk=Find-FSJava21
 if($jdk -and $jdk.Major -ge 21){$checks.Add((New-FSCheck Java21 Ready 'JDK 21+ found for practice Firebase (your JAVA_HOME is not changed).' '' "$($jdk.Major)"))}
@@ -182,7 +182,7 @@ $lines=New-Object System.Collections.Generic.List[string]
 $lines.Add("Forged & Sent environment check | Profile: $TargetProfile | Result: $(if($exit){'NEEDS REPAIR'}else{'INSTALL CHECKS PASSED'})")
 $lines.Add('INSTALL CHECKS PASSED covers installed tools; real emulator app calls, GitHub auth, devices and MCP handshakes must be tested separately.')
 $lines.Add('No usernames, filesystem paths, tokens or Firebase project IDs are included in the report body.')
-if($results | Where-Object { $_.Status -eq 'NotApplicable' -and (Get-FSNeed $TargetProfile $_.Id) -eq 'Required' }){$lines.Add('DEFERRED: This profile has unimplemented PR #4 capabilities; installation success is NOT full readiness.')}
+if($results | Where-Object { $_.Status -eq 'NotApplicable' -and (Get-FSNeed $TargetProfile $_.Id) -eq 'Required' }){$lines.Add('DEFERRED: This profile has capabilities that are not implemented yet; installation success is NOT full readiness.')}
 $lines.Add('')
 $notInProfile=New-Object System.Collections.Generic.List[string]
 $mcpUntested=New-Object System.Collections.Generic.List[string]

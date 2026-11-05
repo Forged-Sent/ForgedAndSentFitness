@@ -17,7 +17,7 @@ Official installation instructions: https://learn.microsoft.com/en-us/powershell
 - Optional Android phone development: run `launchers/windows/more/Android setup.cmd`. Complete Android Studio setup, licenses and device pairing yourself.
 - Local iOS builds require a Mac and Xcode.
 
-Use your existing **Git clone**. For normal setup after PR #4 merges, run `git status`, `git switch main`, `git fetch origin`, and `git pull --ff-only`. When testing the still-open Draft PR #4 before merge, see the PR checkout instructions in [Windows quickstart](WINDOWS-QUICKSTART.md). Only if you have no clone: `git clone https://github.com/Forged-Sent/ForgedAndSentFitness.git`. Do not overwrite or force-reset local work. Only run scripts from this repository when you trust them. Corporate security restrictions should not be bypassed.
+Use your existing **Git clone**. For normal setup, run `git status`, `git switch main`, `git fetch origin`, and `git pull --ff-only`. Only if you have no clone: `git clone https://github.com/Forged-Sent/ForgedAndSentFitness.git`. Do not overwrite or force-reset local work. Only run scripts from this repository when you trust them. Corporate security restrictions should not be bypassed.
 
 ## What full setup adds
 
@@ -40,7 +40,7 @@ It generates a **secret-free AI troubleshooting prompt** in the Windows temporar
 The project VS Code MCP file configures three default servers (no Firebase cloud MCP):
 
 1. Dart MCP: analyzer, tests and Flutter app context via dart mcp-server. Runs from the Flutter SDK.
-2. No Firebase cloud MCP is installed by default. The Firebase CLI runs PR #4's local Auth, Firestore and Storage emulators using the fake `demo-forgedandsent` project; no account or login is required.
+2. No Firebase cloud MCP is installed by default. The Firebase CLI runs the local Auth, Firestore and Storage emulators using the fake `demo-forgedandsent` project; no account or login is required.
 3. Playwright MCP: browser automation against Chrome for Flutter web UI.
 4. GitHub hosted MCP, Figma, Maestro and Google Developer Knowledge are **optional**, documented in [MCP security](MCP-SECURITY.md); they are not loaded at first run.
 
@@ -52,9 +52,9 @@ The shared .vscode/mcp.json is for VS Code and Copilot. Claude uses .mcp.json, C
 
 1. Open the repository folder in VS Code.
 2. Sign into GitHub so you can publish a branch and open a draft PR.
-3. Sign into **only the AI assistant you selected**, if you want AI-assisted work. Other assistants are optional.
+3. Sign in only to the AI assistants you selected, if you want AI-assisted work. All of them are optional.
 4. Use VS Code Command Palette > MCP: List Servers to verify Dart, Context7 and Playwright. Configured alone does not mean connected.
-5. Do not run `firebase login` as a Contributor. PR #4 includes the demo local emulators; cloud DEV access is separately provisioned later.
+5. Do not run `firebase login` as a Contributor. The local demo emulators need no login; cloud DEV access is separately provisioned later.
 6. Run `launchers/windows/2 - Run the app.cmd` for plain Flutter Preview. To test live demo Firebase, start `launchers/windows/3 - Start practice Firebase.cmd`, then `launchers/windows/4 - Run app with practice Firebase.cmd` in a second window. Leave both consoles open.
 
 Follow the cross-platform [first-contribution guide](FIRST-CONTRIBUTION.md) to create a branch, edit one line, run tests and open a Draft PR. A free public GitHub Actions runner does not make Claude/Codex/Copilot usage free. No agent is authorized to deploy, commit secrets, or change accepted architecture just because its extension is installed.

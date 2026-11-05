@@ -123,7 +123,7 @@ if [ -f "$FS_ROOT/.firebaserc" ] && [ -f "$FS_ROOT/firebase.json" ] &&
    grep -Eq '"default"[[:space:]]*:[[:space:]]*"demo-forgedandsent"' "$FS_ROOT/.firebaserc"; then
   fs_record DemoConfig Ready '' ''
 else
-  fs_record DemoConfig Missing 'Demo Firebase config is missing or not the demo project.' 'Use the complete current PR #4 Git branch.'
+  fs_record DemoConfig Missing 'Demo Firebase config is missing or not the demo project.' 'Use a complete Git clone of main; restore .firebaserc and firebase.json if edited.'
 fi
 fs_all_emulators=1
 for fs_port in 9099 8080 9199; do
