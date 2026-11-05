@@ -39,6 +39,69 @@ function Get-FSRememberedProfile([string]$Root,[ValidateSet('Preview','Contribut
   }
   return $Fallback
 }
+# Every program the setup check starts gets a closed input and a time limit. Output is
+# captured (so it is invisible), so a first-run question such as the Python install
+# manager's welcome prompt would otherwise wait forever for an answer nobody can see.
+function Invoke-FSProbe([string]$file,[string[]]$arguments=@(),[int]$timeoutMs=15000){
+  try{
+    $psi=New-Object System.Diagnostics.ProcessStartInfo
+    $psi.FileName=$file
+    $psi.Arguments=(@($arguments | ForEach-Object { if($_ -match '[\s"]'){'"'+($_ -replace '"','\"')+'"'}else{$_} }) -join ' ')
+    $psi.UseShellExecute=$false
+    $psi.CreateNoWindow=$true
+    $psi.RedirectStandardInput=$true
+    $psi.RedirectStandardOutput=$true
+    $psi.RedirectStandardError=$true
+    $proc=[System.Diagnostics.Process]::Start($psi)
+    # Close input at once: a hidden prompt reads end-of-input and takes its default.
+    try{$proc.StandardInput.Close()}catch{}
+    $stdout=$proc.StandardOutput.ReadToEndAsync()
+    $stderr=$proc.StandardError.ReadToEndAsync()
+    if(-not $proc.WaitForExit($timeoutMs)){
+      try{$proc.Kill()}catch{}
+      return [pscustomobject]@{TimedOut=$true;ExitCode=-1;Text=''}
+    }
+    $proc.WaitForExit()
+    return [pscustomobject]@{TimedOut=$false;ExitCode=[int]$proc.ExitCode;Text=($stdout.Result+"`n"+$stderr.Result)}
+  }catch{return [pscustomobject]@{TimedOut=$false;ExitCode=-1;Text=''}}
+}
+# One JDK 21 search shared by "Check my setup" (verify-developer.ps1) and the
+# installer/emulator launcher (ensure-java21.ps1), so they can never disagree.
+# Order: JAVA_HOME, java on PATH, Eclipse Adoptium jdk-21*. JAVA_HOME and PATH are
+# only read, never changed; an older JAVA_HOME can stay for other projects.
+function Get-FSJavaMajor([string]$javaExe){
+  if(-not $javaExe -or -not (Test-Path -LiteralPath $javaExe)){return 0}
+  $text=(Invoke-FSProbe $javaExe @('-version')).Text
+  if($text -match '(?:version|openjdk)\s+"?(\d+)(?:\.(\d+))?'){
+    $major=[int]$Matches[1]
+    if($major -eq 1 -and $Matches[2]){$major=[int]$Matches[2]}
+    return $major
+  }
+  return 0
+}
+function Find-FSJava21 {
+  $candidates=New-Object System.Collections.Generic.List[string]
+  if($env:JAVA_HOME){$candidates.Add((Join-Path $env:JAVA_HOME 'bin\java.exe'))}
+  $onPath=Get-Command java.exe -ErrorAction SilentlyContinue|Select-Object -First 1
+  if($onPath){$candidates.Add($onPath.Source)}
+  if($env:ProgramFiles){
+    $adoptium=Join-Path $env:ProgramFiles 'Eclipse Adoptium'
+    if(Test-Path -LiteralPath $adoptium){
+      foreach($dir in @(Get-ChildItem -LiteralPath $adoptium -Directory -Filter 'jdk-21*' -ErrorAction SilentlyContinue|Sort-Object Name -Descending)){
+        $candidates.Add((Join-Path $dir.FullName 'bin\java.exe'))
+      }
+    }
+  }
+  $best=$null
+  foreach($exe in $candidates){
+    $major=Get-FSJavaMajor $exe
+    if($major -le 0){continue}
+    $found=[pscustomobject]@{Home=(Split-Path (Split-Path $exe -Parent) -Parent);Major=$major;Exe=$exe}
+    if($major -ge 21){return $found}
+    if(-not $best -or $major -gt $best.Major){$best=$found}
+  }
+  return $best
+}
 function Get-FSExitCode {
   param([ValidateSet('Preview','Contributor','Mobile','Maintainer')][string]$TargetProfile,[object[]]$Checks)
   foreach($c in $Checks) {
