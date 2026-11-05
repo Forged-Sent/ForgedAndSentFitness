@@ -5661,7 +5661,7 @@ header.hero .me-btn { border-color:#e87328; }
   }
   function supRestText(rx) { var m = /rest\s+([^.,]*?\d[^.,]*?(?:sec|min))/i.exec(String(rx || "")); return m ? m[1].replace(/\s+/g, " ") : "about a minute"; }
   function supShortRx(rx) { return String(rx || "").replace(/^\s*Superset\s+[A-Z]\d+:\s*/i, "").split(/\.\s/)[0].replace(/\.$/, ""); }
-  function supGroup(body, L, items) {
+  function supGroup(body, L, items, off) {
     // items: [{ ex, e, idx, name, ps }] for A1 and A2, already rendered as .wx cards in body
     var A = items[0], Bx = items[1], card = el("div", "wx sup-card"); body.insertBefore(card, A.ex);
     var rows = [], rirs = [];
@@ -5695,9 +5695,9 @@ header.hero .me-btn { border-color:#e87328; }
     var nW = Math.max(rows[0].w.length, rows[1].w.length);
     for (var k = 0; k < nW; k++) round("Warm-up " + (k + 1), [rows[0].w[k], rows[1].w[k]], k, false, true);
     for (var j = 0; j < nSets; j++) round("Set " + (j + 1), [rows[0].s[j], rows[1].s[j]], j, j === nSets - 1, false);
-    var ab = el("div", "addset"), bw = el("button", "mini", "+ Warm-up set"), bx = el("button", "mini", "+ Add set"); bw.type = bx.type = "button";
-    bw.addEventListener("click", function () { items.forEach(function (it) { var a = setsOf(it.idx, it.ps), at = a.filter(function (x) { return x.k === "w"; }).length; a.splice(at, 0, { w: "", r: "", d: false, k: "w" }); }); saveWkNow(); redrawKeepScroll(); });
-    bx.addEventListener("click", function () { items.forEach(function (it) { setsOf(it.idx, it.ps).push({ w: "", r: "", d: false, k: "x" }); }); saveWkNow(); redrawKeepScroll(); });
+    var ab = el("div", "addset"), bw = el("button", "mini", "+ Warm-up set"), bx = el("button", "mini", "+ Add set"); bw.type = bx.type = "button"; bw.disabled = bx.disabled = off;
+    bw.addEventListener("click", function () { if (off) return; items.forEach(function (it) { var a = setsOf(it.idx, it.ps), at = a.filter(function (x) { return x.k === "w"; }).length; a.splice(at, 0, { w: "", r: "", d: false, k: "w" }); }); saveWkNow(); redrawKeepScroll(); });
+    bx.addEventListener("click", function () { if (off) return; items.forEach(function (it) { setsOf(it.idx, it.ps).push({ w: "", r: "", d: false, k: "x" }); }); saveWkNow(); redrawKeepScroll(); });
     ab.appendChild(bw); ab.appendChild(bx); card.appendChild(ab);
     var tA = A.ps && A.ps.target, tB = Bx.ps && Bx.ps.target;
     card.appendChild(el("span", "wc", tA && tA === tB ? "Target: " + tA + " reps per lift, every set. + Add set adds a set for both lifts." : "Target: " + L + "1 " + (tA || "") + " reps, " + L + "2 " + (tB || "") + " reps, every set."));
@@ -5863,7 +5863,7 @@ header.hero .me-btn { border-color:#e87328; }
       }
       body.appendChild(ex); supEls[idx] = { ex: ex, e: e, idx: idx, name: shownName, ps: ps };
     });
-    if (live) exList.forEach(function (e, idx) { var L = supPairAt(exList, idx); if (L && supEls[idx] && supEls[idx + 1] && supEls[idx].ex.querySelector(".setrow") && supEls[idx + 1].ex.querySelector(".setrow")) supGroup(body, L, [supEls[idx], supEls[idx + 1]]); });
+    if (live) exList.forEach(function (e, idx) { var L = supPairAt(exList, idx); if (L && supEls[idx] && supEls[idx + 1] && supEls[idx].ex.querySelector(".setrow") && supEls[idx + 1].ex.querySelector(".setrow")) supGroup(body, L, [supEls[idx], supEls[idx + 1]], off); });
     coachSection(body, "Cool-down", th.finisher, false);
     if (editing) { var lk2 = el("button", "btn lk-btn", "Lock workout"); lk2.type = "button"; lk2.disabled = off; lk2.addEventListener("click", function () { lockWorkout(key); }); body.appendChild(lk2); }
     else if (isToday && live && !done) {
