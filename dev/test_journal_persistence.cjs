@@ -36,7 +36,31 @@ const flush=async()=>{for(let i=0;i<8;i++)await Promise.resolve()};
  const editorCtx={sv:{addEventListener(event,fn){saveClick=fn}},F:editorDraft,ta:{value:'retained editor words'},msg:{},ed:null,todayKey:()=> '2026-11-05',jrDraftId:ctx.jrDraftId,jrAction(){},openJournal(){}};
  vm.createContext(editorCtx);vm.runInContext(editor.slice(saveStart,saveEnd),editorCtx);saveClick();
  assert.equal(editorDraft.t,'retained editor words');assert.equal(editorDraft.resumeDraft,true);
- assert.match(editor,/if \(opts\.fresh && F\.resumeDraft && F\.t && !F\.saved\) opts\.fresh = false/);
+ // Execute openJournal itself up to rendering: a sentinel prevents a fake
+ // layout engine from hiding whether navigation erased the draft first.
+ let removed=0, confirmations=0, acceptDiscard=false;
+ const rendered=new Error('render begins');
+ const nav={state:{me:'owner-a',journal:[{id:'other',t:'other entry',tags:[]}]},$(){return {remove(){removed++}}},confirm(){confirmations++;return acceptDiscard},el(){throw rendered}};
+ vm.createContext(nav);vm.runInContext(editor,nav);
+ const retained=()=>({ownerUid:'owner-a',resumeDraft:true,t:'keep these words',tags:['prayer'],jrId:'stable-id',jrAt:123,edit:'',saved:''});
+ function render(opts){assert.throws(()=>nav.openJournal(opts),e=>e===rendered)}
+ nav.openJournal.F=retained();nav.openJournal({edit:'other'});
+ assert.equal(removed,0);assert.equal(confirmations,1);assert.equal(nav.openJournal.F.t,'keep these words');assert.equal(nav.openJournal.F.jrId,'stable-id');
+ acceptDiscard=true;render({edit:'other'});assert.equal(removed,1);assert.equal(nav.openJournal.F.t,'other entry');assert.equal(nav.openJournal.F.resumeDraft,false);
+ nav.openJournal.F=retained();acceptDiscard=false;const before=confirmations;render({fresh:true});
+ assert.equal(confirmations,before);assert.equal(nav.openJournal.F.t,'keep these words');assert.equal(nav.openJournal.F.jrId,'stable-id');
+ // Same-entry answered refresh must preserve draft text without a discard prompt.
+ render({edit:'stable-id',keep:true});assert.equal(confirmations,before);assert.equal(nav.openJournal.F.t,'keep these words');
+ const context={fresh:true,p:'workout prompt',src:'workout',tags:['workout']};const snapshot=JSON.stringify(context), beforeContext=removed;
+ nav.openJournal(context);assert.equal(removed,beforeContext);assert.equal(nav.openJournal.F.t,'keep these words');assert.equal(JSON.stringify(context),snapshot);
+ nav.openJournal({fresh:true,discardDraft:true});assert.equal(nav.openJournal.F.t,'keep these words');
+ acceptDiscard=true;render({fresh:true,discardDraft:true});assert.equal(nav.openJournal.F.t,'');assert.equal(nav.openJournal.F.jrId,'');
+ // A different user must never see or reuse the previous user's retained draft.
+ nav.openJournal.F=retained();nav.state.me='owner-b';render({edit:'other',keep:true});
+ assert.equal(nav.openJournal.F.ownerUid,'owner-b');assert.equal(nav.openJournal.F.t,'');assert.equal(nav.openJournal.F.edit,'');assert.equal(nav.openJournal.F.jrId,'');
+ const devo={value:'private words',dataset:{jrOwner:'owner-a',jrId:'private-id',jrAt:'123'}};
+ ctx.state.me='owner-b';ctx.jrDevoOwner(devo);assert.equal(devo.value,'');assert.equal(devo.dataset.jrId,undefined);assert.equal(devo.dataset.jrOwner,'owner-b');
+ devo.value='current words';ctx.jrDevoOwner(devo);assert.equal(devo.value,'current words');ctx.state.me='test-user';
  assert.doesNotMatch(html.slice(0,openStart),/F\.resumeDraft = true/, 'journal draft changes must not alter legacy save handler');
  // A never-settling request releases the UI after a bounded wait, without
  // treating an unconfirmed remote operation as cancelled or successful.

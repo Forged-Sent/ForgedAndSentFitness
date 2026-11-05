@@ -10335,6 +10335,10 @@ header.hero .me-btn { border-color:#e87328; }
     pending.promise.then(settled, settled);
     return pending.promise;
   }
+  function jrDevoOwner(ta) {
+    var uid = state.me || "";
+    if (ta && ta.dataset.jrOwner !== uid) { ta.value = ""; delete ta.dataset.jrId; delete ta.dataset.jrAt; ta.dataset.jrOwner = uid; }
+  }
   async function jrSave(x, attempt) {
     var uid = state.me;
     await jrWrite(uid, x.id, x, false);
@@ -10382,9 +10386,18 @@ header.hero .me-btn { border-color:#e87328; }
     var ta = el("textarea", "field"); ta.value = txt; ta.rows = 5; ta.readOnly = true; ta.setAttribute("aria-label", "Entry to copy"); msg.textContent = "Copy this and send it to your Paul:"; msg.after(ta); ta.select();
   }
   function openJournal(opts) {
-    opts = opts || {}; var old = $("cdlg"); if (old) old.remove();
-    var F = openJournal.F || (openJournal.F = {});
-    if (opts.fresh && F.resumeDraft && F.t && !F.saved) opts.fresh = false;
+    opts = Object.assign({}, opts || {});
+    var F = openJournal.F, changedOwner = F && F.ownerUid !== state.me;
+    if (!F || changedOwner) { F = openJournal.F = { ownerUid: state.me }; if (changedOwner) opts = { fresh: true }; }
+    var retained = F.resumeDraft && F.t && !F.saved;
+    var contextual = opts.p !== undefined || opts.src !== undefined || opts.tags !== undefined || opts.discardDraft;
+    var sameEntry = opts.edit !== undefined && opts.edit === (F.edit || F.jrId);
+    if (retained && (sameEntry || (opts.fresh && !contextual))) { delete opts.edit; opts.fresh = false; }
+    else if (retained && (opts.edit !== undefined || opts.fresh)) {
+      if (!confirm("Discard this local journal draft and open a different entry? Its earlier unconfirmed save may still finish.")) return;
+      opts.keep = false;
+    }
+    var old = $("cdlg"); if (old) old.remove();
     if (opts.edit !== undefined || opts.fresh) { F.edit = opts.edit || ""; F.saved = ""; F.jrId = ""; F.jrAt = 0; F.resumeDraft = false; var e0 = F.edit ? (state.journal || []).filter(function (y) { return y.id === F.edit; })[0] : null; F.t = e0 ? e0.t : ""; F.tags = e0 ? (e0.tags || []).slice() : []; }
     if (!F.tags) F.tags = []; if (F.t == null) F.t = "";
     var ed = F.edit ? (state.journal || []).filter(function (y) { return y.id === F.edit; })[0] : null;
@@ -10393,7 +10406,7 @@ header.hero .me-btn { border-color:#e87328; }
     var now = ed ? new Date(ed.at || Date.now()) : new Date();
     box.appendChild(el("p", "jr-when", now.toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric" }) + " · " + now.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })));
     var sv0 = F.saved ? (state.journal || []).filter(function (y) { return y.id === F.saved; })[0] : null;
-    var h = el("h2", null, sv0 ? "Saved to your journal." : ed ? "Edit your entry" : "Journal"); h.id = "jr-t"; box.appendChild(h);
+    var h = el("h2", null, sv0 ? "Saved to your journal." : F.resumeDraft ? "Resume your unconfirmed entry" : ed ? "Edit your entry" : "Journal"); h.id = "jr-t"; box.appendChild(h);
     function close() { if (!back.dataset.jrBusy) back.remove(); }
     if (sv0) {
       var card = el("div", "lg-saved"), ck = el("span", "lg-ck"); ck.innerHTML = CHECK_SVG; card.appendChild(ck);
@@ -10409,6 +10422,11 @@ header.hero .me-btn { border-color:#e87328; }
       r.appendChild(more); r.appendChild(all); r.appendChild(dn); box.appendChild(r);
     } else {
       var pv = el("p", "jr-priv"); pv.textContent = "🔒︎ Private. Only you can read your journal. It is never scored."; box.appendChild(pv);
+      if (F.resumeDraft) {
+        box.appendChild(el("p", "note", "This is the same entry you tried to save. Saving updates that entry, even if the earlier request finishes."));
+        var discard = el("button", "linkish", "Discard draft and start a different entry"); discard.type = "button";
+        discard.addEventListener("click", function () { openJournal({ fresh: true, discardDraft: true }); }); box.appendChild(discard);
+      }
       if (ed && ed.p) box.appendChild(el("blockquote", "mem-v lg-p", ed.p));
       var chips = el("div", "lg-chips"); chips.setAttribute("role", "group"); chips.setAttribute("aria-label", "Tags");
       JR_TAGS.forEach(function (tg) { var on = F.tags.indexOf(tg[0]) >= 0, c = el("button", "mini" + (on ? " on" : ""), tg[1]); c.type = "button"; c.setAttribute("aria-pressed", on ? "true" : "false");
@@ -10444,6 +10462,7 @@ header.hero .me-btn { border-color:#e87328; }
     h.tabIndex = -1; try { h.focus({ preventScroll: true }); } catch (e) {} box.scrollTop = 0;
   }
   function drawJournalDevo(t) {
+    jrDevoOwner($("jr-devo-ta"));
     var q = $("jr-devo-q"); if (!q) return; q.textContent = t.e.reflect || "";
     var k = todayKey(), done = journalSorted().filter(function (x) { return x.d === k && x.src === "devo"; })[0], m = $("jr-devo-msg");
     if (done && !$("jr-devo-ta").value) m.textContent = "✓ Saved to your journal today. Write more any time.";
@@ -10459,8 +10478,9 @@ header.hero .me-btn { border-color:#e87328; }
     });
     $("jr-back").addEventListener("click", function () { go("today"); });
     $("jr-new").innerHTML = PEN_SVG; $("jr-new").addEventListener("click", function () { openJournal({ fresh: true }); });
+    jrDevoOwner($("jr-devo-ta"));
     $("jr-devo-save").addEventListener("click", function () {
-      var ta = $("jr-devo-ta"), v = ta.value.trim(), m = $("jr-devo-msg"); if (!v) { m.textContent = "Write something first."; ta.focus(); return; }
+      var ta = $("jr-devo-ta"); jrDevoOwner(ta); var v = ta.value.trim(), m = $("jr-devo-msg"); if (!v) { m.textContent = "Write something first."; ta.focus(); return; }
       var t = devoToday(), x = { id: jrDraftId(ta.dataset), d: todayKey(), at: Number(ta.dataset.jrAt), t: v, tags: [], src: "devo", p: t && t.e ? t.e.reflect : "" };
       jrAction($("jr-devo-save"), m, async function (attempt) {
         await jrSave(x, attempt); ta.value = ""; delete ta.dataset.jrId; delete ta.dataset.jrAt;
