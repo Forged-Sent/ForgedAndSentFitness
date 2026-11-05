@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """Fail-safe CI classification. Unknown paths trigger all CI jobs.
 
-Review enforcement is separate: every unlisted file requires approval under
-GitHub Required reviewers, even if its tests are inexpensive.
+CI is mandatory while independent AI/human review is optional. Unknown files
+trigger the full matrix without requiring a second person's approval.
 """
 from __future__ import annotations
 
@@ -31,8 +31,8 @@ def classify(paths: list[str]) -> dict[str, bool]:
                 enable("prototype")
         elif path in ("dev/make_preview.py",) or (
                 path.startswith("dev/patches/") and path.endswith(".py")):
-            # Executable preview code: human review required, but the
-            # prototype job runs it and Python syntax checks, not Flutter.
+            # Executable preview code deserves scrutiny, while the
+            # prototype job runs syntax checks without expensive Flutter.
             enable("prototype")
         elif path.startswith("seed/") and path.endswith(".json"):
             # Protected scoring/authorization seed files still get JSON
@@ -45,9 +45,11 @@ def classify(paths: list[str]) -> dict[str, bool]:
         elif path.startswith((".github/workflows/", ".github/actions/",
                              "tooling/ci/", "tooling/policy/")):
             enable(*result)
-        elif path.startswith("tooling/windows/") or ("/" not in path and path.endswith(".cmd")):
+        elif (path.startswith(("tooling/windows/", "launchers/windows/"))
+              or ("/" not in path and path.endswith(".cmd"))):
             enable("windows")
-        elif path.startswith("tooling/macos/") or ("/" not in path and path.endswith(".command")):
+        elif (path.startswith(("tooling/macos/", "launchers/mac/"))
+              or ("/" not in path and path.endswith(".command"))):
             enable("mac")
         elif path.startswith("tooling/mcp/"):
             enable("windows", "mac")

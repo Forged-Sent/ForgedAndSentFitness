@@ -6,7 +6,8 @@
   Installs Git, Visual Studio Code, Chrome and the stable Flutter SDK using official
   GitHub/WinGet sources. Optional -Android adds Android Studio but cannot finish the
   interactive SDK/license/device setup. No Firebase credentials or cloud changes.
-  Launch through SETUP-WINDOWS.cmd or SETUP-ANDROID.cmd.
+  Launch through launchers\windows\1 - Set up this computer.cmd, launchers\windows\more\Preview-only setup.cmd
+  or launchers\windows\more\Android setup.cmd.
 #>
 param(
     [switch]$Android
@@ -46,9 +47,18 @@ function Locate-Program([string]$command, [string[]]$candidates) {
     return $null
 }
 
+# Returns the framework version a flutter.bat reports, or '' if it cannot run.
+function Get-FlutterFrameworkVersion([string]$flutterBat) {
+    try {
+        $json = (& $flutterBat --version --machine 2>$null | Out-String)
+        if ($LASTEXITCODE -ne 0 -or -not $json.Trim()) { return '' }
+        return [string](($json | ConvertFrom-Json).frameworkVersion)
+    } catch { return '' }
+}
+
 function Ensure-Winget {
     if (-not (Get-Command winget.exe -ErrorAction SilentlyContinue)) {
-        throw 'WinGet was not found. Install/update "App Installer" from Microsoft Store, restart the PC, and rerun SETUP-WINDOWS.cmd.'
+        throw 'WinGet was not found. Install/update "App Installer" from Microsoft Store, restart the PC, and rerun launchers\windows\1 - Set up this computer.cmd.'
     }
 }
 
@@ -89,7 +99,7 @@ try {
     Write-Host 'No Firebase account or credentials are needed for this early preview.'
     Write-Host ('Setup log: ' + $log)
     if (-not (Test-Path -LiteralPath (Join-Path $mobileRoot 'pubspec.yaml'))) {
-        throw 'mobile\pubspec.yaml is missing. Download and unzip the entire GitHub branch, then run SETUP-WINDOWS.cmd from the extracted folder.'
+        throw 'mobile\pubspec.yaml is missing. Use the full Git clone of Forged-Sent/ForgedAndSentFitness and rerun setup.'
     }
 
     Announce 'Git for Windows'
@@ -134,7 +144,26 @@ try {
     Write-Host 'Chrome ready.'
 
     Announce 'Flutter SDK'
-    $existingFlutter = Locate-Program 'flutter.bat' @($flutterFile)
+    # The pinned SDK in the user folder always wins. Another Flutter on PATH is used
+    # only if it is exactly 3.47.8; otherwise it is left untouched and the pinned
+    # SDK is installed side by side (VS Code and the launchers use the pinned one).
+    $existingFlutter = $null
+    $otherFlutter = $null
+    if (Test-Path -LiteralPath $flutterFile) {
+        $existingFlutter = $flutterFile
+    } else {
+        $onPath = Get-Command flutter.bat -ErrorAction SilentlyContinue | Select-Object -First 1
+        if ($onPath) {
+            $onPathVersion = Get-FlutterFrameworkVersion $onPath.Source
+            if ($onPathVersion.StartsWith('3.47.8')) { $existingFlutter = $onPath.Source }
+            else { $otherFlutter = $onPath.Source }
+        }
+    }
+    if ($otherFlutter) {
+        $otherLabel = if ($onPathVersion) { 'Flutter ' + $onPathVersion } else { 'A Flutter SDK' }
+        Write-Host ($otherLabel + ' is already installed at ' + (Split-Path -Parent (Split-Path -Parent $otherFlutter)) + '. It is left untouched;') -ForegroundColor Yellow
+        Write-Host ('this project needs Flutter 3.47.8, so it is installed separately in ' + $flutterRoot + '.') -ForegroundColor Yellow
+    }
     if ($existingFlutter) {
         $flutterFile = $existingFlutter
         Write-Host ('Using existing Flutter SDK: ' + $flutterFile)
@@ -144,7 +173,12 @@ try {
             New-Item -ItemType Directory -Path $parentDir -Force | Out-Null
         }
         if (Test-Path -LiteralPath $flutterRoot) {
-            throw ('The Flutter folder exists but no flutter.bat was found: ' + $flutterRoot + '. Please ask a developer to check this folder rather than deleting it.')
+            throw ('The Flutter folder exists but no flutter.bat was found: ' + $flutterRoot + '. Setup never deletes an SDK. Rename that folder (for example to flutter-old), then run launchers\windows\1 - Set up this computer.cmd again.')
+        }
+        $drive = [System.IO.DriveInfo]::new([System.IO.Path]::GetPathRoot($flutterRoot))
+        $freeGb = [math]::Floor($drive.AvailableFreeSpace / 1GB)
+        if ($freeGb -lt 6) {
+            throw ("Drive $($drive.Name) is almost full: $freeGb GB free, about 6 GB needed for the Flutter SDK. Free up space (Settings > System > Storage), then run launchers\windows\1 - Set up this computer.cmd again. Nothing was downloaded.")
         }
         Write-Host 'Downloading the project-pinned Flutter SDK 3.47.8 into your user folder.'
         $stagedFlutter = "$flutterRoot.partial-$([guid]::NewGuid().ToString('n'))"
@@ -161,6 +195,9 @@ try {
     }
     $actualFlutterBin = Split-Path -Parent $flutterFile
     Append-UserPath $actualFlutterBin
+    if ($otherFlutter) {
+        Write-Host ('Note: typing "flutter" in a terminal may still run the other SDK because it is earlier on your PATH. The launchers and VS Code use ' + $flutterFile + '.') -ForegroundColor Yellow
+    }
     & $flutterFile --version
     Verify-External 'Flutter initialization'
     $flutterInfo = & $flutterFile --version --machine | ConvertFrom-Json
@@ -168,7 +205,7 @@ try {
     $framework = [string]$flutterInfo.frameworkVersion
     $dartSDK = [string]$flutterInfo.dartSdkVersion
     if(-not $framework.StartsWith('3.47.8')){
-        throw "Flutter $framework is installed, but this repository pins Flutter 3.47.8. Use the pinned SDK in your user folder or run the guided repair. No global SDK was changed."
+        throw "The Flutter SDK at $flutterRoot is version $framework, but this project needs 3.47.8. Setup never replaces an SDK. Rename that folder (for example to flutter-old), then run launchers\windows\1 - Set up this computer.cmd again to install 3.47.8 there."
     }
     if($dartSDK -notmatch '^(\d+\.\d+\.\d+)'){
         throw 'Flutter reported an unexpected Dart version. Run flutter --version and confirm the project-pinned SDK.'
@@ -222,7 +259,7 @@ try {
     }
 
     Announce 'Finished'
-    Write-Host 'Browser preview is installed. Double-click RUN-APP.cmd to see the app.'
+    Write-Host 'Browser preview is installed. Double-click launchers\windows\2 - Run the app.cmd to see the app.'
     Write-Host 'You can rerun this setup later; it skips installed tools.'
     if ($Android) {
         Write-Host ''
