@@ -41,6 +41,7 @@ class FakeGitHub:
         self.changed = [{"filename": "mobile/lib/main.dart"}]
         self.open_prs = [snapshot["pr"]]
         self.permission_calls = 0
+        self.last_permission_actor = None
 
     def api(self, path):
         if "/timeline?" in path:
@@ -53,6 +54,7 @@ class FakeGitHub:
             return getattr(self, "native_reviews", [])
         if path.startswith("collaborators/"):
             self.permission_calls += 1
+            self.last_permission_actor = path.split("/")[1]
             return {"permission": self.permission}
         return self.pr
 
@@ -246,6 +248,30 @@ class GateTests(unittest.TestCase):
             self.assertEqual(gate.load(work / "summary.json")["state"], "pending")
             self.assertEqual(api.posted[-1][1], "pending")
 
+    def test_codex_review_arriving_after_job_failure_is_not_marked_processed(self):
+        payload, _ = sample()
+        payload["identity"]["labels"] = ["authorship:claude"]
+        payload["providers"] = ["codex"]
+        payload.pop("binding")
+        payload["binding"] = gate.digest(payload)
+        with tempfile.TemporaryDirectory() as tmp:
+            work = Path(tmp)
+            gate.save(work / "input.json", payload)
+            gate.save(work / "result-codex.json", {"provider": "codex",
+                      "binding": payload["binding"], "pending": "Waiting for Codex"})
+            api = FakeGitHub(payload["identity"])
+            api.native_reviews = [{"id": 42, "commit_id": payload["identity"]["head"],
+                                   "user": {"id": gate.CODEX_REVIEWER_ID,
+                                            "login": gate.CODEX_REVIEWER, "type": "Bot"},
+                                   "state": "COMMENTED", "submitted_at": "2026-11-05T10:00:00Z",
+                                   "body": gate.CODEX_CLEAN_BODY,
+                                   "html_url": "https://github.com/o/r/pull/7#pullrequestreview-42"}]
+            with patch.dict(os.environ, {"GITHUB_STEP_SUMMARY": str(work / "summary.md")}):
+                gate.publish(work, api, "failure")
+            self.assertEqual(gate.load(work / "summary.json")["state"], "pending")
+            self.assertEqual(api.posted[-1][1], "pending")
+            self.assertNotIn("codex-evidence=", api.posted[-1][2])
+
     def test_mixed_review_waits_for_codex_before_spending_claude_usage(self):
         payload, _ = sample()
         payload["identity"]["labels"] = ["authorship:mixed"]
@@ -257,10 +283,10 @@ class GateTests(unittest.TestCase):
             gate.save(work / "input.json", payload)
             api = FakeGitHub(payload["identity"])
             with patch.object(gate, "GitHub", return_value=api), \
-                    patch.object(gate.subprocess, "run") as process, \
-                    self.assertRaises(gate.GateError):
+                    patch.object(gate.subprocess, "run") as process:
                 gate.run_provider(work, "claude")
             process.assert_not_called()
+            self.assertIn("pending", gate.load(work / "result-claude.json"))
 
     def test_publish_binds_live_head_base_and_labels(self):
         payload, result = sample()
@@ -344,7 +370,8 @@ class GateTests(unittest.TestCase):
         api = FakeGitHub(payload["identity"])
         api.permission = "read"
         env = {"GITHUB_ACTOR": "github-actions[bot]", "GITHUB_TRIGGERING_ACTOR": "github-actions[bot]",
-               "GITHUB_EVENT_NAME": "workflow_dispatch", "GITHUB_REF": "refs/heads/main"}
+               "GITHUB_EVENT_NAME": "workflow_dispatch", "GITHUB_REF": "refs/heads/main",
+               "GITHUB_DEFAULT_BRANCH": "main"}
         with tempfile.TemporaryDirectory() as tmp, patch.dict(os.environ, env):
             with self.assertRaises(gate.GateError) as error:
                 gate.prepare(Path(tmp), Path(tmp), 7, api)
@@ -355,6 +382,13 @@ class GateTests(unittest.TestCase):
             with self.assertRaises(gate.GateError) as error:
                 gate.prepare(Path(tmp), Path(tmp), 7, api)
         self.assertNotIn("maintainer", str(error.exception))
+        self.assertEqual(api.last_permission_actor, "builder")
+        api.pr["base"]["ref"] = "feature/stack"
+        with tempfile.TemporaryDirectory() as tmp, patch.dict(os.environ, env):
+            with self.assertRaises(gate.GateError) as error:
+                gate.prepare(Path(tmp), Path(tmp), 7, api)
+        self.assertNotIn("maintainer", str(error.exception))
+        self.assertEqual(api.last_permission_actor, "builder")
 
     def test_prepare_fetches_diff_without_executing_or_checking_out_pr(self):
         with tempfile.TemporaryDirectory() as tmp:

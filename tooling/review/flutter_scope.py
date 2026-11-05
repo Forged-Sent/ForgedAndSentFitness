@@ -4,6 +4,7 @@ This is policy logic, not proof of review or author identity. The trusted gate
 must obtain changed paths and labels from GitHub, never from a PR-supplied report.
 """
 from __future__ import annotations
+import re
 
 FUNCTIONAL_PREFIXES = ("mobile/", "firebase/", "tooling/firebase/")
 GATE_PREFIXES = ("tooling/review/", ".github/rulesets/", ".github/workflows/", ".github/actions/")
@@ -36,7 +37,19 @@ def needs_review(path: str) -> bool:
                 prefix != "mobile/" and rest.startswith("docs/")
             )
             return not (documentation and rest.endswith((".md", ".rst")))
-    return False
+    if path in ("README.md", "README.rst", "CHANGELOG.md"):
+        return False
+    if path.startswith("docs/") and path.lower().endswith((".md", ".rst")):
+        return False
+    # Only the established behavioral prototype files have a lighter policy.
+    if path == "index.html" or re.fullmatch(r"versions/app-v\d+\.html", path):
+        return False
+    if re.fullmatch(r"dev/[^/]+\.html", path) or path == "dev/mock-claude.js":
+        return False
+    if (re.fullmatch(r"seed/devotionals[^/]*\.json", path) or
+            path in ("seed/lifts.json", "seed/esv-verses.json")):
+        return False
+    return True
 
 
 def relevant_paths(files: list[dict]) -> list[str]:

@@ -340,11 +340,13 @@
       "x": 920,
       "y": 245,
       "color": "violet",
-      "purpose": "The staged GitHub workflow classifies functional changes and routes Codex-authored work to Claude subscription OAuth and Claude-authored work to native Codex GitHub Code Review. Its coordinator must bind evidence to the live PR and notify the implementor after review. Hosted behavior has not yet been verified and the required-status ruleset is disabled.",
+      "purpose": "The staged GitHub workflow classifies functional changes and routes Codex-authored work to Claude subscription OAuth and Claude-authored work to native Codex GitHub Code Review. A scheduled reconciler with actions: write dispatches a gate run when native evidence appears. The publisher has issues: write to post one implementor handoff. These trusted jobs are separate from model invocation. Hosted behavior has not yet been verified and the required-status ruleset is disabled.",
       "files": [
         ".github/workflows/flutter-ai-review.yml",
         "tooling/review/flutter_scope.py",
         "tooling/review/github_gate.py",
+        "tooling/review/reconcile_codex.py",
+        "tooling/review/notify_implementor.py",
         "docs/architecture/ADR-0004-hosted-ai-review-gate.md"
       ],
       "depends": [

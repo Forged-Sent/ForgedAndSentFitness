@@ -169,7 +169,9 @@ def prepare(root: Path, work: Path, number: int, api: GitHub) -> None:
             providers = list(reviewers_for(snapshot["labels"]))
             trusted_reconcile = (actor == "github-actions[bot]" and
                                  os.environ.get("GITHUB_EVENT_NAME") == "workflow_dispatch" and
-                                 os.environ.get("GITHUB_REF") == f"refs/heads/{pr['base']['ref']}")
+                                 bool(os.environ.get("GITHUB_DEFAULT_BRANCH")) and
+                                 os.environ.get("GITHUB_REF") ==
+                                 f"refs/heads/{os.environ['GITHUB_DEFAULT_BRANCH']}")
             principal = ((pr.get("user") or {}).get("login") if trusted_reconcile else actor)
             if not principal:
                 raise GateError("Cannot establish a trusted review trigger")
@@ -318,6 +320,7 @@ def codex_review(api: GitHub, number: int, head: str) -> dict:
         outcome = "ambiguous"
     return {"review_ids": sorted(row["id"] for row in matches),
             "review_urls": [row["html_url"] for row in matches],
+            "latest_submitted_at": max(row["submitted_at"] for row in matches),
             "comment_count": len(comments), "outcome": outcome}
 
 
@@ -357,6 +360,10 @@ def run_provider(work: Path, provider: str) -> None:
                     raise GateError("Reviewer output exceeds limits or resembles a secret")
                 parsed = review.parse_report(raw)
                 report["results"].append({"sha256": chunk["sha256"], "review": parsed})
+    except NativeReviewPending as pending:
+        report["pending"] = str(pending)
+        save(work / f"result-{provider}.json", report)
+        return
     except (GateError, ValueError, OSError, subprocess.TimeoutExpired):
         report["error"] = "Provider invocation or strict response validation failed; review NOT VERIFIED"
         save(work / f"result-{provider}.json", report)
@@ -410,11 +417,22 @@ def publish(work: Path, api: GitHub, job_result: str) -> None:
         if payload["paths"]:
             waiting = False
             if "codex" in payload["providers"]:
-                try:
-                    native = codex_review(api, snapshot["pr"], snapshot["head"])
-                    codex_evidence = digest(native["review_ids"])[:16]
-                except NativeReviewPending as pending:
-                    state, message, waiting = "pending", str(pending), True
+                native_path = work / "result-codex.json"
+                native_result = load(native_path) if native_path.exists() else {}
+                recorded = native_result.get("native_review")
+                if (native_result.get("binding") != payload["binding"] or
+                        native_result.get("provider") != "codex" or
+                        native_result.get("pending") or not isinstance(recorded, dict)):
+                    state, message, waiting = "pending", "Waiting for native Codex review evidence", True
+                else:
+                    try:
+                        live = codex_review(api, snapshot["pr"], snapshot["head"])
+                    except NativeReviewPending:
+                        live = None
+                    if live != recorded:
+                        state, message, waiting = "pending", "Codex review changed; retrying exact-head evidence", True
+                    else:
+                        codex_evidence = digest(live["review_ids"])[:16]
             if not waiting:
                 if job_result != "success":
                     raise GateError("Reviewer job failed, timed out or was cancelled")

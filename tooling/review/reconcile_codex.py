@@ -75,14 +75,39 @@ def current_pr_is_docs_only(api: GitHub, number: int, head: str) -> bool:
 def active_run(api: GitHub, number: int) -> bool:
     title = f"Flutter AI review PR #{number}"
     active = {"queued", "in_progress", "requested", "pending", "waiting"}
-    for page in range(1, 31):
-        result = api.request(f"actions/workflows/flutter-ai-review.yml/runs?per_page=100&page={page}")
-        rows = result["workflow_runs"]
-        if any(row.get("display_title") == title and row.get("status") in active for row in rows):
-            return True
-        if len(rows) < 100:
-            return False
-    raise RuntimeError("Workflow run listing exceeds pagination limit")
+    for status in active:
+        for page in range(1, 31):
+            result = api.request(
+                f"actions/workflows/flutter-ai-review.yml/runs?status={status}&per_page=100&page={page}")
+            rows = result["workflow_runs"]
+            if any(row.get("display_title") == title for row in rows):
+                return True
+            if len(rows) < 100:
+                break
+        else:
+            raise RuntimeError("Active workflow run listing exceeds pagination limit")
+    return False
+
+
+def failed_run_after_review(api: GitHub, status: dict | None, number: int,
+                            review_submitted_at: str) -> bool:
+    """A terminal run begun after the review already attempted this evidence.
+
+    This prevents a persistent prepare/publish failure from redispatching every
+    quarter hour. A review arriving during the failed run remains retryable.
+    """
+    if not status or status.get("state") not in ("failure", "error"):
+        return False
+    target = status.get("target_url") or ""
+    match = re.fullmatch(
+        r"https://github\.com/[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+/actions/runs/([0-9]+)(?:/attempts/[0-9]+)?",
+        target)
+    if not match:
+        return False
+    run = api.request(f"actions/runs/{match.group(1)}")
+    return (run.get("display_title") == f"Flutter AI review PR #{number}"
+            and run.get("event") in ("workflow_dispatch", "pull_request_target")
+            and run.get("created_at", "") > review_submitted_at)
 
 
 def reconcile(api: GitHub, default_ref: str) -> list[int]:
@@ -107,6 +132,8 @@ def reconcile(api: GitHub, default_ref: str) -> list[int]:
             if marker and marker.group(1) == current:
                 continue
             if active_run(api, pr["number"]):
+                continue
+            if failed_run_after_review(api, status, pr["number"], evidence["latest_submitted_at"]):
                 continue
             api.request("actions/workflows/flutter-ai-review.yml/dispatches",
                         {"ref": default_ref, "inputs": {"pr": str(pr["number"])}})

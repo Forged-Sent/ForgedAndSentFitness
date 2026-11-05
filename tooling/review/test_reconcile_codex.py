@@ -18,6 +18,8 @@ class FakeApi:
                          "body": "unknown", "html_url": "https://example.invalid/review/42"}]
         self.status = None
         self.active = []
+        self.runs = {}
+        self.queried = []
         self.sent = []
         self.bad_pr = None
         self.files = [{"filename": "mobile/lib/main.dart"}]
@@ -33,7 +35,11 @@ class FakeApi:
 
     def request(self, path, body=None):
         if path.startswith("actions/workflows/flutter-ai-review.yml/runs?"):
-            return {"workflow_runs": self.active}
+            self.queried.append(path)
+            selected = path.split("status=", 1)[1].split("&", 1)[0]
+            return {"workflow_runs": [run for run in self.active if run["status"] == selected]}
+        if path.startswith("actions/runs/"):
+            return self.runs[path.split("/")[-1]]
         if path == "pulls/7":
             return {"changed_files": len(self.files), "head": {"sha": HEAD}}
         if path == "actions/workflows/flutter-ai-review.yml/dispatches":
@@ -89,6 +95,31 @@ class ReconcileTests(unittest.TestCase):
         api.active = [{"display_title": "Flutter AI review PR #7", "status": "in_progress"}]
         self.assertEqual(reconcile.reconcile(api, "main"), [])
         self.assertEqual(api.sent, [])
+
+    def test_completed_history_does_not_exhaust_active_run_search(self):
+        api = FakeApi()
+        api.active = [{"display_title": "Flutter AI review PR #7", "status": "completed"}] * 3001
+        self.assertEqual(reconcile.reconcile(api, "main"), [7])
+        self.assertTrue(all("status=" in path for path in api.queried))
+
+    def test_terminal_failure_after_review_is_not_redispatched(self):
+        api = FakeApi()
+        api.status = {"context": reconcile.CONTEXT, "state": "failure",
+                      "description": "Commit is shared by multiple open PRs",
+                      "target_url": "https://github.com/o/r/actions/runs/123/attempts/1"}
+        api.runs["123"] = {"display_title": "Flutter AI review PR #7",
+                            "event": "workflow_dispatch", "created_at": "2026-11-05T02:00:00Z"}
+        self.assertEqual(reconcile.reconcile(api, "main"), [])
+        self.assertEqual(api.sent, [])
+
+    def test_review_arriving_during_failed_run_is_retried(self):
+        api = FakeApi()
+        api.status = {"context": reconcile.CONTEXT, "state": "failure",
+                      "description": "Reviewer job failed",
+                      "target_url": "https://github.com/o/r/actions/runs/123/attempts/1"}
+        api.runs["123"] = {"display_title": "Flutter AI review PR #7",
+                            "event": "workflow_dispatch", "created_at": "2026-11-05T00:00:00Z"}
+        self.assertEqual(reconcile.reconcile(api, "main"), [7])
 
     def test_null_user_does_not_abort_and_later_pr_still_reconciles(self):
         api = FakeApi()

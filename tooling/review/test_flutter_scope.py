@@ -16,9 +16,17 @@ class FlutterScopeTests(unittest.TestCase):
 
     def test_docs_and_separate_html_prototype_are_exempt(self):
         for path in ("README.md", "docs/architecture/SYSTEM.md", "mobile/README.md",
-                     "index.html", "versions/app-v238.html"):
+                     "index.html", "versions/app-v238.html", "dev/demo.html",
+                     "dev/mock-claude.js", "seed/devotionals.json",
+                     "seed/devotionals-v2.json", "seed/lifts.json", "seed/esv-verses.json"):
             with self.subTest(path=path):
                 self.assertFalse(needs_review(path))
+
+    def test_unknown_and_new_backend_paths_require_review(self):
+        for path in ("functions/src/score.ts", "backend/rules.sql", "new-feature/file.txt",
+                     "versions/not-a-snapshot.js", "docs/architecture/explorer/app.js"):
+            with self.subTest(path=path):
+                self.assertTrue(needs_review(path))
 
     def test_gate_policy_cannot_exempt_itself(self):
         for path in ("tooling/review/flutter_scope.py", "tooling/review/README.md",
@@ -31,7 +39,8 @@ class FlutterScopeTests(unittest.TestCase):
         files = [{"filename": "mobile/lib/old.dart", "status": "removed"},
                  {"filename": "docs/old.dart", "previous_filename": "mobile/lib/moved.dart",
                   "status": "renamed"}]
-        self.assertEqual(relevant_paths(files), ["mobile/lib/moved.dart", "mobile/lib/old.dart"])
+        self.assertEqual(relevant_paths(files),
+                         ["docs/old.dart", "mobile/lib/moved.dart", "mobile/lib/old.dart"])
 
     def test_invalid_paths_fail_closed(self):
         for path in ("", "../mobile/a.dart", "/mobile/a.dart", "mobile\\a.dart", "mobile//a"):

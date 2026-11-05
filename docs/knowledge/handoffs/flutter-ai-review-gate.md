@@ -3,7 +3,7 @@ status: active
 updated: 2026-11-05
 owner: Codex / maintainer
 source_ref: codex/flutter-ai-review-gate
-source_sha: b50f4514208f7e2b3b3a6bcb06fcdb653cff43bd
+source_sha: 296f73e0dce0893938f3ae7049210cfc71dc7d90
 ---
 # Functional Flutter AI review gate
 
@@ -21,13 +21,15 @@ not run on GitHub yet.
 The user selected account-backed reviews. GitHub currently has the
 CLAUDE_CODE_OAUTH_TOKEN secret. Codex must use its connected native GitHub code
 review, with no OpenAI API key or copied local login. Verify secret names only.
-Claude's independent local review found security and workflow issues; the fixes
-are staged after the source commit above and must be checked against the eventual
+Claude's independent local reviews found security and workflow issues. The latest
+findings have fixes staged after the source commit above; verify the eventual
 branch head before publication. The hosted gate posts an implementor handoff when
-review finishes, without treating an AI review as human approval.
+review finishes, without treating an AI review as human approval. A GitHub comment
+does not automatically wake a local Codex or Claude session.
 
-Next action: finish fixes and independent review, publish the bootstrap PR through
-an authorized path, then run hosted acceptance before activation.
+Next action: publish the bootstrap PR through an authorized path, then run hosted
+acceptance, including a real clean Codex review, before activation. The local
+review tests and policy/architecture checks pass; hosted behavior is NOT VERIFIED.
 The agent push rule requires a current PR's green CI before an agent push; this
 new branch has no PR yet. Bootstrap publication needs a maintainer push or an
 explicit one-time exception. Prior merge-batch authorization does not authorize

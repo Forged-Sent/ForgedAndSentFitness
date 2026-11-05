@@ -41,7 +41,9 @@ under mobile/, firebase/ and tooling/firebase/: code, tests, dependencies, asset
 and native hosts. Root Firebase rules/configuration and the gate's own files also
 require review. Renames inspect both paths; removals count. README/changelog and
 docs-directory Markdown/reStructuredText are exempt. Bundled Markdown assets count
-as functional. The separate HTML prototype is outside this gate. Comment-only Dart
+as functional. The listed behavioral prototype files are outside this gate.
+Unknown or newly added paths require review until explicitly classified; this
+includes a future root `functions/` backend. Comment-only Dart
 edits conservatively count; the classifier does not infer harmless semantics.
 
 | Declared authorship label | Reviewer |
