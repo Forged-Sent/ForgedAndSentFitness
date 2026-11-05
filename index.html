@@ -8621,9 +8621,14 @@ header.hero .me-btn { border-color:#e87328; }
     var root = document.documentElement, w = window.innerWidth, h = window.innerHeight;
     var shortSide = Math.min(screen.width || w, screen.height || h);
     var phone = shortSide < 600 && !!(window.matchMedia && matchMedia("(pointer: coarse)").matches);
+    var known = typeof window.orientation === "number" || !!(screen.orientation && typeof screen.orientation.angle === "number");
     var a = typeof window.orientation === "number" ? window.orientation : (screen.orientation && typeof screen.orientation.angle === "number" ? screen.orientation.angle : 90);
     a = ((a % 360) + 360) % 360;
-    var cls = phone && w > h ? (a === 270 ? "rot-r" : "rot-l") : "";
+    var ae = document.activeElement, typing = !!(ae && (ae.tagName === "TEXTAREA" || (ae.tagName === "INPUT" && !/^(button|checkbox|radio|range|file|submit|color)$/i.test(ae.type)) || ae.isContentEditable));
+    // Sideways only when the phone itself is turned. A short frame from the keyboard or dictation panel is not a turn.
+    var turned = known ? (a === 90 || a === 270) && w > h : w > h && !typing;
+    var cls = phone && turned ? (a === 270 ? "rot-r" : "rot-l") : "";
+    if (typing && phone) return; // keyboard or dictation is open: keep the screen as it is until he is done typing
     root.classList.remove("rot-l", "rot-r"); if (cls) root.classList.add(cls);
     root.style.setProperty("--rot-w", h + "px"); root.style.setProperty("--rot-h", w + "px");
     root.style.setProperty("--app-h", (cls ? w : h) + "px");
@@ -8632,6 +8637,7 @@ header.hero .me-btn { border-color:#e87328; }
     try { if (screen.orientation && screen.orientation.lock) screen.orientation.lock("portrait").catch(function () {}); } catch (e) {}
     applyPortraitLock();
     window.addEventListener("resize", applyPortraitLock);
+    document.addEventListener("focusout", function () { setTimeout(applyPortraitLock, 300); });
     window.addEventListener("orientationchange", function () { setTimeout(applyPortraitLock, 50); });
     try { if (screen.orientation) screen.orientation.addEventListener("change", applyPortraitLock); } catch (e) {}
   }
@@ -9454,7 +9460,7 @@ header.hero .me-btn { border-color:#e87328; }
       box.appendChild(r);
     });
   }
-  var APP_VERSION = "v236";
+  var APP_VERSION = "v237";
   /* ---------- Photo upload diagnostic (Settings > Testing) ---------- */
   async function runPhotoDiag() {
     var out = { at: new Date().toISOString(), version: APP_VERSION, ua: navigator.userAgent, steps: [] };
