@@ -16,6 +16,22 @@ class ClassificationTests(unittest.TestCase):
         self.assertEqual(classify(["README.md", "docs/architecture-notes.md"]),
                          {"windows": False, "mobile": False, "mac": False, "prototype": False})
 
+    def test_design_docs_with_mockups_do_not_trigger_builds(self):
+        self.assertEqual(classify(["docs/design/sign-in.md", "docs/design/sign-in-mockup.html",
+                                   "docs/design/sign-in-mockup.png", "docs/diagrams/flow.svg"]),
+                         {"windows": False, "mobile": False, "mac": False, "prototype": False})
+
+    def test_html_outside_docs_design_still_fails_safe(self):
+        for path in ("docs/other/page.html", "docs/design/tool.js", "planning/mock.html"):
+            with self.subTest(path=path):
+                self.assertTrue(all(classify([path]).values()))
+
+    def test_design_assets_remain_outside_lightweight_exceptions(self):
+        from review_scope import requires_human_review
+        for path in ("docs/design/sign-in-mockup.html", "docs/design/sign-in-mockup.png"):
+            with self.subTest(path=path):
+                self.assertTrue(requires_human_review(path))
+
     def test_flutter_changes_run_app_and_mac(self):
         v = classify(["mobile/lib/main.dart"])
         self.assertTrue(v["mobile"] and v["mac"])

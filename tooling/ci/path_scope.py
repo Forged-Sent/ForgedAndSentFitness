@@ -13,6 +13,12 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "policy"))
 from review_scope import is_lightweight_path
 
 
+# Static documentation assets (screenshots, diagrams). Design mockup HTML is
+# only allowed under docs/design/; CI never executes either, so the policy
+# job remains mandatory while platform builds are unnecessary. Review is advisory.
+DOC_ASSET_SUFFIXES = (".png", ".jpg", ".jpeg", ".gif", ".svg", ".webp")
+
+
 def classify(paths: list[str]) -> dict[str, bool]:
     result = {"windows": False, "mobile": False, "mac": False, "prototype": False}
 
@@ -67,7 +73,9 @@ def classify(paths: list[str]) -> dict[str, bool]:
             enable(*result)
         elif (path in ("AGENTS.md", "CLAUDE.md")
               or path.startswith((".github/", ".claude/", ".agents/"))
-              or (path.startswith(("docs/", "planning/")) and path.endswith(".md"))):
+              or (path.startswith(("docs/", "planning/")) and path.endswith(".md"))
+              or (path.startswith("docs/") and path.lower().endswith(DOC_ASSET_SUFFIXES))
+              or (path.startswith("docs/design/") and path.lower().endswith(".html"))):
             # Changes to known instructions and documentation get the always-on
             # policy job and human review, not expensive Flutter compilation.
             pass
