@@ -10312,13 +10312,39 @@ header.hero .me-btn { border-color:#e87328; }
   function jrLabel(k) { for (var i = 0; i < JR_TAGS.length; i++) if (JR_TAGS[i][0] === k) return JR_TAGS[i][1]; return k; }
   function journalSorted() { return (state.journal || []).slice().sort(function (a, b) { return (b.at || 0) - (a.at || 0); }); }
   function journalToday() { var k = todayKey(); return journalSorted().filter(function (x) { return x.d === k; }); }
-  async function jrSave(x) {
-    await B.saveJournal(state.me, x);
+  var jrPendingWrites = Object.create(null), jrIdCounter = 0;
+  function jrDraftId(holder) {
+    if (!holder.jrAt) holder.jrAt = Date.now();
+    return holder.jrId || (holder.jrId = "j" + Number(holder.jrAt).toString(36) + "-" + (++jrIdCounter).toString(36) + "-" + Math.random().toString(36).slice(2, 8));
+  }
+  function jrWrite(uid, id, value, remove) {
+    var key = uid + ":" + id, body = remove ? "delete" : JSON.stringify(value), pending = jrPendingWrites[key];
+    // A timeout does not cancel a remote write. Reuse identical pending writes;
+    // do not let a retry/edit race and later be overwritten by an older request.
+    if (pending) {
+      if (pending.body === body) return pending.promise;
+      var error = new Error("A previous journal change is still awaiting confirmation."); error.jrPending = true; return Promise.reject(error);
+    }
+    pending = { body: body };
+    pending.promise = Promise.resolve().then(function () { return remove ? B.deleteJournal(uid, id) : B.saveJournal(uid, value); });
+    jrPendingWrites[key] = pending;
+    function settled() { if (jrPendingWrites[key] === pending) delete jrPendingWrites[key]; }
+    pending.promise.then(settled, settled);
+    return pending.promise;
+  }
+  async function jrSave(x, attempt) {
+    var uid = state.me;
+    await jrWrite(uid, x.id, x, false);
+    if (attempt) attempt.check();
+    if (state.me !== uid) return;
     var list = (state.journal || []).filter(function (y) { return y.id !== x.id; }); list.push(x); state.journal = list;
     drawToday(); if (state.page === "journal") drawJournalPage();
   }
-  async function jrDelete(id) {
-    await B.deleteJournal(state.me, id);
+  async function jrDelete(id, attempt) {
+    var uid = state.me;
+    await jrWrite(uid, id, null, true);
+    if (attempt) attempt.check();
+    if (state.me !== uid) return;
     state.journal = (state.journal || []).filter(function (y) { return y.id !== id; });
     drawToday(); if (state.page === "journal") drawJournalPage();
   }
@@ -10326,11 +10352,18 @@ header.hero .me-btn { border-color:#e87328; }
     var scope = button.closest ? button.closest(".cdlg, .jr-devo, .jr-it") : null;
     if (button.disabled || (scope && scope.dataset.jrBusy)) return false;
     var controls = scope ? Array.prototype.map.call(scope.querySelectorAll("button, input, textarea"), function (c) { return [c, c.disabled]; }) : [[button, button.disabled]];
+    var active = true, uid = state.me, timer;
+    var attempt = { check: function () {
+      if (!active || state.me !== uid || (scope && scope.isConnected === false)) throw new Error("Journal action is no longer current.");
+    } };
     if (scope) scope.dataset.jrBusy = "1";
     controls.forEach(function (c) { c[0].disabled = true; }); message.textContent = "Saving...";
-    try { await action(); message.textContent = ""; return true; }
-    catch (e) { message.textContent = "Could not save that change. Your entry is still here. Please try again."; return false; }
-    finally { if (scope) delete scope.dataset.jrBusy; controls.forEach(function (c) { c[0].disabled = c[1]; }); }
+    var deadline = new Promise(function (_, reject) { timer = setTimeout(function () {
+      active = false; var error = new Error("Journal confirmation timed out."); error.jrTimeout = true; reject(error);
+    }, 15000); });
+    try { await Promise.race([action(attempt), deadline]); if (!active) throw new Error("Journal action expired."); message.textContent = ""; return true; }
+    catch (e) { message.textContent = e && e.jrTimeout ? "Save not confirmed yet. Your entry is still here. You can close this window and retry; the earlier change may still finish." : e && e.jrPending ? "An earlier change is still unconfirmed. Your entry is still here; try again after it finishes." : "Could not save that change. Your entry is still here. Please try again."; return false; }
+    finally { active = false; clearTimeout(timer); if (scope) delete scope.dataset.jrBusy; controls.forEach(function (c) { c[0].disabled = c[1]; }); }
   }
   function jrWhen(x) {
     var k = x.d || "", t = todayKey(), d = new Date(k + "T12:00:00"), yd = new Date(t + "T12:00:00"); yd.setDate(yd.getDate() - 1);
@@ -10348,7 +10381,8 @@ header.hero .me-btn { border-color:#e87328; }
   function openJournal(opts) {
     opts = opts || {}; var old = $("cdlg"); if (old) old.remove();
     var F = openJournal.F || (openJournal.F = {});
-    if (opts.edit !== undefined || opts.fresh) { F.edit = opts.edit || ""; F.saved = ""; var e0 = F.edit ? (state.journal || []).filter(function (y) { return y.id === F.edit; })[0] : null; F.t = e0 ? e0.t : ""; F.tags = e0 ? (e0.tags || []).slice() : []; }
+    if (opts.fresh && F.resumeDraft && F.t && !F.saved) opts.fresh = false;
+    if (opts.edit !== undefined || opts.fresh) { F.edit = opts.edit || ""; F.saved = ""; F.jrId = ""; F.jrAt = 0; F.resumeDraft = false; var e0 = F.edit ? (state.journal || []).filter(function (y) { return y.id === F.edit; })[0] : null; F.t = e0 ? e0.t : ""; F.tags = e0 ? (e0.tags || []).slice() : []; }
     if (!F.tags) F.tags = []; if (F.t == null) F.t = "";
     var ed = F.edit ? (state.journal || []).filter(function (y) { return y.id === F.edit; })[0] : null;
     var back = el("div", "cdlg"); back.id = "cdlg"; back.dataset.k = "journal";
@@ -10380,23 +10414,23 @@ header.hero .me-btn { border-color:#e87328; }
       var ta = el("textarea", "field jr-ta"); ta.rows = 7; ta.maxLength = 4000; ta.placeholder = "What happened? What is God showing you?"; ta.setAttribute("aria-label", "Your journal entry"); ta.value = F.t;
       ta.addEventListener("input", function () { F.t = ta.value; }); box.appendChild(ta);
       box.appendChild(el("p", "note jr-tip", "Tip: tap the microphone on your keyboard to talk instead of type."));
-      var msg = el("p", "note", ""), row = el("div", "cdlg-btns"), sv = el("button", "btn", ed ? "Save changes" : "Save"), cx = el("button", "btn ghost", "Cancel"); sv.type = cx.type = "button";
+      var msg = el("p", "note", ""), row = el("div", "cdlg-btns"), sv = el("button", "btn", ed ? "Save changes" : "Save"), cx = el("button", "btn ghost", "Close"); sv.type = cx.type = "button";
       sv.addEventListener("click", function () {
-        var v = ta.value.trim(); if (!v) { msg.textContent = "Write something first."; return; }
-        var x = ed ? Object.assign({}, ed, { t: v, tags: F.tags.slice(), edited: Date.now() }) : { id: "j" + Date.now().toString(36), d: todayKey(), at: Date.now(), t: v, tags: F.tags.slice(), src: "pen" };
+        F.t = ta.value; F.resumeDraft = true; var v = ta.value.trim(); if (!v) { msg.textContent = "Write something first."; return; }
+        var x = ed ? Object.assign({}, ed, { t: v, tags: F.tags.slice(), edited: Date.now() }) : { id: jrDraftId(F), d: todayKey(), at: Number(F.jrAt), t: v, tags: F.tags.slice(), src: "pen" };
         if (x.ans && x.tags.indexOf("prayer") < 0) delete x.ans;
-        jrAction(sv, msg, async function () {
-          await jrSave(x); F.saved = x.id; F.edit = ""; F.t = ""; F.tags = []; openJournal();
+        jrAction(sv, msg, async function (attempt) {
+          await jrSave(x, attempt); F.resumeDraft = false; F.saved = x.id; F.edit = ""; F.t = ""; F.tags = []; openJournal();
         });
       });
-      cx.addEventListener("click", function () { F.edit = ""; F.t = ""; F.tags = []; close(); });
+      cx.addEventListener("click", close);
       row.appendChild(sv); row.appendChild(cx); box.appendChild(row); box.appendChild(msg);
       if (ed) {
         var smsg2 = el("p", "note", "");
         if (myPaul()) { var sh2 = el("button", "btn ghost", "Share this entry with my Paul"); sh2.type = "button"; sh2.addEventListener("click", function () { jrShare(Object.assign({}, ed, { t: ta.value.trim() || ed.t }), smsg2); }); box.appendChild(sh2); box.appendChild(smsg2); }
         var del = el("button", "linkish", "Delete this entry"); del.type = "button";
         del.addEventListener("click", function () {
-          if (del.dataset.sure) { jrAction(del, msg, async function () { await jrDelete(ed.id); F.edit = ""; F.t = ""; F.tags = []; back.remove(); }); return; }
+          if (del.dataset.sure) { jrAction(del, msg, async function (attempt) { await jrDelete(ed.id, attempt); F.edit = ""; F.t = ""; F.tags = []; back.remove(); }); return; }
           del.dataset.sure = "1"; del.textContent = "Tap again to delete for good";
         });
         box.appendChild(del);
@@ -10424,9 +10458,9 @@ header.hero .me-btn { border-color:#e87328; }
     $("jr-new").innerHTML = PEN_SVG; $("jr-new").addEventListener("click", function () { openJournal({ fresh: true }); });
     $("jr-devo-save").addEventListener("click", function () {
       var ta = $("jr-devo-ta"), v = ta.value.trim(), m = $("jr-devo-msg"); if (!v) { m.textContent = "Write something first."; ta.focus(); return; }
-      var t = devoToday(), x = { id: "j" + Date.now().toString(36), d: todayKey(), at: Date.now(), t: v, tags: [], src: "devo", p: t && t.e ? t.e.reflect : "" };
-      jrAction($("jr-devo-save"), m, async function () {
-        await jrSave(x); ta.value = "";
+      var t = devoToday(), x = { id: jrDraftId(ta.dataset), d: todayKey(), at: Number(ta.dataset.jrAt), t: v, tags: [], src: "devo", p: t && t.e ? t.e.reflect : "" };
+      jrAction($("jr-devo-save"), m, async function (attempt) {
+        await jrSave(x, attempt); ta.value = ""; delete ta.dataset.jrId; delete ta.dataset.jrAt;
       }).then(function (saved) { if (saved) m.textContent = "✓ Saved to your journal. Only you can read it."; });
     });
   }
@@ -10463,7 +10497,7 @@ header.hero .me-btn { border-color:#e87328; }
         var tg = el("div", "jr-tags"); (x.tags || []).forEach(function (k) { tg.appendChild(el("span", "jr-tg", jrLabel(k))); });
         if (x.ans) tg.appendChild(el("span", "jr-tg ans", "✓ Answered " + new Date(x.ans).toLocaleDateString(undefined, { month: "short", day: "numeric" })));
         if ((x.tags || []).indexOf("prayer") >= 0) { var ab = el("button", "mini", x.ans ? "Undo answered" : "Mark answered"); ab.type = "button";
-          ab.addEventListener("click", function () { var y = Object.assign({}, x); if (y.ans) delete y.ans; else y.ans = Date.now(); jrAction(ab, jm, async function () { await jrSave(y); }); }); var jm = el("p", "note", ""); jm.setAttribute("role", "status"); li.appendChild(jm); tg.appendChild(ab); }
+          ab.addEventListener("click", function () { var y = Object.assign({}, x); if (y.ans) delete y.ans; else y.ans = Date.now(); jrAction(ab, jm, async function (attempt) { await jrSave(y, attempt); }); }); var jm = el("p", "note", ""); jm.setAttribute("role", "status"); li.appendChild(jm); tg.appendChild(ab); }
         if (tg.childNodes.length) li.appendChild(tg);
         ul.appendChild(li);
       });
