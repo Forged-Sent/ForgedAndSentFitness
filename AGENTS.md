@@ -50,14 +50,14 @@ Forged & Sent is a faith-centered devotional workout and group accountability pl
 - The live GitHub ruleset requires `ci-gate` but zero outside approvals. AI reviews are voluntary and advisory. Maintainers choose whether to merge; agents never self-merge.
 
 ## Platform-specific onboarding
-- Windows bootstrap: START-WINDOWS.cmd; Mac bootstrap: START-MAC.command. Both must preserve emulator-first/no-cloud-Firebase MCP defaults.
-- Mac bootstrap support in PR #3 covers Preview and tool-only Contributor foundation. Do not claim iOS/Android device integration or Firebase emulator readiness until PR #4.
+- Windows bootstrap: START-WINDOWS.cmd; Mac bootstrap: START-MAC.command; numbered steps in `launchers/<os>/`. All must preserve emulator-first/no-cloud-Firebase MCP defaults.
+- Both platforms set up Preview and Contributor (practice Firebase included). Windows also offers Mobile/Maintainer (Android Studio, Maestro); Mac offers optional iPhone simulator setup. Do not claim Android/iOS device integration until it has been run and recorded; no Maestro flows exist yet.
 - Project MCP stdio commands use the allowlisted Node launcher on both platforms. Never add Firebase cloud MCP or automatically request credentials.
 
 ## Checks
 - `cd mobile && flutter pub get && flutter analyze && flutter test`
 - `cd mobile && flutter build apk --debug` once Android platform files are generated.
-- On a new clone of the interim scaffold, first run `cd mobile && flutter create --platforms=web --org=com.forgedandsent --project-name=forged_and_sent .`. CI generates temporary Android hosts; reviewed native hosts belong to PR #4
+- On a new clone the setup launchers generate the git-ignored hosts (`flutter create --platforms=web`, plus `android` in Mobile setup and `ios` in the Mac iPhone step) with `--org=com.forgedandsent --project-name=forged_and_sent`. CI generates the same temporary hosts. Committed, reviewed native hosts are a later decision (see ADR-0003).
 
 ## Agent roles
 - Flutter Builder: one vertical slice, widget tests, no backend policy changes.
@@ -65,7 +65,7 @@ Forged & Sent is a faith-centered devotional workout and group accountability pl
 - Firebase Security Reviewer: authentication, rules, functions, storage and adversarial access tests.
 Use one builder by default. Offer a non-author AI reviewer for Flutter database and security changes, or two if useful, without making either mandatory. If invoked, never count the authoring model as independent. Mark missing coverage NOT VERIFIED.
 
-## Safe beginner Git collaboration (PR #4)
+## Safe beginner Git collaboration
 
 Use project-local fs-start / fs-save / fs-sync / fs-share / fs-status helpers
 for contributor workflow. Never directly commit or push to main. Only open

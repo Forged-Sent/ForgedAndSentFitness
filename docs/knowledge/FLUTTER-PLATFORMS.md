@@ -6,8 +6,8 @@ Flutter supports all six target families, but a Flutter package or Firebase plug
 
 | Target | Typical build host | Proof of support before calling it ready | Current claim |
 |---|---|---|---|
-| Android | Windows, macOS or Linux with Android SDK | analyzer + unit/widget tests; debug APK; emulator/device integration; native permissions | Scaffold/CI only; check PR #4 |
-| iOS | macOS + Xcode | unsigned simulator build; physical device tests; separate signed distribution | Draft PR #4 CI attempt; NOT VERIFIED |
+| Android | Windows, macOS or Linux with Android SDK | analyzer + unit/widget tests; debug APK; emulator/device integration; native permissions | Host generated locally by Mobile setup (git-ignored); no CI APK build or device test yet |
+| iOS | macOS + Xcode | unsigned simulator build; physical device tests; separate signed distribution | Unsigned simulator build green in CI on `main` (PR #4); simulator run and devices NOT VERIFIED |
 | Web | Any supported build host/browser | web build; Chrome/Firefox/Safari responsive and keyboard checks; browser limits | Foundation preview target, not feature parity |
 | Windows | Windows + Visual Studio C++ desktop workload | native Windows build, smoke test and plugin matrix | Proposed; not enabled |
 | Linux | Linux + clang/CMake/Ninja/GTK toolchain | native Linux build, smoke test and plugin matrix | Proposed; not enabled |
