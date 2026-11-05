@@ -10467,7 +10467,8 @@ header.hero .me-btn { border-color:#e87328; }
     });
     $("jr-devo-save").addEventListener("click", function () {
       var ta = $("jr-devo-ta"); jrDevoOwner(ta); var v = ta.value.trim(), m = $("jr-devo-msg"); if (!v) { m.textContent = "Write something first."; ta.focus(); return; }
-      var t = devoToday(), x = { id: jrDraftId(ta.dataset), d: todayKey(), at: Number(ta.dataset.jrAt), t: v, tags: [], src: "devo", p: t && t.e ? t.e.reflect : "" };
+      var t = devoToday(), id = jrDraftId(ta.dataset), prior = (state.journal || []).filter(function (y) { return y.id === id; })[0];
+      var x = prior ? Object.assign({}, prior, { t: v, edited: Date.now() }) : { id: id, d: todayKey(), at: Number(ta.dataset.jrAt), t: v, tags: [], src: "devo", p: t && t.e ? t.e.reflect : "" };
       jrAction($("jr-devo-save"), m, async function (attempt) {
         await jrSave(x, attempt); ta.value = ""; delete ta.dataset.jrId; delete ta.dataset.jrAt; $("jr-devo-retry").hidden = true;
       }).then(function (saved) { if (saved) m.textContent = "✓ Saved to your journal. Only you can read it."; });
@@ -10506,7 +10507,7 @@ header.hero .me-btn { border-color:#e87328; }
         var tg = el("div", "jr-tags"); (x.tags || []).forEach(function (k) { tg.appendChild(el("span", "jr-tg", jrLabel(k))); });
         if (x.ans) tg.appendChild(el("span", "jr-tg ans", "✓ Answered " + new Date(x.ans).toLocaleDateString(undefined, { month: "short", day: "numeric" })));
         if ((x.tags || []).indexOf("prayer") >= 0) { var ab = el("button", "mini", x.ans ? "Undo answered" : "Mark answered"); ab.type = "button";
-          ab.addEventListener("click", function () { var y = Object.assign({}, x); if (y.ans) delete y.ans; else y.ans = Date.now(); jrAction(ab, jm, async function (attempt) { await jrSave(y, attempt); }); }); var jm = el("p", "note", ""); jm.setAttribute("role", "status"); li.appendChild(jm); tg.appendChild(ab); }
+          ab.addEventListener("click", function () { var latest = (state.journal || []).filter(function (entry) { return entry.id === x.id; })[0] || x; var y = Object.assign({}, latest); if (x.ans) delete y.ans; else y.ans = Date.now(); jrAction(ab, jm, async function (attempt) { await jrSave(y, attempt); }); }); var jm = el("p", "note", ""); jm.setAttribute("role", "status"); li.appendChild(jm); tg.appendChild(ab); }
         if (tg.childNodes.length) li.appendChild(tg);
         ul.appendChild(li);
       });
