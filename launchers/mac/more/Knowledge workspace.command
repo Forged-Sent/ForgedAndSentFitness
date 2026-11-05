@@ -13,7 +13,7 @@ for fs_candidate in python3.13 python3.12 python3.11 python3; do
   fi
 done
 if [ -z "$fs_python" ]; then
-  echo 'Python 3.11+ is required. Double-click START-MAC.command, choose 2 to set up as a Contributor, and retry.'
+  echo 'Python 3.11+ is required. Double-click START-MAC.command, choose 1 to set up this computer, and retry.'
   if [ -t 0 ]; then read -r -p 'Press Return to close...' _answer; fi
   exit 1
 fi

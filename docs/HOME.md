@@ -8,7 +8,7 @@ Welcome. **Git stores project decisions and history; code and tests establish wh
 2. [Read the current knowledge index](knowledge/INDEX.md) and [what is verified](knowledge/CURRENT.md).
 3. [Browse the live HTML prototype and Architecture Atlas](development/KNOWLEDGE-WORKSPACE.md). These are interactive webpages, not Markdown previews.
 4. [Choose a feature contract](features/README.md) before changing app behavior.
-5. [Make your first Draft PR](development/FIRST-CONTRIBUTION.md), with one optional AI assistant and deterministic tests.
+5. [Make your first Draft PR](development/FIRST-CONTRIBUTION.md), with any optional AI assistants you use and deterministic tests.
 
 ## Important boundaries
 
