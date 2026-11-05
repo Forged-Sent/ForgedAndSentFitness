@@ -44,7 +44,7 @@ fs_record(){
   fs_id="$1"; fs_state="$2"; fs_reason="$3"; fs_fix="$4"
   if fs_required "$fs_id"; then fs_kind=REQUIRED; else fs_kind=OPTIONAL; fi
   if [ "$fs_state" != Ready ] && [ "$fs_kind" = OPTIONAL ]; then
-    case "$fs_id" in AndroidStudio|Maestro|Java|DevCloudIdentity|ClaudeCLI|CodexCLI|AntigravityCLI)
+    case "$fs_id" in AndroidStudio|Maestro|Java|DevCloudIdentity|ClaudeCLI|CodexCLI|AntigravityCLI|Xcode)
       fs_not_in_profile="${fs_not_in_profile:+$fs_not_in_profile, }$fs_id"; return 0;;
     esac
   fi
@@ -110,6 +110,7 @@ if fs_has firebase && [ "$(firebase --version 2>/dev/null || true)" = "$FS_FIREB
 fs_probe CodexCLI codex 'Optional: choose Codex as your AI assistant and sign in separately.'
 fs_probe ClaudeCLI claude 'Optional: choose Claude as your AI assistant and sign in separately.'
 fs_probe AntigravityCLI agy 'Optional: pick Antigravity (4) during setup, then sign in by running agy.'
+if [ -d /Applications/Xcode.app ]; then fs_record Xcode Ready '' ''; else fs_record Xcode Missing 'Xcode is not installed (only needed for iPhone testing).' 'START-MAC.command > 8 > 5.'; fi
 if [ -d '/Applications/Android Studio.app' ]; then fs_record AndroidStudio Ready '' ''; else fs_record AndroidStudio Missing 'Android Studio not installed.' 'Install Android Studio manually for Mobile workflows.'; fi
 fs_probe Maestro maestro 'Optional: install Maestro when you are ready for native device tests.'
 fs_probe Java java 'Java is optional for Preview; Contributor uses JDK 21.'
