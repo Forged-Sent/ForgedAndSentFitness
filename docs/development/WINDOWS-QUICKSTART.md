@@ -1,57 +1,53 @@
-# Forged & Sent: Windows setup (no programming experience needed)
+# Forged & Sent: Windows quickstart (Git, not ZIP)
 
-These instructions are for teammates who want to **see the Flutter app running on their own Windows computer** or start making changes. You do not need your friend's Linux server, a Firebase account, or Android Studio for the initial browser preview.
+**Start here.** You do not need programming experience or a Firebase account. The local `demo-forgedandsent` Auth, Firestore and Storage emulators never touch real cloud data. The Flutter screen is currently a starter, not the completed fitness app.
 
-## Why PowerShell 7 is included
+## First time: get the repository
 
-The CMD file uses built-in Windows PowerShell 5.1 only to bootstrap the current supported **PowerShell 7.6 LTS+** via WinGet. The rest of the installer and the app tools run under pwsh.exe. PowerShell 5.1 stays on Windows. If the upgrade is blocked or cannot complete, follow the exact message in the setup window or ask your IT team.
+1. Install [Git for Windows](https://git-scm.com/install/windows) if `git --version` does not work. You can also choose [GitHub Desktop](https://desktop.github.com/) for a graphical clone, but the developer scripts require the Git command-line executable.
+2. In PowerShell or VS Code Terminal, run:
 
-## First time: three simple steps
+```powershell
+git clone https://github.com/Forged-Sent/ForgedAndSentFitness.git
+cd ForgedAndSentFitness
+git status
+```
 
-1. Open the GitHub pull request or branch provided by your teammate. Choose **Code > Download ZIP** and use **Extract All** in Windows File Explorer. **Do not run scripts directly from inside the ZIP.**
-2. Open the extracted folder. Double-click **SETUP-WINDOWS.cmd**. Read any Windows installer prompts and follow them. It installs or reuses Git, Visual Studio Code, Google Chrome, and Flutter. It also downloads Flutter's project dependencies and checks the starter app.
-3. Double-click **RUN-APP.cmd**. Chrome opens the current Flutter app. Keep the black command window open while using it. Close that window to stop the app.
+If you've already cloned it, **reuse that folder**. Do not download a ZIP or make a second checkout. Check `git status` first, then `git switch main`, `git fetch origin` and `git pull --ff-only`. If Git reports unsaved changes or divergence, stop rather than resetting or deleting work.
 
-> Only run the setup from the repository you trust. Windows may show a first-run security or install prompt. The command file limits PowerShell's execution-policy bypass to that one process; it does not permanently weaken the computer's policy.
+**While PR #4 is still unmerged:** an advanced tester may explicitly choose the PR branch using `git fetch origin pull/4/head:pr4-workstation-test` and `git switch pr4-workstation-test`. To pick up later PR updates while on that branch, run `git pull --ff-only origin pull/4/head`. This is for reviewing PR #4 *before* it lands. All normal contributor instructions use `main` so they remain valid after merge.
 
-## What you'll see
+## Set up and run (double-click only)
 
-At this stage, the Flutter app shows a smoke-test welcome screen: **Forged & Sent / Faith. Training. Brotherhood.** It is not yet the full devotional/fitness prototype. It does not connect to Firebase or sync data.
+Open the cloned `ForgedAndSentFitness` folder in **File Explorer**. Then open `launchers`, then `windows`, and double-click the files in number order:
 
-## Want to work on Android phones too?
+1. **`1 - Set up this computer.cmd`** installs or reuses Flutter, VS Code, Node, GitHub CLI, Firebase CLI, JDK 21, Python 3 and developer guardrails. Approve only trusted installer prompts. It asks which optional AI assistants you use (any combination, or none) and helps set a Git commit name and email (a GitHub `noreply` address is fine). It also asks whether to add Android testing. When the install finishes it offers **Try it now**: it starts practice Firebase, opens the app connected to it, asks what you saw and prints a checklist. Safe to rerun.
+2. **`2 - Run the app.cmd`** opens the small Forged & Sent screen in Chrome.
+3. **`3 - Start practice Firebase.cmd`** and **`4 - Run app with practice Firebase.cmd`** are explained in the next section.
+4. **`5 - Check my setup.cmd`** explains anything missing, with a WHY and FIX line for each item.
 
-Double-click **SETUP-ANDROID.cmd** (optional). It additionally installs Android Studio and creates Android project files. On first launch, Android Studio still needs you to finish the SDK download/first-run wizard, review Android SDK licenses (\`flutter doctor --android-licenses\`), and set up a phone or emulator. This setup does not silently accept licenses.
+Prefer a menu? Double-click **`START-WINDOWS.cmd`** in the main folder instead; it offers the same steps plus extras. If Windows SmartScreen appears, choose **More info**, then **Run anyway**, only for these project files.
 
-For iPhone simulator builds, you need a Mac with Xcode. On Windows, use Chrome and/or an Android phone.
+Only want to look at the app, not edit it? Use `launchers/windows/more/Preview-only setup.cmd` instead of step 1.
 
-## Making changes
+Codex, Claude Code, Copilot and Antigravity are all optional; pick only the ones you already have accounts for. Flutter/Dart tools are independent of a paid AI plan.
 
-Open Visual Studio Code, choose **File > Open Folder**, and select the extracted repository folder. The Flutter code is under \`mobile/lib\`. If VS Code asks about Flutter/Dart extensions, accept. For long-term collaboration, use Git clone and separate branches rather than repeatedly downloading ZIPs.
+## Verify local Firebase
 
-## If something goes wrong
+1. Open `launchers/windows/3 - Start practice Firebase.cmd` and keep that window running. Wait until it says **All emulators ready! It is now safe to connect your app.** If it instead says a port "is already in use" ("Are you running another copy of the emulator suite?"), close the other emulator window or development server, or restart the computer, and try again. Don't edit `firebase.json`.
+2. In another window open `launchers/windows/4 - Run app with practice Firebase.cmd`.
+3. Confirm the Flutter screen reports verified local Auth, Firestore and Storage. Stopping one emulator and starting the app again must produce an error, **never cloud fallback**.
 
-- Rerun SETUP-WINDOWS.cmd; installed tools are reused.
-- Copy only the non-sensitive error message or use the redacted Ask AI diagnostics report. Review it before sharing; do not share installation transcripts or credentials.
-- The setup also writes a log named \`ForgedAndSent-setup-*.log\` in your Windows temporary folder (press Win+R, type \`%TEMP%\`).
-- If Windows reports that \`winget\` is missing, install or update Microsoft's **App Installer** and rerun.
-- If setup is blocked by a corporate laptop policy, ask your IT team for help. Do not disable company security controls.
-- If Chrome cannot launch, verify Chrome is installed and rerun setup.
-- The first SDK download can be large, and normal internet access is required.
+No Firebase account, `firebase login`, `flutterfire configure`, or production credentials are required.
 
-## What gets installed
+## Your first small contribution
 
-| Tool | Why |
-|---|---|
-| Git for Windows | Downloads the official Flutter SDK; supports code collaboration |
-| Visual Studio Code | Editor for Flutter and Dart |
-| Google Chrome | Runs the starter Flutter app on Windows |
-| Flutter stable SDK | Compiles and runs the app; also includes the Dart SDK |
-| Android Studio (optional) | Android SDK, emulator and Android build tools |
+Follow **[FIRST-CONTRIBUTION.md](FIRST-CONTRIBUTION.md)** for a graphical Windows/Mac route: VS Code Source Control, one harmless edit, Flutter tests, a new branch, draft PR and GitHub `ci-gate`. Ask the maintainer for GitHub organization/repository write access before trying to publish a branch; without it, use the normal fork/PR route.
 
-The script uses Microsoft WinGet for Windows applications and clones Flutter's official stable GitHub repository into your user folder (\`%USERPROFILE%\develop\flutter\`). It does not sign in to Firebase, install AI tools, deploy services, or access anyone's private data.
+Use `launchers/windows/5 - Check my setup.cmd` to diagnose missing tools, `launchers/windows/more/Architecture Atlas.cmd` for the offline Architecture Atlas, and `launchers/windows/more/AI code review.cmd` for **optional** non-author AI review.
 
-## Official help
+Optional Android development requires Android Studio, SDK licenses and a configured emulator/device; Windows cannot run the iOS simulator.
 
-- Flutter Windows setup: https://docs.flutter.dev/install/manual
-- Flutter Android setup: https://docs.flutter.dev/platform-integration/android/setup
-- Windows Package Manager: https://learn.microsoft.com/en-us/windows/package-manager/winget/install
+If setup cannot finish, rerun it and use the wizard's redacted Ask AI report. Never share passwords or API keys or disable company security controls.
+
+More detail: [developer setup](DEVELOPER-WINDOWS.md), [Firebase emulators](FIREBASE-EMULATOR.md), [troubleshooting](FIRST-RUN-TROUBLESHOOTING.md).

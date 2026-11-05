@@ -13,6 +13,7 @@ from check import evaluate
 ROOT = Path(__file__).resolve().parents[2]
 PATHS = [
     ".vscode/mcp.json", ".mcp.json", ".codex/config.toml",
+    ".vscode/mcp-optional.example.json", ".mcp.optional.example.json", ".codex/config.optional.example.toml",
     ".github/CODEOWNERS", ".github/agents/architecture-reviewer.agent.md",
     ".github/agents/firebase-security.agent.md",
     ".claude/agents/architecture-reviewer.md", ".claude/agents/firebase-security.md",
@@ -23,6 +24,8 @@ PATHS = [
     "tooling/windows/setup.ps1",
     ".vscode/settings.json", "mobile/pubspec.lock",
     "docs/development/REPOSITORY-SECURITY.md",
+    "mobile/lib/main.dart", "mobile/lib/src/firebase/forged_firebase_runtime.dart",
+    "tooling/windows/run-emulator-app.ps1",
 ]
 
 class PolicyTests(unittest.TestCase):
@@ -42,8 +45,21 @@ class PolicyTests(unittest.TestCase):
     def test_clean_configuration(self):
         self.assertEqual(evaluate(self.root), [])
 
+    def test_launcher_dart_define_must_match_app_key(self):
+        # FNS_ENV vs FS_ENV previously sent the emulator launcher into preview mode.
+        launcher = self.root / "tooling/windows/run-emulator-app.ps1"
+        launcher.write_text(launcher.read_text(encoding="utf-8").replace(
+            "--dart-define=FS_ENV=", "--dart-define=FNS_ENV="), encoding="utf-8")
+        self.assert_violation("--dart-define=FNS_ENV is never read by mobile/lib")
+
+    def test_instruction_cannot_mandate_second_reviewer(self):
+        doc = self.root / "docs/development/ENGINEERING-RESEARCH.md"
+        doc.parent.mkdir(parents=True, exist_ok=True)
+        doc.write_text("Mode C: independent Firebase security review plus another human.\n", encoding="utf-8")
+        self.assert_violation("mandates an extra reviewer")
+
     def test_literal_google_api_key_is_rejected(self):
-        path = self.root / ".vscode/mcp.json"
+        path = self.root / ".vscode/mcp-optional.example.json"
         obj = json.loads(path.read_text())
         obj["servers"]["google-developer-knowledge"]["headers"]["X-Goog-Api-Key"] = "FAKE_TEST_VALUE_ONLY"
         path.write_text(json.dumps(obj))
@@ -56,7 +72,7 @@ class PolicyTests(unittest.TestCase):
         self.assert_violation("MCP names differ")
 
     def test_renamed_firebase_executable_rejected(self):
-        path = self.root / ".mcp.json"
+        path = self.root / ".mcp.optional.example.json"
         obj = json.loads(path.read_text())
         obj["mcpServers"]["maestro"] = {"command":"firebase-tools","args":["mcp"]}
         path.write_text(json.dumps(obj))
@@ -152,6 +168,14 @@ class PolicyTests(unittest.TestCase):
         path = self.root / ".github/CODEOWNERS"
         path.write_text(path.read_text().replace("/mobile/ @Chadillac12", "/mobile/ @someoneelse"))
         self.assert_violation("protected path is unowned: /mobile/")
+
+    def test_gemini_and_knowledge_paths_have_maintainer_routing(self):
+        path = self.root / ".github/CODEOWNERS"
+        original = path.read_text(encoding="utf-8")
+        path.write_text(original.replace("/.gemini/ @Chadillac12", ""))
+        self.assert_violation("protected path is unowned: /.gemini/")
+        path.write_text(original.replace("/docs/knowledge/ @Chadillac12", ""))
+        self.assert_violation("protected path is unowned: /docs/knowledge/")
 
     def test_proto_changes_must_not_be_owned_by_repository_wildcard(self):
         path = self.root / ".github/CODEOWNERS"

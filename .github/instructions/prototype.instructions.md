@@ -8,4 +8,4 @@ applyTo: "index.html,versions/**,dev/**,seed/**"
 - Keep `index.html` current and archived `versions/app-vN.html` files immutable.
 - Run `python3 dev/make_preview.py`; review in a browser and state what was not tested.
 - Use the mock only for visual/interaction checks, not real data-access or persistence claims.
-- Human approval is optional ONLY for the explicit low-risk prototype exceptions in `tooling/policy/review_scope.py`. `dev/make_preview.py`, `dev/patches/**`, `dev/firebase/**`, protected seed rules and all unfamiliar paths require approval; privacy/security/scoring decisions always need human sign-off.
+- Required CI applies to prototype and executable scripts. Additional human approval is not mandatory for the solo maintainer; privacy/security/scoring changes need explicit maintainer decisions and appropriate tests. Non-author AI review is an optional second opinion.
