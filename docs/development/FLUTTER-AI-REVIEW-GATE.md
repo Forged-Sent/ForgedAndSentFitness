@@ -1,87 +1,134 @@
-# Functional Flutter AI review gate — draft
+# Functional Flutter AI review gate
 
-The maintainer requested mandatory Codex or Claude review of functional Flutter
-pull requests, preferably by the provider that did not author the change.
-This is a new, scoped policy request. Existing documentation describing all AI
-reviews as optional must be reconciled when the workflow is implemented.
+The maintainer selected automatic GitHub Actions reviews: Codex authorship routes
+to Claude, and Claude authorship to Codex. The workflow is implemented locally;
+server enforcement stays disabled until hosted activation checks pass.
 
 ## Current state
 
-The repository has a **disabled** ruleset named Functional Flutter AI review,
-[ID 26653964](https://github.com/Forged-Sent/ForgedAndSentFitness/rules/26653964).
-Its payload is [.github/rulesets/flutter-ai-review.json](../../.github/rulesets/flutter-ai-review.json).
-It will require a GitHub Actions check named `flutter-ai-review` on the default
-branch when activated. Existing `ci-gate` protection remains unchanged.
+[Ruleset 26653964](https://github.com/Forged-Sent/ForgedAndSentFitness/rules/26653964)
+is **disabled**. Its [payload](../../.github/rulesets/flutter-ai-review.json)
+requires the GitHub Actions status `flutter-ai-review` on the default branch.
+Existing `ci-gate` and zero required human approvals are unchanged.
+The producer is [flutter-ai-review.yml](../../.github/workflows/flutter-ai-review.yml)
+with a [trusted coordinator](../../tooling/review/github_gate.py). It publishes on
+the PR head, not the pull_request_target base SHA. Automatic triggers need the
+workflow merged into main first.
 
-There is no hosted review workflow yet, and this disabled rule does not enforce
-reviews. No repository Actions secrets or variables were present on November 5.
-The user has been asked whether reviews should run in Actions, existing GitHub
-apps, or local authenticated CLIs with verified publication. That answer remains
-pending; no paid automation or credential transfer is authorized by this draft.
+## Credential setup
 
-## Prepared policy
+1. Open [repository Actions secrets](https://github.com/Forged-Sent/ForgedAndSentFitness/settings/secrets/actions).
+2. Connect the repository in [Codex code review settings](https://chatgpt.com/codex/settings/code-review)
+   and enable automatic reviews for the desired PR events. Codex reviews use the
+   maintainer's connected Codex account. No OpenAI API key or exported desktop
+   login is used in GitHub Actions. The gate verifies the native GitHub review
+   receipt on the current PR head; Codex must actually post one for this route
+   to pass.
+3. Run `claude setup-token` in PowerShell/Terminal on your own PC. Complete the
+   browser flow and paste the generated token directly into a GitHub secret named
+   `CLAUDE_CODE_OAUTH_TOKEN`. `ANTHROPIC_API_KEY` is an alternative; if both exist,
+   the API key wins.
+4. Keep values out of chat, issues, commits and review reports. Agents can check
+   secret names without reading values. This custom Claude CLI workflow does not
+   need a separate write-capable Claude GitHub App.
+5. Optional variable `AI_REVIEW_CLAUDE_MODEL` chooses a model available to your
+   Claude account. Otherwise the pinned CLI selects its default.
 
-The tested classifier is [flutter_scope.py](../../tooling/review/flutter_scope.py).
-It includes non-documentation files under `mobile/`, `firebase/` and
-`tooling/firebase/`, including tests, dependencies, assets and native hosts.
-Root Firebase rules/configuration and the gate's own implementation/configuration
-also require review. Renames inspect both paths; removals count. Ordinary Markdown
-and reStructuredText changes, and the separate HTML prototype, are exempt.
-Comment-only Dart changes conservatively count as functional: no semantic
-classifier claims that a code edit is harmless.
+## Scope and routing
 
-Proposed declared-author labels route reviews as follows:
+[flutter_scope.py](../../tooling/review/flutter_scope.py) includes functional files
+under mobile/, firebase/ and tooling/firebase/: code, tests, dependencies, assets
+and native hosts. Root Firebase rules/configuration and the gate's own files also
+require review. Renames inspect both paths; removals count. README/changelog and
+docs-directory Markdown/reStructuredText are exempt. Bundled Markdown assets count
+as functional. The separate HTML prototype is outside this gate. Comment-only Dart
+edits conservatively count; the classifier does not infer harmless semantics.
 
-| Authorship | Reviewer |
+| Declared authorship label | Reviewer |
 |---|---|
-| `authorship:codex` | Claude |
-| `authorship:claude` | Codex |
-| `authorship:human` | Codex by default |
-| `authorship:mixed` | Both, with the overlap disclosed |
+| authorship:codex | Claude |
+| authorship:claude | Codex |
+| authorship:human | Codex by default |
+| authorship:mixed | Both, with overlap disclosed |
 
-Missing or conflicting authorship labels block the functional review path.
-Labels are a maintainer declaration, not cryptographic evidence of authorship.
-For mixed Codex/Claude authorship, reviewing with both does not establish a fully
-independent provider for the entire change. Human assessment may still be needed.
+Missing, unknown or conflicting labels block functional review. Labels are a
+maintainer declaration, not proof of identity. Mixed-provider reviews do not
+establish an independent provider for every part; human assessment may be needed.
 
-## Workflow acceptance criteria
+## Execution and evidence
 
-1. Always publish the required check for each PR head. Exempt changes produce an
-   explicit successful "review not required" result; do not skip the required
-   workflow using a path filter.
-2. Bind results to the exact current head and base, reviewer identity, complete
-   scoped diff and review outcome. A comment saying a review ran, an old-head
-   report, or an author-supplied JSON file is insufficient.
-3. Run scope, routing and result validation from trusted base/default-branch code.
-   Treat PR source and comments as untrusted review material. Do not execute PR
-   scripts with provider credentials or give the model a write-capable GitHub
-   token. Keep model review and authenticated result publication separate.
-4. Run the opposite provider for single-provider authorship. Handle unavailable
-   providers, missing credentials, timeouts and incomplete reviews explicitly;
-   a failed review cannot silently become a passing check.
-5. Keep deterministic CI required and human approval count unchanged. The AI
-   review completion gate does not impersonate a human approving review.
-6. Agree whether successful completion alone or an accepted PASS is required.
-   Recommended: complete review with no unresolved critical/high finding.
-7. Verify a docs-only case, a Codex-authored functional case and a Claude-authored
-   functional case on GitHub before activating the ruleset. Verify that a new
-   commit invalidates old review evidence and an absent review blocks merging.
-8. Reconcile AGENTS.md, review workflow documentation and applicable skills with
-   the approved scope. Do not claim enforcement before the active rule and its
-   producer have both been verified.
+- Open, ready, push, base-edit and authorship-label events trigger review.
+  Irrelevant labels do not spend provider usage. Re-review an unchanged head from
+  Actions → Functional Flutter AI review → Run workflow, entering the PR number.
+  Use **Re-run all jobs** for retries: artifacts are isolated by run attempt.
+- A trusted default-branch schedule checks for newly completed Codex reviews
+  every 15 minutes and dispatches a fresh gate run. The native Codex route waits
+  in a pending state until its exact-head review is available; it does not send
+  an implementor handoff merely because Codex is still working.
+- Scheduled dispatches run as GitHub Actions on the default branch and can
+  initiate the already-classified review; human dispatches still require a
+  repository collaborator. This schedule-to-dispatch path must be checked live
+  before enforcement is enabled.
+- Functional drafts stay blocked until ready; docs-only PRs pass without models.
+  A write/maintain/admin actor must trigger paid review. For outside contributors,
+  a maintainer inspects the PR and uses Run workflow.
+- Preparation checks out trusted default-branch policy and fetches PR objects
+  without checking out PR files. Only scoped diffs and baseline guidance become
+  review data; PR code is never executed. Functional lockfiles are included.
+- Claude reviewer jobs have no write-capable GitHub token and receive only the
+  Claude subscription token in isolated configuration. Claude tools/MCP/skills
+  are disabled. Codex runs as the connected GitHub review service; the gate reads
+  its submitted review and verifies reviewer identity and exact commit. Raw
+  model/auth output is not logged. A separate publisher validates evidence.
+- Stale, missing, cancelled, incomplete or changes-required reviews fail. PASS
+  requires every slice and no unresolved critical/high findings. Findings and
+  limitations are in the review-summary artifact. This is not a human approval.
+- After publication, GitHub comments once per review run on the PR and mentions
+  its author with the result and a link to the evidence. The author hands findings
+  to the declared Codex or Claude implementor session. A local agent session is
+  not awakened by a GitHub comment; automatic fix pushes are not enabled.
+- Native Codex is accepted only when its GitHub bot submits a review receipt for
+  the exact PR head after any base retargeting, with no inline findings in any
+  review on that head and an explicit no-issues receipt. A new commit is needed
+  after findings are fixed. Codex may signal a clean review with
+  only a thumbs-up reaction. Until hosted acceptance proves a safe way to bind
+  that signal to a commit, such a run fails closed and needs investigation.
+- Limits: 3000 files, 400000 functional diff characters, four slices, ten minutes
+  per model call. Binary functional changes fail closed and require a reviewable
+  text/source representation in this first version.
 
-GitHub Actions as the required check's integration restricts its producer app,
-not the precise workflow file. This draft is not a tamper-proof attestation system
-against repository administrators or contributors able to create equivalent
-write-capable workflows. Stronger enforcement needs a separately controlled
-GitHub App or organization-enforced trusted workflow.
+## Activation checklist
+
+1. Review and merge the workflow PR under existing protections.
+2. Create the four authorship labels and declare all substantial authoring providers.
+3. Confirm the Claude subscription secret and enable Codex GitHub automatic review.
+4. Exercise docs-only, Codex-authored functional and Claude-authored functional PRs
+   on GitHub. Confirm routing, the implementor handoff, inspect findings and verify
+   exact-head success. Specifically test a clean native Codex review and its receipt.
+5. Verify that new commits invalidate prior evidence, missing credentials and
+   incomplete reviews block merging, and GitHub Actions app 15368 emits the status.
+   Test base retargeting and a second PR sharing one head; observe the short
+   interval before the new run posts pending, since commit statuses persist across
+   PR context changes.
+6. Activate ruleset 26653964 only after those hosted checks pass. Keep Protect main
+   unchanged. The maintainer requested activation, but it needs a working producer.
+
+The required integration identifies GitHub Actions, not one exact workflow. This
+is not tamper-proof against administrators or contributors able to create an
+equivalent write-capable workflow. Stronger enforcement needs a separately
+controlled GitHub App or organization-enforced trusted workflow. Base identity is
+checked during publication; unrelated later main updates do not automatically
+rerun every PR unless another configured PR event occurs.
 
 ## Verification
 
-`python -m unittest discover -s tooling/review -p test_flutter_scope.py -v`
-covers seven scope/routing cases. Provider execution, GitHub result publication,
-cross-provider hosted review and active merge enforcement are **NOT VERIFIED**.
+Run `python -m unittest discover -s tooling/review -p 'test_*.py' -v`.
+Tests cover routing, secret isolation, stale evidence, failed jobs, incomplete
+results and actual object fetching without a PR checkout. Hosted execution,
+GitHub status publication and active enforcement remain **NOT VERIFIED** until
+the activation checklist is run.
 
-References: [required-check handling](https://docs.github.com/en/pull-requests/how-tos/merge-and-close-pull-requests/troubleshooting-required-status-checks),
-[Claude Action setup](https://github.com/anthropics/claude-code-action/blob/main/docs/setup.md),
-[Codex Action](https://github.com/openai/codex-action).
+References: [required checks](https://docs.github.com/en/pull-requests/how-tos/merge-and-close-pull-requests/troubleshooting-required-status-checks),
+[Codex authentication](https://learn.chatgpt.com/docs/auth),
+[Claude setup](https://code.claude.com/docs/en/github-actions),
+[Claude tool restrictions](https://code.claude.com/docs/en/cli-reference).

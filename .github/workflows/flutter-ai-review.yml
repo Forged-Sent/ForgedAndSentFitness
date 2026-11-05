@@ -1,0 +1,158 @@
+name: Functional Flutter AI review
+run-name: "Flutter AI review ${{ github.event_name == 'schedule' && 'reconcile' || format('PR #{0}', github.event.pull_request.number || inputs.pr) }}"
+on:
+  pull_request_target:
+    types: [opened, synchronize, reopened, ready_for_review, converted_to_draft, edited, labeled, unlabeled]
+  schedule:
+    - cron: '7,22,37,52 * * * *'
+  workflow_dispatch:
+    inputs:
+      pr:
+        description: Pull request number to review again
+        required: true
+        type: string
+
+# Required status is explicitly published on the PR head, not this event's base SHA.
+# Queued runs never cancel a reviewer halfway through publication.
+concurrency:
+  group: ${{ (github.event_name == 'workflow_dispatch' || (github.event_name == 'pull_request_target' && ((github.event.action != 'labeled' && github.event.action != 'unlabeled' && github.event.action != 'edited') || (github.event.action == 'edited' && github.event.changes.base != null) || ((github.event.action == 'labeled' || github.event.action == 'unlabeled') && startsWith(github.event.label.name, 'authorship:'))))) && format('flutter-ai-review-pr-{0}', github.event.pull_request.number || inputs.pr) || format('flutter-ai-review-other-{0}', github.run_id) }}
+  cancel-in-progress: false
+permissions: {}
+
+jobs:
+  reconcile:
+    if: github.event_name == 'schedule'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      actions: write
+      contents: read
+      pull-requests: read
+      statuses: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ github.event.repository.default_branch }}
+          persist-credentials: false
+      - name: Reconcile completed Codex reviews from trusted policy
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          DEFAULT_REF: ${{ github.event.repository.default_branch }}
+        run: python3 tooling/review/reconcile_codex.py
+
+  prepare:
+    if: >-
+      github.event_name != 'schedule' &&
+      ((github.event.action != 'labeled' && github.event.action != 'unlabeled') ||
+      startsWith(github.event.label.name, 'authorship:')) &&
+      (github.event.action != 'edited' || github.event.changes.base != null)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      pull-requests: read
+      statuses: write
+    outputs:
+      required: ${{ steps.prepare.outputs.required }}
+      providers: ${{ steps.prepare.outputs.providers }}
+      policy_sha: ${{ steps.prepare.outputs.policy_sha }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ github.event.repository.default_branch }}
+          fetch-depth: 0
+          persist-credentials: false
+      - id: prepare
+        name: Classify live PR and prepare exact diff as data
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.pull_request.number || inputs.pr }}
+        run: python3 tooling/review/github_gate.py prepare --pr "$PR_NUMBER" --work "$RUNNER_TEMP/gate"
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with:
+          name: review-input-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/gate/input.json
+          if-no-files-found: error
+          retention-days: 7
+
+  review:
+    needs: prepare
+    if: needs.prepare.outputs.required == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    permissions:
+      contents: read
+      pull-requests: read
+    strategy:
+      fail-fast: false
+      matrix:
+        provider: ${{ fromJSON(needs.prepare.outputs.providers) }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ needs.prepare.outputs.policy_sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1
+        with:
+          node-version: '22'
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333
+        with:
+          name: review-input-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/gate
+      - name: Install pinned Claude Code CLI
+        if: matrix.provider == 'claude'
+        run: npm install --global @anthropic-ai/claude-code@2.1.310
+      - name: Review with isolated provider credentials
+        env:
+          PROVIDER: ${{ matrix.provider }}
+          GH_TOKEN: ${{ github.token }}
+          ANTHROPIC_API_KEY: ${{ matrix.provider == 'claude' && secrets.ANTHROPIC_API_KEY || '' }}
+          CLAUDE_CODE_OAUTH_TOKEN: ${{ matrix.provider == 'claude' && secrets.CLAUDE_CODE_OAUTH_TOKEN || '' }}
+          AI_REVIEW_CLAUDE_MODEL: ${{ vars.AI_REVIEW_CLAUDE_MODEL }}
+        run: python3 tooling/review/github_gate.py review --provider "$PROVIDER" --work "$RUNNER_TEMP/gate"
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        if: always()
+        with:
+          name: review-result-${{ matrix.provider }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/gate/result-${{ matrix.provider }}.json
+          if-no-files-found: warn
+          retention-days: 7
+
+  publish:
+    needs: [prepare, review]
+    if: always() && needs.prepare.result == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      pull-requests: read
+      statuses: write
+      issues: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ needs.prepare.outputs.policy_sha }}
+          persist-credentials: false
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333
+        with:
+          pattern: review-*-${{ github.run_attempt }}
+          merge-multiple: true
+          path: ${{ runner.temp }}/gate
+      - name: Validate provider evidence and publish current-head status
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REVIEW_JOB_RESULT: ${{ needs.review.result }}
+        run: python3 tooling/review/github_gate.py publish --job-result "$REVIEW_JOB_RESULT" --work "$RUNNER_TEMP/gate"
+      - name: Notify the declared implementor
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python3 tooling/review/notify_implementor.py
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        if: always()
+        with:
+          name: review-summary-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/gate/summary.json
+          if-no-files-found: warn
+          retention-days: 30

@@ -6,9 +6,9 @@ must obtain changed paths and labels from GitHub, never from a PR-supplied repor
 from __future__ import annotations
 
 FUNCTIONAL_PREFIXES = ("mobile/", "firebase/", "tooling/firebase/")
-GATE_PREFIXES = ("tooling/review/", ".github/rulesets/")
+GATE_PREFIXES = ("tooling/review/", ".github/rulesets/", ".github/workflows/", ".github/actions/")
 FUNCTIONAL_ROOTS = {
-    "firebase.json", "firestore.rules", "firestore.indexes.json", "storage.rules",
+    "firebase.json", ".firebaserc", "firestore.rules", "firestore.indexes.json", "storage.rules",
     ".github/workflows/flutter-ai-review.yml",
 }
 AUTHOR_LABELS = {
@@ -27,7 +27,16 @@ def needs_review(path: str) -> bool:
         raise ValueError("Invalid repository-relative path")
     if path in FUNCTIONAL_ROOTS or path.startswith(GATE_PREFIXES):
         return True
-    return path.startswith(FUNCTIONAL_PREFIXES) and not path.lower().endswith((".md", ".rst"))
+    for prefix in FUNCTIONAL_PREFIXES:
+        if path.startswith(prefix):
+            rest = path[len(prefix):].lower()
+            # Markdown in assets or code directories may be bundled app content.
+            # Flutter may bundle Markdown from mobile/docs as an app asset.
+            documentation = rest in ("readme.md", "changelog.md", "readme.rst") or (
+                prefix != "mobile/" and rest.startswith("docs/")
+            )
+            return not (documentation and rest.endswith((".md", ".rst")))
+    return False
 
 
 def relevant_paths(files: list[dict]) -> list[str]:
@@ -43,7 +52,7 @@ def relevant_paths(files: list[dict]) -> list[str]:
 
 
 def reviewers_for(labels: list[str]) -> tuple[str, ...]:
-    selected = set(labels) & AUTHOR_LABELS.keys()
-    if len(selected) != 1:
+    selected = {label for label in labels if label.startswith("authorship:")}
+    if len(selected) != 1 or not selected <= AUTHOR_LABELS.keys():
         raise ValueError("Set exactly one authorship:codex/claude/human/mixed label")
     return AUTHOR_LABELS[selected.pop()]

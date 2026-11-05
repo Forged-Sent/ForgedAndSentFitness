@@ -9,8 +9,8 @@ class FlutterScopeTests(unittest.TestCase):
         for path in ("mobile/lib/main.dart", "mobile/test/widget_test.dart",
                      "mobile/pubspec.yaml", "mobile/pubspec.lock",
                      "mobile/android/app/build.gradle", "mobile/assets/icon.png", "mobile/assets/data.txt",
-                     "mobile/lib/l10n/app_en.arb", "firebase/firestore.rules",
-                     "tooling/firebase/package-lock.json", "firestore.rules"):
+                     "mobile/lib/l10n/app_en.arb", "mobile/assets/devotional.md", "firebase/firestore.rules",
+                     "tooling/firebase/package-lock.json", "firestore.rules", "mobile/docs/guide.md"):
             with self.subTest(path=path):
                 self.assertTrue(needs_review(path))
 
@@ -23,7 +23,8 @@ class FlutterScopeTests(unittest.TestCase):
     def test_gate_policy_cannot_exempt_itself(self):
         for path in ("tooling/review/flutter_scope.py", "tooling/review/README.md",
                      ".github/rulesets/flutter-ai-review.json",
-                     ".github/workflows/flutter-ai-review.yml"):
+                     ".github/workflows/flutter-ai-review.yml", ".github/workflows/other.yml",
+                     ".github/actions/check/action.yml"):
             self.assertTrue(needs_review(path))
 
     def test_removed_and_renamed_code_still_requires_review(self):

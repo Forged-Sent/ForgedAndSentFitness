@@ -55,11 +55,17 @@ flowchart LR
     F --> B
     D -->|No blocking findings| E[Push branch + Draft PR]
     E --> G[GitHub CI: policy + Flutter + platform builds]
-    G --> H[Human decision / review of risk]
+    G --> J{Functional Flutter or backend change?}
+    J -->|Yes| K[Hosted review gate: opposite provider]
+    J -->|No| H[Human decision / review of risk]
+    K --> L{Current-head review complete?}
+    L -->|Completed review with findings| M[Notify implementor; fix and rerun]
+    M --> B
+    L -->|Complete| H
     H --> I[Merge when GitHub rules permit]
 ```
 
-Review agents are **advisory**. A tool that wrote a change is not counted as an independent reviewer of that change. Local hooks are bypassable; GitHub `ci-gate` and server rules are the actual automated protections. No model may silently log into cloud Firebase, deploy, push to `main`, approve its own PR, or bypass branch protection.
+Review agents are **advisory**: their findings are evidence, not human approvals. A tool that wrote a change is not counted as an independent reviewer of that change. Local hooks are bypassable. GitHub `ci-gate` is active; the separate `flutter-ai-review` required-status ruleset is **disabled** while its producer is implemented and tested. Once activated, GitHub rules can require the coordinator's status, but the models still do not approve or merge PRs. Codex reviews use the connected Codex GitHub account; Claude reviews use the maintainer's `CLAUDE_CODE_OAUTH_TOKEN` repository secret. The coordinator must bind review evidence to the current PR head and base. Once a reviewer run reaches publication, the PR handoff notifies the implementor of findings or failed evidence; classification errors before review are visible in the workflow status. See [ADR-0004](ADR-0004-hosted-ai-review-gate.md) for trust limits. No model may silently log into cloud Firebase, deploy, push to `main`, approve its own PR, or bypass branch protection.
 
 ## Architecture maintenance contract
 
@@ -79,6 +85,7 @@ Review agents are **advisory**. A tool that wrote a change is not counted as an 
 | Firebase emulator config | `firebase.json`, `.firebaserc` |
 | Rules | `firebase/firestore.rules`, `firebase/storage.rules` |
 | Required checks | `.github/workflows/ci-gate.yml` |
+| Staged hosted review coordinator | `.github/workflows/flutter-ai-review.yml`, `tooling/review/github_gate.py`, `tooling/review/flutter_scope.py` |
 | Developer bootstraps | `tooling/windows/**`, `tooling/macos/**`, `tooling/shell/**` |
 | Independent reviewers | `tooling/review/**`, `.agents/skills/**`, `.claude/skills/**` |
 | Current symbol map | `docs/architecture/CODE-MAP.md` |
