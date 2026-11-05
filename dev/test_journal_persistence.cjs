@@ -146,6 +146,14 @@ const flush=async()=>{for(let i=0;i<8;i++)await Promise.resolve()};
  vm.runInContext('var backend = {'+method+'}; backend.db=db; backend.deleteAsset=async()=>{};',delctx);
  await delctx.backend.deleteMyData('test-user'); assert.ok(deleted.includes('data/users/test-user/journal/entries/j1'));
  failJournal=true; await assert.rejects(delctx.backend.deleteMyData('test-user'));
+ // The editor can remain open after a timed-out write is later acknowledged.
+ // Its answered action must not restore the captured older text/metadata.
+ const answeredBinding=html.split('\n').find(line=>line.includes('ab2.addEventListener("click"'));
+ assert.ok(answeredBinding,'PR40 answered editor binding exists');
+ let answeredWrite,answeredAction,answeredClick;
+ const answeredCtx={ed:{id:'answered-late',t:'old text',tags:['prayer']},state:{journal:[{id:'answered-late',t:'confirmed newer text',tags:['prayer','family'],ans:123}]},ta:{value:'unsaved editor draft'},F:{},msg:{},ab2:{addEventListener(_,fn){answeredClick=fn}},jrAction(_,__,fn){answeredAction=fn({check(){}})},async jrSave(value){answeredWrite=value},openJournal(){}};
+ vm.createContext(answeredCtx);vm.runInContext(answeredBinding,answeredCtx);answeredClick();await answeredAction;
+ assert.equal(answeredWrite.t,'confirmed newer text');assert.deepEqual(Array.from(answeredWrite.tags),['prayer','family']);assert.ok(answeredWrite.ans,'Mark answered preserves intended action even if latest entry is already answered');
  console.log('PASS: journal bounded wait, late-completion guard, stable retry IDs, pending-write deduplication, acknowledgement/delete failures and inline syntax');
 })().catch(e=>{console.error(e);process.exitCode=1});
 

@@ -10469,7 +10469,7 @@ header.hero .me-btn { border-color:#e87328; }
       if (ed && (ed.tags || []).indexOf("prayer") >= 0) {
         var abar = el("div", "jr-ansbar" + (ed.ans ? " done" : "")), atx = el("span", null, ed.ans ? "\u2713 Answered " + new Date(ed.ans).toLocaleDateString(undefined, { month: "short", day: "numeric" }) + ". Praise God." : "Still praying for this?");
         var ab2 = el("button", "mini" + (ed.ans ? "" : " on"), ed.ans ? "Undo" : "Mark answered"); ab2.type = "button";
-        ab2.addEventListener("click", function () { var y = Object.assign({}, ed); if (y.ans) delete y.ans; else y.ans = Date.now(); jrAction(ab2, msg, async function (attempt) { await jrSave(y, attempt); F.t = ta.value; openJournal({ edit: y.id, keep: true }); }); });
+        ab2.addEventListener("click", function () { var latest = (state.journal || []).filter(function (x) { return x.id === ed.id; })[0] || ed; var y = Object.assign({}, latest); if (ed.ans) delete y.ans; else y.ans = Date.now(); jrAction(ab2, msg, async function (attempt) { await jrSave(y, attempt); F.t = ta.value; openJournal({ edit: y.id, keep: true }); }); });
         abar.appendChild(atx); abar.appendChild(ab2); box.appendChild(abar);
       }
       var ta = el("textarea", "field jr-ta"); ta.rows = 7; ta.maxLength = 4000; ta.placeholder = "What happened today? Something you noticed in your workout, a win at work, a moment at home, what God is showing you."; ta.setAttribute("aria-label", "Your journal entry"); ta.value = F.t;
