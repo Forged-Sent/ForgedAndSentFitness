@@ -242,6 +242,37 @@ class BeginnerContractTests(unittest.TestCase):
             self._ensure_flutter(env)
             self.assertEqual((sdk / "engine" / "part1.cc").read_text(), "// my local change\n")
 
+    def test_mac_never_uses_an_older_jdk_that_java_home_falls_back_to(self):
+        # /usr/libexec/java_home -v 21 prints the default JDK (e.g. 17) when no 21
+        # exists; firebase-tools then refuses to start the practice Firebase.
+        with tempfile.TemporaryDirectory() as directory:
+            tmp = pathlib.Path(directory)
+            def jdk(path: pathlib.Path, text: str) -> pathlib.Path:
+                (path / "bin").mkdir(parents=True)
+                java = path / "bin" / "java"
+                java.write_text(f"#!/bin/bash\necho '{text}' >&2\n")
+                java.chmod(0o755)
+                return path
+            old = jdk(tmp / "jdk17", 'openjdk version "17.0.9" 2023-10-17')
+            new = jdk(tmp / "brew21" / "libexec" / "openjdk.jdk" / "Contents" / "Home",
+                      'openjdk version "21.0.5" 2024-10-15')
+            tool = tmp / "java_home"
+            tool.write_text(f"#!/bin/bash\necho {old}\n")
+            tool.chmod(0o755)
+            fake = tmp / "bin"
+            fake.mkdir()
+            brew = fake / "brew"
+            brew.write_text('#!/bin/bash\n[ "$2" = openjdk@21 ] && [ -n "$BREW21" ] && echo "$BREW21"\n')
+            brew.chmod(0o755)
+            script = f'. "{ROOT}/tooling/macos/common.sh"; fs_java21_home'
+            base = {"PATH": f"{fake}:/usr/bin:/bin", "HOME": str(tmp), "FS_JAVA_HOME_TOOL": str(tool)}
+            only_old = subprocess.run(["bash", "-c", script], env={**base, "BREW21": ""},
+                                      capture_output=True, text=True)
+            self.assertNotEqual(only_old.returncode, 0, only_old.stdout)
+            with_new = subprocess.run(["bash", "-c", script], env={**base, "BREW21": str(tmp / "brew21")},
+                                      capture_output=True, text=True)
+            self.assertEqual(with_new.stdout.strip(), str(new))
+
     def test_wizard_menu_numbers_match_the_launcher_numbers(self):
         mac = read("tooling/macos/first-run.sh")
         for line in ("1) fs_setup_contributor", 'run-app.sh" || true;;', "3) open \"$FS_ROOT/launchers/mac/3 - ",

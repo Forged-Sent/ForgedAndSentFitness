@@ -172,21 +172,37 @@ fs_npm_firebase(){
   fs_has firebase && [ "$(firebase --version 2>/dev/null)" = "$FS_FIREBASE_VERSION" ] || { fs_fail 'Firebase CLI did not install as expected.'; return 1; }
 }
 
-# Use a dedicated JDK 21 without modifying the user's global Java settings.
+# Major version of the java in a JDK home ("1.8" counts as 8), or 0.
+fs_java_major(){
+  local fs_out fs_major
+  [ -x "$1/bin/java" ] || { printf '0\n'; return 0; }
+  fs_out="$("$1/bin/java" -version 2>&1 </dev/null || true)"
+  fs_major="$(printf '%s\n' "$fs_out" | sed -n 's/.*version "\([0-9][0-9]*\)\.\{0,1\}\([0-9]*\).*/\1 \2/p' | head -n 1)"
+  case "$fs_major" in "1 "*) fs_major="${fs_major#1 }";; *) fs_major="${fs_major%% *}";; esac
+  printf '%s\n' "${fs_major:-0}"
+}
+# Use a dedicated JDK 21+ without modifying the user's global Java settings.
+# Every candidate is checked by running its java: /usr/libexec/java_home -v 21
+# prints the *default* JDK (for example 17) when no 21 is installed.
+FS_JAVA_HOME_TOOL="${FS_JAVA_HOME_TOOL:-/usr/libexec/java_home}"
 fs_java21_home(){
-  local home_dir prefix
-  home_dir="$(/usr/libexec/java_home -v 21 2>/dev/null || true)"
-  if [ -n "$home_dir" ] && [ -x "$home_dir/bin/java" ]; then
-    printf '%s\n' "$home_dir"
-    return 0
+  local fs_candidate fs_prefix fs_formula fs_list=''
+  if [ -x "$FS_JAVA_HOME_TOOL" ]; then
+    fs_list="$("$FS_JAVA_HOME_TOOL" -v 21 2>/dev/null || true)"
   fi
   if fs_has brew; then
-    prefix="$(brew --prefix openjdk@21 2>/dev/null || true)"
-    if [ -n "$prefix" ] && [ -x "$prefix/libexec/openjdk.jdk/Contents/Home/bin/java" ]; then
-      printf '%s\n' "$prefix/libexec/openjdk.jdk/Contents/Home"
-      return 0
-    fi
+    for fs_formula in openjdk@21 openjdk; do
+      fs_prefix="$(brew --prefix "$fs_formula" 2>/dev/null || true)"
+      if [ -n "$fs_prefix" ]; then fs_list="$fs_list
+$fs_prefix/libexec/openjdk.jdk/Contents/Home"; fi
+    done
   fi
+  while IFS= read -r fs_candidate; do
+    [ -n "$fs_candidate" ] || continue
+    if [ "$(fs_java_major "$fs_candidate")" -ge 21 ]; then printf '%s\n' "$fs_candidate"; return 0; fi
+  done <<EOF_CANDIDATES
+$fs_list
+EOF_CANDIDATES
   return 1
 }
 fs_ensure_java21(){
