@@ -21,6 +21,7 @@ $script:LastSetupStatus=0
 $script:SelectedProfile=Get-FSRememberedProfile $root $(if($firebaseFound){'Contributor'}else{'Preview'})
 function Banner([string]$message){Write-Host '';Write-Host ("=== "+$message+" ===") -ForegroundColor Cyan}
 function Ask([string]$question){return ((Read-Host "$question [y/N]") -match '^(y|yes)$')}
+function AskYes([string]$question){return -not ((Read-Host "$question [Y/n]") -match '^(n|no)$')}
 function RunScript([string]$path,[string[]]$params=@()){
   & (Join-Path $PSHOME 'pwsh.exe') -NoLogo -NoProfile -File $path @params | Out-Host
   return [int]$LASTEXITCODE
@@ -55,6 +56,12 @@ function RunSetup([string]$targetProfile){
   $script:SelectedProfile=$targetProfile
   Save-FSProfile $root $targetProfile
   Banner "Set up $targetProfile"
+  if($targetProfile -eq 'Contributor'){
+    # Asked before the long install so the person can walk away afterwards.
+    Write-Host 'Also set up Android testing? Adds Android Studio and Maestro (several GB).'
+    Write-Host 'Afterwards you finish Android Studio''s own SDK wizard and create an emulator or plug in a phone.'
+    if(Ask 'Set up Android testing too?'){$targetProfile='Mobile';$script:SelectedProfile='Mobile';Save-FSProfile $root 'Mobile'}
+  }
   $setupArgs=@('-TargetProfile',$targetProfile)
   if($targetProfile -ne 'Preview'){
     $agents=Select-FSAssistants
@@ -75,6 +82,60 @@ function RunSetup([string]$targetProfile){
     catch{Write-Host ('Not set yet: '+$_.Exception.Message+' Set it later with 8 > 5 before your first commit.') -ForegroundColor Yellow}
   }
   CheckTools
+  if($targetProfile -ne 'Preview' -and -not $status){Start-FSWalkthrough}
+}
+function Test-FSPort([int]$port){
+  $client=[System.Net.Sockets.TcpClient]::new()
+  try{$task=$client.ConnectAsync('127.0.0.1',$port);return ($task.Wait(1000) -and $client.Connected)}
+  catch{return $false}finally{$client.Dispose()}
+}
+function Test-FSPracticeFirebase{return ((Test-FSPort 9099) -and (Test-FSPort 8080) -and (Test-FSPort 9199))}
+# After a successful Contributor/Mobile setup: start practice Firebase, open the app
+# on it, let the person confirm what they saw, then print a short checklist.
+$script:WalkthroughRan=$false
+function Start-FSWalkthrough {
+  Banner 'Try it now (about 2 minutes)'
+  Write-Host 'This starts practice Firebase in a second window, then opens the app connected to it.'
+  if(-not (AskYes 'Try it now?')){return}
+  $script:WalkthroughRan=$true
+  $firebaseUp=Test-FSPracticeFirebase
+  if(-not $firebaseUp){
+    $launcher=Join-Path $root 'launchers\windows\3 - Start practice Firebase.cmd'
+    Start-Process -FilePath $launcher -WorkingDirectory $root
+    Write-Host 'A second window opened for practice Firebase. Leave it open.'
+    $deadline=(Get-Date).AddMinutes(3)
+    while(-not $firebaseUp -and (Get-Date) -lt $deadline){
+      Start-Sleep -Seconds 3
+      Write-Host '  waiting for practice Firebase to be ready...' -ForegroundColor DarkGray
+      $firebaseUp=Test-FSPracticeFirebase
+    }
+  }
+  $appConfirmed=$false
+  if($firebaseUp){
+    Write-Host 'Practice Firebase is ready.' -ForegroundColor Green
+    Write-Host ''
+    Write-Host 'Chrome will now open the app. Look for this line on the page:'
+    Write-Host '  Verified local Auth, Firestore and Storage emulators (demo-forgedandsent).' -ForegroundColor Cyan
+    Write-Host 'Then come back to THIS window and press q to stop the app.'
+    # Not piped, so Flutter keeps the console and its q (quit) key works.
+    & (Join-Path $PSHOME 'pwsh.exe') -NoLogo -NoProfile -File (Join-Path $PSScriptRoot 'run-emulator-app.ps1')
+    $rc=[int]$LASTEXITCODE
+    if(-not $rc){$appConfirmed=AskYes 'Did the page show "Verified local Auth, Firestore and Storage emulators"?'}
+  }else{
+    Write-Host 'Practice Firebase did not report ready within 3 minutes. Read the messages in its window.' -ForegroundColor Yellow
+  }
+  $gitOk=[bool]((& git -C $root config --get user.email 2>$null|Out-String).Trim())
+  Banner 'Your checklist'
+  Write-Host '  [x] Tools installed'
+  Write-Host ('  ['+$(if($gitOk){'x'}else{' '})+'] Git commit name and email'+$(if(-not $gitOk){'  (menu 8 > 5)'}))
+  Write-Host ('  ['+$(if($firebaseUp){'x'}else{' '})+'] Practice Firebase started'+$(if(-not $firebaseUp){'  (launchers\windows\3 - Start practice Firebase.cmd)'}))
+  Write-Host ('  ['+$(if($appConfirmed){'x'}else{' '})+'] App connected to practice Firebase'+$(if(-not $appConfirmed){'  (launchers\windows\4 - Run app with practice Firebase.cmd)'}))
+  if($script:SelectedProfile -eq 'Mobile'){
+    Write-Host '  [ ] Android: open Android Studio, finish its SDK wizard, create an emulator, then run: flutter devices'
+  }
+  Write-Host ''
+  Write-Host 'Next: make your first change with docs\development\FIRST-CONTRIBUTION.md (menu 7 opens it with VS Code).'
+  if($firebaseUp){Write-Host 'Close the practice Firebase window (Ctrl+C) when you are done for the day.'}
 }
 function OpenGuide {
   $doc=Join-Path $root 'docs\development\FIRST-CONTRIBUTION.md'
@@ -169,6 +230,7 @@ if($Action -ne 'menu'){
     Write-Host 'Still stuck? Run 5 - Check my setup.cmd and share its redacted help report.'
     exit 1
   }
+  if($script:WalkthroughRan){exit $script:LastCheckStatus}
   Banner 'What to do next'
   Write-Host 'Open the launchers\windows folder and double-click the next numbered file:'
   Write-Host '  2 - Run the app.cmd                     (the app in Chrome)'

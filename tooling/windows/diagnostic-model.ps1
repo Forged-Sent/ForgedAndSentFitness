@@ -102,6 +102,17 @@ function Find-FSJava21 {
   }
   return $best
 }
+# Extras that only matter for a bigger profile, or for an assistant the person did
+# not pick. When they are not Ready they are listed on one line instead of with
+# WHY/FIX, so a finished Contributor setup does not look broken.
+$script:FSExtras=@('AndroidStudio','Maestro','AndroidDevice','Java','DevCloudIdentity','ClaudeCLI','CodexCLI','AntigravityCLI')
+function Test-FSNotInProfile {
+  param([ValidateSet('Preview','Contributor','Mobile','Maintainer')][string]$TargetProfile,[string]$Id)
+  if($script:FSExtras -notcontains $Id){return $false}
+  if($script:FSProfiles[$TargetProfile] -contains $Id){return $false}
+  if($Id -eq 'Java' -and $TargetProfile -in @('Mobile','Maintainer')){return $false}
+  return $true
+}
 function Get-FSExitCode {
   param([ValidateSet('Preview','Contributor','Mobile','Maintainer')][string]$TargetProfile,[object[]]$Checks)
   foreach($c in $Checks) {

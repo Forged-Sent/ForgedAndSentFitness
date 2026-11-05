@@ -38,9 +38,16 @@ fs_report="$(mktemp -t ForgedAndSent-Mac)"
 chmod 600 "$fs_report"
 fs_failed=0
 fs_line(){ printf '%s\n' "$1" | tee -a "$fs_report"; }
+# Extras for a bigger profile or an assistant not picked: one summary line, no WHY/FIX.
+fs_not_in_profile=''
 fs_record(){
   fs_id="$1"; fs_state="$2"; fs_reason="$3"; fs_fix="$4"
   if fs_required "$fs_id"; then fs_kind=REQUIRED; else fs_kind=OPTIONAL; fi
+  if [ "$fs_state" != Ready ] && [ "$fs_kind" = OPTIONAL ]; then
+    case "$fs_id" in AndroidStudio|Maestro|Java|DevCloudIdentity|ClaudeCLI|CodexCLI|AntigravityCLI)
+      fs_not_in_profile="${fs_not_in_profile:+$fs_not_in_profile, }$fs_id"; return 0;;
+    esac
+  fi
   fs_line "[$fs_state] $fs_id ($fs_kind)"
   if [ "$fs_state" != Ready ]; then
     fs_line "  WHY: $fs_reason"
@@ -138,6 +145,10 @@ for fs_mcp in dart playwright context7; do
     fs_record "MCP:$fs_mcp" ConfiguredNotConnected 'Configured but no MCP tools/list handshake performed.' 'Connect from VS Code to verify tools/list.'
   else fs_record "MCP:$fs_mcp" Missing 'MCP declaration not found.' 'Restore .vscode/mcp.json.'; fi
 done
+if [ -n "$fs_not_in_profile" ]; then
+  fs_line ''
+  fs_line "Not part of the $FS_PROFILE setup (nothing to fix): $fs_not_in_profile."
+fi
 # Build a separate, secret-free prompt for optional troubleshooting with an AI assistant.
 fs_ai="$(mktemp -t ForgedAndSent-Mac-AskAI)"
 chmod 600 "$fs_ai"

@@ -106,7 +106,7 @@ foreach($port in $listen) {
   finally{$client.Close()}
 }
 if($closed.Count){
-  $checks.Add((New-FSCheck EmulatorOnline ConfiguredNotConnected 'Local emulator ports are not all reachable.' 'Run launchers\windows\3 - Start practice Firebase.cmd. Check ports 8080, 9099, 9199.'))
+  $checks.Add((New-FSCheck EmulatorOnline ConfiguredNotConnected 'Practice Firebase is not running right now (normal until you start it).' 'Run launchers\windows\3 - Start practice Firebase.cmd. Check ports 8080, 9099, 9199.'))
 }else{
   $checks.Add((New-FSCheck EmulatorOnline Ready 'Local Auth/Firestore/Storage TCP ports respond; app integration still needs a real UI test.' ''))
 }
@@ -159,7 +159,7 @@ $emulatorCheck=@($checks | Where-Object {$_.Id -eq 'EmulatorOnline'})
 if($demoCheck.Count -gt 0 -and $emulatorCheck.Count -gt 0 -and $demoCheck[0].Status -eq 'Ready' -and $emulatorCheck[0].Status -eq 'Ready'){
   $checks.Add((New-FSCheck EmulatorWiring ConfiguredNotConnected 'Emulator ports and demo configuration detected; Flutter app handshake is still required.' 'Launch launchers\windows\4 - Run app with practice Firebase.cmd and verify successful local sign-in.'))
 }else{
-  $checks.Add((New-FSCheck EmulatorWiring ConfiguredNotConnected 'Demo Firebase configuration or running emulators are missing.' 'Start launchers\windows\3 - Start practice Firebase.cmd and the local Flutter app.'))
+  $checks.Add((New-FSCheck EmulatorWiring ConfiguredNotConnected 'Practice Firebase is not running, so the app connection was not tested.' 'Start launchers\windows\3 - Start practice Firebase.cmd and the local Flutter app.'))
 }
 $checks.Add((New-FSCheck DevCloudIdentity AuthRequired 'Maintainer DEV credentials are not configured in the default bootstrap.' 'Request separately authorized DEV-only IAM when needed; do not use PROD credentials.'))
 $config=Join-Path $root '.vscode\mcp.json'
@@ -184,10 +184,23 @@ $lines.Add('INSTALL CHECKS PASSED covers installed tools; real emulator app call
 $lines.Add('No usernames, filesystem paths, tokens or Firebase project IDs are included in the report body.')
 if($results | Where-Object { $_.Status -eq 'NotApplicable' -and (Get-FSNeed $TargetProfile $_.Id) -eq 'Required' }){$lines.Add('DEFERRED: This profile has unimplemented PR #4 capabilities; installation success is NOT full readiness.')}
 $lines.Add('')
+$notInProfile=New-Object System.Collections.Generic.List[string]
+$mcpUntested=New-Object System.Collections.Generic.List[string]
 foreach($c in $results){
   $need=Get-FSNeed $TargetProfile $c.Id
+  if($c.Status -ne 'Ready' -and (Test-FSNotInProfile $TargetProfile $c.Id)){$notInProfile.Add($c.Id);continue}
+  if($c.Status -eq 'ConfiguredNotConnected' -and $c.Id -like 'MCP:*'){$mcpUntested.Add($c.Id.Substring(4));continue}
   $lines.Add("[$($c.Status)] $($c.Id) | $need$(if($c.Version){" | Version $($c.Version)"})")
   if($c.Status -ne 'Ready'){$lines.Add(" WHY: $($c.Reason)");$lines.Add(" FIX: $($c.Fix)")}
+}
+if($mcpUntested.Count){
+  $lines.Add('')
+  $lines.Add('AI tool connections (MCP) configured for VS Code and your assistants, not tested here: '+($mcpUntested -join ', ')+'.')
+}
+if($notInProfile.Count){
+  $lines.Add('')
+  $lines.Add("Not part of the $TargetProfile setup (nothing to fix): "+($notInProfile -join ', ')+'.')
+  $lines.Add('Android testing: START-WINDOWS.cmd > 8 > 1. Assistants: rerun setup and pick them.')
 }
 $lines | ForEach-Object {Write-Host $_}
 $lines | Set-Content -LiteralPath $report -Encoding UTF8
@@ -195,7 +208,7 @@ $ai=New-Object System.Collections.Generic.List[string]
 $ai.Add("Help me fix Forged & Sent Windows onboarding for the $TargetProfile profile.")
 $ai.Add('Suggest safe, simple steps. Do not request secrets, admin bypass or production Firebase credentials.')
 foreach($c in $results){
-  if($c.Status -ne 'Ready' -and $c.Status -ne 'NotApplicable'){
+  if($c.Status -ne 'Ready' -and $c.Status -ne 'NotApplicable' -and -not (Test-FSNotInProfile $TargetProfile $c.Id) -and -not ($c.Status -eq 'ConfiguredNotConnected' -and $c.Id -like 'MCP:*')){
     $need=Get-FSNeed $TargetProfile $c.Id
     $ai.Add("ISSUE $($c.Id) ($need, $($c.Status)): $($c.Reason)")
     $ai.Add("FIX: $($c.Fix)")
