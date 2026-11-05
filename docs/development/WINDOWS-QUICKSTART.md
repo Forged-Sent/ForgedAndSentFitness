@@ -21,7 +21,7 @@ If you've already cloned it, **reuse that folder**. Do not download a ZIP or mak
 
 Open the cloned `ForgedAndSentFitness` folder in **File Explorer**. Then open `launchers`, then `windows`, and double-click the files in number order:
 
-1. **`1 - Set up this computer.cmd`** installs or reuses Flutter, VS Code, Node, GitHub CLI, Firebase CLI, JDK 21, Python 3 and developer guardrails. Approve only trusted installer prompts. It asks which optional AI assistants you use (any combination, or none) and helps set a Git commit name and email (a GitHub `noreply` address is fine). Safe to rerun.
+1. **`1 - Set up this computer.cmd`** installs or reuses Flutter, VS Code, Node, GitHub CLI, Firebase CLI, JDK 21, Python 3 and developer guardrails. Approve only trusted installer prompts. It asks which optional AI assistants you use (any combination, or none) and helps set a Git commit name and email (a GitHub `noreply` address is fine). It also asks whether to add Android testing. When the install finishes it offers **Try it now**: it starts practice Firebase, opens the app connected to it, asks what you saw and prints a checklist. Safe to rerun.
 2. **`2 - Run the app.cmd`** opens the small Forged & Sent screen in Chrome.
 3. **`3 - Start practice Firebase.cmd`** and **`4 - Run app with practice Firebase.cmd`** are explained in the next section.
 4. **`5 - Check my setup.cmd`** explains anything missing, with a WHY and FIX line for each item.
