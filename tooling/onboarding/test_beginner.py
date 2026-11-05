@@ -27,7 +27,8 @@ class BeginnerContractTests(unittest.TestCase):
                 self.assertIn("git clone https://github.com/Forged-Sent/ForgedAndSentFitness.git", text)
                 self.assertIn("git switch main", text)
                 self.assertNotIn("git clone --branch feature/contributor-emulator-onboarding", text)
-                self.assertIn("pull/4/head:pr4-workstation-test", text)
+                # PR #4 is merged: no merged-PR checkout instructions remain.
+                self.assertNotIn("pull/4/head", text)
 
     def test_first_contribution_has_a_cross_platform_happy_path(self):
         text = read("docs/development/FIRST-CONTRIBUTION.md")
@@ -458,7 +459,7 @@ class SetupRegressionTests(unittest.TestCase):
             self.assertIn(ready, read(doc), doc)
         self.assertIn("menu choices 3 and 4", read("docs/development/FIREBASE-EMULATOR.md"))
         for doc in ("docs/development/WINDOWS-QUICKSTART.md", "docs/development/MACBOOK-QUICKSTART.md"):
-            self.assertIn("git pull --ff-only origin pull/4/head", read(doc))
+            self.assertIn("git pull --ff-only", read(doc))
 
 
 if __name__ == "__main__":

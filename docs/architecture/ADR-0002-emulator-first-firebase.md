@@ -1,6 +1,6 @@
 # ADR-0002: Emulator-first development and least-privilege Firebase
 
-Status: Accepted baseline; implementation belongs to PR #4.
+Status: Accepted baseline; implemented in PR #4 (merged 2026-11-05).
 Date: 2026-10-28.
 
 ## Context

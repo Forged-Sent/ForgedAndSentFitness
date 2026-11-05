@@ -38,7 +38,7 @@ flutter test
 
 ## What "ready" means
 
-You can launch Flutter in Chrome, check the local demo Firebase emulators, run analysis and tests, access one chosen AI assistant if you use one, inspect Source Control, and open a draft PR. A configured MCP server isn't "working" until it connects and lists tools.
+You can launch Flutter in Chrome, check the local demo Firebase emulators, run analysis and tests, use any AI assistants you picked, inspect Source Control, and open a draft PR. A configured MCP server isn't "working" until it connects and lists tools.
 
 For an optional Git-backed knowledge workspace, open [the knowledge home](../HOME.md) in VS Code, GitHub or Obsidian (vault root: docs/). Double-click `launchers/windows/more/Knowledge workspace.cmd` or `launchers/mac/more/Knowledge workspace.command` to view the live HTML prototype and regenerated Atlas on loopback. This is not needed for your first Flutter contribution. See [knowledge workspace safety and acceptance](KNOWLEDGE-WORKSPACE.md).
 

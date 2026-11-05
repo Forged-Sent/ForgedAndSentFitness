@@ -149,7 +149,7 @@ function OpenVSCode {
   if(-not (Test-Path -LiteralPath $path)){Write-Host 'VS Code missing. Run Contributor setup.';return}
   & $path $root
   Write-Host 'In VS Code, use Source Control for Git and MCP: List Servers for agent tools.'
-  Write-Host 'One signed-in AI assistant is enough; Dart/Context7/Playwright are the basic MCPs.'
+  Write-Host 'Sign in only to the AI assistants you picked; Dart/Context7/Playwright are the basic MCPs.'
 }
 function StartEmulators {
   Banner 'Demo-only Firebase emulators'

@@ -12,7 +12,7 @@ Official installation instructions: https://learn.microsoft.com/en-us/powershell
 
 ## One entry point for everyone
 
-Open the **existing Git clone**, switch to `main` (`git switch main`, `git fetch origin`, `git pull --ff-only`). For testing PR #4 while still a Draft, follow [Windows quickstart](WINDOWS-QUICKSTART.md), then double-click **START-WINDOWS.cmd**. No ZIP is needed. If you do not have a clone, follow [Windows quickstart](WINDOWS-QUICKSTART.md) to install Git and clone the repository. Always preserve uncommitted work before switching.
+Open the **existing Git clone**, switch to `main` (`git switch main`, `git fetch origin`, `git pull --ff-only`). Then double-click **START-WINDOWS.cmd** (Mac: **START-MAC.command**). No ZIP is needed. If you do not have a clone, follow [Windows quickstart](WINDOWS-QUICKSTART.md) to install Git and clone the repository. Always preserve uncommitted work before switching.
 
 The wizard keeps the primary choices short:
 
@@ -61,7 +61,7 @@ The wizard offers to **copy the AI prompt to the clipboard**, but it does **not 
 | Python missing | Python 3.11+ is not available for Atlas/review | Rerun Contributor setup, reopen terminal |
 | Git identity missing | A new Git install cannot label commits | Use wizard > More options > Git name/email (GitHub noreply is fine) |
 | Maestro missing (optional) | Mobile-only CLI or Java not installed | Install Mobile tools only when you need native device tests |
-| Firebase cloud MCP unavailable | Disabled deliberately for Contributors | Use PR #4 local emulators now; a separate cloud DEV project can be created later |
+| Firebase cloud MCP unavailable | Disabled deliberately for Contributors | Use the local practice Firebase (emulators) now; a separate cloud DEV project can be created later |
 | Figma MCP won't connect (optional) | Figma access not provisioned | Only enable the optional server after authorizing Figma |
 | Google Knowledge 401/403 (optional) | Google Cloud API access missing | Leave this optional server disabled unless you need it |
 | GitHub MCP won't connect (optional) | OAuth not granted | Use VS Code Source Control and GitHub login for PRs; enable read-only MCP later if desired |

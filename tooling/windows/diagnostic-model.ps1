@@ -1,5 +1,5 @@
 #requires -Version 5.1
-# Profile state model only. Full profile-specific installation is PR #4.
+# Profile state model shared by setup, Check my setup and the wizard.
 Set-StrictMode -Version Latest
 $script:FSProfiles=@{
   Preview=@('PowerShell7','Git','Chrome','Flutter','VSCode')

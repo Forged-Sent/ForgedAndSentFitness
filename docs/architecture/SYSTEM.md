@@ -2,7 +2,7 @@
 
 **Status:** foundation only, not a deployed production system. This page is the architectural source of truth for *intended component boundaries*. [CODE-MAP.md](CODE-MAP.md) is generated from actual Dart source to show implemented file imports and functions.
 
-## What exists today (PR #4)
+## What exists today (`main`, since PR #4)
 
 ```mermaid
 flowchart LR
