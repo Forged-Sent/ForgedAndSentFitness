@@ -217,6 +217,52 @@ fs_ensure_java21(){
   fs_ok 'JDK 21 ready; no system-wide Java settings were changed.'
 }
 
+# Optional iPhone testing: Xcode (App Store, your Apple ID), the iOS simulator,
+# CocoaPods and the locally generated (git-ignored) iOS host for mobile/.
+# Every Apple prompt (Apple ID, license, admin password) is answered by the person.
+FS_XCODE_APP=/Applications/Xcode.app
+fs_xcode_version_ok(){
+  local fs_v fs_major fs_minor
+  fs_v="$(xcodebuild -version 2>/dev/null | sed -n 's/^Xcode \([0-9.]*\).*/\1/p' | head -n 1)"
+  fs_major="${fs_v%%.*}"; fs_minor="$(printf '%s' "$fs_v" | cut -d. -f2)"
+  [ -n "$fs_major" ] || return 1
+  [ "$fs_major" -gt 26 ] || { [ "$fs_major" -eq 26 ] && [ "${fs_minor:-0}" -ge 2 ]; }
+}
+fs_setup_ios(){
+  if [ ! -d "$FS_XCODE_APP" ]; then
+    fs_require_space 40 'Xcode and the iOS simulator' || return 1
+    fs_warn 'Xcode is not installed. Opening its App Store page: click Get / Install and sign in with your Apple ID.'
+    open 'macappstore://apps.apple.com/app/id497799835' 2>/dev/null || fs_info 'Open the App Store and search for Xcode.'
+    fs_info 'The Xcode download is large and can take an hour. When it finishes, run 1 - Set up this computer again and answer yes to iPhone testing.'
+    return 2
+  fi
+  if [ "$(xcode-select -p 2>/dev/null || true)" != "$FS_XCODE_APP/Contents/Developer" ]; then
+    fs_info 'Pointing the command-line tools at Xcode (macOS asks for your Mac password).'
+    sudo xcode-select --switch "$FS_XCODE_APP/Contents/Developer" || return 1
+  fi
+  if ! xcodebuild -license check >/dev/null 2>&1; then
+    fs_info 'Xcode needs its license accepted once. Read it, then type agree (macOS asks for your Mac password).'
+    sudo xcodebuild -license || return 1
+  fi
+  if ! xcodebuild -checkFirstLaunchStatus >/dev/null 2>&1; then
+    fs_info 'Installing Xcode first-launch components (macOS asks for your Mac password).'
+    sudo xcodebuild -runFirstLaunch || return 1
+  fi
+  fs_xcode_version_ok || { fs_fail 'Xcode 26.2 or newer is needed (Firebase iOS SDK). Update Xcode in the App Store, then run step 1 again.'; return 1; }
+  fs_ok "$(xcodebuild -version | head -n 1) is ready."
+  if ! xcrun simctl list runtimes 2>/dev/null | grep -q '^iOS'; then
+    fs_require_space 10 'the iOS simulator' || return 1
+    fs_info 'Downloading the iOS simulator (several GB).'
+    xcodebuild -downloadPlatform iOS || return 1
+  fi
+  fs_ok 'iOS simulator runtime installed.'
+  fs_brew_formula cocoapods pod || return 1
+  fs_info 'Generating the local iOS host for the app (git-ignored, like the CI build).'
+  ( cd "$FS_ROOT/mobile" && "$FS_FLUTTER" create --platforms=ios --project-name=forged_and_sent --org=com.forgedandsent . >/dev/null ) || return 1
+  open -a Simulator 2>/dev/null || true
+  fs_ok 'iPhone testing is set up. Run launchers/mac/more/Run app on iPhone simulator.command.'
+}
+
 # Settings below are local to this clone, and never include cloud credentials.
 fs_ensure_git_identity(){
   fs_has git || { fs_fail 'Git is missing. Complete Apple Command Line Tools installation.'; return 1; }

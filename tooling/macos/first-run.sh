@@ -20,14 +20,25 @@ fs_setup_preview() {
   FS_SELECTED_PROFILE=Preview; fs_remember_profile Preview
   /bin/bash "$FS_ROOT/tooling/macos/setup.sh" --profile Preview
 }
+FS_IOS_STATUS=skipped
+fs_setup_ios_step() {
+  local fs_rc=0
+  printf '\n=== iPhone testing (Xcode + iOS simulator) ===\n'
+  fs_setup_ios || fs_rc=$?
+  case "$fs_rc" in 0) FS_IOS_STATUS=ready;; 2) FS_IOS_STATUS=xcode-pending;; *) FS_IOS_STATUS=failed; fs_warn 'iPhone setup needs attention; the rest of setup is fine.';; esac
+}
 fs_setup_contributor() {
-  local fs_status=0
+  local fs_status=0 fs_ios=0
   FS_SELECTED_PROFILE=Contributor; fs_remember_profile Contributor
+  # Asked before the long install so the person can walk away afterwards.
+  printf 'Also set up iPhone testing? Needs Xcode from the App Store (your Apple ID) and about 40 GB free.\n'
+  if [ -t 0 ] && fs_question 'Set up iPhone testing too?'; then fs_ios=1; fi
   FS_FROM_WIZARD=1 /bin/bash "$FS_ROOT/tooling/macos/setup.sh" --profile Contributor || {
     fs_status=$?; fs_warn 'Contributor setup needs attention; see the messages above, then run 5 - Check my setup.'; }
   # Always offered, even after an install warning; only prompts if not yet set.
   printf '\n=== Your Git commit name and email ===\n'
   fs_ensure_git_identity || fs_warn 'Git name/email not set yet. Before your first commit: START-MAC.command > 8 > 1.'
+  if [ "$fs_status" -eq 0 ] && [ "$fs_ios" -eq 1 ]; then fs_setup_ios_step; fi
   if [ "$fs_status" -eq 0 ]; then fs_walkthrough; fi
   return "$fs_status"
 }
@@ -75,7 +86,12 @@ fs_walkthrough() {
   printf '  [%s] Git commit name and email%s\n' "$fs_git" "$([ "$fs_git" = x ] || printf '  (START-MAC.command > 8 > 1)')"
   printf '  [%s] Practice Firebase started%s\n' "$([ "$fs_up" -eq 1 ] && printf x || printf ' ')" "$([ "$fs_up" -eq 1 ] || printf '  (launchers/mac/3 - Start practice Firebase.command)')"
   printf '  [%s] App connected to practice Firebase%s\n' "$([ "$fs_app" -eq 1 ] && printf x || printf ' ')" "$([ "$fs_app" -eq 1 ] || printf '  (launchers/mac/4 - Run app with practice Firebase.command)')"
-  printf '  Android or iPhone testing on a Mac is not automated yet; see docs/development/MACBOOK-QUICKSTART.md.\n'
+  case "$FS_IOS_STATUS" in
+    ready) printf '  [x] iPhone simulator (run launchers/mac/more/Run app on iPhone simulator.command)\n';;
+    xcode-pending) printf '  [ ] iPhone: install Xcode from the App Store, then run step 1 again and answer yes\n';;
+    failed) printf '  [ ] iPhone: see the messages above, then START-MAC.command > 8 > 5\n';;
+    *) printf '  iPhone testing: optional, START-MAC.command > 8 > 5. Android on a Mac is not automated yet.\n';;
+  esac
   printf '\nNext: make your first change with docs/development/FIRST-CONTRIBUTION.md (menu 7 opens it with VS Code).\n'
   if [ "$fs_up" -eq 1 ]; then printf 'Close the practice Firebase window (Control-C) when you are done for the day.\n'; fi
 }
@@ -127,13 +143,14 @@ while :; do
       open "$FS_ROOT/docs/development/FIRST-CONTRIBUTION.md"
       ;;
     8)
-      printf '\n1. Git name/email\n2. GitHub CLI sign-in\n3. Open Architecture Atlas\n4. Read Mac quickstart\n0. Back\nChoice: '
+      printf '\n1. Git name/email\n2. GitHub CLI sign-in\n3. Open Architecture Atlas\n4. Read Mac quickstart\n5. iPhone testing (Xcode + iOS simulator)\n0. Back\nChoice: '
       IFS= read -r fs_more || fs_more=0
       case "$fs_more" in
         1) fs_ensure_git_identity || true;;
         2) if fs_has gh && fs_question 'Sign in to GitHub CLI?'; then gh auth login; else fs_warn 'Login skipped or GitHub CLI missing.'; fi;;
         3) open "$FS_ROOT/launchers/mac/more/Architecture Atlas.command";;
         4) open "$FS_ROOT/docs/development/MACBOOK-QUICKSTART.md";;
+        5) fs_setup_ios_step;;
       esac
       ;;
     0) break;;

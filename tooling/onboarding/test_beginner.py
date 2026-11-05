@@ -311,6 +311,16 @@ class BeginnerContractTests(unittest.TestCase):
         self.assertLess(win.index("Set up Android testing too?"), win.index("$agents=Select-FSAssistants"))
         self.assertIn("RunSetup 'Contributor'", win)
 
+    def test_mac_iphone_testing_is_optional_and_asked_before_the_install(self):
+        mac, common = read("tooling/macos/first-run.sh"), read("tooling/macos/common.sh")
+        self.assertLess(mac.index("Set up iPhone testing too?"), mac.index('FS_FROM_WIZARD=1 /bin/bash "$FS_ROOT/tooling/macos/setup.sh" --profile Contributor'))
+        self.assertIn("5) fs_setup_ios_step;;", mac)
+        # Apple prompts stay with the person: no silent license acceptance.
+        self.assertIn("sudo xcodebuild -license ||", common)
+        self.assertNotIn("-license accept", common)
+        self.assertIn("--platforms=ios", common)
+        self.assertTrue((ROOT / "launchers/mac/more/Run app on iPhone simulator.command").is_file())
+
     def test_report_lists_items_outside_the_profile_on_one_line(self):
         model, verify = read("tooling/windows/diagnostic-model.ps1"), read("tooling/windows/verify-developer.ps1")
         self.assertIn("function Test-FSNotInProfile", model)
