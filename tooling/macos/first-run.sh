@@ -28,7 +28,56 @@ fs_setup_contributor() {
   # Always offered, even after an install warning; only prompts if not yet set.
   printf '\n=== Your Git commit name and email ===\n'
   fs_ensure_git_identity || fs_warn 'Git name/email not set yet. Before your first commit: START-MAC.command > 8 > 1.'
+  if [ "$fs_status" -eq 0 ]; then fs_walkthrough; fi
   return "$fs_status"
+}
+fs_practice_firebase_up() {
+  local fs_port
+  fs_has nc || return 1
+  for fs_port in 9099 8080 9199; do nc -G 1 -z 127.0.0.1 "$fs_port" >/dev/null 2>&1 || return 1; done
+}
+# After a successful Contributor setup: start practice Firebase, open the app on it,
+# let the person confirm what they saw, then print a short checklist.
+FS_WALKTHROUGH_RAN=0
+fs_walkthrough() {
+  local fs_up=0 fs_app=0 fs_waited=0 fs_reply fs_git=' '
+  printf '\n=== Try it now (about 2 minutes) ===\n'
+  printf 'This starts practice Firebase in a second Terminal window, then opens the app connected to it.\n'
+  printf 'Try it now? [Y/n]: '
+  IFS= read -r fs_reply || fs_reply=n
+  case "$fs_reply" in n|N|no|NO|No) return 0;; esac
+  FS_WALKTHROUGH_RAN=1
+  if fs_practice_firebase_up; then fs_up=1; else
+    open "$FS_ROOT/launchers/mac/3 - Start practice Firebase.command"
+    printf 'A second Terminal window opened for practice Firebase. Leave it open.\n'
+    while [ "$fs_waited" -lt 180 ]; do
+      sleep 3; fs_waited=$((fs_waited + 3))
+      printf '  waiting for practice Firebase to be ready...\n'
+      if fs_practice_firebase_up; then fs_up=1; break; fi
+    done
+  fi
+  if [ "$fs_up" -eq 1 ]; then
+    fs_ok 'Practice Firebase is ready.'
+    printf '\nChrome will now open the app. Look for this line on the page:\n'
+    printf '  Verified local Auth, Firestore and Storage emulators (demo-forgedandsent).\n'
+    printf 'Then come back to THIS window and press q to stop the app.\n'
+    if /bin/bash "$FS_ROOT/tooling/macos/run-emulator-app.sh"; then
+      printf 'Did the page show "Verified local Auth, Firestore and Storage emulators"? [Y/n]: '
+      IFS= read -r fs_reply || fs_reply=n
+      case "$fs_reply" in n|N|no|NO|No) ;; *) fs_app=1;; esac
+    fi
+  else
+    fs_warn 'Practice Firebase did not report ready within 3 minutes. Read the messages in its window.'
+  fi
+  [ -n "$(git -C "$FS_ROOT" config --get user.email 2>/dev/null || true)" ] && fs_git=x
+  printf '\n=== Your checklist ===\n'
+  printf '  [x] Tools installed\n'
+  printf '  [%s] Git commit name and email%s\n' "$fs_git" "$([ "$fs_git" = x ] || printf '  (START-MAC.command > 8 > 1)')"
+  printf '  [%s] Practice Firebase started%s\n' "$([ "$fs_up" -eq 1 ] && printf x || printf ' ')" "$([ "$fs_up" -eq 1 ] || printf '  (launchers/mac/3 - Start practice Firebase.command)')"
+  printf '  [%s] App connected to practice Firebase%s\n' "$([ "$fs_app" -eq 1 ] && printf x || printf ' ')" "$([ "$fs_app" -eq 1 ] || printf '  (launchers/mac/4 - Run app with practice Firebase.command)')"
+  printf '  Android or iPhone testing on a Mac is not automated yet; see docs/development/MACBOOK-QUICKSTART.md.\n'
+  printf '\nNext: make your first change with docs/development/FIRST-CONTRIBUTION.md (menu 7 opens it with VS Code).\n'
+  if [ "$fs_up" -eq 1 ]; then printf 'Close the practice Firebase window (Control-C) when you are done for the day.\n'; fi
 }
 fs_check_setup() {
   printf 'Checking your setup as: %s (choose 1 or 6 in START-MAC.command to switch).\n' "$FS_SELECTED_PROFILE"
@@ -50,6 +99,7 @@ if [ "${1:-}" = "--action" ]; then
     printf 'Still stuck? Run 5 - Check my setup.command.\n'
     exit "$fs_status"
   fi
+  if [ "$FS_WALKTHROUGH_RAN" -eq 1 ]; then exit 0; fi
   printf '\n=== What to do next ===\n'
   printf 'Open the launchers/mac folder and double-click the next numbered file:\n'
   printf '  2 - Run the app.command                     (the app in Chrome)\n'

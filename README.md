@@ -26,7 +26,7 @@ You only need to double-click files. No typing commands, no cloud accounts.
 
 | Step | What it does | Windows | Mac |
 |---|---|---|---|
-| 1 | Installs everything you need to edit, test and share changes. The first run can take a while; it is safe to rerun. | [1 - Set up this computer.cmd](launchers/windows/1%20-%20Set%20up%20this%20computer.cmd) | [1 - Set up this computer.command](launchers/mac/1%20-%20Set%20up%20this%20computer.command) |
+| 1 | Installs everything you need to edit, test and share changes, then offers a 2-minute **Try it now** walkthrough (practice Firebase + the app) and a checklist. The first run can take a while; it is safe to rerun. | [1 - Set up this computer.cmd](launchers/windows/1%20-%20Set%20up%20this%20computer.cmd) | [1 - Set up this computer.command](launchers/mac/1%20-%20Set%20up%20this%20computer.command) |
 | 2 | Opens the app in Chrome. | [2 - Run the app.cmd](launchers/windows/2%20-%20Run%20the%20app.cmd) | [2 - Run the app.command](launchers/mac/2%20-%20Run%20the%20app.command) |
 | 3 | Starts the practice Firebase database on your computer only. Leave its window open. | [3 - Start practice Firebase.cmd](launchers/windows/3%20-%20Start%20practice%20Firebase.cmd) | [3 - Start practice Firebase.command](launchers/mac/3%20-%20Start%20practice%20Firebase.command) |
 | 4 | Runs the app connected to the practice database (after step 3 says *All emulators ready*). | [4 - Run app with practice Firebase.cmd](launchers/windows/4%20-%20Run%20app%20with%20practice%20Firebase.cmd) | [4 - Run app with practice Firebase.command](launchers/mac/4%20-%20Run%20app%20with%20practice%20Firebase.command) |

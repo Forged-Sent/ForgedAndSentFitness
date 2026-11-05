@@ -268,6 +268,24 @@ class BeginnerContractTests(unittest.TestCase):
         self.assertIn("Google.AntigravityCLI", read("tooling/windows/setup-developer.ps1"))
         self.assertIn("https://antigravity.google/cli/install.sh", read("tooling/macos/common.sh"))
 
+    def test_setup_walks_through_practice_firebase_and_the_app(self):
+        win, mac = read("tooling/windows/first-run.ps1"), read("tooling/macos/first-run.sh")
+        verified = "Verified local Auth, Firestore and Storage emulators (demo-forgedandsent)."
+        self.assertIn(verified, read("mobile/lib/src/app/forged_sent_app.dart"))
+        for script, call in ((win, "Start-FSWalkthrough"), (mac, "fs_walkthrough")):
+            self.assertIn(verified, script)
+            self.assertIn("Your checklist", script)
+            self.assertGreaterEqual(script.count(call), 2)  # defined and called after setup
+        # Android is asked before the long install, so the person can walk away.
+        self.assertLess(win.index("Set up Android testing too?"), win.index("$agents=Select-FSAssistants"))
+        self.assertIn("RunSetup 'Contributor'", win)
+
+    def test_report_lists_items_outside_the_profile_on_one_line(self):
+        model, verify = read("tooling/windows/diagnostic-model.ps1"), read("tooling/windows/verify-developer.ps1")
+        self.assertIn("function Test-FSNotInProfile", model)
+        self.assertIn("Not part of the $TargetProfile setup (nothing to fix)", verify)
+        self.assertGreaterEqual(verify.count("Test-FSNotInProfile"), 2)  # report and AI prompt
+
     def test_numbered_setup_does_not_say_next_step_after_a_failure(self):
         for path, marker in (("tooling/macos/first-run.sh", "Setup did not finish"),
                              ("tooling/windows/first-run.ps1", "Setup did not finish")):
