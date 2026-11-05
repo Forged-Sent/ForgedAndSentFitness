@@ -33,6 +33,26 @@ if($SelfTest){
 }
 # Progress lines so a long check never looks frozen; the full report prints at the end.
 function Say([string]$what){Write-Host ('  checking '+$what+'...') -ForegroundColor DarkGray}
+# Every program this check starts gets an empty input and a time limit. Output is
+# captured (so it is invisible), so a first-run question such as the Python install
+# manager's welcome prompt would otherwise wait forever for an answer nobody can see.
+function Invoke-FSProbe([string]$file,[string[]]$arguments=@(),[int]$timeoutMs=15000){
+  $in=[System.IO.Path]::GetTempFileName(); $out=[System.IO.Path]::GetTempFileName(); $err=[System.IO.Path]::GetTempFileName()
+  try{
+    $startArgs=@{FilePath=$file;NoNewWindow=$true;PassThru=$true;RedirectStandardInput=$in;RedirectStandardOutput=$out;RedirectStandardError=$err}
+    if($arguments.Count){$startArgs.ArgumentList=$arguments}
+    $proc=Start-Process @startArgs
+    $null=$proc.Handle  # keeps ExitCode readable after exit in Windows PowerShell 5.1
+    if(-not $proc.WaitForExit($timeoutMs)){
+      try{$proc.Kill()}catch{}
+      return [pscustomobject]@{TimedOut=$true;ExitCode=-1;Text=''}
+    }
+    $proc.WaitForExit()
+    $text=((Get-Content -LiteralPath $out -Raw -ErrorAction SilentlyContinue),(Get-Content -LiteralPath $err -Raw -ErrorAction SilentlyContinue) -join "`n")
+    return [pscustomobject]@{TimedOut=$false;ExitCode=[int]$proc.ExitCode;Text=$text}
+  }catch{return [pscustomobject]@{TimedOut=$false;ExitCode=-1;Text=''}}
+  finally{Remove-Item -LiteralPath $in,$out,$err -Force -ErrorAction SilentlyContinue}
+}
 Write-Host "Checking your computer for the $TargetProfile setup (usually under a minute; the report prints at the end)." -ForegroundColor Cyan
 Say 'Git, Chrome, Flutter, VS Code, Node and command-line tools'
 Check Git git.exe @((Join-Path $env:ProgramFiles 'Git\cmd\git.exe')) 'Run launchers\windows\1 - Set up this computer.cmd, then restart the terminal.'
@@ -49,18 +69,22 @@ Check GitHubCLI gh.exe @((Join-Path $env:ProgramFiles 'GitHub CLI\gh.exe')) 'Run
 Check FirebaseCLI firebase.cmd @((Join-Path $env:APPDATA 'npm\firebase.cmd')) 'Run developer setup for local Firebase CLI. No Firebase login required for Preview.'
 Say 'Python'
 $pyVersion=''
+$pyTimedOut=$false
 foreach($candidate in @(@('py.exe','-3'),@('python.exe'))) {
   $tool=Get-Command $candidate[0] -ErrorAction SilentlyContinue|Select-Object -First 1
   if(-not $tool){continue}
   try{
     $versionArgs=if($candidate.Count -gt 1){@($candidate[1])}else{@()}
-    $verText=(& $tool.Source @versionArgs --version 2>&1|Out-String)
-    if($LASTEXITCODE -eq 0 -and $verText -match 'Python (\d+)\.(\d+)'){
+    $probe=Invoke-FSProbe $tool.Source (@($versionArgs)+@('--version'))
+    if($probe.TimedOut){$pyTimedOut=$true;break}
+    $verText=$probe.Text
+    if($probe.ExitCode -eq 0 -and $verText -match 'Python (\d+)\.(\d+)'){
       if([int]$Matches[1] -gt 3 -or ([int]$Matches[1] -eq 3 -and [int]$Matches[2] -ge 11)){$pyVersion="$($Matches[1]).$($Matches[2])";break}
     }
   }catch{}
 }
 if($pyVersion){$checks.Add((New-FSCheck Python Ready 'Python 3.11+ available for Atlas/review.' '' $pyVersion))}
+elseif($pyTimedOut){$checks.Add((New-FSCheck Python Failed 'Python did not answer within 15 seconds (often a one-time Python install manager question).' 'Open PowerShell, run py --version once and answer its questions, then run 5 - Check my setup.cmd again.'))}
 else{$checks.Add((New-FSCheck Python Missing 'Python 3.11+ not found; the Atlas and AI review tools cannot run.' 'Run Contributor setup to install Python 3.12.'))}
 # Contributor profiles require a real clone, local SDK/CLI and running emulators.
 $gitFolder=Join-Path $root '.git'
@@ -96,7 +120,7 @@ if(-not $javaPath -or -not (Test-Path -LiteralPath $javaPath)){
   }
 }
 if($javaPath -and (Test-Path -LiteralPath $javaPath)){
-  $javaText=(& cmd.exe /c ('"'+$javaPath+'" -version 2>&1')|Out-String)
+  $javaText=(Invoke-FSProbe $javaPath @('-version')).Text
   if($javaText -match '(?:version|openjdk)\s+"?(\d+)'){
     $javaMajor=[int]$Matches[1]
     if($javaMajor -ge 21){$checks.Add((New-FSCheck Java21 Ready 'JDK 21+ is installed.' '' "$javaMajor"))}
@@ -124,16 +148,13 @@ $gh=Get-Command gh.exe -ErrorAction SilentlyContinue|Select-Object -First 1
 if($gh){
   Say 'GitHub sign-in (needs the internet; gives up after 15 seconds)'
   # gh contacts GitHub to validate a saved token; never let a slow network freeze setup.
-  $ghOut=[System.IO.Path]::GetTempFileName(); $ghErr=[System.IO.Path]::GetTempFileName()
   try{
-    $ghProc=Start-Process -FilePath $gh.Source -ArgumentList @('auth','status') -NoNewWindow -PassThru -RedirectStandardOutput $ghOut -RedirectStandardError $ghErr
-    if(-not $ghProc.WaitForExit(15000)){
-      try{$ghProc.Kill()}catch{}
+    $ghProbe=Invoke-FSProbe $gh.Source @('auth','status')
+    if($ghProbe.TimedOut){
       $checks.Add((New-FSCheck GitHubAuth AuthRequired 'GitHub sign-in check timed out (no reply from GitHub within 15 seconds).' 'Check the internet connection, then run 5 - Check my setup.cmd again.'))
-    }elseif($ghProc.ExitCode -eq 0){$checks.Add((New-FSCheck GitHubAuth Ready 'GitHub CLI account is authenticated.' ''))}
+    }elseif($ghProbe.ExitCode -eq 0){$checks.Add((New-FSCheck GitHubAuth Ready 'GitHub CLI account is authenticated.' ''))}
     else{$checks.Add((New-FSCheck GitHubAuth AuthRequired 'GitHub account not authorized for draft PRs.' 'In START-WINDOWS.cmd choose 8 (More options), then 3 to sign in to GitHub.'))}
   }catch{$checks.Add((New-FSCheck GitHubAuth Failed 'GitHub CLI could not be started.' 'Rerun launchers\windows\1 - Set up this computer.cmd.'))}
-  finally{Remove-Item -LiteralPath $ghOut,$ghErr -Force -ErrorAction SilentlyContinue}
 }else{$checks.Add((New-FSCheck GitHubAuth Missing 'GitHub CLI missing.' 'Run Contributor setup.'))}
 $checks.Add((New-FSCheck AndroidDevice ConfiguredNotConnected 'A native Android device and Maestro flow were not run by this diagnostic.' 'Run flutter devices and one Maestro flow on an emulator or phone.'))
 
@@ -147,8 +168,9 @@ $pwsh=(Get-Command pwsh.exe -ErrorAction SilentlyContinue|Select-Object -First 1
 $pwshPath=if($pwsh){$pwsh.Source}else{Join-Path $env:ProgramFiles 'PowerShell\7\pwsh.exe'}
 if(Test-Path -LiteralPath $pwshPath){
   try {
-    $vers=& $pwshPath -NoProfile -NonInteractive -Command '$PSVersionTable.PSVersion.ToString()'
-    $v=[version](([string]($vers|Select-Object -First 1)) -replace '-.*$','')
+    $pwshProbe=Invoke-FSProbe $pwshPath @('-NoProfile','-NonInteractive','-Command','$PSVersionTable.PSVersion.ToString()')
+    if($pwshProbe.TimedOut -or $pwshProbe.ExitCode -ne 0){throw 'PowerShell 7 did not answer.'}
+    $v=[version](([string](($pwshProbe.Text -split "`r?`n")|Where-Object {$_.Trim()}|Select-Object -First 1)).Trim() -replace '-.*$','')
     $requiredPwsh=if($TargetProfile -eq 'Preview'){[version]'7.4.0'}else{[version]'7.6.0'}
     if($v -ge $requiredPwsh){$checks.Add((New-FSCheck PowerShell7 Ready 'Version meets baseline.' '' $v.ToString()))}
     else{$checks.Add((New-FSCheck PowerShell7 Outdated 'PowerShell version is below the chosen profile minimum.' 'Run START-WINDOWS.cmd to update PowerShell.' $v.ToString()))}
@@ -156,7 +178,7 @@ if(Test-Path -LiteralPath $pwshPath){
 }else{$checks.Add((New-FSCheck PowerShell7 Missing 'PowerShell 7 not found.' 'Run START-WINDOWS.cmd to install it.'))}
 $java=Get-Command java.exe -ErrorAction SilentlyContinue|Select-Object -First 1
 if($java) {
-  $verLine=(& cmd.exe /c 'java -version 2>&1'|Out-String)
+  $verLine=(Invoke-FSProbe $java.Source @('-version')).Text
   $found=[regex]::Match($verLine,'(?:version\s+["'']|openjdk\s+)(?<major>\d+)')
   if($found.Success){
     $major=[int]$found.Groups['major'].Value
