@@ -3,6 +3,8 @@
 This policy applies to project knowledge notes, ADRs, agent skills, generated maps and prototype archives; it **does not** authorize deleting source code or historical prototype snapshots.
 
 ## New knowledge
+- At session close, update the existing task handoff with outcome, checks, blockers and next action; create a new note only for a distinct task or durable research record. The coordinator summarizes changed state in CURRENT/WORK, linking the authoritative record instead of copying it.
+- Imported research belongs in a dated archive with provenance and an operational successor link. Preserve the original snapshot; this does not mark its proposals accepted or its observations current. HISTORY is the discovery index; INDEX/HOME/CURRENT point to HISTORY rather than individual archived bodies.
 - Prefer editing the relevant existing page rather than copying facts into a second "memory".
 - For lasting decisions, create an ADR with Status: Proposed, Accepted or Superseded and a reason; get product/architecture approval before marking Accepted.
 - For transient progress, use `docs/knowledge/handoffs/<task>.md` with status, date, owner and exact branch/SHA. Do not rewrite handoffs from other active branches.
@@ -17,6 +19,8 @@ This policy applies to project knowledge notes, ADRs, agent skills, generated ma
 6. Re-run `python3 tooling/knowledge/check.py`, policy/architecture checks and relevant tests. Never mark an untested migration verified.
 
 ## Obsidian use
+For the selected repository-backed workspace, HOME is the human dashboard and INDEX is the agent entrypoint. Open the dedicated `docs/` vault. Archives are available in the file browser but excluded from normal agent startup/search scope. These retrieval rules guide agents; they are not a filesystem access restriction.
+
 Open `docs/` as an Obsidian vault. Version-control Markdown, not local Obsidian state: `**/.obsidian/` and `**/.trash/` are Git-ignored. Obsidian is optional, and native Markdown links work without it. Do not introduce a second externally synced knowledge database or grant an Obsidian MCP unrestricted write access. A future MCP proposal needs a scoped, read-only proof before any write permissions.
 
 ## Retiring executable code and old scaffolding

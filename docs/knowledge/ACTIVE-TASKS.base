@@ -1,0 +1,41 @@
+filters:
+  and:
+    - 'file.inFolder("knowledge/handoffs")'
+    - 'file.ext == "md"'
+    - 'file.name != "TEMPLATE"'
+    - 'status == "active"'
+properties:
+  file.name:
+    displayName: Task
+  owner:
+    displayName: Owner
+  stage:
+    displayName: Progress
+  next_action:
+    displayName: Next action
+  updated:
+    displayName: Last updated
+  coordinator_model:
+    displayName: Coordinator
+  profile:
+    displayName: Task profile
+views:
+  - type: table
+    name: Active tasks
+    order:
+      - file.name
+      - note.stage
+      - note.owner
+      - note.coordinator_model
+      - note.profile
+      - note.next_action
+      - note.updated
+  - type: kanban
+    name: Progress board (Obsidian 1.14+)
+    groupBy:
+      property: note.stage
+      direction: ASC
+    order:
+      - file.name
+      - note.owner
+      - note.next_action

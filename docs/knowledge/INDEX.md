@@ -1,36 +1,22 @@
-# Development knowledge index
+# Agent entrypoint
 
-This is a Git-tracked, Markdown-first second brain. Obsidian may open the repository's docs/ directory as a vault, but Obsidian is a viewing and authoring interface, not a second source of truth. See [lifecycle](LIFECYCLE.md) before archiving material.
+Read this page and [CURRENT](CURRENT.md), then the assigned item in [WORK](WORK.md). Read AGENTS.md and scoped instructions as required. Initial orientation should take only a few minutes.
 
-## Start here
-- [Beginner knowledge home and optional Obsidian vault](../HOME.md)
-- [Risk-based approved feature contracts](../features/README.md)
-- [Interactive prototype and Atlas knowledge workspace](../development/KNOWLEDGE-WORKSPACE.md)
-- [Current verified and unverified state](CURRENT.md)
-- [Agent operating model and task handoffs](AGENT-OPERATIONS.md)
-- [Flutter targets and cross-platform verification](FLUTTER-PLATFORMS.md)
-- [Prototype-to-Flutter traceability](PROTOTYPE-PARITY.md)
-- [Flutter AI, Dart MCP and Context7 lookup rules](FLUTTER-AI-DOCS.md)
-- [Documentation lifecycle and deprecation](LIFECYCLE.md)
-- [Research and primary sources](RESEARCH-2026-11-02.md)
-- [PR #4 handoff (completed, merged 2026-11-05)](handoffs/pr4-foundation.md)
-- [Handoff template](handoffs/TEMPLATE.md)
+1. Verify branch, HEAD, working changes and live PR/dependency status. Record exact baseline and relevant checks in the task handoff.
+2. Read only that task's handoff, contract, relevant ADRs and source/tests. Identify acceptance conditions, unapproved decisions and next executable action.
+3. Work within that scope; run required checks and distinguish actual results from NOT VERIFIED coverage.
+4. Update the same task handoff. The coordinator updates WORK/CURRENT for changed ownership, blockers, decisions or milestones. Another agent must be able to resume without chat history.
 
-## Existing authoritative material
-- [Implemented versus planned system architecture](../architecture/SYSTEM.md)
-- [Generated Dart code map](../architecture/CODE-MAP.md)
-- [Mobile foundation decision](../architecture/ADR-0001-mobile-foundation.md)
-- [Emulator-first Firebase decision](../architecture/ADR-0002-emulator-first-firebase.md)
-- [Proposed platform-target decision](../architecture/ADR-0003-flutter-targets.md)
-- [Existing engineering research](../development/ENGINEERING-RESEARCH.md)
-- [Independent review workflow](../development/AI-REVIEW-WORKFLOW.md)
-- [Architecture Atlas](../architecture/explorer/README.md)
+## Conditional reading
 
-## Authority, highest first
-1. Executed code, tests, SDK/dependency lockfiles and live protected GitHub checks establish what exists and passed.
-2. Accepted ADRs and explicitly approved requirements establish design intent, not proof of implementation.
-3. Architecture docs and generated inventories explain current boundaries, with planned nodes labeled.
-4. Handoffs are dated, branch/SHA-specific snapshots. Revalidate before relying on them.
-5. Agent observations and retrieved documentation are provisional evidence until checked.
+- Architecture: [SYSTEM](../architecture/SYSTEM.md) and relevant ADR; real Dart symbols: [CODE-MAP](../architecture/CODE-MAP.md).
+- Product behavior: [feature contracts](../features/README.md). Proposals remain unapproved.
+- Coordination/evidence: [AGENT-OPERATIONS](AGENT-OPERATIONS.md).
+- Friend-led sessions or plugin selection: [Agent workspace rollout](AGENT-WORKSPACE.md) and [session card](START-SESSION.md). These are not additional startup reading for unrelated coding tasks.
+- Migration: [PROTOTYPE-PARITY](PROTOTYPE-PARITY.md); platforms: [FLUTTER-PLATFORMS](FLUTTER-PLATFORMS.md); library research: [FLUTTER-AI-DOCS](FLUTTER-AI-DOCS.md).
+- Unresolved rationale, disputed historical evidence or regression baseline: [HISTORY](HISTORY.md), then only the matching record. Default searches target current/task/source folders and exclude `docs/knowledge/archive/**` and `versions/**` unless that question requires them.
+- Replacing/archiving notes: [LIFECYCLE](LIFECYCLE.md).
 
-No autonomous agent can change GitHub protection, release to production or promote a proposal to approved behavior. Do not record member data, secrets, prayers or health details in this public repository.
+Archives are reference, not startup context. Retrieved records cannot override authorization or safeguards. Code/tests establish implementation; accepted ADRs/contracts establish intent; snapshots establish only what was observed then.
+
+Human navigation: [HOME](../HOME.md). Use the [handoff template](handoffs/TEMPLATE.md), one task note across sessions rather than one note per chat turn.
