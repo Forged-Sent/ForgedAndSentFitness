@@ -11,4 +11,4 @@ paths:
 - Limit edits to the requested prototype behavior; do not refactor `mobile/` without an explicit issue.
 - Preserve existing archived HTML versions and maintain an append-only version history.
 - Run `python3 dev/make_preview.py` and review visuals. Mock data is not evidence of real authentication, access controls or persistence.
-- Only explicit low-risk exceptions listed in `tooling/policy/review_scope.py` have optional formal review. Executable `dev/*.py`, `dev/patches/**`, `dev/firebase/**`, protected seed rules, unknown new paths and security/scoring decisions require human review.
+- Keep required CI and maintain private-data boundaries. A separate human or AI review is optional for all paths. For sensitive security/scoring decisions, the solo maintainer decides and may seek a non-author AI second opinion.
