@@ -11,7 +11,7 @@ if not exist "tooling\windows\bootstrap-pwsh.ps1" (
 echo.
 echo Installs or reuses everything needed to edit, test and share changes:
 echo Flutter, VS Code, Git tools, Node, Firebase emulator tools, Java 21 and Python.
-echo You will choose ONE optional AI assistant. No cloud accounts are created.
+echo You can pick any optional AI assistants, or none. No cloud accounts are created.
 echo.
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File "tooling\windows\bootstrap-pwsh.ps1" -Mode contributor
 set "result=%errorlevel%"

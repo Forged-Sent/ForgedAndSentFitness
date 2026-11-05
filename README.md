@@ -136,7 +136,7 @@ Private, unreleased. No license granted yet.
 
 ## First-time developer onboarding
 
-See [New here? Start here](#new-here-start-here) above. Details: [Windows Quickstart](docs/development/WINDOWS-QUICKSTART.md), [Mac Quickstart](docs/development/MACBOOK-QUICKSTART.md) and [First Contribution](docs/development/FIRST-CONTRIBUTION.md). Use Git and a feature branch; no Firebase cloud account is needed for the local practice database. Sign into one AI coding assistant only if you choose to use one. iOS/Android device provisioning is a separate manual step.
+See [New here? Start here](#new-here-start-here) above. Details: [Windows Quickstart](docs/development/WINDOWS-QUICKSTART.md), [Mac Quickstart](docs/development/MACBOOK-QUICKSTART.md) and [First Contribution](docs/development/FIRST-CONTRIBUTION.md). Use Git and a feature branch; no Firebase cloud account is needed for the local practice database. AI coding assistants are optional; sign in only to the ones you pick during setup. iOS/Android device provisioning is a separate manual step.
 
 ## Shared agents, local code reviews and architecture
 

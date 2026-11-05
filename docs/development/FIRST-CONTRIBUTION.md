@@ -7,7 +7,7 @@
 - The public repository cloned with Git (see [Windows](WINDOWS-QUICKSTART.md) or [Mac](MACBOOK-QUICKSTART.md)).
 - Contributor setup completed, with the project opened in Visual Studio Code.
 - A free GitHub account. If you plan to push to the shared `Forged-Sent` repository, ask the maintainer to invite you as a collaborator. Otherwise use a fork and open a PR back to the shared repo.
-- Optional: **one** assistant you already use: Codex, Claude, or GitHub Copilot. You don't need all three.
+- Optional: any AI assistants you already use: Codex, Claude Code, GitHub Copilot or Antigravity CLI (Google Gemini). Pick one, several or none.
 - No Firebase cloud account or paid AI plan is required for a first practice edit.
 
 ## Follow this once

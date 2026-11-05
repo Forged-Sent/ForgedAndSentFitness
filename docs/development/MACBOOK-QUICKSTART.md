@@ -21,14 +21,14 @@ Already have a clone? Reuse it: check `git status`, then `git switch main`, `git
 
 Open the cloned `ForgedAndSentFitness` folder in **Finder**. Then open `launchers`, then `mac`, and double-click the files in number order:
 
-1. **`1 - Set up this computer.command`** sets up VS Code, Node, GitHub CLI, the local Firebase CLI, JDK 21 and other development tools. Follow the official Command Line Tools and Homebrew instructions when asked; Homebrew's signed `.pkg` installer on its [official releases](https://github.com/Homebrew/brew/releases) may be easier than a Terminal install. Choose **one** optional AI assistant and set a Git name/email when prompted (a GitHub noreply address is fine). Safe to rerun.
+1. **`1 - Set up this computer.command`** sets up VS Code, Node, GitHub CLI, the local Firebase CLI, JDK 21 and other development tools. Follow the official Command Line Tools and Homebrew instructions when asked; Homebrew's signed `.pkg` installer on its [official releases](https://github.com/Homebrew/brew/releases) may be easier than a Terminal install. Pick any optional AI assistants you use (or none) and set a Git name/email when prompted (a GitHub noreply address is fine). Safe to rerun.
 2. **`2 - Run the app.command`** opens the Forged & Sent Flutter starter in Chrome.
 3. **`3 - Start practice Firebase.command`** and **`4 - Run app with practice Firebase.command`** are explained in the next section.
 4. **`5 - Check my setup.command`** explains anything missing.
 
 Prefer a menu? Double-click **`START-MAC.command`** in the main folder instead, or from Terminal run `bash START-MAC.command`.
 
-Only want to look at the app, not edit it? Use `launchers/mac/more/Preview-only setup.command` instead of step 1. The setup does not require Codex, Claude and Copilot subscriptions together.
+Only want to look at the app, not edit it? Use `launchers/mac/more/Preview-only setup.command` instead of step 1. No AI subscription is required; Codex, Claude Code, Copilot and Antigravity are all optional.
 
 With your consent, the setup can add the project's Flutter SDK folder to your `~/.zprofile` PATH. Reopen Terminal and check `flutter --version`. If you decline, use `~/develop/flutter/bin/flutter` explicitly for manual commands.
 

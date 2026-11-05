@@ -110,8 +110,35 @@ fs_ensure_flutter(){
   mv "$fs_staged" "$HOME/develop/flutter"
   fs_flutter_version_ok || { fs_fail "Pinned Flutter could not initialize ($(fs_free_gb "$HOME") GB free). Check disk space and the internet, then run step 1 again."; return 1; }
 }
+# "2, 4" -> "claude antigravity". Any combination of optional assistants, or none.
+fs_parse_assistants(){
+  local fs_digits fs_out='' fs_name fs_i
+  fs_digits="$(printf '%s' "${1:-}" | tr -cd '0-9')"
+  fs_i=0
+  while [ "$fs_i" -lt "${#fs_digits}" ]; do
+    case "${fs_digits:$fs_i:1}" in 1) fs_name=codex;; 2) fs_name=claude;; 3) fs_name=copilot;; 4) fs_name=antigravity;; *) fs_name='';; esac
+    if [ -n "$fs_name" ]; then case " $fs_out " in *" $fs_name "*) ;; *) fs_out="${fs_out:+$fs_out }$fs_name";; esac; fi
+    fs_i=$((fs_i + 1))
+  done
+  printf '%s\n' "$fs_out"
+}
+fs_wants_assistant(){ case " ${FS_AI_CHOICE:-} " in *" $1 "*) return 0;; esac; return 1; }
+# Google's official Antigravity CLI installer (puts agy in ~/.local/bin). Downloaded
+# over HTTPS to a temporary file first so a cut-off download never runs half a script.
+fs_ensure_antigravity(){
+  local fs_tmp fs_status=0
+  if fs_has agy || [ -x "$HOME/.local/bin/agy" ]; then fs_ok 'Antigravity CLI (agy) already installed.'; return 0; fi
+  fs_info "Installing Google's Antigravity CLI (agy) with its official installer."
+  fs_tmp="$(mktemp)" || return 1
+  if curl -fsSL --proto '=https' https://antigravity.google/cli/install.sh -o "$fs_tmp"; then /bin/bash "$fs_tmp" || fs_status=$?; else fs_status=1; fi
+  rm -f "$fs_tmp"
+  [ "$fs_status" -eq 0 ] || return "$fs_status"
+  export PATH="$HOME/.local/bin:$PATH"
+  agy --version >/dev/null 2>&1 || { fs_warn 'agy installed but not on PATH yet; open a new Terminal and run agy --version.'; return 0; }
+  fs_ok 'Antigravity CLI ready. It reads AGENTS.md and .agents/skills; sign in later by running agy in this folder.'
+}
 fs_editor_extensions(){
-  fs_ai_choice="${1:-none}"
+  fs_ai_choice="${1:-}"
   fs_code_bin="$(fs_code || true)"
   if [ -z "$fs_code_bin" ]; then fs_warn 'VS Code shell command missing. Add Flutter extension from VS Code itself.'; return 0; fi
   for fs_ext in Dart-Code.dart-code Dart-Code.flutter GitHub.vscode-pull-request-github redhat.vscode-yaml EditorConfig.EditorConfig; do
@@ -121,20 +148,21 @@ fs_editor_extensions(){
       case "$fs_ext" in Dart-Code.dart-code|Dart-Code.flutter) fs_fail "Required Flutter extension failed: $fs_ext"; return 1;; *) fs_warn "Optional VS Code extension unavailable: $fs_ext";; esac
     fi
   done
-  case "$fs_ai_choice" in
-    codex) fs_ai_ext=OpenAI.chatgpt;;
-    claude) fs_ai_ext=Anthropic.claude-code;;
-    copilot) fs_ai_ext=GitHub.copilot-chat;;
-    none) fs_ai_ext='';;
-    *) fs_warn 'Unknown AI choice; no AI extension installed.'; fs_ai_ext='';;
-  esac
-  if [ -n "$fs_ai_ext" ]; then
+  # Antigravity is a terminal CLI (agy) with no VS Code extension to add here.
+  for fs_ai in $fs_ai_choice; do
+    case "$fs_ai" in
+      codex) fs_ai_ext=OpenAI.chatgpt;;
+      claude) fs_ai_ext=Anthropic.claude-code;;
+      copilot) fs_ai_ext=GitHub.copilot-chat;;
+      *) fs_ai_ext='';;
+    esac
+    [ -n "$fs_ai_ext" ] || continue
     if "$fs_code_bin" --list-extensions 2>/dev/null | grep -Fxiq "$fs_ai_ext"; then
       fs_ok "$fs_ai_ext already installed."
     elif ! "$fs_code_bin" --install-extension "$fs_ai_ext"; then
       fs_warn "Optional AI extension unavailable: $fs_ai_ext"
     fi
-  fi
+  done
 }
 fs_npm_firebase(){
   fs_has npm || { fs_fail 'npm is missing. Install Node first.'; return 1; }

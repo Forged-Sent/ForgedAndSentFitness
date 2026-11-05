@@ -14,7 +14,7 @@ if not defined PYTHON_CMD (
   if not errorlevel 1 set "PYTHON_CMD=python"
 )
 if not defined PYTHON_CMD (
-  echo Python 3.11+ is missing. Double-click START-WINDOWS.cmd, choose 2 to set up as a Contributor, and retry.
+  echo Python 3.11+ is missing. Double-click START-WINDOWS.cmd, choose 1 to set up this computer, and retry.
   pause
   exit /b 1
 )
