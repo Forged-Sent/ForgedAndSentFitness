@@ -43,3 +43,5 @@ vm.createContext(ctx); vm.runInContext(code,ctx);
  console.log('PASS: inline JS syntax; journal rejection, acknowledgement, delete, UI retry/double-submit guard; account purge failures');
 })().catch(e=>{console.error(e);process.exitCode=1});
 
+
+assert.match(html, /var PEN_SVG = /, "journal icon must survive mentor-deferral integration");
