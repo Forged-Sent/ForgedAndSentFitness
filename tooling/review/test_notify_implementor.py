@@ -66,6 +66,19 @@ class NotifyTests(unittest.TestCase):
             notify(work, api)
             self.assertEqual(api.comments, [])
 
+    def test_unrecognized_codex_receipt_requests_investigation(self):
+        snapshot = {"pr": 7, "head": "a" * 40, "base": "b" * 40,
+                    "base_ref": "main", "draft": False, "labels": ["authorship:claude"]}
+        with tempfile.TemporaryDirectory() as directory:
+            work = Path(directory)
+            gate.save(work / "summary.json", {"identity": snapshot, "binding": "receipt",
+                "state": "failure", "message": "Codex receipt unrecognized; investigate review evidence",
+                "providers": []})
+            api = FakeAPI(snapshot)
+            notify(work, api)
+            self.assertIn("Investigate the Codex review receipt", api.comments[0]["body"])
+            self.assertNotIn("Address the review findings", api.comments[0]["body"])
+
 
 if __name__ == "__main__":
     unittest.main()

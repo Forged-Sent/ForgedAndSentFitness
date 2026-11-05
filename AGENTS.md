@@ -45,7 +45,7 @@ Forged & Sent is a faith-centered devotional workout and group accountability pl
 ## Pull request classification
 - **Prototype (explicit exceptions only):** HTML/versions, mock and listed seed content. Lightweight preview CI, optional formal review, required PR. Executable preview scripts are *not* review-exempt.
 - **Application:** `mobile/` and production app architecture. Flutter CI and the functional AI review policy apply; see docs/development/FLUTTER-AI-REVIEW-GATE.md for scope and rollout status.
-- **Infrastructure/security:** `tooling/`, workflows, agent instructions, MCP settings, Firebase config, architecture ADRs and protected seed rules. Mandatory policy CI and maintainer decision. Firebase config, `tooling/review/**`, `.github/workflows/**`, `.github/actions/**`, and `.github/rulesets/**` also follow the functional AI review gate; independent review of other infrastructure remains optional.
+- **Infrastructure/security:** `tooling/`, workflows, agent instructions, MCP settings, Firebase config, architecture ADRs and protected seed rules. Mandatory policy CI and maintainer decision. The functional AI review gate includes these paths and other unclassified paths unless they are explicitly exempted in `tooling/review/flutter_scope.py`; consult that classifier and the gate guide before declaring review optional.
 - A mixed PR receives the strictest applicable checks and review requirements. Prefer splitting unrelated changes.
 - The live GitHub ruleset requires `ci-gate` but zero outside approvals. The functional AI review gate is a separate completion check, not a human approval. Other AI reviews are optional. Maintainers choose whether to merge; agents never self-merge.
 

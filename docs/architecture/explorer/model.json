@@ -327,6 +327,7 @@
         ".github/workflows/ci-gate.yml"
       ],
       "depends": [
+        "merge",
         "hosted_review"
       ],
       "notes": "Live human-approval count must be checked separately; AI advisory review cannot satisfy it."

@@ -219,9 +219,10 @@ def prepare(root: Path, work: Path, number: int, api: GitHub) -> None:
         save(work / "input.json", payload)
         outputs({"required": str(bool(paths)).lower(), "providers": json.dumps(providers),
                  "policy_sha": policy_sha})
-    except (GateError, ValueError) as error:
+    except (GateError, ValueError, KeyError, OSError, subprocess.TimeoutExpired) as error:
         if api.owns_status(snapshot["head"]):
-            api.status(snapshot["head"], "failure", str(error))
+            message = str(error) if isinstance(error, GateError) else "Review preparation failed; inspect this run"
+            api.status(snapshot["head"], "failure", message)
         raise
 
 
@@ -433,6 +434,10 @@ def publish(work: Path, api: GitHub, job_result: str) -> None:
                         state, message, waiting = "pending", "Codex review changed; retrying exact-head evidence", True
                     else:
                         codex_evidence = digest(live["review_ids"])[:16]
+                        if live["outcome"] == "ambiguous":
+                            raise GateError("Codex receipt unrecognized; investigate review evidence")
+                        if live["outcome"] == "changes_required":
+                            raise GateError("Codex review has findings; fix them and request a new review")
             if not waiting:
                 if job_result != "success":
                     raise GateError("Reviewer job failed, timed out or was cancelled")

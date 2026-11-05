@@ -62,10 +62,14 @@ def notify(work: Path, api: GitHub) -> None:
     )
     if finding_text:
         body += finding_text + "\n\n"
+    next_action = ("Investigate the Codex review receipt before changing code."
+                   if "receipt unrecognized" in status else
+                   "Review complete; no code changes were requested."
+                   if summary.get("state") == "success" else
+                   "Address the review findings, then push a new commit or rerun the review as appropriate.")
     body += (
-        f"Declared implementor: `{label}`. Please return to the implementing Codex or Claude "
-        "session, address the review findings, then push a new commit or rerun the review "
-        "when appropriate. Agent sessions do not wake from GitHub comments automatically.\n\n"
+        f"Declared implementor: `{label}`. Return to the implementing Codex or Claude session. "
+        f"{next_action} Agent sessions do not wake from GitHub comments automatically.\n\n"
         f"[Review run]({api.run_url}) · This is advisory AI feedback, not an approval."
     )
     api.api(f"issues/{snapshot['pr']}/comments", {"body": body})

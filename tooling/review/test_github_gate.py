@@ -109,6 +109,13 @@ class GateTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             gate.validate_results(payload, [result])
 
+    def test_pass_cannot_contain_high_finding(self):
+        payload, result = sample()
+        result["results"][0]["review"]["findings"] = [{"severity": "high", "path": "mobile/lib/main.dart",
+            "line": 1, "explanation": "Cross-group read", "fix": "Enforce group ownership"}]
+        with self.assertRaises(ValueError):
+            gate.validate_results(payload, [result])
+
     def test_prompt_tampering_and_wrong_slice_are_rejected(self):
         payload, result = sample()
         result["results"][0]["sha256"] = "wrong"
@@ -232,6 +239,28 @@ class GateTests(unittest.TestCase):
                                "html_url": "https://github.com/o/r/pull/7#pullrequestreview-42"}]
         self.assertEqual(gate.codex_review(api, 7, payload["identity"]["head"])["outcome"],
                          "ambiguous")
+
+    def test_ambiguous_codex_receipt_reports_investigation_not_findings(self):
+        payload, _ = sample()
+        payload["identity"]["labels"] = ["authorship:claude"]
+        payload["providers"] = ["codex"]
+        payload.pop("binding")
+        payload["binding"] = gate.digest(payload)
+        api = FakeGitHub(payload["identity"])
+        api.native_reviews = [{"id": 42, "commit_id": payload["identity"]["head"],
+                               "user": {"id": gate.CODEX_REVIEWER_ID,
+                                        "login": gate.CODEX_REVIEWER, "type": "Bot"},
+                               "state": "COMMENTED", "submitted_at": "2026-11-05T10:00:00Z",
+                               "body": "<!-- codex-review-receipt:v1 -->\nReview complete",
+                               "html_url": "https://github.com/o/r/pull/7#pullrequestreview-42"}]
+        with tempfile.TemporaryDirectory() as tmp:
+            work = Path(tmp)
+            gate.save(work / "input.json", payload)
+            gate.save(work / "result-codex.json", {"provider": "codex", "binding": payload["binding"],
+                      "native_review": gate.codex_review(api, 7, payload["identity"]["head"])})
+            with patch.dict(os.environ, {"GITHUB_STEP_SUMMARY": str(work / "summary.md")}), self.assertRaises(gate.GateError):
+                gate.publish(work, api, "success")
+            self.assertIn("receipt unrecognized", gate.load(work / "summary.json")["message"])
 
     def test_missing_native_codex_review_leaves_pending_status(self):
         payload, _ = sample()
@@ -364,6 +393,17 @@ class GateTests(unittest.TestCase):
                 gate.prepare(Path(tmp), Path(tmp), 7, api)
         self.assertEqual(api.posted[-1][1], "failure")
         self.assertEqual(api.permission_calls, 1)
+
+    def test_prepare_timeout_publishes_failure(self):
+        payload, _ = sample()
+        api = FakeGitHub(payload["identity"])
+        with tempfile.TemporaryDirectory() as tmp, patch.dict(os.environ, {"GITHUB_ACTOR": "maintainer",
+                "GITHUB_TRIGGERING_ACTOR": "maintainer"}), patch.object(gate, "git",
+                side_effect=subprocess.TimeoutExpired("git", 1)):
+            with self.assertRaises(subprocess.TimeoutExpired):
+                gate.prepare(Path(tmp), Path(tmp), 7, api)
+        self.assertEqual(api.posted[-1][1], "failure")
+        self.assertIn("preparation failed", api.posted[-1][2])
 
     def test_scheduled_dispatch_requires_pr_author_write_access(self):
         payload, _ = sample()
