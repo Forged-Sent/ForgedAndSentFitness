@@ -2736,7 +2736,10 @@ header.hero .me-btn { border-color:#e87328; }
       for (var wi = 0; wi < wlogs.docs.length; wi++) await db.doc("data/users/" + uid + "/log/workouts/" + wlogs.docs[wi].id).delete();
       var pr = await db.doc("profiles/" + uid).get();
       if (pr.exists) { var px = pr.data() || {}; if (px.avatarId) assetIds.push(px.avatarId); if (px.bannerId) assetIds.push(px.bannerId); }
-      await db.doc("data/users/" + uid + "/settings").delete(); try { await db.doc("data/users/" + uid + "/liftnotes").delete(); await db.doc("data/users/" + uid + "/legacy").delete(); var jr = await db.doc("data/users/" + uid + "/journal").collection("entries").get(); for (var ji = 0; ji < jr.docs.length; ji++) await db.doc("data/users/" + uid + "/journal/entries/" + jr.docs[ji].id).delete(); } catch (e) {} await db.doc("habits/" + uid).delete(); await db.doc("profiles/" + uid).delete();
+      await db.doc("data/users/" + uid + "/settings").delete(); try { await db.doc("data/users/" + uid + "/liftnotes").delete(); await db.doc("data/users/" + uid + "/legacy").delete(); } catch (e) {}
+      var jr = await db.doc("data/users/" + uid + "/journal").collection("entries").get();
+      for (var ji = 0; ji < jr.docs.length; ji++) await db.doc("data/users/" + uid + "/journal/entries/" + jr.docs[ji].id).delete();
+      await db.doc("habits/" + uid).delete(); await db.doc("profiles/" + uid).delete();
       for (var j = 0; j < assetIds.length; j++) await self.deleteAsset(assetIds[j]);
     }
   };
@@ -10167,15 +10170,25 @@ header.hero .me-btn { border-color:#e87328; }
   function jrLabel(k) { for (var i = 0; i < JR_TAGS.length; i++) if (JR_TAGS[i][0] === k) return JR_TAGS[i][1]; return k; }
   function journalSorted() { return (state.journal || []).slice().sort(function (a, b) { return (b.at || 0) - (a.at || 0); }); }
   function journalToday() { var k = todayKey(); return journalSorted().filter(function (x) { return x.d === k; }); }
-  function jrSave(x) {
+  async function jrSave(x) {
+    await B.saveJournal(state.me, x);
     var list = (state.journal || []).filter(function (y) { return y.id !== x.id; }); list.push(x); state.journal = list;
-    try { B.saveJournal(state.me, x); } catch (e) {}
     drawToday(); if (state.page === "journal") drawJournalPage();
   }
-  function jrDelete(id) {
+  async function jrDelete(id) {
+    await B.deleteJournal(state.me, id);
     state.journal = (state.journal || []).filter(function (y) { return y.id !== id; });
-    try { B.deleteJournal(state.me, id); } catch (e) {}
     drawToday(); if (state.page === "journal") drawJournalPage();
+  }
+  async function jrAction(button, message, action) {
+    var scope = button.closest ? button.closest(".cdlg, .jr-devo, .jr-it") : null;
+    if (button.disabled || (scope && scope.dataset.jrBusy)) return false;
+    var controls = scope ? Array.prototype.map.call(scope.querySelectorAll("button, input, textarea"), function (c) { return [c, c.disabled]; }) : [[button, button.disabled]];
+    if (scope) scope.dataset.jrBusy = "1";
+    controls.forEach(function (c) { c[0].disabled = true; }); message.textContent = "Saving...";
+    try { await action(); message.textContent = ""; return true; }
+    catch (e) { message.textContent = "Could not save that change. Your entry is still here. Please try again."; return false; }
+    finally { if (scope) delete scope.dataset.jrBusy; controls.forEach(function (c) { c[0].disabled = c[1]; }); }
   }
   function jrWhen(x) {
     var k = x.d || "", t = todayKey(), d = new Date(k + "T12:00:00"), yd = new Date(t + "T12:00:00"); yd.setDate(yd.getDate() - 1);
@@ -10202,7 +10215,7 @@ header.hero .me-btn { border-color:#e87328; }
     box.appendChild(el("p", "jr-when", now.toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric" }) + " · " + now.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })));
     var sv0 = F.saved ? (state.journal || []).filter(function (y) { return y.id === F.saved; })[0] : null;
     var h = el("h2", null, sv0 ? "Saved to your journal." : ed ? "Edit your entry" : "Journal"); h.id = "jr-t"; box.appendChild(h);
-    function close() { back.remove(); }
+    function close() { if (!back.dataset.jrBusy) back.remove(); }
     if (sv0) {
       var card = el("div", "lg-saved"), ck = el("span", "lg-ck"); ck.innerHTML = CHECK_SVG; card.appendChild(ck);
       var ct = el("div", "lg-ct"); ct.appendChild(el("b", null, (sv0.tags || []).map(jrLabel).join(" · ") || "Entry saved"));
@@ -10230,7 +10243,9 @@ header.hero .me-btn { border-color:#e87328; }
         var v = ta.value.trim(); if (!v) { msg.textContent = "Write something first."; return; }
         var x = ed ? Object.assign({}, ed, { t: v, tags: F.tags.slice(), edited: Date.now() }) : { id: "j" + Date.now().toString(36), d: todayKey(), at: Date.now(), t: v, tags: F.tags.slice(), src: "pen" };
         if (x.ans && x.tags.indexOf("prayer") < 0) delete x.ans;
-        jrSave(x); F.saved = x.id; F.edit = ""; F.t = ""; F.tags = []; openJournal();
+        jrAction(sv, msg, async function () {
+          await jrSave(x); F.saved = x.id; F.edit = ""; F.t = ""; F.tags = []; openJournal();
+        });
       });
       cx.addEventListener("click", function () { F.edit = ""; F.t = ""; F.tags = []; close(); });
       row.appendChild(sv); row.appendChild(cx); box.appendChild(row); box.appendChild(msg);
@@ -10239,7 +10254,7 @@ header.hero .me-btn { border-color:#e87328; }
         if (myPaul()) { var sh2 = el("button", "btn ghost", "Share this entry with my Paul"); sh2.type = "button"; sh2.addEventListener("click", function () { jrShare(Object.assign({}, ed, { t: ta.value.trim() || ed.t }), smsg2); }); box.appendChild(sh2); box.appendChild(smsg2); }
         var del = el("button", "linkish", "Delete this entry"); del.type = "button";
         del.addEventListener("click", function () {
-          if (del.dataset.sure) { jrDelete(ed.id); F.edit = ""; F.t = ""; F.tags = []; close(); return; }
+          if (del.dataset.sure) { jrAction(del, msg, async function () { await jrDelete(ed.id); F.edit = ""; F.t = ""; F.tags = []; back.remove(); }); return; }
           del.dataset.sure = "1"; del.textContent = "Tap again to delete for good";
         });
         box.appendChild(del);
@@ -10268,7 +10283,9 @@ header.hero .me-btn { border-color:#e87328; }
     $("jr-devo-save").addEventListener("click", function () {
       var ta = $("jr-devo-ta"), v = ta.value.trim(), m = $("jr-devo-msg"); if (!v) { m.textContent = "Write something first."; ta.focus(); return; }
       var t = devoToday(), x = { id: "j" + Date.now().toString(36), d: todayKey(), at: Date.now(), t: v, tags: [], src: "devo", p: t && t.e ? t.e.reflect : "" };
-      jrSave(x); ta.value = ""; m.textContent = "✓ Saved to your journal. Only you can read it.";
+      jrAction($("jr-devo-save"), m, async function () {
+        await jrSave(x); ta.value = "";
+      }).then(function (saved) { if (saved) m.textContent = "✓ Saved to your journal. Only you can read it."; });
     });
   }
   var jrUI = { tab: "all", q: "" };
@@ -10304,7 +10321,7 @@ header.hero .me-btn { border-color:#e87328; }
         var tg = el("div", "jr-tags"); (x.tags || []).forEach(function (k) { tg.appendChild(el("span", "jr-tg", jrLabel(k))); });
         if (x.ans) tg.appendChild(el("span", "jr-tg ans", "✓ Answered " + new Date(x.ans).toLocaleDateString(undefined, { month: "short", day: "numeric" })));
         if ((x.tags || []).indexOf("prayer") >= 0) { var ab = el("button", "mini", x.ans ? "Undo answered" : "Mark answered"); ab.type = "button";
-          ab.addEventListener("click", function () { var y = Object.assign({}, x); if (y.ans) delete y.ans; else y.ans = Date.now(); jrSave(y); }); tg.appendChild(ab); }
+          ab.addEventListener("click", function () { var y = Object.assign({}, x); if (y.ans) delete y.ans; else y.ans = Date.now(); jrAction(ab, jm, async function () { await jrSave(y); }); }); var jm = el("p", "note", ""); jm.setAttribute("role", "status"); li.appendChild(jm); tg.appendChild(ab); }
         if (tg.childNodes.length) li.appendChild(tg);
         ul.appendChild(li);
       });
