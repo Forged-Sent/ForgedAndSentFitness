@@ -5,7 +5,7 @@
 - Decision owner: project maintainers
 
 ## Context
-The current HTML/JavaScript prototype is a behavior reference. The Flutter scaffold in draft PR #4 targets Android/iOS and web checks, while the long-term product may also serve Windows, Linux and macOS. Flutter supports these platforms, but native hosts and plugins need different toolchains, testing and privacy/permission behavior.
+The current HTML/JavaScript prototype is a behavior reference. The Flutter scaffold merged in PR #4 targets Android/iOS and web checks, while the long-term product may also serve Windows, Linux and macOS. Flutter supports these platforms, but native hosts and plugins need different toolchains, testing and privacy/permission behavior.
 
 ## Proposed decision
 Use one Flutter/Dart source for shared application/domain/data contracts across Android, iOS, web, Windows, Linux and macOS; first prioritize Android/iOS functional correctness, while web remains a development/browser preview. Treat desktop as an explicit future compatibility target, not a promise that binaries currently build. Add reviewed native platform hosts and OS-specific CI only after a package compatibility audit and milestone approval.

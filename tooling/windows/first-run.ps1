@@ -198,7 +198,7 @@ function MoreOptions {
       else{Write-Host 'GitHub CLI missing. Run Contributor setup first.'}
     }
     '4' {
-      Write-Host '.vscode/mcp.json (VS Code, Copilot), .mcp.json (Claude), .codex/config.toml (Codex).'
+      Write-Host '.vscode/mcp.json (VS Code, Copilot), .mcp.json (Claude), .codex/config.toml (Codex), .gemini/settings.json (Gemini CLI).'
       Write-Host 'Antigravity CLI reads AGENTS.md and .agents/skills; its MCP servers are not preconfigured yet.'
       Write-Host 'Configured does NOT mean connected. Authenticate providers independently.'
     }

@@ -1,12 +1,15 @@
 ---
-status: active
-updated: 2026-11-02
+status: completed
+updated: 2026-11-05
 owner: project-maintainers
-source_ref: feature/contributor-emulator-onboarding
-source_sha: edd1d4f0084dad1aa8fd0f27cdd5a6ade91753a4
+source_ref: main
+source_sha: 60b9f5de11b1a1074b921ee26ae68fb3c3e7228d
 ---
 
 # PR #4 foundation handoff (dated snapshot)
+
+## Outcome (2026-11-05)
+PR #4 merged into `main` as merge commit `60b9f5d` (head `a93407b`, `ci-gate` green on all 12 jobs). The feature branch was deleted on merge. Current state and what remains NOT VERIFIED live in [CURRENT.md](../CURRENT.md); the sections below are the original 2026-11-02 snapshot, kept for history.
 
 ## Goal and acceptance conditions
 Complete contributor onboarding, emulator-first Firebase foundation, optional single-provider advisory AI review and architecture Atlas without conflating a demo with production readiness. See [PR #4](https://github.com/Forged-Sent/ForgedAndSentFitness/pull/4).

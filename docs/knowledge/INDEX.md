@@ -13,7 +13,7 @@ This is a Git-tracked, Markdown-first second brain. Obsidian may open the reposi
 - [Flutter AI, Dart MCP and Context7 lookup rules](FLUTTER-AI-DOCS.md)
 - [Documentation lifecycle and deprecation](LIFECYCLE.md)
 - [Research and primary sources](RESEARCH-2026-11-02.md)
-- [Active PR #4 handoff](handoffs/pr4-foundation.md)
+- [PR #4 handoff (completed, merged 2026-11-05)](handoffs/pr4-foundation.md)
 - [Handoff template](handoffs/TEMPLATE.md)
 
 ## Existing authoritative material

@@ -44,9 +44,9 @@ The project VS Code MCP file configures three default servers (no Firebase cloud
 3. Playwright MCP: browser automation against Chrome for Flutter web UI.
 4. GitHub hosted MCP, Figma, Maestro and Google Developer Knowledge are **optional**, documented in [MCP security](MCP-SECURITY.md); they are not loaded at first run.
 
-**Safety:** MCP providers can execute code or access external data. VS Code asks you to trust servers. Firebase cloud MCP is deliberately absent. DEV cloud authorization belongs to Maintainer opt-in in PR #4. No Firebase project or API key is created by this bootstrap.
+**Safety:** MCP providers can execute code or access external data. VS Code asks you to trust servers. Firebase cloud MCP is deliberately absent. DEV cloud authorization is a separate Maintainer opt-in. No Firebase project or API key is created by this bootstrap.
 
-The shared .vscode/mcp.json is for VS Code and Copilot. Claude uses .mcp.json and Codex uses .codex/config.toml after trust. The audited optional manifests provide Google Developer Knowledge through a masked key prompt only when the maintainer explicitly opts in. No global Firebase/cloud MCP registration is performed.
+The shared .vscode/mcp.json is for VS Code and Copilot. Claude uses .mcp.json, Codex uses .codex/config.toml after trust, and Gemini CLI uses .gemini/settings.json (Dart and Context7 only, untrusted). The audited optional manifests provide Google Developer Knowledge through a masked key prompt only when the maintainer explicitly opts in. No global Firebase/cloud MCP registration is performed.
 
 ## Sign-in after setup
 
