@@ -14,6 +14,21 @@ PASS = {"verdict": "PASS", "slice_complete": True, "findings": [],
         "unverified": ["Runtime tests were not executed by the reviewer"]}
 
 
+def codex_summary(head="a" * 40, findings=False, completed="2026-11-05T10:00:00Z"):
+    state = {"code_review": {"commit_sha": head, "has_any_findings": findings,
+                             "has_unresolved_findings": findings, "status": "completed"},
+             "security_review": {"status": None}}
+    return {"id": 99, "user": {"id": gate.CODEX_REVIEWER_ID,
+                               "login": gate.CODEX_REVIEWER, "type": "Bot"},
+            "performed_via_github_app": {"id": gate.CODEX_APP_ID},
+            "created_at": "2026-11-05T09:00:00Z", "updated_at": "2026-11-05T10:01:00Z",
+            "html_url": "https://github.com/o/r/pull/7#issuecomment-99",
+            "body": "<!-- codex-pull-request-review-summary -->\n"
+                    "<!-- codex-review-state:v1 " + json.dumps(state, separators=(",", ":")) + " -->\n"
+                    "| 📝 **Code Review** | ✅ **Completed** <relative-time datetime=\"" +
+                    completed + "\">" + completed + "</relative-time> | `aaaaaaa` | New commits |"}
+
+
 def sample():
     payload = {"identity": {"pr": 7, "head": "a" * 40, "base": "b" * 40,
                            "base_ref": "main", "draft": False, "labels": ["authorship:codex"]},
@@ -46,6 +61,8 @@ class FakeGitHub:
     def api(self, path):
         if "/timeline?" in path:
             return getattr(self, "timeline", [])
+        if path.startswith("issues/") and "/comments?" in path:
+            return getattr(self, "native_summary_comments", [])
         if "/reviews/" in path and "/comments" in path:
             if hasattr(self, "native_comments_by_review"):
                 return self.native_comments_by_review.get(int(path.split("/reviews/")[1].split("/")[0]), [])
@@ -167,6 +184,63 @@ class GateTests(unittest.TestCase):
         with self.assertRaises(gate.NativeReviewPending):
             gate.codex_review(api, 7, payload["identity"]["head"])
 
+    def test_native_codex_clean_summary_binds_exact_head_base_and_app(self):
+        payload, _ = sample()
+        api = FakeGitHub(payload["identity"])
+        comment = codex_summary()
+        api.native_summary_comments = [comment]
+        evidence = gate.codex_review(api, 7, payload["identity"]["head"])
+        self.assertEqual(evidence["outcome"], "clean")
+        self.assertEqual(evidence["review_ids"], [])
+        self.assertEqual(evidence["review_urls"], [comment["html_url"]])
+        self.assertTrue(evidence["evidence_ids"][0].startswith("summary:99:"))
+        api.timeline = [{"event": "base_ref_changed", "created_at": "2026-11-05T10:00:01Z"}]
+        with self.assertRaises(gate.NativeReviewPending):
+            gate.codex_review(api, 7, payload["identity"]["head"])
+        api.timeline = []
+        comment["performed_via_github_app"]["id"] = 1
+        with self.assertRaises(gate.NativeReviewPending):
+            gate.codex_review(api, 7, payload["identity"]["head"])
+        comment["performed_via_github_app"]["id"] = gate.CODEX_APP_ID
+        comment["body"] = comment["body"].replace(payload["identity"]["head"], "b" * 40)
+        with self.assertRaises(gate.NativeReviewPending):
+            gate.codex_review(api, 7, payload["identity"]["head"])
+
+    def test_native_codex_summary_findings_and_malformed_fail_closed(self):
+        payload, _ = sample()
+        api = FakeGitHub(payload["identity"])
+        comment = codex_summary(findings=True)
+        api.native_summary_comments = [comment]
+        self.assertEqual(gate.codex_review(api, 7, payload["identity"]["head"])["outcome"],
+                         "changes_required")
+        comment["body"] = comment["body"].replace('"status":"completed"', '"status":"in_progress"')
+        with self.assertRaises(gate.NativeReviewPending):
+            gate.codex_review(api, 7, payload["identity"]["head"])
+        comment["body"] = comment["body"].replace("<!-- codex-review-state:v1", "<!-- invalid-state:v1")
+        with self.assertRaises(gate.GateError):
+            gate.codex_review(api, 7, payload["identity"]["head"])
+
+    def test_clean_summary_can_publish_without_review_object(self):
+        payload, _ = sample()
+        payload["identity"]["labels"] = ["authorship:claude"]
+        payload["providers"] = ["codex"]
+        payload.pop("binding")
+        payload["binding"] = gate.digest(payload)
+        api = FakeGitHub(payload["identity"])
+        api.native_summary_comments = [codex_summary()]
+        with tempfile.TemporaryDirectory() as tmp:
+            work = Path(tmp)
+            gate.save(work / "input.json", payload)
+            with patch.object(gate, "GitHub", return_value=api):
+                gate.run_provider(work, "codex")
+            result = gate.load(work / "result-codex.json")
+            self.assertEqual(result["native_review"]["outcome"], "clean")
+            with patch.dict(os.environ, {"GITHUB_STEP_SUMMARY": str(work / "summary.md")}):
+                gate.publish(work, api, "success")
+            self.assertEqual(api.posted[-1][1], "success")
+            self.assertTrue(api.posted[-1][2].startswith("codex-evidence=" +
+                gate.digest(result["native_review"]["evidence_ids"])[:16]))
+
     def test_native_codex_result_uses_live_review_without_api_key(self):
         payload, _ = sample()
         payload["identity"]["labels"] = ["authorship:claude"]
@@ -191,7 +265,7 @@ class GateTests(unittest.TestCase):
             with patch.dict(os.environ, {"GITHUB_STEP_SUMMARY": str(work / "summary.md")}):
                 gate.publish(work, api, "success")
             self.assertEqual(api.posted[-1][1], "success")
-            self.assertTrue(api.posted[-1][2].startswith("codex-evidence=" + gate.digest([42])[:16]))
+            self.assertTrue(api.posted[-1][2].startswith("codex-evidence=" + gate.digest(["review:42"])[:16]))
             api.native_comments = [{"id": 1, "body": "fix this"}]
             with self.assertRaises(gate.GateError):
                 gate.validate_results(payload, [result], api)

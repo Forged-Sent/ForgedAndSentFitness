@@ -27,8 +27,13 @@ MAX_SLICES = 4
 SHA = re.compile(r"[0-9a-f]{40}\Z")
 CODEX_REVIEWER_ID = 199175422
 CODEX_REVIEWER = "chatgpt-codex-connector[bot]"
+CODEX_APP_ID = 1144995
 # Deliberately narrow until a real no-finding connector payload is captured.
 CODEX_CLEAN_BODY = "<!-- codex-review-receipt:v1 -->\nNo suggestions found"
+CODEX_STATE = re.compile(r"^<!-- codex-review-state:v1 (\{[^\r\n]+\}) -->$", re.MULTILINE)
+CODEX_COMPLETED = re.compile(
+    r'^\| 📝 \*\*Code Review\*\* \| ✅ \*\*Completed\*\* '
+    r'<relative-time datetime="([^"]+)">', re.MULTILINE)
 
 
 class GateError(Exception):
@@ -275,7 +280,11 @@ def _review_time(value: str) -> datetime:
 
 
 def codex_review(api: GitHub, number: int, head: str) -> dict:
-    """Collect every native Codex receipt after the last base retargeting."""
+    """Collect exact-head native Codex evidence after the last base retargeting.
+
+    Clean Codex reviews produce an in-place bot summary comment and a reaction,
+    not necessarily a submitted PR review. The reaction lacks a commit identity.
+    """
     base_changed = None
     for page in range(1, 31):
         rows = api.api(f"issues/{number}/timeline?per_page=100&page={page}")
@@ -304,8 +313,57 @@ def codex_review(api: GitHub, number: int, head: str) -> dict:
             break
     else:
         raise GateError("Codex review listing exceeded limit")
-    if not matches:
-        raise NativeReviewPending("Waiting for a native Codex review after the latest base change")
+    summary = None
+    for page in range(1, 31):
+        rows = api.api(f"issues/{number}/comments?per_page=100&page={page}")
+        for row in rows:
+            user = row.get("user") or {}
+            if (user.get("id") != CODEX_REVIEWER_ID or
+                    user.get("login") != CODEX_REVIEWER or
+                    user.get("type") != "Bot" or
+                    (row.get("performed_via_github_app") or {}).get("id") != CODEX_APP_ID):
+                continue
+            body = row.get("body") or ""
+            if "<!-- codex-pull-request-review-summary -->" not in body:
+                continue
+            markers = CODEX_STATE.findall(body)
+            if len(markers) != 1:
+                raise GateError("Malformed native Codex summary state")
+            try:
+                state = json.loads(markers[0], object_pairs_hook=review._no_duplicate_keys)
+                code = state["code_review"]
+            except (ValueError, KeyError, TypeError):
+                raise GateError("Malformed native Codex summary state") from None
+            if not isinstance(code, dict):
+                raise GateError("Malformed native Codex summary state")
+            if code.get("commit_sha") != head:
+                continue
+            if code.get("status") != "completed":
+                raise NativeReviewPending("Codex review for the current head is still running")
+            if (type(code.get("has_any_findings")) is not bool or
+                    type(code.get("has_unresolved_findings")) is not bool):
+                raise GateError("Codex summary findings state is malformed")
+            stamps = CODEX_COMPLETED.findall(body)
+            if len(stamps) != 1:
+                raise GateError("Codex summary has no unique code-review completion time")
+            completed = _review_time(stamps[0])
+            if (completed > _review_time(row.get("updated_at")) or
+                    completed < _review_time(row.get("created_at"))):
+                raise GateError("Codex summary completion time is inconsistent")
+            if base_changed and completed <= base_changed:
+                continue
+            if summary is not None:
+                raise GateError("Multiple native Codex summaries for this head")
+            summary = {"id": row["id"], "url": row["html_url"],
+                       "updated_at": row["updated_at"], "completed_at": stamps[0],
+                       "has_any_findings": code["has_any_findings"],
+                       "has_unresolved_findings": code["has_unresolved_findings"]}
+        if len(rows) < 100:
+            break
+    else:
+        raise GateError("Codex comment listing exceeded limit")
+    if not matches and summary is None:
+        raise NativeReviewPending("Waiting for native Codex exact-head evidence after the latest base change")
     comments = []
     for selected in matches:
         for page in range(1, 31):
@@ -315,16 +373,30 @@ def codex_review(api: GitHub, number: int, head: str) -> dict:
                 break
         else:
             raise GateError("Codex review comments exceeded limit")
-    if comments or any(row["state"] == "CHANGES_REQUESTED" for row in matches):
+    if (comments or any(row["state"] == "CHANGES_REQUESTED" for row in matches) or
+            (summary and summary["has_any_findings"])):
         outcome = "changes_required"
-    elif all(row.get("state") == "COMMENTED" and
-             (row.get("body") or "").strip() == CODEX_CLEAN_BODY for row in matches):
+    elif (summary and not summary["has_unresolved_findings"] and
+          all(row.get("state") == "COMMENTED" and
+              (row.get("body") or "").strip() == CODEX_CLEAN_BODY for row in matches)):
+        outcome = "clean"
+    elif matches and all(row.get("state") == "COMMENTED" and
+                         (row.get("body") or "").strip() == CODEX_CLEAN_BODY for row in matches):
         outcome = "clean"
     else:
         outcome = "ambiguous"
+    evidence_ids = [f"review:{row['id']}" for row in matches]
+    if summary:
+        evidence_ids.append(f"summary:{summary['id']}:{summary['updated_at']}:"
+                            f"{summary['completed_at']}:{summary['has_any_findings']}:"
+                            f"{summary['has_unresolved_findings']}")
     return {"review_ids": sorted(row["id"] for row in matches),
-            "review_urls": [row["html_url"] for row in matches],
-            "latest_submitted_at": max(row["submitted_at"] for row in matches),
+            "evidence_ids": sorted(evidence_ids),
+            "review_urls": [row["html_url"] for row in matches] +
+                           ([summary["url"]] if summary else []),
+            "latest_submitted_at": max([row["submitted_at"] for row in matches] +
+                                       ([summary["completed_at"]] if summary else []),
+                                       key=_review_time),
             "comment_count": len(comments), "outcome": outcome}
 
 
@@ -436,7 +508,7 @@ def publish(work: Path, api: GitHub, job_result: str) -> None:
                     if live != recorded:
                         state, message, waiting = "pending", "Codex review changed; retrying exact-head evidence", True
                     else:
-                        codex_evidence = digest(live["review_ids"])[:16]
+                        codex_evidence = digest(live["evidence_ids"])[:16]
                         if live["outcome"] == "ambiguous":
                             raise GateError("Codex receipt unrecognized; investigate review evidence")
                         if live["outcome"] == "changes_required":

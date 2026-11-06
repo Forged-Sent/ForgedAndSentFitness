@@ -9,6 +9,9 @@ import sys
 
 from github_gate import GitHub, GateError, identity, load
 
+GITHUB_ACTIONS_BOT_ID = 41898282
+FINDINGS_HEAD = re.compile(r"<!-- flutter-ai-review-findings-head:([0-9a-f]{40}) -->")
+
 
 def notify(work: Path, api: GitHub) -> None:
     summary_path = work / "summary.json"
@@ -29,10 +32,18 @@ def notify(work: Path, api: GitHub) -> None:
     author = pr["user"]["login"]
     mention = f"@{author}" if re.fullmatch(r"[A-Za-z0-9-]{1,39}", author) else "PR author"
     marker = f"<!-- flutter-ai-review-handoff:{summary['binding']} -->"
+    prior_findings = set()
     for page in range(1, 11):
         comments = api.api(f"issues/{snapshot['pr']}/comments?per_page=100&page={page}")
-        if any(marker in row.get("body", "") for row in comments):
-            return
+        for row in comments:
+            author = row.get("user") or {}
+            if (author.get("id") != GITHUB_ACTIONS_BOT_ID or
+                    author.get("login") != "github-actions[bot]"):
+                continue
+            body = row.get("body", "")
+            if marker in body:
+                return
+            prior_findings.update(FINDINGS_HEAD.findall(body))
         if len(comments) < 100:
             break
     else:
@@ -56,13 +67,20 @@ def notify(work: Path, api: GitHub) -> None:
         finding_text += f"\n- … and {len(findings) - 6} more in the review artifact"
     if not finding_text and summary.get("state") != "success":
         finding_text = "- Inspect the linked workflow and any inline Codex review comments."
+    has_findings = bool(findings) or "Codex review has findings" in status or \
+        "Reviewer requested changes" in status
+    repeated_findings = has_findings and any(head != snapshot["head"] for head in prior_findings)
     body = (
         f"{marker}\n"
-        f"{mention} — {outcome} for `{snapshot['head'][:12]}`. {status}\n\n"
+        + (f"<!-- flutter-ai-review-findings-head:{snapshot['head']} -->\n" if has_findings else "")
+        + f"{mention} — {outcome} for `{snapshot['head'][:12]}`. {status}\n\n"
     )
     if finding_text:
         body += finding_text + "\n\n"
-    next_action = ("Investigate the Codex review receipt before changing code."
+    next_action = ("Pause implementation and wait for the maintainer to review the remaining comments. "
+                   "Do not start another automatic fix cycle."
+                   if repeated_findings else
+                   "Investigate the Codex review receipt before changing code."
                    if "receipt unrecognized" in status else
                    "Non-blocking findings were reported; assess them before merging."
                    if summary.get("state") == "success" and findings else

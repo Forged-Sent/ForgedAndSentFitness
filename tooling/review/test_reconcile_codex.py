@@ -47,6 +47,8 @@ class FakeApi:
             return None
         if path.startswith("issues/7/timeline?"):
             return []
+        if path.startswith("issues/7/comments?"):
+            return []
         if path.startswith("pulls/7/reviews/") and "/comments?" in path:
             return []
         if path.startswith("pulls/7/reviews?"):
@@ -67,7 +69,7 @@ class ReconcileTests(unittest.TestCase):
 
     def test_matching_evidence_digest_skips_even_if_status_timestamp_is_old(self):
         api = FakeApi()
-        marker = gate.digest([42])[:16]
+        marker = gate.digest(["review:42"])[:16]
         api.status = {"context": reconcile.CONTEXT,
                       "description": f"codex-evidence={marker} PASS",
                       "created_at": "2026-11-04T23:00:00Z"}

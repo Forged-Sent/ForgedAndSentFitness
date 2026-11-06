@@ -4,7 +4,7 @@ import tempfile
 import unittest
 
 import github_gate as gate
-from notify_implementor import notify
+from notify_implementor import GITHUB_ACTIONS_BOT_ID, notify
 
 
 class FakeAPI:
@@ -25,8 +25,10 @@ class FakeAPI:
         if path.startswith("pulls/"):
             return self.pr
         if body is not None:
-            self.comments.append(body)
-            return body
+            comment = {**body, "user": {"id": GITHUB_ACTIONS_BOT_ID,
+                                        "login": "github-actions[bot]"}}
+            self.comments.append(comment)
+            return comment
         return self.comments
 
 
@@ -91,6 +93,28 @@ class NotifyTests(unittest.TestCase):
             api = FakeAPI(snapshot)
             notify(work, api)
             self.assertIn("Non-blocking findings were reported", api.comments[0]["body"])
+
+    def test_second_findings_head_pauses_for_human_review(self):
+        snapshot = {"pr": 7, "head": "a" * 40, "base": "b" * 40,
+                    "base_ref": "main", "draft": False, "labels": ["authorship:codex"]}
+        summary = {"identity": snapshot, "binding": "first", "state": "failure",
+                   "message": "Reviewer requested changes; resolve findings and rerun",
+                   "providers": [{"provider": "claude", "results": [{"review": {"findings": [
+                       {"severity": "high", "path": "mobile/lib/main.dart", "line": 9}]}}]}]}
+        with tempfile.TemporaryDirectory() as directory:
+            work = Path(directory)
+            gate.save(work / "summary.json", summary)
+            api = FakeAPI(snapshot)
+            notify(work, api)
+            self.assertIn("Address the review findings", api.comments[0]["body"])
+            snapshot["head"] = "c" * 40
+            api.pr["head"]["sha"] = snapshot["head"]
+            summary["binding"] = "second"
+            gate.save(work / "summary.json", summary)
+            notify(work, api)
+            self.assertEqual(len(api.comments), 2)
+            self.assertIn("Pause implementation and wait for the maintainer", api.comments[1]["body"])
+            self.assertNotIn("Address the review findings", api.comments[1]["body"])
 
 
 if __name__ == "__main__":

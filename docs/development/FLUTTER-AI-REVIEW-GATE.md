@@ -84,7 +84,8 @@ establish an independent provider for every part; human assessment may be needed
 - Claude reviewer jobs have no write-capable GitHub token and receive only the
   Claude subscription token in isolated configuration. Claude tools/MCP/skills
   are disabled. Codex runs as the connected GitHub review service; the gate reads
-  its submitted review and verifies reviewer identity and exact commit. Raw
+  its bot-authored summary or submitted review and verifies identity, GitHub App,
+  exact commit and review completion time. Raw
   model/auth output is not logged. A separate publisher validates evidence.
 - Stale, missing, cancelled, incomplete or changes-required reviews fail. PASS
   requires every slice and no unresolved critical/high findings. Findings and
@@ -93,12 +94,16 @@ establish an independent provider for every part; human assessment may be needed
   its author with the result and a link to the evidence. The author hands findings
   to the declared Codex or Claude implementor session. A local agent session is
   not awakened by a GitHub comment; automatic fix pushes are not enabled.
-- Native Codex is accepted only when its GitHub bot submits a review receipt for
-  the exact PR head after any base retargeting, with no inline findings in any
-  review on that head and an explicit no-issues receipt. A new commit is needed
-  after findings are fixed. Codex may signal a clean review with only a
-  thumbs-up reaction. Until hosted acceptance proves a safe way to bind that
-  signal to a commit, the gate stays pending and the maintainer must investigate.
+- The implementor addresses the first review's findings once. If a later review
+  on a new head still has findings, the handoff directs the implementor to pause
+  for maintainer review instead of starting another fix cycle.
+- Native Codex is accepted only when its GitHub bot publishes a completed
+  machine-readable summary for the exact PR head after any base retargeting,
+  reporting no findings, with no inline findings in submitted reviews on that
+  head. Its clean thumbs-up reaction alone is insufficient because the reaction
+  has no commit SHA. A new commit is needed after findings are fixed. The
+  summary format is observed GitHub behavior, not a documented stable API;
+  malformed or changed formats fail closed.
 - Limits: 3000 files, 400000 functional diff characters, four slices, ten minutes
   per model call. Binary functional changes fail closed and require a reviewable
   text/source representation in this first version.

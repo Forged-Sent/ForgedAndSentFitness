@@ -123,7 +123,7 @@ def reconcile(api: GitHub, default_ref: str) -> list[int]:
                 evidence = gate.codex_review(api, pr["number"], head)
             except gate.NativeReviewPending:
                 continue
-            current = gate.digest(sorted(evidence["review_ids"]))[:16]
+            current = gate.digest(evidence["evidence_ids"])[:16]
             status = latest_context_status(api, head)
             description = (status or {}).get("description") or ""
             if description.startswith("Not required:") and current_pr_is_docs_only(api, pr["number"], head):
