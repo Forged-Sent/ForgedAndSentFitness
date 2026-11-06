@@ -64,7 +64,7 @@ Forged & Sent is a faith-centered devotional workout and group accountability pl
 - Architecture Reviewer: independent read-only design and requirements assessment.
 - Firebase Security Reviewer: authentication, rules, functions, storage and adversarial access tests.
 Use one builder by default. Route functional Flutter/backend changes to the opposite provider under the functional AI review policy; offer additional security reviews when useful. If invoked, never count the authoring model as independent. Mark missing coverage NOT VERIFIED.
-- After a hosted review finishes, read the PR handoff comment and linked review evidence in the implementing Codex or Claude session. Fix findings on the same feature branch, rerun checks, and request a fresh review for the new head. GitHub comments notify the PR author but do not wake a local agent session on their own.
+- After a hosted review finishes, read the PR handoff comment and linked review evidence in the implementing Codex or Claude session. Address findings once on the same feature branch, rerun checks, and request a fresh review for the new head. If that next review still has findings, pause implementation and wait for the maintainer's human review before making another fix. GitHub comments notify the PR author but do not wake a local agent session on their own.
 
 ## Safe beginner Git collaboration
 
