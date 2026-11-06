@@ -9470,7 +9470,7 @@ header.hero .me-btn { border-color:#e87328; }
       box.appendChild(r);
     });
   }
-  var APP_VERSION = "v238";
+  var APP_VERSION = "v239";
   /* ---------- Photo upload diagnostic (Settings > Testing) ---------- */
   async function runPhotoDiag() {
     var out = { at: new Date().toISOString(), version: APP_VERSION, ua: navigator.userAgent, steps: [] };
@@ -10362,7 +10362,7 @@ header.hero .me-btn { border-color:#e87328; }
     var tx = el("span", "men-tx"); tx.appendChild(el("b", null, nameOf(u))); tx.appendChild(el("small", null, sub)); b.appendChild(tx);
     if (tag) b.appendChild(el("span", "men-tag " + (tagCls || ""), tag)); if (onClick) b.addEventListener("click", onClick); return b;
   }
-  function timStatus(t) { var c = menOf(t).chk[menWeek()]; if (c && c.talk) return ["Asked to talk", "Reach out", "hot"]; if (c) return ["Checked in " + new Date(c.at).toLocaleDateString(undefined, { weekday: "short" }), "✓ Done", "ok"]; return ["No check-in yet this week", "", ""]; }
+  function timStatus(t) { var c = menOf(t).chk[menWeek()]; if (c) return ["Checked in " + new Date(c.at).toLocaleDateString(undefined, { weekday: "short" }), "✓ Done", "ok"]; return ["No check-in yet this week", "", ""]; }
 
   function menInfoBtn() { var b = el("button", "onb-ib men-ib", "i"); b.type = "button"; b.setAttribute("aria-label", "About Paul and Timothy in the Bible"); b.addEventListener("click", function (ev) { ev.stopPropagation(); openMentorInfo(); }); return b; }
 
@@ -10552,7 +10552,7 @@ header.hero .me-btn { border-color:#e87328; }
     var ul = el("ul", "mi-list");
     [["Your Paul", "an older or further-along brother who walks with you, prays for you and asks the hard questions."],
      ["Your Timothy", "a newer brother you walk with. You check on him, pray for him and show him the way you live."],
-     ["Every week", "your Timothy checks in, and you reach out when he needs to talk."],
+     ["Every week", "your Timothy checks in and tells you how to pray for him. You pray, and you stay in touch."],
      ["The goal", "every Timothy becomes a Paul. Disciples who make disciples."]].forEach(function (r) { var li = el("li"); li.appendChild(el("b", null, r[0] + ": ")); li.appendChild(document.createTextNode(r[1])); ul.appendChild(li); });
     box.appendChild(ul);
     var q3 = el("blockquote", "mem-v mi-v", "Iron sharpens iron, and one man sharpens another."); q3.appendChild(el("cite", null, "Proverbs 27:17")); box.appendChild(q3);
@@ -10614,11 +10614,10 @@ header.hero .me-btn { border-color:#e87328; }
       f.appendChild(el("b", "men-q", "How was your week?")); var hw = el("div", "men-how");
       MEN_HOW.forEach(function (h) { var b = el("button", "mini" + (S.how === h[0] ? " on" : ""), h[1]); b.type = "button"; b.setAttribute("aria-pressed", String(S.how === h[0])); b.disabled = off; b.addEventListener("click", function () { S.how = h[0]; drawMentorPage(); }); hw.appendChild(b); }); f.appendChild(hw);
       f.appendChild(el("b", "men-q", "How can " + nameOf(p) + " pray for you?")); var pr = el("input", "field"); pr.maxLength = 280; pr.placeholder = "One line is enough"; pr.value = S.pray; pr.disabled = off; pr.addEventListener("input", function () { S.pray = pr.value; }); f.appendChild(pr);
-      var tl = el("label", "men-talk"), cb = el("input"); cb.type = "checkbox"; cb.checked = S.talk; cb.disabled = off; cb.addEventListener("change", function () { S.talk = cb.checked; }); tl.appendChild(cb); var tt = el("span"); tt.appendChild(el("b", null, "I need to talk")); tt.appendChild(el("small", null, nameOf(p) + " gets a nudge to reach out today")); tl.appendChild(tt); f.appendChild(tl);
       if (c) f.appendChild(el("p", "men-sent", "\u2713 Sent to " + nameOf(p) + " " + new Date(c.at).toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric" }) + ". You can update it until Sunday."));
       var sv = el("button", "btn", c ? "Update check-in" : "Send to " + nameOf(p)); sv.type = "button"; sv.disabled = off;
       var msg = el("p", "note"); msg.setAttribute("role", "status");
-      sv.addEventListener("click", function () { if (!S.how) { msg.textContent = "Pick how your week went first."; return; } var m = JSON.parse(JSON.stringify(menOf(me))); m.chk[wk] = { at: Date.now(), how: S.how, pray: String(S.pray || "").trim().slice(0, 280), talk: !!S.talk }; menSave(me, m).then(function () { state.menCheck = false; msg.textContent = "✓ Sent to " + nameOf(p) + "."; drawMentorToday(); }); });
+      sv.addEventListener("click", function () { if (!S.how) { msg.textContent = "Pick how your week went first."; return; } var m = JSON.parse(JSON.stringify(menOf(me))); m.chk[wk] = { at: Date.now(), how: S.how, pray: String(S.pray || "").trim().slice(0, 280) }; menSave(me, m).then(function () { state.menCheck = false; msg.textContent = "✓ Sent to " + nameOf(p) + "."; drawMentorToday(); }); });
       f.appendChild(sv); f.appendChild(msg); ps.appendChild(f);
       if (state.menCheck) setTimeout(function () { f.scrollIntoView({ block: "start", behavior: "smooth" }); }, 60);
     } else {
@@ -10638,7 +10637,6 @@ header.hero .me-btn { border-color:#e87328; }
   function drawTimothy(box, t) {
     var tm = menOf(t), c = tm.chk[menWeek()], st = menStats(t), back = el("button", "mini", "‹ Paul & Timothy"); back.type = "button"; back.addEventListener("click", function () { state.menView = ""; drawMentorPage(); }); box.appendChild(back);
     var hd = el("div", "men-head"); hd.appendChild(menAv(t)); var ht = el("span"); ht.appendChild(el("span", "label-caps men-k", "Your Timothy")); ht.appendChild(el("h2", "men-name", nameOf(t))); hd.appendChild(ht); box.appendChild(hd);
-    if (c && c.talk) box.appendChild(el("div", "men-alert", nameOf(t) + " asked to talk. Reach out today: call or text him from your phone."));
     if (tm.share.stats) { var g = el("div", "men-stats"); [[st.days + "/7", "Days checked in"], [st.devo + "/7", "Devotional"], [String(st.wk), "Workouts"]].forEach(function (x) { var d = el("div"); d.appendChild(el("b", null, x[0])); d.appendChild(el("small", null, x[1])); g.appendChild(d); }); box.appendChild(g); }
     var cc = el("div", "men-chk"); cc.appendChild(el("div", "label-caps men-k", "Check-in · week of " + shortDate(menWeek())));
     if (c) { cc.appendChild(el("p", "men-howv", "Week: " + ((MEN_HOW.filter(function (h) { return h[0] === c.how; })[0] || ["", "—"])[1]))); if (c.pray) cc.appendChild(el("p", "men-quote", "Prayer request: " + c.pray)); }
