@@ -3,6 +3,7 @@ status: active
 updated: 2026-11-06
 owner: Codex / maintainer
 source_ref: codex/flutter-ai-review-gate
+source_sha: 0cfc9dfc9b77788a0e7a894b3207903538d7d1ec
 ---
 # Functional Flutter AI review gate
 
