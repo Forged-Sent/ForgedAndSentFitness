@@ -79,6 +79,19 @@ class NotifyTests(unittest.TestCase):
             self.assertIn("Investigate the Codex review receipt", api.comments[0]["body"])
             self.assertNotIn("Address the review findings", api.comments[0]["body"])
 
+    def test_pass_with_medium_finding_still_calls_for_assessment(self):
+        snapshot = {"pr": 7, "head": "a" * 40, "base": "b" * 40,
+                    "base_ref": "main", "draft": False, "labels": ["authorship:codex"]}
+        summary = {"identity": snapshot, "binding": "receipt", "state": "success",
+            "message": "PASS: claude reviewed this exact diff", "providers": [{"provider": "claude",
+            "results": [{"review": {"findings": [{"severity": "medium", "path": "mobile/lib/main.dart", "line": 9}]}}]}]}
+        with tempfile.TemporaryDirectory() as directory:
+            work = Path(directory)
+            gate.save(work / "summary.json", summary)
+            api = FakeAPI(snapshot)
+            notify(work, api)
+            self.assertIn("Non-blocking findings were reported", api.comments[0]["body"])
+
 
 if __name__ == "__main__":
     unittest.main()

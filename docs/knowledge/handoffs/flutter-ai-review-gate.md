@@ -3,7 +3,7 @@ status: active
 updated: 2026-11-05
 owner: Codex / maintainer
 source_ref: codex/flutter-ai-review-gate
-source_sha: 0a4181202a14ebdb54fcb82a59fc93f0aa4bfb82
+source_sha: 672370313e85ff680cde7b8dca1cacb15406728c
 ---
 # Functional Flutter AI review gate
 
@@ -17,7 +17,8 @@ scope, routing, activation criteria and remaining decisions. A disabled GitHub
 ruleset exists at ID 26653964. Existing Protect main was not modified. Local scope
 and coordinator tests pass. [Draft PR #41](https://github.com/Forged-Sent/ForgedAndSentFitness/pull/41)
 publishes the workflow; `ci-gate` passed on the source SHA above. The hosted review
-workflow cannot run until the PR is merged into the default branch.
+workflow cannot run until the PR is merged into the default branch. CI on the
+source SHA was running at the time of this handoff; recheck its current result.
 
 The user selected account-backed reviews. GitHub currently has the
 CLAUDE_CODE_OAUTH_TOKEN secret. Codex must use its connected native GitHub code

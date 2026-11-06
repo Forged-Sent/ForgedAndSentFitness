@@ -64,6 +64,8 @@ def notify(work: Path, api: GitHub) -> None:
         body += finding_text + "\n\n"
     next_action = ("Investigate the Codex review receipt before changing code."
                    if "receipt unrecognized" in status else
+                   "Non-blocking findings were reported; assess them before merging."
+                   if summary.get("state") == "success" and findings else
                    "Review complete; no code changes were requested."
                    if summary.get("state") == "success" else
                    "Address the review findings, then push a new commit or rerun the review as appropriate.")

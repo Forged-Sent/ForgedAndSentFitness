@@ -317,6 +317,31 @@ class GateTests(unittest.TestCase):
             process.assert_not_called()
             self.assertIn("pending", gate.load(work / "result-claude.json"))
 
+    def test_mixed_race_waits_when_claude_result_is_pending(self):
+        payload, _ = sample()
+        payload["identity"]["labels"] = ["authorship:mixed"]
+        payload["providers"] = ["codex", "claude"]
+        payload.pop("binding")
+        payload["binding"] = gate.digest(payload)
+        api = FakeGitHub(payload["identity"])
+        api.native_reviews = [{"id": 42, "commit_id": payload["identity"]["head"],
+            "user": {"id": gate.CODEX_REVIEWER_ID, "login": gate.CODEX_REVIEWER, "type": "Bot"},
+            "state": "COMMENTED", "submitted_at": "2026-11-05T10:00:00Z",
+            "body": gate.CODEX_CLEAN_BODY,
+            "html_url": "https://github.com/o/r/pull/7#pullrequestreview-42"}]
+        with tempfile.TemporaryDirectory() as tmp:
+            work = Path(tmp)
+            gate.save(work / "input.json", payload)
+            gate.save(work / "result-codex.json", {"provider": "codex", "binding": payload["binding"],
+                "native_review": gate.codex_review(api, 7, payload["identity"]["head"])})
+            gate.save(work / "result-claude.json", {"provider": "claude", "binding": payload["binding"],
+                "pending": "Waiting for Codex"})
+            with patch.dict(os.environ, {"GITHUB_STEP_SUMMARY": str(work / "summary.md")}):
+                gate.publish(work, api, "success")
+            self.assertEqual(gate.load(work / "summary.json")["state"], "pending")
+            self.assertEqual(api.posted[-1][1], "pending")
+            self.assertNotIn("codex-evidence=", api.posted[-1][2])
+
     def test_publish_binds_live_head_base_and_labels(self):
         payload, result = sample()
         mutations = (lambda p: p["head"].update(sha="c" * 40),
@@ -384,6 +409,19 @@ class GateTests(unittest.TestCase):
                 gate.publish(work, api, "failure")
             self.assertEqual(api.posted[-1][1], "failure")
 
+    def test_malformed_result_writes_failure_summary(self):
+        payload, result = sample()
+        result["results"][0].pop("review")
+        with tempfile.TemporaryDirectory() as tmp:
+            work = Path(tmp)
+            gate.save(work / "input.json", payload)
+            gate.save(work / "result-claude.json", result)
+            api = FakeGitHub(payload["identity"])
+            with patch.dict(os.environ, {"GITHUB_STEP_SUMMARY": str(work / "summary.md")}), self.assertRaises(gate.GateError):
+                gate.publish(work, api, "success")
+            self.assertEqual(gate.load(work / "summary.json")["state"], "failure")
+            self.assertEqual(api.posted[-1][1], "failure")
+
     def test_prepare_denies_untrusted_paid_trigger(self):
         payload, _ = sample()
         api = FakeGitHub(payload["identity"])
@@ -393,6 +431,16 @@ class GateTests(unittest.TestCase):
                 gate.prepare(Path(tmp), Path(tmp), 7, api)
         self.assertEqual(api.posted[-1][1], "failure")
         self.assertEqual(api.permission_calls, 1)
+
+    def test_missing_authorship_label_has_actionable_status(self):
+        payload, _ = sample()
+        api = FakeGitHub(payload["identity"])
+        api.pr["labels"] = []
+        with tempfile.TemporaryDirectory() as tmp, patch.dict(os.environ, {"GITHUB_ACTOR": "maintainer",
+                "GITHUB_TRIGGERING_ACTOR": "maintainer"}):
+            with self.assertRaises(gate.GateError):
+                gate.prepare(Path(tmp), Path(tmp), 7, api)
+        self.assertIn("authorship:", api.posted[-1][2])
 
     def test_prepare_timeout_publishes_failure(self):
         payload, _ = sample()

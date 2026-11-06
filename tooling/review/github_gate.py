@@ -166,7 +166,10 @@ def prepare(root: Path, work: Path, number: int, api: GitHub) -> None:
             if pr["draft"]:
                 raise GateError("Mark this functional PR ready for review to run the AI gate")
             actor = os.environ.get("GITHUB_TRIGGERING_ACTOR") or os.environ["GITHUB_ACTOR"]
-            providers = list(reviewers_for(snapshot["labels"]))
+            try:
+                providers = list(reviewers_for(snapshot["labels"]))
+            except ValueError as error:
+                raise GateError(str(error)) from None
             trusted_reconcile = (actor == "github-actions[bot]" and
                                  os.environ.get("GITHUB_EVENT_NAME") == "workflow_dispatch" and
                                  bool(os.environ.get("GITHUB_DEFAULT_BRANCH")) and
@@ -438,6 +441,13 @@ def publish(work: Path, api: GitHub, job_result: str) -> None:
                             raise GateError("Codex receipt unrecognized; investigate review evidence")
                         if live["outcome"] == "changes_required":
                             raise GateError("Codex review has findings; fix them and request a new review")
+                        if "claude" in payload["providers"]:
+                            claude_path = work / "result-claude.json"
+                            claude_result = load(claude_path) if claude_path.exists() else {}
+                            if (claude_result.get("binding") == payload["binding"] and
+                                    claude_result.get("pending")):
+                                codex_evidence = None
+                                state, message, waiting = "pending", "Waiting for Claude after Codex review", True
             if not waiting:
                 if job_result != "success":
                     raise GateError("Reviewer job failed, timed out or was cancelled")
@@ -447,7 +457,7 @@ def publish(work: Path, api: GitHub, job_result: str) -> None:
                 state, message = "success", "PASS: " + ", ".join(payload["providers"]) + " reviewed this exact diff"
         else:
             state, message = "success", "Not required: no functional Flutter/backend changes"
-    except (GateError, ValueError, OSError) as error:
+    except (GateError, ValueError, OSError, KeyError, TypeError) as error:
         message = str(error) if isinstance(error, GateError) else "Missing or malformed reviewer evidence"
     if state == "success":
         try:

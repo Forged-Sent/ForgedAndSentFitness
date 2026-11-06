@@ -63,6 +63,10 @@ establish an independent provider for every part; human assessment may be needed
   Irrelevant labels do not spend provider usage. Re-review an unchanged head from
   Actions → Functional Flutter AI review → Run workflow, entering the PR number.
   Use **Re-run all jobs** for retries: artifacts are isolated by run attempt.
+- GitHub can emit both `opened` and `labeled` when a PR is created with an
+  authorship label. The runs are serialized but may both spend Claude usage on
+  the same head. Check this case during hosted acceptance before relying on
+  automatic cost control.
 - A trusted default-branch schedule checks for newly completed Codex reviews
   every 15 minutes and dispatches a fresh gate run. The native Codex route waits
   in a pending state until its exact-head review is available; it does not send
@@ -92,9 +96,9 @@ establish an independent provider for every part; human assessment may be needed
 - Native Codex is accepted only when its GitHub bot submits a review receipt for
   the exact PR head after any base retargeting, with no inline findings in any
   review on that head and an explicit no-issues receipt. A new commit is needed
-  after findings are fixed. Codex may signal a clean review with
-  only a thumbs-up reaction. Until hosted acceptance proves a safe way to bind
-  that signal to a commit, such a run fails closed and needs investigation.
+  after findings are fixed. Codex may signal a clean review with only a
+  thumbs-up reaction. Until hosted acceptance proves a safe way to bind that
+  signal to a commit, the gate stays pending and the maintainer must investigate.
 - Limits: 3000 files, 400000 functional diff characters, four slices, ten minutes
   per model call. Binary functional changes fail closed and require a reviewable
   text/source representation in this first version.
