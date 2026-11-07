@@ -1,0 +1,19 @@
+# Run an agent session
+
+This page is for a collaborator who wants to help without managing the engineering details. The coordinator handles task breakdown, tools, tests and separate review.
+
+1. Open [Active work](WORK.md) and choose the task you were assigned. If it is Blocked or Decision needed, ask the coordinator to explain the next decision; do not mark it Ready yourself.
+2. Open your configured coding agent in the correct project checkout. Until an embedded Obsidian integration passes its pilot, use the existing agent app. No automatic launch button is installed yet.
+3. Copy the message below and replace the task description or note path. Ordinary language is enough.
+
+> Use the task-coordinator skill at .agents/skills/task-coordinator/SKILL.md to coordinate: [task name or note path]. Use profile auto unless this task specifies routine, deep or research. First read AGENTS.md and docs/knowledge/INDEX.md, CURRENT.md, and this task's handoff. Verify the actual checkout, current GitHub dependencies and required decisions. Follow AGENT-WORKSPACE.md for routing: choose among already available and authorized models according to the task without asking me about every routine choice. Record the actual lead model/provider and routing reason. Keep one active lead and one implementation writer; delegate bounded work with clear scope and acceptance evidence. If a different lead is needed, transfer the exact evidence and next action, and end the previous lead's ownership before the new lead starts. Never silently replace an exact model I explicitly requested. Explain the working result in plain language. Run deterministic checks before arranging a separate non-author review; use a second specialist for high-risk changes. Exclude every author provider from independent reviewer selection under the current runner. Mark unavailable review coverage NOT VERIFIED. Keep me informed of progress and anything requiring my decision. Preserve unrelated work, follow the repository's push/merge restrictions, and update the same handoff so a fresh session can resume. Consult history only for a specific unanswered question. Report actual tests and unverified work honestly. A task budget does not authorize new spending, installations, subscriptions or account access.
+
+The coordinator can use Astra or Opus for deep work, or Sol, Sonnet or the exact configured Open option for routine work, when available and authorized. No vendor is mandatory. **Open is an unresolved alias until its exact configured model and provider are verified; do not guess.** These are routing choices, not claims about installed plugins, account access or model entitlement; those remain UNVERIFIED until checked. The [workspace routing policy](AGENT-WORKSPACE.md) is the source of truth.
+
+You can optionally add **“Use profile routine/deep/research”** or request an exact model. With auto, the coordinator handles ordinary choices. An unavailable exact request needs your choice before substitution; routine routing within your existing authorization does not. Separate sessions or models from the same provider do not count as independent review under the current review runner. Reviews are advisory, never approval to push or merge.
+
+To resume, say **“Continue this task from its handoff and verify what changed since the last session.”** To understand a result, ask **“Show me what works now, what was tested, and what still needs attention.”**
+
+Your role is to explain the desired outcome and evaluate the result. The maintainer still makes protected product/release decisions. An agent saying “done” is useful only when the task includes its evidence.
+
+If the wrong project opens, a permission request is unclear, or a service is unavailable, stop that action and ask the coordinator to explain. These are setup problems, not something you need to fix with terminal commands.
