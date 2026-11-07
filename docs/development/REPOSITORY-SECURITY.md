@@ -1,6 +1,6 @@
 # Forged & Sent: solo-maintainer GitHub governance
 
-One maintainer can deliver changes without independent human approvals. The repository still requires a pull request and the deterministic `ci-gate` on protected `main`. Optional AI security reviews are recommended for Flutter databases, Firebase rules, Auth and sensitive data; they are not mandatory.
+One maintainer can deliver changes without independent human approvals. The repository still requires a pull request and the deterministic `ci-gate` on protected `main`. The maintainer requested a required functional Flutter/backend AI review check; its [implementation and staged activation](FLUTTER-AI-REVIEW-GATE.md) are separate from human approvals. Other AI reviews remain optional.
 
 ## Live protection, observed 2026-11-02
 The current GitHub main ruleset requires `ci-gate`, with **zero required approving reviews**. No second-person approval should be configured for ordinary or security changes unless the maintainer separately chooses to change this. Never self-merge as an AI agent. CODEOWNERS routes responsibility but does not itself require approval.
@@ -8,7 +8,7 @@ The current GitHub main ruleset requires `ci-gate`, with **zero required approvi
 ## Solo-maintainer workflow
 1. Make a focused branch and pull request. Preserve the existing HTML prototype and historical `versions/` snapshots.
 2. Run required CI, unit/widget tests, policy checks, and positive/negative emulator tests for database rules. Report test gaps accurately.
-3. For Flutter database/rules/authorization/privacy changes, **offer** a non-author AI review with `tooling/review/review.py`. The maintainer may skip it and document NOT VERIFIED.
+3. For functional Flutter/backend changes follow [the routed AI gate](FLUTTER-AI-REVIEW-GATE.md). Additional local reviews with `tooling/review/review.py` remain advisory and cannot replace the hosted result.
 4. Only the maintainer decides to merge, after `ci-gate` passes. A green CI does not prove production data safety or manual device acceptance.
 5. Never deploy real Firebase credentials or production changes through demo contributor setup.
 

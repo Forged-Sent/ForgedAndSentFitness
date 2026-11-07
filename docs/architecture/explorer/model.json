@@ -155,7 +155,7 @@
       "x": 635,
       "y": 350,
       "color": "sage",
-      "purpose": "The GitHub Actions ci-gate aggregates policy, Python tests, Flutter builds, Mac/Windows checks, iOS simulator and Firebase security-rule emulator tests.",
+      "purpose": "The active GitHub Actions ci-gate aggregates policy, Python tests, Flutter builds, Mac/Windows checks, iOS simulator and Firebase security-rule emulator tests. A separate functional-review status producer is staged but its ruleset is disabled.",
       "files": [
         ".github/workflows/ci-gate.yml",
         "tooling/policy/check.py",
@@ -303,7 +303,7 @@
       "x": 350,
       "y": 95,
       "color": "violet",
-      "purpose": "Two different providers check a bounded diff, record path/line findings and mark tool failures NOT VERIFIED. The authoring agent does not count as an independent reviewer.",
+      "purpose": "Non-author providers check bounded changes, record path/line findings and mark tool failures NOT VERIFIED. The authoring agent does not count as an independent reviewer. Local reviews are advisory; hosted review evidence is a separate staged process.",
       "files": [
         "tooling/review/review.py",
         "docs/development/AI-REVIEW-WORKFLOW.md"
@@ -327,9 +327,33 @@
         ".github/workflows/ci-gate.yml"
       ],
       "depends": [
-        "merge"
+        "merge",
+        "hosted_review"
       ],
       "notes": "Live human-approval count must be checked separately; AI advisory review cannot satisfy it."
+    },
+    {
+      "id": "hosted_review",
+      "label": "Hosted review evidence",
+      "short": "Staged · ruleset disabled",
+      "stage": "process",
+      "layer": 3,
+      "x": 920,
+      "y": 245,
+      "color": "violet",
+      "purpose": "The staged GitHub workflow classifies functional changes and routes Codex-authored work to Claude subscription OAuth and Claude-authored work to native Codex GitHub Code Review. A scheduled reconciler with actions: write dispatches a gate run when native evidence appears. The publisher has issues: write to post one implementor handoff. These trusted jobs are separate from model invocation. Hosted behavior has not yet been verified and the required-status ruleset is disabled.",
+      "files": [
+        ".github/workflows/flutter-ai-review.yml",
+        "tooling/review/flutter_scope.py",
+        "tooling/review/github_gate.py",
+        "tooling/review/reconcile_codex.py",
+        "tooling/review/notify_implementor.py",
+        "docs/architecture/ADR-0004-hosted-ai-review-gate.md"
+      ],
+      "depends": [
+        "merge"
+      ],
+      "notes": "AI findings are advisory, while GitHub rules can require a status after activation. No AI approval or merge authority is granted."
     },
     {
       "id": "merge",

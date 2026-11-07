@@ -1,0 +1,21 @@
+{
+  "name": "Functional Flutter AI review",
+  "target": "branch",
+  "enforcement": "disabled",
+  "conditions": {
+    "ref_name": {"include": ["~DEFAULT_BRANCH"], "exclude": []}
+  },
+  "bypass_actors": [],
+  "rules": [
+    {
+      "type": "required_status_checks",
+      "parameters": {
+        "strict_required_status_checks_policy": false,
+        "do_not_enforce_on_create": false,
+        "required_status_checks": [
+          {"context": "flutter-ai-review", "integration_id": 15368}
+        ]
+      }
+    }
+  ]
+}
