@@ -115,6 +115,9 @@ class PreviewHandler(BaseHTTPRequestHandler):
         self.send_header("Cache-Control", "no-store")
         self.send_header("X-Content-Type-Options", "nosniff")
         self.send_header("Referrer-Policy", "no-referrer")
+        # Classic script tags can load cross-origin JS without CORS. The Atlas
+        # data script contains source excerpts from this checkout.
+        self.send_header("Cross-Origin-Resource-Policy", "same-origin")
         self.end_headers()
 
 

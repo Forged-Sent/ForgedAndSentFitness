@@ -31,6 +31,7 @@ class PreviewServerTest(unittest.TestCase):
         atlas.parent.mkdir(parents=True)
         atlas.write_text("<!doctype html><script>window.atlas=true</script>", encoding="utf-8")
         (atlas.parent / "site.js").write_text("window.atlas=true;", encoding="utf-8")
+        (atlas.parent / "data.js").write_text("window.FS_ATLAS_DATA='private excerpt';", encoding="utf-8")
         (self.root / ".git").mkdir()
         (self.root / ".git" / "config").write_text("private", encoding="utf-8")
         (self.root / "docs").mkdir()
@@ -78,6 +79,15 @@ class PreviewServerTest(unittest.TestCase):
             self.assertIn(b"window.atlas=true", response.read())
         with self.get("/build/architecture-explorer/site.js") as response:
             self.assertIn(b"window.atlas=true", response.read())
+
+    def test_atlas_data_cannot_be_embedded_by_another_origin(self) -> None:
+        path = "/build/architecture-explorer/data.js"
+        for method in ("GET", "HEAD"):
+            with self.subTest(method=method), self.get(path, method=method) as response:
+                self.assertEqual(response.headers["Cross-Origin-Resource-Policy"], "same-origin")
+                self.assertIsNone(response.headers.get("Access-Control-Allow-Origin"))
+                self.assertEqual(response.read() if method == "GET" else b"",
+                                 b"window.FS_ATLAS_DATA='private excerpt';" if method == "GET" else b"")
 
     def test_rejects_sensitive_paths_and_traversal(self) -> None:
         for path in ("/.git/config", "/docs/HOME.md", "/seed/",
