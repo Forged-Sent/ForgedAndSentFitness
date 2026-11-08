@@ -111,7 +111,10 @@ class NotifyTests(unittest.TestCase):
             with patch.dict(os.environ, {"GITHUB_STEP_SUMMARY": str(work / "step.md")}), \
                     self.assertRaisesRegex(gate.GateError, "Status API unavailable"):
                 gate.publish(work, api, "success")
-            self.assertNotIn("handoff_status_staged", gate.load(work / "summary.json"))
+            self.assertTrue((work / "summary.json").exists())
+            summary = gate.load(work / "summary.json")
+            self.assertEqual(summary["state"], "success")
+            self.assertNotIn("handoff_status_staged", summary)
             api.status_error = False
             with self.assertRaisesRegex(gate.GateError, "no staged pending status"):
                 notify(work, api)

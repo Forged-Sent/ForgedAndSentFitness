@@ -17,7 +17,7 @@ Before app runtime work, the maintainer still needs to choose the state manageme
 
 ## Next actions
 
-1. Finish the [hosted review gate](handoffs/flutter-ai-review-gate.md): publish a small functional test PR under the agent push rule, inspect the new trusted publisher's HTTP 403 diagnostics and pending status, then exercise the remaining routes and failure cases. Activate the disabled ruleset only after the acceptance checklist passes.
+1. Finish the [hosted review gate](handoffs/flutter-ai-review-gate.md): the maintainer makes the first push of the focused functional test PR because an agent cannot satisfy the PR-head/green-`ci-gate` push rule before the PR exists. Then inspect the trusted publisher's HTTP 403 diagnostics and pending status, and exercise the remaining routes and failure cases. Activate the disabled ruleset only after the acceptance checklist passes.
 2. Run the Obsidian first-use pilot with the maintainer and nontechnical collaborator; record confusing navigation or missing handoff fields in the [workspace handoff](handoffs/obsidian-current-and-history.md).
 3. Decide the client stack and first feature contract; then commit reviewed Android/iOS hosts and build one offline-first Flutter vertical slice. [WORK](WORK.md) tracks owners and blockers.
 

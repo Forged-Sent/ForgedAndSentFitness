@@ -145,9 +145,11 @@ establish an independent provider for every part; human assessment may be needed
    For each functional PASS, observe a hosted implementor comment posted or
    deduplicated before the notifier writes final exact-head `success`; confirm
    a failed comment or final status write leaves an existing pending status in
-   place. Exercise a controlled hosted failure of the initial pending write:
-   confirm the notifier refuses to write final `success` for that head, even if
-   the check is absent. Specifically test a clean native Codex review and its
+   place. Before activation, the maintainer must design and record a safe
+   hosted procedure that makes the initial pending write fail, then confirm
+   the notifier does not write final `success` for that head. The local
+   `test_initial_pending_write_failure_cannot_finalize` test does not satisfy
+   this hosted check. Specifically test a clean native Codex review and its
    receipt. The known comment HTTP 403
    must be resolved before activation.
 5. Verify that new commits invalidate prior evidence, missing credentials and
