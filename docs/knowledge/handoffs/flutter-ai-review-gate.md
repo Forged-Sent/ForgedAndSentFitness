@@ -2,10 +2,10 @@
 status: active
 updated: 2026-11-08
 owner: Codex coordinator / gate implementor
-stage: Decision needed
-next_action: Maintainer triages the new low-severity activation-checklist finding before publication
-source_ref: codex/review-gate-acceptance
-source_sha: 1dcd366e234efa36fa8b5e7f263ae2c62c3f52d9
+stage: Active
+next_action: Finish focused test PR, have maintainer make its first push, then inspect hosted handoff and status evidence
+source_ref: codex/review-gate-hosted-acceptance
+source_sha: b9362c43e4199cf2288b48dabdab2d51e7276e5c
 profile: deep
 coordinator_model: gpt-6 (host family; exact variant unavailable)
 coordinator_provider: openai
@@ -14,6 +14,14 @@ author_providers: [openai]
 # Functional Flutter AI review gate
 
 ## Current status — November 8
+
+- [PR #46](https://github.com/Forged-Sent/ForgedAndSentFitness/pull/46) merged as `61e1b7d73e7ad58d75b29e70f13bc768e96430ca` after its exact-head `ci-gate` passed. The maintainer accepted two low hosted Claude comments as follow-up; the medium claim that architecture documentation omitted the handoff dependency was false for the whole PR. Hosted Claude returned PASS, but the old trusted publisher still wrote green before `POST issues/46/comments` failed with HTTP 403. This is evidence of the old false-green path, not a hosted test of the merged two-phase code.
+- No PR is currently open. Branch `codex/review-gate-hosted-acceptance` prepares a small test addition that drives `publish()` into `notify()` for a Claude PASS, failed comment, recovery, and failed initial pending write. Local `93` review tests pass. The maintainer must make this new branch's first push under `AGENTS.md`; an agent cannot satisfy the PR-head/green-`ci-gate` push condition before the PR exists.
+- The Functional Flutter AI review ruleset 26653964 is still **disabled**. Once the test PR opens, inspect its trusted publisher log for the new safe HTTP 403 category and accepted-permission hint, plus the latest exact-head commit status. A pending status after the failed comment is the expected fail-closed result. Do not enable the ruleset until hosted handoff delivery and the remaining [activation checklist](../../development/FLUTTER-AI-REVIEW-GATE.md#activation-checklist) pass. The initial pending-write failure now has an explicit hosted acceptance item; no controlled hosted injection exists yet.
+
+## PR #46 checkpoints (superseded)
+
+These details preserve the sequence of local fixes. They are not current publication instructions.
 
 - [PR #46](https://github.com/Forged-Sent/ForgedAndSentFitness/pull/46) is open at `13dfa2d863f033fe3556b2793d28b2b32b365f1f`. Review threads were closed when checked. The separate Functional Flutter AI review ruleset remains **disabled**.
 - The current head's `ci-gate` passed on its fourth attempt after three Android jobs received external HTTP 504 responses while downloading Gradle or Kotlin artifacts. GitHub still reports `flutter-ai-review` failed on this remote head. The local two-phase fix has not been published or tested in hosted Actions.
