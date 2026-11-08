@@ -2,11 +2,13 @@ version: 2
 updates:
   - package-ecosystem: github-actions
     directory: /
+    labels: ["dependencies", "github_actions", "authorship:automation"]
     schedule:
       interval: weekly
     open-pull-requests-limit: 5
   - package-ecosystem: pub
     directory: /mobile
+    labels: ["dependencies", "authorship:automation"]
     schedule:
       interval: weekly
     open-pull-requests-limit: 5

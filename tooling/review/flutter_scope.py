@@ -16,6 +16,7 @@ AUTHOR_LABELS = {
     "authorship:codex": ("claude",),
     "authorship:claude": ("codex",),
     "authorship:human": ("codex",),
+    "authorship:automation": ("codex",),
     "authorship:mixed": ("codex", "claude"),
 }
 
@@ -67,5 +68,5 @@ def relevant_paths(files: list[dict]) -> list[str]:
 def reviewers_for(labels: list[str]) -> tuple[str, ...]:
     selected = {label for label in labels if label.startswith("authorship:")}
     if len(selected) != 1 or not selected <= AUTHOR_LABELS.keys():
-        raise ValueError("Set exactly one authorship:codex/claude/human/mixed label")
+        raise ValueError("Set exactly one authorship:codex/claude/human/automation/mixed label")
     return AUTHOR_LABELS[selected.pop()]

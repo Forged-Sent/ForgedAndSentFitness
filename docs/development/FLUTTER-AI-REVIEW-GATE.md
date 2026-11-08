@@ -51,6 +51,7 @@ edits conservatively count; the classifier does not infer harmless semantics.
 | authorship:codex | Claude |
 | authorship:claude | Codex |
 | authorship:human | Codex by default |
+| authorship:automation | Codex for verified same-repository Dependabot PRs |
 | authorship:mixed | Both, with overlap disclosed |
 
 Missing, unknown or conflicting labels block functional review. Labels are a
@@ -71,6 +72,19 @@ establish an independent provider for every part; human assessment may be needed
   every 15 minutes and dispatches a fresh gate run. The native Codex route waits
   in a pending state until its exact-head review is available; it does not send
   an implementor handoff merely because Codex is still working.
+- Dependabot PR events skip preparation because bot-triggered workflow tokens
+  and secrets can be restricted. Dependabot configuration labels new update PRs
+  `authorship:automation`. The trusted scheduler starts a run when a verified
+  same-repository Dependabot PR has no status. A maintainer can add that label
+  to an older bot PR to trigger a run. Automation authorship is rejected for
+  other PRs. Native Codex must still publish an exact-head review; this route
+  does not waive evidence or treat a bot review as a human approval.
+- The first bot review can wait up to one scheduler interval for a pending
+  status. If a dispatched run completes without ever posting status, the
+  scheduler stops automatic retries for that exact PR head; a maintainer
+  inspects the run and uses Run workflow to retry. A Dependabot rebase produces
+  a new head and receives a new review. The dispatch carries the expected SHA;
+  a stale queued run cannot mark the replacement head as reviewed.
 - Scheduled dispatches run as GitHub Actions on the default branch and can
   initiate the already-classified review; human dispatches still require a
   repository collaborator. This schedule-to-dispatch path must be checked live
@@ -90,10 +104,14 @@ establish an independent provider for every part; human assessment may be needed
 - Stale, missing, cancelled, incomplete or changes-required reviews fail. PASS
   requires every slice and no unresolved critical/high findings. Findings and
   limitations are in the review-summary artifact. This is not a human approval.
-- After publication, GitHub comments once per review run on the PR and mentions
+- After publication, GitHub attempts one comment per review run on the PR and mentions
   its author with the result and a link to the evidence. The author hands findings
   to the declared Codex or Claude implementor session. A local agent session is
-  not awakened by a GitHub comment; automatic fix pushes are not enabled.
+  not awakened by a GitHub comment; automatic fix pushes are not enabled. The
+  first hosted runs published statuses but the handoff request failed with HTTP
+  403. The existing `issues: write` permission is documented by GitHub for issue
+  comments; the publisher logs the failed endpoint for diagnosis. This
+  notification path remains unverified until a hosted rerun posts a comment.
 - The implementor addresses the first review's findings once. If a later review
   on a new head still has findings, the handoff directs the implementor to pause
   for maintainer review instead of starting another fix cycle.
@@ -111,9 +129,11 @@ establish an independent provider for every part; human assessment may be needed
 ## Activation checklist
 
 1. Review and merge the workflow PR under existing protections.
-2. Create the four authorship labels and declare all substantial authoring providers.
+2. Create the five authorship labels, including `authorship:automation`, and
+   declare all substantial authoring providers.
 3. Confirm the Claude subscription secret and enable Codex GitHub automatic review.
-4. Exercise docs-only, Codex-authored functional and Claude-authored functional PRs
+4. Exercise docs-only, Codex-authored functional, Claude-authored functional,
+   and Dependabot functional PRs
    on GitHub. Confirm routing, the implementor handoff, inspect findings and verify
    exact-head success. Specifically test a clean native Codex review and its receipt.
 5. Verify that new commits invalidate prior evidence, missing credentials and
