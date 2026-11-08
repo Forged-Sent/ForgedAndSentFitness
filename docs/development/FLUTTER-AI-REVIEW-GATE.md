@@ -104,6 +104,14 @@ establish an independent provider for every part; human assessment may be needed
 - Stale, missing, cancelled, incomplete or changes-required reviews fail. PASS
   requires every slice and no unresolved critical/high findings. Findings and
   limitations are in the review-summary artifact. This is not a human approval.
+- A functional PASS first publishes a `pending` commit status. The notifier
+  posts or deduplicates the implementor handoff, then rechecks the current PR,
+  unique head, run ownership and any native Codex receipt before writing the
+  final `success` status. A failed handoff or final status write leaves an
+  existing pending status in place. If the initial pending write fails, the
+  notifier refuses to finalize; the check may be absent rather than pending.
+  The trusted publisher job grants the notifier `statuses: write`
+  and `issues: write`. Documentation-only success does not wait for a handoff.
 - After publication, GitHub attempts one comment per review run on the PR and mentions
   its author with the result and a link to the evidence. The author hands findings
   to the declared Codex or Claude implementor session. A local agent session is
@@ -133,9 +141,13 @@ establish an independent provider for every part; human assessment may be needed
    declare all substantial authoring providers.
 3. Confirm the Claude subscription secret and enable Codex GitHub automatic review.
 4. Exercise docs-only, Codex-authored functional, Claude-authored functional,
-   and Dependabot functional PRs
-   on GitHub. Confirm routing, the implementor handoff, inspect findings and verify
-   exact-head success. Specifically test a clean native Codex review and its receipt.
+   and Dependabot functional PRs on GitHub. Confirm routing and inspect findings.
+   For each functional PASS, observe a hosted implementor comment posted or
+   deduplicated before the notifier writes final exact-head `success`; confirm
+   a failed comment or final status write leaves an existing pending status in
+   place; a failed initial pending write may leave the check absent. Specifically
+   test a clean native Codex review and its receipt. The known comment HTTP 403
+   must be resolved before activation.
 5. Verify that new commits invalidate prior evidence, missing credentials and
    incomplete reviews block merging, and GitHub Actions app 15368 emits the status.
    Test base retargeting and a second PR sharing one head; observe the short

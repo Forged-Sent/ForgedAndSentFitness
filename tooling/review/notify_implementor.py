@@ -7,13 +7,26 @@ from pathlib import Path
 import re
 import sys
 
-from github_gate import GitHub, GateError, identity, load
+from github_gate import GitHub, GateError, codex_review, digest, handoff_marker, identity, load
 
 GITHUB_ACTIONS_BOT_ID = 41898282
 FINDINGS_HEAD = re.compile(r"<!-- flutter-ai-review-findings-head:([0-9a-f]{40}) -->")
 
 
-def notify(work: Path, api: GitHub) -> None:
+def _check_codex_evidence(summary: dict, api: GitHub) -> None:
+    """Require the same clean native receipt immediately before each handoff step."""
+    if not any(row["provider"] == "codex" for row in summary["providers"]):
+        return
+    evidence = summary.get("codex_evidence")
+    if not isinstance(evidence, str) or not re.fullmatch(r"[0-9a-f]{16}", evidence):
+        raise GateError("Missing or malformed native Codex evidence marker")
+    snapshot = summary["identity"]
+    live = codex_review(api, snapshot["pr"], snapshot["head"])
+    if live["outcome"] != "clean" or digest(live["evidence_ids"])[:16] != evidence:
+        raise GateError("Native Codex review evidence changed; rerun the current review")
+
+
+def _notify(work: Path, api: GitHub) -> dict | None:
     summary_path = work / "summary.json"
     if not summary_path.exists():
         return
@@ -29,6 +42,11 @@ def notify(work: Path, api: GitHub) -> None:
     pr = api.api(f"pulls/{snapshot['pr']}")
     if pr["state"] != "open" or identity(pr) != snapshot:
         return  # A new head, base, or authorship declaration superseded this run.
+    if (summary.get("state") == "success" and
+            summary.get("handoff_status_staged") != handoff_marker(snapshot, summary["binding"])):
+        raise GateError("Functional review handoff has no staged pending status")
+    if summary.get("state") == "success":
+        _check_codex_evidence(summary, api)
     author = pr["user"]["login"]
     mention = f"@{author}" if re.fullmatch(r"[A-Za-z0-9-]{1,39}", author) else "PR author"
     marker = f"<!-- flutter-ai-review-handoff:{summary['binding']} -->"
@@ -42,7 +60,7 @@ def notify(work: Path, api: GitHub) -> None:
                 continue
             body = row.get("body", "")
             if marker in body:
-                return
+                return summary
             prior_findings.update(FINDINGS_HEAD.findall(body))
         if len(comments) < 100:
             break
@@ -93,11 +111,39 @@ def notify(work: Path, api: GitHub) -> None:
         f"[Review run]({api.run_url}) · This is advisory AI feedback, not an approval."
     )
     api.api(f"issues/{snapshot['pr']}/comments", {"body": body})
+    return summary
+
+
+def notify(work: Path, api: GitHub) -> None:
+    summary = _notify(work, api)
+    if not summary or summary["state"] != "success":
+        return
+    # publish() left functional PASS pending. Only a delivered (or already
+    # delivered) handoff can advance that exact PR/head to success. Any lookup,
+    # identity or uniqueness failure leaves it pending. GitHub has no atomic
+    # compare-and-swap for the final status write.
+    snapshot = summary["identity"]
+    pr = api.api(f"pulls/{snapshot['pr']}")
+    if pr["state"] != "open" or identity(pr) != snapshot:
+        return
+    api.assert_unique_open_pr(snapshot["head"], snapshot["pr"])
+    _check_codex_evidence(summary, api)
+    evidence = summary.get("codex_evidence")
+    if evidence is not None and (not isinstance(evidence, str) or
+                                 not re.fullmatch(r"[0-9a-f]{16}", evidence)):
+        raise GateError("Malformed native Codex evidence marker")
+    # Commit statuses are append-only and have no conditional write. A newer
+    # run could claim the head between this ownership check and status(). Its
+    # pending status will normally supersede ours; this residual race is not
+    # an atomic lock and remains a documented limitation of commit statuses.
+    if api.owns_status(snapshot["head"]):
+        description = (f"codex-evidence={evidence} " if evidence else "") + summary["message"]
+        api.status(snapshot["head"], "success", description)
 
 
 if __name__ == "__main__":
     try:
         notify(Path(os.environ["RUNNER_TEMP"]) / "gate", GitHub())
-    except (GateError, KeyError, OSError, ValueError) as error:
+    except (GateError, KeyError, OSError, ValueError, TypeError) as error:
         print(str(error) if isinstance(error, GateError) else "Review handoff could not be posted", file=sys.stderr)
         raise SystemExit(1)

@@ -1,13 +1,55 @@
 ---
 status: active
-updated: 2026-11-07
-owner: Maintainer / gate implementor
-stage: Active
-next_action: Diagnose PR handoff HTTP 403 and finish hosted acceptance before enabling the ruleset
-source_ref: main
-source_sha: b5f44a20c36b667d1799ad1490c467d99ceadbf3
+updated: 2026-11-08
+owner: Codex coordinator / gate implementor
+stage: Decision needed
+next_action: Maintainer triages the new low-severity activation-checklist finding before publication
+source_ref: codex/review-gate-acceptance
+source_sha: 1dcd366e234efa36fa8b5e7f263ae2c62c3f52d9
+profile: deep
+coordinator_model: gpt-6 (host family; exact variant unavailable)
+coordinator_provider: openai
+author_providers: [openai]
 ---
 # Functional Flutter AI review gate
+
+## Current status — November 8
+
+- [PR #46](https://github.com/Forged-Sent/ForgedAndSentFitness/pull/46) is open at `13dfa2d863f033fe3556b2793d28b2b32b365f1f`. Review threads were closed when checked. The separate Functional Flutter AI review ruleset remains **disabled**.
+- The current head's `ci-gate` passed on its fourth attempt after three Android jobs received external HTTP 504 responses while downloading Gradle or Kotlin artifacts. GitHub still reports `flutter-ai-review` failed on this remote head. The local two-phase fix has not been published or tested in hosted Actions.
+- Hosted Claude review on the remote head failed to produce valid evidence in the initial run and one full retry. A local independent Claude review of that head returned PASS with a medium finding in the handoff fallback and low findings on status race, diagnostic wording and stale notes. The maintainer authorized **one additional scoped fix** after the implementor paused under the one-fix-cycle rule.
+- That fix is committed locally as `813663f9c1b2107278d688a75406423711d7a42c`; the Obsidian refresh is local commit `ad44b5a`. Functional PASS now stays pending until the handoff is posted or deduplicated; then the notifier rechecks PR identity, unique head, run ownership and live native Codex evidence before final success. A failed initial pending-status write cannot be finalized by the notifier. `90` review tests, `27` policy tests, policy and knowledge checks, syntax checks, and `git diff --check` passed locally. GitHub's status API has no atomic conditional write; a residual check/write race remains. The PR-comment HTTP 403 cause is still unknown because trusted workflow code runs from `main`.
+- Independent local Claude review of `ad44b5a` returned advisory PASS with one medium and three low findings. The medium finding assumed absent `codex_evidence` might be an empty string; full source initializes it to `None` for a Claude-only run, so that failure scenario does not apply. The reviewer also could not see workflow permissions in its slice; the job running the notifier already has `statuses: write`. The maintainer authorized one scoped fix for the valid low finding and documentation gaps. Local commit `1dcd366e234efa36fa8b5e7f263ae2c62c3f52d9` now checks supersession before requiring the staged marker, with a stale/closed PR regression test. The guide, system map and ADR describe pending-until-handoff, and the activation checklist requires a hosted comment and final notifier success. `91` review tests, policy and knowledge checks, architecture index check, review dry-run and diff check passed locally. Independent review and hosted proof of this newest commit remain **NOT VERIFIED**. If the next review raises more findings, pause again for maintainer triage.
+- The [activation checklist](../../development/FLUTTER-AI-REVIEW-GATE.md#activation-checklist) remains open; do not activate ruleset 26653964 yet.
+- Independent Claude review of local head `3592e9d0b7c3519fa12c60f88ea76e4f30b4a97a` against the changes since the prior accepted full-diff review returned advisory PASS. Two full-diff attempts were rejected by the runner as incomplete, so this accepted review covers the scoped fix only; the earlier accepted review covers its predecessor. One new low finding is valid: the guide, system map and ADR should say that if the *initial* pending-status write fails, the check may be absent rather than pending; final success remains blocked. The other low finding requested an open-current-PR missing-marker regression that already exists in `test_unstaged_or_rebound_handoff_cannot_finalize_success` and passed with the rest of the suite. The maintainer's one-cycle instruction pauses further edits for human triage. No new local commit has been pushed, and hosted proof remains **NOT VERIFIED**.
+- The maintainer authorized that wording correction and a conditional push only if the next review had no new actionable findings. Local commit `3739e0bb98460911d1aa9c3240efa03d27a4d2de` clarifies the initial pending-write failure in the ADR, system map and gate guide. Policy and knowledge checks and the focused review dry-run passed. Independent Claude review of this documentation change returned advisory PASS with one new low, actionable finding: the activation checklist does not explicitly require proving that a failed initial pending write cannot be followed by final success. The conditional push criterion was therefore not met. No push occurred; the branch remains local pending maintainer triage. Existing unit tests separately cover failed initial status staging and rejection of missing staged markers; a hosted forced-failure acceptance case remains **NOT VERIFIED**.
+
+## Earlier session checkpoint (superseded)
+
+This snapshot predates PR #46. Its branch/publication statements are historical evidence, not current instructions.
+
+- Profile: deep, because the hosted reviewer and notification have repeated unexplained failures. Coordinator: Codex, host-exposed GPT-6 family (exact variant not reported). One Codex implementation writer owns `tooling/review/` and the review workflow in `C:\ws_c\ForgedAndSentFitness-gate-acceptance`; the coordinator owns this handoff. No other worker edits this task's files.
+- Base: `origin/main` at `901b284b37412f59b42dc32abc602e0d9447a4f5`; implementation commit `192dc4186b0afd7e9eb782c2b61b796ffa5cc03e` is local on `codex/review-gate-acceptance`. PR #41 is merged; no PR is currently open. Ruleset 26653964 was confirmed disabled. GitHub Actions has the `CLAUDE_CODE_OAUTH_TOKEN` secret name; its value and usability have not been inspected.
+- Review plan: deterministic review and policy tests first, then a non-author Claude review of the exact diff. A same-provider Codex subagent does not count as independent review. Hosted acceptance remains separate from local review.
+- Live evidence: PR #42 passed an exact-head native Codex route. PR #44's hosted Claude review failed with only a generic provider error; its publisher had `issues: write` but `POST issues/44/comments` returned HTTP 403. A docs-only PR #45 workflow succeeded with the reviewer skipped, which does not exercise the notification write path. The publisher log explicitly showed `Issues: write`; the API's reason for the 403 was not recorded. [Failed run](https://github.com/Forged-Sent/ForgedAndSentFitness/actions/runs/42455529417), [docs-only run](https://github.com/Forged-Sent/ForgedAndSentFitness/actions/runs/42456329723).
+- No push, merge, or ruleset activation is authorized by this checkpoint. Current local work and hosted gaps must be updated below before transfer.
+
+## Earlier November 8 local result (superseded)
+
+This snapshot predates the first hosted PR #46 review. Use the current status above for the next action.
+
+- The implementor added bounded GitHub HTTP diagnostics (fixed reason category and validated `X-Accepted-GitHub-Permissions` header) and Claude CLI failure categories without printing raw provider output, API response bodies, or credential values. Changed code: `tooling/review/github_gate.py` and `tooling/review/test_github_gate.py`. The coordinator refreshed this handoff and removed stale pre-merge wording from `docs/HOME.md`.
+- `python -m unittest discover -s tooling/review -p 'test_*.py' -q` passed all 78 tests; `python tooling/policy/check.py`, `python tooling/knowledge/check.py`, `python -m compileall -q tooling/review`, `git diff --check`, and a one-slice `review.py --dry-run` passed locally. This is local evidence only; no new GitHub CI run has checked this diff.
+- Independent local review is **NOT VERIFIED**. The first Claude attempt used an exported API credential instead of the signed-in account; after clearing it only for the child process, Claude returned a PASS that admitted a review-coverage gap, which the runner correctly rejected. Gemini was installed but its runner process failed to start on Windows. No model verdict is counted as approval.
+- Next: publish this branch and open a focused PR. This is the initial push, so there is no PR head with a green `ci-gate` yet; the agent push rule in `AGENTS.md` does not let an agent make that first push. The maintainer must publish the prepared branch from his own Git session. Afterward, inspect the new hosted Claude failure category and GitHub permission header, fix the root cause, then exercise the remaining [activation checklist](../../development/FLUTTER-AI-REVIEW-GATE.md#activation-checklist): Claude and Codex functional routes, docs exemption, stale/missing evidence, retry, base retargeting, shared head, and final status producer identity. Keep ruleset 26653964 disabled until all required hosted cases pass.
+- The scheduled Dependabot failed-dispatch path currently requires a maintainer retry; automatic retry was not added because repeated dispatch could spend model usage. Revisit only if live failure evidence shows manual recovery is inadequate.
+
+## PR #46 first hosted review and fix pass
+
+- The maintainer made the first push; [PR #46](https://github.com/Forged-Sent/ForgedAndSentFitness/pull/46) opened at `a72eda8e18b7c6631598d67ea9cacd002150c9ff` with `authorship:codex`. Both automatic Claude runs completed an exact-head review. Their [first](https://github.com/Forged-Sent/ForgedAndSentFitness/actions/runs/42461941359) and [second](https://github.com/Forged-Sent/ForgedAndSentFitness/actions/runs/42461948664) summary artifacts reported PASS with low-severity diagnostic/test findings, and no blocking finding. This is real hosted Claude review evidence for that head, not an approval for a later commit.
+- Both publisher jobs failed to POST the implementor handoff with HTTP 403. The second run still placed a green `flutter-ai-review` commit status on `a72eda8`, so required status alone could falsely look satisfied despite a missing requested handoff. The current default-branch policy produced those runs; this branch's new diagnostics were not executed there.
+- The implementor completed **one** findings fix pass at local code commit `0dc76f5fa9f3d99be741a99ee8cb6f21323a63c1`: narrowed Claude stderr categories, prevented arbitrary `GateError` text from entering review artifacts, added error-path tests, and made a failed required notification set the still-owned review status to failure. Pending Codex, docs-only, and superseded runs retain their existing handling. `82` review tests, `27` policy tests, `tooling/policy/check.py`, and `git diff --check` passed locally. Hosted review and CI of this new head are **NOT VERIFIED** until pushed.
+- The one-fix limit now applies: if the next review of the new head reports more findings, pause implementation and wait for maintainer review. No automatic second correction cycle.
 
 ## Outcome so far
 

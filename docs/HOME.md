@@ -1,6 +1,6 @@
 # Forged & Sent — project dashboard
 
-Open this page first. Git versions this shared project memory; Obsidian provides navigation. Curated November 5, 2026. This workspace extends PR #30; check its live merge status before assuming it is on main.
+Open this page first. Git versions this shared project memory; Obsidian provides navigation. The workspace was merged into `main` in [PR #30](https://github.com/Forged-Sent/ForgedAndSentFitness/pull/30). Check [Current state](knowledge/CURRENT.md) and live GitHub before relying on a task's status.
 
 | I want to… | Open |
 |---|---|
@@ -23,4 +23,4 @@ Read CURRENT, then WORK. Follow a task's handoff for details. Open the linked PR
 
 Open this worktree's **docs folder** as an Obsidian vault and open `HOME.md`, following #30's existing convention. The notes stay versioned with code while build outputs and archived HTML stay outside the note browser. No personal vault, new database, community plugin or automatic sync is required. Local `.obsidian` state stays ignored; share notes through normal Git workflow.
 
-The prepared branch lives in `ForgedAndSentFitness-knowledge`; after integration use `docs/HOME.md` in your normal checkout. Avoid editing the same note in multiple worktrees. This public vault must contain no credentials, personal journals, real member records, prayers or health data.
+Use `docs/HOME.md` in one clean, current repository checkout, and open that checkout's `docs` folder as the vault. Avoid editing the same note in multiple worktrees. This public vault must contain no credentials, personal journals, real member records, prayers or health data.

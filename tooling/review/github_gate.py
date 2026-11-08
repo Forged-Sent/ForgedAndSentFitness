@@ -44,8 +44,59 @@ class NativeReviewPending(GateError):
     """Codex has not supplied an unambiguous exact-diff review yet."""
 
 
+class SafeProviderDiagnostic(GateError):
+    """A fixed provider-failure message explicitly safe for review artifacts."""
+
+
+def github_http_diagnostic(error: urllib.error.HTTPError) -> str:
+    """Return only fixed error categories and GitHub's permission header."""
+    accepted = error.headers.get("X-Accepted-GitHub-Permissions", "") if error.headers else ""
+    # GitHub documents this header for diagnosing app-token permission failures.
+    # Never copy arbitrary response headers or API body text into Actions logs.
+    accepted = accepted if re.fullmatch(r"[a-z_,=; ]{1,200}", accepted) else ""
+    try:
+        message = json.loads(error.read(4096)).get("message", "")
+    except (OSError, ValueError, AttributeError):
+        message = ""
+    if not isinstance(message, str):
+        message = ""
+    if message == "Resource not accessible by integration":
+        reason = "GitHub App access denied"
+    elif message == "Validation Failed":
+        reason = "GitHub rejected the request payload"
+    elif "secondary rate limit" in message.lower():
+        reason = "GitHub secondary rate limit"
+    elif "rate limit exceeded" in message.lower():
+        reason = "GitHub rate limit"
+    else:
+        reason = "reason unavailable"
+    return reason + (f"; accepted permissions: {accepted}" if accepted else "")
+
+
+def cli_failure_category(stderr: str) -> str:
+    """Return a fixed advisory hint; stderr may echo untrusted patch text."""
+    # Hints never affect the review verdict. A forged CLI-like line in stderr
+    # may alter the hint, but no raw provider or patch text reaches artifacts.
+    # Conflicting error lines are unclassified instead of using precedence.
+    patterns = {
+        "authentication rejected": r"^(?:failed to authenticate\b|oauth token revoked\b|api error:\s*401\b|authentication_error\b)",
+        "usage or rate limit": r"^api error:\s*429\b",
+        "account permission denied": r"^(?:api error:\s*403\b|permission_error\b)",
+        "provider service unavailable": r"^api error:\s*(?:500|502|503|529)\b",
+        "network failure": r"^(?:error:\s*)?(?:enotfound|econnreset|etimedout|fetch failed)\b",
+    }
+    matches = [category for category, pattern in patterns.items()
+               if re.search(pattern, stderr, re.IGNORECASE | re.MULTILINE)]
+    return matches[0] if len(matches) == 1 else "unclassified; inspect account or CLI setup outside Actions"
+
+
 def digest(value: object) -> str:
     return hashlib.sha256(json.dumps(value, sort_keys=True).encode()).hexdigest()
+
+
+def handoff_marker(snapshot: dict, binding: str) -> str:
+    """Bind a successfully staged handoff status to this review snapshot."""
+    return digest({"identity": snapshot, "binding": binding})
 
 
 def load(path: Path) -> dict:
@@ -91,7 +142,9 @@ class GitHub:
             with urllib.request.urlopen(req, timeout=45) as response:
                 return json.load(response)
         except urllib.error.HTTPError as error:
-            raise GateError(f"GitHub API returned HTTP {error.code} for {req.get_method()} {path.split('?')[0]}") from None
+            diagnostic = github_http_diagnostic(error)
+            raise GateError(f"GitHub API returned HTTP {error.code} for {req.get_method()} "
+                            f"{path.split('?')[0]} ({diagnostic})") from None
 
     def status(self, head: str, state: str, description: str):
         self.api(f"statuses/{head}", {"state": state, "context": CONTEXT,
@@ -451,18 +504,27 @@ def run_provider(work: Path, provider: str) -> None:
                                       cwd=home, env=env, capture_output=True, text=True,
                                       encoding="utf-8", errors="strict", timeout=600)
                 if proc.returncode:
-                    raise GateError(f"{provider} CLI failed; raw output withheld to protect credentials")
+                    category = cli_failure_category(proc.stderr)
+                    raise SafeProviderDiagnostic(
+                        f"{provider} CLI exited {proc.returncode}: {category}; review NOT VERIFIED")
                 raw = proc.stdout
                 if len(raw) > review.MAX_OUTPUT or review.SENSITIVE.search(raw):
-                    raise GateError("Reviewer output exceeds limits or resembles a secret")
-                parsed = review.parse_report(raw)
+                    raise SafeProviderDiagnostic("Reviewer output exceeds limits or resembles a secret")
+                try:
+                    parsed = review.parse_report(raw)
+                except ValueError:
+                    raise SafeProviderDiagnostic(
+                        "Reviewer response failed required JSON validation; review NOT VERIFIED") from None
                 report["results"].append({"sha256": chunk["sha256"], "review": parsed})
     except NativeReviewPending as pending:
         report["pending"] = str(pending)
         save(work / f"result-{provider}.json", report)
         return
-    except (GateError, ValueError, OSError, subprocess.TimeoutExpired):
-        report["error"] = "Provider invocation or strict response validation failed; review NOT VERIFIED"
+    except (GateError, ValueError, OSError, subprocess.TimeoutExpired) as error:
+        report["error"] = (str(error) if isinstance(error, SafeProviderDiagnostic) else
+                           "Reviewer timed out; review NOT VERIFIED" if isinstance(error, subprocess.TimeoutExpired) else
+                           "Reviewer process could not start; review NOT VERIFIED" if isinstance(error, OSError) else
+                           "Provider invocation or strict response validation failed; review NOT VERIFIED")
         save(work / f"result-{provider}.json", report)
         raise GateError(report["error"]) from None
     save(work / f"result-{provider}.json", report)
@@ -559,15 +621,27 @@ def publish(work: Path, api: GitHub, job_result: str) -> None:
             state, message = "failure", str(error)
     summary = {"identity": snapshot, "policy_sha": payload["policy_sha"],
                "binding": payload["binding"], "state": state, "message": message,
-               "providers": results}
+               "providers": results, "codex_evidence": codex_evidence}
     save(work / "summary.json", summary)
     with open(os.environ["GITHUB_STEP_SUMMARY"], "a", encoding="utf-8") as out:
         out.write(f"## Flutter AI review\n\n{message}\n\nHead: `{snapshot['head']}`\n\n")
         out.write("Full structured findings and model limitations are in the review-summary artifact.\n")
+    # A functional PASS stays pending until its required PR handoff is posted.
+    # The notifier performs the last identity/ownership checks before success.
+    # A failed notification cannot green the status; the final status write
+    # still has the usual GitHub API acknowledgement and ownership race.
+    status_state = "pending" if state == "success" and payload["paths"] else state
+    status_message = ("Review complete; posting implementor handoff"
+                      if status_state == "pending" and state == "success" else message)
     # Recheck run ownership immediately before publication to avoid stale-run overwrite.
     if api.owns_status(snapshot["head"]):
-        description = (f"codex-evidence={codex_evidence} " if codex_evidence else "") + message
-        api.status(snapshot["head"], state, description)
+        description = (f"codex-evidence={codex_evidence} " if codex_evidence else "") + status_message
+        api.status(snapshot["head"], status_state, description)
+        if status_state == "pending" and state == "success":
+            # notify runs even if this step fails. Its success path must have
+            # evidence that the blocking status write actually completed.
+            summary["handoff_status_staged"] = handoff_marker(snapshot, payload["binding"])
+            save(work / "summary.json", summary)
     if state == "pending":
         return
     if state != "success":

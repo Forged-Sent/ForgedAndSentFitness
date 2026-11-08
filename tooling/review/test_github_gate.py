@@ -1,11 +1,13 @@
 """Adversarial validation and trusted prepare/publish tests. No paid API calls."""
 import copy
+import io
 import json
 import os
 from pathlib import Path
 import subprocess
 import tempfile
 import unittest
+import urllib.error
 from unittest.mock import patch
 
 import github_gate as gate
@@ -90,6 +92,101 @@ class FakeGitHub:
 
 
 class GateTests(unittest.TestCase):
+    def test_github_403_reports_safe_permission_hint_without_response_body(self):
+        api = object.__new__(gate.GitHub)
+        api.repo = "o/r"
+        api.token = "token-canary"
+        response = urllib.error.HTTPError(
+            "https://api.github.com/repos/o/r/issues/7/comments", 403, "Forbidden",
+            {"X-Accepted-GitHub-Permissions": "issues=write,contents=read",
+             "X-Debug-Secret": "header-canary"},
+            io.BytesIO(json.dumps({"message": "Resource not accessible by integration",
+                                   "secret": "body-canary"}).encode()))
+        with patch.object(gate.urllib.request, "urlopen", side_effect=response):
+            with self.assertRaises(gate.GateError) as raised:
+                api.api("issues/7/comments", {"body": "test"})
+        message = str(raised.exception)
+        self.assertIn("HTTP 403 for POST issues/7/comments", message)
+        self.assertIn("GitHub App access denied", message)
+        self.assertIn("accepted permissions: issues=write,contents=read", message)
+        for secret in ("token-canary", "header-canary", "body-canary"):
+            self.assertNotIn(secret, message)
+
+    def test_github_error_drops_untrusted_permission_header_and_body(self):
+        response = urllib.error.HTTPError(
+            "https://api.github.com", 403, "Forbidden",
+            {"X-Accepted-GitHub-Permissions": "issues=write\nsecret-canary"},
+            io.BytesIO(b'{"message":"secret-canary"}'))
+        self.assertEqual(gate.github_http_diagnostic(response), "reason unavailable")
+
+    def test_claude_failure_category_is_fixed_and_does_not_include_stderr(self):
+        payload, _ = sample()
+        with tempfile.TemporaryDirectory() as tmp:
+            work = Path(tmp)
+            gate.save(work / "input.json", payload)
+            process = subprocess.CompletedProcess([], 1, "", "Failed to authenticate secret-canary")
+            with patch.object(gate, "model_env", return_value={}), \
+                    patch.object(gate.subprocess, "run", return_value=process):
+                with self.assertRaisesRegex(gate.GateError, "authentication rejected") as raised:
+                    gate.run_provider(work, "claude")
+            result = gate.load(work / "result-claude.json")
+            self.assertEqual(result["error"], str(raised.exception))
+            self.assertNotIn("secret-canary", result["error"])
+            self.assertEqual(result["results"], [])
+        cases = {
+            "API Error: 429 secret-canary": "usage or rate limit",
+            "API Error: 403 secret-canary": "account permission denied",
+            "API Error: 503 secret-canary": "provider service unavailable",
+            "Error: fetch failed secret-canary": "network failure",
+            "The patch contains quota and forbidden text":
+                "unclassified; inspect account or CLI setup outside Actions",
+            "API Error: 403\nAPI Error: 429":
+                "unclassified; inspect account or CLI setup outside Actions",
+            "secret-canary": "unclassified; inspect account or CLI setup outside Actions",
+        }
+        for stderr, expected in cases.items():
+            with self.subTest(stderr=stderr):
+                self.assertEqual(gate.cli_failure_category(stderr), expected)
+
+    def test_claude_timeout_start_failure_and_invalid_json_stay_fail_closed(self):
+        payload, _ = sample()
+        failures = (
+            (subprocess.TimeoutExpired("claude", 600), "Reviewer timed out"),
+            (FileNotFoundError("secret-canary"), "Reviewer process could not start"),
+            (subprocess.CompletedProcess([], 0, "secret-canary invalid JSON", ""),
+             "Reviewer response failed required JSON validation"),
+        )
+        for failure, expected in failures:
+            with self.subTest(expected=expected), tempfile.TemporaryDirectory() as tmp:
+                work = Path(tmp)
+                gate.save(work / "input.json", payload)
+                mocked = ({"return_value": failure} if isinstance(failure, subprocess.CompletedProcess)
+                          else {"side_effect": failure})
+                with patch.object(gate, "model_env", return_value={}), \
+                        patch.object(gate.subprocess, "run", **mocked):
+                    with self.assertRaises(gate.GateError) as raised:
+                        gate.run_provider(work, "claude")
+                result = gate.load(work / "result-claude.json")
+                self.assertIn(expected, result["error"])
+                self.assertEqual(result["error"], str(raised.exception))
+                self.assertNotIn("secret-canary", result["error"])
+                self.assertEqual(result["results"], [])
+
+    def test_arbitrary_gate_error_is_not_copied_into_review_artifact(self):
+        payload, _ = sample()
+        payload["providers"] = ["codex"]
+        payload["binding"] = gate.digest({k: v for k, v in payload.items() if k != "binding"})
+        with tempfile.TemporaryDirectory() as tmp:
+            work = Path(tmp)
+            gate.save(work / "input.json", payload)
+            with patch.object(gate, "GitHub"), patch.object(gate, "codex_review",
+                    side_effect=gate.GateError("untrusted secret-canary")):
+                with self.assertRaises(gate.GateError):
+                    gate.run_provider(work, "codex")
+            error = gate.load(work / "result-codex.json")["error"]
+            self.assertEqual(error, "Provider invocation or strict response validation failed; review NOT VERIFIED")
+            self.assertNotIn("secret-canary", error)
+
     def test_commit_status_requires_one_open_pr_for_head(self):
         api = object.__new__(gate.GitHub)
         with patch.object(api, "api", return_value=[{"number": 7, "state": "open", "head": {"sha": "a" * 40}},
@@ -249,7 +346,8 @@ class GateTests(unittest.TestCase):
             self.assertEqual(result["native_review"]["outcome"], "clean")
             with patch.dict(os.environ, {"GITHUB_STEP_SUMMARY": str(work / "summary.md")}):
                 gate.publish(work, api, "success")
-            self.assertEqual(api.posted[-1][1], "success")
+            self.assertEqual(api.posted[-1][1], "pending")
+            self.assertEqual(gate.load(work / "summary.json")["state"], "success")
             self.assertTrue(api.posted[-1][2].startswith("codex-evidence=" +
                 gate.digest(result["native_review"]["evidence_ids"])[:16]))
 
@@ -276,7 +374,8 @@ class GateTests(unittest.TestCase):
             self.assertTrue(gate.validate_results(payload, [result], api))
             with patch.dict(os.environ, {"GITHUB_STEP_SUMMARY": str(work / "summary.md")}):
                 gate.publish(work, api, "success")
-            self.assertEqual(api.posted[-1][1], "success")
+            self.assertEqual(api.posted[-1][1], "pending")
+            self.assertEqual(gate.load(work / "summary.json")["state"], "success")
             self.assertTrue(api.posted[-1][2].startswith("codex-evidence=" + gate.digest(["review:42"])[:16]))
             api.native_comments = [{"id": 1, "body": "fix this"}]
             with self.assertRaises(gate.GateError):
@@ -466,6 +565,36 @@ class GateTests(unittest.TestCase):
             with patch.dict(os.environ, {"GITHUB_STEP_SUMMARY": str(work / "summary.md")}):
                 gate.publish(work, api, "skipped")
             self.assertEqual(api.posted[-1][1], "success")
+
+    def test_functional_claude_pass_stays_pending_for_handoff(self):
+        payload, result = sample()
+        with tempfile.TemporaryDirectory() as tmp:
+            work = Path(tmp)
+            gate.save(work / "input.json", payload)
+            gate.save(work / "result-claude.json", result)
+            api = FakeGitHub(payload["identity"])
+            with patch.dict(os.environ, {"GITHUB_STEP_SUMMARY": str(work / "summary.md")}):
+                gate.publish(work, api, "success")
+            self.assertEqual(gate.load(work / "summary.json")["state"], "success")
+            self.assertEqual(api.posted[-1][1], "pending")
+            self.assertIn("posting implementor handoff", api.posted[-1][2])
+            self.assertEqual(gate.load(work / "summary.json")["handoff_status_staged"],
+                             gate.handoff_marker(payload["identity"], payload["binding"]))
+
+    def test_failed_pending_status_write_never_stages_success_handoff(self):
+        payload, result = sample()
+        with tempfile.TemporaryDirectory() as tmp:
+            work = Path(tmp)
+            gate.save(work / "input.json", payload)
+            gate.save(work / "result-claude.json", result)
+            api = FakeGitHub(payload["identity"])
+            with patch.object(api, "status", side_effect=gate.GateError("Status API unavailable")), \
+                    patch.dict(os.environ, {"GITHUB_STEP_SUMMARY": str(work / "summary.md")}), \
+                    self.assertRaisesRegex(gate.GateError, "Status API unavailable"):
+                gate.publish(work, api, "success")
+            summary = gate.load(work / "summary.json")
+            self.assertEqual(summary["state"], "success")
+            self.assertNotIn("handoff_status_staged", summary)
 
     def test_shared_head_cannot_publish_docs_only_success_over_functional_pr(self):
         payload, _ = sample()
