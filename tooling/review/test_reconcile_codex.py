@@ -18,6 +18,7 @@ class FakeApi:
                          "body": "unknown", "html_url": "https://example.invalid/review/42"}]
         self.status = None
         self.active = []
+        self.completed = []
         self.runs = {}
         self.queried = []
         self.sent = []
@@ -37,7 +38,8 @@ class FakeApi:
         if path.startswith("actions/workflows/flutter-ai-review.yml/runs?"):
             self.queried.append(path)
             selected = path.split("status=", 1)[1].split("&", 1)[0]
-            return {"workflow_runs": [run for run in self.active if run["status"] == selected]}
+            runs = self.completed if selected == "completed" else self.active
+            return {"workflow_runs": [run for run in runs if run["status"] == selected]}
         if path.startswith("actions/runs/"):
             return self.runs[path.split("/")[-1]]
         if path == "pulls/7":
@@ -159,6 +161,11 @@ class ReconcileTests(unittest.TestCase):
         self.assertEqual(reconcile.reconcile(api, "main"), [])
         api.status = None
         api.active = [{"display_title": "Flutter AI review PR #7", "status": "in_progress"}]
+        self.assertEqual(reconcile.reconcile(api, "main"), [])
+        api.active = [{"display_title": "Flutter AI review PR #7", "status": "queued"}]
+        self.assertEqual(reconcile.reconcile(api, "main"), [])
+        api.active = []
+        api.completed = [{"display_title": "Flutter AI review PR #7", "status": "completed"}]
         self.assertEqual(reconcile.reconcile(api, "main"), [])
 
     def test_automation_label_cannot_route_unauthorized_pr(self):

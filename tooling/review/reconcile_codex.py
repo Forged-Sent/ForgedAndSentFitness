@@ -89,6 +89,20 @@ def active_run(api: GitHub, number: int) -> bool:
     return False
 
 
+def completed_run(api: GitHub, number: int) -> bool:
+    """Do not endlessly retry a bot PR when preparation failed before status."""
+    title = f"Flutter AI review PR #{number}"
+    for page in range(1, 31):
+        result = api.request(
+            f"actions/workflows/flutter-ai-review.yml/runs?status=completed&per_page=100&page={page}")
+        rows = result["workflow_runs"]
+        if any(row.get("display_title") == title for row in rows):
+            return True
+        if len(rows) < 100:
+            return False
+    raise RuntimeError("Completed workflow run listing exceeds pagination limit")
+
+
 def failed_run_after_review(api: GitHub, status: dict | None, number: int,
                             review_submitted_at: str) -> bool:
     """A terminal run begun after the review already attempted this evidence.
@@ -131,7 +145,7 @@ def reconcile(api: GitHub, default_ref: str) -> list[int]:
             # Dependabot pull_request_target runs may have no write token. A
             # trusted default-branch schedule starts the first review instead.
             if automation and status is None:
-                if not active_run(api, pr["number"]):
+                if not active_run(api, pr["number"]) and not completed_run(api, pr["number"]):
                     api.request("actions/workflows/flutter-ai-review.yml/dispatches",
                                 {"ref": default_ref, "inputs": {"pr": str(pr["number"])}})
                     dispatched.append(pr["number"])

@@ -91,7 +91,7 @@ class GitHub:
             with urllib.request.urlopen(req, timeout=45) as response:
                 return json.load(response)
         except urllib.error.HTTPError as error:
-            raise GateError(f"GitHub API returned HTTP {error.code}") from None
+            raise GateError(f"GitHub API returned HTTP {error.code} for {req.get_method()} {path.split('?')[0]}") from None
 
     def status(self, head: str, state: str, description: str):
         self.api(f"statuses/{head}", {"state": state, "context": CONTEXT,

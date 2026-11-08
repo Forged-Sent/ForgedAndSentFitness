@@ -79,6 +79,10 @@ establish an independent provider for every part; human assessment may be needed
   to an older bot PR to trigger a run. Automation authorship is rejected for
   other PRs. Native Codex must still publish an exact-head review; this route
   does not waive evidence or treat a bot review as a human approval.
+- The first bot review can wait up to one scheduler interval for a pending
+  status. If a dispatched run completes without ever posting status, the
+  scheduler stops automatic retries for that PR; a maintainer inspects the run
+  and uses Run workflow to retry. This also avoids repeated paid attempts.
 - Scheduled dispatches run as GitHub Actions on the default branch and can
   initiate the already-classified review; human dispatches still require a
   repository collaborator. This schedule-to-dispatch path must be checked live
@@ -98,10 +102,13 @@ establish an independent provider for every part; human assessment may be needed
 - Stale, missing, cancelled, incomplete or changes-required reviews fail. PASS
   requires every slice and no unresolved critical/high findings. Findings and
   limitations are in the review-summary artifact. This is not a human approval.
-- After publication, GitHub comments once per review run on the PR and mentions
+- After publication, GitHub attempts one comment per review run on the PR and mentions
   its author with the result and a link to the evidence. The author hands findings
   to the declared Codex or Claude implementor session. A local agent session is
-  not awakened by a GitHub comment; automatic fix pushes are not enabled.
+  not awakened by a GitHub comment; automatic fix pushes are not enabled. The
+  first hosted runs published statuses but the handoff POST failed with HTTP 403.
+  The publisher now grants pull-request write permission as well as issue write;
+  this notification path remains unverified until a hosted rerun posts a comment.
 - The implementor addresses the first review's findings once. If a later review
   on a new head still has findings, the handoff directs the implementor to pause
   for maintainer review instead of starting another fix cycle.
