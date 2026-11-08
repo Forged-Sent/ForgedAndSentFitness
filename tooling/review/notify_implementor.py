@@ -39,12 +39,12 @@ def _notify(work: Path, api: GitHub) -> dict | None:
     providers = summary.get("providers", [])
     if not providers and summary.get("state") == "success":
         return  # Documentation-only change: no review agent ran.
-    if (summary.get("state") == "success" and
-            summary.get("handoff_status_staged") != handoff_marker(snapshot, summary["binding"])):
-        raise GateError("Functional review handoff has no staged pending status")
     pr = api.api(f"pulls/{snapshot['pr']}")
     if pr["state"] != "open" or identity(pr) != snapshot:
         return  # A new head, base, or authorship declaration superseded this run.
+    if (summary.get("state") == "success" and
+            summary.get("handoff_status_staged") != handoff_marker(snapshot, summary["binding"])):
+        raise GateError("Functional review handoff has no staged pending status")
     if summary.get("state") == "success":
         _check_codex_evidence(summary, api)
     author = pr["user"]["login"]

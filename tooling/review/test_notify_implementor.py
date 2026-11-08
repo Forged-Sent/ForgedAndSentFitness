@@ -155,6 +155,22 @@ class NotifyTests(unittest.TestCase):
             self.assertEqual(api.comments, [])
             self.assertEqual(api.statuses, [])
 
+    def test_superseded_unstaged_run_exits_without_a_handoff_error(self):
+        snapshot = {"pr": 7, "head": "a" * 40, "base": "b" * 40,
+                    "base_ref": "main", "draft": False, "labels": ["authorship:codex"]}
+        summary = {"identity": snapshot, "binding": "receipt", "state": "success",
+                   "message": "PASS", "providers": [{"provider": "claude", "results": []}]}
+        with tempfile.TemporaryDirectory() as directory:
+            work = Path(directory)
+            gate.save(work / "summary.json", summary)
+            for change in (lambda pr: pr["head"].update(sha="c" * 40),
+                           lambda pr: pr.update(state="closed")):
+                api = FakeAPI(snapshot)
+                change(api.pr)
+                notify(work, api)
+                self.assertEqual(api.comments, [])
+                self.assertEqual(api.statuses, [])
+
     def test_codex_success_keeps_exact_evidence_prefix(self):
         snapshot = {"pr": 7, "head": "a" * 40, "base": "b" * 40,
                     "base_ref": "main", "draft": False, "labels": ["authorship:claude"]}
