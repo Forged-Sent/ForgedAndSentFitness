@@ -6,7 +6,7 @@ Curated 2026-11-08 (Phoenix). This board is human navigation, not a lock or live
 
 | State | Work | Owner | Blocker / next action |
 |---|---|---|---|
-| Active | [Hosted review gate](handoffs/flutter-ai-review-gate.md) | Maintainer / gate implementor | PR #46 merged; prepare a small functional test PR to exercise the trusted two-phase publisher and diagnose the comment HTTP 403. First branch push needs the maintainer under the agent push rule. Ruleset is disabled |
+| Review | [Hosted review gate](handoffs/flutter-ai-review-gate.md) | Maintainer / gate implementor | PR #46 merged; a focused test PR is committed locally and its first review findings were addressed once. Independent follow-up review, maintainer first push and hosted handoff diagnosis remain. Ruleset is disabled |
 | Ready | [Obsidian first-use pilot](handoffs/obsidian-current-and-history.md) | Maintainer + collaborator | Open `docs/` as a vault and try HOME → WORK → START-SESSION → handoff without reading Markdown source |
 | Decision needed | Client dependencies and first feature contract | Maintainer | Select state management, navigation and local persistence; record ADR and scope an owner-only offline completion slice |
 | Blocked | Durable devotional/workout completion | Flutter builder | Wait for accepted contract and local persistence choice; start with a fake repository and tests |

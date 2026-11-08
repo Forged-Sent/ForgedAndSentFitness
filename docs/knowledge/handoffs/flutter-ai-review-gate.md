@@ -2,10 +2,10 @@
 status: active
 updated: 2026-11-08
 owner: Codex coordinator / gate implementor
-stage: Active
-next_action: Finish focused test PR, have maintainer make its first push, then inspect hosted handoff and status evidence
+stage: Review
+next_action: Review the first fix pass, then have maintainer make the new branch's first push if no further findings
 source_ref: codex/review-gate-hosted-acceptance
-source_sha: b9362c43e4199cf2288b48dabdab2d51e7276e5c
+source_sha: 370c1effc566a66da45ee8ef722a182b3f77d070
 profile: deep
 coordinator_model: gpt-6 (host family; exact variant unavailable)
 coordinator_provider: openai
@@ -18,6 +18,7 @@ author_providers: [openai]
 - [PR #46](https://github.com/Forged-Sent/ForgedAndSentFitness/pull/46) merged as `61e1b7d73e7ad58d75b29e70f13bc768e96430ca` after its exact-head `ci-gate` passed. The maintainer accepted two low hosted Claude comments as follow-up; the medium claim that architecture documentation omitted the handoff dependency was false for the whole PR. Hosted Claude returned PASS, but the old trusted publisher still wrote green before `POST issues/46/comments` failed with HTTP 403. This is evidence of the old false-green path, not a hosted test of the merged two-phase code.
 - No PR is currently open. Branch `codex/review-gate-hosted-acceptance` prepares a small test addition that drives `publish()` into `notify()` for a Claude PASS, failed comment, recovery, and failed initial pending write. Local `93` review tests pass. The maintainer must make this new branch's first push under `AGENTS.md`; an agent cannot satisfy the PR-head/green-`ci-gate` push condition before the PR exists.
 - The Functional Flutter AI review ruleset 26653964 is still **disabled**. Once the test PR opens, inspect its trusted publisher log for the new safe HTTP 403 category and accepted-permission hint, plus the latest exact-head commit status. A pending status after the failed comment is the expected fail-closed result. Do not enable the ruleset until hosted handoff delivery and the remaining [activation checklist](../../development/FLUTTER-AI-REVIEW-GATE.md#activation-checklist) pass. The initial pending-write failure now has an explicit hosted acceptance item; no controlled hosted injection exists yet.
+- Local independent Claude review of the first two branch commits returned advisory PASS with three low findings. The one allowed fix pass is committed as `370c1effc566a66da45ee8ef722a182b3f77d070`: `CURRENT.md` explicitly assigns the first push to the maintainer, the activation checklist makes the hosted fault-injection procedure a maintainer-owned design task and says the local test is insufficient, and the test asserts the summary exists before inspecting its staged marker. All `93` review tests, policy and knowledge checks, and diff checks passed. `flutter_scope.needs_review('tooling/review/test_notify_implementor.py')` returned `True`, so a PR containing this test will take the functional route. A second independent review is pending; if it reports new findings, pause under the one-cycle rule.
 
 ## PR #46 checkpoints (superseded)
 
