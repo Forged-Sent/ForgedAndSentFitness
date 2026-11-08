@@ -366,7 +366,9 @@ def codex_review(api: GitHub, number: int, head: str) -> dict:
             if len(stamps) != 1:
                 raise GateError("Codex summary has no unique code-review completion time")
             completed = _review_time(stamps[0])
-            if (completed > _review_time(row.get("updated_at")) or
+            # GitHub's comment updated_at is whole-second precision, while
+            # Codex's embedded completion time can include microseconds.
+            if (completed.replace(microsecond=0) > _review_time(row.get("updated_at")) or
                     completed < _review_time(row.get("created_at"))):
                 raise GateError("Codex summary completion time is inconsistent")
             if base_changed and completed <= base_changed:
