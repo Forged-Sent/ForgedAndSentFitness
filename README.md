@@ -33,7 +33,7 @@ You only need to double-click files. No typing commands, no cloud accounts.
 | 5 | Checks your setup and explains how to fix anything missing. | [5 - Check my setup.cmd](launchers/windows/5%20-%20Check%20my%20setup.cmd) | [5 - Check my setup.command](launchers/mac/5%20-%20Check%20my%20setup.command) |
 
 Optional extras live in [`launchers/windows/more`](launchers/windows/more) and [`launchers/mac/more`](launchers/mac/more):
-preview-only setup (view the app without editing tools), Android tools (Windows), the iPhone simulator (Mac), the Architecture Atlas, and an optional AI code review.
+preview-only setup (view the app without editing tools), Android tools (Windows), the iPhone simulator (Mac), the Architecture Atlas, the knowledge workspace preview, and an optional AI code review.
 
 **Then make your first change:** [Your first contribution](docs/development/FIRST-CONTRIBUTION.md).
 Stuck? Run step 5, then see [First-run troubleshooting](docs/development/FIRST-RUN-TROUBLESHOOTING.md).

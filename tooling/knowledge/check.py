@@ -3,7 +3,9 @@
 from __future__ import annotations
 
 import json
+import os
 import re
+import subprocess
 from datetime import date
 from pathlib import Path
 from urllib.parse import unquote
@@ -34,7 +36,10 @@ def validate(root: Path) -> list[str]:
     notes = root / "docs" / "knowledge"
     if not (notes / "INDEX.md").is_file():
         return ["Missing docs/knowledge/INDEX.md"]
-    for file in sorted(notes.rglob("*.md")):
+    pages = set(notes.rglob("*.md")) | set((root / "docs" / "features").rglob("*.md"))
+    if (root / "docs" / "HOME.md").is_file():
+        pages.add(root / "docs" / "HOME.md")
+    for file in sorted(pages):
         body = file.read_text(encoding="utf-8")
         for match in LINK.finditer(body):
             raw = match.group(1).strip().split()[0].strip("<>")
@@ -87,7 +92,160 @@ def validate(root: Path) -> list[str]:
                 errors.append("Gemini Dart MCP must use existing allowlisted launcher")
         except (json.JSONDecodeError, AttributeError, TypeError):
             errors.append("Invalid Gemini MCP settings JSON")
+    validate_feature_contracts(root, errors)
     return errors
+
+
+FEATURE_STATES = {"proposed", "approved", "implemented", "superseded"}
+FEATURE_RISKS = {"low", "medium", "high", "security-critical"}
+FEATURE_REQUIRED = {"kind", "feature_id", "status", "risk", "owner", "source_sha"}
+FEATURE_ID = re.compile(r"^FNS-[0-9]{3,}$")
+
+
+def _paths(value: str) -> list[str]:
+    return [part.strip() for part in value.split(",") if part.strip() and part.strip() != "none"]
+
+
+def _repo_file(root: Path, value: str) -> Path | None:
+    """Reject absolute and escaping paths before checking existence."""
+    candidate = Path(value)
+    if candidate.is_absolute():
+        return None
+    target = (root / candidate).resolve()
+    return target if target.is_relative_to(root.resolve()) and target.is_file() else None
+
+
+# source_sha is the stable BASELINE commit a spec was derived from, so it must
+# already be on the canonical base branch. A PR-branch commit could vanish after
+# a squash merge and branch deletion; PR provenance belongs in source_ref (and an
+# optional decision_ref), and Git history already records which commit added the spec.
+BASE_REF_ENV = "FNS_KNOWLEDGE_BASE"
+DEFAULT_BASE_REFS = ("origin/main", "main")
+
+
+def _git(root: Path, *args: str) -> subprocess.CompletedProcess:
+    return subprocess.run(["git", *args], cwd=root, capture_output=True, text=True, check=False)
+
+
+def canonical_base(root: Path) -> str | None:
+    """First resolvable base ref: $FNS_KNOWLEDGE_BASE if set, else origin/main, else main."""
+    override = os.environ.get(BASE_REF_ENV, "").strip()
+    for ref in ((override,) if override else DEFAULT_BASE_REFS):
+        if _git(root, "rev-parse", "--verify", "--quiet", f"{ref}^{{commit}}").returncode == 0:
+            return ref
+    return None
+
+
+def _source_sha_problem(root: Path, sha: str, cache: dict[str, str | None]) -> str | None:
+    try:
+        if _git(root, "cat-file", "-e", f"{sha}^{{commit}}").returncode:
+            return "source_sha is not an available Git commit"
+        if "base" not in cache:
+            cache["base"] = canonical_base(root)
+        base = cache["base"]
+        if base is None:
+            return (f"cannot verify source_sha: no origin/main or main ref here "
+                    f"(fetch main, or set {BASE_REF_ENV} to the canonical base ref)")
+        if _git(root, "merge-base", "--is-ancestor", sha, base).returncode:
+            return (f"source_sha must already be on {base}: use the stable baseline commit the spec "
+                    f"was derived from (for example the PR's merge-base with main), not a PR-branch "
+                    f"commit; record PR provenance in source_ref")
+    except FileNotFoundError:
+        return "git executable not found; cannot verify source_sha"
+    return None
+
+
+def strict_feature_metadata(text: str) -> tuple[dict[str, str], list[str]]:
+    """Parse the deliberately simple one-line YAML subset without ambiguity."""
+    if not text.startswith("---\n"):
+        return {}, ["missing opening YAML frontmatter"]
+    header, separator, _ = text[4:].partition("\n---\n")
+    if not separator:
+        return {}, ["missing closing YAML frontmatter"]
+    values: dict[str, str] = {}
+    issues: list[str] = []
+    for line in header.splitlines():
+        if not line.strip():
+            continue
+        if not re.fullmatch(r"[a-z_][a-z0-9_]*: .+", line):
+            issues.append("invalid one-line YAML metadata syntax")
+            continue
+        key, value = line.split(":", 1)
+        if key in values:
+            issues.append(f"duplicate metadata key {key}")
+        values[key] = value.strip()
+    return values, issues
+
+
+def validate_feature_contracts(root: Path, errors: list[str]) -> None:
+    """Validate declared intent and evidence paths, not approval or test success."""
+    folder = root / "docs" / "features"
+    if not folder.is_dir():
+        return
+    active: dict[str, str] = {}
+    base_cache: dict[str, str | None] = {}
+    for feature_dir in sorted(p for p in folder.iterdir() if p.is_dir()):
+        candidates = [feature_dir / "feature.md", feature_dir / "requirements.md"]
+        found = [p for p in candidates if p.is_file()]
+        if len(found) != 1:
+            errors.append(f"{feature_dir.relative_to(root)}: expected exactly one canonical feature.md or requirements.md")
+            continue
+        file = found[0]
+        name = file.relative_to(root).as_posix()
+        values, syntax_issues = strict_feature_metadata(file.read_text(encoding="utf-8"))
+        errors.extend(f"{name}: {issue}" for issue in syntax_issues)
+        missing = FEATURE_REQUIRED - values.keys()
+        if missing:
+            errors.append(f"{name}: missing feature metadata {sorted(missing)}")
+            continue
+        if values["kind"] != "feature-spec":
+            errors.append(f"{name}: kind must be feature-spec")
+        if not FEATURE_ID.fullmatch(values["feature_id"]):
+            errors.append(f"{name}: feature_id must look like FNS-042")
+        if values["status"] not in FEATURE_STATES:
+            errors.append(f"{name}: invalid feature status")
+        if values["risk"] not in FEATURE_RISKS:
+            errors.append(f"{name}: invalid feature risk")
+        if not values["owner"]:
+            errors.append(f"{name}: owner cannot be empty")
+        sha = values["source_sha"]
+        if not SHA.fullmatch(sha):
+            errors.append(f"{name}: source_sha must be a full 40-character lowercase commit SHA")
+        elif (root / ".git").exists():
+            problem = _source_sha_problem(root, sha, base_cache)
+            if problem:
+                errors.append(f"{name}: {problem}")
+        if values["status"] != "superseded":
+            other = active.get(values["feature_id"])
+            if other:
+                errors.append(f"{name}: duplicate active feature_id also in {other}")
+            active[values["feature_id"]] = name
+        if values["status"] in ("approved", "implemented"):
+            if values.get("approved_by", "none") in ("", "none"):
+                errors.append(f"{name}: approved behavior requires an explicit maintainer approved_by")
+        if values["risk"] in ("high", "security-critical") and values["status"] in ("approved", "implemented"):
+            if file.name != "requirements.md" or not all((feature_dir / n).is_file()
+                                                         for n in ("design.md", "tasks.md")):
+                errors.append(f"{name}: approved high-risk feature needs requirements.md, design.md and tasks.md")
+            if values.get("test_plan", "none") in ("", "none"):
+                errors.append(f"{name}: approved high-risk feature needs a test_plan")
+        if values["status"] == "implemented":
+            if values.get("verification", "none") in ("", "none"):
+                errors.append(f"{name}: implemented feature needs verification evidence")
+            for key in ("verified_tests", "implementation_paths"):
+                paths = _paths(values.get(key, "none"))
+                if not paths:
+                    errors.append(f"{name}: implemented feature needs {key}")
+                for path in paths:
+                    if _repo_file(root, path) is None:
+                        errors.append(f"{name}: missing or escaping {key} path {path}")
+        if values["status"] == "superseded":
+            successor = values.get("superseded_by", "")
+            target = _repo_file(root, successor) if successor else None
+            if target is None or not target.is_relative_to(folder):
+                errors.append(f"{name}: superseded feature needs a valid superseded_by path")
+            elif metadata(target.read_text(encoding="utf-8")).get("supersedes") != name:
+                errors.append(f"{name}: successor must reciprocally declare supersedes: {name}")
 
 
 def main() -> int:
