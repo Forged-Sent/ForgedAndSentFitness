@@ -1,4 +1,4 @@
-<title>Forged &amp; Sent</title>
+<title>Forged and Sent Fitness</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -305,6 +305,9 @@ details.targets[open] summary::after { content: "\2212"; }
 .rate-l { display: block; font-size: 12.5px; color: var(--muted); margin: 8px 0 4px; }
 .rate-chips { display: flex; flex-wrap: wrap; gap: 6px; }
 .rate-chips .mini { min-height: 34px; padding: 4px 10px; font-size: 12px; }
+.rir-q .rate-chips { flex-wrap: nowrap; gap: 4px; }
+.rir-q .rate-chips .mini { flex: 1 1 auto; min-width: 0; min-height: 34px; padding: 4px 2px; font-size: clamp(9px, 2.75vw, 11.5px); letter-spacing: 0; white-space: nowrap; }
+.sup-card .rir-q .rate-chips .mini { font-size: clamp(8.5px, 2.6vw, 11.5px); padding: 4px 1px; }
 .rate-g { margin: 10px 0 0; font-size: 13.5px; line-height: 1.4; color: var(--accent); }
 .rate-n { margin: 10px 0 0; font-size: 12.5px; color: var(--muted); }
 .rir-q { margin-top: 8px; padding-top: 8px; border-top: 1px dashed var(--line); }
@@ -770,6 +773,27 @@ button.fo-item { cursor: pointer; min-height: 44px; }
 #wkp-body .wk-start { min-height: 60px; font-size: 16.5px; }
 .setrow { display: grid; grid-template-columns: 46px minmax(0, 1fr) minmax(0, 1fr) 26px 32px; gap: 6px; align-items: center; margin-top: 8px; }
 .setrow.one { grid-template-columns: 54px 48px; }
+.sup-card { border: 1px solid var(--accent); border-radius: 12px; padding: 12px 10px; margin: 10px 0; gap: 0; }
+.sup-card .sup-k { font-family: var(--f-label); font-weight: 800; letter-spacing: .12em; text-transform: uppercase; font-size: 15px; color: var(--accent); }
+.sup-card .sup-rx { font-size: 14px; color: var(--muted); margin: 2px 0 6px; line-height: 1.4; }
+.sup-card > .wx { border-top: 1px dashed var(--line); padding: 8px 0; }
+.sup-card .wx-top { align-items: center; }
+.sup-tag { flex: none; width: 30px; height: 30px; border-radius: 50%; background: var(--accent); color: var(--accent-ink, #111); font-family: var(--f-label); font-weight: 800; font-size: 14px; display: inline-grid; place-items: center; }
+.sup-round { margin-top: 10px; border: 1px solid var(--line); border-radius: 10px; padding: 0 8px 8px; }
+.sup-round.done { border-color: var(--accent); }
+.sup-rh { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin: 0 -8px; padding: 7px 10px; background: var(--surface); border-radius: 9px 9px 0 0; font-family: var(--f-label); font-weight: 800; letter-spacing: .12em; text-transform: uppercase; font-size: 14px; }
+.sup-rh span { color: var(--muted); font-weight: 700; font-size: 12.5px; letter-spacing: .08em; }
+.sup-round.done .sup-rh span { color: var(--accent); }
+#wkp-body .sup-round .setrow:not(.one) { grid-template-columns: 96px minmax(0, 1fr) minmax(0, 1fr) 26px 32px; }
+.sup-round .sn { align-items: center; text-align: center; }
+.sup-round .sn .sn-prev { align-self: center; text-align: center; }
+.sup-round .sn .sn-l.sup-l { flex-direction: column; align-items: center; gap: 1px; width: 100%; }
+.sup-round .sn .sn-l span { font-family: var(--f-label); font-weight: 600; font-size: 14px; line-height: 1.1; letter-spacing: .01em; hyphens: none; overflow-wrap: normal; word-break: keep-all; width: 100%; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.sup-round .sn .sn-l { display: flex; gap: 5px; align-items: baseline; text-transform: none; letter-spacing: 0; font-family: var(--f-body); font-size: 12.5px; color: var(--ink); line-height: 1.2; }
+.sup-round .sn .sn-l i { font-style: normal; font-family: var(--f-label); font-weight: 800; color: var(--accent); font-size: 14px; letter-spacing: .04em; }
+.sup-round .rest { margin-top: 8px; }
+.sup-rir .rate-l b { color: var(--accent); }
+.lk-sup { border-left: 3px solid var(--accent); padding-left: 10px; }
 .setx { min-height: 48px; min-width: 36px; padding: 0; background: transparent; border: 0; color: var(--danger); font-size: 19px; font-weight: 700; }
 .addset { display: flex; gap: 8px; margin-top: 10px; }
 .addset .mini { flex: 1; min-height: 44px; }
@@ -961,6 +985,7 @@ button.fo-item { cursor: pointer; min-height: 44px; }
 .pbar{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;row-gap:6px}
 .pbar > .date, .pbar > .label-caps{min-width:0}
 @media (max-width:340px){ .pbar{gap:8px} .pbar .date{font-size:12px;letter-spacing:.04em} .help-right{gap:6px} }
+#page-profile .pbar{flex-wrap:nowrap;gap:6px}#page-profile .pbar .mini{min-width:0;padding:0 8px;letter-spacing:.05em;font-size:12px}#page-profile .pbar .help-right{gap:6px}#prof-jr{margin-left:auto}
 .prof-set{display:inline-flex;align-items:center;gap:6px}.prof-set svg{width:18px;height:18px;stroke:currentColor;stroke-width:2;fill:none;stroke-linecap:square}
 .icon-btn{width:44px;height:44px;border:1px solid var(--line);background:transparent;display:grid;place-items:center;color:var(--ink)}
 .icon-btn svg{width:24px;height:24px;stroke:currentColor;stroke-width:2;fill:none;stroke-linecap:square}
@@ -982,6 +1007,42 @@ button.fo-item { cursor: pointer; min-height: 44px; }
 .lg-p { font-size: 17px; }
 .lg-prow { display: flex; gap: 16px; margin: -2px 0 10px; }
 .lg-chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 6px 0 10px; }
+.cdlg[data-k="journal"] .lg-chips { gap: 5px; margin: 4px 0 8px; }
+.cdlg[data-k="journal"] .lg-chips .mini { min-height: 28px; min-width: 0; padding: 0 7px; font-size: 10.5px; letter-spacing: .04em; }
+.jr-hd { display: inline-flex; align-items: center; gap: 10px; }
+.jr-pen { flex: none; width: 34px; height: 34px; border-radius: 50%; border: 2px solid var(--brass, var(--accent)); background: transparent; padding: 0; display: grid; place-items: center; color: var(--accent); cursor: pointer; }
+.jr-pen svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+.right .jr-pen { margin-right: 6px; }
+.jr-priv { margin: 0; padding: 8px 10px; border: 1px dashed var(--accent); border-radius: 8px; font-size: 13.5px; }
+.jr-when { font-family: var(--f-label); font-weight: 700; letter-spacing: .1em; text-transform: uppercase; font-size: 12.5px; color: var(--brass, var(--accent)); }
+.jr-ta { min-height: 150px; font-size: 16px; line-height: 1.5; }
+.jr-tip { font-size: 12.5px !important; color: var(--muted); }
+.jr-devo { border: 1px solid var(--line); border-radius: 12px; padding: 14px; background: var(--surface); }
+.jr-devo blockquote { margin: 6px 0 10px; padding-left: 10px; border-left: 3px solid var(--accent); font-style: italic; }
+.jr-devo textarea { width: 100%; min-height: 110px; }
+.jr-devo .jr-ok { margin: 8px 0 0; font-weight: 600; }
+.jr-ph { margin: -2px 0 8px; padding: 8px 10px; border-left: 3px solid var(--accent); background: var(--surface); font-size: 13.5px; line-height: 1.4; }
+.jr-sug { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin: 6px 0 0; padding: 8px 10px; border: 1px dashed var(--accent); border-radius: 8px; font-size: 13.5px; }
+.jr-sug .mini { min-height: 32px; flex: none; }
+.jr-ansbar { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin: 0 0 8px; padding: 8px 10px; border: 1px solid var(--accent); border-radius: 8px; font-size: 13.5px; }
+.jr-ansbar.done { background: color-mix(in srgb, var(--accent) 12%, transparent); }
+.jr-ansbar .mini { min-height: 34px; flex: none; }
+.jr-tabs button { font-size: 12.5px !important; line-height: 1.15; }
+.jr-tabs { display: grid; grid-template-columns: 1fr 1fr 1fr; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; margin: 6px 0 10px; }
+.jr-tabs button { border: 0; background: transparent; color: var(--ink); padding: 10px 6px; font-family: var(--f-label); font-weight: 700; letter-spacing: .1em; text-transform: uppercase; font-size: 13.5px; cursor: pointer; }
+.jr-tabs button[aria-selected="true"] { background: var(--accent); color: var(--accent-ink, #111); }
+.jr-search { width: 100%; margin: 0 0 10px; }
+.jr-otd { border: 1px solid var(--accent); border-radius: 10px; padding: 12px; margin: 0 0 12px; background: var(--surface); width: 100%; text-align: left; color: var(--ink); cursor: pointer; font: inherit; }
+.jr-otd p { margin: 4px 0 0; font-size: 14.5px; line-height: 1.45; }
+.jr-list { list-style: none; margin: 0; padding: 0; }
+.jr-it { border-bottom: 1px solid var(--line); padding: 12px 0; }
+.jr-it > button.jr-open { display: block; width: 100%; text-align: left; background: none; border: 0; color: var(--ink); padding: 0; font: inherit; cursor: pointer; }
+.jr-it p { margin: 4px 0 6px; font-size: 15px; line-height: 1.45; white-space: pre-wrap; }
+.jr-tags { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.jr-tg { font-family: var(--f-label); font-weight: 700; letter-spacing: .08em; text-transform: uppercase; font-size: 11.5px; border: 1px solid var(--line); border-radius: 999px; padding: 2px 8px; color: var(--muted); }
+.jr-tg.ans { border-color: var(--accent); color: var(--accent); }
+.jr-it .mini { margin-left: auto; }
+.jr-empty { color: var(--muted); font-size: 14.5px; line-height: 1.45; padding: 8px 0; }
 .lg-add { display: flex; gap: 8px; margin: -2px 0 10px; } .lg-add .field { flex: 1; }
 .lg-ta { width: 100%; min-height: 150px; font-size: 16px; line-height: 1.5; }
 .lg-msg { min-height: 1em; }
@@ -1006,6 +1067,43 @@ button.fo-item { cursor: pointer; min-height: 44px; }
 .cpg-how li { position: relative; padding-left: 20px; font-size: 14.5px; line-height: 1.45; } .cpg-how li::before { content: "\2022"; position: absolute; left: 4px; color: var(--accent); font-weight: 700; }
 .cpg-wk { color: var(--muted); margin: 0 0 10px; }
 .cpg-sh { margin: 0 0 8px; }
+#mentor-today:empty { display: none; }
+.men-card { border: 1px solid var(--accent); border-radius: 10px; background: var(--surface); padding: 10px 12px; margin: 0 0 14px; }
+.men-k { color: var(--accent); font-size: 12px; }
+.men-row { width: 100%; display: grid; grid-template-columns: 42px minmax(0, 1fr) auto; gap: 10px; align-items: center; padding: 9px 0; background: none; border: 0; border-top: 1px solid var(--line); color: var(--ink); font: inherit; text-align: left; cursor: pointer; }
+.men-card .men-row:first-of-type, .men-sec h2 + .men-row { border-top: 0; }
+.men-av { width: 40px; height: 40px; border-radius: 50%; border: 2px solid var(--accent); background: var(--surface-2); display: grid; place-items: center; overflow: hidden; font-family: var(--f-label); font-weight: 800; }
+.men-av img { width: 100%; height: 100%; object-fit: cover; }
+.men-tx { display: grid; gap: 1px; min-width: 0; } .men-tx b { font-size: 15px; } .men-tx small { color: var(--muted); font-size: 12.5px; }
+.men-tag { font-family: var(--f-label); font-weight: 700; font-size: 11.5px; letter-spacing: .08em; text-transform: uppercase; padding: 3px 9px; border-radius: 10px; border: 1px solid var(--line); color: var(--muted); white-space: nowrap; }
+.men-tag.ok, .men-tag.acc { color: var(--accent); border-color: var(--accent); } .men-tag.hot { background: #c0392b; border-color: #c0392b; color: #fff; }
+.men-nudge { margin: 6px 0 2px; padding: 8px 10px; border-radius: 8px; background: color-mix(in srgb, var(--accent) 14%, transparent); font-size: 14px; }
+.men-empty { width: 100%; display: grid; gap: 2px; padding: 8px 0 2px; background: none; border: 0; color: var(--ink); font: inherit; text-align: left; cursor: pointer; } .men-empty small { color: var(--muted); }
+.men-sec { margin-top: 16px; } .men-sec h2 { margin: 0 0 6px; }
+.men-req { display: grid; grid-template-columns: 42px minmax(0, 1fr) auto auto; gap: 8px; align-items: center; padding: 8px 0; border-top: 1px solid var(--line); }
+.men-wide { width: 100%; margin-top: 8px; }
+.men-kh { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.men-ib { flex: none; }
+.men-intro { width: 100%; display: grid; gap: 4px; margin: 6px 0 4px; padding: 12px; text-align: left; font: inherit; color: var(--ink); background: var(--surface); border: 1px solid var(--line); border-radius: 10px; cursor: pointer; } .men-intro span { color: var(--muted); font-size: 14px; } .men-intro b { color: var(--accent); font-family: var(--f-label); letter-spacing: .08em; text-transform: uppercase; font-size: 13.5px; }
+.men-info { max-height: 88vh; overflow-y: auto; }
+.mi-p { margin: 0 0 10px; line-height: 1.5; }
+.mi-v { margin: 8px 0; } .mi-v cite { display: block; margin-top: 4px; font-style: normal; font-family: var(--f-label); font-weight: 700; letter-spacing: .08em; text-transform: uppercase; font-size: 12px; color: var(--accent); }
+.mi-key { font-size: 17px; }
+.mi-chain { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 6px 0 12px; } .mi-gen { padding: 6px 10px; border: 1px solid var(--accent); border-radius: 16px; font-family: var(--f-label); font-weight: 700; letter-spacing: .06em; text-transform: uppercase; font-size: 13px; } .mi-arr { color: var(--accent); font-weight: 700; }
+.mi-list { margin: 0 0 10px; padding-left: 18px; display: grid; gap: 6px; line-height: 1.45; }
+.men-chk { border: 1px solid var(--line); border-radius: 10px; background: var(--surface); padding: 12px; margin-top: 10px; display: grid; gap: 8px; }
+.men-priv { margin: 0; padding: 8px 10px; border: 1px dashed var(--accent); border-radius: 8px; font-size: 13px; }
+.men-q { font-size: 14.5px; } .men-how { display: flex; gap: 8px; flex-wrap: wrap; }
+.men-talk { display: grid; grid-template-columns: 24px 1fr; gap: 10px; align-items: center; padding: 10px; border: 1px solid var(--line); border-radius: 8px; cursor: pointer; } .men-talk input { width: 22px; height: 22px; margin: 0; accent-color: var(--accent); } .men-talk span { display: grid; } .men-talk small { color: var(--muted); font-size: 12.5px; }
+.men-head { display: flex; gap: 12px; align-items: center; margin: 12px 0 6px; } .men-head .men-av { width: 56px; height: 56px; font-size: 22px; } .men-name { margin: 2px 0 0; font-family: var(--f-label); font-weight: 800; text-transform: uppercase; font-size: 24px; }
+.men-alert { margin: 8px 0; padding: 10px 12px; border: 1px solid #c0392b; background: color-mix(in srgb, #c0392b 18%, transparent); border-radius: 10px; font-size: 14.5px; }
+.men-stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin-top: 8px; } .men-stats div { border: 1px solid var(--line); border-radius: 8px; padding: 8px; text-align: center; background: var(--surface); } .men-stats b { display: block; font-family: var(--f-label); font-size: 22px; } .men-stats small { color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: .06em; }
+.men-howv { margin: 0; font-weight: 600; }
+.men-sent { margin: 0; color: var(--accent); font-weight: 600; font-size: 14px; } .men-quote { margin: 0; padding: 4px 10px; border-left: 3px solid var(--line); }
+.men-end { margin-top: 14px; display: block; }
+.men-pick { max-height: 85vh; display: flex; flex-direction: column; gap: 8px; } .men-plist { overflow-y: auto; flex: 1; min-height: 120px; }
+.o-pair { display: grid; gap: 1px; padding: 8px 0; border-top: 1px solid var(--line); } .o-pair span { color: var(--muted); font-size: 13.5px; }
+.o-assign { margin-top: 12px; display: grid; gap: 8px; }
 .set-ownrow { width: 100%; display: flex; align-items: center; gap: 12px; margin: 0 0 14px; padding: 14px; text-align: left; font: inherit; color: var(--ink); border: 1px solid var(--accent); border-radius: 10px; background: var(--surface); cursor: pointer; }
 .set-ownrow .sc-txt { flex: 1; display: grid; gap: 2px; } .set-ownrow .sc-txt > span { font-family: var(--f-label); font-weight: 800; letter-spacing: .1em; text-transform: uppercase; font-size: 16px; color: var(--accent); } .set-ownrow small { color: var(--muted); font-size: 13px; }
 .set-ownrow .sc-chev { color: var(--accent); font-size: 22px; }
@@ -1865,6 +1963,7 @@ header.hero .me-btn { border-color:#e87328; }
     <div class="ready" id="ready" hidden></div>
 
     <div class="cmp-today-wrap" id="camp-today" hidden></div>
+    <div id="mentor-today"></div>
     <section aria-labelledby="h-today">
       <div class="section-head">
         <h2 class="label-caps" id="h-today">Today's boxes</h2>
@@ -2075,6 +2174,18 @@ header.hero .me-btn { border-color:#e87328; }
       <section class="d-sec" id="d-jesus-sec"><h2 class="d-lbl">In Jesus</h2><p id="d-jesus"></p></section>
       <section class="d-sec"><h2 class="d-lbl">Reflect</h2><p class="scripture" id="d-reflect"></p></section>
       <section class="d-sec"><h2 class="d-lbl">Act</h2><p id="d-act"></p></section>
+      <section class="d-sec jr-devo" id="jr-devo" aria-labelledby="jr-devo-h">
+        <h2 class="d-lbl" id="jr-devo-h">Write it down</h2>
+        <blockquote id="jr-devo-q"></blockquote>
+        <textarea class="field" id="jr-devo-ta" rows="5" maxlength="4000" aria-label="Your journal entry" placeholder="Answer it honestly. Only you can read this."></textarea>
+        <button class="btn" type="button" id="jr-devo-save">Save to my journal</button>
+        <p class="note jr-ok" id="jr-devo-msg" aria-live="polite"></p>
+        <div id="jr-devo-retry" data-jr-retry hidden>
+          <p class="note">Saving here updates the same journal entry, even if the earlier request finishes. To write a separate entry, discard this draft first.</p>
+          <button class="linkish" type="button" id="jr-devo-new">Discard draft and start a different entry</button>
+        </div>
+        <p class="note" style="margin:6px 0 0">Today&rsquo;s reflection question starts the entry. Private, and never scored.</p>
+      </section>
       <div class="devo-end">
         <p class="note" id="devo-hint" style="margin:0"></p>
         <button class="btn" type="button" id="devo-read" disabled>Scroll to the bottom to say Amen</button>
@@ -2102,6 +2213,25 @@ header.hero .me-btn { border-color:#e87328; }
   </div>
 
   <!-- WEEKLY CHALLENGE -->
+  <div class="page" id="page-journal" hidden>
+    <div class="pbar">
+      <button class="mini" type="button" id="jr-back">&lsaquo; Today</button>
+      <span class="date label-caps">Write it down</span>
+      <button type="button" class="jr-pen" id="jr-new" aria-label="New journal entry"></button>
+    </div>
+    <h1 class="pg">My journal</h1>
+    <div id="jr-body"></div>
+  </div>
+
+  <div class="page" id="page-mentor" hidden>
+    <div class="pbar">
+      <button class="mini" type="button" id="men-back">&lsaquo; Today</button>
+      <span class="date label-caps">Iron sharpens iron</span>
+    </div>
+    <h1 class="pg">Paul &amp; Timothy</h1>
+    <div id="men-body"></div>
+  </div>
+
   <div class="page" id="page-owner" hidden>
     <div class="pbar">
       <button class="mini" type="button" id="own-back">&lsaquo; Settings</button>
@@ -2109,6 +2239,11 @@ header.hero .me-btn { border-color:#e87328; }
     </div>
     <h1 class="pg">Owner tools</h1>
     <p class="note">Everything you need to run Forged &amp; Sent, in one place.</p>
+
+    <section aria-labelledby="h-o-pairs">
+      <div class="section-head"><h2 class="label-caps" id="h-o-pairs" data-sub="Pair management is deferred until private access is enforced.">Paul &amp; Timothy pairs</h2></div>
+      <div id="o-pairs"></div>
+    </section>
 
     <section aria-labelledby="h-o-rep">
       <div class="section-head"><h2 class="label-caps" id="h-o-rep" data-sub="Posts brothers flagged. Keep them or remove them.">Reports</h2></div>
@@ -2173,6 +2308,7 @@ header.hero .me-btn { border-color:#e87328; }
   <div class="page" id="page-profile" hidden>
     <div class="pbar">
       <button class="mini" type="button" id="prof-back">&lsaquo; Back</button>
+      <button class="mini prof-set" type="button" id="prof-jr"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16v4z"/><path d="M13.5 6.5l4 4"/></svg>Journal</button>
       <button class="mini prof-set" type="button" id="prof-gear"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3.2"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5.3 5.3l2.1 2.1M16.6 16.6l2.1 2.1M5.3 18.7l2.1-2.1M16.6 7.4l2.1-2.1"/></svg>Settings</button>
     </div>
     <section class="pcard" aria-label="Profile">
@@ -2546,6 +2682,9 @@ header.hero .me-btn { border-color:#e87328; }
     watchLiftNotes: function (uid, cb) { return this.db.doc("data/users/" + uid + "/liftnotes").onSnapshot(function (s) { cb(s.exists ? ((s.data() || {}).n || {}) : {}); }, noop); },
     saveLiftNotes: function (uid, n) { return this.db.doc("data/users/" + uid + "/liftnotes").set({ n: n, updatedAt: Date.now() }); },
     watchLegacy: function (uid, cb) { return this.db.doc("data/users/" + uid + "/legacy").onSnapshot(function (s) { cb(s.exists ? (s.data() || {}) : {}); }, noop); },
+    watchJournal: function (uid, cb) { return this.db.doc("data/users/" + uid + "/journal").collection("entries").onSnapshot(function (s) { cb(s.docs.map(function (d) { var x = d.data() || {}; x.id = d.id; return x; })); }, noop); },
+    saveJournal: function (uid, x) { return this.db.doc("data/users/" + uid + "/journal").collection("entries").doc(x.id).set(x); },
+    deleteJournal: function (uid, id) { return this.db.doc("data/users/" + uid + "/journal").collection("entries").doc(id).delete(); },
     saveLegacy: function (uid, o) { return this.db.doc("data/users/" + uid + "/legacy").set(o); },
     deleteProgress: function (uid, date) { return this.db.doc("data/users/" + uid + "/log").collection("photos").doc(date).delete(); },
     getWorkoutLog: function (uid, date) { return this.db.doc("data/users/" + uid + "/log").collection("workouts").doc(date).get().then(function (s) { return s.exists ? s.data() : null; }); },
@@ -2636,7 +2775,10 @@ header.hero .me-btn { border-color:#e87328; }
       for (var wi = 0; wi < wlogs.docs.length; wi++) await db.doc("data/users/" + uid + "/log/workouts/" + wlogs.docs[wi].id).delete();
       var pr = await db.doc("profiles/" + uid).get();
       if (pr.exists) { var px = pr.data() || {}; if (px.avatarId) assetIds.push(px.avatarId); if (px.bannerId) assetIds.push(px.bannerId); }
-      await db.doc("data/users/" + uid + "/settings").delete(); try { await db.doc("data/users/" + uid + "/liftnotes").delete(); await db.doc("data/users/" + uid + "/legacy").delete(); } catch (e) {} await db.doc("habits/" + uid).delete(); await db.doc("profiles/" + uid).delete();
+      await db.doc("data/users/" + uid + "/settings").delete(); try { await db.doc("data/users/" + uid + "/liftnotes").delete(); await db.doc("data/users/" + uid + "/legacy").delete(); } catch (e) {}
+      var jr = await db.doc("data/users/" + uid + "/journal").collection("entries").get();
+      for (var ji = 0; ji < jr.docs.length; ji++) await db.doc("data/users/" + uid + "/journal/entries/" + jr.docs[ji].id).delete();
+      await db.doc("habits/" + uid).delete(); await db.doc("profiles/" + uid).delete();
       for (var j = 0; j < assetIds.length; j++) await self.deleteAsset(assetIds[j]);
     }
   };
@@ -3199,9 +3341,9 @@ header.hero .me-btn { border-color:#e87328; }
     state.page = p;
     if (p !== "workout") { closeExPicker(); closeSwap(); }
     if (p !== "fuel") { state.add = null; var fsh = document.getElementById("fsheet"); if (fsh) fsh.remove(); }
-    ["today", "fuel", "train", "board", "checkin", "profile", "settings", "devo", "workout", "video", "chal", "ideas", "team", "camp", "owner"].forEach(function (n) { $("page-" + n).hidden = n !== p; });
+    ["today", "fuel", "train", "board", "checkin", "profile", "settings", "devo", "workout", "video", "chal", "ideas", "team", "camp", "owner", "mentor", "journal"].forEach(function (n) { $("page-" + n).hidden = n !== p; });
     Array.prototype.forEach.call(document.querySelectorAll(".tabbar button"), function (b) {
-      if (b.dataset.page === (p === "workout" || p === "video" || p === "chal" ? "train" : p === "ideas" ? "fuel" : p === "team" || (p === "checkin" && state.chan) ? "camp" : p)) b.setAttribute("aria-current", "page"); else b.removeAttribute("aria-current");
+      if (b.dataset.page === (p === "workout" || p === "video" || p === "chal" ? "train" : p === "ideas" ? "fuel" : p === "mentor" || p === "journal" ? "today" : p === "team" || (p === "checkin" && state.chan) ? "camp" : p)) b.setAttribute("aria-current", "page"); else b.removeAttribute("aria-current");
     });
     $("scroll").scrollTop = 0;
     if (p === "workout") startWkTick(); else if (p !== "video") { if (wkTick) saveWkNow(); stopWkTick(); cancelAllTones(); }
@@ -3214,7 +3356,9 @@ header.hero .me-btn { border-color:#e87328; }
     if (p === "ideas") drawIdeas();
     if (p === "team") drawTeamPage();
     if (p === "camp") drawCampPage();
-    if (p === "owner") { ownerWatch(); drawOwner(); }
+    if (p === "owner") { ownerWatch(); drawOwner(); drawOwnerPairs(); }
+    if (p === "mentor") drawMentorPage();
+    if (p === "journal") drawJournalPage();
     $("scroll").classList.toggle("rally-mode", p === "checkin"); rlBadge();
     if (p === "checkin") { rlStick = true; drawFeed(true); }
     if (p === "devo") { sizeDevo(); $("scroll").scrollTop = 0; devoScroll(); }
@@ -3263,6 +3407,7 @@ header.hero .me-btn { border-color:#e87328; }
     $("d-ref").textContent = "— " + t.e.ref + " (ESV)";
     $("d-jesus").textContent = t.e.jesus || ""; $("d-jesus-sec").hidden = !t.e.jesus;
     $("d-reflect").textContent = t.e.reflect; $("d-act").textContent = t.e.act;
+    drawJournalDevo(t);
     updateDevoBtn();
   }
   function wireDevo() {
@@ -3616,6 +3761,14 @@ header.hero .me-btn { border-color:#e87328; }
       ltx.appendChild(el("span", "sub", lw ? "Written this week \u00B7 Tap to add another" : legacyPrompt(ln0, 0))); lb0.appendChild(ltx);
       if (lw) lb0.appendChild(el("span", "pts fr-tag", "Done")); lb0.appendChild(el("span", "chev", "\u203A"));
       lb0.addEventListener("click", function () { openLegacy(); }); lli.appendChild(lb0); list.appendChild(lli);
+    }
+    if (state.me) {
+      var jt = journalToday(), jli = el("li", "item fr-li"), jb = el("button", "hit fr-open"); jb.type = "button"; jb.id = "jr-today";
+      if (jt.length) { jb.classList.add("fr-done"); var jbx = el("span", "box"); jbx.innerHTML = CHECK_SVG; jb.appendChild(jbx); } else { var jic = el("span", "fr-ic"); jic.innerHTML = PEN_SVG; jb.appendChild(jic); }
+      var jtx = el("span", "txt"); jtx.appendChild(el("span", "name", "Journal"));
+      jtx.appendChild(el("span", "sub", jt.length ? "Written today \u00B7 Tap to read or add" : "Your workout, your day, your family, your faith. No points, just write.")); jb.appendChild(jtx);
+      if (jt.length) jb.appendChild(el("span", "pts fr-tag", "Done")); jb.appendChild(el("span", "chev", "\u203A"));
+      jb.addEventListener("click", function () { if (journalToday().length) go("journal"); else openJournal(); }); jli.appendChild(jb); list.appendChild(jli);
     }
     var wt = taskOfKind("weigh");
     if (wt && !isWeighDay(todayKey())) {
@@ -4532,20 +4685,35 @@ header.hero .me-btn { border-color:#e87328; }
   /* ---------- Weekly volume chart ---------- */
   var wkDocCache = {}, wkDocAsked = {}, volCache = {}, volAsked = {}, SVGNS = "http://www.w3.org/2000/svg";
   function volTotal(root, key) { var t = volOf(root, key); ((root && root.sessions) || []).forEach(function (x) { t += volOf(x, key, true); }); return t; }
+  // Body weight for volume on a given day: latest weigh-in on or before it, else the latest one, else the Service record.
+  function bwAsOf(key) {
+    var m = weights(), ks = Object.keys(m).filter(function (k) { return Number(m[k]) > 0; }).sort(), on = ks.filter(function (k) { return k <= key; });
+    var k = on.length ? on[on.length - 1] : ks[ks.length - 1]; if (k) return Number(m[k]);
+    var b = state.settings && state.settings.body; return b && Number(b.wt) > 0 ? Number(b.wt) : 0;
+  }
   function volOf(rec, key, own) {
     if (!rec || !rec.ex) return 0;
     var wf = workoutFor(key), xs = normExtra(rec.extra).map(function (x) { return [x.g, x.rx]; });
-    var exs = own ? xs : wf && wf.kind === "train" && wf.w ? wf.w.exercises.concat(xs) : null, tot = 0;
+    var exs = own ? xs : wf && wf.kind === "train" && wf.w ? wf.w.exercises.concat(xs) : null, tot = 0, eq = (planCfg() || {}).equip, bwk = null;
     Object.keys(rec.ex).forEach(function (k) {
       var arr = rec.ex[k]; if (!Array.isArray(arr)) return;
       var ps = exs && exs[+k] ? parseSets(exs[+k][1]) : null; if (ps && ps.time) return;
-      arr.forEach(function (s) { if (!s || s.k === "w") return; var w = parseFloat(s.w), r = parseFloat(s.r); if (w > 0 && r > 0) tot += w * r; });
+      var g = exs && exs[+k] ? exs[+k][0] : null; if (g && !own && wf && wf.w && +k < wf.w.exercises.length) { try { g = effMove(rec, +k, g); } catch (e) {} }
+      var isBw = false; try { isBw = !!g && !needsWeight(g, eq); } catch (e) { isBw = false; }
+      if (isBw && bwk === null) bwk = bwAsOf(key) || 0;
+      arr.forEach(function (s) { if (!s || s.k === "w") return; var w = parseFloat(s.w), r = parseFloat(s.r); if (isBw) w = (w > 0 ? w : 0) + bwk; if (w > 0 && r > 0) tot += w * r; });
     });
     return Math.round(tot);
   }
   function fmtVol(n) { return n >= 10000 ? (Math.round(n / 100) / 10) + "k" : String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ","); }
   function svgEl(n, a) { var e = document.createElementNS(SVGNS, n); for (var k in a) e.setAttribute(k, a[k]); return e; }
+  function refreshVolumeCache() {
+    // Weigh-ins/settings arrive independently from workout logs and can change
+    // the bodyweight contribution after a workout total was first cached.
+    Object.keys(wkDocCache).forEach(function (k) { volCache[k] = volTotal(wkDocCache[k], k); });
+  }
   function drawVolume(sel) {
+    refreshVolumeCache();
     var sec = $("vol-sec"), body = $("vol-body"), p = planCfg(); sec.hidden = !p; if (!p) return;
     var mon = mondayKey(sel), today = todayKey(), prev = addDays(mon, -7), keys = [], pkeys = [];
     for (var i = 0; i < 7; i++) { keys.push(addDays(mon, i)); pkeys.push(addDays(prev, i)); }
@@ -5337,7 +5505,38 @@ header.hero .me-btn { border-color:#e87328; }
       if (any) body.appendChild(wb);
     }
     var sb = el("div", "lk-sec"); sb.appendChild(el("div", "lk-h", S ? "Exercises" : "Work sets"));
+    function lkVal(s, ps, bw) {
+      var val = ps && ps.time ? [(s.r || "") + " sec"] : !ps ? ["Done"] : [(s.r || "") + " reps"];
+      if (ps && !ps.time && !bw && s.w !== "" && s.w != null) { val.push(mut(" \u00D7 ")); val.push(fmtW(Number(s.w)) + " lb"); }
+      else if (bw && ps && Number(s.w) > 0) val.push(mut(" (bodyweight + " + fmtW(Number(s.w)) + " lb)"));
+      else if (bw && ps) val.push(mut(" (bodyweight)"));
+      return val;
+    }
+    var supSkip = {};
     exList.forEach(function (e, i) {
+      if (supSkip[i]) return;
+      var SL = S ? "" : supPairAt(exList.map(function (x) { return [x[0], x[1], x[2]]; }), i);
+      if (SL) {
+        supSkip[i + 1] = true;
+        var item2 = el("div", "lk-ex lk-sup"), pr = [i, i + 1].map(function (ix, n) {
+          var g2 = exList[ix][0], shown2 = moveName(g2, p.equip), a2 = (rec.ex && rec.ex[ix]) || [];
+          var hd2 = el("div", "lk-name"); hd2.appendChild(el("span", null, SL + (n + 1) + " \u00B7 " + shown2)); if (prNames[shown2]) hd2.appendChild(el("span", "lk-pr", "PR")); item2.appendChild(hd2);
+          if (exList[ix][4] !== g2) { var sw2 = effSwap(rec, ix, exList[ix][4]); item2.appendChild(el("span", "sw-note", "Swapped from " + moveName(exList[ix][4], p.equip) + (sw2 && sw2.why ? " \u00B7 " + sw2.why : ""))); }
+          return { tag: SL + (n + 1), ps: parseSets(exList[ix][1]), bw: !needsWeight(g2, p.equip), w: a2.filter(function (s) { return s && s.k === "w"; }), s: a2.filter(function (s) { return s && s.k !== "w"; }) };
+        });
+        item2.insertBefore(el("div", "lk-round", "Superset " + SL), item2.firstChild);
+        var any2 = false;
+        [["w", "Warm-up "], ["s", "Set "]].forEach(function (kd) {
+          var n2 = Math.max(pr[0][kd[0]].length, pr[1][kd[0]].length);
+          for (var r2 = 0; r2 < n2; r2++) {
+            var got = pr.filter(function (x) { var s3 = x[kd[0]][r2]; return s3 && (Number(s3.r) > 0 || s3.d); }); if (!got.length) continue; any2 = true;
+            item2.appendChild(el("div", "lk-round", kd[1] + (r2 + 1)));
+            got.forEach(function (x) { line(item2, x.tag, lkVal(x[kd[0]][r2], x.ps, x.bw), kd[0] === "w" ? "wu" : ""); });
+          }
+        });
+        if (!any2) item2.appendChild(el("span", "lk-none", "Not logged"));
+        sb.appendChild(item2); return;
+      }
       var g = e[0], shown = moveName(g, p.equip), ps = parseSets(e[1]), a = (rec.ex && rec.ex[i]) || [], bw = !needsWeight(g, p.equip), item = el("div", "lk-ex");
       var hd = el("div", "lk-name"); hd.appendChild(el("span", null, shown)); if (prNames[shown]) hd.appendChild(el("span", "lk-pr", "PR")); item.appendChild(hd);
       if (!e[2] && e[4] !== g) { var sw0 = effSwap(rec, i, e[4]); item.appendChild(el("span", "sw-note", "Swapped from " + moveName(e[4], p.equip) + (sw0 && sw0.why ? " · " + sw0.why : ""))); }
@@ -5365,6 +5564,9 @@ header.hero .me-btn { border-color:#e87328; }
     var ib = el("button", "btn ghost lk-btn"); ib.type = "button"; ib.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="1"/><path d="m3 16 5-5 4 4 3-3 6 6"/></svg>'; ib.appendChild(document.createTextNode("Save as image"));
     ib.addEventListener("click", function () { openWorkoutImage(workoutImageData(key, rec, w, S)); });
     body.appendChild(ib);
+    var jw = el("button", "btn ghost lk-btn"); jw.type = "button"; jw.innerHTML = PEN_SVG; jw.appendChild(document.createTextNode("Write about this workout"));
+    jw.addEventListener("click", function () { var dl = new Date(key + "T12:00:00").toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric" }); openJournal({ fresh: true, tags: ["workout"], src: "workout", p: ((w && w.title) || "Workout") + " \u00B7 " + dl }); });
+    body.appendChild(jw);
     var un = el("button", "btn ghost lk-btn"); un.type = "button"; un.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="1"/><path d="M8 11V7a4 4 0 0 1 7.5-2"/></svg>'; un.appendChild(document.createTextNode("Unlock to edit"));
     un.addEventListener("click", function () {
       confirmDelete({ title: "Unlock this workout?", message: "You can change your sets, then lock it again. PRs and points are re-checked when you lock it.", yes: "Unlock", neutral: true }, function () { wk.editing = true; drawWorkoutPage(true); });
@@ -5487,6 +5689,67 @@ header.hero .me-btn { border-color:#e87328; }
     drawWorkoutPage(true);
   }
   /* Redraws never move him: hold the height, rebuild, put the scroll back, then release the height. */
+
+  /* ---------- Supersets: A1 and A2 logged set by set (display only; each lift keeps its own rec.ex) ---------- */
+  function supLetter(rx, n) { var m = /^\s*Superset\s+([A-Z])(\d+):/i.exec(String(rx || "")); return m && (n == null || +m[2] === n) ? m[1].toUpperCase() : ""; }
+  function supPairAt(list, i) {
+    var a = list[i], b = list[i + 1]; if (!a || !b || a[2] || b[2]) return "";
+    var L = supLetter(a[1], 1); if (!L || supLetter(b[1], 2) !== L) return "";
+    var c = list[i + 2]; if (c && !c[2] && supLetter(c[1]) === L) return "";
+    return L;
+  }
+  function supRestText(rx) { var m = /rest\s+([^.,]*?\d[^.,]*?(?:sec|min))/i.exec(String(rx || "")); return m ? m[1].replace(/\s+/g, " ") : "about a minute"; }
+  function supShortRx(rx) { return String(rx || "").replace(/^\s*Superset\s+[A-Z]\d+:\s*/i, "").split(/\.\s/)[0].replace(/\.$/, ""); }
+  function supFit(card) {
+    Array.prototype.forEach.call(card.querySelectorAll(".sup-round .sn-l span"), function (sp) {
+      var fs = 14; sp.style.webkitLineClamp = "unset"; sp.style.display = "block"; sp.style.fontSize = fs + "px";
+      function bad() { var lh = fs * 1.1; return sp.scrollWidth > sp.clientWidth + 1 || sp.scrollHeight > lh * 2 + 2; }
+      while (bad() && fs > 9.5) { fs -= 0.5; sp.style.fontSize = fs + "px"; }
+    });
+  }
+  function supGroup(body, L, items, off) {
+    // items: [{ ex, e, idx, name, ps }] for A1 and A2, already rendered as .wx cards in body
+    var A = items[0], Bx = items[1], card = el("div", "wx sup-card"); body.insertBefore(card, A.ex);
+    var rows = [], rirs = [];
+    items.forEach(function (it, n) {
+      var tag = L + (n + 1), w = [], s = [];
+      Array.prototype.slice.call(it.ex.children).forEach(function (c) {
+        var cl = c.classList;
+        if (cl.contains("setrow")) { var lb = c.querySelector(".sn-l"), t = lb ? lb.textContent : ""; (/^W/.test(t) ? w : s).push(c); c.remove(); return; }
+        if (cl.contains("addset") || cl.contains("rest") || cl.contains("sup-go") || (c.tagName === "SPAN" && cl.contains("wc") && /^Target:/.test(c.textContent))) { c.remove(); return; }
+        if (cl.contains("rir-q")) { var rl = c.querySelector(".rate-l"); if (rl) { rl.textContent = ""; rl.appendChild(el("b", null, tag + " ")); rl.appendChild(document.createTextNode(it.name)); } rirs.push(c); c.remove(); return; }
+        if (cl.contains("wr")) c.textContent = supShortRx(c.textContent);
+      });
+      var top = it.ex.querySelector(".wx-top"); if (top) top.insertBefore(el("span", "sup-tag", tag), top.firstChild);
+      it.ex.classList.add("sup-lift"); card.appendChild(it.ex);
+      [w, s].forEach(function (list) { list.forEach(function (r) { var lb = r.querySelector(".sn-l"); if (lb) { lb.textContent = ""; lb.classList.add("sup-l"); lb.appendChild(el("i", null, tag)); lb.appendChild(el("span", null, it.name.replace(/^(Dumbbell|Barbell|Cable|Kettlebell|EZ[- ]Bar|Machine|Band|Banded|Smith Machine)\s+/i, ""))); lb.title = it.name; } }); });
+      rows.push({ w: w, s: s });
+    });
+    setTimeout(function () { supFit(card); }, 0);
+    var nSets = Math.max(rows[0].s.length, rows[1].s.length);
+    var hd = el("div", "sup-hd"); hd.appendChild(el("div", "sup-k", "Superset " + L + " · " + nSets + (nSets === 1 ? " set" : " sets")));
+    hd.appendChild(el("div", "sup-rx", "Each set: " + L + "1 then " + L + "2 back to back. Rest " + supRestText(Bx.e[1]) + " after " + L + "2."));
+    card.insertBefore(hd, card.firstChild);
+    var restSec = restOf(Bx.e[1]) || 60;
+    function round(title, list, k, last, warm) {
+      var rd = el("div", "sup-round"), rh = el("div", "sup-rh"), st = el("span"); rh.appendChild(el("b", null, title)); rh.appendChild(st); rd.appendChild(rh);
+      list.forEach(function (r) { if (r) rd.appendChild(r); });
+      function paint() { var on = list.filter(Boolean).every(function (r) { return r.classList.contains("ok"); }); rd.classList.toggle("done", on); st.textContent = on ? "✓ Done" : ""; }
+      rd.addEventListener("input", function () { setTimeout(paint, 0); }); paint();
+      if (!last && !warm) { var rb = restBar("sup" + Bx.idx + "-" + k, restSec); rb.insertBefore(el("span", "rt-label", "After " + L + "2 ·"), rb.firstChild); rd.appendChild(rb); }
+      card.appendChild(rd);
+    }
+    var nW = Math.max(rows[0].w.length, rows[1].w.length);
+    for (var k = 0; k < nW; k++) round("Warm-up " + (k + 1), [rows[0].w[k], rows[1].w[k]], k, false, true);
+    for (var j = 0; j < nSets; j++) round("Set " + (j + 1), [rows[0].s[j], rows[1].s[j]], j, j === nSets - 1, false);
+    var ab = el("div", "addset"), bw = el("button", "mini", "+ Warm-up set"), bx = el("button", "mini", "+ Add set"); bw.type = bx.type = "button"; bw.disabled = bx.disabled = off;
+    bw.addEventListener("click", function () { if (off) return; items.forEach(function (it) { var a = setsOf(it.idx, it.ps), at = a.filter(function (x) { return x.k === "w"; }).length; a.splice(at, 0, { w: "", r: "", d: false, k: "w" }); }); saveWkNow(); redrawKeepScroll(); });
+    bx.addEventListener("click", function () { if (off) return; items.forEach(function (it) { setsOf(it.idx, it.ps).push({ w: "", r: "", d: false, k: "x" }); }); saveWkNow(); redrawKeepScroll(); });
+    ab.appendChild(bw); ab.appendChild(bx); card.appendChild(ab);
+    var tA = A.ps && A.ps.target, tB = Bx.ps && Bx.ps.target;
+    card.appendChild(el("span", "wc", tA && tA === tB ? "Target: " + tA + " reps per lift, every set. + Add set adds a set for both lifts." : "Target: " + L + "1 " + (tA || "") + " reps, " + L + "2 " + (tB || "") + " reps, every set."));
+    if (rirs.length) { var rq = el("div", "rir-q sup-rir"); rq.appendChild(el("span", "rate-l", "On your last set, how many more could you have done?")); card.appendChild(rq); rirs.forEach(function (r) { r.classList.add("sup-rir"); r.style.borderTop = "0"; r.style.marginTop = "4px"; r.style.paddingTop = "0"; card.appendChild(r); }); }
+  }
   function drawWorkoutPage(force) {
     var sc = $("scroll"), body = $("wkp-body"), keep = state.page === "workout" && sc && body;
     if (!keep) return drawWorkoutPageNow(force);
@@ -5544,7 +5807,7 @@ header.hero .me-btn { border-color:#e87328; }
     if ((S ? isToday && wk.loaded : live) && !off) { var axb = el("button", "btn ghost wk-addex", "+ Add exercise"); axb.type = "button"; axb.addEventListener("click", function () { saveWkNow(); openExPicker(); }); body.appendChild(axb); }
     if (((state.settings.body || {}).injuries || []).length) body.appendChild(el("p", "note", "Your selected limitations may adjust some exercises using existing alternatives. Not every movement has a mapped option. Review your workout with a qualified clinician and stop if pain increases."));
     drawWarmup(body, w, th, rec, live && !S, off);
-    var exBase = w.exercises.length, exList = w.exercises.concat(normExtra(rec.extra).map(function (x) { return [x.g, x.rx, true, x.rest]; }));
+    var exBase = w.exercises.length, exList = w.exercises.concat(normExtra(rec.extra).map(function (x) { return [x.g, x.rx, true, x.rest]; })), supEls = {};
     exList.forEach(function (e, idx) {
       var ex = el("div", "wx" + (e[2] ? " wx-add" : "")), ps = parseSets(e[1]);
       var origG = e[0], swp0 = !e[2] ? effSwap(rec, idx, origG) : null, mg = swp0 ? swp0.g : origG;
@@ -5645,8 +5908,9 @@ header.hero .me-btn { border-color:#e87328; }
         if ((S ? isToday : live) && !off) { var xb = el("button", "mini danger", "Remove exercise"); xb.type = "button"; xb.addEventListener("click", function () { saveWkNow(); removeExtraExercise(exBase, idx - exBase, shownName); }); xr.appendChild(xb); }
         ex.insertBefore(xr, ex.firstChild);
       }
-      body.appendChild(ex);
+      body.appendChild(ex); supEls[idx] = { ex: ex, e: e, idx: idx, name: shownName, ps: ps };
     });
+    if (live) exList.forEach(function (e, idx) { var L = supPairAt(exList, idx); if (L && supEls[idx] && supEls[idx + 1] && supEls[idx].ex.querySelector(".setrow") && supEls[idx + 1].ex.querySelector(".setrow")) supGroup(body, L, [supEls[idx], supEls[idx + 1]], off); });
     coachSection(body, "Cool-down", th.finisher, false);
     if (editing) { var lk2 = el("button", "btn lk-btn", "Lock workout"); lk2.type = "button"; lk2.disabled = off; lk2.addEventListener("click", function () { lockWorkout(key); }); body.appendChild(lk2); }
     else if (isToday && live && !done) {
@@ -8074,7 +8338,7 @@ header.hero .me-btn { border-color:#e87328; }
   function drawProfile() {
     if (state.page !== "profile") return;
     var uid = state.viewUid || state.me, own = !!uid && uid === state.me, pp = state.pubProfiles[uid] || {};
-    $("prof-gear").hidden = !own;
+    $("prof-gear").hidden = !own; $("prof-jr").hidden = !own;
     var bn = safeId(pp.bannerId); $("p-banner").style.backgroundImage = bn ? 'url("/_blob/' + bn + '")' : "";
     fillAvatar($("p-avatar"), uid);
     $("p-name").textContent = uid ? nameOf(uid) : "Not signed in";
@@ -8379,9 +8643,14 @@ header.hero .me-btn { border-color:#e87328; }
     var root = document.documentElement, w = window.innerWidth, h = window.innerHeight;
     var shortSide = Math.min(screen.width || w, screen.height || h);
     var phone = shortSide < 600 && !!(window.matchMedia && matchMedia("(pointer: coarse)").matches);
+    var known = typeof window.orientation === "number" || !!(screen.orientation && typeof screen.orientation.angle === "number");
     var a = typeof window.orientation === "number" ? window.orientation : (screen.orientation && typeof screen.orientation.angle === "number" ? screen.orientation.angle : 90);
     a = ((a % 360) + 360) % 360;
-    var cls = phone && w > h ? (a === 270 ? "rot-r" : "rot-l") : "";
+    var ae = document.activeElement, typing = !!(ae && (ae.tagName === "TEXTAREA" || (ae.tagName === "INPUT" && !/^(button|checkbox|radio|range|file|submit|color)$/i.test(ae.type)) || ae.isContentEditable));
+    // Sideways only when the phone itself is turned. A short frame from the keyboard or dictation panel is not a turn.
+    var turned = known ? (a === 90 || a === 270) && w > h : w > h && !typing;
+    var cls = phone && turned ? (a === 270 ? "rot-r" : "rot-l") : "";
+    if (typing && phone) return; // keyboard or dictation is open: keep the screen as it is until he is done typing
     root.classList.remove("rot-l", "rot-r"); if (cls) root.classList.add(cls);
     root.style.setProperty("--rot-w", h + "px"); root.style.setProperty("--rot-h", w + "px");
     root.style.setProperty("--app-h", (cls ? w : h) + "px");
@@ -8390,6 +8659,7 @@ header.hero .me-btn { border-color:#e87328; }
     try { if (screen.orientation && screen.orientation.lock) screen.orientation.lock("portrait").catch(function () {}); } catch (e) {}
     applyPortraitLock();
     window.addEventListener("resize", applyPortraitLock);
+    document.addEventListener("focusout", function () { setTimeout(applyPortraitLock, 300); });
     window.addEventListener("orientationchange", function () { setTimeout(applyPortraitLock, 50); });
     try { if (screen.orientation) screen.orientation.addEventListener("change", applyPortraitLock); } catch (e) {}
   }
@@ -8404,6 +8674,7 @@ header.hero .me-btn { border-color:#e87328; }
       "Weigh-in and progress photos only show on your Sabbath.",
       "Your three: add up to three personal habits of your own. Each is worth 1 point.",
       "Your streak counts days in a row with every daily box checked.",
+      "Journal: tap the pen at the top of any page to write about anything: your workout, work, family or faith. Private, and never scored. The Journal row shows Done once you write today.",
       "On your Sabbath the Workout box checks itself. Rest is part of the training."] },
     fuel: { t: "Fuel", why: "Track what you eat and drink against your daily calorie and macro targets.", tip: function () {
       if (foodMode() !== "app") { var wk3 = taskOfKind("water"); return "Points on Fuel: your " + FOOD_MODES[foodMode()].box + " box (+1) is yours to tap, on your honor. Water at your goal checks your Water box (+" + (wk3 ? wk3.points : 1) + "). The food log is still here under Log food here anyway."; }
@@ -8433,6 +8704,9 @@ header.hero .me-btn { border-color:#e87328; }
     workout: { t: "Workout", why: "Log a workout set by set while you train.", how: [
       "Tap Start workout. Pray the workout prayer, then tap Amen to start the clock.",
       "Warm-ups go round by round. Enter reps, and weight where the lift needs it.",
+      "Dumbbells: enter the weight of one dumbbell, not both added together.",
+      "Bodyweight lifts like push-ups, pull-ups and dips: don\u2019t enter a weight. Your training volume counts your most recent weigh-in for you. Leave the + box empty unless you add weight with a vest, belt or plate, and then enter only that added weight. PRs on these lifts still come from reps and added weight.",
+      "Supersets: both lifts share one card. Each set shows A1 and A2 together. Do A1, go straight to A2, then rest.",
       "A set's check lights up once you've entered it. Rest timers count down and beep at the end.",
       "Tap an exercise name to see how to do it. Tap Alternate to swap it if you lack the equipment or have an injury.",
       "Use + Add exercise for anything extra.",
@@ -8481,6 +8755,26 @@ header.hero .me-btn { border-color:#e87328; }
       "Progress photos only show on your own profile. Other men never see them. Share one in Rally if you choose to.",
       "Compare any two dates of your photos side by side.",
       "The gear opens Settings."] },
+    camp: { t: "Campaign", why: "Team battles. A band of brothers marches together for " + CAMP_WEEKS + " weeks and holds each other to the mission.", tip: "Standings and campaign points live on the Board. Tap Campaign there to see them.", how: [
+      "A brother raises a banner and invites " + (CAMP_MIN - 1) + " to " + (CAMP_MAX - 1) + " men. Teams are " + CAMP_MIN + " to " + CAMP_MAX + " men.",
+      "Raise a banner to be a captain, or answer a captain\u2019s invite here.",
+      CAMP_WEEKS + " weeks, Monday to Sunday. Rosters lock on the first day.",
+      "Team score is the average Kingdom Warrior points per man each week. A brother who sits out a week doesn\u2019t count against his team.",
+      "One box counts double each week for every man in the battle.",
+      "Wall Held: every man checks every box all 7 days and the team earns +" + WALL_BONUS + ".",
+      "My team opens your roster and team chat.",
+      "When no campaign is running, this page shows when the next one starts."] },
+    journal: { t: "My journal", why: "A private place to write down anything worth remembering: what you noticed in your workout, what happened at work or at home, and what God is showing you. Only you can read it. It is never scored.", how: [
+      "Tap the pen at the top of any page to write. Pick a tag if it helps: Workout, Win, Struggle, Family, Work, Grateful, Prayer or God showed me.",
+      "After a workout, tap Write about this workout. The entry is tagged Workout with that day\u2019s workout on top.",
+      "At the end of the devotional, Write it down starts an entry with that day\u2019s reflection question.",
+      "Tap an entry to read it, edit it or delete it.",
+      "Prayers: tap the Prayer tag when you write one. It waits in Praying for. When God answers it, tap Mark answered (in the list or inside the entry) and it moves to Answered.",
+      "If what you write sounds like a prayer and isn\u2019t tagged, the app asks if you want to tag it. Nothing is tagged without you.",
+      "On this day shows what you wrote one month or one year ago.",
+      "Search finds entries by word or tag.",
+      "Share this entry with my Paul sends it in a text from your phone. The app never shares it for you.",
+      "Download my data in Settings includes your journal."] },
     settings: { t: "Settings", why: "Set up your profile, body stats, goals and app preferences.", how: [
       "Tap a section to open it.",
       "Your profile: photo, banner, handle and creed.",
@@ -8796,14 +9090,14 @@ header.hero .me-btn { border-color:#e87328; }
     ["The scale isn\u2019t the whole story", "With enough protein, steady calories and consistent training, you can lose fat and build muscle at the same time, especially if you\u2019re newer to training or carrying extra fat. Your weight can hold still while your waist shrinks and your lifts go up. Check your photos, how your clothes fit and your lifts, not just the scale."]
   ];
   var TRACK_KNOW = "Background you hold about food tracking, to use only when it fits: Tracking is a tool for consistency, health, better gym performance and feeling better. It is never a hammer. Never shame a man for a missed log or for going over a target; encourage honest logging and getting back on track at the next meal. Body weight is checked once a week, on the Sabbath, because daily weight swings with water, salt, carbs and food still in the gut; the trend over weeks is what counts. With enough protein, steady calories and consistent training, a man can lose fat and build muscle at the same time, especially if he is newer to training or carrying extra fat, so his weight can hold still while his waist, photos, clothing fit and lifts improve; point him to those signs, not just the scale. Do not tell a man to eat below his targets because of one week on the scale. Do not promise results.";
-  var ASK = [{"t": "Log my weight", "a": "Weigh in on your Sabbath. Tap the Weigh-In box on Today and enter your weight. Your chart is on Train under Weekly weight. Only you can see it.", "w": "Today on your Sabbath · Train › Weekly weight", "k": "weight weigh scale pounds lb body weight", "go": {"p": "train", "s": "h-wt"}}, {"t": "Progress photos", "a": "Front, side and rear photos are taken on your Sabbath from the Progress Photos box on Today. Past photos are on your profile.", "w": "Today on your Sabbath · Profile › Progress photos", "k": "photo photos picture pictures progress before after", "go": {"fn": "profile", "s": "h-prog"}}, {"t": "Change my lifting days or Sabbath", "a": "Open Workout plan on Train to pick your program, equipment, Sabbath day and your 3 lifting days.", "w": "Train › Workout plan", "k": "schedule days lifting sabbath program plan equipment change", "go": {"p": "train", "s": "h-plan"}}, {"t": "Move a workout to another day", "a": "On Train, tap a day on the calendar, then Move day and pick a day this week to trade with. Reset week puts it back.", "w": "Train › Calendar › Move day", "k": "move swap day reschedule calendar missed", "go": {"p": "train", "s": "h-cal"}}, {"t": "Swap an exercise", "a": "In the workout, tap Alt next to the exercise to pick an alternate if you lack the equipment or have an injury.", "w": "Workout › Alt button on the exercise", "k": "alternate swap exercise injury equipment replace substitute", "go": {"p": "train", "s": "h-cal"}}, {"t": "Leave a note on a lift", "a": "In a workout, tap “+ Add a note for next time” under the lift. The next time you do that lift, your note shows in the Last time box.", "w": "Workout › under each lift", "k": "note notes lift journal remember sleep felt", "go": {"p": "train", "s": "h-cal"}}, {"t": "How points work", "a": "Every box, bonus and challenge and what it’s worth.", "w": "Board › How points work", "k": "points score scoring earn worth bonus how many", "go": {"fn": "points"}}, {"t": "The Board", "a": "See where you stand this week, today and all time.", "w": "Board tab", "k": "board leaderboard rank ranking standings who winning", "go": {"p": "board"}}, {"t": "Weekly challenges", "a": "Three challenges each week (Family, Iron, Endure). Tap one at the top of Train to see it and record your attempt.", "w": "Train › This week’s challenges", "k": "challenge challenges family iron endure submit record attempt", "go": {"p": "train", "s": "h-chal"}}, {"t": "Family report", "a": "On your Sabbath, a Family report row on Today puts your week together so you can share it with your family.", "w": "Today on your Sabbath", "k": "family report share wife kids week summary", "go": {"fn": "freport"}}, {"t": "Legacy log", "a": "A private journal you write for your wife and kids, with a new prompt each Sabbath. Give it to them when you’re ready.", "w": "Today on your Sabbath · Settings › Legacy log", "k": "legacy journal letter write kids wife son daughter", "go": {"fn": "legacy"}}, {"t": "Missed a day (grace reset)", "a": "After a missed day breaks your streak, Today offers Own it. Own it in Rally once every 30 days and your streak holds.", "w": "Today, after a missed day", "k": "missed streak broke grace reset own it", "go": {"p": "today"}}, {"t": "Sit out a week", "a": "On vacation or sick? Use the link at the bottom of Today to sit out 7 days. Your streak is held. Tap I’m back to end it early.", "w": "Today › bottom of the list", "k": "vacation sick sit out pause away travel injured", "go": {"fn": "sitout"}}, {"t": "Invite a brother", "a": "Share the app with a man. When he signs up and picks you under Who invited you, you get 50 points.", "w": "Settings › Your profile", "k": "invite recruit friend share sent join brother", "go": {"set": "h-s-prof"}}, {"t": "Fasting", "a": "Turn on Fasting today or plan fast days on Fuel. Your Calories box checks itself on a fast day.", "w": "Fuel › Fasting", "k": "fast fasting fasted", "go": {"p": "fuel", "s": "h-fast"}}, {"t": "Log water", "a": "Tap +8 as you drink, or type an amount. Hitting the goal checks Hydrate.", "w": "Fuel › Water", "k": "water hydrate drink oz liters", "go": {"p": "fuel", "s": "h-water"}}, {"t": "Why isn\u2019t my weight tracked every day?", "a": "Daily weight bounces with water, salt, carbs and food in your system. One weigh-in each Sabbath gives you a trend you can trust.", "w": "Today on your Sabbath · Train › Weekly weight", "k": "weight weigh daily scale why weekly sabbath", "go": {"p": "train", "s": "h-wt"}}, {"t": "My weight isn\u2019t dropping. Is it working?", "a": "Maybe. With enough protein, steady calories and consistent training you can lose fat and build muscle together, so the scale can hold still. Check your progress photos, how your clothes fit and your lifts.", "w": "Profile › Progress photos · Train › Weekly weight", "k": "weight stuck plateau scale not dropping muscle fat working progress", "go": {"p": "train", "s": "h-wt"}}, {"t": "What is tracking for?", "a": "To build consistency, get healthy, perform better in the gym and feel better. It is a tool, not a hammer. Log honestly and keep going.", "w": "Fuel › Food log", "k": "tracking why track calories obsess consistency hammer", "go": {"p": "fuel", "s": "h-food"}}, {"t": "Use my own workout routine", "a": "On Train, open Workout plan and tap My routine. Bring your routine in by photo, pasted text, or build it there. Set how many weeks you will run it and your lifting days. Tap Built-in any time to go back.", "w": "Train › Workout plan › My routine", "k": "routine own workout program upload import photo paste custom plan weeks duration switch", "go": {"p": "train", "s": "h-plan"}}, {"t": "Log food", "a": "Under each meal, use Search, Photo, Voice or Favorites. Quick add is for when you only know the numbers.", "w": "Fuel › Food log", "k": "food meal meals eat log calories macros protein", "go": {"p": "fuel", "s": "h-food"}}, {"t": "Calorie and macro targets", "a": "Set or adjust your daily calories, protein, carbs and fat.", "w": "Settings › Daily calorie and macro targets", "k": "calories macros targets protein carbs fat adjust", "go": {"set": "h-s-tg"}}, {"t": "My goal", "a": "Lose fat, maintain or build. Your calorie plan follows it.", "w": "Settings › Your goal and calorie plan", "k": "goal lose fat cut bulk build maintain", "go": {"set": "h-s-goal"}}, {"t": "My creed", "a": "Write your creed in Settings. The My Creed box on Today shows it each morning.", "w": "Settings › Your profile", "k": "creed motto", "go": {"set": "h-s-prof"}}, {"t": "Daily devotional", "a": "Tap the Daily Devotional box on Today to read today’s reading.", "w": "Today › Daily Devotional", "k": "devotional devo reading bible scripture", "go": {"p": "today"}}, {"t": "Post in Rally", "a": "Post, tag brothers and react in Rally. Posting checks Rally Call.", "w": "Rally tab", "k": "rally post feed tag comment react call", "go": {"p": "checkin"}}, {"t": "Reminders", "a": "Turn daily reminders on or off and pick the times.", "w": "Settings › Daily reminders", "k": "reminder reminders notification notifications alert", "go": {"set": "h-s-rem"}}, {"t": "Steps and health data", "a": "Log steps from the Steps box on Today, or connect health data in Settings.", "w": "Settings › Health data", "k": "steps health apple watch fitbit connect", "go": {"set": "h-s-health"}}, {"t": "Dark mode and appearance", "a": "Change how the app looks.", "w": "Settings › Appearance", "k": "dark light mode theme appearance color", "go": {"set": "h-s-app"}}, {"t": "Core lift PRs", "a": "Your best lifts are on your profile. A PR earns 25 points.", "w": "Profile › Core lift PRs", "k": "pr prs record personal best max", "go": {"fn": "profile", "s": "h-lifts"}}, {"t": "Photos or videos won’t upload", "a": "Run the upload check in Settings. It tests your photos and tells you what went wrong.", "w": "Settings › Upload check", "k": "upload uploading photo video error unsupported fail", "go": {"set": "h-s-prof"}}, {"t": "Delete my data", "a": "Permanently delete everything you saved in the app.", "w": "Settings › Delete your data", "k": "delete remove account data erase", "go": {"set": "h-s-acct"}}];
+  var ASK = [{"t": "Log my weight", "a": "Weigh in on your Sabbath. Tap the Weigh-In box on Today and enter your weight. Your chart is on Train under Weekly weight. Only you can see it.", "w": "Today on your Sabbath · Train › Weekly weight", "k": "weight weigh scale pounds lb body weight", "go": {"p": "train", "s": "h-wt"}}, {"t": "Progress photos", "a": "Front, side and rear photos are taken on your Sabbath from the Progress Photos box on Today. Past photos are on your profile.", "w": "Today on your Sabbath · Profile › Progress photos", "k": "photo photos picture pictures progress before after", "go": {"fn": "profile", "s": "h-prog"}}, {"t": "Change my lifting days or Sabbath", "a": "Open Workout plan on Train to pick your program, equipment, Sabbath day and your 3 lifting days.", "w": "Train › Workout plan", "k": "schedule days lifting sabbath program plan equipment change", "go": {"p": "train", "s": "h-plan"}}, {"t": "Move a workout to another day", "a": "On Train, tap a day on the calendar, then Move day and pick a day this week to trade with. Reset week puts it back.", "w": "Train › Calendar › Move day", "k": "move swap day reschedule calendar missed", "go": {"p": "train", "s": "h-cal"}}, {"t": "Swap an exercise", "a": "In the workout, tap Alt next to the exercise to pick an alternate if you lack the equipment or have an injury.", "w": "Workout › Alt button on the exercise", "k": "alternate swap exercise injury equipment replace substitute", "go": {"p": "train", "s": "h-cal"}}, {"t": "Leave a note on a lift", "a": "In a workout, tap “+ Add a note for next time” under the lift. The next time you do that lift, your note shows in the Last time box.", "w": "Workout › under each lift", "k": "note notes lift remember sleep felt", "go": {"p": "train", "s": "h-cal"}}, {"t": "How points work", "a": "Every box, bonus and challenge and what it’s worth.", "w": "Board › How points work", "k": "points score scoring earn worth bonus how many", "go": {"fn": "points"}}, {"t": "The Board", "a": "See where you stand this week, today and all time.", "w": "Board tab", "k": "board leaderboard rank ranking standings who winning", "go": {"p": "board"}}, {"t": "Weekly challenges", "a": "Three challenges each week (Family, Iron, Endure). Tap one at the top of Train to see it and record your attempt.", "w": "Train › This week’s challenges", "k": "challenge challenges family iron endure submit record attempt", "go": {"p": "train", "s": "h-chal"}}, {"t": "Family report", "a": "On your Sabbath, a Family report row on Today puts your week together so you can share it with your family.", "w": "Today on your Sabbath", "k": "family report share wife kids week summary", "go": {"fn": "freport"}}, {"t": "Legacy log", "a": "A private journal you write for your wife and kids, with a new prompt each Sabbath. Give it to them when you’re ready.", "w": "Today on your Sabbath · Settings › Legacy log", "k": "legacy letter write kids wife son daughter", "go": {"fn": "legacy"}}, {"t": "Campaign", "a": "Team battles of 6 to 8 men for 6 weeks. Raise a banner to be a captain, or answer a captain\u2019s invite. Your team, Wall Held and team chat live on the Campaign tab. Standings are on the Board.", "w": "Campaign tab \u00B7 Board \u203A Campaign", "k": "campaign team battle banner captain invite wall held double points squad", "go": {"p": "camp"}}, {"t": "Write in my journal", "a": "Tap the pen at the top of any page. Write about anything: your workout, work, family or faith. Pick a tag if it helps, and tap Save. After a workout, tap Write about this workout. Only you can read it. It is never scored.", "w": "The pen at the top of any page \u00B7 Today \u203A Journal \u00B7 a finished workout", "k": "journal write entry diary notes pen private reflect thoughts workout life family work log", "go": {"p": "journal"}}, {"t": "Answered prayers", "a": "When you write a prayer, tap the Prayer tag. It waits in My journal \u203A Praying for. When God answers it, tap Mark answered in the list or inside the entry, and it moves to Answered.", "w": "My journal \u203A Praying for \u00B7 Answered", "k": "prayer prayers answered request journal pray", "go": {"p": "journal"}}, {"t": "Missed a day (grace reset)", "a": "After a missed day breaks your streak, Today offers Own it. Own it in Rally once every 30 days and your streak holds.", "w": "Today, after a missed day", "k": "missed streak broke grace reset own it", "go": {"p": "today"}}, {"t": "Sit out a week", "a": "On vacation or sick? Use the link at the bottom of Today to sit out 7 days. Your streak is held. Tap I’m back to end it early.", "w": "Today › bottom of the list", "k": "vacation sick sit out pause away travel injured", "go": {"fn": "sitout"}}, {"t": "Invite a brother", "a": "Share the app with a man. When he signs up and picks you under Who invited you, you get 50 points.", "w": "Settings › Your profile", "k": "invite recruit friend share sent join brother", "go": {"set": "h-s-prof"}}, {"t": "Fasting", "a": "Turn on Fasting today or plan fast days on Fuel. Your Calories box checks itself on a fast day.", "w": "Fuel › Fasting", "k": "fast fasting fasted", "go": {"p": "fuel", "s": "h-fast"}}, {"t": "Log water", "a": "Tap +8 as you drink, or type an amount. Hitting the goal checks Hydrate.", "w": "Fuel › Water", "k": "water hydrate drink oz liters", "go": {"p": "fuel", "s": "h-water"}}, {"t": "Why isn\u2019t my weight tracked every day?", "a": "Daily weight bounces with water, salt, carbs and food in your system. One weigh-in each Sabbath gives you a trend you can trust.", "w": "Today on your Sabbath · Train › Weekly weight", "k": "weight weigh daily scale why weekly sabbath", "go": {"p": "train", "s": "h-wt"}}, {"t": "My weight isn\u2019t dropping. Is it working?", "a": "Maybe. With enough protein, steady calories and consistent training you can lose fat and build muscle together, so the scale can hold still. Check your progress photos, how your clothes fit and your lifts.", "w": "Profile › Progress photos · Train › Weekly weight", "k": "weight stuck plateau scale not dropping muscle fat working progress", "go": {"p": "train", "s": "h-wt"}}, {"t": "What is tracking for?", "a": "To build consistency, get healthy, perform better in the gym and feel better. It is a tool, not a hammer. Log honestly and keep going.", "w": "Fuel › Food log", "k": "tracking why track calories obsess consistency hammer", "go": {"p": "fuel", "s": "h-food"}}, {"t": "Use my own workout routine", "a": "On Train, open Workout plan and tap My routine. Bring your routine in by photo, pasted text, or build it there. Set how many weeks you will run it and your lifting days. Tap Built-in any time to go back.", "w": "Train › Workout plan › My routine", "k": "routine own workout program upload import photo paste custom plan weeks duration switch", "go": {"p": "train", "s": "h-plan"}}, {"t": "Log food", "a": "Under each meal, use Search, Photo, Voice or Favorites. Quick add is for when you only know the numbers.", "w": "Fuel › Food log", "k": "food meal meals eat log calories macros protein", "go": {"p": "fuel", "s": "h-food"}}, {"t": "Calorie and macro targets", "a": "Set or adjust your daily calories, protein, carbs and fat.", "w": "Settings › Daily calorie and macro targets", "k": "calories macros targets protein carbs fat adjust", "go": {"set": "h-s-tg"}}, {"t": "My goal", "a": "Lose fat, maintain or build. Your calorie plan follows it.", "w": "Settings › Your goal and calorie plan", "k": "goal lose fat cut bulk build maintain", "go": {"set": "h-s-goal"}}, {"t": "My creed", "a": "Write your creed in Settings. The My Creed box on Today shows it each morning.", "w": "Settings › Your profile", "k": "creed motto", "go": {"set": "h-s-prof"}}, {"t": "Daily devotional", "a": "Tap the Daily Devotional box on Today to read today’s reading.", "w": "Today › Daily Devotional", "k": "devotional devo reading bible scripture", "go": {"p": "today"}}, {"t": "Post in Rally", "a": "Post, tag brothers and react in Rally. Posting checks Rally Call.", "w": "Rally tab", "k": "rally post feed tag comment react call", "go": {"p": "checkin"}}, {"t": "Reminders", "a": "Turn daily reminders on or off and pick the times.", "w": "Settings › Daily reminders", "k": "reminder reminders notification notifications alert", "go": {"set": "h-s-rem"}}, {"t": "Steps and health data", "a": "Log steps from the Steps box on Today, or connect health data in Settings.", "w": "Settings › Health data", "k": "steps health apple watch fitbit connect", "go": {"set": "h-s-health"}}, {"t": "Dark mode and appearance", "a": "Change how the app looks.", "w": "Settings › Appearance", "k": "dark light mode theme appearance color", "go": {"set": "h-s-app"}}, {"t": "Core lift PRs", "a": "Your best lifts are on your profile. A PR earns 25 points.", "w": "Profile › Core lift PRs", "k": "pr prs record personal best max", "go": {"fn": "profile", "s": "h-lifts"}}, {"t": "Photos or videos won’t upload", "a": "Run the upload check in Settings. It tests your photos and tells you what went wrong.", "w": "Settings › Upload check", "k": "upload uploading photo video error unsupported fail", "go": {"set": "h-s-prof"}}, {"t": "Delete my data", "a": "Permanently delete everything you saved in the app.", "w": "Settings › Delete your data", "k": "delete remove account data erase", "go": {"set": "h-s-acct"}}];
   var ASK_STOP = "a an the i my me do does how where what is are to of in on for can find it get set see with and or at this that when why which who you your".split(" ");
-  var ASK_SYN = { weigh: "weight", scale: "weight", pic: "photo", pics: "photo", picture: "photo", score: "points", pts: "points", leaderboard: "board", rank: "board", meal: "food", eat: "food", macro: "macros", drink: "water", schedule: "days", reminder: "reminders", notification: "reminders", pr: "pr", record: "pr", journal: "legacy", vacation: "sit", sick: "sit", invite: "invite", recruit: "invite", fast: "fasting", motto: "creed" };
+  var ASK_SYN = { weigh: "weight", scale: "weight", pic: "photo", pics: "photo", picture: "photo", score: "points", pts: "points", leaderboard: "board", rank: "board", meal: "food", eat: "food", macro: "macros", drink: "water", schedule: "days", reminder: "reminders", notification: "reminders", pr: "pr", record: "pr", diary: "journal", vacation: "sit", sick: "sit", invite: "invite", recruit: "invite", fast: "fasting", motto: "creed" };
   function askToks(t) { return String(t || "").toLowerCase().replace(/[\u2018\u2019']/g, "").replace(/[^a-z0-9\s]/g, " ").split(/\s+/).filter(function (w) { return w && ASK_STOP.indexOf(w) < 0; }); }
   function askIndex() {
     if (askIndex.c) return askIndex.c;
     var out = ASK.map(function (e) { return Object.assign({ cur: true, tk: askToks(e.t + " " + e.k), ak: askToks(e.a) }, e); });
-    var PG = { today: "today", fuel: "fuel", train: "train", workout: "train", board: "board", checkin: "checkin", settings: "settings", profile: "profile" };
+    var PG = { today: "today", fuel: "fuel", train: "train", workout: "train", board: "board", checkin: "checkin", settings: "settings", profile: "profile", camp: "camp", journal: "journal" };
     Object.keys(HELP).forEach(function (pg) { var h = HELP[pg]; (h.how || []).forEach(function (b) { out.push({ t: h.t, a: b, w: h.t + " page", go: PG[pg] === "profile" ? { fn: "profile" } : PG[pg] ? { p: PG[pg] } : null, tk: askToks(h.t), ak: askToks(b) }); }); });
     return (askIndex.c = out);
   }
@@ -9019,6 +9313,7 @@ header.hero .me-btn { border-color:#e87328; }
       [["Today", "Your daily boxes: devotional, creed, workout, steps, water and calories.", '<rect x="4" y="4" width="16" height="16" rx="1"/><path d="m8 12 3 3 5-6"/>'],
        ["Fuel", "Log food and water against your calorie and protein targets.", '<path d="M12 3c2 3 5 5 5 9a5 5 0 0 1-10 0c0-2 1-3 2-4 0 2 1 3 2 3 0-3-1-5 1-8z"/>'],
        ["Train", "Your program, workouts, PRs and the weekly challenges.", '<path d="M3 12h3M18 12h3M6 8v8M18 8v8M9 6v12M15 6v12M9 12h6"/>'],
+       ["Journal", "A private place to write down anything: your training, work, family and faith. Tap the pen at the top of any page.", '<path d="M4 20h4L19 9l-4-4L4 16v4z"/><path d="M13.5 6.5l4 4"/>'],
        ["Board and Rally", "Kingdom Warrior points, top lifts, and the group thread.", '<path d="M4 5h16v11H9l-5 4z"/>']].forEach(function (x) {
         var r = el("div", "onb-pillar"), ic = el("span", "ic"); ic.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true">' + x[2] + "</svg>"; r.appendChild(ic);
         var t = el("div"); t.appendChild(el("b", null, x[0])); t.appendChild(el("span", null, x[1])); r.appendChild(t); pl.appendChild(r);
@@ -9142,6 +9437,7 @@ header.hero .me-btn { border-color:#e87328; }
   /* Tour: one card per tab over the real screen. */
   var TOUR = [
     ["today", "Today", ["Tap a box when it's done. Boxes with an arrow open first, like the devotional, your creed and your steps.", "Some boxes fill themselves from Fuel, Train and Rally.", "Steps: 10,000 a day (7,000 on your Sabbath), plus bonus points past 10,000."]],
+    ["journal", "Journal", ["Tap the pen at the top of any page to write about anything: a lift, your work, your family, your faith. Only you can read it.", "After a workout, Write about this workout keeps what you noticed. Tag prayers and mark them answered.", "Look back with search and On this day. No points, just write."]],
     ["fuel", "Fuel", ["Log meals with search, photo, voice or favorites.", "Tap the water buttons as you drink.", "Your Calories box checks when you land in your window: 15% under to 10% over when losing fat, within 5% when maintaining."]],
     ["train", "Train", ["Tap Start, pray the workout prayer, then tap Amen to start the clock.", "Log reps, then weight. Finish to earn 25 points for each lift PR.", "Weekly challenges are at the top. Due Sunday 8 AM Arizona time, with photo or video proof."]],
     ["board", "Board", ["Kingdom Warrior ranks the men by points: Today, This week and All time.", "Individual and Campaign buttons switch boards. The menu shows top PRs on each lift.", "Tap How points work for the full breakdown."]],
@@ -9187,7 +9483,7 @@ header.hero .me-btn { border-color:#e87328; }
       box.appendChild(r);
     });
   }
-  var APP_VERSION = "v226";
+  var APP_VERSION = "v238";
   /* ---------- Photo upload diagnostic (Settings > Testing) ---------- */
   async function runPhotoDiag() {
     var out = { at: new Date().toISOString(), version: APP_VERSION, ua: navigator.userAgent, steps: [] };
@@ -9956,6 +10252,7 @@ header.hero .me-btn { border-color:#e87328; }
       prs: Object.keys(prof.prs || {}).map(function (id) { var l = lifts.filter(function (x) { return x.id === id; })[0]; var p = prof.prs[id] || {}; return { lift: l ? l.name : id, weight: Number(p.w) || 0, reps: Number(p.reps) || 0, date: p.date || "" }; }).filter(function (x) { return x.weight > 0; }),
       habits: state.habits || {},
       liftNotes: state.liftNotes || {},
+      journal: journalSorted().map(function (x) { return { date: x.d, at: x.at ? new Date(x.at).toISOString() : "", tags: x.tags || [], text: x.t, prompt: x.p || "", from: x.src || "", answered: x.ans ? new Date(x.ans).toISOString() : "" }; }),
       progressPhotoDates: (state.progress || []).map(function (x) { return x.date; }).sort(),
       posts: (state.posts || []).filter(function (p) { return p.uid === me; }).map(function (p) { return { createdAt: p.createdAt, text: p.text || "", photos: (p.media || p.photos || []).length || (p.photo ? 1 : 0) }; }),
       team: team
@@ -9972,6 +10269,7 @@ header.hero .me-btn { border-color:#e87328; }
     D.food.forEach(function (d) { MEALS.forEach(function (m) { ((d.meals || {})[m.k] || []).forEach(function (e) { fr.push([d.date, m.label, e.name || "", e.n || 1, Math.round(Number(e.kcal) || 0), Math.round(Number(e.p) || 0), Math.round(Number(e.c) || 0), Math.round(Number(e.f) || 0)]); }); }); });
     out.push({ name: "food.csv", text: csvOf(["date", "meal", "food", "servings", "calories", "protein_g", "carbs_g", "fat_g"], fr) });
     out.push({ name: "weigh-ins.csv", text: csvOf(["date", "weight_lb"], Object.keys(D.weighIns).sort().map(function (k) { return [k, D.weighIns[k]]; })) });
+    out.push({ name: "journal.csv", text: csvOf(["date", "time", "tags", "entry", "prompt", "answered"], (D.journal || []).map(function (j) { return [j.date, j.at ? new Date(j.at).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" }) : "", (j.tags || []).map(jrLabel).join("; "), j.text, j.prompt, j.answered ? dateKeyLocal(new Date(j.answered)) : ""]; })) });
     out.push({ name: "prs.csv", text: csvOf(["lift", "weight_lb", "reps", "date"], D.prs.map(function (p) { return [p.lift, p.weight, p.reps, p.date]; })) });
     return out;
   }
@@ -9992,6 +10290,7 @@ header.hero .me-btn { border-color:#e87328; }
     }
     if (D.posts.length) { L.push("## Your Rally posts", ""); D.posts.slice().sort(function (a, b) { return b.createdAt - a.createdAt; }).slice(0, 20).forEach(function (p) { L.push("- " + new Date(p.createdAt).toLocaleDateString() + ": " + String(p.text).replace(/\s+/g, " ").slice(0, 200)); }); L.push(""); }
     L.push("Photos are not included. The JSON file lists your progress photo dates.");
+    if ((D.journal || []).length) { L.push("", "## Journal", ""); D.journal.forEach(function (j) { L.push("### " + j.date + ((j.tags || []).length ? " \u00B7 " + j.tags.map(jrLabel).join(", ") : "") + (j.answered ? " \u00B7 Answered " + dateKeyLocal(new Date(j.answered)) : ""), ""); if (j.prompt) L.push("> " + j.prompt, ""); L.push(j.text, ""); }); }
     return L.join("\n") + "\n";
   }
   async function runExport() {
@@ -10031,6 +10330,304 @@ header.hero .me-btn { border-color:#e87328; }
     box.appendChild(el("p", "fnote", (expMsg ? expMsg + " " : "") + (last ? "Last download " + expTimeText(last) + ". " : "") + "One download a day. Only your own data is included, never other brothers’ posts or team chat."));
   }
 
+
+  /* ---------- Paul & Timothy: information only until private access is enforced ---------- */
+  // Existing mentor documents mix pair metadata with sensitive check-ins. Do not
+  // read that collection, even for pairing, until server-side access is enforced.
+  function myPaul() { return ""; }
+
+  var PEN_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true" style="width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round"><path d="M4 20h4L19 9l-4-4L4 16v4z"/><path d="M13.5 6.5l4 4"/></svg>';
+  var JR_TAGS = [["workout", "Workout"], ["win", "Win"], ["struggle", "Struggle"], ["family", "Family"], ["work", "Work"], ["grateful", "Grateful"], ["prayer", "Prayer"], ["god", "God showed me"]];
+  function jrLabel(k) { for (var i = 0; i < JR_TAGS.length; i++) if (JR_TAGS[i][0] === k) return JR_TAGS[i][1]; return k; }
+  function journalSorted() { return (state.journal || []).slice().sort(function (a, b) { return (b.at || 0) - (a.at || 0); }); }
+  function journalToday() { var k = todayKey(); return journalSorted().filter(function (x) { return x.d === k; }); }
+  var jrPendingWrites = Object.create(null), jrIdCounter = 0;
+  function jrDraftId(holder) {
+    if (!holder.jrAt) holder.jrAt = Date.now();
+    return holder.jrId || (holder.jrId = "j" + Number(holder.jrAt).toString(36) + "-" + (++jrIdCounter).toString(36) + "-" + Math.random().toString(36).slice(2, 8));
+  }
+  function jrWrite(uid, id, value, remove) {
+    var key = uid + ":" + id, body = remove ? "delete" : JSON.stringify(value), pending = jrPendingWrites[key];
+    // A timeout does not cancel a remote write. Reuse identical pending writes;
+    // do not let a retry/edit race and later be overwritten by an older request.
+    if (pending) {
+      if (pending.body === body) return pending.promise;
+      var error = new Error("A previous journal change is still awaiting confirmation."); error.jrPending = true; return Promise.reject(error);
+    }
+    pending = { body: body };
+    pending.promise = Promise.resolve().then(function () { return remove ? B.deleteJournal(uid, id) : B.saveJournal(uid, value); });
+    jrPendingWrites[key] = pending;
+    function settled() { if (jrPendingWrites[key] === pending) delete jrPendingWrites[key]; }
+    pending.promise.then(settled, settled);
+    return pending.promise;
+  }
+  function jrDevoOwner(ta) {
+    var uid = state.me || "";
+    if (ta && ta.dataset.jrOwner !== uid) { ta.value = ""; delete ta.dataset.jrId; delete ta.dataset.jrAt; ta.dataset.jrOwner = uid; }
+  }
+  async function jrSave(x, attempt) {
+    var uid = state.me;
+    await jrWrite(uid, x.id, x, false);
+    if (attempt) attempt.check();
+    if (state.me !== uid) return;
+    var list = (state.journal || []).filter(function (y) { return y.id !== x.id; }); list.push(x); state.journal = list;
+    drawToday(); if (state.page === "journal") drawJournalPage();
+  }
+  async function jrDelete(id, attempt) {
+    var uid = state.me;
+    await jrWrite(uid, id, null, true);
+    if (attempt) attempt.check();
+    if (state.me !== uid) return;
+    state.journal = (state.journal || []).filter(function (y) { return y.id !== id; });
+    drawToday(); if (state.page === "journal") drawJournalPage();
+  }
+  async function jrAction(button, message, action) {
+    var scope = button.closest ? button.closest(".cdlg, .jr-devo, .jr-it") : null;
+    if (button.disabled || (scope && scope.dataset.jrBusy)) return false;
+    var controls = scope ? Array.prototype.map.call(scope.querySelectorAll("button, input, textarea"), function (c) { return [c, c.disabled]; }) : [[button, button.disabled]];
+    var active = true, uid = state.me, timer;
+    var attempt = { check: function () {
+      if (!active || state.me !== uid || (scope && scope.isConnected === false)) throw new Error("Journal action is no longer current.");
+    } };
+    if (scope) scope.dataset.jrBusy = "1";
+    controls.forEach(function (c) { c[0].disabled = true; }); message.textContent = "Saving...";
+    var deadline = new Promise(function (_, reject) { timer = setTimeout(function () {
+      active = false; var error = new Error("Journal confirmation timed out."); error.jrTimeout = true; reject(error);
+    }, 15000); });
+    try { await Promise.race([action(attempt), deadline]); if (!active) throw new Error("Journal action expired."); message.textContent = ""; return true; }
+    catch (e) {
+      message.textContent = e && e.jrTimeout ? "Change not confirmed yet. Keep this text until you know the result; the earlier request may still finish." : e && e.jrPending ? "An earlier change is still unconfirmed. Your entry is still here; try again after it finishes." : "Could not confirm that change. Your entry is still here. Please try again.";
+      var retry = scope && scope.querySelector ? scope.querySelector("[data-jr-retry]") : null; if (retry) retry.hidden = false;
+      return false;
+    }
+    finally { active = false; clearTimeout(timer); if (scope) delete scope.dataset.jrBusy; controls.forEach(function (c) { c[0].disabled = c[1]; }); }
+  }
+  function jrWhen(x) {
+    var k = x.d || "", t = todayKey(), d = new Date(k + "T12:00:00"), yd = new Date(t + "T12:00:00"); yd.setDate(yd.getDate() - 1);
+    var day = k === t ? "Today" : k === dateKeyLocal(yd) ? "Yesterday" : d.toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric" });
+    var tm = x.at ? new Date(x.at).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" }) : "";
+    return day + (x.src === "devo" ? " · Devotional" : x.src === "workout" && x.p ? " · " + String(x.p).split(" · ")[0] : tm && k === t ? " · " + tm : "");
+  }
+  function dateKeyLocal(d) { return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0"); }
+  async function jrShare(x, msg) {
+    var txt = (x.p ? x.p + "\n\n" : "") + x.t + "\n\n(From my Forged & Sent journal)";
+    if (navigator.share) { try { await navigator.share({ title: "From my journal", text: txt }); msg.textContent = "✓ Shared."; return; } catch (e) { if (e && e.name === "AbortError") return; } }
+    try { await navigator.clipboard.writeText(txt); msg.textContent = "✓ Copied. Paste it in a text to your Paul."; return; } catch (e) {}
+    var ta = el("textarea", "field"); ta.value = txt; ta.rows = 5; ta.readOnly = true; ta.setAttribute("aria-label", "Entry to copy"); msg.textContent = "Copy this and send it to your Paul:"; msg.after(ta); ta.select();
+  }
+  function openJournal(opts) {
+    opts = Object.assign({}, opts || {});
+    var F = openJournal.F, changedOwner = F && F.ownerUid !== state.me;
+    if (!F || changedOwner) { F = openJournal.F = { ownerUid: state.me }; if (changedOwner) opts = { fresh: true }; }
+    var retained = F.resumeDraft && F.t && !F.saved;
+    var contextual = opts.p !== undefined || opts.src !== undefined || opts.tags !== undefined || opts.discardDraft;
+    var sameEntry = opts.edit !== undefined && opts.edit === (F.edit || F.jrId);
+    if (retained && (sameEntry || (opts.fresh && !contextual))) { delete opts.edit; opts.fresh = false; }
+    else if ((retained || (opts.discardDraft && F.t)) && (opts.edit !== undefined || opts.fresh)) {
+      if (!confirm("Discard this local journal draft and open a different entry? Its earlier unconfirmed save may still finish.")) return;
+      opts.keep = false;
+    }
+    var old = $("cdlg"); if (old) old.remove();
+    if (opts.edit !== undefined || opts.fresh) { var keepT = opts.keep ? F.t : null, keepTags = opts.keep ? (F.tags || []).slice() : null; F.edit = opts.edit || ""; F.saved = ""; F.jrId = ""; F.jrAt = 0; F.resumeDraft = false; var e0 = F.edit ? (state.journal || []).filter(function (y) { return y.id === F.edit; })[0] : null; F.t = keepT != null ? keepT : e0 ? e0.t : ""; F.tags = keepTags ? keepTags : e0 ? (e0.tags || []).slice() : (opts.tags || []).slice(); F.p = e0 ? "" : (opts.p || ""); F.src = e0 ? "" : (opts.src || ""); }
+    if (!F.tags) F.tags = []; if (F.t == null) F.t = "";
+    var ed = F.edit ? (state.journal || []).filter(function (y) { return y.id === F.edit; })[0] : null;
+    var back = el("div", "cdlg"); back.id = "cdlg"; back.dataset.k = "journal";
+    var box = el("div", "cdlg-box nw-box"); box.setAttribute("role", "dialog"); box.setAttribute("aria-modal", "true"); box.setAttribute("aria-labelledby", "jr-t");
+    var now = ed ? new Date(ed.at || Date.now()) : new Date();
+    box.appendChild(el("p", "jr-when", now.toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric" }) + " · " + now.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })));
+    var sv0 = F.saved ? (state.journal || []).filter(function (y) { return y.id === F.saved; })[0] : null;
+    var h = el("h2", null, sv0 ? "Saved to your journal." : F.resumeDraft ? "Resume your unconfirmed entry" : ed ? "Edit your entry" : "Journal"); h.id = "jr-t"; box.appendChild(h);
+    function close() { if (!back.dataset.jrBusy) back.remove(); }
+    if (sv0) {
+      var card = el("div", "lg-saved"), ck = el("span", "lg-ck"); ck.innerHTML = CHECK_SVG; card.appendChild(ck);
+      var ct = el("div", "lg-ct"); ct.appendChild(el("b", null, (sv0.tags || []).map(jrLabel).join(" · ") || "Entry saved"));
+      ct.appendChild(el("p", "lg-prev", "“" + sv0.t.replace(/\s+/g, " ").slice(0, 160) + (sv0.t.length > 160 ? "…" : "") + "”"));
+      ct.appendChild(el("small", null, "Only you can read it.")); card.appendChild(ct); box.appendChild(card);
+      if ((sv0.tags || []).indexOf("prayer") >= 0) {
+        var pp = el("p", "jr-ph", sv0.ans ? "Saved to Answered. You can look back on this prayer in My journal." : "\uD83D\uDE4F\uFE0E Saved to Praying for. When God answers it, open it and tap Mark answered. It moves to Answered so you can look back on what He has done."); box.appendChild(pp);
+        var sp = el("button", "btn ghost", sv0.ans ? "See answered prayers" : "See my prayers"); sp.type = "button"; sp.addEventListener("click", function () { F.saved = ""; close(); jrUI.tab = sv0.ans ? "ans" : "pray"; jrUI.q = ""; go("journal"); }); box.appendChild(sp);
+      }
+      var smsg = el("p", "note", "");
+      if (myPaul()) { var shp = el("button", "btn ghost", "Share this entry with my Paul"); shp.type = "button"; shp.addEventListener("click", function () { jrShare(sv0, smsg); }); box.appendChild(shp); box.appendChild(smsg); }
+      var r = el("div", "cdlg-btns lg-sbtns"), more = el("button", "btn ghost", "+ Write another"), all = el("button", "btn ghost", "My journal"), dn = el("button", "btn", "Done"); more.type = all.type = dn.type = "button";
+      more.addEventListener("click", function () { openJournal({ fresh: true }); });
+      all.addEventListener("click", function () { F.saved = ""; close(); go("journal"); });
+      dn.addEventListener("click", function () { F.saved = ""; close(); });
+      r.appendChild(more); r.appendChild(all); r.appendChild(dn); box.appendChild(r);
+    } else {
+      var pv = el("p", "jr-priv"); pv.textContent = "🔒︎ Private. Write about anything: a lift, your work, your family, your faith. Only you can read your journal. It is never scored."; box.appendChild(pv);
+      var retry = el("div", "jr-retry"); retry.dataset.jrRetry = "1"; retry.hidden = !F.resumeDraft;
+      retry.appendChild(el("p", "note", "Saving here updates the same journal entry, even if an earlier request finishes. To write a separate entry, discard this draft first."));
+      var discard = el("button", "linkish", "Discard draft and start a different entry"); discard.type = "button";
+      discard.addEventListener("click", function () { openJournal({ fresh: true, discardDraft: true }); }); retry.appendChild(discard); box.appendChild(retry);
+      if ((ed && ed.p) || (!ed && F.p)) box.appendChild(el("blockquote", "mem-v lg-p", ed ? ed.p : F.p));
+      var chips = el("div", "lg-chips"); chips.setAttribute("role", "group"); chips.setAttribute("aria-label", "Tags");
+      JR_TAGS.forEach(function (tg) { var on = F.tags.indexOf(tg[0]) >= 0, c = el("button", "mini" + (on ? " on" : ""), tg[1]); c.type = "button"; c.setAttribute("aria-pressed", on ? "true" : "false");
+        c.addEventListener("click", function () { var i = F.tags.indexOf(tg[0]); if (i >= 0) F.tags.splice(i, 1); else F.tags.push(tg[0]); var on2 = i < 0; c.classList.toggle("on", on2); c.setAttribute("aria-pressed", on2 ? "true" : "false"); }); chips.appendChild(c); });
+      box.appendChild(chips);
+      var ph = el("p", "jr-ph", "\uD83D\uDE4F\uFE0E Tagged as a prayer. When God answers it, mark it answered in My journal \u203A Praying for."); box.appendChild(ph);
+      if (ed && (ed.tags || []).indexOf("prayer") >= 0) {
+        var abar = el("div", "jr-ansbar" + (ed.ans ? " done" : "")), atx = el("span", null, ed.ans ? "\u2713 Answered " + new Date(ed.ans).toLocaleDateString(undefined, { month: "short", day: "numeric" }) + ". Praise God." : "Still praying for this?");
+        var ab2 = el("button", "mini" + (ed.ans ? "" : " on"), ed.ans ? "Undo" : "Mark answered"); ab2.type = "button";
+        ab2.addEventListener("click", function () { var latest = (state.journal || []).filter(function (x) { return x.id === ed.id; })[0] || ed; var y = Object.assign({}, latest); if (ed.ans) delete y.ans; else y.ans = Date.now(); jrAction(ab2, msg, async function (attempt) { await jrSave(y, attempt); F.t = ta.value; openJournal({ edit: y.id, keep: true }); }); });
+        abar.appendChild(atx); abar.appendChild(ab2); box.appendChild(abar);
+      }
+      var ta = el("textarea", "field jr-ta"); ta.rows = 7; ta.maxLength = 4000; ta.placeholder = "What happened today? Something you noticed in your workout, a win at work, a moment at home, what God is showing you."; ta.setAttribute("aria-label", "Your journal entry"); ta.value = F.t;
+      var sug = el("div", "jr-sug"), sgb = el("button", "mini on", "Tag as prayer"); sgb.type = "button"; sug.appendChild(el("span", null, "This sounds like a prayer. Tag it so you can mark it answered later.")); sug.appendChild(sgb);
+      var PRAY_RX = /^\s*(pray(ing)?\s+for|please\s+pray|lord\b|father\b|jesus\b|god,|dear\s+(god|lord|jesus))|\bpray(ing)?\s+for\b/i;
+      function updPray() {
+        var on = F.tags.indexOf("prayer") >= 0; ph.hidden = !on;
+        sug.hidden = on || !!sug.dataset.no || !PRAY_RX.test(ta.value || "");
+      }
+      sgb.addEventListener("click", function () { if (F.tags.indexOf("prayer") < 0) F.tags.push("prayer"); Array.prototype.forEach.call(chips.children, function (c, i) { if (JR_TAGS[i][0] === "prayer") { c.classList.add("on"); c.setAttribute("aria-pressed", "true"); } }); updPray(); });
+      chips.addEventListener("click", function () { setTimeout(updPray, 0); });
+      ta.addEventListener("input", function () { F.t = ta.value; updPray(); }); box.appendChild(ta); box.appendChild(sug); updPray();
+      box.appendChild(el("p", "note jr-tip", "Tip: tap the microphone on your keyboard to talk instead of type."));
+      var msg = el("p", "note", ""), row = el("div", "cdlg-btns"), sv = el("button", "btn", ed ? "Save changes" : "Save"), cx = el("button", "btn ghost", "Close"); sv.type = cx.type = "button";
+      sv.addEventListener("click", function () {
+        F.t = ta.value; var v = ta.value.trim(); if (!v) { msg.textContent = "Write something first."; return; } F.resumeDraft = true;
+        var prior = (state.journal || []).filter(function (y) { return y.id === (F.edit || F.jrId); })[0] || ed;
+        var x = prior ? Object.assign({}, prior, { t: v, tags: F.tags.slice(), edited: Date.now() }) : { id: jrDraftId(F), d: todayKey(), at: Number(F.jrAt), t: v, tags: F.tags.slice(), src: F.src || "pen", p: F.p || "" };
+        if (x.ans && x.tags.indexOf("prayer") < 0) delete x.ans;
+        jrAction(sv, msg, async function (attempt) {
+          await jrSave(x, attempt); F.resumeDraft = false; F.saved = x.id; F.edit = ""; F.t = ""; F.tags = []; F.p = ""; F.src = ""; openJournal();
+        });
+      });
+      cx.addEventListener("click", close);
+      row.appendChild(sv); row.appendChild(cx); box.appendChild(row); box.appendChild(msg);
+      if (ed) {
+        var smsg2 = el("p", "note", "");
+        if (myPaul()) { var sh2 = el("button", "btn ghost", "Share this entry with my Paul"); sh2.type = "button"; sh2.addEventListener("click", function () { jrShare(Object.assign({}, ed, { t: ta.value.trim() || ed.t }), smsg2); }); box.appendChild(sh2); box.appendChild(smsg2); }
+        var del = el("button", "linkish", "Delete this entry"); del.type = "button";
+        del.addEventListener("click", function () {
+          if (del.dataset.sure) { jrAction(del, msg, async function (attempt) { await jrDelete(ed.id, attempt); F.edit = ""; F.t = ""; F.tags = []; back.remove(); }); return; }
+          del.dataset.sure = "1"; del.textContent = "Tap again to delete for good";
+        });
+        box.appendChild(del);
+      }
+    }
+    back.appendChild(box); back.addEventListener("click", function (ev) { if (ev.target === back) close(); });
+    back.addEventListener("keydown", function (ev) { if (ev.key === "Escape") { ev.stopPropagation(); close(); } }); document.body.appendChild(back);
+    h.tabIndex = -1; try { h.focus({ preventScroll: true }); } catch (e) {} box.scrollTop = 0;
+  }
+  function drawJournalDevo(t) {
+    jrDevoOwner($("jr-devo-ta"));
+    var q = $("jr-devo-q"); if (!q) return; q.textContent = t.e.reflect || "";
+    var k = todayKey(), done = journalSorted().filter(function (x) { return x.d === k && x.src === "devo"; })[0], m = $("jr-devo-msg");
+    if (done && !$("jr-devo-ta").value) m.textContent = "✓ Saved to your journal today. Write more any time.";
+  }
+  function wireJournal() {
+    Array.prototype.forEach.call(document.querySelectorAll(".me-btn"), function (mb) {
+      if (mb.previousElementSibling && mb.previousElementSibling.classList.contains("jr-pen")) return;
+      var pen = el("button", "jr-pen"); pen.type = "button"; pen.setAttribute("aria-label", "New journal entry"); pen.innerHTML = PEN_SVG;
+      pen.addEventListener("click", function () { openJournal({ fresh: true }); });
+      var par = mb.parentNode;
+      if (par.classList.contains("right") || par.classList.contains("jr-hd") || par.classList.contains("help-right")) par.insertBefore(pen, mb);
+      else { var w = el("span", "jr-hd"); par.insertBefore(w, mb); w.appendChild(pen); w.appendChild(mb); }
+    });
+    $("jr-back").addEventListener("click", function () { go("today"); });
+    $("jr-new").innerHTML = PEN_SVG; $("jr-new").addEventListener("click", function () { openJournal({ fresh: true }); });
+    jrDevoOwner($("jr-devo-ta"));
+    $("jr-devo-new").addEventListener("click", function () {
+      if ($("jr-devo").dataset.jrBusy) return;
+      var ta = $("jr-devo-ta"); jrDevoOwner(ta);
+      if (!confirm("Discard this local journal draft and start a different entry? Its earlier unconfirmed save may still finish.")) return;
+      ta.value = ""; delete ta.dataset.jrId; delete ta.dataset.jrAt;
+      $("jr-devo-retry").hidden = true; $("jr-devo-msg").textContent = ""; ta.focus();
+    });
+    $("jr-devo-save").addEventListener("click", function () {
+      var ta = $("jr-devo-ta"); jrDevoOwner(ta); var v = ta.value.trim(), m = $("jr-devo-msg"); if (!v) { m.textContent = "Write something first."; ta.focus(); return; }
+      var t = devoToday(), id = jrDraftId(ta.dataset), prior = (state.journal || []).filter(function (y) { return y.id === id; })[0];
+      var x = prior ? Object.assign({}, prior, { t: v, edited: Date.now() }) : { id: id, d: todayKey(), at: Number(ta.dataset.jrAt), t: v, tags: [], src: "devo", p: t && t.e ? t.e.reflect : "" };
+      jrAction($("jr-devo-save"), m, async function (attempt) {
+        await jrSave(x, attempt); ta.value = ""; delete ta.dataset.jrId; delete ta.dataset.jrAt; $("jr-devo-retry").hidden = true;
+      }).then(function (saved) { if (saved) m.textContent = "✓ Saved to your journal. Only you can read it."; });
+    });
+  }
+  var jrUI = { tab: "all", q: "" };
+  function drawJournalPage() {
+    var body = $("jr-body"); if (!body) return;
+    var hadFocus = document.activeElement && document.activeElement.id === "jr-q", caret = hadFocus ? document.activeElement.selectionStart : 0;
+    body.textContent = "";
+    var all = journalSorted(), prayers = all.filter(function (x) { return x.ans; }), open = all.filter(function (x) { return !x.ans && (x.tags || []).indexOf("prayer") >= 0; });
+    var tabs = el("div", "jr-tabs"); tabs.setAttribute("role", "tablist");
+    [["all", "Entries"], ["pray", "Praying for · " + open.length], ["ans", "Answered · " + prayers.length]].forEach(function (tb) { var b = el("button", null, tb[1]); b.type = "button"; b.setAttribute("role", "tab"); b.setAttribute("aria-selected", jrUI.tab === tb[0] ? "true" : "false");
+      b.addEventListener("click", function () { jrUI.tab = tb[0]; drawJournalPage(); }); tabs.appendChild(b); });
+    body.appendChild(tabs);
+    var q = el("input", "field jr-search"); q.id = "jr-q"; q.type = "search"; q.placeholder = "Search your journal"; q.setAttribute("aria-label", "Search your journal"); q.value = jrUI.q;
+    q.addEventListener("input", function () { jrUI.q = q.value; drawJournalPage(); }); body.appendChild(q);
+    var ql = jrUI.q.trim().toLowerCase();
+    if (jrUI.tab === "all" && !ql) {
+      var t = new Date(todayKey() + "T12:00:00"), m1 = new Date(t), y1 = new Date(t); m1.setMonth(m1.getMonth() - 1); y1.setFullYear(y1.getFullYear() - 1);
+      var otd = null, lbl = "";
+      [[y1, "One year ago"], [m1, "One month ago"]].some(function (c) { var k = dateKeyLocal(c[0]), hit = all.filter(function (x) { return x.d === k; })[0]; if (hit) { otd = hit; lbl = c[1] + " · " + c[0].toLocaleDateString(undefined, { month: "short", day: "numeric" }); } return !!hit; });
+      if (otd) { var ob = el("button", "jr-otd"); ob.type = "button"; ob.appendChild(el("span", "jr-when", "On this day · " + lbl)); ob.appendChild(el("p", null, "“" + otd.t.replace(/\s+/g, " ").slice(0, 180) + (otd.t.length > 180 ? "…" : "") + "”"));
+        ob.addEventListener("click", function () { openJournal({ edit: otd.id }); }); body.appendChild(ob); }
+    }
+    if (jrUI.tab === "pray" && !ql) body.appendChild(el("p", "jr-ph", "Entries tagged Prayer that God hasn\u2019t answered yet. When He does, tap Mark answered."));
+    var rows = (jrUI.tab === "ans" ? prayers : jrUI.tab === "pray" ? open : all).filter(function (x) { if (!ql) return true; return (x.t + " " + (x.p || "") + " " + (x.tags || []).map(jrLabel).join(" ")).toLowerCase().indexOf(ql) >= 0; });
+    if (!rows.length) {
+      body.appendChild(el("p", "jr-empty", ql ? "Nothing matches “" + jrUI.q.trim() + "”." : jrUI.tab === "pray" ? "No open prayers. When you write one, tap the Prayer tag and it will wait here until you mark it answered." : jrUI.tab === "ans" ? "When God answers a prayer you wrote down, mark it answered and it will be kept here." : "Nothing written yet. Tap the pen at the top of any page and write about your workout, your day, your family or your faith."));
+    } else {
+      var ul = el("ul", "jr-list");
+      rows.forEach(function (x) {
+        var li = el("li", "jr-it"), ob2 = el("button", "jr-open"); ob2.type = "button";
+        ob2.appendChild(el("span", "jr-when", jrWhen(x)));
+        var txt = x.t.length > 220 ? x.t.slice(0, 220) + "…" : x.t; ob2.appendChild(el("p", null, txt));
+        ob2.setAttribute("aria-label", "Open entry from " + jrWhen(x)); ob2.addEventListener("click", function () { openJournal({ edit: x.id }); }); li.appendChild(ob2);
+        var tg = el("div", "jr-tags"); (x.tags || []).forEach(function (k) { tg.appendChild(el("span", "jr-tg", jrLabel(k))); });
+        if (x.ans) tg.appendChild(el("span", "jr-tg ans", "✓ Answered " + new Date(x.ans).toLocaleDateString(undefined, { month: "short", day: "numeric" })));
+        if ((x.tags || []).indexOf("prayer") >= 0) { var ab = el("button", "mini", x.ans ? "Undo answered" : "Mark answered"); ab.type = "button";
+          ab.addEventListener("click", function () { var latest = (state.journal || []).filter(function (entry) { return entry.id === x.id; })[0] || x; var y = Object.assign({}, latest); if (x.ans) delete y.ans; else y.ans = Date.now(); jrAction(ab, jm, async function (attempt) { await jrSave(y, attempt); }); }); var jm = el("p", "note", ""); jm.setAttribute("role", "status"); li.appendChild(jm); tg.appendChild(ab); }
+        if (tg.childNodes.length) li.appendChild(tg);
+        ul.appendChild(li);
+      });
+      body.appendChild(ul);
+    }
+    if (hadFocus) { var q2 = $("jr-q"); q2.focus(); try { q2.setSelectionRange(caret, caret); } catch (e) {} }
+  }
+  function openMentorInfo() {
+    var old = $("cdlg"); if (old) old.remove(); var back = el("div", "cdlg"); back.id = "cdlg";
+    var box = el("div", "cdlg-box nw-box men-info"); box.setAttribute("role", "dialog"); box.setAttribute("aria-modal", "true"); box.setAttribute("aria-labelledby", "mi-t");
+    box.appendChild(el("p", "fr-k", "Paul & Timothy in Scripture"));
+    var h = el("h2", null, "One man pours into another, who pours into others."); h.id = "mi-t"; box.appendChild(h);
+    box.appendChild(el("p", "mi-p", "Paul met Timothy as a young believer in Lystra and took him along on his journeys (Acts 16:1–3). He taught him, trusted him with churches, and called him his son in the faith."));
+    [["To Timothy, my true child in the faith.", "1 Timothy 1:2"],
+     ["But you know Timothy’s proven worth, how as a son with a father he has served with me in the gospel.", "Philippians 2:22"],
+     ["That is why I sent you Timothy, my beloved and faithful child in the Lord, to remind you of my ways in Christ.", "1 Corinthians 4:17"]].forEach(function (v) { var q = el("blockquote", "mem-v mi-v", v[0]); q.appendChild(el("cite", null, v[1])); box.appendChild(q); });
+    box.appendChild(el("div", "fr-h", "The charge: four generations"));
+    var q2 = el("blockquote", "mem-v mi-v mi-key", "And what you have heard from me in the presence of many witnesses entrust to faithful men, who will be able to teach others also."); q2.appendChild(el("cite", null, "2 Timothy 2:2")); box.appendChild(q2);
+    var ch = el("div", "mi-chain"); ["Paul", "Timothy", "Faithful men", "Others also"].forEach(function (t, i) { if (i) ch.appendChild(el("span", "mi-arr", "→")); ch.appendChild(el("span", "mi-gen", t)); }); box.appendChild(ch);
+    box.appendChild(el("div", "fr-h", "What it looks like here"));
+    var ul = el("ul", "mi-list");
+    [["Your Paul", "an older or further-along brother who walks with you, prays for you and asks the hard questions."],
+     ["Your Timothy", "a newer brother you walk with. You check on him, pray for him and show him the way you live."],
+     ["Every week", "make time to talk, pray together and encourage each other."],
+     ["The goal", "every Timothy becomes a Paul. Disciples who make disciples."]].forEach(function (r) { var li = el("li"); li.appendChild(el("b", null, r[0] + ": ")); li.appendChild(document.createTextNode(r[1])); ul.appendChild(li); });
+    box.appendChild(ul);
+    var q3 = el("blockquote", "mem-v mi-v", "Iron sharpens iron, and one man sharpens another."); q3.appendChild(el("cite", null, "Proverbs 27:17")); box.appendChild(q3);
+    var cl = el("button", "btn", "Got it"); cl.type = "button"; cl.addEventListener("click", function () { back.remove(); }); box.appendChild(cl);
+    back.appendChild(box); back.addEventListener("click", function (ev) { if (ev.target === back) back.remove(); });
+    back.addEventListener("keydown", function (ev) { if (ev.key === "Escape") { ev.stopPropagation(); back.remove(); } }); document.body.appendChild(back);
+    h.tabIndex = -1; try { h.focus({ preventScroll: true }); } catch (e) {} box.scrollTop = 0;
+  }
+  function drawMentorToday() {
+    var box = $("mentor-today"); if (!box) return; box.textContent = "";
+    var b = el("button", "men-empty"); b.type = "button";
+    b.appendChild(el("b", null, "Paul & Timothy"));
+    b.appendChild(el("small", null, "Learn about walking with a brother. In-app pairing and check-ins are coming later."));
+    b.addEventListener("click", function () { go("mentor"); }); box.appendChild(b);
+  }
+  function drawMentorPage() {
+    var box = $("men-body"); if (!box) return; box.textContent = "";
+    box.appendChild(el("p", "note", "In-app pairing and check-ins are paused until private access is enforced. Talk or pray with your brother directly; do not enter personal requests here."));
+    var b = el("button", "btn ghost", "Why Paul & Timothy?"); b.type = "button";
+    b.addEventListener("click", openMentorInfo); box.appendChild(b);
+  }
+  function drawOwnerPairs() {
+    var box = $("o-pairs"); if (!box) return;
+    box.textContent = "Pair management is paused until mentor records have enforced private access.";
+  }
   /* ---------- Owner tools ---------- */
   var ownerUnsub = null;
   function ownerWatch() {
@@ -10291,7 +10888,7 @@ header.hero .me-btn { border-color:#e87328; }
       btn.addEventListener("click", function () { var open = body.hidden; body.hidden = !open; btn.setAttribute("aria-expanded", String(open)); });
       head.hidden = true; sec.classList.add("set-card"); sec.appendChild(btn); sec.appendChild(body);
     });
-    ["h-s-wk", "h-s-body", "h-s-goal", "h-s-food", "h-s-owner", "h-s-tg", "h-s-rem", "h-s-health", "h-s-safe", "h-s-test", "h-s-export", "h-s-legal", "h-s-acct", "h-o-rep"].forEach(function (hid) {
+    ["h-s-wk", "h-s-body", "h-s-goal", "h-s-food", "h-s-owner", "h-s-tg", "h-s-rem", "h-s-health", "h-s-safe", "h-s-test", "h-s-export", "h-s-legal", "h-s-acct", "h-o-rep", "h-o-pairs"].forEach(function (hid) {
       var h = $(hid); if (!h) return; var sec = h.closest("section"), head = h.closest(".section-head"); if (!sec || !head) return;
       var body = el("div", "set-body"); body.id = hid + "-body"; body.hidden = true;
       while (head.nextSibling) body.appendChild(head.nextSibling);
@@ -10336,9 +10933,11 @@ header.hero .me-btn { border-color:#e87328; }
     });
     $("prof-back").addEventListener("click", function () { go(state.prevPage || "today"); });
     $("prof-gear").addEventListener("click", function () { go("settings"); });
+    $("prof-jr").addEventListener("click", function () { jrUI.tab = "all"; go("journal"); });
     $("set-back").addEventListener("click", function () { state.viewUid = state.me; go("profile"); });
     $("set-owner").addEventListener("click", function () { go("owner"); });
     $("own-back").addEventListener("click", function () { go("settings"); });
+    $("men-back").addEventListener("click", function () { go("today"); });
     $("page-settings").addEventListener("input", function (ev) {
       var f = ev.target.closest ? ev.target.closest("[data-form]") : null;
       if (f) state.dirty[f.dataset.form] = true;
@@ -10396,7 +10995,7 @@ header.hero .me-btn { border-color:#e87328; }
   function drawAll() {
     campDirty(); campWatchChecks(); campWatchTPosts();
     drawHeader(); drawCampToday(); drawToday(); drawYours(); drawFuel(); drawTrain(); drawBoard(); drawMeBtns(); drawProfile(); drawSettings();
-    drawDevo(); if (state.page === "camp") drawCampPage();
+    drawDevo(); if (state.page === "camp") drawCampPage(); drawMentorToday(); if (state.page === "mentor") drawMentorPage(); if (state.page === "owner") drawOwnerPairs();
   }
   async function loadProfiles() {
     var ids = {}; state.checks.forEach(function (c) { ids[c.uid] = true; }); state.posts.forEach(function (p) { ids[p.uid] = true; }); (state.replies || []).forEach(function (r) { ids[r.uid] = true; }); (state.ideas || []).forEach(function (r) { ids[r.uid] = true; });
@@ -10430,6 +11029,7 @@ header.hero .me-btn { border-color:#e87328; }
     $("tab-week").addEventListener("click", function () { state.range = "week"; drawBoard(); });
     $("tab-all").addEventListener("click", function () { state.range = "all"; drawBoard(); });
     $("board-sel").addEventListener("change", function (ev) { state.boardView = ev.target.value; drawBoard(); });
+    wireJournal();
     $("bd-ind").addEventListener("click", function () { if (state.boardView === "camp") { state.boardView = state.boardIndView || "kw"; drawBoard(); } });
     $("bd-camp").addEventListener("click", function () { if (state.boardView !== "camp") { state.boardIndView = state.boardView; state.boardView = "camp"; drawBoard(); } });
     wireDevo();
@@ -10536,8 +11136,9 @@ header.hero .me-btn { border-color:#e87328; }
         drawChallengeButtons(); if (state.page === "chal" && !(chalForm && chalForm.busy)) drawChallengePage(); loadProfiles();
       });
       B.watchProgress(state.me, function (rows) { state.progress = rows.map(normProg).filter(function (x) { return /^\d{4}-\d{2}-\d{2}$/.test(x.date); }); drawProgress(); drawToday(); });
-      B.watchWeights(state.me, function (m) { state.weights = normWeights(m); drawToday(); if (!$("page-train").hidden) drawWeightChart(); });
+      B.watchWeights(state.me, function (m) { state.weights = normWeights(m); drawToday(); if (!$("page-train").hidden) { drawWeightChart(); drawVolume(state.trainDay || todayKey()); } });
       if (B.watchLiftNotes) B.watchLiftNotes(state.me, function (m) { state.liftNotes = m || {}; });
+      if (B.watchJournal) B.watchJournal(state.me, function (rows) { state.journal = rows.filter(function (x) { return x && x.t; }); drawToday(); if (state.page === "journal") drawJournalPage(); });
       if (B.watchLegacy) B.watchLegacy(state.me, function (m) { state.legacy = normLegacy(m); drawToday(); var lg = $("cdlg"); if (lg && lg.dataset.k === "legacy" && !lg.contains(document.activeElement)) openLegacy(); });
       B.watchSeen(state.me, function (o) { var tm = normTeamSeen(o.team), lt = (state.seen && state.seen.team) || {}; Object.keys(lt).forEach(function (k) { tm[k] = Math.max(tm[k] || 0, lt[k] || 0); }); state.seen = { tags: Number(o.tags) || 0, rally: Math.max(Number(o.rally) || 0, Number(state.seen && state.seen.rally) || 0), team: tm }; drawTagBells(); rlBadge(); if (state.page === "team") drawTeamPage(); });
       B.watchOnboard(state.me, function (o) {

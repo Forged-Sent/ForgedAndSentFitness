@@ -22,10 +22,15 @@ class ForgedFirebaseRuntime {
   }
 
   static Future<void> connectEmulators() async {
-    const configuredProject =
-        String.fromEnvironment('FNS_FIREBASE_PROJECT', defaultValue: projectId);
-    if (!configuredProject.startsWith('demo-') || configuredProject != projectId) {
-      throw StateError('Emulator mode requires demo-forgedandsent, not a live Firebase project.');
+    const configuredProject = String.fromEnvironment(
+      'FNS_FIREBASE_PROJECT',
+      defaultValue: projectId,
+    );
+    if (!configuredProject.startsWith('demo-') ||
+        configuredProject != projectId) {
+      throw StateError(
+        'Emulator mode requires demo-forgedandsent, not a live Firebase project.',
+      );
     }
 
     final app = await Firebase.initializeApp(
@@ -45,18 +50,23 @@ class ForgedFirebaseRuntime {
     await storage.useStorageEmulator(emulatorHost, 9199);
 
     // Real round-trips against all three emulators, not only configuration.
-    final credential = await auth.signInAnonymously()
-        .timeout(const Duration(seconds: 15));
+    final credential = await auth.signInAnonymously().timeout(
+      const Duration(seconds: 15),
+    );
     final user = credential.user;
     if (user == null) {
       throw StateError('Anonymous emulator sign-in returned no user.');
     }
-    await firestore.collection('developer_smoke').doc(user.uid)
+    await firestore
+        .collection('developer_smoke')
+        .doc(user.uid)
         .get(const GetOptions(source: Source.server))
         .timeout(const Duration(seconds: 15));
     try {
-      await storage.ref('developer_smoke/${user.uid}/__healthcheck_missing__.txt')
-          .getMetadata().timeout(const Duration(seconds: 15));
+      await storage
+          .ref('developer_smoke/${user.uid}/__healthcheck_missing__.txt')
+          .getMetadata()
+          .timeout(const Duration(seconds: 15));
     } on FirebaseException catch (error) {
       if (error.code != 'object-not-found') rethrow;
     }

@@ -1,6 +1,6 @@
 # Independent agent review: beginner workflow
 
-**Start here:** Contributor setup installs only the AI coding assistants you pick (any combination, or none). Independent AI review requires a separate, independently authorized reviewer CLI and remains completely optional. Optional AI review is a second opinion for a solo maintainer, especially for Flutter database, Firebase rules, Auth, scoring and private data. It is not a required merge gate. Pick a model that did not author the change; deterministic CI and emulator tests remain required.
+**Start here:** The [functional Flutter AI gate](FLUTTER-AI-REVIEW-GATE.md) implements the maintainer's required cross-provider review policy and records its rollout status. It is separate from this optional local CLI workflow. A local report cannot satisfy the hosted check by itself. Other review scopes remain optional. Select a provider that did not author the change; deterministic CI and emulator tests remain required.
 
 ## The quick path (Windows)
 

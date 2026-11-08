@@ -23,7 +23,11 @@ class ForgedSentApp extends StatelessWidget {
 }
 
 class FoundationHomeScreen extends StatelessWidget {
-  const FoundationHomeScreen({super.key, this.mode = 'preview', this.startupError});
+  const FoundationHomeScreen({
+    super.key,
+    this.mode = 'preview',
+    this.startupError,
+  });
 
   final String mode;
   final String? startupError;
@@ -33,8 +37,8 @@ class FoundationHomeScreen extends StatelessWidget {
     final status = startupError != null
         ? 'Local emulator not available. No cloud fallback was attempted.'
         : mode == 'emulator'
-            ? 'Verified local Auth, Firestore and Storage emulators (demo-forgedandsent).'
-            : 'Preview mode. No Firebase cloud connection configured.';
+        ? 'Verified local Auth, Firestore and Storage emulators (demo-forgedandsent).'
+        : 'Preview mode. No Firebase cloud connection configured.';
 
     return Scaffold(
       appBar: AppBar(title: const Text('Forged & Sent')),
@@ -58,13 +62,18 @@ class FoundationHomeScreen extends StatelessWidget {
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 8),
-                Text(status, textAlign: TextAlign.center,
-                  style: const TextStyle(fontSize: 12)),
+                Text(
+                  status,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(fontSize: 12),
+                ),
                 if (startupError != null) ...[
                   const SizedBox(height: 12),
-                  const Text('Start the Firebase emulators and relaunch the app.',
-                    textAlign: TextAlign.center),
-                ]
+                  const Text(
+                    'Start the Firebase emulators and relaunch the app.',
+                    textAlign: TextAlign.center,
+                  ),
+                ],
               ],
             ),
           ),

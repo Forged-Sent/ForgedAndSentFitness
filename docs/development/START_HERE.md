@@ -14,7 +14,7 @@
 - Prototype-only UI and content changes need passing `ci-gate` but no
   mandatory human approval, as do Flutter and security changes. Run `python3 dev/make_preview.py`
   and inspect the generated HTML locally.
-- Flutter database, Firebase rules, Auth/privacy/scoring changes benefit from an optional independent non-author AI security review. Neither AI nor second-human approval is mandatory for this solo-maintainer project. The live ruleset requires `ci-gate` and zero approving reviews.
+- Functional Flutter/backend changes follow the [cross-provider AI review gate](FLUTTER-AI-REVIEW-GATE.md), including its staged activation status. Extra local AI reviews remain optional. The existing live protection requires `ci-gate` and zero human approvals; the new gate does not impersonate a human approval.
 - Agents use the repository root `AGENTS.md`, Claude `CLAUDE.md`, and
   matching path instructions. Agent reviews are advisory only.
 - The ruleset is active; retain required CI and protected-main safeguards. See `docs/development/REPOSITORY-SECURITY.md` for the solo workflow and live-rule verification.
@@ -38,7 +38,7 @@ For demo Firebase testing, start the three local emulators first and instead run
 - Each developer clones the public repo, uses their own workstation, opens a branch and PR.
 - GitHub Actions performs free public-repository standard-runner CI for Flutter (Android) when enabled.
 - The repo owner enables paid Copilot cloud agents and Claude/Codex partner agents through GitHub account/repository settings if available. Merely adding .agent.md files does not provision those subscriptions.
-- An independent Claude Code GitHub Action or Codex GitHub Action requires its own credentials and model billing. None are activated by this PR.
+- The proposed functional review gate uses the owner's Codex GitHub code review and a Claude subscription token in GitHub Actions. It remains disabled until its hosted checks pass; see [the review gate guide](FLUTTER-AI-REVIEW-GATE.md). AI usage can consume subscription limits.
 - Standard GitHub runners are free for public repos; large runners, excessive artifact/cache storage, cloud services and AI use are separate costs.
 - Remote app testing comes later via a Firebase DEV project and signed Android/iOS test distributions. No developer-owned Linux server is required.
 
