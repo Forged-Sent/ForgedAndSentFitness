@@ -145,8 +145,10 @@ establish an independent provider for every part; human assessment may be needed
    For each functional PASS, observe a hosted implementor comment posted or
    deduplicated before the notifier writes final exact-head `success`; confirm
    a failed comment or final status write leaves an existing pending status in
-   place; a failed initial pending write may leave the check absent. Specifically
-   test a clean native Codex review and its receipt. The known comment HTTP 403
+   place. Exercise a controlled hosted failure of the initial pending write:
+   confirm the notifier refuses to write final `success` for that head, even if
+   the check is absent. Specifically test a clean native Codex review and its
+   receipt. The known comment HTTP 403
    must be resolved before activation.
 5. Verify that new commits invalidate prior evidence, missing credentials and
    incomplete reviews block merging, and GitHub Actions app 15368 emits the status.
