@@ -2,8 +2,8 @@
 status: active
 updated: 2026-11-08
 owner: Codex coordinator / gate implementor
-stage: Review
-next_action: Independently review the maintainer-authorized scoped fix, then publish only under the agent push rule
+stage: Decision needed
+next_action: Maintainer decides whether to correct the remaining low-severity documentation wording before publication
 source_ref: codex/review-gate-acceptance
 source_sha: 1dcd366e234efa36fa8b5e7f263ae2c62c3f52d9
 profile: deep
@@ -21,6 +21,7 @@ author_providers: [openai]
 - That fix is committed locally as `813663f9c1b2107278d688a75406423711d7a42c`; the Obsidian refresh is local commit `ad44b5a`. Functional PASS now stays pending until the handoff is posted or deduplicated; then the notifier rechecks PR identity, unique head, run ownership and live native Codex evidence before final success. A failed initial pending-status write cannot be finalized by the notifier. `90` review tests, `27` policy tests, policy and knowledge checks, syntax checks, and `git diff --check` passed locally. GitHub's status API has no atomic conditional write; a residual check/write race remains. The PR-comment HTTP 403 cause is still unknown because trusted workflow code runs from `main`.
 - Independent local Claude review of `ad44b5a` returned advisory PASS with one medium and three low findings. The medium finding assumed absent `codex_evidence` might be an empty string; full source initializes it to `None` for a Claude-only run, so that failure scenario does not apply. The reviewer also could not see workflow permissions in its slice; the job running the notifier already has `statuses: write`. The maintainer authorized one scoped fix for the valid low finding and documentation gaps. Local commit `1dcd366e234efa36fa8b5e7f263ae2c62c3f52d9` now checks supersession before requiring the staged marker, with a stale/closed PR regression test. The guide, system map and ADR describe pending-until-handoff, and the activation checklist requires a hosted comment and final notifier success. `91` review tests, policy and knowledge checks, architecture index check, review dry-run and diff check passed locally. Independent review and hosted proof of this newest commit remain **NOT VERIFIED**. If the next review raises more findings, pause again for maintainer triage.
 - The [activation checklist](../../development/FLUTTER-AI-REVIEW-GATE.md#activation-checklist) remains open; do not activate ruleset 26653964 yet.
+- Independent Claude review of local head `3592e9d0b7c3519fa12c60f88ea76e4f30b4a97a` against the changes since the prior accepted full-diff review returned advisory PASS. Two full-diff attempts were rejected by the runner as incomplete, so this accepted review covers the scoped fix only; the earlier accepted review covers its predecessor. One new low finding is valid: the guide, system map and ADR should say that if the *initial* pending-status write fails, the check may be absent rather than pending; final success remains blocked. The other low finding requested an open-current-PR missing-marker regression that already exists in `test_unstaged_or_rebound_handoff_cannot_finalize_success` and passed with the rest of the suite. The maintainer's one-cycle instruction pauses further edits for human triage. No new local commit has been pushed, and hosted proof remains **NOT VERIFIED**.
 
 ## Earlier session checkpoint (superseded)
 
