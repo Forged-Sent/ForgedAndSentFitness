@@ -2,8 +2,8 @@
 status: active
 updated: 2026-11-08
 owner: Codex coordinator / gate implementor
-stage: Review
-next_action: Complete non-author review of local fix, recover required CI, then publish under the agent push rule
+stage: Decision needed
+next_action: Maintainer triages remaining low-severity Claude findings before another code pass or publication
 source_ref: codex/review-gate-acceptance
 source_sha: 813663f9c1b2107278d688a75406423711d7a42c
 profile: deep
@@ -16,10 +16,11 @@ author_providers: [openai]
 ## Current status — November 8
 
 - [PR #46](https://github.com/Forged-Sent/ForgedAndSentFitness/pull/46) is open at `13dfa2d863f033fe3556b2793d28b2b32b365f1f`. Review threads were closed when checked. The separate Functional Flutter AI review ruleset remains **disabled**.
-- The current head's `ci-gate` is red after three Android jobs received external HTTP 504 responses while downloading Gradle or Kotlin artifacts. Its policy, tests, web build and iOS jobs passed on at least one attempt; the Android build has not passed on this head. Do not merge until required CI is green.
+- The current head's `ci-gate` passed on its fourth attempt after three Android jobs received external HTTP 504 responses while downloading Gradle or Kotlin artifacts. GitHub still reports `flutter-ai-review` failed on this remote head. The local two-phase fix has not been published or tested in hosted Actions.
 - Hosted Claude review on the remote head failed to produce valid evidence in the initial run and one full retry. A local independent Claude review of that head returned PASS with a medium finding in the handoff fallback and low findings on status race, diagnostic wording and stale notes. The maintainer authorized **one additional scoped fix** after the implementor paused under the one-fix-cycle rule.
-- That fix is committed locally as `813663f9c1b2107278d688a75406423711d7a42c`. Functional PASS now stays pending until the handoff is posted or deduplicated; then the notifier rechecks PR identity, unique head, run ownership and live native Codex evidence before final success. A failed initial pending-status write cannot be finalized by the notifier. `90` review tests, `27` policy tests, policy and knowledge checks, syntax checks, and `git diff --check` passed locally. Separate review and hosted proof are **NOT VERIFIED** on this new commit. GitHub's status API has no atomic conditional write; a residual check/write race remains. The PR-comment HTTP 403 cause is still unknown because trusted workflow code runs from `main`.
-- Obsidian `CURRENT.md` and `WORK.md` are being refreshed so they point to this PR and its real blocker. The [activation checklist](../../development/FLUTTER-AI-REVIEW-GATE.md#activation-checklist) remains open; do not activate ruleset 26653964 yet.
+- That fix is committed locally as `813663f9c1b2107278d688a75406423711d7a42c`; the Obsidian refresh is local commit `ad44b5a`. Functional PASS now stays pending until the handoff is posted or deduplicated; then the notifier rechecks PR identity, unique head, run ownership and live native Codex evidence before final success. A failed initial pending-status write cannot be finalized by the notifier. `90` review tests, `27` policy tests, policy and knowledge checks, syntax checks, and `git diff --check` passed locally. GitHub's status API has no atomic conditional write; a residual check/write race remains. The PR-comment HTTP 403 cause is still unknown because trusted workflow code runs from `main`.
+- Independent local Claude review of `ad44b5a` returned advisory PASS with one medium and three low findings. The medium finding assumed absent `codex_evidence` might be an empty string; full source initializes it to `None` for a Claude-only run, so that failure scenario does not apply. The reviewer also could not see workflow permissions in its slice; the job running the notifier already has `statuses: write`. The low finding that superseded runs without a staged marker can now fail noisily is valid. The architecture/guide wording and activation checklist also need to reflect pending-until-handoff and require a hosted comment plus final notifier success. Per the maintainer's one-cycle instruction, implementation is paused for human triage; no second automatic correction is authorized. Hosted proof on these local commits remains **NOT VERIFIED**.
+- The [activation checklist](../../development/FLUTTER-AI-REVIEW-GATE.md#activation-checklist) remains open; do not activate ruleset 26653964 yet.
 
 ## Earlier session checkpoint (superseded)
 
