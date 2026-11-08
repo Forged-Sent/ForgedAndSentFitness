@@ -1,26 +1,24 @@
 # Current project state
 
-Curated 2026-11-05. Orientation, not live CI or accepted product policy. Read [WORK](WORK.md) next; [HISTORY](HISTORY.md) is reference only.
+Curated 2026-11-07 (Phoenix; GitHub merge timestamps are November 8 UTC). This is orientation, not a live GitHub mirror. Read [WORK](WORK.md) next; use [HISTORY](HISTORY.md) only for a specific past decision or regression.
 
 ## Verified baseline
 
-- Audited main `60b9f5de11b1a1074b921ee26ae68fb3c3e7228d` is the PR #4 merge: Flutter shell, demo Firebase wiring/rules tests, onboarding, architecture tools and CI. Production features/durable workout persistence remain unimplemented at that baseline.
-- Prototype source matched main; audit was static, with no browser/Artifact/native test.
-- Live reads in this organization task: #26 head `1c6160c368466d9c5ea814f9c5a1454fffa7fcdb` and #30 head `1ef8ce67ae15f78801e234f71aaad20511a9c913` are open **non-draft**. #30 stacks on #26. Current CI was not rechecked here.
-- Dashboard/archive/coordinator updates were prepared from #30's head for publication to that existing PR, authorized by the user November 5. Check the live PR for the published head and CI; this note does not claim the PR is merged.
+- [PR #30](https://github.com/Forged-Sent/ForgedAndSentFitness/pull/30) merged the repository-backed Obsidian workspace and agent handoffs. The cross-origin Atlas preview finding was fixed and its review thread resolved. Open `docs/` as its own Obsidian vault; its visual rendering and a friend's first-use walkthrough remain **NOT VERIFIED**.
+- [PR #43](https://github.com/Forged-Sent/ForgedAndSentFitness/pull/43) merged the trusted Dependabot review route, and [PR #44](https://github.com/Forged-Sent/ForgedAndSentFitness/pull/44) fixed a timestamp precision bug found during hosted validation. [PR #42](https://github.com/Forged-Sent/ForgedAndSentFitness/pull/42) was the first real Dependabot PR to receive a clean exact-head Codex gate status; it merged after `ci-gate` passed.
+- The separate `Functional Flutter AI review` ruleset remains **disabled**. Its status producer has passed a real Codex route, but hosted acceptance is incomplete. PR handoff comments failed with GitHub HTTP 403 on `POST issues/{PR}/comments` despite the publish job declaring `issues: write`. A failed first Dependabot dispatch can still require a maintainer retry. See the [gate handoff](handoffs/flutter-ai-review-gate.md).
+- The production mobile client is still a Flutter scaffold. CI builds temporary native hosts; reviewed Android/iOS hosts, a durable local workout store, a production Firebase project and user-facing feature slices have not been committed.
 
-## Decisions
+## Accepted direction and decisions still needed
 
-**Confirmed by the user November 5:** dedicated repository-backed Obsidian vault for organization/history and fast agent startup. This follows #30's `docs/` vault convention. Current notes come first; archives answer specific historical questions.
+The user chose a repository-backed Obsidian vault, current-first notes, history on demand, and task-dependent coordinators with separate implementers and reviewers. The [agent workspace](AGENT-WORKSPACE.md) and task-coordinator skill describe this process. Embedded agent dispatch from Obsidian is **NOT VERIFIED**.
 
-**Also confirmed:** multiple possible orchestrators selected by task, with agents handling implementation/review. The [routing workflow](AGENT-WORKSPACE.md#coordinator-routing) supports Astra/Opus and Sol/Sonnet candidate families; exact availability is checked per session. The user label Open remains unresolved, not a guessed model. The new task-coordinator skill implements the session procedure; embedded Obsidian dispatch remains a separate unverified integration.
+Before app runtime work, the maintainer still needs to choose the state management, navigation and durable local persistence dependencies, then record the choice in an ADR. Riverpod, go_router and Drift are proposals, not approvals. The first small feature candidate is owner-only devotional/workout completion with a fake repository, followed by locally durable events and idempotent sync. Firebase DEV and group authorization come after that boundary is tested.
 
-**Still proposed:** Riverpod + go_router + Drift; Android/iOS production with web preview; owner-only durable devotional completion first. Existing ADR-0001/0002 establish Flutter/Firebase direction, not these additional approvals. The historical blueprint provides rationale/packages, not approval.
+## Next actions
 
-## Next actions and limits
+1. Finish the [hosted review gate](handoffs/flutter-ai-review-gate.md): diagnose the handoff-comment 403, test failure/retry cases, and activate the disabled ruleset only after the acceptance checklist passes.
+2. Run the Obsidian first-use pilot with the maintainer and nontechnical collaborator; record confusing navigation or missing handoff fields in the [workspace handoff](handoffs/obsidian-current-and-history.md).
+3. Decide the client stack and first feature contract; then commit reviewed Android/iOS hosts and build one offline-first Flutter vertical slice. [WORK](WORK.md) tracks owners and blockers.
 
-Review this task's [handoff](handoffs/obsidian-current-and-history.md); integrate #26/#30 and record the three decisions before runtime work. Verify actual branch/main/PR checks at every task start; snapshots cannot authorize pushes/releases.
-
-PR #4 physical onboarding was maintainer-reported; device round-trip and some launcher/MCP checks remained NOT VERIFIED. No production Firebase/security model is certified. Claude was installed but unauthenticated during the audit. Connected Obsidian MCP pointed to a personal vault, so no project writes used it.
-
-Coordinator updates this page for changed milestones/decisions/blockers/evidence. Detailed task state stays in WORK/handoffs. This task adds no runtime feature, cloud login, deployment or paid service.
+GitHub checks, PR threads and repository rules must be read live before any push or merge. This page does not grant approval or certify integrations that have not been exercised.
