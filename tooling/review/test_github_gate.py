@@ -346,7 +346,8 @@ class GateTests(unittest.TestCase):
             self.assertEqual(result["native_review"]["outcome"], "clean")
             with patch.dict(os.environ, {"GITHUB_STEP_SUMMARY": str(work / "summary.md")}):
                 gate.publish(work, api, "success")
-            self.assertEqual(api.posted[-1][1], "success")
+            self.assertEqual(api.posted[-1][1], "pending")
+            self.assertEqual(gate.load(work / "summary.json")["state"], "success")
             self.assertTrue(api.posted[-1][2].startswith("codex-evidence=" +
                 gate.digest(result["native_review"]["evidence_ids"])[:16]))
 
@@ -373,7 +374,8 @@ class GateTests(unittest.TestCase):
             self.assertTrue(gate.validate_results(payload, [result], api))
             with patch.dict(os.environ, {"GITHUB_STEP_SUMMARY": str(work / "summary.md")}):
                 gate.publish(work, api, "success")
-            self.assertEqual(api.posted[-1][1], "success")
+            self.assertEqual(api.posted[-1][1], "pending")
+            self.assertEqual(gate.load(work / "summary.json")["state"], "success")
             self.assertTrue(api.posted[-1][2].startswith("codex-evidence=" + gate.digest(["review:42"])[:16]))
             api.native_comments = [{"id": 1, "body": "fix this"}]
             with self.assertRaises(gate.GateError):
@@ -563,6 +565,36 @@ class GateTests(unittest.TestCase):
             with patch.dict(os.environ, {"GITHUB_STEP_SUMMARY": str(work / "summary.md")}):
                 gate.publish(work, api, "skipped")
             self.assertEqual(api.posted[-1][1], "success")
+
+    def test_functional_claude_pass_stays_pending_for_handoff(self):
+        payload, result = sample()
+        with tempfile.TemporaryDirectory() as tmp:
+            work = Path(tmp)
+            gate.save(work / "input.json", payload)
+            gate.save(work / "result-claude.json", result)
+            api = FakeGitHub(payload["identity"])
+            with patch.dict(os.environ, {"GITHUB_STEP_SUMMARY": str(work / "summary.md")}):
+                gate.publish(work, api, "success")
+            self.assertEqual(gate.load(work / "summary.json")["state"], "success")
+            self.assertEqual(api.posted[-1][1], "pending")
+            self.assertIn("posting implementor handoff", api.posted[-1][2])
+            self.assertEqual(gate.load(work / "summary.json")["handoff_status_staged"],
+                             gate.handoff_marker(payload["identity"], payload["binding"]))
+
+    def test_failed_pending_status_write_never_stages_success_handoff(self):
+        payload, result = sample()
+        with tempfile.TemporaryDirectory() as tmp:
+            work = Path(tmp)
+            gate.save(work / "input.json", payload)
+            gate.save(work / "result-claude.json", result)
+            api = FakeGitHub(payload["identity"])
+            with patch.object(api, "status", side_effect=gate.GateError("Status API unavailable")), \
+                    patch.dict(os.environ, {"GITHUB_STEP_SUMMARY": str(work / "summary.md")}), \
+                    self.assertRaisesRegex(gate.GateError, "Status API unavailable"):
+                gate.publish(work, api, "success")
+            summary = gate.load(work / "summary.json")
+            self.assertEqual(summary["state"], "success")
+            self.assertNotIn("handoff_status_staged", summary)
 
     def test_shared_head_cannot_publish_docs_only_success_over_functional_pr(self):
         payload, _ = sample()

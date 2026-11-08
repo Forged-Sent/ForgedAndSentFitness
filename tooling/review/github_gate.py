@@ -74,9 +74,10 @@ def github_http_diagnostic(error: urllib.error.HTTPError) -> str:
 
 
 def cli_failure_category(stderr: str) -> str:
-    """Classify Claude's failure without emitting stderr or model content."""
-    # Match CLI error lines rather than arbitrary words in echoed prompt data.
-    # Conflicting error lines are unclassified instead of relying on precedence.
+    """Return a fixed advisory hint; stderr may echo untrusted patch text."""
+    # Hints never affect the review verdict. A forged CLI-like line in stderr
+    # may alter the hint, but no raw provider or patch text reaches artifacts.
+    # Conflicting error lines are unclassified instead of using precedence.
     patterns = {
         "authentication rejected": r"^(?:failed to authenticate\b|oauth token revoked\b|api error:\s*401\b|authentication_error\b)",
         "usage or rate limit": r"^api error:\s*429\b",
@@ -91,6 +92,11 @@ def cli_failure_category(stderr: str) -> str:
 
 def digest(value: object) -> str:
     return hashlib.sha256(json.dumps(value, sort_keys=True).encode()).hexdigest()
+
+
+def handoff_marker(snapshot: dict, binding: str) -> str:
+    """Bind a successfully staged handoff status to this review snapshot."""
+    return digest({"identity": snapshot, "binding": binding})
 
 
 def load(path: Path) -> dict:
@@ -615,15 +621,27 @@ def publish(work: Path, api: GitHub, job_result: str) -> None:
             state, message = "failure", str(error)
     summary = {"identity": snapshot, "policy_sha": payload["policy_sha"],
                "binding": payload["binding"], "state": state, "message": message,
-               "providers": results}
+               "providers": results, "codex_evidence": codex_evidence}
     save(work / "summary.json", summary)
     with open(os.environ["GITHUB_STEP_SUMMARY"], "a", encoding="utf-8") as out:
         out.write(f"## Flutter AI review\n\n{message}\n\nHead: `{snapshot['head']}`\n\n")
         out.write("Full structured findings and model limitations are in the review-summary artifact.\n")
+    # A functional PASS stays pending until its required PR handoff is posted.
+    # The notifier performs the last identity/ownership checks before success.
+    # A failed notification cannot green the status; the final status write
+    # still has the usual GitHub API acknowledgement and ownership race.
+    status_state = "pending" if state == "success" and payload["paths"] else state
+    status_message = ("Review complete; posting implementor handoff"
+                      if status_state == "pending" and state == "success" else message)
     # Recheck run ownership immediately before publication to avoid stale-run overwrite.
     if api.owns_status(snapshot["head"]):
-        description = (f"codex-evidence={codex_evidence} " if codex_evidence else "") + message
-        api.status(snapshot["head"], state, description)
+        description = (f"codex-evidence={codex_evidence} " if codex_evidence else "") + status_message
+        api.status(snapshot["head"], status_state, description)
+        if status_state == "pending" and state == "success":
+            # notify runs even if this step fails. Its success path must have
+            # evidence that the blocking status write actually completed.
+            summary["handoff_status_staged"] = handoff_marker(snapshot, payload["binding"])
+            save(work / "summary.json", summary)
     if state == "pending":
         return
     if state != "success":

@@ -2,6 +2,7 @@
 from pathlib import Path
 import tempfile
 import unittest
+from unittest.mock import patch
 
 import github_gate as gate
 from notify_implementor import GITHUB_ACTIONS_BOT_ID, notify
@@ -21,6 +22,10 @@ class FakeAPI:
         self.post_error = False
         self.get_error = False
         self.supersede_on_post = False
+        self.supersede_after_post = False
+        self.change_head_after_post = False
+        self.status_error = False
+        self.unique = True
 
     def owns_status(self, head):
         return self.owns
@@ -36,36 +41,46 @@ class FakeAPI:
             comment = {**body, "user": {"id": GITHUB_ACTIONS_BOT_ID,
                                         "login": "github-actions[bot]"}}
             self.comments.append(comment)
+            if self.supersede_after_post:
+                self.owns = False
+            if self.change_head_after_post:
+                self.pr["head"]["sha"] = "c" * 40
             return comment
         if self.get_error and path.startswith("issues/"):
             raise gate.GateError("GitHub API returned HTTP 403")
         return self.comments
 
     def status(self, head, state, description):
+        if self.status_error:
+            raise gate.GateError("Status API unavailable")
         self.statuses.append((head, state, description))
+
+    def assert_unique_open_pr(self, head, number):
+        if not self.unique:
+            raise gate.GateError("Commit shared by multiple open PRs")
 
 
 class NotifyTests(unittest.TestCase):
-    def test_failed_required_handoff_revokes_owned_green_status(self):
+    def test_failed_required_handoff_leaves_pending_status(self):
         snapshot = {"pr": 7, "head": "a" * 40, "base": "b" * 40,
                     "base_ref": "main", "draft": False, "labels": ["authorship:codex"]}
         summary = {"identity": snapshot, "binding": "receipt", "state": "success",
+                   "handoff_status_staged": gate.handoff_marker(snapshot, "receipt"),
                    "message": "PASS", "providers": [{"provider": "claude", "results": []}]}
         with tempfile.TemporaryDirectory() as directory:
             work = Path(directory)
             gate.save(work / "summary.json", summary)
             api = FakeAPI(snapshot)
+            api.statuses = [(snapshot["head"], "pending", "Review complete; posting handoff")]
             api.post_error = True
             with self.assertRaises(gate.GateError):
                 notify(work, api)
-            self.assertEqual(api.statuses, [(snapshot["head"], "failure",
-                "Review handoff failed; inspect this workflow run")])
+            self.assertEqual(api.statuses[-1][1], "pending")
             self.assertEqual(api.comments, [])
-            api.statuses.clear()
             api.supersede_on_post = True
             with self.assertRaises(gate.GateError):
                 notify(work, api)
-            self.assertEqual(api.statuses, [])
+            self.assertEqual(api.statuses[-1][1], "pending")
 
             api.owns = True
             api.supersede_on_post = False
@@ -73,8 +88,146 @@ class NotifyTests(unittest.TestCase):
             api.get_error = True
             with self.assertRaises(gate.GateError):
                 notify(work, api)
-            self.assertEqual(api.statuses, [(snapshot["head"], "failure",
-                "Review handoff failed; inspect this workflow run")])
+            self.assertEqual(api.statuses[-1][1], "pending")
+
+    def test_success_requires_delivered_handoff_and_current_unique_head(self):
+        snapshot = {"pr": 7, "head": "a" * 40, "base": "b" * 40,
+                    "base_ref": "main", "draft": False, "labels": ["authorship:codex"]}
+        summary = {"identity": snapshot, "binding": "receipt", "state": "success",
+                   "handoff_status_staged": gate.handoff_marker(snapshot, "receipt"),
+                   "message": "PASS: claude reviewed this exact diff",
+                   "providers": [{"provider": "claude", "results": []}]}
+        with tempfile.TemporaryDirectory() as directory:
+            work = Path(directory)
+            gate.save(work / "summary.json", summary)
+            api = FakeAPI(snapshot)
+            notify(work, api)
+            self.assertEqual(len(api.comments), 1)
+            self.assertEqual(api.statuses, [(snapshot["head"], "success", summary["message"])])
+            api.statuses.clear()
+            notify(work, api)  # The existing bot handoff is sufficient on retry.
+            self.assertEqual(len(api.comments), 1)
+            self.assertEqual(api.statuses[-1][1], "success")
+            for flag in ("supersede_after_post", "change_head_after_post"):
+                api = FakeAPI(snapshot)
+                setattr(api, flag, True)
+                notify(work, api)
+                self.assertEqual(api.statuses, [])
+            api = FakeAPI(snapshot)
+            api.unique = False
+            with self.assertRaisesRegex(gate.GateError, "shared"):
+                notify(work, api)
+            self.assertEqual(api.statuses, [])
+
+    def test_final_status_failure_or_malformed_summary_never_succeeds(self):
+        snapshot = {"pr": 7, "head": "a" * 40, "base": "b" * 40,
+                    "base_ref": "main", "draft": False, "labels": ["authorship:codex"]}
+        summary = {"identity": snapshot, "binding": "receipt", "state": "success",
+                   "handoff_status_staged": gate.handoff_marker(snapshot, "receipt"),
+                   "message": "PASS", "providers": [{"provider": "claude", "results": []}]}
+        with tempfile.TemporaryDirectory() as directory:
+            work = Path(directory)
+            gate.save(work / "summary.json", summary)
+            api = FakeAPI(snapshot)
+            api.status_error = True
+            with self.assertRaisesRegex(gate.GateError, "Status API unavailable"):
+                notify(work, api)
+            self.assertEqual(api.statuses, [])
+            gate.save(work / "summary.json", {"state": "success", "providers": [{}]})
+            with self.assertRaises(KeyError):
+                notify(work, FakeAPI(snapshot))
+
+    def test_unstaged_or_rebound_handoff_cannot_finalize_success(self):
+        snapshot = {"pr": 7, "head": "a" * 40, "base": "b" * 40,
+                    "base_ref": "main", "draft": False, "labels": ["authorship:codex"]}
+        summary = {"identity": snapshot, "binding": "receipt", "state": "success",
+                   "message": "PASS", "providers": [{"provider": "claude", "results": []}]}
+        with tempfile.TemporaryDirectory() as directory:
+            work = Path(directory)
+            api = FakeAPI(snapshot)
+            altered_identity = {**snapshot, "base": "c" * 40}
+            for marker in (None, gate.handoff_marker(snapshot, "different"),
+                           gate.handoff_marker(altered_identity, "receipt")):
+                summary["handoff_status_staged"] = marker
+                gate.save(work / "summary.json", summary)
+                with self.assertRaisesRegex(gate.GateError, "no staged pending status"):
+                    notify(work, api)
+            self.assertEqual(api.comments, [])
+            self.assertEqual(api.statuses, [])
+
+    def test_codex_success_keeps_exact_evidence_prefix(self):
+        snapshot = {"pr": 7, "head": "a" * 40, "base": "b" * 40,
+                    "base_ref": "main", "draft": False, "labels": ["authorship:claude"]}
+        evidence_ids = ["review:42"]
+        evidence = gate.digest(evidence_ids)[:16]
+        summary = {"identity": snapshot, "binding": "receipt", "state": "success",
+                   "handoff_status_staged": gate.handoff_marker(snapshot, "receipt"),
+                   "message": "PASS: codex reviewed this exact diff", "codex_evidence": evidence,
+                   "providers": [{"provider": "codex", "results": []}]}
+        with tempfile.TemporaryDirectory() as directory:
+            work = Path(directory)
+            gate.save(work / "summary.json", summary)
+            api = FakeAPI(snapshot)
+            with patch("notify_implementor.codex_review", return_value={
+                    "outcome": "clean", "evidence_ids": evidence_ids}) as receipt:
+                notify(work, api)
+            self.assertEqual(receipt.call_count, 2)
+            self.assertTrue(api.statuses[-1][2].startswith("codex-evidence=" + evidence))
+            api.statuses.clear()
+            summary.pop("codex_evidence")
+            gate.save(work / "summary.json", summary)
+            with self.assertRaisesRegex(gate.GateError, "Missing or malformed native Codex"):
+                notify(work, FakeAPI(snapshot))
+
+    def test_changed_codex_receipt_blocks_handoff_before_comment(self):
+        snapshot = {"pr": 7, "head": "a" * 40, "base": "b" * 40,
+                    "base_ref": "main", "draft": False, "labels": ["authorship:claude"]}
+        evidence_ids = ["review:42"]
+        summary = {"identity": snapshot, "binding": "receipt", "state": "success",
+                   "handoff_status_staged": gate.handoff_marker(snapshot, "receipt"),
+                   "message": "PASS: codex reviewed this exact diff",
+                   "codex_evidence": gate.digest(evidence_ids)[:16],
+                   "providers": [{"provider": "codex", "results": []}]}
+        with tempfile.TemporaryDirectory() as directory:
+            work = Path(directory)
+            gate.save(work / "summary.json", summary)
+            for live in ({"outcome": "ambiguous", "evidence_ids": evidence_ids},
+                         {"outcome": "changes_required", "evidence_ids": evidence_ids},
+                         {"outcome": "clean", "evidence_ids": ["review:43"]}):
+                api = FakeAPI(snapshot)
+                with patch("notify_implementor.codex_review", return_value=live), \
+                        self.assertRaisesRegex(gate.GateError, "Native Codex review evidence changed"):
+                    notify(work, api)
+                self.assertEqual(api.comments, [])
+                self.assertEqual(api.statuses, [])
+            api = FakeAPI(snapshot)
+            with patch("notify_implementor.codex_review",
+                       side_effect=gate.NativeReviewPending("Waiting for native Codex")), \
+                    self.assertRaises(gate.NativeReviewPending):
+                notify(work, api)
+            self.assertEqual(api.comments, [])
+            self.assertEqual(api.statuses, [])
+
+    def test_codex_receipt_changed_after_handoff_still_blocks_final_success(self):
+        snapshot = {"pr": 7, "head": "a" * 40, "base": "b" * 40,
+                    "base_ref": "main", "draft": False, "labels": ["authorship:claude"]}
+        evidence_ids = ["review:42"]
+        summary = {"identity": snapshot, "binding": "receipt", "state": "success",
+                   "handoff_status_staged": gate.handoff_marker(snapshot, "receipt"),
+                   "message": "PASS: codex reviewed this exact diff",
+                   "codex_evidence": gate.digest(evidence_ids)[:16],
+                   "providers": [{"provider": "codex", "results": []}]}
+        with tempfile.TemporaryDirectory() as directory:
+            work = Path(directory)
+            gate.save(work / "summary.json", summary)
+            api = FakeAPI(snapshot)
+            with patch("notify_implementor.codex_review", side_effect=[
+                    {"outcome": "clean", "evidence_ids": evidence_ids},
+                    {"outcome": "changes_required", "evidence_ids": evidence_ids}]), \
+                    self.assertRaisesRegex(gate.GateError, "Native Codex review evidence changed"):
+                notify(work, api)
+            self.assertEqual(len(api.comments), 1)
+            self.assertEqual(api.statuses, [])
 
     def test_docs_success_and_pending_do_not_write_handoff_status(self):
         snapshot = {"pr": 7, "head": "a" * 40, "base": "b" * 40,
@@ -141,6 +294,7 @@ class NotifyTests(unittest.TestCase):
         snapshot = {"pr": 7, "head": "a" * 40, "base": "b" * 40,
                     "base_ref": "main", "draft": False, "labels": ["authorship:codex"]}
         summary = {"identity": snapshot, "binding": "receipt", "state": "success",
+            "handoff_status_staged": gate.handoff_marker(snapshot, "receipt"),
             "message": "PASS: claude reviewed this exact diff", "providers": [{"provider": "claude",
             "results": [{"review": {"findings": [{"severity": "medium", "path": "mobile/lib/main.dart", "line": 9}]}}]}]}
         with tempfile.TemporaryDirectory() as directory:
