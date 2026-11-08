@@ -44,6 +44,8 @@ flowchart TB
 
 **Direction:** UI depends on view models, view models on repositories (and optional use cases), repositories on data sources. Firebase SDK types stay out of views and domain interfaces. Local durable events precede an offline action being represented as safely saved. All group authorization and score authority are enforced on trusted backends.
 
+**Accepted client stack (not yet implemented):** [ADR-0005](ADR-0005-flutter-client-stack.md) selects Riverpod for presentation state and composition, go_router for navigation, and Drift/native SQLite for the durable local event store. These packages are not yet in `mobile/pubspec.yaml`; the planned diagram does not imply working storage or sync.
+
 ## Engineering and review pipeline
 
 ```mermaid

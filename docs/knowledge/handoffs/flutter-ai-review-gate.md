@@ -2,10 +2,10 @@
 status: active
 updated: 2026-11-08
 owner: Codex coordinator / gate implementor
-stage: Decision needed
-next_action: Maintainer triages the new low-severity activation-checklist finding before publication
-source_ref: codex/review-gate-acceptance
-source_sha: 1dcd366e234efa36fa8b5e7f263ae2c62c3f52d9
+stage: Ready
+next_action: Maintainer first-pushes the local hosted-acceptance branch; coordinator then opens a PR and checks hosted results
+source_ref: codex/review-gate-hosted-acceptance
+source_sha: 7b57daa1a1b2953e2fbc887665ce8327f1081bc6
 profile: deep
 coordinator_model: gpt-6 (host family; exact variant unavailable)
 coordinator_provider: openai
@@ -14,6 +14,10 @@ author_providers: [openai]
 # Functional Flutter AI review gate
 
 ## Current status — November 8
+
+- [PR #46](https://github.com/Forged-Sent/ForgedAndSentFitness/pull/46) merged at `61e1b7d73e7ad58d75b29e70f13bc768e96430ca` after required `ci-gate` passed. The Functional Flutter AI review ruleset remains **disabled**. A separate local branch, `codex/review-gate-hosted-acceptance` in `C:\ws_c\ForgedAndSentFitness-gate-hosted`, has four commits through `7b57daa` for integrated publish/notify tests and acceptance notes. Ninety-three review tests and policy/knowledge/diff checks passed locally. Its first Claude review lows received one fix pass; a second Claude review passed with three new low comments. The maintainer accepted those as follow-up and chose to make this branch's first push. No hosted acceptance result exists yet. The next action is a maintainer first push, followed by a PR and live check of notification failure/retry behavior; do not activate the ruleset before the full checklist passes.
+
+### Earlier PR #46 snapshots (superseded)
 
 - [PR #46](https://github.com/Forged-Sent/ForgedAndSentFitness/pull/46) is open at `13dfa2d863f033fe3556b2793d28b2b32b365f1f`. Review threads were closed when checked. The separate Functional Flutter AI review ruleset remains **disabled**.
 - The current head's `ci-gate` passed on its fourth attempt after three Android jobs received external HTTP 504 responses while downloading Gradle or Kotlin artifacts. GitHub still reports `flutter-ai-review` failed on this remote head. The local two-phase fix has not been published or tested in hosted Actions.

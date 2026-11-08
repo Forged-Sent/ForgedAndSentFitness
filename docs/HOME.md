@@ -13,6 +13,7 @@ Open this page first. Git versions this shared project memory; Obsidian provides
 | Specify/review a feature | [Feature contracts](features/README.md) |
 | Find historical evidence or rationale | [History index](knowledge/HISTORY.md), on demand |
 | Set up a workstation | [Start here](development/START_HERE.md) |
+| Start Flutter work with Claude CLI | [Flutter CLI guide](development/FLUTTER-CLAUDE-CLI.md) |
 | Open prototype/Architecture Atlas | [Workspace guide](development/KNOWLEDGE-WORKSPACE.md) |
 
 ## Human routine
