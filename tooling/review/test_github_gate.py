@@ -516,6 +516,15 @@ class GateTests(unittest.TestCase):
                 gate.prepare(Path(tmp), Path(tmp), 7, api)
         self.assertIn("authorship:", api.posted[-1][2])
 
+    def test_stale_scheduled_head_does_not_change_current_head_status(self):
+        payload, _ = sample()
+        api = FakeGitHub(payload["identity"])
+        with tempfile.TemporaryDirectory() as tmp, patch.dict(os.environ, {
+                "REVIEW_EXPECTED_HEAD": "b" * 40}):
+            with self.assertRaisesRegex(gate.GateError, "head changed"):
+                gate.prepare(Path(tmp), Path(tmp), 7, api)
+        self.assertEqual(api.posted, [])
+
     def test_prepare_timeout_publishes_failure(self):
         payload, _ = sample()
         api = FakeGitHub(payload["identity"])

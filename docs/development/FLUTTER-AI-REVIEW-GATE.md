@@ -81,8 +81,10 @@ establish an independent provider for every part; human assessment may be needed
   does not waive evidence or treat a bot review as a human approval.
 - The first bot review can wait up to one scheduler interval for a pending
   status. If a dispatched run completes without ever posting status, the
-  scheduler stops automatic retries for that PR; a maintainer inspects the run
-  and uses Run workflow to retry. This also avoids repeated paid attempts.
+  scheduler stops automatic retries for that exact PR head; a maintainer
+  inspects the run and uses Run workflow to retry. A Dependabot rebase produces
+  a new head and receives a new review. The dispatch carries the expected SHA;
+  a stale queued run cannot mark the replacement head as reviewed.
 - Scheduled dispatches run as GitHub Actions on the default branch and can
   initiate the already-classified review; human dispatches still require a
   repository collaborator. This schedule-to-dispatch path must be checked live
@@ -106,9 +108,10 @@ establish an independent provider for every part; human assessment may be needed
   its author with the result and a link to the evidence. The author hands findings
   to the declared Codex or Claude implementor session. A local agent session is
   not awakened by a GitHub comment; automatic fix pushes are not enabled. The
-  first hosted runs published statuses but the handoff POST failed with HTTP 403.
-  The publisher now grants pull-request write permission as well as issue write;
-  this notification path remains unverified until a hosted rerun posts a comment.
+  first hosted runs published statuses but the handoff request failed with HTTP
+  403. The existing `issues: write` permission is documented by GitHub for issue
+  comments; the publisher logs the failed endpoint for diagnosis. This
+  notification path remains unverified until a hosted rerun posts a comment.
 - The implementor addresses the first review's findings once. If a later review
   on a new head still has findings, the handoff directs the implementor to pause
   for maintainer review instead of starting another fix cycle.

@@ -1,5 +1,5 @@
 name: Functional Flutter AI review
-run-name: "Flutter AI review ${{ github.event_name == 'schedule' && 'reconcile' || format('PR #{0}', github.event.pull_request.number || inputs.pr) }}"
+run-name: "Flutter AI review ${{ github.event_name == 'schedule' && 'reconcile' || format('PR #{0}{1}', github.event.pull_request.number || inputs.pr, inputs.head && format(' head {0}', inputs.head) || '') }}"
 on:
   pull_request_target:
     types: [opened, synchronize, reopened, ready_for_review, converted_to_draft, edited, labeled, unlabeled]
@@ -10,6 +10,10 @@ on:
       pr:
         description: Pull request number to review again
         required: true
+        type: string
+      head:
+        description: Expected PR head SHA for trusted scheduled dispatches
+        required: false
         type: string
 
 # Required status is explicitly published on the PR head, not this event's base SHA.
@@ -69,6 +73,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           PR_NUMBER: ${{ github.event.pull_request.number || inputs.pr }}
+          REVIEW_EXPECTED_HEAD: ${{ inputs.head }}
           GITHUB_DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
         run: python3 tooling/review/github_gate.py prepare --pr "$PR_NUMBER" --work "$RUNNER_TEMP/gate"
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
@@ -128,7 +133,7 @@ jobs:
     timeout-minutes: 5
     permissions:
       contents: read
-      pull-requests: write
+      pull-requests: read
       statuses: write
       issues: write
     steps:

@@ -67,7 +67,7 @@ class ReconcileTests(unittest.TestCase):
         api = FakeApi()
         self.assertEqual(reconcile.reconcile(api, "main"), [7])
         self.assertEqual(api.sent, [("actions/workflows/flutter-ai-review.yml/dispatches",
-                                     {"ref": "main", "inputs": {"pr": "7"}})])
+                                     {"ref": "main", "inputs": {"pr": "7", "head": HEAD}})])
 
     def test_matching_evidence_digest_skips_even_if_status_timestamp_is_old(self):
         api = FakeApi()
@@ -165,8 +165,26 @@ class ReconcileTests(unittest.TestCase):
         api.active = [{"display_title": "Flutter AI review PR #7", "status": "queued"}]
         self.assertEqual(reconcile.reconcile(api, "main"), [])
         api.active = []
-        api.completed = [{"display_title": "Flutter AI review PR #7", "status": "completed"}]
+        api.completed = [{"display_title": f"Flutter AI review PR #7 head {HEAD}", "status": "completed"}]
         self.assertEqual(reconcile.reconcile(api, "main"), [])
+
+    def test_old_dependabot_run_does_not_suppress_new_head(self):
+        api = FakeApi()
+        api.prs[0]["labels"] = [{"name": "authorship:automation"}]
+        api.prs[0]["user"] = {"id": 49699333, "login": "dependabot[bot]", "type": "Bot"}
+        api.prs[0]["head"].update({"ref": "dependabot/github_actions/setup-node-7", "repo": {"id": 10}})
+        api.prs[0]["base"] = {"repo": {"id": 10}}
+        api.completed = [{"display_title": f"Flutter AI review PR #7 head {'b' * 40}",
+                          "status": "completed"},
+                         {"display_title": "Flutter AI review PR #7", "status": "completed"}]
+        self.assertEqual(reconcile.reconcile(api, "main"), [7])
+        self.assertEqual(api.sent[-1][1]["inputs"]["head"], HEAD)
+
+    def test_completed_run_history_limit_does_not_fail_scheduler(self):
+        api = FakeApi()
+        api.completed = [{"display_title": "Flutter AI review PR #99 head " + "b" * 40,
+                          "status": "completed"}] * 100
+        self.assertFalse(reconcile.completed_run(api, 7, HEAD))
 
     def test_automation_label_cannot_route_unauthorized_pr(self):
         api = FakeApi()

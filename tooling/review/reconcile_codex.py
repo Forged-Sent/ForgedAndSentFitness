@@ -72,15 +72,22 @@ def current_pr_is_docs_only(api: GitHub, number: int, head: str) -> bool:
     return not gate.relevant_paths(files)
 
 
-def active_run(api: GitHub, number: int) -> bool:
+def run_matches_pr(row: dict, number: int, head: str | None = None) -> bool:
     title = f"Flutter AI review PR #{number}"
+    shown = row.get("display_title")
+    if head is not None:
+        return shown == f"{title} head {head}"
+    return shown == title or (isinstance(shown, str) and shown.startswith(title + " head "))
+
+
+def active_run(api: GitHub, number: int) -> bool:
     active = {"queued", "in_progress", "requested", "pending", "waiting"}
     for status in active:
         for page in range(1, 31):
             result = api.request(
                 f"actions/workflows/flutter-ai-review.yml/runs?status={status}&per_page=100&page={page}")
             rows = result["workflow_runs"]
-            if any(row.get("display_title") == title for row in rows):
+            if any(run_matches_pr(row, number) for row in rows):
                 return True
             if len(rows) < 100:
                 break
@@ -89,18 +96,17 @@ def active_run(api: GitHub, number: int) -> bool:
     return False
 
 
-def completed_run(api: GitHub, number: int) -> bool:
-    """Do not endlessly retry a bot PR when preparation failed before status."""
-    title = f"Flutter AI review PR #{number}"
+def completed_run(api: GitHub, number: int, head: str) -> bool:
+    """Count only a trusted dispatch for this head, never skipped bot PR events."""
     for page in range(1, 31):
         result = api.request(
             f"actions/workflows/flutter-ai-review.yml/runs?status=completed&per_page=100&page={page}")
         rows = result["workflow_runs"]
-        if any(row.get("display_title") == title for row in rows):
+        if any(run_matches_pr(row, number, head) for row in rows):
             return True
         if len(rows) < 100:
             return False
-    raise RuntimeError("Completed workflow run listing exceeds pagination limit")
+    return False  # A current-head run was not found within the bounded history.
 
 
 def failed_run_after_review(api: GitHub, status: dict | None, number: int,
@@ -119,7 +125,7 @@ def failed_run_after_review(api: GitHub, status: dict | None, number: int,
     if not match:
         return False
     run = api.request(f"actions/runs/{match.group(1)}")
-    return (run.get("display_title") == f"Flutter AI review PR #{number}"
+    return (run_matches_pr(run, number)
             and run.get("event") in ("workflow_dispatch", "pull_request_target")
             and run.get("created_at", "") > review_submitted_at)
 
@@ -145,9 +151,9 @@ def reconcile(api: GitHub, default_ref: str) -> list[int]:
             # Dependabot pull_request_target runs may have no write token. A
             # trusted default-branch schedule starts the first review instead.
             if automation and status is None:
-                if not active_run(api, pr["number"]) and not completed_run(api, pr["number"]):
+                if not active_run(api, pr["number"]) and not completed_run(api, pr["number"], head):
                     api.request("actions/workflows/flutter-ai-review.yml/dispatches",
-                                {"ref": default_ref, "inputs": {"pr": str(pr["number"])}})
+                                {"ref": default_ref, "inputs": {"pr": str(pr["number"]), "head": head}})
                     dispatched.append(pr["number"])
                 continue
             try:
@@ -166,7 +172,7 @@ def reconcile(api: GitHub, default_ref: str) -> list[int]:
             if failed_run_after_review(api, status, pr["number"], evidence["latest_submitted_at"]):
                 continue
             api.request("actions/workflows/flutter-ai-review.yml/dispatches",
-                        {"ref": default_ref, "inputs": {"pr": str(pr["number"])}})
+                        {"ref": default_ref, "inputs": {"pr": str(pr["number"]), "head": head}})
             dispatched.append(pr["number"])
         except Exception as error:
             errors.append(f"PR #{pr.get('number', '?')}: {type(error).__name__}")

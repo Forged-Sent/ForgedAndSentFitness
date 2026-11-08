@@ -172,6 +172,9 @@ def is_dependabot_pr(pr: dict) -> bool:
 def prepare(root: Path, work: Path, number: int, api: GitHub) -> None:
     pr = api.api(f"pulls/{number}")
     snapshot = identity(pr)
+    expected_head = os.environ.get("REVIEW_EXPECTED_HEAD", "")
+    if expected_head and expected_head != snapshot["head"]:
+        raise GateError("PR head changed since the scheduled review was dispatched")
     api.status(snapshot["head"], "pending", "Classifying change and selecting reviewer")
     try:
         if pr["state"] != "open":
