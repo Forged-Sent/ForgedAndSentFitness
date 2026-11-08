@@ -3,9 +3,9 @@ status: active
 updated: 2026-11-08
 owner: Codex coordinator / gate implementor
 stage: Active
-next_action: Publish the diagnostic branch after push conditions are met, then rerun hosted Claude and PR handoff acceptance
+next_action: Push the first findings fix after current-head CI, thread, and authorization checks, then rerun hosted acceptance
 source_ref: codex/review-gate-acceptance
-source_sha: 192dc4186b0afd7e9eb782c2b61b796ffa5cc03e
+source_sha: 0dc76f5fa9f3d99be741a99ee8cb6f21323a63c1
 profile: deep
 coordinator_model: gpt-6 (host family; exact variant unavailable)
 coordinator_provider: openai
@@ -28,6 +28,13 @@ author_providers: [openai]
 - Independent local review is **NOT VERIFIED**. The first Claude attempt used an exported API credential instead of the signed-in account; after clearing it only for the child process, Claude returned a PASS that admitted a review-coverage gap, which the runner correctly rejected. Gemini was installed but its runner process failed to start on Windows. No model verdict is counted as approval.
 - Next: publish this branch and open a focused PR. This is the initial push, so there is no PR head with a green `ci-gate` yet; the agent push rule in `AGENTS.md` does not let an agent make that first push. The maintainer must publish the prepared branch from his own Git session. Afterward, inspect the new hosted Claude failure category and GitHub permission header, fix the root cause, then exercise the remaining [activation checklist](../../development/FLUTTER-AI-REVIEW-GATE.md#activation-checklist): Claude and Codex functional routes, docs exemption, stale/missing evidence, retry, base retargeting, shared head, and final status producer identity. Keep ruleset 26653964 disabled until all required hosted cases pass.
 - The scheduled Dependabot failed-dispatch path currently requires a maintainer retry; automatic retry was not added because repeated dispatch could spend model usage. Revisit only if live failure evidence shows manual recovery is inadequate.
+
+## PR #46 first hosted review and fix pass
+
+- The maintainer made the first push; [PR #46](https://github.com/Forged-Sent/ForgedAndSentFitness/pull/46) opened at `a72eda8e18b7c6631598d67ea9cacd002150c9ff` with `authorship:codex`. Both automatic Claude runs completed an exact-head review. Their [first](https://github.com/Forged-Sent/ForgedAndSentFitness/actions/runs/42461941359) and [second](https://github.com/Forged-Sent/ForgedAndSentFitness/actions/runs/42461948664) summary artifacts reported PASS with low-severity diagnostic/test findings, and no blocking finding. This is real hosted Claude review evidence for that head, not an approval for a later commit.
+- Both publisher jobs failed to POST the implementor handoff with HTTP 403. The second run still placed a green `flutter-ai-review` commit status on `a72eda8`, so required status alone could falsely look satisfied despite a missing requested handoff. The current default-branch policy produced those runs; this branch's new diagnostics were not executed there.
+- The implementor completed **one** findings fix pass at local code commit `0dc76f5fa9f3d99be741a99ee8cb6f21323a63c1`: narrowed Claude stderr categories, prevented arbitrary `GateError` text from entering review artifacts, added error-path tests, and made a failed required notification set the still-owned review status to failure. Pending Codex, docs-only, and superseded runs retain their existing handling. `82` review tests, `27` policy tests, `tooling/policy/check.py`, and `git diff --check` passed locally. Hosted review and CI of this new head are **NOT VERIFIED** until pushed.
+- The one-fix limit now applies: if the next review of the new head reports more findings, pause implementation and wait for maintainer review. No automatic second correction cycle.
 
 ## Outcome so far
 
