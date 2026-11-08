@@ -107,8 +107,10 @@ establish an independent provider for every part; human assessment may be needed
 - A functional PASS first publishes a `pending` commit status. The notifier
   posts or deduplicates the implementor handoff, then rechecks the current PR,
   unique head, run ownership and any native Codex receipt before writing the
-  final `success` status. A failed handoff or final status write leaves the
-  review pending. The trusted publisher job grants the notifier `statuses: write`
+  final `success` status. A failed handoff or final status write leaves an
+  existing pending status in place. If the initial pending write fails, the
+  notifier refuses to finalize; the check may be absent rather than pending.
+  The trusted publisher job grants the notifier `statuses: write`
   and `issues: write`. Documentation-only success does not wait for a handoff.
 - After publication, GitHub attempts one comment per review run on the PR and mentions
   its author with the result and a link to the evidence. The author hands findings
@@ -142,7 +144,8 @@ establish an independent provider for every part; human assessment may be needed
    and Dependabot functional PRs on GitHub. Confirm routing and inspect findings.
    For each functional PASS, observe a hosted implementor comment posted or
    deduplicated before the notifier writes final exact-head `success`; confirm
-   a failed comment or final status write leaves the status pending. Specifically
+   a failed comment or final status write leaves an existing pending status in
+   place; a failed initial pending write may leave the check absent. Specifically
    test a clean native Codex review and its receipt. The known comment HTTP 403
    must be resolved before activation.
 5. Verify that new commits invalidate prior evidence, missing credentials and
