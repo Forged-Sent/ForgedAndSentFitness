@@ -1,13 +1,29 @@
 ---
 status: active
-updated: 2026-11-07
-owner: Maintainer / gate implementor
+updated: 2026-11-08
+owner: Codex coordinator / gate implementor
 stage: Active
-next_action: Diagnose PR handoff HTTP 403 and finish hosted acceptance before enabling the ruleset
-source_ref: main
-source_sha: b5f44a20c36b667d1799ad1490c467d99ceadbf3
+next_action: Publish the diagnostic branch after push conditions are met, then rerun hosted Claude and PR handoff acceptance
+source_ref: codex/review-gate-acceptance
+source_sha: 901b284b37412f59b42dc32abc602e0d9447a4f5
 ---
 # Functional Flutter AI review gate
+
+## Current session checkpoint
+
+- Profile: deep, because the hosted reviewer and notification have repeated unexplained failures. Coordinator: Codex, host-exposed GPT-6 family (exact variant not reported). One Codex implementation writer owns `tooling/review/` and the review workflow in `C:\ws_c\ForgedAndSentFitness-gate-acceptance`; the coordinator owns this handoff. No other worker edits this task's files.
+- Base: `origin/main` at `901b284b37412f59b42dc32abc602e0d9447a4f5`; branch `codex/review-gate-acceptance` started clean at that SHA. PR #41 is merged; no PR is currently open. Ruleset 26653964 was confirmed disabled. GitHub Actions has the `CLAUDE_CODE_OAUTH_TOKEN` secret name; its value and usability have not been inspected.
+- Review plan: deterministic review and policy tests first, then a non-author Claude review of the exact diff. A same-provider Codex subagent does not count as independent review. Hosted acceptance remains separate from local review.
+- Live evidence: PR #42 passed an exact-head native Codex route. PR #44's hosted Claude review failed with only a generic provider error; its publisher had `issues: write` but `POST issues/44/comments` returned HTTP 403. A docs-only PR #45 workflow succeeded with the reviewer skipped, which does not exercise the notification write path. The publisher log explicitly showed `Issues: write`; the API's reason for the 403 was not recorded. [Failed run](https://github.com/Forged-Sent/ForgedAndSentFitness/actions/runs/42455529417), [docs-only run](https://github.com/Forged-Sent/ForgedAndSentFitness/actions/runs/42456329723).
+- No push, merge, or ruleset activation is authorized by this checkpoint. Current local work and hosted gaps must be updated below before transfer.
+
+## November 8 local result and next hosted step
+
+- The implementor added bounded GitHub HTTP diagnostics (fixed reason category and validated `X-Accepted-GitHub-Permissions` header) and Claude CLI failure categories without printing raw provider output, API response bodies, or credential values. Changed code: `tooling/review/github_gate.py` and `tooling/review/test_github_gate.py`. The coordinator refreshed this handoff and removed stale pre-merge wording from `docs/HOME.md`.
+- `python -m unittest discover -s tooling/review -p 'test_*.py' -q` passed all 78 tests; `python tooling/policy/check.py`, `python tooling/knowledge/check.py`, `python -m compileall -q tooling/review`, `git diff --check`, and a one-slice `review.py --dry-run` passed locally. This is local evidence only; no new GitHub CI run has checked this diff.
+- Independent local review is **NOT VERIFIED**. The first Claude attempt used an exported API credential instead of the signed-in account; after clearing it only for the child process, Claude returned a PASS that admitted a review-coverage gap, which the runner correctly rejected. Gemini was installed but its runner process failed to start on Windows. No model verdict is counted as approval.
+- Next: publish this branch and open a focused PR. This is the initial push, so there is no PR head with a green `ci-gate` yet; the agent push rule in `AGENTS.md` does not let an agent make that first push. The maintainer must publish the prepared branch from his own Git session. Afterward, inspect the new hosted Claude failure category and GitHub permission header, fix the root cause, then exercise the remaining [activation checklist](../../development/FLUTTER-AI-REVIEW-GATE.md#activation-checklist): Claude and Codex functional routes, docs exemption, stale/missing evidence, retry, base retargeting, shared head, and final status producer identity. Keep ruleset 26653964 disabled until all required hosted cases pass.
+- The scheduled Dependabot failed-dispatch path currently requires a maintainer retry; automatic retry was not added because repeated dispatch could spend model usage. Revisit only if live failure evidence shows manual recovery is inadequate.
 
 ## Outcome so far
 

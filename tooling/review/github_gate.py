@@ -44,6 +44,49 @@ class NativeReviewPending(GateError):
     """Codex has not supplied an unambiguous exact-diff review yet."""
 
 
+def github_http_diagnostic(error: urllib.error.HTTPError) -> str:
+    """Return only fixed error categories and GitHub's permission header."""
+    accepted = error.headers.get("X-Accepted-GitHub-Permissions", "") if error.headers else ""
+    # GitHub documents this header for diagnosing app-token permission failures.
+    # Never copy arbitrary response headers or API body text into Actions logs.
+    accepted = accepted if re.fullmatch(r"[a-z_,=; ]{1,200}", accepted) else ""
+    try:
+        message = json.loads(error.read(4096)).get("message", "")
+    except (OSError, ValueError, AttributeError):
+        message = ""
+    if not isinstance(message, str):
+        message = ""
+    if message == "Resource not accessible by integration":
+        reason = "GitHub App access denied"
+    elif message == "Validation Failed":
+        reason = "GitHub rejected the request payload"
+    elif "secondary rate limit" in message.lower():
+        reason = "GitHub secondary rate limit"
+    elif "rate limit exceeded" in message.lower():
+        reason = "GitHub rate limit"
+    else:
+        reason = "reason unavailable"
+    return reason + (f"; accepted permissions: {accepted}" if accepted else "")
+
+
+def cli_failure_category(stderr: str) -> str:
+    """Classify Claude's failure without emitting stderr or model content."""
+    value = stderr.lower()
+    if any(marker in value for marker in ("failed to authenticate", "oauth token revoked",
+                                           "authentication_error", "invalid api key", "api error: 401")):
+        return "authentication rejected"
+    if any(marker in value for marker in ("rate limit", "api error: 429", "usage limit", "quota")):
+        return "usage or rate limit"
+    if any(marker in value for marker in ("api error: 403", "permission_error", "forbidden")):
+        return "account permission denied"
+    if any(marker in value for marker in ("api error: 500", "api error: 502",
+                                           "api error: 503", "api error: 529")):
+        return "provider service unavailable"
+    if any(marker in value for marker in ("enotfound", "econnreset", "etimedout", "fetch failed")):
+        return "network failure"
+    return "unclassified; inspect account or CLI setup outside Actions"
+
+
 def digest(value: object) -> str:
     return hashlib.sha256(json.dumps(value, sort_keys=True).encode()).hexdigest()
 
@@ -91,7 +134,9 @@ class GitHub:
             with urllib.request.urlopen(req, timeout=45) as response:
                 return json.load(response)
         except urllib.error.HTTPError as error:
-            raise GateError(f"GitHub API returned HTTP {error.code} for {req.get_method()} {path.split('?')[0]}") from None
+            diagnostic = github_http_diagnostic(error)
+            raise GateError(f"GitHub API returned HTTP {error.code} for {req.get_method()} "
+                            f"{path.split('?')[0]} ({diagnostic})") from None
 
     def status(self, head: str, state: str, description: str):
         self.api(f"statuses/{head}", {"state": state, "context": CONTEXT,
@@ -451,18 +496,25 @@ def run_provider(work: Path, provider: str) -> None:
                                       cwd=home, env=env, capture_output=True, text=True,
                                       encoding="utf-8", errors="strict", timeout=600)
                 if proc.returncode:
-                    raise GateError(f"{provider} CLI failed; raw output withheld to protect credentials")
+                    category = cli_failure_category(proc.stderr)
+                    raise GateError(f"{provider} CLI exited {proc.returncode}: {category}; review NOT VERIFIED")
                 raw = proc.stdout
                 if len(raw) > review.MAX_OUTPUT or review.SENSITIVE.search(raw):
                     raise GateError("Reviewer output exceeds limits or resembles a secret")
-                parsed = review.parse_report(raw)
+                try:
+                    parsed = review.parse_report(raw)
+                except ValueError:
+                    raise GateError("Reviewer response failed required JSON validation; review NOT VERIFIED") from None
                 report["results"].append({"sha256": chunk["sha256"], "review": parsed})
     except NativeReviewPending as pending:
         report["pending"] = str(pending)
         save(work / f"result-{provider}.json", report)
         return
-    except (GateError, ValueError, OSError, subprocess.TimeoutExpired):
-        report["error"] = "Provider invocation or strict response validation failed; review NOT VERIFIED"
+    except (GateError, ValueError, OSError, subprocess.TimeoutExpired) as error:
+        report["error"] = (str(error) if isinstance(error, GateError) else
+                           "Reviewer timed out; review NOT VERIFIED" if isinstance(error, subprocess.TimeoutExpired) else
+                           "Reviewer process could not start; review NOT VERIFIED" if isinstance(error, OSError) else
+                           "Reviewer response failed required validation; review NOT VERIFIED")
         save(work / f"result-{provider}.json", report)
         raise GateError(report["error"]) from None
     save(work / f"result-{provider}.json", report)

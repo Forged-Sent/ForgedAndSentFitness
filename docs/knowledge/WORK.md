@@ -1,12 +1,12 @@
 # Active work
 
-Curated 2026-11-07 (Phoenix). This board is human navigation, not a lock or live GitHub mirror. Evidence belongs in the linked handoff or PR. [Start an agent session](START-SESSION.md).
+Curated 2026-11-08 (Phoenix). This board is human navigation, not a lock or live GitHub mirror. Evidence belongs in the linked handoff or PR. [Start an agent session](START-SESSION.md).
 
 [Open the active-task table](ACTIVE-TASKS.base) in Obsidian Bases. Its Kanban view needs Obsidian 1.14+. Obsidian rendering and the collaborator walkthrough remain **NOT VERIFIED**; plain Markdown links are the fallback.
 
 | State | Work | Owner | Blocker / next action |
 |---|---|---|---|
-| Active | [Hosted review gate](handoffs/flutter-ai-review-gate.md) | Maintainer / gate implementor | Diagnose PR-comment HTTP 403, verify failed-dispatch recovery, run remaining hosted acceptance; ruleset is disabled |
+| Active | [Hosted review gate](handoffs/flutter-ai-review-gate.md) | Maintainer / gate implementor | Local diagnostics prepared; publish under push rule, then rerun Claude/comment checks and remaining hosted acceptance. Ruleset is disabled |
 | Ready | [Obsidian first-use pilot](handoffs/obsidian-current-and-history.md) | Maintainer + collaborator | Open `docs/` as a vault and try HOME → WORK → START-SESSION → handoff without reading Markdown source |
 | Decision needed | Client dependencies and first feature contract | Maintainer | Select state management, navigation and local persistence; record ADR and scope an owner-only offline completion slice |
 | Blocked | Durable devotional/workout completion | Flutter builder | Wait for accepted contract and local persistence choice; start with a fake repository and tests |

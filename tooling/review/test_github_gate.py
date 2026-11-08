@@ -1,11 +1,13 @@
 """Adversarial validation and trusted prepare/publish tests. No paid API calls."""
 import copy
+import io
 import json
 import os
 from pathlib import Path
 import subprocess
 import tempfile
 import unittest
+import urllib.error
 from unittest.mock import patch
 
 import github_gate as gate
@@ -90,6 +92,51 @@ class FakeGitHub:
 
 
 class GateTests(unittest.TestCase):
+    def test_github_403_reports_safe_permission_hint_without_response_body(self):
+        api = object.__new__(gate.GitHub)
+        api.repo = "o/r"
+        api.token = "token-canary"
+        response = urllib.error.HTTPError(
+            "https://api.github.com/repos/o/r/issues/7/comments", 403, "Forbidden",
+            {"X-Accepted-GitHub-Permissions": "issues=write,contents=read",
+             "X-Debug-Secret": "header-canary"},
+            io.BytesIO(json.dumps({"message": "Resource not accessible by integration",
+                                   "secret": "body-canary"}).encode()))
+        with patch.object(gate.urllib.request, "urlopen", side_effect=response):
+            with self.assertRaises(gate.GateError) as raised:
+                api.api("issues/7/comments", {"body": "test"})
+        message = str(raised.exception)
+        self.assertIn("HTTP 403 for POST issues/7/comments", message)
+        self.assertIn("GitHub App access denied", message)
+        self.assertIn("accepted permissions: issues=write,contents=read", message)
+        for secret in ("token-canary", "header-canary", "body-canary"):
+            self.assertNotIn(secret, message)
+
+    def test_github_error_drops_untrusted_permission_header_and_body(self):
+        response = urllib.error.HTTPError(
+            "https://api.github.com", 403, "Forbidden",
+            {"X-Accepted-GitHub-Permissions": "issues=write\nsecret-canary"},
+            io.BytesIO(b'{"message":"secret-canary"}'))
+        self.assertEqual(gate.github_http_diagnostic(response), "reason unavailable")
+
+    def test_claude_failure_category_is_fixed_and_does_not_include_stderr(self):
+        payload, _ = sample()
+        with tempfile.TemporaryDirectory() as tmp:
+            work = Path(tmp)
+            gate.save(work / "input.json", payload)
+            process = subprocess.CompletedProcess([], 1, "", "Failed to authenticate secret-canary")
+            with patch.object(gate, "model_env", return_value={}), \
+                    patch.object(gate.subprocess, "run", return_value=process):
+                with self.assertRaisesRegex(gate.GateError, "authentication rejected") as raised:
+                    gate.run_provider(work, "claude")
+            result = gate.load(work / "result-claude.json")
+            self.assertEqual(result["error"], str(raised.exception))
+            self.assertNotIn("secret-canary", result["error"])
+            self.assertEqual(result["results"], [])
+        self.assertEqual(gate.cli_failure_category("API Error: 429 secret-canary"), "usage or rate limit")
+        self.assertEqual(gate.cli_failure_category("secret-canary"),
+                         "unclassified; inspect account or CLI setup outside Actions")
+
     def test_commit_status_requires_one_open_pr_for_head(self):
         api = object.__new__(gate.GitHub)
         with patch.object(api, "api", return_value=[{"number": 7, "state": "open", "head": {"sha": "a" * 40}},
