@@ -44,6 +44,10 @@ class NativeReviewPending(GateError):
     """Codex has not supplied an unambiguous exact-diff review yet."""
 
 
+class SafeProviderDiagnostic(GateError):
+    """A fixed provider-failure message explicitly safe for review artifacts."""
+
+
 def github_http_diagnostic(error: urllib.error.HTTPError) -> str:
     """Return only fixed error categories and GitHub's permission header."""
     accepted = error.headers.get("X-Accepted-GitHub-Permissions", "") if error.headers else ""
@@ -71,20 +75,18 @@ def github_http_diagnostic(error: urllib.error.HTTPError) -> str:
 
 def cli_failure_category(stderr: str) -> str:
     """Classify Claude's failure without emitting stderr or model content."""
-    value = stderr.lower()
-    if any(marker in value for marker in ("failed to authenticate", "oauth token revoked",
-                                           "authentication_error", "invalid api key", "api error: 401")):
-        return "authentication rejected"
-    if any(marker in value for marker in ("rate limit", "api error: 429", "usage limit", "quota")):
-        return "usage or rate limit"
-    if any(marker in value for marker in ("api error: 403", "permission_error", "forbidden")):
-        return "account permission denied"
-    if any(marker in value for marker in ("api error: 500", "api error: 502",
-                                           "api error: 503", "api error: 529")):
-        return "provider service unavailable"
-    if any(marker in value for marker in ("enotfound", "econnreset", "etimedout", "fetch failed")):
-        return "network failure"
-    return "unclassified; inspect account or CLI setup outside Actions"
+    # Match CLI error lines rather than arbitrary words in echoed prompt data.
+    # Conflicting error lines are unclassified instead of relying on precedence.
+    patterns = {
+        "authentication rejected": r"^(?:failed to authenticate\b|oauth token revoked\b|api error:\s*401\b|authentication_error\b)",
+        "usage or rate limit": r"^api error:\s*429\b",
+        "account permission denied": r"^(?:api error:\s*403\b|permission_error\b)",
+        "provider service unavailable": r"^api error:\s*(?:500|502|503|529)\b",
+        "network failure": r"^(?:error:\s*)?(?:enotfound|econnreset|etimedout|fetch failed)\b",
+    }
+    matches = [category for category, pattern in patterns.items()
+               if re.search(pattern, stderr, re.IGNORECASE | re.MULTILINE)]
+    return matches[0] if len(matches) == 1 else "unclassified; inspect account or CLI setup outside Actions"
 
 
 def digest(value: object) -> str:
@@ -497,24 +499,26 @@ def run_provider(work: Path, provider: str) -> None:
                                       encoding="utf-8", errors="strict", timeout=600)
                 if proc.returncode:
                     category = cli_failure_category(proc.stderr)
-                    raise GateError(f"{provider} CLI exited {proc.returncode}: {category}; review NOT VERIFIED")
+                    raise SafeProviderDiagnostic(
+                        f"{provider} CLI exited {proc.returncode}: {category}; review NOT VERIFIED")
                 raw = proc.stdout
                 if len(raw) > review.MAX_OUTPUT or review.SENSITIVE.search(raw):
-                    raise GateError("Reviewer output exceeds limits or resembles a secret")
+                    raise SafeProviderDiagnostic("Reviewer output exceeds limits or resembles a secret")
                 try:
                     parsed = review.parse_report(raw)
                 except ValueError:
-                    raise GateError("Reviewer response failed required JSON validation; review NOT VERIFIED") from None
+                    raise SafeProviderDiagnostic(
+                        "Reviewer response failed required JSON validation; review NOT VERIFIED") from None
                 report["results"].append({"sha256": chunk["sha256"], "review": parsed})
     except NativeReviewPending as pending:
         report["pending"] = str(pending)
         save(work / f"result-{provider}.json", report)
         return
     except (GateError, ValueError, OSError, subprocess.TimeoutExpired) as error:
-        report["error"] = (str(error) if isinstance(error, GateError) else
+        report["error"] = (str(error) if isinstance(error, SafeProviderDiagnostic) else
                            "Reviewer timed out; review NOT VERIFIED" if isinstance(error, subprocess.TimeoutExpired) else
                            "Reviewer process could not start; review NOT VERIFIED" if isinstance(error, OSError) else
-                           "Reviewer response failed required validation; review NOT VERIFIED")
+                           "Provider invocation or strict response validation failed; review NOT VERIFIED")
         save(work / f"result-{provider}.json", report)
         raise GateError(report["error"]) from None
     save(work / f"result-{provider}.json", report)

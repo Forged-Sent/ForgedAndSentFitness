@@ -17,6 +17,10 @@ class FakeAPI:
                    "labels": [{"name": x} for x in snapshot["labels"]]}
         self.comments = []
         self.owns = True
+        self.statuses = []
+        self.post_error = False
+        self.get_error = False
+        self.supersede_on_post = False
 
     def owns_status(self, head):
         return self.owns
@@ -25,14 +29,66 @@ class FakeAPI:
         if path.startswith("pulls/"):
             return self.pr
         if body is not None:
+            if self.post_error:
+                if self.supersede_on_post:
+                    self.owns = False
+                raise gate.GateError("GitHub API returned HTTP 403")
             comment = {**body, "user": {"id": GITHUB_ACTIONS_BOT_ID,
                                         "login": "github-actions[bot]"}}
             self.comments.append(comment)
             return comment
+        if self.get_error and path.startswith("issues/"):
+            raise gate.GateError("GitHub API returned HTTP 403")
         return self.comments
+
+    def status(self, head, state, description):
+        self.statuses.append((head, state, description))
 
 
 class NotifyTests(unittest.TestCase):
+    def test_failed_required_handoff_revokes_owned_green_status(self):
+        snapshot = {"pr": 7, "head": "a" * 40, "base": "b" * 40,
+                    "base_ref": "main", "draft": False, "labels": ["authorship:codex"]}
+        summary = {"identity": snapshot, "binding": "receipt", "state": "success",
+                   "message": "PASS", "providers": [{"provider": "claude", "results": []}]}
+        with tempfile.TemporaryDirectory() as directory:
+            work = Path(directory)
+            gate.save(work / "summary.json", summary)
+            api = FakeAPI(snapshot)
+            api.post_error = True
+            with self.assertRaises(gate.GateError):
+                notify(work, api)
+            self.assertEqual(api.statuses, [(snapshot["head"], "failure",
+                "Review handoff failed; inspect this workflow run")])
+            self.assertEqual(api.comments, [])
+            api.statuses.clear()
+            api.supersede_on_post = True
+            with self.assertRaises(gate.GateError):
+                notify(work, api)
+            self.assertEqual(api.statuses, [])
+
+            api.owns = True
+            api.supersede_on_post = False
+            api.post_error = False
+            api.get_error = True
+            with self.assertRaises(gate.GateError):
+                notify(work, api)
+            self.assertEqual(api.statuses, [(snapshot["head"], "failure",
+                "Review handoff failed; inspect this workflow run")])
+
+    def test_docs_success_and_pending_do_not_write_handoff_status(self):
+        snapshot = {"pr": 7, "head": "a" * 40, "base": "b" * 40,
+                    "base_ref": "main", "draft": False, "labels": ["authorship:codex"]}
+        with tempfile.TemporaryDirectory() as directory:
+            work = Path(directory)
+            api = FakeAPI(snapshot)
+            api.post_error = True
+            for summary in ({"identity": snapshot, "state": "pending"},
+                            {"identity": snapshot, "state": "success", "providers": []}):
+                gate.save(work / "summary.json", summary)
+                notify(work, api)
+            self.assertEqual(api.statuses, [])
+
     def test_notifies_once_and_ignores_stale_head(self):
         snapshot = {"pr": 7, "head": "a" * 40, "base": "b" * 40,
                     "base_ref": "main", "draft": False, "labels": ["authorship:claude"]}

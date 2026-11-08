@@ -133,9 +133,59 @@ class GateTests(unittest.TestCase):
             self.assertEqual(result["error"], str(raised.exception))
             self.assertNotIn("secret-canary", result["error"])
             self.assertEqual(result["results"], [])
-        self.assertEqual(gate.cli_failure_category("API Error: 429 secret-canary"), "usage or rate limit")
-        self.assertEqual(gate.cli_failure_category("secret-canary"),
-                         "unclassified; inspect account or CLI setup outside Actions")
+        cases = {
+            "API Error: 429 secret-canary": "usage or rate limit",
+            "API Error: 403 secret-canary": "account permission denied",
+            "API Error: 503 secret-canary": "provider service unavailable",
+            "Error: fetch failed secret-canary": "network failure",
+            "The patch contains quota and forbidden text":
+                "unclassified; inspect account or CLI setup outside Actions",
+            "API Error: 403\nAPI Error: 429":
+                "unclassified; inspect account or CLI setup outside Actions",
+            "secret-canary": "unclassified; inspect account or CLI setup outside Actions",
+        }
+        for stderr, expected in cases.items():
+            with self.subTest(stderr=stderr):
+                self.assertEqual(gate.cli_failure_category(stderr), expected)
+
+    def test_claude_timeout_start_failure_and_invalid_json_stay_fail_closed(self):
+        payload, _ = sample()
+        failures = (
+            (subprocess.TimeoutExpired("claude", 600), "Reviewer timed out"),
+            (FileNotFoundError("secret-canary"), "Reviewer process could not start"),
+            (subprocess.CompletedProcess([], 0, "secret-canary invalid JSON", ""),
+             "Reviewer response failed required JSON validation"),
+        )
+        for failure, expected in failures:
+            with self.subTest(expected=expected), tempfile.TemporaryDirectory() as tmp:
+                work = Path(tmp)
+                gate.save(work / "input.json", payload)
+                mocked = ({"return_value": failure} if isinstance(failure, subprocess.CompletedProcess)
+                          else {"side_effect": failure})
+                with patch.object(gate, "model_env", return_value={}), \
+                        patch.object(gate.subprocess, "run", **mocked):
+                    with self.assertRaises(gate.GateError) as raised:
+                        gate.run_provider(work, "claude")
+                result = gate.load(work / "result-claude.json")
+                self.assertIn(expected, result["error"])
+                self.assertEqual(result["error"], str(raised.exception))
+                self.assertNotIn("secret-canary", result["error"])
+                self.assertEqual(result["results"], [])
+
+    def test_arbitrary_gate_error_is_not_copied_into_review_artifact(self):
+        payload, _ = sample()
+        payload["providers"] = ["codex"]
+        payload["binding"] = gate.digest({k: v for k, v in payload.items() if k != "binding"})
+        with tempfile.TemporaryDirectory() as tmp:
+            work = Path(tmp)
+            gate.save(work / "input.json", payload)
+            with patch.object(gate, "GitHub"), patch.object(gate, "codex_review",
+                    side_effect=gate.GateError("untrusted secret-canary")):
+                with self.assertRaises(gate.GateError):
+                    gate.run_provider(work, "codex")
+            error = gate.load(work / "result-codex.json")["error"]
+            self.assertEqual(error, "Provider invocation or strict response validation failed; review NOT VERIFIED")
+            self.assertNotIn("secret-canary", error)
 
     def test_commit_status_requires_one_open_pr_for_head(self):
         api = object.__new__(gate.GitHub)

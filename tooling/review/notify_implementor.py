@@ -13,7 +13,7 @@ GITHUB_ACTIONS_BOT_ID = 41898282
 FINDINGS_HEAD = re.compile(r"<!-- flutter-ai-review-findings-head:([0-9a-f]{40}) -->")
 
 
-def notify(work: Path, api: GitHub) -> None:
+def _notify(work: Path, api: GitHub) -> None:
     summary_path = work / "summary.json"
     if not summary_path.exists():
         return
@@ -93,6 +93,25 @@ def notify(work: Path, api: GitHub) -> None:
         f"[Review run]({api.run_url}) · This is advisory AI feedback, not an approval."
     )
     api.api(f"issues/{snapshot['pr']}/comments", {"body": body})
+
+
+def notify(work: Path, api: GitHub) -> None:
+    try:
+        _notify(work, api)
+    except (GateError, OSError, ValueError, KeyError):
+        # Publication may already have set a green commit status. Any failed
+        # required handoff, including comment lookup or POST, must fail the
+        # still-owned head. Pending and docs-only results have no handoff.
+        summary_path = work / "summary.json"
+        if summary_path.exists():
+            summary = load(summary_path)
+            if summary.get("state") != "pending" and (summary.get("providers") or
+                    summary.get("state") != "success"):
+                head = summary["identity"]["head"]
+                if api.owns_status(head):
+                    api.status(head, "failure",
+                               "Review handoff failed; inspect this workflow run")
+        raise
 
 
 if __name__ == "__main__":
