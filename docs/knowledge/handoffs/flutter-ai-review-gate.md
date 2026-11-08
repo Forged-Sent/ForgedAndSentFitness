@@ -5,14 +5,18 @@ owner: Codex coordinator / gate implementor
 stage: Active
 next_action: Publish the diagnostic branch after push conditions are met, then rerun hosted Claude and PR handoff acceptance
 source_ref: codex/review-gate-acceptance
-source_sha: 901b284b37412f59b42dc32abc602e0d9447a4f5
+source_sha: 192dc4186b0afd7e9eb782c2b61b796ffa5cc03e
+profile: deep
+coordinator_model: gpt-6 (host family; exact variant unavailable)
+coordinator_provider: openai
+author_providers: [openai]
 ---
 # Functional Flutter AI review gate
 
 ## Current session checkpoint
 
 - Profile: deep, because the hosted reviewer and notification have repeated unexplained failures. Coordinator: Codex, host-exposed GPT-6 family (exact variant not reported). One Codex implementation writer owns `tooling/review/` and the review workflow in `C:\ws_c\ForgedAndSentFitness-gate-acceptance`; the coordinator owns this handoff. No other worker edits this task's files.
-- Base: `origin/main` at `901b284b37412f59b42dc32abc602e0d9447a4f5`; branch `codex/review-gate-acceptance` started clean at that SHA. PR #41 is merged; no PR is currently open. Ruleset 26653964 was confirmed disabled. GitHub Actions has the `CLAUDE_CODE_OAUTH_TOKEN` secret name; its value and usability have not been inspected.
+- Base: `origin/main` at `901b284b37412f59b42dc32abc602e0d9447a4f5`; implementation commit `192dc4186b0afd7e9eb782c2b61b796ffa5cc03e` is local on `codex/review-gate-acceptance`. PR #41 is merged; no PR is currently open. Ruleset 26653964 was confirmed disabled. GitHub Actions has the `CLAUDE_CODE_OAUTH_TOKEN` secret name; its value and usability have not been inspected.
 - Review plan: deterministic review and policy tests first, then a non-author Claude review of the exact diff. A same-provider Codex subagent does not count as independent review. Hosted acceptance remains separate from local review.
 - Live evidence: PR #42 passed an exact-head native Codex route. PR #44's hosted Claude review failed with only a generic provider error; its publisher had `issues: write` but `POST issues/44/comments` returned HTTP 403. A docs-only PR #45 workflow succeeded with the reviewer skipped, which does not exercise the notification write path. The publisher log explicitly showed `Issues: write`; the API's reason for the 403 was not recorded. [Failed run](https://github.com/Forged-Sent/ForgedAndSentFitness/actions/runs/42455529417), [docs-only run](https://github.com/Forged-Sent/ForgedAndSentFitness/actions/runs/42456329723).
 - No push, merge, or ruleset activation is authorized by this checkpoint. Current local work and hosted gaps must be updated below before transfer.
