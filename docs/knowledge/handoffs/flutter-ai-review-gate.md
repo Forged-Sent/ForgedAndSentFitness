@@ -2,10 +2,10 @@
 status: active
 updated: 2026-11-08
 owner: Codex coordinator / gate implementor
-stage: Decision needed
-next_action: Maintainer triages remaining low-severity Claude findings before another code pass or publication
+stage: Review
+next_action: Independently review the maintainer-authorized scoped fix, then publish only under the agent push rule
 source_ref: codex/review-gate-acceptance
-source_sha: 813663f9c1b2107278d688a75406423711d7a42c
+source_sha: 1dcd366e234efa36fa8b5e7f263ae2c62c3f52d9
 profile: deep
 coordinator_model: gpt-6 (host family; exact variant unavailable)
 coordinator_provider: openai
@@ -19,7 +19,7 @@ author_providers: [openai]
 - The current head's `ci-gate` passed on its fourth attempt after three Android jobs received external HTTP 504 responses while downloading Gradle or Kotlin artifacts. GitHub still reports `flutter-ai-review` failed on this remote head. The local two-phase fix has not been published or tested in hosted Actions.
 - Hosted Claude review on the remote head failed to produce valid evidence in the initial run and one full retry. A local independent Claude review of that head returned PASS with a medium finding in the handoff fallback and low findings on status race, diagnostic wording and stale notes. The maintainer authorized **one additional scoped fix** after the implementor paused under the one-fix-cycle rule.
 - That fix is committed locally as `813663f9c1b2107278d688a75406423711d7a42c`; the Obsidian refresh is local commit `ad44b5a`. Functional PASS now stays pending until the handoff is posted or deduplicated; then the notifier rechecks PR identity, unique head, run ownership and live native Codex evidence before final success. A failed initial pending-status write cannot be finalized by the notifier. `90` review tests, `27` policy tests, policy and knowledge checks, syntax checks, and `git diff --check` passed locally. GitHub's status API has no atomic conditional write; a residual check/write race remains. The PR-comment HTTP 403 cause is still unknown because trusted workflow code runs from `main`.
-- Independent local Claude review of `ad44b5a` returned advisory PASS with one medium and three low findings. The medium finding assumed absent `codex_evidence` might be an empty string; full source initializes it to `None` for a Claude-only run, so that failure scenario does not apply. The reviewer also could not see workflow permissions in its slice; the job running the notifier already has `statuses: write`. The low finding that superseded runs without a staged marker can now fail noisily is valid. The architecture/guide wording and activation checklist also need to reflect pending-until-handoff and require a hosted comment plus final notifier success. Per the maintainer's one-cycle instruction, implementation is paused for human triage; no second automatic correction is authorized. Hosted proof on these local commits remains **NOT VERIFIED**.
+- Independent local Claude review of `ad44b5a` returned advisory PASS with one medium and three low findings. The medium finding assumed absent `codex_evidence` might be an empty string; full source initializes it to `None` for a Claude-only run, so that failure scenario does not apply. The reviewer also could not see workflow permissions in its slice; the job running the notifier already has `statuses: write`. The maintainer authorized one scoped fix for the valid low finding and documentation gaps. Local commit `1dcd366e234efa36fa8b5e7f263ae2c62c3f52d9` now checks supersession before requiring the staged marker, with a stale/closed PR regression test. The guide, system map and ADR describe pending-until-handoff, and the activation checklist requires a hosted comment and final notifier success. `91` review tests, policy and knowledge checks, architecture index check, review dry-run and diff check passed locally. Independent review and hosted proof of this newest commit remain **NOT VERIFIED**. If the next review raises more findings, pause again for maintainer triage.
 - The [activation checklist](../../development/FLUTTER-AI-REVIEW-GATE.md#activation-checklist) remains open; do not activate ruleset 26653964 yet.
 
 ## Earlier session checkpoint (superseded)
