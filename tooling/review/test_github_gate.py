@@ -206,6 +206,18 @@ class GateTests(unittest.TestCase):
         with self.assertRaises(gate.NativeReviewPending):
             gate.codex_review(api, 7, payload["identity"]["head"])
 
+    def test_codex_summary_microseconds_match_github_rounded_update(self):
+        payload, _ = sample()
+        api = FakeGitHub(payload["identity"])
+        comment = codex_summary(completed="2026-11-05T10:00:00.210908Z")
+        comment["updated_at"] = "2026-11-05T10:00:00Z"
+        api.native_summary_comments = [comment]
+        self.assertEqual(gate.codex_review(api, 7, payload["identity"]["head"])["outcome"],
+                         "clean")
+        comment["body"] = comment["body"].replace("10:00:00.210908Z", "10:00:01.210908Z")
+        with self.assertRaisesRegex(gate.GateError, "completion time is inconsistent"):
+            gate.codex_review(api, 7, payload["identity"]["head"])
+
     def test_native_codex_summary_findings_and_malformed_fail_closed(self):
         payload, _ = sample()
         api = FakeGitHub(payload["identity"])
