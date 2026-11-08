@@ -16,7 +16,7 @@ import github_gate as gate
 
 CODEX_REVIEWER_ID = 199175422
 CONTEXT = "flutter-ai-review"
-ROUTED_LABELS = {"authorship:claude", "authorship:human", "authorship:mixed"}
+ROUTED_LABELS = {"authorship:claude", "authorship:human", "authorship:automation", "authorship:mixed"}
 
 
 class GitHub:
@@ -116,15 +116,31 @@ def reconcile(api: GitHub, default_ref: str) -> list[int]:
     errors = []
     for pr in api.pages("pulls?state=open"):
         try:
-            if pr["draft"] or len({x["name"] for x in pr["labels"]} & ROUTED_LABELS) != 1:
+            labels = [x["name"] for x in pr["labels"]]
+            if pr["draft"] or len(set(labels) & ROUTED_LABELS) != 1:
+                continue
+            try:
+                gate.reviewers_for(labels)
+            except ValueError:
                 continue
             head = pr["head"]["sha"]
+            status = latest_context_status(api, head)
+            automation = any(x["name"] == "authorship:automation" for x in pr["labels"])
+            if automation and not gate.is_dependabot_pr(pr):
+                continue
+            # Dependabot pull_request_target runs may have no write token. A
+            # trusted default-branch schedule starts the first review instead.
+            if automation and status is None:
+                if not active_run(api, pr["number"]):
+                    api.request("actions/workflows/flutter-ai-review.yml/dispatches",
+                                {"ref": default_ref, "inputs": {"pr": str(pr["number"])}})
+                    dispatched.append(pr["number"])
+                continue
             try:
                 evidence = gate.codex_review(api, pr["number"], head)
             except gate.NativeReviewPending:
                 continue
             current = gate.digest(evidence["evidence_ids"])[:16]
-            status = latest_context_status(api, head)
             description = (status or {}).get("description") or ""
             if description.startswith("Not required:") and current_pr_is_docs_only(api, pr["number"], head):
                 continue

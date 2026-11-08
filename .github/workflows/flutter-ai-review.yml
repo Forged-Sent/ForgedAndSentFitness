@@ -44,6 +44,7 @@ jobs:
   prepare:
     if: >-
       github.event_name != 'schedule' &&
+      (github.event_name != 'pull_request_target' || github.actor != 'dependabot[bot]') &&
       ((github.event.action != 'labeled' && github.event.action != 'unlabeled') ||
       startsWith(github.event.label.name, 'authorship:')) &&
       (github.event.action != 'edited' || github.event.changes.base != null)

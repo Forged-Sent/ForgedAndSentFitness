@@ -552,6 +552,35 @@ class GateTests(unittest.TestCase):
         self.assertNotIn("maintainer", str(error.exception))
         self.assertEqual(api.last_permission_actor, "builder")
 
+    def test_dependabot_route_requires_real_same_repository_bot(self):
+        payload, _ = sample()
+        payload["identity"]["labels"] = ["authorship:automation"]
+        api = FakeGitHub(payload["identity"])
+        api.pr["user"] = {"id": 49699333, "login": "dependabot[bot]", "type": "Bot"}
+        api.pr["head"].update({"ref": "dependabot/github_actions/action-1", "repo": {"id": 10}})
+        api.pr["base"]["repo"] = {"id": 10}
+        self.assertTrue(gate.is_dependabot_pr(api.pr))
+        env = {"GITHUB_ACTOR": "github-actions[bot]", "GITHUB_TRIGGERING_ACTOR": "github-actions[bot]",
+               "GITHUB_EVENT_NAME": "workflow_dispatch", "GITHUB_REF": "refs/heads/main",
+               "GITHUB_DEFAULT_BRANCH": "main"}
+        with tempfile.TemporaryDirectory() as tmp, patch.dict(os.environ, env), patch.object(
+                gate, "git", side_effect=gate.GateError("Stopped after authorization")):
+            with self.assertRaisesRegex(gate.GateError, "Stopped after authorization"):
+                gate.prepare(Path(tmp), Path(tmp), 7, api)
+        self.assertEqual(api.permission_calls, 0)
+        valid_pr = copy.deepcopy(api.pr)
+        for mutate in (
+                lambda p: p["user"].update(id=1),
+                lambda p: p["head"].update(repo={"id": 11}),
+                lambda p: p["head"].update(ref="contributor/action-1")):
+            altered = copy.deepcopy(valid_pr)
+            mutate(altered)
+            self.assertFalse(gate.is_dependabot_pr(altered))
+            api.pr = altered
+            with tempfile.TemporaryDirectory() as tmp, patch.dict(os.environ, env):
+                with self.assertRaisesRegex(gate.GateError, "same-repository Dependabot"):
+                    gate.prepare(Path(tmp), Path(tmp), 7, api)
+
     def test_prepare_fetches_diff_without_executing_or_checking_out_pr(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)

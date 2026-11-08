@@ -157,6 +157,18 @@ def outputs(values: dict) -> None:
             out.write(f"{key}={text}\n")
 
 
+def is_dependabot_pr(pr: dict) -> bool:
+    """Bind the automation route to GitHub's real, same-repository bot PR."""
+    user = pr.get("user") or {}
+    head = pr.get("head") or {}
+    base = pr.get("base") or {}
+    return (user.get("id") == 49699333 and user.get("login") == "dependabot[bot]"
+            and user.get("type") == "Bot"
+            and (head.get("ref") or "").startswith("dependabot/")
+            and (head.get("repo") or {}).get("id") is not None
+            and (head.get("repo") or {}).get("id") == (base.get("repo") or {}).get("id"))
+
+
 def prepare(root: Path, work: Path, number: int, api: GitHub) -> None:
     pr = api.api(f"pulls/{number}")
     snapshot = identity(pr)
@@ -175,17 +187,21 @@ def prepare(root: Path, work: Path, number: int, api: GitHub) -> None:
                 providers = list(reviewers_for(snapshot["labels"]))
             except ValueError as error:
                 raise GateError(str(error)) from None
+            automation = "authorship:automation" in snapshot["labels"]
+            if automation and not is_dependabot_pr(pr):
+                raise GateError("Automation authorship requires a same-repository Dependabot PR")
             trusted_reconcile = (actor == "github-actions[bot]" and
                                  os.environ.get("GITHUB_EVENT_NAME") == "workflow_dispatch" and
                                  bool(os.environ.get("GITHUB_DEFAULT_BRANCH")) and
                                  os.environ.get("GITHUB_REF") ==
                                  f"refs/heads/{os.environ['GITHUB_DEFAULT_BRANCH']}")
-            principal = ((pr.get("user") or {}).get("login") if trusted_reconcile else actor)
-            if not principal:
-                raise GateError("Cannot establish a trusted review trigger")
-            permission = api.api("collaborators/" + urllib.parse.quote(principal, safe="") + "/permission")
-            if permission.get("permission") not in ("write", "maintain", "admin"):
-                raise GateError("A maintainer must trigger this paid review using Run workflow")
+            if not (trusted_reconcile and automation):
+                principal = ((pr.get("user") or {}).get("login") if trusted_reconcile else actor)
+                if not principal:
+                    raise GateError("Cannot establish a trusted review trigger")
+                permission = api.api("collaborators/" + urllib.parse.quote(principal, safe="") + "/permission")
+                if permission.get("permission") not in ("write", "maintain", "admin"):
+                    raise GateError("A maintainer must trigger this paid review using Run workflow")
         policy_sha = git(root, "rev-parse", "HEAD").strip()
         if not SHA.fullmatch(policy_sha):
             raise GateError("Invalid trusted policy SHA")

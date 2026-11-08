@@ -53,6 +53,7 @@ class FlutterScopeTests(unittest.TestCase):
         self.assertEqual(reviewers_for(["authorship:codex"]), ("claude",))
         self.assertEqual(reviewers_for(["authorship:claude"]), ("codex",))
         self.assertEqual(reviewers_for(["authorship:human"]), ("codex",))
+        self.assertEqual(reviewers_for(["authorship:automation"]), ("codex",))
         self.assertEqual(reviewers_for(["authorship:mixed"]), ("codex", "claude"))
 
     def test_unknown_or_conflicting_authorship_blocks(self):

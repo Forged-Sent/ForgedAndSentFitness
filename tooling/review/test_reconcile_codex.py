@@ -146,6 +146,28 @@ class ReconcileTests(unittest.TestCase):
                         "head": {"sha": "b" * 40}})
         self.assertEqual(reconcile.reconcile(api, "main"), [])
 
+    def test_dependabot_without_status_dispatches_from_trusted_schedule(self):
+        api = FakeApi()
+        api.prs[0]["labels"] = [{"name": "authorship:automation"}]
+        api.prs[0]["user"] = {"id": 49699333, "login": "dependabot[bot]", "type": "Bot"}
+        api.prs[0]["head"].update({"ref": "dependabot/github_actions/setup-node-7", "repo": {"id": 10}})
+        api.prs[0]["base"] = {"repo": {"id": 10}}
+        self.assertEqual(reconcile.reconcile(api, "main"), [7])
+        self.assertEqual(len(api.sent), 1)
+        api.status = {"context": reconcile.CONTEXT, "description": "Review pending"}
+        api.reviews = []
+        self.assertEqual(reconcile.reconcile(api, "main"), [])
+        api.status = None
+        api.active = [{"display_title": "Flutter AI review PR #7", "status": "in_progress"}]
+        self.assertEqual(reconcile.reconcile(api, "main"), [])
+
+    def test_automation_label_cannot_route_unauthorized_pr(self):
+        api = FakeApi()
+        api.prs[0]["labels"] = [{"name": "authorship:automation"}]
+        self.assertEqual(reconcile.reconcile(api, "main"), [])
+        api.prs[0]["labels"].append({"name": "authorship:codex"})
+        self.assertEqual(reconcile.reconcile(api, "main"), [])
+
 
 if __name__ == "__main__":
     unittest.main()
