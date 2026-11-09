@@ -1,0 +1,471 @@
+{
+ "file": "training-principles.json",
+ "description": "Short quotable training principles and a glossary for Coach Gideon. Each row carries an evidence tag and source ids. library: both, men or women.",
+ "generated": "2026-11-08",
+ "tags": {
+  "Well supported": "Consistent findings across reviews or a position stand.",
+  "Moderate": "Supported, but limited by study size, population or design.",
+  "Standard practice": "Widely used convention without strong direct evidence.",
+  "Contested": "Published evidence disagrees or is thin; Gideon should say so.",
+  "Library design": "A deliberate choice in how these plans are built.",
+  "Definition": "Plain-language meaning of a term used in the app."
+ },
+ "sources": {
+  "S1": {
+   "title": "ACSM Position Stand: Resistance Training Prescription for Muscle Function, Hypertrophy, and Physical Performance in Healthy Adults (2026)",
+   "url": "https://www.ovid.com/jnls/acsm-msse/fulltext/10.1249/mss.0000000000003897~american-college-of-sports-medicine-position-stand",
+   "note": "Read through a mirror PDF, about the first 100,000 of 122,000 characters."
+  },
+  "S2": {
+   "title": "The Resistance Training Dose-Response: Meta-Regressions on Weekly Volume and Frequency (Sports Medicine, 2025)",
+   "url": "https://www.fisiologiadelejercicio.com/wp-content/uploads/2025/12/The-Resistance-Training-Dose-Response.pdf",
+   "note": "67 studies, 79% male, mostly young adults, about 10 weeks."
+  },
+  "S3": {
+   "title": "Gaining more from doing less? One-week deload during supervised resistance training (PeerJ, 2024)",
+   "url": "https://peerj.com/articles/16777/",
+   "note": "39 trained adults; tested a full week off, not reduced volume."
+  },
+  "S4": {
+   "title": "Much Ado About Zone 2 (Sports Medicine, 2025)",
+   "url": "https://www.fisiologiadelejercicio.com/wp-content/uploads/2025/06/Much-Ado-About-Zone-2.pdf",
+   "note": "Narrative review; few trials prescribed Zone 2 directly."
+  },
+  "S5": {
+   "title": "Concurrent strength and endurance training: systematic review and meta-analysis (Sports Medicine, 2023)",
+   "url": "https://link.springer.com/article/10.1007/s40279-023-01943-9",
+   "note": "59 studies, adults 18 to 50."
+  },
+  "S6": {
+   "title": "Factors influencing the accuracy of the repetition in reserve scale in resistance training: a systematic review (Russo et al., 2025)",
+   "url": "https://dspace.uevora.pt/rdpc/bitstream/10174/39438/1/2025%20Russo%20et%20al.%20Factors%20influencing%20the%20accuracy%20of%20the%20repetition%20in%20reserve%20scale%20in%20resistance%20training%20%20a%20systematic%20review.pdf",
+   "note": "Abstract and headings only were read."
+  },
+  "S7": {
+   "title": "World Health Organization 2020 guidelines on physical activity and sedentary behaviour",
+   "url": "https://fhi.brage.unit.no/fhi-xmlui/handle/11250/3008626",
+   "note": "Excerpt did not give the muscle-strengthening frequency."
+  },
+  "S8": {
+   "title": "Stretching in healthy athletes: systematic scoping review and evidence gap map (Sports Medicine, 2024)",
+   "url": "https://link.springer.com/content/pdf/10.1007/s40279-024-02002-7.pdf",
+   "note": "Evidence map of 300 trials, not a pooled analysis."
+  },
+  "S9": {
+   "title": "ACE: Nutrition Scope of Practice, What You Can Do as a Personal Trainer",
+   "url": "https://www.acefitness.org/resources/pros/expert-articles/6248/nutrition-scope-of-practice-what-you-can-do-as-a-personal-trainer/",
+   "note": ""
+  },
+  "S10": {
+   "title": "NSCA-Certified Personal Trainer exam description",
+   "url": "https://www.nsca.com/certification/nsca-cpt/nsca-cpt-exam-description/",
+   "note": "Domain weights: consultation and assessment 23%, program planning 29%, program execution 36%, safety and legal 12%."
+  },
+  "S11": {
+   "title": "Menstrual cycle phase does not influence training-induced hypertrophy or strength: randomized controlled trial (Medicine & Science in Sports & Exercise)",
+   "url": "https://www.ovid.com/jnls/acsm-msse/fulltext/10.1249/mss.0000000000004031~menstrual-cycle-phase-does-not-influence-training-induced",
+   "note": "Title and search listing only; full text not read."
+  },
+  "S12": {
+   "title": "Current evidence shows no influence of women's menstrual cycle phase on acute strength performance or adaptations to resistance exercise training",
+   "url": "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC10076834/",
+   "note": "Title and search listing only; full text not read."
+  },
+  "S13": {
+   "title": "Evidence for periodizing strength and/or endurance training according to menstrual cycle phases is lacking (NSCA Strength and Conditioning Journal, 2025)",
+   "url": "https://journals.lww.com/nsca-scj/fulltext/2025/12000/evidence_for_periodizing_strength_and_or_endurance.4.aspx",
+   "note": "Title and search listing only; full text not read."
+  },
+  "LIB": {
+   "title": "Forged & Sent workout library design (workout-meta.json)",
+   "url": "",
+   "note": "Internal design decisions, not research."
+  }
+ },
+ "items": [
+  {
+   "id": "P-001",
+   "kind": "principle",
+   "topic": "Progressive overload",
+   "question": "How do I keep getting stronger?",
+   "shortAnswer": "Do a little more over time: a rep, a few pounds, or cleaner form.",
+   "detail": "Progression matters for long-term gains but is not needed for the first benefits. Once you hit the top of the rep range on every set with good form, add the smallest jump available (about 2 to 5 lb) next session. If you miss reps, hold the weight.",
+   "evidenceTag": "Well supported",
+   "sources": [
+    "S1"
+   ],
+   "library": "both"
+  },
+  {
+   "id": "P-002",
+   "kind": "principle",
+   "topic": "Effort: RPE and RIR",
+   "question": "What does RPE 8 or RIR 2 mean?",
+   "shortAnswer": "RPE is effort on a 1 to 10 scale. RIR is roughly how many good reps you had left.",
+   "detail": "Treat RIR as an estimate. It is more accurate near failure, with heavier loads and in upper-body lifts, and less accurate on high-rep sets. Ending a set about 2 to 3 reps short of failure is a good target. Going to failure is not required. If you are new, lean on form and bar speed: when the reps slow down or your form changes, you are close.",
+   "evidenceTag": "Moderate",
+   "sources": [
+    "S1",
+    "S6"
+   ],
+   "library": "both"
+  },
+  {
+   "id": "P-003",
+   "kind": "principle",
+   "topic": "Deload weeks",
+   "question": "Why is every 4th week lighter?",
+   "shortAnswer": "It is a planned lighter week built into the plans.",
+   "detail": "A deload is common practice, but a controlled trial in trained adults found a full week off did not improve muscle growth and gave less lower-body strength than training straight through. That trial tested complete rest, not the reduced-volume weeks used here. If you feel fine, the lighter week is short and low risk. If you are worn down, it helps. Gideon calls it standard practice, not a proven requirement.",
+   "evidenceTag": "Contested",
+   "sources": [
+    "S3"
+   ],
+   "library": "both"
+  },
+  {
+   "id": "P-004",
+   "kind": "principle",
+   "topic": "Rest between sets",
+   "question": "How long should I rest?",
+   "shortAnswer": "Main lifts about 2 to 3 minutes, accessories about 60 seconds.",
+   "detail": "This is a convention, not a requirement. Short versus long rest did not change strength in the evidence ACSM reviewed, and ACSM sets no rest-time recommendation. The rests are written to keep every session inside the 45-minute cap. Shorten accessory rests if you need to. Protect rest on heavy sets so your form holds.",
+   "evidenceTag": "Standard practice",
+   "sources": [
+    "S1",
+    "LIB"
+   ],
+   "library": "both"
+  },
+  {
+   "id": "P-005",
+   "kind": "principle",
+   "topic": "Easy cardio",
+   "question": "Why an easy walk on recovery days?",
+   "shortAnswer": "Easy movement is low-cost recovery and counts toward weekly activity.",
+   "detail": "Easy-pace work is healthy and low stress. The claim that Zone 2 is the single best intensity for building your aerobic engine is disputed: a 2025 review found higher intensities gained as much or more per minute. The Engine and Pulse plans train the harder end. WHO's baseline is 150 to 300 minutes of moderate or 75 to 150 minutes of vigorous activity per week.",
+   "evidenceTag": "Contested",
+   "sources": [
+    "S4",
+    "S7"
+   ],
+   "library": "both"
+  },
+  {
+   "id": "P-006",
+   "kind": "principle",
+   "topic": "Recovery-day core and mobility",
+   "question": "Why core and mobility on recovery days?",
+   "shortAnswer": "They restore movement and train the trunk without draining the lifting days.",
+   "detail": "Recovery sessions run 30 minutes or less. Core holds sit here so they do not leave you tired before heavy sets. Training days have no dedicated core block; loaded carries are the only trunk work there.",
+   "evidenceTag": "Library design",
+   "sources": [
+    "LIB"
+   ],
+   "library": "both"
+  },
+  {
+   "id": "P-007",
+   "kind": "principle",
+   "topic": "Soreness versus pain",
+   "question": "Is this soreness normal?",
+   "shortAnswer": "Mild soreness 1 to 2 days later is normal. Sharp, pinching or joint pain is not.",
+   "detail": "Stop that movement and use the alternate in the app. If pain persists or you are unsure, see a clinician. Gideon does not diagnose.",
+   "evidenceTag": "Standard practice",
+   "sources": [
+    "LIB"
+   ],
+   "library": "both"
+  },
+  {
+   "id": "P-008",
+   "kind": "principle",
+   "topic": "Session length",
+   "question": "Why 45 minutes?",
+   "shortAnswer": "Every training day is built to take 45 minutes or less, warm-up and cool-down included.",
+   "detail": "Rests are written into each prescription, so the plan holds its length if you keep to them. Recovery days run 30 minutes or less.",
+   "evidenceTag": "Library design",
+   "sources": [
+    "LIB"
+   ],
+   "library": "both"
+  },
+  {
+   "id": "P-009",
+   "kind": "principle",
+   "topic": "Volume",
+   "question": "How many sets do I need?",
+   "shortAnswer": "For size, about 10 or more hard sets per muscle per week. For strength, 2 to 3 sets per lift.",
+   "detail": "More sets help, with diminishing returns: the first sets do the most. One 2025 analysis put the minimum effective dose near 4 weekly sets per muscle for size, and ACSM's review found gains continued to roughly 18 to 20 sets a week. Most trials are short and in young men. See the Program Guide volume audit for what each plan delivers.",
+   "evidenceTag": "Moderate",
+   "sources": [
+    "S1",
+    "S2"
+   ],
+   "library": "both"
+  },
+  {
+   "id": "P-010",
+   "kind": "principle",
+   "topic": "Frequency",
+   "question": "How many days a week should I train?",
+   "shortAnswer": "Train each muscle group at least twice a week.",
+   "detail": "For size, spreading the same weekly sets over more days makes little difference. For strength, more frequent practice helps. More days is a way to fit volume, not a magic factor.",
+   "evidenceTag": "Moderate",
+   "sources": [
+    "S1",
+    "S2"
+   ],
+   "library": "both"
+  },
+  {
+   "id": "P-011",
+   "kind": "principle",
+   "topic": "Load",
+   "question": "Do I need heavy weights?",
+   "shortAnswer": "For strength, heavy (about 80% of max or more). For size, lighter loads also work when sets end close to failure and weekly volume is matched.",
+   "detail": "This is why the Dumbbells Only and Bodyweight Only setups are real options, not downgrades.",
+   "evidenceTag": "Well supported",
+   "sources": [
+    "S1"
+   ],
+   "library": "both"
+  },
+  {
+   "id": "P-012",
+   "kind": "principle",
+   "topic": "Power",
+   "question": "How do I train power?",
+   "shortAnswer": "Light-to-moderate loads (about 30 to 70% of max) moved fast, with low total reps.",
+   "detail": "Used on Warrior and Valkyrie power days. Keep reps low and crisp, and stop the set before speed drops.",
+   "evidenceTag": "Moderate",
+   "sources": [
+    "S1"
+   ],
+   "library": "both"
+  },
+  {
+   "id": "P-013",
+   "kind": "principle",
+   "topic": "Lifting and cardio together",
+   "question": "Will cardio kill my gains?",
+   "shortAnswer": "It can blunt lower-body strength and power, mostly in men in the data, if the volume is high.",
+   "detail": "A meta-analysis found lower-body strength gains were blunted in men but not in women, and power gains were impaired in both sexes. Hypertrophy had too few studies to judge. Keep hard conditioning away from heavy leg days, or run strength and conditioning plans in separate blocks.",
+   "evidenceTag": "Moderate",
+   "sources": [
+    "S5"
+   ],
+   "library": "both"
+  },
+  {
+   "id": "P-014",
+   "kind": "principle",
+   "topic": "Weekly activity baseline",
+   "question": "How much activity is enough for health?",
+   "shortAnswer": "150 to 300 minutes of moderate or 75 to 150 minutes of vigorous activity a week, plus regular muscle strengthening.",
+   "detail": "Our plans sit on top of this. WHO also recommends reducing sitting time.",
+   "evidenceTag": "Well supported",
+   "sources": [
+    "S7"
+   ],
+   "library": "both"
+  },
+  {
+   "id": "P-015",
+   "kind": "principle",
+   "topic": "Warm-up and stretching",
+   "question": "Does stretching prevent injury?",
+   "shortAnswer": "Stretching can improve range of motion. It has not been shown to prevent injury.",
+   "detail": "The warm-up is movement only. It raises body temperature, gets joints moving and rehearses the lifts. Held stretches belong in the cool-down. Only five trials measured injury and they did not support a preventive role, though the authors call that a research gap.",
+   "evidenceTag": "Contested",
+   "sources": [
+    "S8"
+   ],
+   "library": "both"
+  },
+  {
+   "id": "P-016",
+   "kind": "principle",
+   "topic": "Cycle and training",
+   "question": "Should I train differently by cycle phase?",
+   "shortAnswer": "Adjust to how you feel that day, not to a calendar phase.",
+   "detail": "The studies and reviews found little support for phase-based programming. Symptoms and readiness do matter, so use the low-energy-day option when needed.",
+   "evidenceTag": "Moderate",
+   "sources": [
+    "S11",
+    "S12",
+    "S13"
+   ],
+   "library": "women"
+  },
+  {
+   "id": "P-017",
+   "kind": "principle",
+   "topic": "Periodization",
+   "question": "Do I need blocks and phases?",
+   "shortAnswer": "The block structure is a practical way to progress, not a requirement.",
+   "detail": "ACSM found periodized plans were not better than non-periodized plans when progressive overload was applied.",
+   "evidenceTag": "Moderate",
+   "sources": [
+    "S1"
+   ],
+   "library": "both"
+  },
+  {
+   "id": "P-018",
+   "kind": "principle",
+   "topic": "What a trainer does first",
+   "question": "What happens before a program starts?",
+   "shortAnswer": "A good trainer asks about goals, history, schedule, equipment and health before programming.",
+   "detail": "Client consultation and assessment is the first domain on the NSCA-CPT exam, including medical history and health appraisal. Gideon follows the Intake and Screening steps.",
+   "evidenceTag": "Standard practice",
+   "sources": [
+    "S10"
+   ],
+   "library": "both"
+  },
+  {
+   "id": "G-001",
+   "kind": "glossary",
+   "topic": "Set",
+   "question": "What does Set mean?",
+   "shortAnswer": "A group of reps done back to back.",
+   "detail": "You rest after a set before starting the next one.",
+   "evidenceTag": "Definition",
+   "sources": [
+    "LIB"
+   ],
+   "library": "both"
+  },
+  {
+   "id": "G-002",
+   "kind": "glossary",
+   "topic": "Rep",
+   "question": "What does Rep mean?",
+   "shortAnswer": "One full lift from start to finish.",
+   "detail": "Count a rep only if you used the full range with good form.",
+   "evidenceTag": "Definition",
+   "sources": [
+    "LIB"
+   ],
+   "library": "both"
+  },
+  {
+   "id": "G-003",
+   "kind": "glossary",
+   "topic": "RPE",
+   "question": "What does RPE mean?",
+   "shortAnswer": "Rate of perceived exertion: effort from 1 (easy) to 10 (nothing left).",
+   "detail": "RPE 8 means about 2 reps left in the tank. Most working sets are RPE 7 to 9.",
+   "evidenceTag": "Definition",
+   "sources": [
+    "LIB"
+   ],
+   "library": "both"
+  },
+  {
+   "id": "G-004",
+   "kind": "glossary",
+   "topic": "RIR",
+   "question": "What does RIR mean?",
+   "shortAnswer": "Reps in reserve: how many more good reps you could have done.",
+   "detail": "RIR 2 means you stopped with about 2 left. It is an estimate.",
+   "evidenceTag": "Definition",
+   "sources": [
+    "LIB"
+   ],
+   "library": "both"
+  },
+  {
+   "id": "G-005",
+   "kind": "glossary",
+   "topic": "1RM",
+   "question": "What does 1RM mean?",
+   "shortAnswer": "One-rep max: the heaviest weight you could lift once with good form.",
+   "detail": "The warm-up ramp-up sets use percentages of your working weight, not a tested max.",
+   "evidenceTag": "Definition",
+   "sources": [
+    "LIB"
+   ],
+   "library": "both"
+  },
+  {
+   "id": "G-006",
+   "kind": "glossary",
+   "topic": "Superset",
+   "question": "What does Superset mean?",
+   "shortAnswer": "Two exercises done back to back with little rest between them.",
+   "detail": "The arm finisher pairs a curl (A1) with a triceps move (A2).",
+   "evidenceTag": "Definition",
+   "sources": [
+    "LIB"
+   ],
+   "library": "both"
+  },
+  {
+   "id": "G-007",
+   "kind": "glossary",
+   "topic": "Deload",
+   "question": "What does Deload mean?",
+   "shortAnswer": "A planned lighter week, every 4th week.",
+   "detail": "Fewer sets and lighter effort so you can recover.",
+   "evidenceTag": "Definition",
+   "sources": [
+    "LIB"
+   ],
+   "library": "both"
+  },
+  {
+   "id": "G-008",
+   "kind": "glossary",
+   "topic": "Circuit",
+   "question": "What does Circuit mean?",
+   "shortAnswer": "A series of exercises done in order for timed work and rest, then repeated for rounds.",
+   "detail": "Engine, Pulse and some Warrior and Valkyrie days use circuits.",
+   "evidenceTag": "Definition",
+   "sources": [
+    "LIB"
+   ],
+   "library": "both"
+  },
+  {
+   "id": "G-009",
+   "kind": "glossary",
+   "topic": "Tempo",
+   "question": "What does Tempo mean?",
+   "shortAnswer": "The speed you lift and lower.",
+   "detail": "A 3-second lowering phase makes a lift harder without adding weight.",
+   "evidenceTag": "Definition",
+   "sources": [
+    "LIB"
+   ],
+   "library": "both"
+  },
+  {
+   "id": "G-010",
+   "kind": "glossary",
+   "topic": "Talk test",
+   "question": "What does Talk test mean?",
+   "shortAnswer": "A way to judge easy cardio: you can speak in full sentences.",
+   "detail": "If you cannot talk, slow down.",
+   "evidenceTag": "Definition",
+   "sources": [
+    "LIB"
+   ],
+   "library": "both"
+  },
+  {
+   "id": "G-011",
+   "kind": "glossary",
+   "topic": "Range of motion",
+   "question": "What does Range of motion mean?",
+   "shortAnswer": "How far a joint moves during an exercise.",
+   "detail": "Use the full range you can control; do not force it.",
+   "evidenceTag": "Definition",
+   "sources": [
+    "LIB"
+   ],
+   "library": "both"
+  }
+ ]
+}

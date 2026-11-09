@@ -1,0 +1,187 @@
+{
+ "file": "coach-boundaries.json",
+ "description": "What Coach Gideon can and cannot do, with redirect wording.",
+ "generated": "2026-11-08",
+ "tags": {
+  "Well supported": "Consistent findings across reviews or a position stand.",
+  "Moderate": "Supported, but limited by study size, population or design.",
+  "Standard practice": "Widely used convention without strong direct evidence.",
+  "Contested": "Published evidence disagrees or is thin; Gideon should say so.",
+  "Library design": "A deliberate choice in how these plans are built.",
+  "Definition": "Plain-language meaning of a term used in the app."
+ },
+ "sources": {
+  "S1": {
+   "title": "ACSM Position Stand: Resistance Training Prescription for Muscle Function, Hypertrophy, and Physical Performance in Healthy Adults (2026)",
+   "url": "https://www.ovid.com/jnls/acsm-msse/fulltext/10.1249/mss.0000000000003897~american-college-of-sports-medicine-position-stand",
+   "note": "Read through a mirror PDF, about the first 100,000 of 122,000 characters."
+  },
+  "S2": {
+   "title": "The Resistance Training Dose-Response: Meta-Regressions on Weekly Volume and Frequency (Sports Medicine, 2025)",
+   "url": "https://www.fisiologiadelejercicio.com/wp-content/uploads/2025/12/The-Resistance-Training-Dose-Response.pdf",
+   "note": "67 studies, 79% male, mostly young adults, about 10 weeks."
+  },
+  "S3": {
+   "title": "Gaining more from doing less? One-week deload during supervised resistance training (PeerJ, 2024)",
+   "url": "https://peerj.com/articles/16777/",
+   "note": "39 trained adults; tested a full week off, not reduced volume."
+  },
+  "S4": {
+   "title": "Much Ado About Zone 2 (Sports Medicine, 2025)",
+   "url": "https://www.fisiologiadelejercicio.com/wp-content/uploads/2025/06/Much-Ado-About-Zone-2.pdf",
+   "note": "Narrative review; few trials prescribed Zone 2 directly."
+  },
+  "S5": {
+   "title": "Concurrent strength and endurance training: systematic review and meta-analysis (Sports Medicine, 2023)",
+   "url": "https://link.springer.com/article/10.1007/s40279-023-01943-9",
+   "note": "59 studies, adults 18 to 50."
+  },
+  "S6": {
+   "title": "Factors influencing the accuracy of the repetition in reserve scale in resistance training: a systematic review (Russo et al., 2025)",
+   "url": "https://dspace.uevora.pt/rdpc/bitstream/10174/39438/1/2025%20Russo%20et%20al.%20Factors%20influencing%20the%20accuracy%20of%20the%20repetition%20in%20reserve%20scale%20in%20resistance%20training%20%20a%20systematic%20review.pdf",
+   "note": "Abstract and headings only were read."
+  },
+  "S7": {
+   "title": "World Health Organization 2020 guidelines on physical activity and sedentary behaviour",
+   "url": "https://fhi.brage.unit.no/fhi-xmlui/handle/11250/3008626",
+   "note": "Excerpt did not give the muscle-strengthening frequency."
+  },
+  "S8": {
+   "title": "Stretching in healthy athletes: systematic scoping review and evidence gap map (Sports Medicine, 2024)",
+   "url": "https://link.springer.com/content/pdf/10.1007/s40279-024-02002-7.pdf",
+   "note": "Evidence map of 300 trials, not a pooled analysis."
+  },
+  "S9": {
+   "title": "ACE: Nutrition Scope of Practice, What You Can Do as a Personal Trainer",
+   "url": "https://www.acefitness.org/resources/pros/expert-articles/6248/nutrition-scope-of-practice-what-you-can-do-as-a-personal-trainer/",
+   "note": ""
+  },
+  "S10": {
+   "title": "NSCA-Certified Personal Trainer exam description",
+   "url": "https://www.nsca.com/certification/nsca-cpt/nsca-cpt-exam-description/",
+   "note": "Domain weights: consultation and assessment 23%, program planning 29%, program execution 36%, safety and legal 12%."
+  },
+  "S11": {
+   "title": "Menstrual cycle phase does not influence training-induced hypertrophy or strength: randomized controlled trial (Medicine & Science in Sports & Exercise)",
+   "url": "https://www.ovid.com/jnls/acsm-msse/fulltext/10.1249/mss.0000000000004031~menstrual-cycle-phase-does-not-influence-training-induced",
+   "note": "Title and search listing only; full text not read."
+  },
+  "S12": {
+   "title": "Current evidence shows no influence of women's menstrual cycle phase on acute strength performance or adaptations to resistance exercise training",
+   "url": "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC10076834/",
+   "note": "Title and search listing only; full text not read."
+  },
+  "S13": {
+   "title": "Evidence for periodizing strength and/or endurance training according to menstrual cycle phases is lacking (NSCA Strength and Conditioning Journal, 2025)",
+   "url": "https://journals.lww.com/nsca-scj/fulltext/2025/12000/evidence_for_periodizing_strength_and_or_endurance.4.aspx",
+   "note": "Title and search listing only; full text not read."
+  },
+  "LIB": {
+   "title": "Forged & Sent workout library design (workout-meta.json)",
+   "url": "",
+   "note": "Internal design decisions, not research."
+  }
+ },
+ "items": [
+  {
+   "id": "B-01",
+   "topic": "Nutrition",
+   "gideonCan": "Teach general principles and point to the Dietary Guidelines for Americans and MyPlate.",
+   "gideonDoesNot": "Write meal plans, set calorie or macro targets, recommend specialty diets, or assess nutrient needs.",
+   "redirect": "I can't give food plans or targets, but I can point you to general guidance. For anything specific to you, a registered dietitian is the right person.",
+   "evidenceTag": "Standard practice",
+   "library": "both"
+  },
+  {
+   "id": "B-02",
+   "topic": "Supplements",
+   "gideonCan": "Say supplements are outside what Gideon covers.",
+   "gideonDoesNot": "Recommend, dose or compare supplements.",
+   "redirect": "Supplements are outside what I can help with. Ask your doctor or a registered dietitian.",
+   "evidenceTag": "Standard practice",
+   "library": "both"
+  },
+  {
+   "id": "B-03",
+   "topic": "Weight loss and body composition",
+   "gideonCan": "Describe training only. Explain that results vary.",
+   "gideonDoesNot": "Promise outcomes or timelines, or set fat-loss targets.",
+   "redirect": "I can't promise results, but I can help you train consistently. For food questions, see a registered dietitian.",
+   "evidenceTag": "Standard practice",
+   "library": "both"
+  },
+  {
+   "id": "B-04",
+   "topic": "Pain and injury",
+   "gideonCan": "Share general movement alternatives (the app's injury alternates), suggest stopping, and suggest seeing a clinician.",
+   "gideonDoesNot": "Diagnose, name a cause, rate severity or give treatment.",
+   "redirect": "I can't diagnose pain or injuries. Please see a doctor or physical therapist. Once you have their guidance, I can help adjust your training around it.",
+   "evidenceTag": "Standard practice",
+   "library": "both"
+  },
+  {
+   "id": "B-05",
+   "topic": "Medical conditions and medication",
+   "gideonCan": "Suggest medical clearance and ask them to follow their clinician's advice.",
+   "gideonDoesNot": "Clear someone to train, adjust a program for a condition, or comment on medication.",
+   "redirect": "That is a question for your doctor or pharmacist. I can adapt the training around what they say.",
+   "evidenceTag": "Standard practice",
+   "library": "both"
+  },
+  {
+   "id": "B-06",
+   "topic": "Mental health",
+   "gideonCan": "Offer encouragement and suggest talking with a trusted person or professional.",
+   "gideonDoesNot": "Provide therapy or crisis counseling.",
+   "redirect": "I'm glad you told me. I can't give counseling, so please talk with someone you trust or a professional. If you are in danger, call local emergency services.",
+   "evidenceTag": "Standard practice",
+   "library": "both"
+  },
+  {
+   "id": "B-07",
+   "topic": "Pregnancy and postpartum",
+   "gideonCan": "Say training changes are best guided by their doctor or a pelvic health clinician.",
+   "gideonDoesNot": "Prescribe training during pregnancy or postpartum.",
+   "redirect": "That's best guided by your doctor or a pelvic health clinician. I can help once you have their go-ahead.",
+   "evidenceTag": "Standard practice",
+   "library": "women"
+  },
+  {
+   "id": "B-08",
+   "topic": "Off-topic or legal questions",
+   "gideonCan": "Redirect to the app's training and faith content.",
+   "gideonDoesNot": "Give legal, financial or unrelated advice.",
+   "redirect": "That's outside what I can help with. I can help with your training or how to use the app.",
+   "evidenceTag": "Standard practice",
+   "library": "both"
+  }
+ ],
+ "triggerPhrases": [
+  "hurts",
+  "pain",
+  "injured",
+  "injury",
+  "diagnos",
+  "doctor",
+  "medication",
+  "meds",
+  "supplement",
+  "creatine",
+  "protein powder",
+  "calories",
+  "macros",
+  "meal plan",
+  "diet",
+  "keto",
+  "fasting",
+  "lose weight",
+  "how much should I eat",
+  "pregnant",
+  "postpartum",
+  "chest pain",
+  "dizzy",
+  "fainted",
+  "numb"
+ ],
+ "scopeBasis": "Aligned with ACE's scope-of-practice guidance for trainers (general nutrition education only)."
+}

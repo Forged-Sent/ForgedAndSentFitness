@@ -1,0 +1,665 @@
+{
+ "file": "program-guide.json",
+ "description": "Who each program is for, how to adjust it, and what volume it delivers.",
+ "generated": "2026-11-08",
+ "tags": {
+  "Well supported": "Consistent findings across reviews or a position stand.",
+  "Moderate": "Supported, but limited by study size, population or design.",
+  "Standard practice": "Widely used convention without strong direct evidence.",
+  "Contested": "Published evidence disagrees or is thin; Gideon should say so.",
+  "Library design": "A deliberate choice in how these plans are built.",
+  "Definition": "Plain-language meaning of a term used in the app."
+ },
+ "sources": {
+  "S1": {
+   "title": "ACSM Position Stand: Resistance Training Prescription for Muscle Function, Hypertrophy, and Physical Performance in Healthy Adults (2026)",
+   "url": "https://www.ovid.com/jnls/acsm-msse/fulltext/10.1249/mss.0000000000003897~american-college-of-sports-medicine-position-stand",
+   "note": "Read through a mirror PDF, about the first 100,000 of 122,000 characters."
+  },
+  "S2": {
+   "title": "The Resistance Training Dose-Response: Meta-Regressions on Weekly Volume and Frequency (Sports Medicine, 2025)",
+   "url": "https://www.fisiologiadelejercicio.com/wp-content/uploads/2025/12/The-Resistance-Training-Dose-Response.pdf",
+   "note": "67 studies, 79% male, mostly young adults, about 10 weeks."
+  },
+  "S3": {
+   "title": "Gaining more from doing less? One-week deload during supervised resistance training (PeerJ, 2024)",
+   "url": "https://peerj.com/articles/16777/",
+   "note": "39 trained adults; tested a full week off, not reduced volume."
+  },
+  "S4": {
+   "title": "Much Ado About Zone 2 (Sports Medicine, 2025)",
+   "url": "https://www.fisiologiadelejercicio.com/wp-content/uploads/2025/06/Much-Ado-About-Zone-2.pdf",
+   "note": "Narrative review; few trials prescribed Zone 2 directly."
+  },
+  "S5": {
+   "title": "Concurrent strength and endurance training: systematic review and meta-analysis (Sports Medicine, 2023)",
+   "url": "https://link.springer.com/article/10.1007/s40279-023-01943-9",
+   "note": "59 studies, adults 18 to 50."
+  },
+  "S6": {
+   "title": "Factors influencing the accuracy of the repetition in reserve scale in resistance training: a systematic review (Russo et al., 2025)",
+   "url": "https://dspace.uevora.pt/rdpc/bitstream/10174/39438/1/2025%20Russo%20et%20al.%20Factors%20influencing%20the%20accuracy%20of%20the%20repetition%20in%20reserve%20scale%20in%20resistance%20training%20%20a%20systematic%20review.pdf",
+   "note": "Abstract and headings only were read."
+  },
+  "S7": {
+   "title": "World Health Organization 2020 guidelines on physical activity and sedentary behaviour",
+   "url": "https://fhi.brage.unit.no/fhi-xmlui/handle/11250/3008626",
+   "note": "Excerpt did not give the muscle-strengthening frequency."
+  },
+  "S8": {
+   "title": "Stretching in healthy athletes: systematic scoping review and evidence gap map (Sports Medicine, 2024)",
+   "url": "https://link.springer.com/content/pdf/10.1007/s40279-024-02002-7.pdf",
+   "note": "Evidence map of 300 trials, not a pooled analysis."
+  },
+  "S9": {
+   "title": "ACE: Nutrition Scope of Practice, What You Can Do as a Personal Trainer",
+   "url": "https://www.acefitness.org/resources/pros/expert-articles/6248/nutrition-scope-of-practice-what-you-can-do-as-a-personal-trainer/",
+   "note": ""
+  },
+  "S10": {
+   "title": "NSCA-Certified Personal Trainer exam description",
+   "url": "https://www.nsca.com/certification/nsca-cpt/nsca-cpt-exam-description/",
+   "note": "Domain weights: consultation and assessment 23%, program planning 29%, program execution 36%, safety and legal 12%."
+  },
+  "S11": {
+   "title": "Menstrual cycle phase does not influence training-induced hypertrophy or strength: randomized controlled trial (Medicine & Science in Sports & Exercise)",
+   "url": "https://www.ovid.com/jnls/acsm-msse/fulltext/10.1249/mss.0000000000004031~menstrual-cycle-phase-does-not-influence-training-induced",
+   "note": "Title and search listing only; full text not read."
+  },
+  "S12": {
+   "title": "Current evidence shows no influence of women's menstrual cycle phase on acute strength performance or adaptations to resistance exercise training",
+   "url": "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC10076834/",
+   "note": "Title and search listing only; full text not read."
+  },
+  "S13": {
+   "title": "Evidence for periodizing strength and/or endurance training according to menstrual cycle phases is lacking (NSCA Strength and Conditioning Journal, 2025)",
+   "url": "https://journals.lww.com/nsca-scj/fulltext/2025/12000/evidence_for_periodizing_strength_and_or_endurance.4.aspx",
+   "note": "Title and search listing only; full text not read."
+  },
+  "LIB": {
+   "title": "Forged & Sent workout library design (workout-meta.json)",
+   "url": "",
+   "note": "Internal design decisions, not research."
+  }
+ },
+ "common": {
+  "daysPerWeek": "3 core training days, plus an optional 4th training day (template day 6). Two recovery days and one rest day.",
+  "sessionLength": "Training days 45 minutes or less including warm-up and cool-down. Recovery days 30 minutes or less.",
+  "equipment": "Every program works in all four setups: Full Gym, Home Gym (Barbell + Dumbbells), Dumbbells Only, Bodyweight Only.",
+  "structure": "52 weeks in 13 four-week blocks. Week 4 of each block is a lighter deload week."
+ },
+ "equipmentNote": "Engine, Pulse, Warrior and Valkyrie rely on conditioning and power movements that work in every setup but feel best with a bit of space.",
+ "programs": [
+  {
+   "program": "Forged",
+   "library": "men",
+   "focus": "Strength",
+   "bestFor": "Getting stronger on the big lifts with a simple full-body structure.",
+   "experience": "Beginner to intermediate",
+   "notIdeal": "Chasing maximum muscle size or athletic power.",
+   "pairing": "Add Built for a size block after a strength base. Hard conditioning on top can blunt lower-body strength, mainly in men.",
+   "weekPattern": [
+    {
+     "templateDay": 1,
+     "theme": "Full Body A"
+    },
+    {
+     "templateDay": 2,
+     "theme": "Active Recovery"
+    },
+    {
+     "templateDay": 3,
+     "theme": "Full Body B"
+    },
+    {
+     "templateDay": 4,
+     "theme": "Active Recovery"
+    },
+    {
+     "templateDay": 5,
+     "theme": "Full Body C"
+    },
+    {
+     "templateDay": 6,
+     "theme": "Optional: Full Body Volume"
+    },
+    {
+     "templateDay": 7,
+     "theme": "Rest Day"
+    }
+   ],
+   "weeklySets": {
+    "threeDay": {
+     "Quads": 9.2,
+     "Glutes": 7.4,
+     "Hamstrings": 5.2,
+     "Chest": 5.7,
+     "Back": 13.2,
+     "Shoulders": 11.4,
+     "Biceps": 10.4,
+     "Triceps": 12.8,
+     "Calves": 0.7
+    },
+    "fourDay": {
+     "Quads": 12.1,
+     "Glutes": 10.9,
+     "Hamstrings": 7.3,
+     "Chest": 6.3,
+     "Back": 19.4,
+     "Shoulders": 14.4,
+     "Biceps": 14.5,
+     "Triceps": 16.4,
+     "Calves": 0.7
+    }
+   },
+   "howToDescribeVolume": "Forged is a strength plan. Volume is moderate, and chest, hamstrings and calves are light compared with a size plan."
+  },
+  {
+   "program": "Built",
+   "library": "men",
+   "focus": "Size",
+   "bestFor": "Building muscle with higher-rep full-body work and an arm finisher.",
+   "experience": "Beginner to advanced",
+   "notIdeal": "Peaking for maximum strength.",
+   "pairing": "Follow a Forged block, or alternate blocks with Forged. See the volume audit: chest and hamstrings are light.",
+   "weekPattern": [
+    {
+     "templateDay": 1,
+     "theme": "Full Body A"
+    },
+    {
+     "templateDay": 2,
+     "theme": "Active Recovery"
+    },
+    {
+     "templateDay": 3,
+     "theme": "Full Body B"
+    },
+    {
+     "templateDay": 4,
+     "theme": "Active Recovery"
+    },
+    {
+     "templateDay": 5,
+     "theme": "Full Body C"
+    },
+    {
+     "templateDay": 6,
+     "theme": "Optional: Full Body Pump"
+    },
+    {
+     "templateDay": 7,
+     "theme": "Rest Day"
+    }
+   ],
+   "weeklySets": {
+    "threeDay": {
+     "Quads": 9.3,
+     "Glutes": 5.3,
+     "Hamstrings": 5.1,
+     "Chest": 6.6,
+     "Back": 12.8,
+     "Shoulders": 16.1,
+     "Biceps": 10.9,
+     "Triceps": 11.2,
+     "Calves": 1.0
+    },
+    "fourDay": {
+     "Quads": 12.2,
+     "Glutes": 6.8,
+     "Hamstrings": 5.9,
+     "Chest": 9.5,
+     "Back": 16.6,
+     "Shoulders": 21.6,
+     "Biceps": 14.5,
+     "Triceps": 15.1,
+     "Calves": 2.0
+    }
+   },
+   "howToDescribeVolume": "Built is the size plan, but chest, glutes, hamstrings and calves fall below 10 weekly sets even on the 4-day version, while shoulders run high. Describe this honestly if asked."
+  },
+  {
+   "program": "Engine",
+   "library": "men",
+   "focus": "Conditioning",
+   "bestFor": "Fitness, work capacity and a harder cardio challenge.",
+   "experience": "All levels",
+   "notIdeal": "Maximal strength or size goals. It has no arm finisher.",
+   "pairing": "Best run as its own plan or in a separate block from heavy leg training.",
+   "weekPattern": [
+    {
+     "templateDay": 1,
+     "theme": "Intervals"
+    },
+    {
+     "templateDay": 2,
+     "theme": "Aerobic Base"
+    },
+    {
+     "templateDay": 3,
+     "theme": "Strength Circuit"
+    },
+    {
+     "templateDay": 4,
+     "theme": "Active Recovery"
+    },
+    {
+     "templateDay": 5,
+     "theme": "Metabolic Complex"
+    },
+    {
+     "templateDay": 6,
+     "theme": "Optional: Loaded Carries"
+    },
+    {
+     "templateDay": 7,
+     "theme": "Rest Day"
+    }
+   ],
+   "weeklySets": null,
+   "howToDescribeVolume": "Engine is built from timed circuits, not set-and-rep lifting, so weekly sets per muscle do not apply."
+  },
+  {
+   "program": "Warrior",
+   "library": "men",
+   "focus": "Athletic and combat",
+   "bestFor": "Power, speed and grit through fast lifts, circuits and combat conditioning.",
+   "experience": "Intermediate",
+   "notIdeal": "Brand-new lifters. Volume is low by design.",
+   "pairing": "Build a strength base with Forged first if you are new to lifting.",
+   "weekPattern": [
+    {
+     "templateDay": 1,
+     "theme": "Full Body Power A"
+    },
+    {
+     "templateDay": 2,
+     "theme": "Mobility and Movement"
+    },
+    {
+     "templateDay": 3,
+     "theme": "Full Body Power B"
+    },
+    {
+     "templateDay": 4,
+     "theme": "Active Recovery"
+    },
+    {
+     "templateDay": 5,
+     "theme": "Combat Circuit"
+    },
+    {
+     "templateDay": 6,
+     "theme": "Optional: Combat Conditioning"
+    },
+    {
+     "templateDay": 7,
+     "theme": "Rest Day"
+    }
+   ],
+   "weeklySets": {
+    "threeDay": {
+     "Quads": 6.5,
+     "Glutes": 6.2,
+     "Hamstrings": 2.2,
+     "Chest": 4.5,
+     "Back": 8.9,
+     "Shoulders": 3.8,
+     "Biceps": 5.8,
+     "Triceps": 7.2,
+     "Calves": 0.3
+    },
+    "fourDay": {
+     "Quads": 6.5,
+     "Glutes": 6.2,
+     "Hamstrings": 2.2,
+     "Chest": 4.5,
+     "Back": 8.9,
+     "Shoulders": 3.8,
+     "Biceps": 5.8,
+     "Triceps": 7.2,
+     "Calves": 0.3
+    }
+   },
+   "howToDescribeVolume": "Warrior is a low-volume strength and power plan by design. All muscle groups are under 10 weekly sets."
+  },
+  {
+   "program": "Rooted",
+   "library": "women",
+   "focus": "Strength",
+   "bestFor": "Getting stronger on the big lifts, with bone-loading work on the optional day.",
+   "experience": "Beginner to intermediate",
+   "notIdeal": "Chasing maximum muscle size or athletic power.",
+   "pairing": "Add Sculpted for a shape-and-size block after a strength base.",
+   "weekPattern": [
+    {
+     "templateDay": 1,
+     "theme": "Full Body Strength A"
+    },
+    {
+     "templateDay": 2,
+     "theme": "Active Recovery"
+    },
+    {
+     "templateDay": 3,
+     "theme": "Full Body Strength B"
+    },
+    {
+     "templateDay": 4,
+     "theme": "Active Recovery"
+    },
+    {
+     "templateDay": 5,
+     "theme": "Full Body Strength C"
+    },
+    {
+     "templateDay": 6,
+     "theme": "Optional: Strength and Bone Loading"
+    },
+    {
+     "templateDay": 7,
+     "theme": "Rest Day"
+    }
+   ],
+   "weeklySets": {
+    "threeDay": {
+     "Quads": 8.7,
+     "Glutes": 9.6,
+     "Hamstrings": 3.4,
+     "Chest": 6.2,
+     "Back": 11.8,
+     "Shoulders": 9.1,
+     "Biceps": 10.4,
+     "Triceps": 12.6,
+     "Calves": 0.5
+    },
+    "fourDay": {
+     "Quads": 13.9,
+     "Glutes": 15.8,
+     "Hamstrings": 4.1,
+     "Chest": 6.6,
+     "Back": 14.7,
+     "Shoulders": 12.0,
+     "Biceps": 14.2,
+     "Triceps": 16.2,
+     "Calves": 0.5
+    }
+   },
+   "howToDescribeVolume": "Rooted is a strength plan with glute emphasis. Hamstrings and chest are light."
+  },
+  {
+   "program": "Sculpted",
+   "library": "women",
+   "focus": "Size and shape",
+   "bestFor": "Building muscle with a glute, leg and shoulder emphasis and an arm finisher.",
+   "experience": "Beginner to advanced",
+   "notIdeal": "Peaking for maximum strength.",
+   "pairing": "Follow a Rooted block, or alternate blocks with Rooted. See the volume audit: chest and hamstrings are light.",
+   "weekPattern": [
+    {
+     "templateDay": 1,
+     "theme": "Full Body: Glute Focus"
+    },
+    {
+     "templateDay": 2,
+     "theme": "Active Recovery"
+    },
+    {
+     "templateDay": 3,
+     "theme": "Full Body: Legs and Shoulders"
+    },
+    {
+     "templateDay": 4,
+     "theme": "Active Recovery"
+    },
+    {
+     "templateDay": 5,
+     "theme": "Full Body: Back and Hamstrings"
+    },
+    {
+     "templateDay": 6,
+     "theme": "Optional: Shape and Tone Volume"
+    },
+    {
+     "templateDay": 7,
+     "theme": "Rest Day"
+    }
+   ],
+   "weeklySets": {
+    "threeDay": {
+     "Quads": 9.0,
+     "Glutes": 10.3,
+     "Hamstrings": 5.0,
+     "Chest": 3.9,
+     "Back": 11.3,
+     "Shoulders": 11.8,
+     "Biceps": 10.9,
+     "Triceps": 10.4,
+     "Calves": 0.8
+    },
+    "fourDay": {
+     "Quads": 11.9,
+     "Glutes": 13.4,
+     "Hamstrings": 5.2,
+     "Chest": 7.3,
+     "Back": 15.2,
+     "Shoulders": 17.3,
+     "Biceps": 14.5,
+     "Triceps": 14.0,
+     "Calves": 0.8
+    }
+   },
+   "howToDescribeVolume": "Sculpted is the size and shape plan. Glutes are well covered, but chest and hamstrings are on the light side and calves are minimal."
+  },
+  {
+   "program": "Pulse",
+   "library": "women",
+   "focus": "Conditioning",
+   "bestFor": "Fitness, work capacity and a harder cardio challenge.",
+   "experience": "All levels",
+   "notIdeal": "Maximal strength or size goals. It has no arm finisher.",
+   "pairing": "Best run as its own plan or in a separate block from heavy leg training.",
+   "weekPattern": [
+    {
+     "templateDay": 1,
+     "theme": "Intervals"
+    },
+    {
+     "templateDay": 2,
+     "theme": "Aerobic Base"
+    },
+    {
+     "templateDay": 3,
+     "theme": "Strength Circuit"
+    },
+    {
+     "templateDay": 4,
+     "theme": "Active Recovery"
+    },
+    {
+     "templateDay": 5,
+     "theme": "Metabolic Complex"
+    },
+    {
+     "templateDay": 6,
+     "theme": "Optional: Loaded Carries"
+    },
+    {
+     "templateDay": 7,
+     "theme": "Rest Day"
+    }
+   ],
+   "weeklySets": null,
+   "howToDescribeVolume": "Pulse is built from timed circuits, not set-and-rep lifting, so weekly sets per muscle do not apply."
+  },
+  {
+   "program": "Valkyrie",
+   "library": "women",
+   "focus": "Athletic and combat",
+   "bestFor": "Power, speed and grit through fast lifts, circuits and combat conditioning.",
+   "experience": "Intermediate",
+   "notIdeal": "Brand-new lifters. Volume is low by design.",
+   "pairing": "Build a strength base with Rooted first if you are new to lifting.",
+   "weekPattern": [
+    {
+     "templateDay": 1,
+     "theme": "Full Body Power A"
+    },
+    {
+     "templateDay": 2,
+     "theme": "Mobility and Movement"
+    },
+    {
+     "templateDay": 3,
+     "theme": "Full Body Power B"
+    },
+    {
+     "templateDay": 4,
+     "theme": "Active Recovery"
+    },
+    {
+     "templateDay": 5,
+     "theme": "Combat Circuit"
+    },
+    {
+     "templateDay": 6,
+     "theme": "Optional: Combat Conditioning"
+    },
+    {
+     "templateDay": 7,
+     "theme": "Rest Day"
+    }
+   ],
+   "weeklySets": {
+    "threeDay": {
+     "Quads": 6.5,
+     "Glutes": 6.6,
+     "Hamstrings": 1.8,
+     "Chest": 4.5,
+     "Back": 8.9,
+     "Shoulders": 3.8,
+     "Biceps": 5.8,
+     "Triceps": 7.2,
+     "Calves": 0.3
+    },
+    "fourDay": {
+     "Quads": 6.5,
+     "Glutes": 6.6,
+     "Hamstrings": 1.8,
+     "Chest": 4.5,
+     "Back": 8.9,
+     "Shoulders": 3.8,
+     "Biceps": 5.8,
+     "Triceps": 7.2,
+     "Calves": 0.3
+    }
+   },
+   "howToDescribeVolume": "Valkyrie is a low-volume strength and power plan by design. All muscle groups are under 10 weekly sets."
+  }
+ ],
+ "adjustmentRecipes": [
+  {
+   "id": "R-01",
+   "situation": "Only 3 days available this week",
+   "answer": "Run the 3 core training days and skip the optional 4th day.",
+   "mechanism": "Template day 6 is optional and only shown when the 4th training day is turned on.",
+   "tag": "Library design"
+  },
+  {
+   "id": "R-02",
+   "situation": "Short on time (about 30 minutes)",
+   "answer": "Keep the main lifts first and drop accessories from the bottom of the list. Skip the arm finisher before skipping a main lift.",
+   "mechanism": "Exercise order is priority order; the arm finisher is last.",
+   "tag": "Standard practice"
+  },
+  {
+   "id": "R-03",
+   "situation": "Missed a week",
+   "answer": "Repeat the last week you finished rather than jumping ahead. Do not try to make up every missed session.",
+   "mechanism": "Advice only. Confirm how the app advances plan days before promising a specific behavior.",
+   "tag": "Standard practice"
+  },
+  {
+   "id": "R-04",
+   "situation": "Back after 3 or more weeks off",
+   "answer": "Restart near the previous lighter-week load and build back over about two weeks. Keep 3 or more reps in reserve at first.",
+   "mechanism": "Return-to-training rule (standard practice).",
+   "tag": "Standard practice"
+  },
+  {
+   "id": "R-05",
+   "situation": "Stalled for 3 or more weeks on a lift",
+   "answer": "Hold the weight, check form and general habits (sleep, stress, consistency), and take the lighter week early if you feel run down. Do not diagnose or prescribe food.",
+   "mechanism": "Stall rule (standard practice).",
+   "tag": "Standard practice"
+  },
+  {
+   "id": "R-06",
+   "situation": "Travel or no gym",
+   "answer": "Switch to the Dumbbells Only or Bodyweight Only setup. The session stays the same and the movements swap to a version that fits.",
+   "mechanism": "byEquipment on every movement in movements.json.",
+   "tag": "Library design"
+  },
+  {
+   "id": "R-07",
+   "situation": "Wants more size",
+   "answer": "Move to Built (men) or Sculpted (women) at the start of the next 4-week block. Note that chest and hamstring volume is on the lighter side in the current plans.",
+   "mechanism": "Plan switch at a block boundary.",
+   "tag": "Library design"
+  },
+  {
+   "id": "R-08",
+   "situation": "Wants more conditioning",
+   "answer": "Swap the optional 4th day for an Engine-style or Pulse-style day, or run a conditioning block. Keep hard intervals off heavy leg days.",
+   "mechanism": "Day swap or separate block.",
+   "tag": "Moderate"
+  },
+  {
+   "id": "R-09",
+   "situation": "Cannot do a movement",
+   "answer": "Use the app's alternate, or step down the Progressions ladder to an easier version. Quality first, then add load or difficulty.",
+   "mechanism": "alternates.json and the Progressions tab.",
+   "tag": "Library design"
+  },
+  {
+   "id": "R-10",
+   "situation": "Sore or low on energy",
+   "answer": "Mild soreness is normal. Train at lower effort (leave 3 or more reps in reserve), shorten the session, or move to an easy walk. Pain is different: see the Boundaries tab.",
+   "mechanism": "Autoregulation by feel.",
+   "tag": "Standard practice"
+  },
+  {
+   "id": "R-11",
+   "situation": "Complete beginner",
+   "answer": "Start with Forged or Rooted, learn each movement with light loads, use the easier versions from Progressions and aim for consistency before intensity.",
+   "mechanism": "Program Guide experience levels.",
+   "tag": "Standard practice"
+  },
+  {
+   "id": "R-12",
+   "situation": "Wants a custom program",
+   "answer": "Run the Intake and Screening steps first. Then build only from the generator rules: allowed session types, movement swaps by pattern, volume ceilings, and the required warm-up and cool-down.",
+   "mechanism": "Intake tab plus generator rules.",
+   "tag": "Library design"
+  }
+ ],
+ "volumeAudit": {
+  "method": "Method: counts set-and-rep work only. The first-listed muscle on each movement counts as 1 set per set; other listed muscles count as 0.5. Core holds, carries, timed circuits and warm-ups are excluded. Averaged over the 39 non-deload weeks of the 52-week plan. Muscle tags in movements.json are coarse, so treat this as a screening tool, not a prescription. Reference points: ACSM's review suggests about 10 or more sets per muscle per week for size and 2 to 3 sets per lift for strength.",
+  "decision": "Decision (2026-11-08): leave plan volume as is for now. Revisit chest, hamstrings and calves in Built, Sculpted, Forged and Rooted later.",
+  "muscleGroups": [
+   "Quads",
+   "Glutes",
+   "Hamstrings",
+   "Chest",
+   "Back",
+   "Shoulders",
+   "Biceps",
+   "Triceps",
+   "Calves"
+  ],
+  "reference": {
+   "hypertrophyWeeklySets": "about 10 or more per muscle (ACSM 2026)",
+   "strengthSetsPerLift": "2 to 3 (ACSM 2026)"
+  }
+ }
+}

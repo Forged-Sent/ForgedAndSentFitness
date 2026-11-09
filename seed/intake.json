@@ -1,0 +1,205 @@
+{
+ "file": "intake.json",
+ "description": "Questions Coach Gideon asks before building or changing a program.",
+ "generated": "2026-11-08",
+ "tags": {
+  "Well supported": "Consistent findings across reviews or a position stand.",
+  "Moderate": "Supported, but limited by study size, population or design.",
+  "Standard practice": "Widely used convention without strong direct evidence.",
+  "Contested": "Published evidence disagrees or is thin; Gideon should say so.",
+  "Library design": "A deliberate choice in how these plans are built.",
+  "Definition": "Plain-language meaning of a term used in the app."
+ },
+ "sources": {
+  "S1": {
+   "title": "ACSM Position Stand: Resistance Training Prescription for Muscle Function, Hypertrophy, and Physical Performance in Healthy Adults (2026)",
+   "url": "https://www.ovid.com/jnls/acsm-msse/fulltext/10.1249/mss.0000000000003897~american-college-of-sports-medicine-position-stand",
+   "note": "Read through a mirror PDF, about the first 100,000 of 122,000 characters."
+  },
+  "S2": {
+   "title": "The Resistance Training Dose-Response: Meta-Regressions on Weekly Volume and Frequency (Sports Medicine, 2025)",
+   "url": "https://www.fisiologiadelejercicio.com/wp-content/uploads/2025/12/The-Resistance-Training-Dose-Response.pdf",
+   "note": "67 studies, 79% male, mostly young adults, about 10 weeks."
+  },
+  "S3": {
+   "title": "Gaining more from doing less? One-week deload during supervised resistance training (PeerJ, 2024)",
+   "url": "https://peerj.com/articles/16777/",
+   "note": "39 trained adults; tested a full week off, not reduced volume."
+  },
+  "S4": {
+   "title": "Much Ado About Zone 2 (Sports Medicine, 2025)",
+   "url": "https://www.fisiologiadelejercicio.com/wp-content/uploads/2025/06/Much-Ado-About-Zone-2.pdf",
+   "note": "Narrative review; few trials prescribed Zone 2 directly."
+  },
+  "S5": {
+   "title": "Concurrent strength and endurance training: systematic review and meta-analysis (Sports Medicine, 2023)",
+   "url": "https://link.springer.com/article/10.1007/s40279-023-01943-9",
+   "note": "59 studies, adults 18 to 50."
+  },
+  "S6": {
+   "title": "Factors influencing the accuracy of the repetition in reserve scale in resistance training: a systematic review (Russo et al., 2025)",
+   "url": "https://dspace.uevora.pt/rdpc/bitstream/10174/39438/1/2025%20Russo%20et%20al.%20Factors%20influencing%20the%20accuracy%20of%20the%20repetition%20in%20reserve%20scale%20in%20resistance%20training%20%20a%20systematic%20review.pdf",
+   "note": "Abstract and headings only were read."
+  },
+  "S7": {
+   "title": "World Health Organization 2020 guidelines on physical activity and sedentary behaviour",
+   "url": "https://fhi.brage.unit.no/fhi-xmlui/handle/11250/3008626",
+   "note": "Excerpt did not give the muscle-strengthening frequency."
+  },
+  "S8": {
+   "title": "Stretching in healthy athletes: systematic scoping review and evidence gap map (Sports Medicine, 2024)",
+   "url": "https://link.springer.com/content/pdf/10.1007/s40279-024-02002-7.pdf",
+   "note": "Evidence map of 300 trials, not a pooled analysis."
+  },
+  "S9": {
+   "title": "ACE: Nutrition Scope of Practice, What You Can Do as a Personal Trainer",
+   "url": "https://www.acefitness.org/resources/pros/expert-articles/6248/nutrition-scope-of-practice-what-you-can-do-as-a-personal-trainer/",
+   "note": ""
+  },
+  "S10": {
+   "title": "NSCA-Certified Personal Trainer exam description",
+   "url": "https://www.nsca.com/certification/nsca-cpt/nsca-cpt-exam-description/",
+   "note": "Domain weights: consultation and assessment 23%, program planning 29%, program execution 36%, safety and legal 12%."
+  },
+  "S11": {
+   "title": "Menstrual cycle phase does not influence training-induced hypertrophy or strength: randomized controlled trial (Medicine & Science in Sports & Exercise)",
+   "url": "https://www.ovid.com/jnls/acsm-msse/fulltext/10.1249/mss.0000000000004031~menstrual-cycle-phase-does-not-influence-training-induced",
+   "note": "Title and search listing only; full text not read."
+  },
+  "S12": {
+   "title": "Current evidence shows no influence of women's menstrual cycle phase on acute strength performance or adaptations to resistance exercise training",
+   "url": "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC10076834/",
+   "note": "Title and search listing only; full text not read."
+  },
+  "S13": {
+   "title": "Evidence for periodizing strength and/or endurance training according to menstrual cycle phases is lacking (NSCA Strength and Conditioning Journal, 2025)",
+   "url": "https://journals.lww.com/nsca-scj/fulltext/2025/12000/evidence_for_periodizing_strength_and_or_endurance.4.aspx",
+   "note": "Title and search listing only; full text not read."
+  },
+  "LIB": {
+   "title": "Forged & Sent workout library design (workout-meta.json)",
+   "url": "",
+   "note": "Internal design decisions, not research."
+  }
+ },
+ "items": [
+  {
+   "id": "IN-01",
+   "step": 1,
+   "question": "What is your main goal: strength, size, fitness, fat loss, or sport?",
+   "why": "Chooses the program.",
+   "ifAnswer": "Strength: Forged or Rooted. Size: Built or Sculpted. Fitness or fat loss: Engine or Pulse for conditioning, plus lifting. Sport or power: Warrior or Valkyrie (intermediate). Never promise a fat-loss outcome; describe the training only.",
+   "boundary": false,
+   "library": "both"
+  },
+  {
+   "id": "IN-02",
+   "step": 2,
+   "question": "How long have you trained consistently?",
+   "why": "Sets the level.",
+   "ifAnswer": "Under 6 months: beginner. 6 to 24 months: intermediate. Over 2 years with steady progress: advanced. Beginners start on Forged or Rooted with easier versions.",
+   "boundary": false,
+   "library": "both"
+  },
+  {
+   "id": "IN-03",
+   "step": 3,
+   "question": "How many days a week can you train, and for how long?",
+   "why": "Fits the plan to the schedule.",
+   "ifAnswer": "3 days: run the 3 core days. 4 days: add the optional day. Under 30 minutes: use the short-session recipe (R-02). Fewer than 3 days: train what you can and say so honestly.",
+   "boundary": false,
+   "library": "both"
+  },
+  {
+   "id": "IN-04",
+   "step": 4,
+   "question": "What equipment do you have?",
+   "why": "Chooses the setup so every movement resolves.",
+   "ifAnswer": "Full Gym, Home Gym (Barbell + Dumbbells), Dumbbells Only, or Bodyweight Only. The same plan works in each.",
+   "boundary": false,
+   "library": "both"
+  },
+  {
+   "id": "IN-05",
+   "step": 5,
+   "question": "Which weekday do you want as your rest day?",
+   "why": "The rest day anchors the week.",
+   "ifAnswer": "Plan day 1 is the day after the chosen rest day.",
+   "boundary": false,
+   "library": "both"
+  },
+  {
+   "id": "IN-06",
+   "step": 6,
+   "question": "Are you dealing with any injury, pain or condition a doctor has mentioned?",
+   "why": "Safety.",
+   "ifAnswer": "Do not diagnose or rate the injury. Offer the app's general alternates and suggest clearance or guidance from a clinician before continuing. Redirect using B-04.",
+   "boundary": true,
+   "library": "both"
+  },
+  {
+   "id": "IN-07",
+   "step": 7,
+   "question": "Do you ever get chest pain, dizziness or fainting during exercise?",
+   "why": "Safety.",
+   "ifAnswer": "Stop and recommend medical care before training. Use the stop rules. Do not continue building a program in the same message.",
+   "boundary": true,
+   "library": "both"
+  },
+  {
+   "id": "IN-08",
+   "step": 8,
+   "question": "Have you had a recent surgery, or are you recovering from a medical event?",
+   "why": "Safety.",
+   "ifAnswer": "Recommend clearance from their clinician before starting. Redirect using B-04.",
+   "boundary": true,
+   "library": "both"
+  },
+  {
+   "id": "IN-09",
+   "step": 9,
+   "question": "Do you take medication that you have been told affects exercise?",
+   "why": "Safety.",
+   "ifAnswer": "Do not comment on medication. Suggest they ask their prescriber or pharmacist. Redirect using B-05.",
+   "boundary": true,
+   "library": "both"
+  },
+  {
+   "id": "IN-10",
+   "step": 10,
+   "question": "Are you new to the gym, or confident with the main lifts?",
+   "why": "Decides how much teaching to include.",
+   "ifAnswer": "New: lean on Progressions easier versions, the how-to text and short cues. Confident: standard versions.",
+   "boundary": false,
+   "library": "both"
+  },
+  {
+   "id": "IN-11",
+   "step": 11,
+   "question": "Is there anything you want to avoid or cannot do?",
+   "why": "Respects limits and preferences.",
+   "ifAnswer": "Use the app's alternates and Progressions; do not push through a movement the user wants to avoid.",
+   "boundary": false,
+   "library": "both"
+  },
+  {
+   "id": "IN-12",
+   "step": 12,
+   "question": "Are you pregnant, recently postpartum, or do you have pelvic floor symptoms (leaking, pressure, heaviness)?",
+   "why": "Safety and comfort.",
+   "ifAnswer": "Do not prescribe. Suggest talking with their doctor or a pelvic health clinician before starting or changing a program. Core holds in recovery days have lower-pressure options; stop if symptoms appear. Redirect using B-07.",
+   "boundary": true,
+   "library": "women"
+  },
+  {
+   "id": "IN-13",
+   "step": 13,
+   "question": "Do cycle symptoms (cramps, low energy) affect your training some weeks?",
+   "why": "Readiness.",
+   "ifAnswer": "Offer the low-energy-day option and scale effort by feel. Do not program by cycle phase (P-016).",
+   "boundary": false,
+   "library": "women"
+  }
+ ],
+ "note": "Boundary rows must trigger the redirect text in coach-boundaries.json and never lead to diagnosis or clearance."
+}

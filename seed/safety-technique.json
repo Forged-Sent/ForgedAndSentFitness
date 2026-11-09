@@ -1,0 +1,526 @@
+{
+ "file": "safety-technique.json",
+ "description": "Common technique faults with fixes, and stop rules.",
+ "generated": "2026-11-08",
+ "tags": {
+  "Well supported": "Consistent findings across reviews or a position stand.",
+  "Moderate": "Supported, but limited by study size, population or design.",
+  "Standard practice": "Widely used convention without strong direct evidence.",
+  "Contested": "Published evidence disagrees or is thin; Gideon should say so.",
+  "Library design": "A deliberate choice in how these plans are built.",
+  "Definition": "Plain-language meaning of a term used in the app."
+ },
+ "sources": {
+  "S1": {
+   "title": "ACSM Position Stand: Resistance Training Prescription for Muscle Function, Hypertrophy, and Physical Performance in Healthy Adults (2026)",
+   "url": "https://www.ovid.com/jnls/acsm-msse/fulltext/10.1249/mss.0000000000003897~american-college-of-sports-medicine-position-stand",
+   "note": "Read through a mirror PDF, about the first 100,000 of 122,000 characters."
+  },
+  "S2": {
+   "title": "The Resistance Training Dose-Response: Meta-Regressions on Weekly Volume and Frequency (Sports Medicine, 2025)",
+   "url": "https://www.fisiologiadelejercicio.com/wp-content/uploads/2025/12/The-Resistance-Training-Dose-Response.pdf",
+   "note": "67 studies, 79% male, mostly young adults, about 10 weeks."
+  },
+  "S3": {
+   "title": "Gaining more from doing less? One-week deload during supervised resistance training (PeerJ, 2024)",
+   "url": "https://peerj.com/articles/16777/",
+   "note": "39 trained adults; tested a full week off, not reduced volume."
+  },
+  "S4": {
+   "title": "Much Ado About Zone 2 (Sports Medicine, 2025)",
+   "url": "https://www.fisiologiadelejercicio.com/wp-content/uploads/2025/06/Much-Ado-About-Zone-2.pdf",
+   "note": "Narrative review; few trials prescribed Zone 2 directly."
+  },
+  "S5": {
+   "title": "Concurrent strength and endurance training: systematic review and meta-analysis (Sports Medicine, 2023)",
+   "url": "https://link.springer.com/article/10.1007/s40279-023-01943-9",
+   "note": "59 studies, adults 18 to 50."
+  },
+  "S6": {
+   "title": "Factors influencing the accuracy of the repetition in reserve scale in resistance training: a systematic review (Russo et al., 2025)",
+   "url": "https://dspace.uevora.pt/rdpc/bitstream/10174/39438/1/2025%20Russo%20et%20al.%20Factors%20influencing%20the%20accuracy%20of%20the%20repetition%20in%20reserve%20scale%20in%20resistance%20training%20%20a%20systematic%20review.pdf",
+   "note": "Abstract and headings only were read."
+  },
+  "S7": {
+   "title": "World Health Organization 2020 guidelines on physical activity and sedentary behaviour",
+   "url": "https://fhi.brage.unit.no/fhi-xmlui/handle/11250/3008626",
+   "note": "Excerpt did not give the muscle-strengthening frequency."
+  },
+  "S8": {
+   "title": "Stretching in healthy athletes: systematic scoping review and evidence gap map (Sports Medicine, 2024)",
+   "url": "https://link.springer.com/content/pdf/10.1007/s40279-024-02002-7.pdf",
+   "note": "Evidence map of 300 trials, not a pooled analysis."
+  },
+  "S9": {
+   "title": "ACE: Nutrition Scope of Practice, What You Can Do as a Personal Trainer",
+   "url": "https://www.acefitness.org/resources/pros/expert-articles/6248/nutrition-scope-of-practice-what-you-can-do-as-a-personal-trainer/",
+   "note": ""
+  },
+  "S10": {
+   "title": "NSCA-Certified Personal Trainer exam description",
+   "url": "https://www.nsca.com/certification/nsca-cpt/nsca-cpt-exam-description/",
+   "note": "Domain weights: consultation and assessment 23%, program planning 29%, program execution 36%, safety and legal 12%."
+  },
+  "S11": {
+   "title": "Menstrual cycle phase does not influence training-induced hypertrophy or strength: randomized controlled trial (Medicine & Science in Sports & Exercise)",
+   "url": "https://www.ovid.com/jnls/acsm-msse/fulltext/10.1249/mss.0000000000004031~menstrual-cycle-phase-does-not-influence-training-induced",
+   "note": "Title and search listing only; full text not read."
+  },
+  "S12": {
+   "title": "Current evidence shows no influence of women's menstrual cycle phase on acute strength performance or adaptations to resistance exercise training",
+   "url": "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC10076834/",
+   "note": "Title and search listing only; full text not read."
+  },
+  "S13": {
+   "title": "Evidence for periodizing strength and/or endurance training according to menstrual cycle phases is lacking (NSCA Strength and Conditioning Journal, 2025)",
+   "url": "https://journals.lww.com/nsca-scj/fulltext/2025/12000/evidence_for_periodizing_strength_and_or_endurance.4.aspx",
+   "note": "Title and search listing only; full text not read."
+  },
+  "LIB": {
+   "title": "Forged & Sent workout library design (workout-meta.json)",
+   "url": "",
+   "note": "Internal design decisions, not research."
+  }
+ },
+ "faults": [
+  {
+   "id": "T-01",
+   "kind": "fault",
+   "movement": "Back Squat",
+   "fault": "Knees collapse inward",
+   "looksLike": "Knees drift toward each other on the way up.",
+   "fix": "Lighten the load, push the knees out over the toes, and pause at the bottom.",
+   "evidenceTag": "Standard practice",
+   "library": "both"
+  },
+  {
+   "id": "T-02",
+   "kind": "fault",
+   "movement": "Back Squat",
+   "fault": "Heels lift or torso falls forward",
+   "looksLike": "Weight shifts to the toes and the chest drops.",
+   "fix": "Elevate the heels slightly, brace before descending, and keep the whole foot planted.",
+   "evidenceTag": "Standard practice",
+   "library": "both"
+  },
+  {
+   "id": "T-03",
+   "kind": "fault",
+   "movement": "Goblet Squat",
+   "fault": "Rounding forward at the bottom",
+   "looksLike": "The back rounds and the weight pulls the chest down.",
+   "fix": "Keep the weight tight to the chest, sit between the hips and reduce depth until it stays tall.",
+   "evidenceTag": "Standard practice",
+   "library": "both"
+  },
+  {
+   "id": "T-04",
+   "kind": "fault",
+   "movement": "Deadlift",
+   "fault": "Bar drifts away from the legs",
+   "looksLike": "The bar swings forward and the lower back takes the load.",
+   "fix": "Keep the bar over the mid-foot and brush the legs; squeeze the armpits down before pulling.",
+   "evidenceTag": "Standard practice",
+   "library": "both"
+  },
+  {
+   "id": "T-05",
+   "kind": "fault",
+   "movement": "Deadlift",
+   "fault": "Rounded lower back",
+   "looksLike": "The back flexes as the bar leaves the floor.",
+   "fix": "Lighten the load, brace first, and stop the set when the back changes shape.",
+   "evidenceTag": "Standard practice",
+   "library": "both"
+  },
+  {
+   "id": "T-06",
+   "kind": "fault",
+   "movement": "Romanian Deadlift",
+   "fault": "Squatting the movement",
+   "looksLike": "Knees bend a lot and hips stay low.",
+   "fix": "Soft knees only, push the hips back as if closing a door, and feel the hamstrings load.",
+   "evidenceTag": "Standard practice",
+   "library": "both"
+  },
+  {
+   "id": "T-07",
+   "kind": "fault",
+   "movement": "Hip Thrust",
+   "fault": "Overarching the lower back at the top",
+   "looksLike": "Ribs flare up and the lower back pinches.",
+   "fix": "Tuck the ribs down, tilt the pelvis slightly, and finish with the glutes, not the back.",
+   "evidenceTag": "Standard practice",
+   "library": "both"
+  },
+  {
+   "id": "T-08",
+   "kind": "fault",
+   "movement": "Kettlebell Swing",
+   "fault": "Lifting with the arms or squatting it",
+   "looksLike": "The bell rises from the arms and the knees bend deeply.",
+   "fix": "Hinge back, snap the hips forward and keep the arms loose like ropes.",
+   "evidenceTag": "Standard practice",
+   "library": "both"
+  },
+  {
+   "id": "T-09",
+   "kind": "fault",
+   "movement": "Bench Press",
+   "fault": "Bouncing the bar or lifting the hips",
+   "looksLike": "The bar rebounds off the chest and the hips rise.",
+   "fix": "Lower under control, pause briefly and keep feet planted and shoulder blades pulled back.",
+   "evidenceTag": "Standard practice",
+   "library": "both"
+  },
+  {
+   "id": "T-10",
+   "kind": "fault",
+   "movement": "Dumbbell Bench Press",
+   "fault": "Wrists bent back and elbows flared",
+   "looksLike": "Dumbbells tilt and elbows point straight out.",
+   "fix": "Stack the wrist over the elbow and tuck the elbows to about 45 degrees.",
+   "evidenceTag": "Standard practice",
+   "library": "both"
+  },
+  {
+   "id": "T-11",
+   "kind": "fault",
+   "movement": "Push-Up",
+   "fault": "Hips sag or pike",
+   "looksLike": "The body is not in one line.",
+   "fix": "Squeeze the glutes and abs, keep ribs down, and use a higher surface if needed.",
+   "evidenceTag": "Standard practice",
+   "library": "both"
+  },
+  {
+   "id": "T-12",
+   "kind": "fault",
+   "movement": "Overhead Press",
+   "fault": "Leaning back",
+   "looksLike": "The ribs flare and the lower back arches to finish the rep.",
+   "fix": "Squeeze the glutes, keep the ribs down and lower the weight to what moves cleanly.",
+   "evidenceTag": "Standard practice",
+   "library": "both"
+  },
+  {
+   "id": "T-13",
+   "kind": "fault",
+   "movement": "Barbell Row",
+   "fault": "Using momentum or rounding",
+   "looksLike": "The torso swings to move the weight.",
+   "fix": "Hold the hinge position, pull the elbow toward the hip and reduce the load.",
+   "evidenceTag": "Standard practice",
+   "library": "both"
+  },
+  {
+   "id": "T-14",
+   "kind": "fault",
+   "movement": "Pull-Up",
+   "fault": "Half reps or kipping",
+   "looksLike": "The chin never clears the bar or the legs swing.",
+   "fix": "Start from a full hang, pull the chest toward the bar, and step down to Lat Pulldown or Inverted Row until reps are clean.",
+   "evidenceTag": "Standard practice",
+   "library": "both"
+  },
+  {
+   "id": "T-15",
+   "kind": "fault",
+   "movement": "Lat Pulldown",
+   "fault": "Leaning far back or pulling behind the neck",
+   "looksLike": "The torso rocks and the bar goes behind the head.",
+   "fix": "Lean back slightly, pull the bar to the upper chest, and drive the elbows down.",
+   "evidenceTag": "Standard practice",
+   "library": "both"
+  },
+  {
+   "id": "T-16",
+   "kind": "fault",
+   "movement": "Split Squat",
+   "fault": "Front knee caves or torso tilts",
+   "looksLike": "The front knee drifts in and the trunk leans.",
+   "fix": "Shorten the stance slightly, push the knee over the toes and keep the torso tall.",
+   "evidenceTag": "Standard practice",
+   "library": "both"
+  },
+  {
+   "id": "T-17",
+   "kind": "fault",
+   "movement": "Walking Lunge",
+   "fault": "Front heel lifts",
+   "looksLike": "The weight shifts to the toes.",
+   "fix": "Take a slightly longer step and press through the whole front foot.",
+   "evidenceTag": "Standard practice",
+   "library": "both"
+  },
+  {
+   "id": "T-18",
+   "kind": "fault",
+   "movement": "Step-Up",
+   "fault": "Pushing off the back foot",
+   "looksLike": "The trailing leg does the work.",
+   "fix": "Drive through the front heel and keep the trailing foot light.",
+   "evidenceTag": "Standard practice",
+   "library": "both"
+  },
+  {
+   "id": "T-19",
+   "kind": "fault",
+   "movement": "Face Pull",
+   "fault": "Too heavy and shrugging",
+   "looksLike": "The shoulders ride up and the weight swings.",
+   "fix": "Use a light load, keep elbows high and pull the rope apart toward the ears.",
+   "evidenceTag": "Standard practice",
+   "library": "both"
+  },
+  {
+   "id": "T-20",
+   "kind": "fault",
+   "movement": "Lateral Raise",
+   "fault": "Swinging and shrugging",
+   "looksLike": "The torso rocks to lift the weights.",
+   "fix": "Lighten the load, lead with the elbows and lift only to shoulder height.",
+   "evidenceTag": "Standard practice",
+   "library": "both"
+  },
+  {
+   "id": "T-21",
+   "kind": "fault",
+   "movement": "Barbell Curl",
+   "fault": "Swinging the torso",
+   "looksLike": "The back leans to start the lift.",
+   "fix": "Pin the elbows at the sides and lower the bar slowly.",
+   "evidenceTag": "Standard practice",
+   "library": "both"
+  },
+  {
+   "id": "T-22",
+   "kind": "fault",
+   "movement": "Triceps Pushdown",
+   "fault": "Elbows flare and shoulders roll",
+   "looksLike": "The elbows drift forward and the shoulders hunch.",
+   "fix": "Pin the elbows at the sides and keep the shoulders down.",
+   "evidenceTag": "Standard practice",
+   "library": "both"
+  },
+  {
+   "id": "T-23",
+   "kind": "fault",
+   "movement": "Plank",
+   "fault": "Hips sag or pike, or holding the breath",
+   "looksLike": "The body is not straight and breathing stops.",
+   "fix": "Ribs down, glutes tight, breathe slowly, and end the set when the hips sag.",
+   "evidenceTag": "Standard practice",
+   "library": "both"
+  },
+  {
+   "id": "T-24",
+   "kind": "fault",
+   "movement": "Dead Bug",
+   "fault": "Low back arches",
+   "looksLike": "The back lifts off the floor as the legs lower.",
+   "fix": "Press the low back down and shorten the range until it stays flat.",
+   "evidenceTag": "Standard practice",
+   "library": "both"
+  },
+  {
+   "id": "T-25",
+   "kind": "fault",
+   "movement": "Bird Dog",
+   "fault": "Hips rotate",
+   "looksLike": "The hips twist as the leg reaches back.",
+   "fix": "Keep the hips level as if balancing a cup on the lower back; move slowly.",
+   "evidenceTag": "Standard practice",
+   "library": "both"
+  },
+  {
+   "id": "T-26",
+   "kind": "fault",
+   "movement": "Farmer Carry",
+   "fault": "Leaning and short stutter steps",
+   "looksLike": "The body tilts to one side and steps are tiny.",
+   "fix": "Stand tall, ribs down, and take smooth steady steps.",
+   "evidenceTag": "Standard practice",
+   "library": "both"
+  },
+  {
+   "id": "T-27",
+   "kind": "fault",
+   "movement": "Jump Squat",
+   "fault": "Stiff or knee-caving landing",
+   "looksLike": "The landing is loud and the knees collapse.",
+   "fix": "Land softly, reset between reps and lower the jump height.",
+   "evidenceTag": "Standard practice",
+   "library": "both"
+  },
+  {
+   "id": "T-28",
+   "kind": "fault",
+   "movement": "Box Jump",
+   "fault": "Jumping down from the box",
+   "looksLike": "Landing off the box stresses the legs and Achilles.",
+   "fix": "Step down every time and pick a lower box.",
+   "evidenceTag": "Standard practice",
+   "library": "both"
+  },
+  {
+   "id": "T-29",
+   "kind": "fault",
+   "movement": "Burpee",
+   "fault": "Sagging push-up or arched back on the jump",
+   "looksLike": "The hips drop in the plank and the back arches.",
+   "fix": "Keep the body straight in the push-up position and slow the pace.",
+   "evidenceTag": "Standard practice",
+   "library": "both"
+  },
+  {
+   "id": "T-30",
+   "kind": "fault",
+   "movement": "Thruster",
+   "fault": "Arms only, no leg drive",
+   "looksLike": "The press does all the work.",
+   "fix": "Drive from the legs, time the press with the squat's upward drive and use a lighter load.",
+   "evidenceTag": "Standard practice",
+   "library": "both"
+  },
+  {
+   "id": "T-31",
+   "kind": "fault",
+   "movement": "Dips",
+   "fault": "Shoulders roll forward or too deep",
+   "looksLike": "The chest collapses and the shoulders feel pinched.",
+   "fix": "Keep the shoulders down, stop at a depth that feels comfortable and step down to Close-Grip Bench Press if needed.",
+   "evidenceTag": "Standard practice",
+   "library": "both"
+  },
+  {
+   "id": "T-32",
+   "kind": "fault",
+   "movement": "Leg Press",
+   "fault": "Lower back rounds off the pad or knees lock out",
+   "looksLike": "The hips curl under at the bottom and the knees snap straight.",
+   "fix": "Shorten the depth and keep a slight knee bend at the top.",
+   "evidenceTag": "Standard practice",
+   "library": "both"
+  },
+  {
+   "id": "T-33",
+   "kind": "fault",
+   "movement": "Calf Raise",
+   "fault": "Bouncing",
+   "looksLike": "The rep uses momentum, not the calf.",
+   "fix": "Pause at the bottom stretch and lift with control.",
+   "evidenceTag": "Standard practice",
+   "library": "both"
+  },
+  {
+   "id": "T-34",
+   "kind": "fault",
+   "movement": "Glute Bridge",
+   "fault": "Pushing through the lower back",
+   "looksLike": "The back arches instead of the hips lifting.",
+   "fix": "Tuck the ribs, press the heels down and squeeze the glutes.",
+   "evidenceTag": "Standard practice",
+   "library": "both"
+  },
+  {
+   "id": "T-35",
+   "kind": "fault",
+   "movement": "Frog Pump",
+   "fault": "Letting the knees fall too far",
+   "looksLike": "The hips shift and the feet slide.",
+   "fix": "Keep the soles together, find a comfortable knee angle and squeeze at the top.",
+   "evidenceTag": "Standard practice",
+   "library": "women"
+  },
+  {
+   "id": "T-36",
+   "kind": "fault",
+   "movement": "Single-Leg Glute Bridge",
+   "fault": "Hips drop or twist",
+   "looksLike": "One side of the pelvis sags.",
+   "fix": "Keep the hips level and use the two-leg version until even.",
+   "evidenceTag": "Standard practice",
+   "library": "women"
+  },
+  {
+   "id": "T-37",
+   "kind": "fault",
+   "movement": "Step-Down",
+   "fault": "Knee collapses inward",
+   "looksLike": "The knee drops in as the other foot reaches down.",
+   "fix": "Use a lower step, slow the lowering and keep the knee over the toes.",
+   "evidenceTag": "Standard practice",
+   "library": "women"
+  },
+  {
+   "id": "T-38",
+   "kind": "fault",
+   "movement": "Hip Abduction Machine",
+   "fault": "Using momentum",
+   "looksLike": "The torso rocks and the legs swing.",
+   "fix": "Use a lighter pad, pause at the end of the range and keep the back against the pad.",
+   "evidenceTag": "Standard practice",
+   "library": "women"
+  }
+ ],
+ "stopRules": [
+  {
+   "id": "X-01",
+   "kind": "stop",
+   "stopWhen": "Chest pain or pressure during exercise",
+   "whatGideonSays": "Tell them to stop, sit down and rest. If pain does not clear quickly or you suspect an emergency, call local emergency services. Do not diagnose.",
+   "evidenceTag": "Standard practice",
+   "library": "both"
+  },
+  {
+   "id": "X-02",
+   "kind": "stop",
+   "stopWhen": "Dizziness, fainting, or severe shortness of breath",
+   "whatGideonSays": "Tell them to stop and sit or lie down. Recommend medical care. Do not continue the program discussion until they confirm they are okay.",
+   "evidenceTag": "Standard practice",
+   "library": "both"
+  },
+  {
+   "id": "X-03",
+   "kind": "stop",
+   "stopWhen": "Sudden sharp pain, popping, or a joint that gives way",
+   "whatGideonSays": "Stop the movement. Suggest rest and a clinician if pain persists. Offer the app's general alternates for later, not as treatment.",
+   "evidenceTag": "Standard practice",
+   "library": "both"
+  },
+  {
+   "id": "X-04",
+   "kind": "stop",
+   "stopWhen": "Numbness, tingling or loss of coordination",
+   "whatGideonSays": "Stop and recommend medical care. Do not diagnose.",
+   "evidenceTag": "Standard practice",
+   "library": "both"
+  },
+  {
+   "id": "X-05",
+   "kind": "stop",
+   "stopWhen": "Pain that is getting worse across sets",
+   "whatGideonSays": "Stop that movement, offer the alternate and suggest a clinician if it continues.",
+   "evidenceTag": "Standard practice",
+   "library": "both"
+  },
+  {
+   "id": "X-06",
+   "kind": "stop",
+   "stopWhen": "Pressure, doming in the belly or leaking during core work",
+   "whatGideonSays": "Pause the set and use an easier version. If it keeps happening, suggest a pelvic health clinician.",
+   "evidenceTag": "Standard practice",
+   "library": "women"
+  },
+  {
+   "id": "X-07",
+   "kind": "stop",
+   "stopWhen": "Any sign of a medical emergency",
+   "whatGideonSays": "Say plainly to call local emergency services. Do not offer training advice in that message.",
+   "evidenceTag": "Standard practice",
+   "library": "both"
+  }
+ ],
+ "emergencyNote": "For any emergency, Gideon says to call local emergency services and offers no training advice in that message."
+}

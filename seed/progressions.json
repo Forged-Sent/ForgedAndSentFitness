@@ -1,0 +1,662 @@
+{
+ "file": "progressions.json",
+ "description": "Easier and harder versions and example starting points by experience level. Examples, not prescriptions.",
+ "generated": "2026-11-08",
+ "tags": {
+  "Well supported": "Consistent findings across reviews or a position stand.",
+  "Moderate": "Supported, but limited by study size, population or design.",
+  "Standard practice": "Widely used convention without strong direct evidence.",
+  "Contested": "Published evidence disagrees or is thin; Gideon should say so.",
+  "Library design": "A deliberate choice in how these plans are built.",
+  "Definition": "Plain-language meaning of a term used in the app."
+ },
+ "sources": {
+  "S1": {
+   "title": "ACSM Position Stand: Resistance Training Prescription for Muscle Function, Hypertrophy, and Physical Performance in Healthy Adults (2026)",
+   "url": "https://www.ovid.com/jnls/acsm-msse/fulltext/10.1249/mss.0000000000003897~american-college-of-sports-medicine-position-stand",
+   "note": "Read through a mirror PDF, about the first 100,000 of 122,000 characters."
+  },
+  "S2": {
+   "title": "The Resistance Training Dose-Response: Meta-Regressions on Weekly Volume and Frequency (Sports Medicine, 2025)",
+   "url": "https://www.fisiologiadelejercicio.com/wp-content/uploads/2025/12/The-Resistance-Training-Dose-Response.pdf",
+   "note": "67 studies, 79% male, mostly young adults, about 10 weeks."
+  },
+  "S3": {
+   "title": "Gaining more from doing less? One-week deload during supervised resistance training (PeerJ, 2024)",
+   "url": "https://peerj.com/articles/16777/",
+   "note": "39 trained adults; tested a full week off, not reduced volume."
+  },
+  "S4": {
+   "title": "Much Ado About Zone 2 (Sports Medicine, 2025)",
+   "url": "https://www.fisiologiadelejercicio.com/wp-content/uploads/2025/06/Much-Ado-About-Zone-2.pdf",
+   "note": "Narrative review; few trials prescribed Zone 2 directly."
+  },
+  "S5": {
+   "title": "Concurrent strength and endurance training: systematic review and meta-analysis (Sports Medicine, 2023)",
+   "url": "https://link.springer.com/article/10.1007/s40279-023-01943-9",
+   "note": "59 studies, adults 18 to 50."
+  },
+  "S6": {
+   "title": "Factors influencing the accuracy of the repetition in reserve scale in resistance training: a systematic review (Russo et al., 2025)",
+   "url": "https://dspace.uevora.pt/rdpc/bitstream/10174/39438/1/2025%20Russo%20et%20al.%20Factors%20influencing%20the%20accuracy%20of%20the%20repetition%20in%20reserve%20scale%20in%20resistance%20training%20%20a%20systematic%20review.pdf",
+   "note": "Abstract and headings only were read."
+  },
+  "S7": {
+   "title": "World Health Organization 2020 guidelines on physical activity and sedentary behaviour",
+   "url": "https://fhi.brage.unit.no/fhi-xmlui/handle/11250/3008626",
+   "note": "Excerpt did not give the muscle-strengthening frequency."
+  },
+  "S8": {
+   "title": "Stretching in healthy athletes: systematic scoping review and evidence gap map (Sports Medicine, 2024)",
+   "url": "https://link.springer.com/content/pdf/10.1007/s40279-024-02002-7.pdf",
+   "note": "Evidence map of 300 trials, not a pooled analysis."
+  },
+  "S9": {
+   "title": "ACE: Nutrition Scope of Practice, What You Can Do as a Personal Trainer",
+   "url": "https://www.acefitness.org/resources/pros/expert-articles/6248/nutrition-scope-of-practice-what-you-can-do-as-a-personal-trainer/",
+   "note": ""
+  },
+  "S10": {
+   "title": "NSCA-Certified Personal Trainer exam description",
+   "url": "https://www.nsca.com/certification/nsca-cpt/nsca-cpt-exam-description/",
+   "note": "Domain weights: consultation and assessment 23%, program planning 29%, program execution 36%, safety and legal 12%."
+  },
+  "S11": {
+   "title": "Menstrual cycle phase does not influence training-induced hypertrophy or strength: randomized controlled trial (Medicine & Science in Sports & Exercise)",
+   "url": "https://www.ovid.com/jnls/acsm-msse/fulltext/10.1249/mss.0000000000004031~menstrual-cycle-phase-does-not-influence-training-induced",
+   "note": "Title and search listing only; full text not read."
+  },
+  "S12": {
+   "title": "Current evidence shows no influence of women's menstrual cycle phase on acute strength performance or adaptations to resistance exercise training",
+   "url": "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC10076834/",
+   "note": "Title and search listing only; full text not read."
+  },
+  "S13": {
+   "title": "Evidence for periodizing strength and/or endurance training according to menstrual cycle phases is lacking (NSCA Strength and Conditioning Journal, 2025)",
+   "url": "https://journals.lww.com/nsca-scj/fulltext/2025/12000/evidence_for_periodizing_strength_and_or_endurance.4.aspx",
+   "note": "Title and search listing only; full text not read."
+  },
+  "LIB": {
+   "title": "Forged & Sent workout library design (workout-meta.json)",
+   "url": "",
+   "note": "Internal design decisions, not research."
+  }
+ },
+ "levels": [
+  {
+   "level": "Beginner",
+   "definition": "Under about 6 months of consistent lifting.",
+   "guidance": "Learn the movement with an easier version and a light load. Prioritize form and showing up. Effort estimates (RIR) are rough, so use form and bar speed cues."
+  },
+  {
+   "level": "Intermediate",
+   "definition": "About 6 to 24 months of consistent lifting.",
+   "guidance": "Use the standard version and add load gradually. Aim for working sets about 2 to 3 reps short of failure."
+  },
+  {
+   "level": "Advanced",
+   "definition": "More than 2 years of steady progress on the main lifts.",
+   "guidance": "Use harder variations and small load jumps. Plan lighter weeks and watch recovery."
+  }
+ ],
+ "items": [
+  {
+   "movement": "Back Squat",
+   "kind": "barbell",
+   "easier": [
+    "Goblet Squat",
+    "Box Squat"
+   ],
+   "harder": [
+    "Pause Squat",
+    "Front Squat",
+    "Tempo Squat"
+   ],
+   "beginnerStart": "3 x 8 with a light load or the easier version; form first",
+   "intermediateStart": "3 x 5 at RPE 7",
+   "advancedStart": "3 x 3 to 5 at RPE 8",
+   "note": "Box Squat teaches depth and sitting back; Pause and Tempo Squat add difficulty without more weight.",
+   "evidenceTag": "Standard practice",
+   "library": "both"
+  },
+  {
+   "movement": "Front Squat",
+   "kind": "barbell",
+   "easier": [
+    "Goblet Squat",
+    "Heel-Elevated Squat"
+   ],
+   "harder": [
+    "Pause Squat",
+    "Zercher Squat"
+   ],
+   "beginnerStart": "3 x 8 with a light load or the easier version; form first",
+   "intermediateStart": "3 x 5 at RPE 7",
+   "advancedStart": "3 x 3 to 5 at RPE 8",
+   "note": "Stay upright; the easier versions keep the load in front of the body.",
+   "evidenceTag": "Standard practice",
+   "library": "both"
+  },
+  {
+   "movement": "Goblet Squat",
+   "kind": "load",
+   "easier": [
+    "Box Squat",
+    "Sumo Squat"
+   ],
+   "harder": [
+    "Front Squat",
+    "Heel-Elevated Squat"
+   ],
+   "beginnerStart": "3 x 10 with a light load",
+   "intermediateStart": "3 x 8 at RPE 7",
+   "advancedStart": "3 x 6 to 8 at RPE 8",
+   "note": "The best first squat for most beginners.",
+   "evidenceTag": "Standard practice",
+   "library": "both"
+  },
+  {
+   "movement": "Leg Press",
+   "kind": "load",
+   "easier": [
+    "Goblet Squat"
+   ],
+   "harder": [
+    "Hack Squat",
+    "Front Squat"
+   ],
+   "beginnerStart": "3 x 10 with a light load",
+   "intermediateStart": "3 x 8 at RPE 7",
+   "advancedStart": "3 x 6 to 8 at RPE 8",
+   "note": "Machine-supported; useful when balance or bracing is limiting.",
+   "evidenceTag": "Standard practice",
+   "library": "both"
+  },
+  {
+   "movement": "Split Squat",
+   "kind": "load",
+   "easier": [
+    "Step-Up",
+    "Reverse Lunge"
+   ],
+   "harder": [
+    "Bulgarian Split Squat"
+   ],
+   "beginnerStart": "3 x 10 with a light load",
+   "intermediateStart": "3 x 8 at RPE 7",
+   "advancedStart": "3 x 6 to 8 at RPE 8",
+   "note": "Keep the front shin close to vertical and the torso tall.",
+   "evidenceTag": "Standard practice",
+   "library": "both"
+  },
+  {
+   "movement": "Bulgarian Split Squat",
+   "kind": "load",
+   "easier": [
+    "Split Squat"
+   ],
+   "harder": [
+    "Pistol Squat"
+   ],
+   "beginnerStart": "3 x 10 with a light load",
+   "intermediateStart": "3 x 8 at RPE 7",
+   "advancedStart": "3 x 6 to 8 at RPE 8",
+   "note": "Raise the rear foot only after a stable split squat.",
+   "evidenceTag": "Standard practice",
+   "library": "both"
+  },
+  {
+   "movement": "Reverse Lunge",
+   "kind": "load",
+   "easier": [
+    "Split Squat",
+    "Step-Up"
+   ],
+   "harder": [
+    "Walking Lunge",
+    "Forward Lunge"
+   ],
+   "beginnerStart": "3 x 10 with a light load",
+   "intermediateStart": "3 x 8 at RPE 7",
+   "advancedStart": "3 x 6 to 8 at RPE 8",
+   "note": "Stepping back is easier on the knees than stepping forward.",
+   "evidenceTag": "Standard practice",
+   "library": "both"
+  },
+  {
+   "movement": "Deadlift",
+   "kind": "barbell",
+   "easier": [
+    "Trap Bar Deadlift",
+    "Rack Pull"
+   ],
+   "harder": [
+    "Deficit Deadlift",
+    "Pause Deadlift"
+   ],
+   "beginnerStart": "3 x 8 with a light load or the easier version; form first",
+   "intermediateStart": "3 x 5 at RPE 7",
+   "advancedStart": "3 x 3 to 5 at RPE 8",
+   "note": "Trap Bar Deadlift keeps the load closer and is friendlier for beginners.",
+   "evidenceTag": "Standard practice",
+   "library": "both"
+  },
+  {
+   "movement": "Romanian Deadlift",
+   "kind": "barbell",
+   "easier": [
+    "Cable Pull-Through",
+    "Glute Bridge"
+   ],
+   "harder": [
+    "Single-Leg Romanian Deadlift",
+    "Stiff-Leg Deadlift"
+   ],
+   "beginnerStart": "3 x 8 with a light load or the easier version; form first",
+   "intermediateStart": "3 x 5 at RPE 7",
+   "advancedStart": "3 x 3 to 5 at RPE 8",
+   "note": "Learn the hip hinge with Cable Pull-Through first.",
+   "evidenceTag": "Standard practice",
+   "library": "both"
+  },
+  {
+   "movement": "Hip Thrust",
+   "kind": "load",
+   "easier": [
+    "Glute Bridge"
+   ],
+   "harder": [
+    "Single-Leg Hip Thrust"
+   ],
+   "beginnerStart": "3 x 10 with a light load",
+   "intermediateStart": "3 x 8 at RPE 7",
+   "advancedStart": "3 x 6 to 8 at RPE 8",
+   "note": "Add the single-leg version once both sides lift evenly.",
+   "evidenceTag": "Standard practice",
+   "library": "both"
+  },
+  {
+   "movement": "Kettlebell Swing",
+   "kind": "power",
+   "easier": [
+    "Cable Pull-Through"
+   ],
+   "harder": [
+    "Kettlebell Clean"
+   ],
+   "beginnerStart": "3 x 3, low height, soft landings",
+   "intermediateStart": "3 x 4",
+   "advancedStart": "3 x 4 to 5, max speed, stop before speed drops",
+   "note": "A hinge, not a squat. Hips snap, arms are ropes.",
+   "evidenceTag": "Standard practice",
+   "library": "both"
+  },
+  {
+   "movement": "Leg Curl",
+   "kind": "load",
+   "easier": [
+    "Slider Hamstring Curl"
+   ],
+   "harder": [
+    "Nordic Hamstring Curl"
+   ],
+   "beginnerStart": "3 x 10 with a light load",
+   "intermediateStart": "3 x 8 at RPE 7",
+   "advancedStart": "3 x 6 to 8 at RPE 8",
+   "note": "Nordic Hamstring Curl is demanding; use controlled lowering first.",
+   "evidenceTag": "Standard practice",
+   "library": "both"
+  },
+  {
+   "movement": "Bench Press",
+   "kind": "barbell",
+   "easier": [
+    "Dumbbell Bench Press",
+    "Machine Chest Press",
+    "Floor Press"
+   ],
+   "harder": [
+    "Pause Bench Press",
+    "Close-Grip Bench Press"
+   ],
+   "beginnerStart": "3 x 8 with a light load or the easier version; form first",
+   "intermediateStart": "3 x 5 at RPE 7",
+   "advancedStart": "3 x 3 to 5 at RPE 8",
+   "note": "Floor Press is a shorter-range, shoulder-friendly option.",
+   "evidenceTag": "Standard practice",
+   "library": "both"
+  },
+  {
+   "movement": "Dumbbell Bench Press",
+   "kind": "load",
+   "easier": [
+    "Machine Chest Press"
+   ],
+   "harder": [
+    "Pause Bench Press"
+   ],
+   "beginnerStart": "3 x 10 with a light load",
+   "intermediateStart": "3 x 8 at RPE 7",
+   "advancedStart": "3 x 6 to 8 at RPE 8",
+   "note": "Dumbbells let each arm work on its own.",
+   "evidenceTag": "Standard practice",
+   "library": "both"
+  },
+  {
+   "movement": "Push-Up",
+   "kind": "bw",
+   "easier": [
+    "Dumbbell Bench Press",
+    "Machine Chest Press"
+   ],
+   "harder": [
+    "Diamond Push-Up",
+    "Fist Push-Up",
+    "Plyometric Push-Up"
+   ],
+   "beginnerStart": "3 x 5 to 8 with the easier version",
+   "intermediateStart": "3 x 8 to 12",
+   "advancedStart": "3 x 12 or more, or the harder version",
+   "note": "A hands-elevated push-up is the ideal easier version; it is not in the library yet (see gaps).",
+   "evidenceTag": "Standard practice",
+   "library": "both"
+  },
+  {
+   "movement": "Dips",
+   "kind": "bw",
+   "easier": [
+    "Close-Grip Bench Press",
+    "Push-Up"
+   ],
+   "harder": [],
+   "beginnerStart": "3 x 5 to 8 with the easier version",
+   "intermediateStart": "3 x 8 to 12",
+   "advancedStart": "3 x 12 or more, or the harder version",
+   "note": "Add load only after clean bodyweight reps. Stop at a depth the shoulders tolerate.",
+   "evidenceTag": "Standard practice",
+   "library": "both"
+  },
+  {
+   "movement": "Overhead Press",
+   "kind": "barbell",
+   "easier": [
+    "Seated Dumbbell Press",
+    "Landmine Press"
+   ],
+   "harder": [
+    "Z Press"
+   ],
+   "beginnerStart": "3 x 8 with a light load or the easier version; form first",
+   "intermediateStart": "3 x 5 at RPE 7",
+   "advancedStart": "3 x 3 to 5 at RPE 8",
+   "note": "Landmine Press is shoulder-friendly for those who struggle to press overhead.",
+   "evidenceTag": "Standard practice",
+   "library": "both"
+  },
+  {
+   "movement": "Seated Dumbbell Press",
+   "kind": "load",
+   "easier": [
+    "Landmine Press"
+   ],
+   "harder": [
+    "Standing Dumbbell Press",
+    "Overhead Press"
+   ],
+   "beginnerStart": "3 x 10 with a light load",
+   "intermediateStart": "3 x 8 at RPE 7",
+   "advancedStart": "3 x 6 to 8 at RPE 8",
+   "note": "Move to standing when the trunk stays stable.",
+   "evidenceTag": "Standard practice",
+   "library": "both"
+  },
+  {
+   "movement": "Pull-Up",
+   "kind": "bw",
+   "easier": [
+    "Lat Pulldown",
+    "Inverted Row",
+    "Scapular Pull-Up"
+   ],
+   "harder": [
+    "Wide-Grip Pull-Up"
+   ],
+   "beginnerStart": "3 x 5 to 8 with the easier version",
+   "intermediateStart": "3 x 8 to 12",
+   "advancedStart": "3 x 12 or more, or the harder version",
+   "note": "A band-assisted pull-up is a common step in between; it is not in the library yet (see gaps).",
+   "evidenceTag": "Standard practice",
+   "library": "both"
+  },
+  {
+   "movement": "Chin-Up",
+   "kind": "bw",
+   "easier": [
+    "Lat Pulldown",
+    "Inverted Row"
+   ],
+   "harder": [
+    "Pull-Up"
+   ],
+   "beginnerStart": "3 x 5 to 8 with the easier version",
+   "intermediateStart": "3 x 8 to 12",
+   "advancedStart": "3 x 12 or more, or the harder version",
+   "note": "Palms facing you uses the biceps more and is usually easier.",
+   "evidenceTag": "Standard practice",
+   "library": "both"
+  },
+  {
+   "movement": "Lat Pulldown",
+   "kind": "load",
+   "easier": [
+    "Straight-Arm Pulldown"
+   ],
+   "harder": [
+    "Pull-Up",
+    "Chin-Up"
+   ],
+   "beginnerStart": "3 x 10 with a light load",
+   "intermediateStart": "3 x 8 at RPE 7",
+   "advancedStart": "3 x 6 to 8 at RPE 8",
+   "note": "Use a full stretch at the top and pull the elbows to the ribs.",
+   "evidenceTag": "Standard practice",
+   "library": "both"
+  },
+  {
+   "movement": "Barbell Row",
+   "kind": "barbell",
+   "easier": [
+    "Chest-Supported Row",
+    "Dumbbell Row",
+    "Seated Cable Row"
+   ],
+   "harder": [
+    "Pendlay Row",
+    "Meadows Row"
+   ],
+   "beginnerStart": "3 x 8 with a light load or the easier version; form first",
+   "intermediateStart": "3 x 5 at RPE 7",
+   "advancedStart": "3 x 3 to 5 at RPE 8",
+   "note": "Chest-Supported Row removes lower-back demand.",
+   "evidenceTag": "Standard practice",
+   "library": "both"
+  },
+  {
+   "movement": "Dumbbell Row",
+   "kind": "load",
+   "easier": [
+    "Chest-Supported Row",
+    "Single-Arm Cable Row"
+   ],
+   "harder": [
+    "Meadows Row",
+    "Pendlay Row"
+   ],
+   "beginnerStart": "3 x 10 with a light load",
+   "intermediateStart": "3 x 8 at RPE 7",
+   "advancedStart": "3 x 6 to 8 at RPE 8",
+   "note": "Keep the torso still; the elbow drives toward the hip.",
+   "evidenceTag": "Standard practice",
+   "library": "both"
+  },
+  {
+   "movement": "Face Pull",
+   "kind": "load",
+   "easier": [
+    "Band Pull-Apart"
+   ],
+   "harder": [
+    "Rear Delt Fly"
+   ],
+   "beginnerStart": "3 x 10 with a light load",
+   "intermediateStart": "3 x 8 at RPE 7",
+   "advancedStart": "3 x 6 to 8 at RPE 8",
+   "note": "Light weight, high elbows; this is a posture and shoulder-health movement.",
+   "evidenceTag": "Standard practice",
+   "library": "both"
+  },
+  {
+   "movement": "Plank",
+   "kind": "hold",
+   "easier": [
+    "Dead Bug",
+    "Bird Dog"
+   ],
+   "harder": [
+    "Plank Shoulder Tap",
+    "Side Plank",
+    "Hollow Hold",
+    "Ab Wheel"
+   ],
+   "beginnerStart": "2 x 20 sec",
+   "intermediateStart": "2 x 30 to 35 sec",
+   "advancedStart": "3 x 45 sec",
+   "note": "Ribs down, glutes tight, breathe. Stop when the hips sag.",
+   "evidenceTag": "Standard practice",
+   "library": "both"
+  },
+  {
+   "movement": "Dead Bug",
+   "kind": "hold",
+   "easier": [
+    "Curl-Up"
+   ],
+   "harder": [
+    "Bird Dog",
+    "Hollow Hold"
+   ],
+   "beginnerStart": "2 x 20 sec",
+   "intermediateStart": "2 x 30 to 35 sec",
+   "advancedStart": "3 x 45 sec",
+   "note": "Keep the low back pressed to the floor.",
+   "evidenceTag": "Standard practice",
+   "library": "both"
+  },
+  {
+   "movement": "Side Plank",
+   "kind": "hold",
+   "easier": [
+    "Plank"
+   ],
+   "harder": [
+    "Copenhagen Plank"
+   ],
+   "beginnerStart": "2 x 20 sec",
+   "intermediateStart": "2 x 30 to 35 sec",
+   "advancedStart": "3 x 45 sec",
+   "note": "Build time on each side before adding difficulty.",
+   "evidenceTag": "Standard practice",
+   "library": "both"
+  },
+  {
+   "movement": "Hanging Knee Raise",
+   "kind": "bw",
+   "easier": [
+    "Reverse Crunch"
+   ],
+   "harder": [
+    "Hanging Leg Raise",
+    "Toes-to-Bar"
+   ],
+   "beginnerStart": "3 x 5 to 8 with the easier version",
+   "intermediateStart": "3 x 8 to 12",
+   "advancedStart": "3 x 12 or more, or the harder version",
+   "note": "No swinging; use the abs, not momentum.",
+   "evidenceTag": "Standard practice",
+   "library": "both"
+  },
+  {
+   "movement": "Farmer Carry",
+   "kind": "carry",
+   "easier": [
+    "Suitcase Carry"
+   ],
+   "harder": [
+    "Overhead Carry"
+   ],
+   "beginnerStart": "2 x 20 m, light",
+   "intermediateStart": "3 x 30 m",
+   "advancedStart": "3 x 40 m, heavy",
+   "note": "Tall posture, short smooth steps, ribs down.",
+   "evidenceTag": "Standard practice",
+   "library": "both"
+  },
+  {
+   "movement": "Jump Squat",
+   "kind": "power",
+   "easier": [
+    "Goblet Squat"
+   ],
+   "harder": [
+    "Tuck Jump",
+    "Split Jump"
+   ],
+   "beginnerStart": "3 x 3, low height, soft landings",
+   "intermediateStart": "3 x 4",
+   "advancedStart": "3 x 4 to 5, max speed, stop before speed drops",
+   "note": "Land softly and reset between reps.",
+   "evidenceTag": "Standard practice",
+   "library": "both"
+  },
+  {
+   "movement": "Box Jump",
+   "kind": "power",
+   "easier": [
+    "Jump Squat"
+   ],
+   "harder": [
+    "Broad Jump",
+    "Bounding"
+   ],
+   "beginnerStart": "3 x 3, low height, soft landings",
+   "intermediateStart": "3 x 4",
+   "advancedStart": "3 x 4 to 5, max speed, stop before speed drops",
+   "note": "Step down; do not jump down from the box.",
+   "evidenceTag": "Standard practice",
+   "library": "both"
+  },
+  {
+   "movement": "Burpee",
+   "kind": "bw",
+   "easier": [
+    "Mountain Climber",
+    "Sprawl"
+   ],
+   "harder": [
+    "Thruster"
+   ],
+   "beginnerStart": "3 x 5 to 8 with the easier version",
+   "intermediateStart": "3 x 8 to 12",
+   "advancedStart": "3 x 12 or more, or the harder version",
+   "note": "Slow the pace and keep the body in one line in the push-up position.",
+   "evidenceTag": "Standard practice",
+   "library": "both"
+  }
+ ],
+ "libraryGaps": [
+  "Hands-elevated (incline) Push-Up as the standard beginner push-up regression",
+  "Band-Assisted Pull-Up as the step between Lat Pulldown and Pull-Up",
+  "Knee Plank as an easier plank",
+  "Weighted versions of Dips and Pull-Up for advanced lifters"
+ ]
+}
