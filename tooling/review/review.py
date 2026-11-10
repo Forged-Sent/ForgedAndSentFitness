@@ -23,6 +23,28 @@ from pathlib import Path
 PROVIDERS = ("codex", "claude", "gemini")
 SEVERITIES = {"critical", "high", "medium", "low"}
 REPORT_KEYS = {"verdict", "findings", "unverified", "slice_complete"}
+CLAUDE_REPORT_SCHEMA = {
+    "type": "object",
+    "properties": {
+        "verdict": {"type": "string", "enum": ["PASS", "CHANGES_REQUIRED"]},
+        "slice_complete": {"type": "boolean"},
+        "findings": {"type": "array", "items": {
+            "type": "object",
+            "properties": {
+                "severity": {"type": "string", "enum": sorted(SEVERITIES)},
+                "path": {"type": "string", "minLength": 1},
+                "line": {"type": "integer", "minimum": 1},
+                "explanation": {"type": "string", "minLength": 1},
+                "fix": {"type": "string", "minLength": 1},
+            },
+            "required": ["severity", "path", "line", "explanation", "fix"],
+            "additionalProperties": False,
+        }},
+        "unverified": {"type": "array", "items": {"type": "string"}},
+    },
+    "required": ["verdict", "slice_complete", "findings", "unverified"],
+    "additionalProperties": False,
+}
 # A PASS cannot coexist with an admission that part of the slice was skipped.
 COVERAGE_GAP = re.compile(
     r"truncat|omitted|not (?:fully |completely )?review|partial(?:ly)? review|"
@@ -222,7 +244,7 @@ def build_prompt(root: Path, patch: str, base: str = "origin/main",
     return "\n".join(sections)
 
 
-def command_for(provider: str, output: Path) -> list[str]:
+def command_for(provider: str, output: Path, *, structured: bool = False) -> list[str]:
     if provider == "codex":
         return ["codex", "exec", "--sandbox", "read-only", "--ephemeral",
                 "--skip-git-repo-check", "--ignore-user-config",
@@ -230,9 +252,12 @@ def command_for(provider: str, output: Path) -> list[str]:
     if provider == "claude":
         # --strict-mcp-config with no --mcp-config: start zero MCP servers,
         # including the developer's personal ones.
-        return ["claude", "-p", "Review the provided patch and return JSON only.",
-                "--tools", "", "--disallowedTools", "mcp__*", "--strict-mcp-config",
-                "--permission-mode", "plan", "--output-format", "text"]
+        command = ["claude", "-p", "Review the provided patch and return JSON only.",
+                   "--tools", "", "--disallowedTools", "mcp__*", "--strict-mcp-config",
+                   "--permission-mode", "plan", "--output-format", "json" if structured else "text"]
+        if structured:
+            command += ["--json-schema", json.dumps(CLAUDE_REPORT_SCHEMA, separators=(",", ":"))]
+        return command
     if provider == "gemini":
         # Gemini plan mode is experimental. Sandbox is required, and errors
         # must never be downgraded to an advisory pass.

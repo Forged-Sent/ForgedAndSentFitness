@@ -341,7 +341,7 @@
       "x": 920,
       "y": 245,
       "color": "violet",
-      "purpose": "The staged GitHub workflow classifies functional changes and routes Codex-authored work to Claude subscription OAuth, Claude-authored work to native Codex GitHub Code Review, and verified same-repository Dependabot updates to Codex through trusted dispatch bound to the PR head. The scheduled reconciler with actions: write dispatches a gate run when native evidence appears or a bot PR head first needs review. The publisher has issues: write to post an implementor handoff; this comment path needs hosted retesting. The required-status ruleset is disabled.",
+      "purpose": "The staged GitHub workflow classifies functional changes and routes Codex-authored work to Claude subscription OAuth, Claude-authored work to native Codex GitHub Code Review, and verified same-repository Dependabot updates to Codex through trusted dispatch bound to the PR head. The scheduled reconciler with actions: write dispatches a gate run when native evidence appears or a bot PR head first needs review. The trusted publisher has pull-requests: write to post an implementor handoff and statuses: write for the exact-head gate status. A PR #48 branch-targeted run posted failure handoffs; a same-event main-ref run with issues: write alone still received HTTP 403. The local publisher API wrapper rejects PR review and state-mutation endpoints, but branch-targeted runs still check out default-branch code. Clean PASS handoff with the new code and final success remain unverified. The required-status ruleset is disabled.",
       "files": [
         ".github/workflows/flutter-ai-review.yml",
         "tooling/review/flutter_scope.py",

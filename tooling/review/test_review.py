@@ -175,6 +175,11 @@ class ReviewTests(unittest.TestCase):
             self.assertIn("--tools", claude)
             self.assertIn("mcp__*", claude)
             self.assertIn("--strict-mcp-config", claude)
+            self.assertEqual(claude[claude.index("--output-format") + 1], "text")
+            self.assertNotIn("--json-schema", claude)
+            structured = command_for("claude", out, structured=True)
+            self.assertEqual(structured[structured.index("--output-format") + 1], "json")
+            self.assertIn("--json-schema", structured)
             self.assertIn("--sandbox", gemini)
             self.assertIn("plan", gemini)
             for cmd in (codex, claude, gemini):

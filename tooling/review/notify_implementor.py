@@ -7,7 +7,7 @@ from pathlib import Path
 import re
 import sys
 
-from github_gate import GitHub, GateError, codex_review, digest, handoff_marker, identity, load
+from github_gate import GitHub, PublisherGitHub, GateError, codex_review, digest, handoff_marker, identity, load
 
 GITHUB_ACTIONS_BOT_ID = 41898282
 FINDINGS_HEAD = re.compile(r"<!-- flutter-ai-review-findings-head:([0-9a-f]{40}) -->")
@@ -141,9 +141,14 @@ def notify(work: Path, api: GitHub) -> None:
         api.status(snapshot["head"], "success", description)
 
 
-if __name__ == "__main__":
+def main() -> int:
     try:
-        notify(Path(os.environ["RUNNER_TEMP"]) / "gate", GitHub())
+        notify(Path(os.environ["RUNNER_TEMP"]) / "gate", PublisherGitHub())
+        return 0
     except (GateError, KeyError, OSError, ValueError, TypeError) as error:
         print(str(error) if isinstance(error, GateError) else "Review handoff could not be posted", file=sys.stderr)
-        raise SystemExit(1)
+        return 1
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
