@@ -48,10 +48,13 @@ class PolicyTests(unittest.TestCase):
     def test_publisher_token_permissions_are_exact(self):
         workflow = self.root / ".github/workflows/flutter-ai-review.yml"
         original = workflow.read_text(encoding="utf-8")
-        for modified in (original.replace("pull-requests: write", "pull-requests: read", 1),
-                         original.replace("      pull-requests: write\n      statuses: write\n",
-                                          "      pull-requests: write\n      statuses: write\n      issues: write\n", 1)):
-            workflow.write_text(modified, encoding="utf-8")
+        publisher_offset = original.index("\n  publish:\n")
+        before, publisher = original[:publisher_offset], original[publisher_offset:]
+        scope = "      pull-requests: write\n      statuses: write\n"
+        self.assertEqual(publisher.count(scope), 1)
+        for replacement in ("      pull-requests: read\n      statuses: write\n",
+                            scope + "      issues: write\n"):
+            workflow.write_text(before + publisher.replace(scope, replacement, 1), encoding="utf-8")
             self.assert_violation("publisher permissions")
 
     def test_launcher_dart_define_must_match_app_key(self):
