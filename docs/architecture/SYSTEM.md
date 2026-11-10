@@ -22,6 +22,8 @@ flowchart LR
 
 **Implemented:** `main()` selects preview or emulator mode and rejects cloud mode; `ForgedFirebaseRuntime.connectEmulators()` attaches client SDKs to local endpoints and performs anonymous Auth smoke sign-in. `ForgedSentApp`/`FoundationHomeScreen` show the foundation status. Local Firestore and Storage rules allow authenticated developer smoke paths and deny other paths. That smoke permission is **not** suitable for production data.
 
+**Native hosts:** `mobile/android/` and `mobile/ios/` are committed Flutter 3.47.8 template hosts (`com.forgedandsent`, project `forged_and_sent`). The only customization is the ADR-0002 Android Network Security Configuration: `src/main/res/xml/network_security_config.xml` (referenced from the main manifest) blocks cleartext for all hosts in main, profile and release builds on every supported API level (minSdk 24), and the same-named debug overlay in `mobile/android/app/src/debug/res/xml/` additionally permits cleartext HTTP only to the Android Emulator host alias `10.0.2.2`. They contain no custom native code, added permissions, Firebase native config or signing material; the Dart entrypoint and emulator-first runtime above are unchanged. A local Windows debug APK build passed. iOS has not been built from the committed host. Web and desktop hosts remain temporary and git-ignored.
+
 **Not implemented or validated:** durable offline outbox, real group membership, actual workout/devotional features, private data model, server-authoritative scoring, DEV/PROD deployment, and authenticated role authorization. Do not infer these from the diagram.
 
 ## Planned target architecture (design intent, not present code)
@@ -84,6 +86,8 @@ Review agents are **advisory**: their findings are evidence, not human approvals
 | Flutter startup | `mobile/lib/main.dart` |
 | Foundation widgets | `mobile/lib/src/app/forged_sent_app.dart` |
 | Local emulator adapter | `mobile/lib/src/firebase/forged_firebase_runtime.dart` |
+| Android host (template + network security policy) | `mobile/android/app/build.gradle.kts`, `mobile/android/app/src/main/AndroidManifest.xml`, `mobile/android/app/src/main/res/xml/network_security_config.xml`, `mobile/android/app/src/debug/res/xml/network_security_config.xml` |
+| iOS host (template) | `mobile/ios/Runner.xcodeproj/project.pbxproj`, `mobile/ios/Runner/Info.plist` |
 | Firebase emulator config | `firebase.json`, `.firebaserc` |
 | Rules | `firebase/firestore.rules`, `firebase/storage.rules` |
 | Required checks | `.github/workflows/ci-gate.yml` |

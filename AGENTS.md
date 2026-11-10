@@ -57,7 +57,7 @@ Forged & Sent is a faith-centered devotional workout and group accountability pl
 ## Checks
 - `cd mobile && flutter pub get && flutter analyze && flutter test`
 - `cd mobile && flutter build apk --debug` once Android platform files are generated.
-- On a new clone the setup launchers generate the git-ignored hosts (`flutter create --platforms=web`, plus `android` in Mobile setup and `ios` in the Mac iPhone step) with `--org=com.forgedandsent --project-name=forged_and_sent`. CI generates the same temporary hosts. Committed, reviewed native hosts are a later decision (see ADR-0003).
+- `mobile/android/` and `mobile/ios/` are committed Flutter 3.47.8 template hosts (`--org=com.forgedandsent --project-name=forged_and_sent`). The only reviewed customization is the ADR-0002 Android Network Security Configuration: `mobile/android/app/src/main/AndroidManifest.xml` references `@xml/network_security_config`; `src/main/res/xml/network_security_config.xml` sets `base-config cleartextTrafficPermitted="false"` for main, profile and release on every supported API level (minSdk 24, where API 24-27 would otherwise allow cleartext), and the same-named debug overlay `src/debug/res/xml/network_security_config.xml` keeps that base and adds an HTTP exception only for `10.0.2.2`. Setup launchers and CI still run `flutter create` with the same flags; it only adds missing files, and the web host stays git-ignored. Do not edit or regenerate the committed hosts outside a reviewed change. Release signing, store identifiers, Firebase native config and iOS device runs are not set up (see ADR-0003).
 
 ## Agent roles
 - Flutter Builder: one vertical slice, widget tests, no backend policy changes.
