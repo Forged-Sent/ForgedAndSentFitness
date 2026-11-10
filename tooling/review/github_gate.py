@@ -193,6 +193,40 @@ class GitHub:
         return rows
 
 
+_PUBLISHER_READ = tuple(re.compile(pattern + r"\Z") for pattern in (
+    r"pulls/[1-9][0-9]*",
+    r"pulls\?state=open&per_page=100&page=[1-9][0-9]*",
+    r"commits/[0-9a-f]{40}/statuses\?per_page=100&page=[1-9][0-9]*",
+    r"issues/[1-9][0-9]*/timeline\?per_page=100&page=[1-9][0-9]*",
+    r"pulls/[1-9][0-9]*/reviews\?per_page=100&page=[1-9][0-9]*",
+    r"pulls/[1-9][0-9]*/reviews/[1-9][0-9]*/comments\?per_page=100&page=[1-9][0-9]*",
+    r"issues/[1-9][0-9]*/comments\?per_page=100&page=[1-9][0-9]*",
+))
+_PUBLISHER_STATUS = re.compile(r"statuses/[0-9a-f]{40}\Z")
+_PUBLISHER_COMMENT = re.compile(r"issues/[1-9][0-9]*/comments\Z")
+
+
+class PublisherGitHub(GitHub):
+    """Constrain the trusted publisher to the endpoints its handoff uses."""
+
+    def api(self, path: str, body: dict | None = None):
+        if body is None:
+            allowed = any(pattern.fullmatch(path) for pattern in _PUBLISHER_READ)
+        elif _PUBLISHER_STATUS.fullmatch(path):
+            allowed = (isinstance(body, dict) and
+                       set(body) == {"state", "context", "description", "target_url"} and
+                       isinstance(body["state"], str) and
+                       body["state"] in {"pending", "success", "failure"} and
+                       body["context"] == CONTEXT and body["target_url"] == self.run_url)
+        elif _PUBLISHER_COMMENT.fullmatch(path):
+            allowed = isinstance(body, dict) and set(body) == {"body"} and isinstance(body["body"], str)
+        else:
+            allowed = False
+        if not allowed:
+            raise GateError("Publisher GitHub API operation is not allowed")
+        return super().api(path, body)
+
+
 def git(root: Path, *args: str, env: dict | None = None) -> str:
     proc = subprocess.run(["git", *args], cwd=root, capture_output=True,
                           encoding="utf-8", errors="strict", env=env, timeout=120)
@@ -320,11 +354,11 @@ def check_payload(payload: dict) -> None:
 def provider_command(provider: str, output: Path) -> list[str]:
     if provider != "claude":
         raise GateError("Native Codex review has no CLI command")
-    command = review.command_for(provider, output)
+    command = review.command_for(provider, output, structured=True)
     command += ["--setting-sources", "", "--disable-slash-commands"]
     model = os.environ.get("AI_REVIEW_" + provider.upper() + "_MODEL", "")
     if model:
-        command[2:2] = ["--model", model]
+        command += ["--model", model]
     return command
 
 
@@ -508,10 +542,18 @@ def run_provider(work: Path, provider: str) -> None:
                     raise SafeProviderDiagnostic(
                         f"{provider} CLI exited {proc.returncode}: {category}; review NOT VERIFIED")
                 raw = proc.stdout
-                if len(raw) > review.MAX_OUTPUT or review.SENSITIVE.search(raw):
+                if len(raw) > 2 * review.MAX_OUTPUT + 16_384 or review.SENSITIVE.search(raw):
                     raise SafeProviderDiagnostic("Reviewer output exceeds limits or resembles a secret")
                 try:
-                    parsed = review.parse_report(raw)
+                    envelope = json.loads(raw, object_pairs_hook=review._no_duplicate_keys)
+                    if (not isinstance(envelope, dict) or envelope.get("type") != "result" or
+                            envelope.get("subtype") != "success" or envelope.get("is_error") is not False or
+                            not isinstance(envelope.get("structured_output"), dict)):
+                        raise ValueError("Missing structured reviewer output")
+                    structured = json.dumps(envelope["structured_output"])
+                    if len(structured) > review.MAX_OUTPUT:
+                        raise ValueError("Structured reviewer output exceeds limits")
+                    parsed = review.parse_report(structured)
                 except ValueError:
                     raise SafeProviderDiagnostic(
                         "Reviewer response failed required JSON validation; review NOT VERIFIED") from None
@@ -664,7 +706,7 @@ def main() -> int:
         elif args.mode == "review":
             run_provider(args.work, args.provider)
         else:
-            publish(args.work, GitHub(), args.job_result)
+            publish(args.work, PublisherGitHub(), args.job_result)
         return 0
     except (GateError, ValueError, KeyError, OSError, subprocess.TimeoutExpired) as error:
         print(str(error) if isinstance(error, GateError) else "Gate failed; evidence is NOT VERIFIED", file=sys.stderr)
