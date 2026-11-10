@@ -145,7 +145,7 @@ establish an independent provider for every part; human assessment may be needed
   with that earlier scope still received HTTP 403. A PR #48 branch-targeted
   run with `pull-requests: write` posted failure handoffs. It
   did not demonstrate a clean PASS handoff or final review success because its
-  Claude responses failed JSON validation. The later automatic PR #48 run
+  Claude responses failed JSON validation. The later hosted PR #48 run
   linked above did demonstrate the delivered Claude handoff and final success.
 - The implementor addresses the first review's findings once. If a later review
   on a new head still has findings, the handoff directs the implementor to pause
