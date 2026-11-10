@@ -6,11 +6,11 @@ Updated 2026-11-09 (Phoenix). This is the human-readable snapshot for the Obsidi
 
 | PR | State | What it adds | What happens next |
 |---|---|---|---|
-| [#48 — Hosted AI review acceptance](https://github.com/Forged-Sent/ForgedAndSentFitness/pull/48) | **Open · hold** | Tests the review handoff and failure behavior before enabling the separate Flutter review ruleset. The published head passed `ci-gate`, but the latest review status is pending after the handoff POST failed. | Review and publish the local hardening under the repository push rule. Branch-targeted runs test workflow permissions but still check out gate code from `main`; hosted proof of new gate code therefore needs a follow-up run after that code merges. Keep the ruleset disabled and decide the staged merge plan before merging #48. |
+| [#48 — Hosted AI review acceptance](https://github.com/Forged-Sent/ForgedAndSentFitness/pull/48) | **Open · hold** | Head `97acf7a` passed `ci-gate`. Its hosted Claude PASS posted the implementor handoff before final exact-head success; a stale-head dispatch was rejected. | Verify the current native Codex/Dependabot route plus hosted failure, retry, base-change, shared-head and producer-identity cases. The [activation checklist](../development/FLUTTER-AI-REVIEW-GATE.md#activation-checklist) remains open. Do not merge #48 or enable the separate ruleset yet. |
 | [#47 — Flutter client stack and CLI plan](https://github.com/Forged-Sent/ForgedAndSentFitness/pull/47) | **Merged** | Records the accepted Riverpod, go_router and Drift direction in [ADR-0005](../architecture/ADR-0005-flutter-client-stack.md), plus the [CLI guide](../development/FLUTTER-CLAUDE-CLI.md). | Implement the packages in a focused Flutter PR after the first feature contract and native hosts are ready. |
 | [#46 — Two-phase review publisher](https://github.com/Forged-Sent/ForgedAndSentFitness/pull/46) | **Merged** | Makes a functional PASS wait for the implementor handoff before final review success. | #48 supplies hosted acceptance; #46's merge alone did not prove handoff delivery. |
 
-Only #48 was open when this page was updated. The live [pull request list](https://github.com/Forged-Sent/ForgedAndSentFitness/pulls) takes precedence over this snapshot.
+Only #48 was open when this page was updated. [PR #51](https://github.com/Forged-Sent/ForgedAndSentFitness/pull/51) has merged its publisher hardening into `main`. The live [pull request list](https://github.com/Forged-Sent/ForgedAndSentFitness/pulls) takes precedence over this snapshot.
 
 ## Prepared locally, not yet PRs
 

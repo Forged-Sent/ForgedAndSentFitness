@@ -1,11 +1,11 @@
 ---
 status: active
-updated: 2026-11-08
+updated: 2026-11-09
 owner: Codex coordinator / gate implementor
-stage: Ready
-next_action: Maintainer first-pushes the local hosted-acceptance branch; coordinator then opens a PR and checks hosted results
+stage: Active
+next_action: Verify the current native Codex route and remaining hosted activation cases while PR 48 and the ruleset remain held
 source_ref: codex/review-gate-hosted-acceptance
-source_sha: 7b57daa1a1b2953e2fbc887665ce8327f1081bc6
+source_sha: 97acf7a1a1dd91fa4f6d3b5f8346d15196c82276
 profile: deep
 coordinator_model: gpt-6 (host family; exact variant unavailable)
 coordinator_provider: openai
@@ -13,7 +13,13 @@ author_providers: [openai]
 ---
 # Functional Flutter AI review gate
 
-## Current status — November 8
+## Current status — November 9
+
+- [PR #48](https://github.com/Forged-Sent/ForgedAndSentFitness/pull/48) is open on exact head `97acf7a` with green `ci-gate` and zero open review threads when checked. Its [hosted Claude run](https://github.com/Forged-Sent/ForgedAndSentFitness/actions/runs/42769581873) returned PASS, posted the implementor handoff, then wrote final exact-head success. A [manual stale-head dispatch](https://github.com/Forged-Sent/ForgedAndSentFitness/actions/runs/42770086958) failed in preparation before review/publish, as intended. [PR #51](https://github.com/Forged-Sent/ForgedAndSentFitness/pull/51) merged the narrower publisher permissions into `main` before this run.
+- The maintainer accepted the latest hosted Claude low comment as a review-context false positive: it claimed `SYSTEM.md` still described the narrower permission scope as untested, but the PR head corrected that sentence and the review slice omitted that file. No new fix is pending for that comment.
+- The Functional Flutter AI review ruleset is still **disabled** and #48 remains **on hold**. The current native Codex/Dependabot route, failed initial pending-status write, failed comment/final-status write, missing credentials/incomplete review, base retarget, shared head and retry cases remain **NOT VERIFIED** in hosted acceptance. The [activation checklist](../../development/FLUTTER-AI-REVIEW-GATE.md#activation-checklist) controls the next steps. This note is a dated snapshot; check GitHub before push or merge.
+
+### Earlier November 8 snapshot (superseded)
 
 - [PR #46](https://github.com/Forged-Sent/ForgedAndSentFitness/pull/46) merged at `61e1b7d73e7ad58d75b29e70f13bc768e96430ca` after required `ci-gate` passed. The Functional Flutter AI review ruleset remains **disabled**. A separate local branch, `codex/review-gate-hosted-acceptance` in `C:\ws_c\ForgedAndSentFitness-gate-hosted`, has four commits through `7b57daa` for integrated publish/notify tests and acceptance notes. Ninety-three review tests and policy/knowledge/diff checks passed locally. Its first Claude review lows received one fix pass; a second Claude review passed with three new low comments. The maintainer accepted those as follow-up and chose to make this branch's first push. No hosted acceptance result exists yet. The next action is a maintainer first push, followed by a PR and live check of notification failure/retry behavior; do not activate the ruleset before the full checklist passes.
 

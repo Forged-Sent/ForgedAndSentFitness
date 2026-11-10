@@ -6,7 +6,7 @@ Curated 2026-11-09 (Phoenix). This board is human navigation, not a lock or live
 
 | State | Work | Owner | Blocker / next action |
 |---|---|---|---|
-| Blocked | [Hosted review gate](PR-STATUS.md) | Maintainer / gate implementor | PR #48 is open with green `ci-gate`, but clean handoff and final success are unverified. Decide the staged merge and postmerge acceptance plan; ruleset remains disabled |
+| Active | [Hosted review gate](PR-STATUS.md) | Maintainer / gate implementor | PR #48's Claude handoff and exact-head success passed on `97acf7a`; current native Codex and remaining hosted negative cases are unverified. Keep #48 held and the ruleset disabled |
 | Ready | [Obsidian first-use pilot](handoffs/obsidian-current-and-history.md) | Maintainer + collaborator | Open `docs/` as a vault and try HOME → WORK → START-SESSION → handoff without reading Markdown source |
 | Ready | Native Android/iOS hosts | Maintainer / Flutter builder | Local branch passed Android builds; maintainer first-pushes it, then opens a focused PR. iOS host compilation from this branch remains unverified |
 | Ready | Synthetic Today completion | Maintainer / Flutter builder | Local fake-repository flow passed local checks; publish the feature contract and branch after the native-host PR is ready |
