@@ -17,7 +17,7 @@
 - Functional Flutter/backend changes follow the [cross-provider AI review gate](FLUTTER-AI-REVIEW-GATE.md), including its staged activation status. Extra local AI reviews remain optional. The existing live protection requires `ci-gate` and zero human approvals; the new gate does not impersonate a human approval.
 - Agents use the repository root `AGENTS.md`, Claude `CLAUDE.md`, and
   matching path instructions. Agent reviews are advisory only.
-- The ruleset is active; retain required CI and protected-main safeguards. See `docs/development/REPOSITORY-SECURITY.md` for the solo workflow and live-rule verification.
+- The existing Protect main ruleset is active; retain required CI and protected-main safeguards. The separate Functional Flutter AI review ruleset remains disabled during hosted acceptance. See `docs/development/REPOSITORY-SECURITY.md` for the solo workflow and live-rule verification.
 
 ## Local setup
 The accepted client package direction is in [ADR-0005](../architecture/ADR-0005-flutter-client-stack.md). Before adding those packages, align the local Flutter SDK with the CI pin and follow the [Flutter + Claude CLI guide](FLUTTER-CLAUDE-CLI.md).

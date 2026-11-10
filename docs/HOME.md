@@ -1,6 +1,6 @@
 # Forged & Sent — project dashboard
 
-Open this page first. Git versions this shared project memory; Obsidian provides navigation. The workspace was merged into `main` in [PR #30](https://github.com/Forged-Sent/ForgedAndSentFitness/pull/30). Check [Current state](knowledge/CURRENT.md) and live GitHub before relying on a task's status.
+Open this page first. Git versions this shared project memory; Obsidian provides navigation. The workspace was merged into `main` in [PR #30](https://github.com/Forged-Sent/ForgedAndSentFitness/pull/30). Check [Current state](knowledge/CURRENT.md) and live GitHub before relying on a task's status. These notes are curated snapshots: PR activity does not update them automatically.
 
 | I want to… | Open |
 |---|---|
@@ -25,4 +25,4 @@ Read [Pull requests and next steps](knowledge/PR-STATUS.md) for the human overvi
 
 Open this worktree's **docs folder** as an Obsidian vault and open `HOME.md`, following #30's existing convention. The notes stay versioned with code while build outputs and archived HTML stay outside the note browser. No personal vault, new database, community plugin or automatic sync is required. Local `.obsidian` state stays ignored; share notes through normal Git workflow.
 
-Use `docs/HOME.md` in one clean, current repository checkout, and open that checkout's `docs` folder as the vault. Avoid editing the same note in multiple worktrees. This public vault must contain no credentials, personal journals, real member records, prayers or health data.
+Use `docs/HOME.md` in one clean, current repository checkout, and open that checkout's `docs` folder as the vault. For this workstation, the stable `main` checkout is `C:\ws_c\ForgedAndSentFitness-main\docs`. After a docs PR merges, refresh that checkout from `origin/main` to see its notes in Obsidian. A different vault or feature-branch checkout shows different files. Avoid editing the same note in multiple worktrees. This public vault must contain no credentials, personal journals, real member records, prayers or health data.
