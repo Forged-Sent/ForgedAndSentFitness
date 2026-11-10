@@ -20,8 +20,8 @@ author_providers: [openai]
 
 ### Previous November 9 evidence (superseded)
 
-- [PR #48](https://github.com/Forged-Sent/ForgedAndSentFitness/pull/48) is open at `7b57daa1a1b2953e2fbc887665ce8327f1081bc6`. Its `ci-gate` passed. A [hosted run](https://github.com/Forged-Sent/ForgedAndSentFitness/actions/runs/42727728700) produced a Claude review PASS, but the publisher's `POST issues/48/comments` returned HTTP 403 (`GitHub App access denied`, accepted permissions `issues=write; pull_requests=write`). The exact-head `flutter-ai-review` status remains pending, which is the intended fail-closed outcome. No PR review threads are open. The Functional Flutter AI review ruleset is still **disabled**. The handoff cause and remaining hosted acceptance cases are unresolved.
-- [PR #47](https://github.com/Forged-Sent/ForgedAndSentFitness/pull/47) merged the client stack ADR and CLI guide; its changes are incorporated in this local branch without overwriting PR #48's gate tests. A scoped publisher permission change can test whether GitHub grants the handoff write through `pull-requests: write`; this is a hypothesis, not a diagnosed cause. Keep the rule disabled until a hosted comment and final exact-head success are observed, followed by the remaining activation cases.
+- At the earlier PR #48 head `7b57daa1a1b2953e2fbc887665ce8327f1081bc6`, `ci-gate` passed and a [hosted run](https://github.com/Forged-Sent/ForgedAndSentFitness/actions/runs/42727728700) produced Claude PASS, but the handoff POST returned HTTP 403. Its exact-head review status stayed pending. No review threads were open when checked. The cause and hosted acceptance cases had not been resolved at that point.
+- [PR #47](https://github.com/Forged-Sent/ForgedAndSentFitness/pull/47) had merged the client stack ADR and CLI guide. Adding `pull-requests: write` to the publisher was then a proposed test for the HTTP 403; the later PR #51 permission run posted a failure handoff with that scope (see current status above).
 
 ### November 8 status (superseded)
 
