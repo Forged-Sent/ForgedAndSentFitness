@@ -133,8 +133,8 @@ jobs:
     timeout-minutes: 5
     permissions:
       contents: read
-      # PR #48's branch-targeted run posted failure handoffs with this scope.
-      # The earlier issues:write-only HTTP 403 cause remains unconfirmed.
+      # PR #51's branch-targeted run posted a failure handoff with this
+      # PR-write-only scope; clean PASS handoff still needs hosted proof.
       pull-requests: write
       statuses: write
     steps:

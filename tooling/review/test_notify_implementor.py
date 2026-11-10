@@ -1,4 +1,5 @@
 """Handoff comments are current-head only and idempotent."""
+import os
 from pathlib import Path
 import tempfile
 import unittest
@@ -60,7 +61,66 @@ class FakeAPI:
             raise gate.GateError("Commit shared by multiple open PRs")
 
 
+def claude_pass_fixture():
+    snapshot = {"pr": 7, "head": "a" * 40, "base": "b" * 40,
+                "base_ref": "main", "draft": False, "labels": ["authorship:codex"]}
+    prompt = "Review the current diff"
+    payload = {"identity": snapshot, "paths": ["tooling/review/test_notify_implementor.py"],
+               "providers": ["claude"], "policy_sha": snapshot["base"],
+               "run_url": FakeAPI.run_url,
+               "chunks": [{"prompt": prompt, "sha256": gate.digest(prompt)}]}
+    payload["binding"] = gate.digest(payload)
+    result = {"provider": "claude", "binding": payload["binding"],
+              "results": [{"sha256": payload["chunks"][0]["sha256"],
+                           "review": {"verdict": "PASS", "slice_complete": True,
+                                      "findings": [],
+                                      "unverified": ["Runtime tests were not executed by the reviewer"]}}]}
+    return payload, result
+
+
 class NotifyTests(unittest.TestCase):
+    def test_published_claude_pass_stays_pending_until_handoff_succeeds(self):
+        payload, result = claude_pass_fixture()
+        with tempfile.TemporaryDirectory() as directory:
+            work = Path(directory)
+            gate.save(work / "input.json", payload)
+            gate.save(work / "result-claude.json", result)
+            api = FakeAPI(payload["identity"])
+            with patch.dict(os.environ, {"GITHUB_STEP_SUMMARY": str(work / "step.md")}):
+                gate.publish(work, api, "success")
+            summary = gate.load(work / "summary.json")
+            self.assertIsNone(summary["codex_evidence"])
+            self.assertEqual([state for _, state, _ in api.statuses], ["pending"])
+            api.post_error = True
+            with self.assertRaisesRegex(gate.GateError, "HTTP 403"):
+                notify(work, api)
+            self.assertEqual([state for _, state, _ in api.statuses], ["pending"])
+            api.post_error = False
+            notify(work, api)
+            self.assertEqual(len(api.comments), 1)
+            self.assertEqual([state for _, state, _ in api.statuses], ["pending", "success"])
+
+    def test_initial_pending_write_failure_cannot_finalize(self):
+        payload, result = claude_pass_fixture()
+        with tempfile.TemporaryDirectory() as directory:
+            work = Path(directory)
+            gate.save(work / "input.json", payload)
+            gate.save(work / "result-claude.json", result)
+            api = FakeAPI(payload["identity"])
+            api.status_error = True
+            with patch.dict(os.environ, {"GITHUB_STEP_SUMMARY": str(work / "step.md")}), \
+                    self.assertRaisesRegex(gate.GateError, "Status API unavailable"):
+                gate.publish(work, api, "success")
+            self.assertTrue((work / "summary.json").exists())
+            summary = gate.load(work / "summary.json")
+            self.assertEqual(summary["state"], "success")
+            self.assertNotIn("handoff_status_staged", summary)
+            api.status_error = False
+            with self.assertRaisesRegex(gate.GateError, "no staged pending status"):
+                notify(work, api)
+            self.assertEqual(api.comments, [])
+            self.assertEqual(api.statuses, [])
+
     def test_failed_required_handoff_leaves_pending_status(self):
         snapshot = {"pr": 7, "head": "a" * 40, "base": "b" * 40,
                     "base_ref": "main", "draft": False, "labels": ["authorship:codex"]}
