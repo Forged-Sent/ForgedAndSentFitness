@@ -5,12 +5,14 @@ import json
 import os
 from pathlib import Path
 import subprocess
+import sys
 import tempfile
 import unittest
 import urllib.error
 from unittest.mock import patch
 
 import github_gate as gate
+import notify_implementor as notifier
 
 PASS = {"verdict": "PASS", "slice_complete": True, "findings": [],
         "unverified": ["Runtime tests were not executed by the reviewer"]}
@@ -92,6 +94,129 @@ class FakeGitHub:
 
 
 class GateTests(unittest.TestCase):
+    def test_real_publisher_paths_fit_restricted_api(self):
+        for scenario in ("claude_pass", "claude_findings", "codex_pass"):
+            with self.subTest(scenario=scenario), tempfile.TemporaryDirectory() as directory:
+                work = Path(directory)
+                payload, result = sample()
+                if scenario == "claude_findings":
+                    result["results"][0]["review"] = {
+                        "verdict": "CHANGES_REQUIRED", "slice_complete": True,
+                        "findings": [{"severity": "medium", "path": "mobile/lib/main.dart",
+                                      "line": 1, "explanation": "Review finding", "fix": "Fix it"}],
+                        "unverified": [],
+                    }
+                if scenario == "codex_pass":
+                    payload["identity"]["labels"] = ["authorship:claude"]
+                    payload["providers"] = ["codex"]
+                    payload.pop("binding")
+                    payload["binding"] = gate.digest(payload)
+                gate.save(work / "input.json", payload)
+                if scenario != "codex_pass":
+                    gate.save(work / "result-claude.json", result)
+
+                api = object.__new__(gate.PublisherGitHub)
+                api.run_url = "https://github.com/o/r/actions/runs/1/attempts/1"
+                snapshot = payload["identity"]
+                pr = {"number": 7, "head": {"sha": snapshot["head"]},
+                      "base": {"sha": snapshot["base"], "ref": snapshot["base_ref"]},
+                      "draft": False, "state": "open", "user": {"login": "builder"},
+                      "labels": [{"name": label} for label in snapshot["labels"]]}
+                comments = [codex_summary()] if scenario == "codex_pass" else []
+                posted_comments = []
+                statuses = [{"context": gate.CONTEXT, "state": "pending",
+                             "target_url": api.run_url}]
+                requests = []
+
+                def transport(path, body=None):
+                    requests.append((path, body))
+                    if path == "pulls/7":
+                        return pr
+                    if path == "pulls?state=open&per_page=100&page=1":
+                        return [pr]
+                    if path == f"commits/{snapshot['head']}/statuses?per_page=100&page=1":
+                        return list(reversed(statuses))
+                    if path in ("issues/7/timeline?per_page=100&page=1",
+                                "pulls/7/reviews?per_page=100&page=1"):
+                        return []
+                    if path == "issues/7/comments?per_page=100&page=1":
+                        return comments
+                    if path == f"statuses/{snapshot['head']}":
+                        statuses.append(body)
+                        return {}
+                    if path == "issues/7/comments":
+                        posted_comments.append(body)
+                        comments.append({**body, "user": {"id": notifier.GITHUB_ACTIONS_BOT_ID,
+                                                            "login": "github-actions[bot]"}})
+                        return comments[-1]
+                    self.fail(f"Unexpected GitHub endpoint: {path}")
+
+                with patch.object(gate.GitHub, "api", side_effect=transport), \
+                        patch.dict(os.environ, {"GITHUB_STEP_SUMMARY": str(work / "step.md")}):
+                    if scenario == "codex_pass":
+                        live = gate.codex_review(api, 7, snapshot["head"])
+                        gate.save(work / "result-codex.json", {
+                            "provider": "codex", "binding": payload["binding"],
+                            "results": [], "native_review": live,
+                        })
+                    if scenario == "claude_findings":
+                        with self.assertRaisesRegex(gate.GateError, "Reviewer requested changes"):
+                            gate.publish(work, api, "success")
+                    else:
+                        gate.publish(work, api, "success")
+                    notifier.notify(work, api)
+
+                self.assertTrue(requests)
+                self.assertEqual(len(posted_comments), 1)
+                expected = (["pending", "failure"] if scenario == "claude_findings"
+                            else ["pending", "pending", "success"])
+                self.assertEqual([row["state"] for row in statuses], expected)
+                if scenario == "codex_pass":
+                    self.assertTrue(statuses[-1]["description"].startswith("codex-evidence="))
+
+    def test_notify_cli_uses_restricted_publisher_client(self):
+        with tempfile.TemporaryDirectory() as directory, \
+                patch.dict(os.environ, {"RUNNER_TEMP": directory}), \
+                patch.object(notifier, "PublisherGitHub") as client, \
+                patch.object(notifier, "notify") as call:
+            self.assertEqual(notifier.main(), 0)
+            call.assert_called_once_with(Path(directory) / "gate", client.return_value)
+
+    def test_publish_cli_uses_restricted_publisher_client(self):
+        with tempfile.TemporaryDirectory() as directory, \
+                patch.object(sys, "argv", ["github_gate.py", "publish", "--work", directory]), \
+                patch.object(gate, "PublisherGitHub") as client, \
+                patch.object(gate, "publish") as call:
+            self.assertEqual(gate.main(), 0)
+            call.assert_called_once_with(Path(directory), client.return_value, "failure")
+
+    def test_publisher_api_allows_only_review_reads_comment_and_status_writes(self):
+        api = object.__new__(gate.PublisherGitHub)
+        api.run_url = "https://github.com/o/r/actions/runs/1/attempts/1"
+        status = {"state": "pending", "context": gate.CONTEXT,
+                  "description": "Review pending", "target_url": api.run_url}
+        reads = ("pulls/7", "pulls?state=open&per_page=100&page=1",
+                 "commits/" + "a" * 40 + "/statuses?per_page=100&page=1",
+                 "issues/7/timeline?per_page=100&page=1",
+                 "pulls/7/reviews?per_page=100&page=1",
+                 "pulls/7/reviews/8/comments?per_page=100&page=1",
+                 "issues/7/comments?per_page=100&page=1")
+        with patch.object(gate.GitHub, "api", return_value={"ok": True}) as request:
+            for path in reads:
+                self.assertEqual(api.api(path), {"ok": True})
+            api.api("statuses/" + "a" * 40, status)
+            api.api("issues/7/comments", {"body": "handoff"})
+            self.assertEqual(request.call_count, len(reads) + 2)
+            blocked = (("pulls/7/reviews", {"event": "APPROVE"}),
+                       ("pulls/7", {"state": "closed"}),
+                       ("issues/7/comments", {"body": "handoff", "state": "closed"}),
+                       ("statuses/" + "a" * 40, {**status, "target_url": "https://elsewhere.invalid"}),
+                       ("issues/7/comments?page=1&per_page=100", None))
+            for path, body in blocked:
+                with self.subTest(path=path, body=body), self.assertRaisesRegex(gate.GateError, "not allowed"):
+                    api.api(path, body)
+            self.assertEqual(request.call_count, len(reads) + 2)
+
     def test_github_403_reports_safe_permission_hint_without_response_body(self):
         api = object.__new__(gate.GitHub)
         api.repo = "o/r"
@@ -171,6 +296,58 @@ class GateTests(unittest.TestCase):
                 self.assertEqual(result["error"], str(raised.exception))
                 self.assertNotIn("secret-canary", result["error"])
                 self.assertEqual(result["results"], [])
+
+    def test_hosted_claude_uses_schema_output_and_still_checks_review_semantics(self):
+        with patch.dict(os.environ, {"AI_REVIEW_CLAUDE_MODEL": "test-model"}):
+            command = gate.provider_command("claude", Path("unused"))
+        self.assertEqual(command[command.index("--output-format") + 1], "json")
+        self.assertEqual(command[command.index("--model") + 1], "test-model")
+        schema = json.loads(command[command.index("--json-schema") + 1])
+        self.assertEqual(set(schema["required"]), gate.review.REPORT_KEYS)
+        self.assertIs(schema["additionalProperties"], False)
+        payload, _ = sample()
+        for structured, accepted, is_error in ((PASS, True, False),
+                                               ({**PASS, "slice_complete": False}, False, False),
+                                               (None, False, False),
+                                               (PASS, False, True)):
+            with self.subTest(structured=structured, is_error=is_error), tempfile.TemporaryDirectory() as tmp:
+                work = Path(tmp)
+                gate.save(work / "input.json", payload)
+                envelope = {"type": "result", "subtype": "success", "is_error": is_error,
+                            "result": "untrusted free text"}
+                if structured is not None:
+                    envelope["structured_output"] = structured
+                process = subprocess.CompletedProcess([], 0, json.dumps(envelope), "")
+                with patch.object(gate, "model_env", return_value={}), \
+                        patch.object(gate.subprocess, "run", return_value=process):
+                    if accepted:
+                        gate.run_provider(work, "claude")
+                        self.assertEqual(gate.load(work / "result-claude.json")["results"][0]["review"], PASS)
+                    else:
+                        with self.assertRaisesRegex(gate.GateError, "JSON validation"):
+                            gate.run_provider(work, "claude")
+                        self.assertEqual(gate.load(work / "result-claude.json")["results"], [])
+
+    def test_hosted_claude_limits_structured_output_separately_from_cli_envelope(self):
+        payload, _ = sample()
+        for structured, accepted in ((PASS, True),
+                                     ({**PASS, "unverified": ["x" * gate.review.MAX_OUTPUT]}, False)):
+            with self.subTest(accepted=accepted), tempfile.TemporaryDirectory() as tmp:
+                work = Path(tmp)
+                gate.save(work / "input.json", payload)
+                envelope = {"type": "result", "subtype": "success", "is_error": False,
+                            "result": "x" * 40_000,
+                            "structured_output": structured}
+                process = subprocess.CompletedProcess([], 0, json.dumps(envelope), "")
+                with patch.object(gate, "model_env", return_value={}), \
+                        patch.object(gate.subprocess, "run", return_value=process):
+                    if accepted:
+                        gate.run_provider(work, "claude")
+                        self.assertEqual(len(gate.load(work / "result-claude.json")["results"]), 1)
+                    else:
+                        with self.assertRaises(gate.GateError):
+                            gate.run_provider(work, "claude")
+                        self.assertEqual(gate.load(work / "result-claude.json")["results"], [])
 
     def test_arbitrary_gate_error_is_not_copied_into_review_artifact(self):
         payload, _ = sample()

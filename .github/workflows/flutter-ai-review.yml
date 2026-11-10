@@ -133,12 +133,10 @@ jobs:
     timeout-minutes: 5
     permissions:
       contents: read
-      # PR comments are posted through the issues API. GitHub's hosted token
-      # currently rejects that write with issues:write alone (HTTP 403).
-      # Grant the alternative accepted permission for a hosted acceptance test.
+      # PR #51's branch-targeted run posted a failure handoff with this
+      # PR-write-only scope; clean PASS handoff still needs hosted proof.
       pull-requests: write
       statuses: write
-      issues: write
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:

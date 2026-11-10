@@ -97,7 +97,9 @@ establish an independent provider for every part; human assessment may be needed
   review data; PR code is never executed. Functional lockfiles are included.
 - Claude reviewer jobs have no write-capable GitHub token and receive only the
   Claude subscription token in isolated configuration. Claude tools/MCP/skills
-  are disabled. Codex runs as the connected GitHub review service; the gate reads
+  are disabled. Hosted Claude requests schema-validated CLI JSON and still
+  rejects absent structured output, invalid review semantics or incomplete
+  coverage. Codex runs as the connected GitHub review service; the gate reads
   its bot-authored summary or submitted review and verifies identity, GitHub App,
   exact commit and review completion time. Raw
   model/auth output is not logged. A separate publisher validates evidence.
@@ -110,18 +112,36 @@ establish an independent provider for every part; human assessment may be needed
   final `success` status. A failed handoff or final status write leaves an
   existing pending status in place. If the initial pending write fails, the
   notifier refuses to finalize; the check may be absent rather than pending.
-  The trusted publisher job grants the notifier `statuses: write`,
-  `issues: write` and, in PR #48's scoped permission test, `pull-requests: write`.
-  The extra permission is a hypothesis for the hosted HTTP 403, not a confirmed
-  remedy. Documentation-only success does not wait for a handoff.
+  The trusted publisher job grants the notifier `statuses: write` and
+  `pull-requests: write`. The branch-targeted PR #51
+  [permission test](https://github.com/Forged-Sent/ForgedAndSentFitness/actions/runs/42764015046)
+  posted a failure handoff with this narrowed set and no `issues: write`.
+  GitHub reports Actions PR approvals disabled.
+  A clean PASS handoff and final success remain unverified. Documentation-only
+  success does not wait for a handoff.
+- The publisher and notifier instantiate `PublisherGitHub`, which permits only
+  the read endpoints needed for PR identity, run ownership and Codex evidence,
+  plus handoff comment and commit-status POSTs. PR review, state-change and
+  metadata-write endpoints are rejected by that client. This guards the current
+  Python call path; it does not remove the GitHub token's underlying PR write
+  capability. The exact permission set is pinned by policy CI.
+- Automatic runs use the workflow on `main`. A manual branch-targeted run uses
+  that branch's workflow permissions but still checks out gate Python from the
+  default branch. Branch dispatch can test a permission change before merge,
+  but cannot host-test unmerged Python changes. Keep the review ruleset disabled
+  through the code merge and a follow-up hosted acceptance run.
 - After publication, GitHub attempts one comment per review run on the PR and mentions
   its author with the result and a link to the evidence. The author hands findings
   to the declared Codex or Claude implementor session. A local agent session is
   not awakened by a GitHub comment; automatic fix pushes are not enabled. The
-  first hosted runs published statuses but the handoff request failed with HTTP
-  403. The existing `issues: write` permission is documented by GitHub for issue
-  comments; the publisher logs the failed endpoint for diagnosis. This
-  notification path remains unverified until a hosted rerun posts a comment.
+  initial hosted runs published statuses but the handoff request failed with HTTP
+  403. The earlier `issues: write`-only configuration is documented by GitHub
+  for issue comments; the publisher logs the failed endpoint for diagnosis. A
+  same-event [main-ref control run](https://github.com/Forged-Sent/ForgedAndSentFitness/actions/runs/42755454739)
+  with that earlier scope still received HTTP 403. A PR #48 branch-targeted
+  run with `pull-requests: write` posted failure handoffs. It
+  did not demonstrate a clean PASS handoff or final review success because its
+  Claude responses failed JSON validation.
 - The implementor addresses the first review's findings once. If a later review
   on a new head still has findings, the handoff directs the implementor to pause
   for maintainer review instead of starting another fix cycle.
@@ -138,7 +158,9 @@ establish an independent provider for every part; human assessment may be needed
 
 ## Activation checklist
 
-1. Review and merge the workflow PR under existing protections.
+1. Review and merge gate-code changes under existing `ci-gate` protection while
+   the separate review ruleset stays disabled. Because hosted runs check out
+   gate Python from `main`, verify newly merged code on a follow-up acceptance PR.
 2. Create the five authorship labels, including `authorship:automation`, and
    declare all substantial authoring providers.
 3. Confirm the Claude subscription secret and enable Codex GitHub automatic review.

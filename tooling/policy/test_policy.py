@@ -17,7 +17,7 @@ PATHS = [
     ".github/CODEOWNERS", ".github/agents/architecture-reviewer.agent.md",
     ".github/agents/firebase-security.agent.md",
     ".claude/agents/architecture-reviewer.md", ".claude/agents/firebase-security.md",
-    ".github/workflows/ci-gate.yml",
+    ".github/workflows/ci-gate.yml", ".github/workflows/flutter-ai-review.yml",
     "tooling/mcp/launch.mjs", "tooling/windows/install-maestro.ps1",
     "tooling/versions.json",
     "tooling/macos/common.sh", "tooling/windows/setup-developer.ps1",
@@ -44,6 +44,18 @@ class PolicyTests(unittest.TestCase):
 
     def test_clean_configuration(self):
         self.assertEqual(evaluate(self.root), [])
+
+    def test_publisher_token_permissions_are_exact(self):
+        workflow = self.root / ".github/workflows/flutter-ai-review.yml"
+        original = workflow.read_text(encoding="utf-8")
+        publisher_offset = original.index("\n  publish:\n")
+        before, publisher = original[:publisher_offset], original[publisher_offset:]
+        scope = "      pull-requests: write\n      statuses: write\n"
+        self.assertEqual(publisher.count(scope), 1)
+        for replacement in ("      pull-requests: read\n      statuses: write\n",
+                            scope + "      issues: write\n"):
+            workflow.write_text(before + publisher.replace(scope, replacement, 1), encoding="utf-8")
+            self.assert_violation("publisher permissions")
 
     def test_launcher_dart_define_must_match_app_key(self):
         # FNS_ENV vs FS_ENV previously sent the emulator launcher into preview mode.
