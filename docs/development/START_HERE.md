@@ -20,6 +20,8 @@
 - The ruleset is active; retain required CI and protected-main safeguards. See `docs/development/REPOSITORY-SECURITY.md` for the solo workflow and live-rule verification.
 
 ## Local setup
+The accepted client package direction is in [ADR-0005](../architecture/ADR-0005-flutter-client-stack.md). Before adding those packages, align the local Flutter SDK with the CI pin and follow the [Flutter + Claude CLI guide](FLUTTER-CLAUDE-CLI.md).
+
 Install the stable Flutter SDK and run:
 
 ```bash
@@ -53,7 +55,7 @@ For demo Firebase testing, start the three local emulators first and instead run
 
 ## First implementation issues
 1. Generate and commit reviewed Android/iOS host projects; verify Android CI.
-2. Choose local persistence and state management via a short ADR (e.g. Drift + Riverpod, alternatives considered).
+2. Implement the accepted [client stack ADR](../architecture/ADR-0005-flutter-client-stack.md) in a focused PR after toolchain alignment.
 3. Implement one offline devotional-workout screen with a fake repository, then add durable local storage.
 4. Configure Firebase DEV and Auth + group membership; add cross-group security rule tests before live data.
 5. Add integration/test distribution after sign-in and the vertical slice are working.
