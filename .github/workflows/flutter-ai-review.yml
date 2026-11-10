@@ -133,7 +133,10 @@ jobs:
     timeout-minutes: 5
     permissions:
       contents: read
-      pull-requests: read
+      # PR comments are posted through the issues API. GitHub's hosted token
+      # currently rejects that write with issues:write alone (HTTP 403).
+      # Grant the alternative accepted permission for a hosted acceptance test.
+      pull-requests: write
       statuses: write
       issues: write
     steps:

@@ -1,7 +1,7 @@
 # Functional Flutter AI review gate
 
 The maintainer selected automatic GitHub Actions reviews: Codex authorship routes
-to Claude, and Claude authorship to Codex. The workflow is implemented locally;
+to Claude, and Claude authorship to Codex. The workflow is on `main`;
 server enforcement stays disabled until hosted activation checks pass.
 
 ## Current state
@@ -110,8 +110,10 @@ establish an independent provider for every part; human assessment may be needed
   final `success` status. A failed handoff or final status write leaves an
   existing pending status in place. If the initial pending write fails, the
   notifier refuses to finalize; the check may be absent rather than pending.
-  The trusted publisher job grants the notifier `statuses: write`
-  and `issues: write`. Documentation-only success does not wait for a handoff.
+  The trusted publisher job grants the notifier `statuses: write`,
+  `issues: write` and, in PR #48's scoped permission test, `pull-requests: write`.
+  The extra permission is a hypothesis for the hosted HTTP 403, not a confirmed
+  remedy. Documentation-only success does not wait for a handoff.
 - After publication, GitHub attempts one comment per review run on the PR and mentions
   its author with the result and a link to the evidence. The author hands findings
   to the declared Codex or Claude implementor session. A local agent session is
