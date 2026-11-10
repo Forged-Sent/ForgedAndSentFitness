@@ -116,9 +116,13 @@ establish an independent provider for every part; human assessment may be needed
   `pull-requests: write`. The branch-targeted PR #51
   [permission test](https://github.com/Forged-Sent/ForgedAndSentFitness/actions/runs/42764015046)
   posted a failure handoff with this narrowed set and no `issues: write`.
-  GitHub reports Actions PR approvals disabled.
-  A clean PASS handoff and final success remain unverified. Documentation-only
-  success does not wait for a handoff.
+  A later [PR #48 hosted run](https://github.com/Forged-Sent/ForgedAndSentFitness/actions/runs/42768469256)
+  posted a Claude PASS handoff with one low documentation finding at 06:26:51
+  UTC, between a pending status at 06:26:49 and final success on head
+  `1fd91af` at 06:26:52. This verifies the
+  narrowed scope for that route; the other activation cases remain open.
+  GitHub reports Actions PR approvals disabled. Documentation-only success
+  does not wait for a handoff.
 - The publisher and notifier instantiate `PublisherGitHub`, which permits only
   the read endpoints needed for PR identity, run ownership and Codex evidence,
   plus handoff comment and commit-status POSTs. PR review, state-change and
@@ -141,7 +145,8 @@ establish an independent provider for every part; human assessment may be needed
   with that earlier scope still received HTTP 403. A PR #48 branch-targeted
   run with `pull-requests: write` posted failure handoffs. It
   did not demonstrate a clean PASS handoff or final review success because its
-  Claude responses failed JSON validation.
+  Claude responses failed JSON validation. The later automatic PR #48 run
+  linked above did demonstrate the delivered Claude handoff and final success.
 - The implementor addresses the first review's findings once. If a later review
   on a new head still has findings, the handoff directs the implementor to pause
   for maintainer review instead of starting another fix cycle.
@@ -174,8 +179,8 @@ establish an independent provider for every part; human assessment may be needed
    the notifier does not write final `success` for that head. The local
    `test_initial_pending_write_failure_cannot_finalize` test does not satisfy
    this hosted check. Specifically test a clean native Codex review and its
-   receipt. The known comment HTTP 403
-   must be resolved before activation.
+   receipt. Confirm the earlier comment HTTP 403 does not recur across the
+   remaining required routes before activation.
 5. Verify that new commits invalidate prior evidence, missing credentials and
    incomplete reviews block merging, and GitHub Actions app 15368 emits the status.
    Test base retargeting and a second PR sharing one head; observe the short

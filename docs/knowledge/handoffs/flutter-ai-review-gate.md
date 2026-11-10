@@ -3,9 +3,9 @@ status: active
 updated: 2026-11-09
 owner: Codex coordinator / gate implementor
 stage: Active
-next_action: Publish the locally reconciled PR #48 under the push rule; prove clean hosted handoff, final exact-head success and remaining activation cases before merge or ruleset activation
+next_action: Verify PR #48's remaining hosted activation cases and recheck final exact-head success after any new commit; keep the PR held and the ruleset disabled
 source_ref: codex/review-gate-hosted-acceptance
-source_sha: a1a099bfc3d55e3fb445cb408e73c4340f47d9f0
+source_sha: 1fd91afb7038abf3870a8ac42ef969d7c0ba640c
 profile: deep
 coordinator_model: gpt-6 (host family; exact variant unavailable)
 coordinator_provider: openai
@@ -16,7 +16,7 @@ author_providers: [openai]
 ## Current status — November 9
 
 - [PR #51](https://github.com/Forged-Sent/ForgedAndSentFitness/pull/51) merged as `3d4f03920c6d0e1ca3423d15734b916114caaa5f`. Its [branch-targeted permission run](https://github.com/Forged-Sent/ForgedAndSentFitness/actions/runs/42764015046) posted a failure handoff with `pull-requests: write` and `statuses: write`, without `issues: write`. That run did not produce a clean Claude PASS or final success. The hardened gate Python is now on `main`.
-- [PR #48](https://github.com/Forged-Sent/ForgedAndSentFitness/pull/48) remains open and held. Its published head `a1a099bfc3d55e3fb445cb408e73c4340f47d9f0` conflicts with the new `main`; an isolated local reconciliation keeps the #51 code and #48's handoff/status regression tests. The `source_sha` above identifies the published predecessor, not the unpublished merge commit. Recheck its head, reviews and CI before publication. The separate Functional Flutter AI review ruleset remains **disabled**. Clean PASS → posted or deduplicated handoff → final exact-head success and the remaining [activation cases](../../development/FLUTTER-AI-REVIEW-GATE.md#activation-checklist) are **NOT VERIFIED**.
+- [PR #48](https://github.com/Forged-Sent/ForgedAndSentFitness/pull/48) remains open and held after reconciliation with #51. On the `source_sha` above, [hosted run 42768469256](https://github.com/Forged-Sent/ForgedAndSentFitness/actions/runs/42768469256) produced Claude PASS with one low documentation finding. GitHub Actions wrote pending at 06:26:49 UTC, posted the [implementor handoff](https://github.com/Forged-Sent/ForgedAndSentFitness/pull/48#issuecomment-6760684782) at 06:26:51, then wrote final exact-head success at 06:26:52. The publisher used `pull-requests: write` and `statuses: write`, without `issues: write`. This documentation correction addresses the finding. Any new commit needs a new exact-head run. The separate Functional Flutter AI review ruleset remains **disabled**, and the remaining [activation cases](../../development/FLUTTER-AI-REVIEW-GATE.md#activation-checklist) are **NOT VERIFIED**.
 
 ### Previous November 9 evidence (superseded)
 
