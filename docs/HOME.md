@@ -4,6 +4,7 @@ Open this page first. Git versions this shared project memory; Obsidian provides
 
 | I want to… | Open |
 |---|---|
+| Follow my PRs and see what needs my attention | [Pull requests and next steps](knowledge/PR-STATUS.md) |
 | See verified progress and decisions needed | [Current state](knowledge/CURRENT.md) |
 | Track owners, blockers and next actions | [Active work](knowledge/WORK.md) |
 | Resume an agent task quickly | [Agent entrypoint](knowledge/INDEX.md) |
@@ -18,7 +19,7 @@ Open this page first. Git versions this shared project memory; Obsidian provides
 
 ## Human routine
 
-Read CURRENT, then WORK. Follow a task's handoff for details. Open the linked PR before trusting CI/merge status; notes are snapshots. Record decisions in their ADR or contract, then update the task pointer. A checkbox does not approve product behavior.
+Read [Pull requests and next steps](knowledge/PR-STATUS.md) for the human overview, then CURRENT and WORK for project context. Follow a task's handoff for details. Open the linked PR before trusting CI/merge status; notes are snapshots. Record decisions in their ADR or contract, then update the task pointer. A checkbox does not approve product behavior.
 
 ## Dedicated repository vault
 

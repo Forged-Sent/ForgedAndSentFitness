@@ -209,6 +209,30 @@ def evaluate(root: Path) -> list[str]:
     except OSError:
         fail(".github/CODEOWNERS", "file missing")
 
+    # The review publisher receives model-derived text but needs only a PR
+    # comment write and a commit-status write. Pin the exact hosted token scope.
+    workflow = ".github/workflows/flutter-ai-review.yml"
+    try:
+        lines = (root / workflow).read_text(encoding="utf-8").splitlines()
+        start = lines.index("  publish:")
+        permission_start = lines.index("    permissions:", start + 1)
+        if any(re.fullmatch(r"  [a-zA-Z0-9_-]+:", line) for line in lines[start + 1:permission_start]):
+            raise ValueError("publisher permissions block missing")
+        permissions: dict[str, str] = {}
+        for line in lines[permission_start + 1:]:
+            if line.strip() and not line.startswith("      "):
+                break
+            if not line.strip() or line.lstrip().startswith("#"):
+                continue
+            match = re.fullmatch(r"      ([a-z-]+): (read|write|none)", line)
+            if not match or match.group(1) in permissions:
+                raise ValueError("publisher permissions block malformed")
+            permissions[match.group(1)] = match.group(2)
+        if permissions != {"contents": "read", "pull-requests": "write", "statuses": "write"}:
+            fail(workflow, f"publisher permissions differ from the minimal approved set: {permissions}")
+    except (OSError, ValueError):
+        fail(workflow, "publisher permissions must declare the exact approved set")
+
     # The ruleset is defined on GitHub; verify the documented patterns use
     # the default-protected model so an administrator can copy them faithfully.
     # Checking docs is not checking the live ruleset: validate it after setup.

@@ -34,7 +34,7 @@ flutter run -d chrome
 ```
 For demo Firebase testing, start the three local emulators first and instead run `flutter run -d chrome --dart-define=FS_ENV=emulator`. Browser Preview is not an emulator connection test.
 
-`mobile/android/` and `mobile/ios/` are committed as Flutter 3.47.8 template hosts; the only edit is the ADR-0002 Android network security policy: `src/main/res/xml/network_security_config.xml` blocks cleartext for all builds on API 24+, and the debug overlay in `mobile/android/app/src/debug/res/xml/` allows HTTP only to the emulator host `10.0.2.2`. `flutter create` only generates the git-ignored web host and leaves existing native files unchanged. To build Android locally: `flutter build apk --debug`. Store package IDs, release signing, native Firebase config and device testing are still undecided. iOS compilation needs macOS/Xcode; Android and Dart tests run on Windows or Linux.
+The tracked `mobile/android/` and `mobile/ios/` folders are Flutter 3.47.8 template hosts. The reviewed Android customization blocks cleartext outside debug and permits debug HTTP only to emulator host `10.0.2.2` (see [ADR-0002](../architecture/ADR-0002-emulator-first-firebase.md)). `flutter create` here adds only the git-ignored web host. Store identifiers, signing, native Firebase configuration and device testing remain open. iOS compilation requires macOS/Xcode; Android and Dart tests run on Windows or Linux.
 
 ## Collaboration
 - Each developer clones the public repo, uses their own workstation, opens a branch and PR.
@@ -54,7 +54,7 @@ For demo Firebase testing, start the three local emulators first and instead run
 - Youth/family features are future domain work, not enabled in adult pilot.
 
 ## First implementation issues
-1. Android/iOS template hosts are committed (debug APK built locally on Windows). Still open: confirm Android CI and the iOS simulator build on CI/Mac against the committed hosts, then decide store identifiers and signing.
+1. Verify the tracked Android/iOS hosts in CI and on the intended workstations; decide store identifiers and signing before distribution.
 2. Implement the accepted [client stack ADR](../architecture/ADR-0005-flutter-client-stack.md) in a focused PR after toolchain alignment.
 3. Implement one offline devotional-workout screen with a fake repository, then add durable local storage.
 4. Configure Firebase DEV and Auth + group membership; add cross-group security rule tests before live data.
@@ -63,7 +63,7 @@ For demo Firebase testing, start the three local emulators first and instead run
 ## Security
 This is a public repo. Never commit API secrets, signing credentials, real prayers, health data, member records or test media. Be especially cautious before running AI agents on external PRs or user input. Keep workflow permissions read-only by default.
 
-For Android/iOS compilation, CI uses the committed native hosts (its `flutter create` step only adds missing ignored files) and checks Android debug and unsigned iOS simulator builds. Real signing, native Firebase config and full Xcode/Android Studio workstation configuration remain future steps. Preview contributors generate only the web host.
+For Android/iOS compilation, CI checks Android debug and unsigned iOS simulator builds; this PR must confirm those checks use the tracked hosts. Real signing and full workstation/device qualification remain future steps. Preview contributors generate only the web host.
 
 ## Architecture and optional local AI review
 
