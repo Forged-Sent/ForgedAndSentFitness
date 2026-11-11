@@ -382,6 +382,36 @@ class BinaryAssetTests(unittest.TestCase):
         with self.assertRaisesRegex(RuntimeError, refused):
             patch_context(root, base)
 
+    def test_removed_asset_is_scanned_for_secrets_but_may_be_over_the_size_cap(self):
+        token = "ghp_" + "Z" * 30
+        root, run, base = self.repo({
+            "docs/design/leak.png": PNG + b"tEXtComment\x00" + token.encode(),
+            "docs/design/huge.png": PNG.ljust(MAX_BINARY_ASSET + 1, b"\x01"),
+        })
+        # A secret in a removed image stops the review, as a removed line of text does.
+        (root / "docs/design/leak.png").unlink()
+        self.write(root, "app.py", b"x = 1\n")
+        run("add", ".")
+        run("commit", "-qm", "delete an image that holds a secret")
+        with self.assertRaisesRegex(RuntimeError, "Possible secret in diff"):
+            patch_context(root, base)
+        run("checkout", "-q", "-B", "replace", base)
+        self.write(root, "docs/design/leak.png", PNG)
+        run("commit", "-qam", "replace it with a clean image")
+        with self.assertRaisesRegex(RuntimeError, "Possible secret in diff"):
+            patch_context(root, base)
+        # The size limit guards what a change leaves behind: an oversized file
+        # that is already there can still be shrunk or deleted.
+        run("checkout", "-q", "-B", "shrink", base)
+        self.write(root, "docs/design/huge.png", PNG)
+        run("commit", "-qam", "shrink an oversized image")
+        self.assertEqual([(e["path"], len(e["blob"])) for e in patch_context(root, base)[3]],
+                         [("docs/design/huge.png", 40)])
+        (root / "docs/design/huge.png").unlink()
+        run("commit", "-qam", "delete it")
+        self.assertEqual(patch_context(root, base)[3],
+                         [{"path": "docs/design/huge.png", "blob": "deleted", "kind": "binary"}])
+
     def test_symlink_named_like_an_image_is_refused(self):
         root, run, base = self.repo()
         self.write(root, "app.py", b"x = 1\n")

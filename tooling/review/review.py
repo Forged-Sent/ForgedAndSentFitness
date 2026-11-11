@@ -174,12 +174,20 @@ def binary_asset(root: Path, name: str, versions: set[tuple[str, str]], status: 
     elif status != "D":
         raise RuntimeError(f"{name} is part of this change but missing from the working tree.")
     # What the change replaces or deletes is part of the diff too. It must also
-    # have been a regular binary file, or removed text would go unread.
+    # have been a regular binary file, or removed text would go unread, and a
+    # secret in it stops the review just as a removed line of text does. The
+    # size limit is NOT applied here: it guards what a change leaves behind,
+    # and an oversized file must stay removable.
     for mode, blob in sorted(versions):
         if mode not in ("100644", "100755"):
             raise not_regular
-        if blob != current and not is_binary(blob_bytes(root, blob)):
+        if blob == current:
+            continue
+        removed = blob_bytes(root, blob)
+        if not is_binary(removed):
             raise text("a version this change replaces or deletes")
+        if SENSITIVE.search(removed.decode("latin-1")):
+            raise RuntimeError("Possible secret in diff. Stop and remove it BEFORE AI review.")
     return {"path": name, "blob": current, "kind": "binary"}
 
 
@@ -216,7 +224,7 @@ def patch_context(root: Path, base: str) -> tuple[str, str, str, list[dict]]:
         raise RuntimeError("Untracked files are not in the review. Stage them first:\n" +
                            "\n".join(untracked.splitlines()[:20]))
     # Also checks every allowed binary asset: each version the change touches
-    # is a regular binary file; the current one is size-capped and secret-scanned.
+    # is a regular binary file with no secret in it; the current one is size-capped.
     excluded = excluded_manifest(root, base)
     # A change made only of allowed binary assets has no text to read, but it
     # is still a change: it is pinned and reported, never passed as reviewed.
