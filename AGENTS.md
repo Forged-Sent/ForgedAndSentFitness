@@ -39,7 +39,9 @@ Forged & Sent is a faith-centered devotional workout and group accountability pl
 - Any pull request that starts, finishes or changes a board item edits that row **in the same pull request, written as it will be true once the pull request merges**. Do not open follow-up "refresh" pull requests.
 - Edit only your own row. Do not record CI or merge state in the repository; link the pull request or branch instead. GitHub is the source for that.
 - After editing a row, run `python3 tooling/knowledge/work_board.py --write` and commit the regenerated `docs/knowledge/WORK-BOARD-VIEW.md` and `docs/HOME.md` in the same pull request. Both are views generated from `WORK.md` (the Obsidian Kanban board and the "Do this next" block on the dashboard): never edit them by hand, and never move a card to change status. `python3 tooling/knowledge/check.py` fails in `ci-gate` when a view is stale.
-- CI fails a pull request that changes `mobile/lib/`, `firebase/` or `functions/` without changing `docs/knowledge/WORK.md`.
+- CI fails a pull request that changes `mobile/lib/`, `firebase/` or `functions/` without changing `docs/knowledge/WORK.md`. It also fails any pull request whose branch is named on the board and does not change `WORK.md`, whatever files it touches.
+- The maintainer edits the board too, in Obsidian, in the `main` checkout, without committing. `live_status.py` prints an `ACTION:` line when it finds such an edit. Act on it before you finish: publish a board edit as its own pull request, following "The maintainer's own edits" in the `knowledge-steward` skill, and ask him about any other file it lists. Never commit, stash or revert in the `main` checkout yourself.
+- A branch cut before the board generator existed gets it by merging `origin/main`. Do that before you edit the board.
 - The pull request description is the handoff. Create `docs/knowledge/handoffs/<task>.md` only for work that must pause across sessions before a pull request exists.
 - `docs/knowledge/HISTORY.md`, `docs/knowledge/archive/**` and `versions/**` are reference only. Leave them out of default searches unless the task needs a specific historical record.
 

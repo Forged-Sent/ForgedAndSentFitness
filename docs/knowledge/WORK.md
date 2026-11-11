@@ -59,4 +59,5 @@ Plan and reasoning: [prototype-to-Flutter review](../reviews/2026-11-10-prototyp
 - Dragging a card in Obsidian does not change this page; the next refresh puts the card back.
 - Remove a Done row once it is old news. Its outcome stays in its pull request and in Git history.
 - Do not add "open", "merged" or "CI green". Link the pull request.
-- CI fails a pull request that changes `mobile/lib/`, `firebase/` or `functions/` without changing this file.
+- CI fails a pull request that changes `mobile/lib/`, `firebase/` or `functions/` without changing this file, and any pull request whose branch is named on this page.
+- Maintainer: edit a row here in Obsidian and leave it. The dashboard lists the edit under Needs your attention, and the next agent session publishes it as a pull request for your merge.

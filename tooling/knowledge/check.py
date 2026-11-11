@@ -179,6 +179,37 @@ def doc_rule_problems(changed: list[str]) -> list[str]:
     return problems
 
 
+BOARD = "docs/knowledge/WORK.md"
+
+
+def current_branch(root: Path) -> str | None:
+    """The branch under check: the pull request's head in CI, else the checked-out branch."""
+    name = os.environ.get("GITHUB_HEAD_REF", "").strip()
+    if not name:
+        try:
+            found = _git(root, "symbolic-ref", "--short", "-q", "HEAD")
+        except FileNotFoundError:
+            return None
+        name = found.stdout.strip() if found.returncode == 0 else ""
+    return name or None
+
+
+def board_branch_problems(changed: list[str], branch: str | None, board: str) -> list[str]:
+    """A branch the work board names is a board item, whatever files it touches.
+
+    The path rules above cannot see docs or tooling work. This one can: once a row
+    carries the branch, every pull request from that branch must bring the row up
+    to date. Pure, so it is easy to test.
+    """
+    if not branch or branch == "main" or not changed or BOARD in changed:
+        return []
+    if re.search(r"(?<![\w./-])" + re.escape(branch) + r"(?![\w./-])", board):
+        return [f"branch {branch} is named on the work board but {BOARD} did not change: update "
+                f"its row to its after-merge state in the same pull request, then run "
+                f"{work_board.COMMAND}"]
+    return []
+
+
 def changed_since_base(root: Path) -> list[str] | None:
     """Paths this branch changed relative to main, or None when that cannot be known here."""
     try:
@@ -289,7 +320,11 @@ def validate_feature_contracts(root: Path, errors: list[str]) -> None:
 
 def main() -> int:
     issues = validate(ROOT)
-    issues += doc_rule_problems(changed_since_base(ROOT) or [])
+    changed = changed_since_base(ROOT) or []
+    issues += doc_rule_problems(changed)
+    board = ROOT / BOARD
+    issues += board_branch_problems(changed, current_branch(ROOT),
+                                    board.read_text(encoding="utf-8") if board.is_file() else "")
     for issue in issues:
         print("ERROR: " + issue)
     if not issues:

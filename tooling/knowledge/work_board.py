@@ -402,7 +402,8 @@ def problems(root: Path) -> list[str]:
             issues.append(f"{path.as_posix()} is missing; run {COMMAND}")
         elif current.replace("\r\n", "\n") != content.replace("\r\n", "\n"):
             issues.append(f"{path.as_posix()} is out of date with {WORK.as_posix()} (or was "
-                          f"edited by hand or by moving a card); run {COMMAND}")
+                          f"edited by hand or by moving a card); run {COMMAND}. If this branch "
+                          f"does not have that tool yet, merge origin/main into it first")
     return issues
 
 

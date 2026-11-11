@@ -56,6 +56,7 @@ Board now: Next 4 · In progress 0 · Waiting 4 · Done 4 · Later 11.
 
 - **The block under the title is generated** from the [work board](knowledge/WORK.md): the first In progress row, or the first Next row when nothing is in progress, then up to two more. To change it, edit the row and run `python tooling/knowledge/work_board.py --write`. CI fails when the block or the [board view](knowledge/WORK-BOARD-VIEW.md) is out of date.
 - **Moving a card in the board view changes nothing.** The board view is a view. Edit the row on the work board.
+- **Edit a row yourself and leave it.** The dashboard lists the edit under Needs your attention, and the next agent session publishes it as a pull request for your merge.
 - **Lasting pages** (board, parity, features, design, architecture) are updated by each pull request in the same pull request as the work. `AGENTS.md` lists which page goes with which kind of change, and CI checks the ones a machine can check.
 - **Pull request and CI state** is never typed by hand. It comes from the generated **Needs your attention** block.
 - A checkbox does not approve product behavior. Decisions are recorded on the Decisions page and merged.
