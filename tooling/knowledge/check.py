@@ -10,6 +10,8 @@ from datetime import date
 from pathlib import Path
 from urllib.parse import unquote
 
+import work_board  # sibling module: the generated work views must match WORK.md
+
 ROOT = Path(__file__).resolve().parents[2]
 LINK = re.compile(r"(?<!!)\[[^\]]+\]\(([^)]+)\)")
 SHA = re.compile(r"^[0-9a-f]{40}$")
@@ -93,6 +95,7 @@ def validate(root: Path) -> list[str]:
         except (json.JSONDecodeError, AttributeError, TypeError):
             errors.append("Invalid Gemini MCP settings JSON")
     validate_feature_contracts(root, errors)
+    errors.extend(work_board.problems(root))
     return errors
 
 

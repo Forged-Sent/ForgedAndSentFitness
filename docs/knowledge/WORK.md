@@ -2,6 +2,8 @@
 
 The one board for this project. Each pull request edits its own row **in the same pull request, written as it will be true once that pull request merges**. Nothing here records CI or merge state; open the linked pull request or the [live list](https://github.com/Forged-Sent/ForgedAndSentFitness/pulls) for that.
 
+**Board view:** [five lanes, one card per row](WORK-BOARD-VIEW.md). It and the block at the top of [HOME](../HOME.md) are generated from this page; see **How to update this page** at the bottom.
+
 Plan and reasoning: [prototype-to-Flutter review](../reviews/2026-11-10-prototype-to-flutter/00-START-HERE.md). Prompts for each row: [agent prompts](../reviews/2026-11-10-prototype-to-flutter/03-AGENT-PROMPTS.md).
 
 ## Now
@@ -11,6 +13,7 @@ Plan and reasoning: [prototype-to-Flutter review](../reviews/2026-11-10-prototyp
 | Decisions | Nothing yet; this unblocks the rest | **Done** | branch `chore/review-rules-and-dashboard` | None; the answers are on the [Decisions](../reviews/2026-11-10-prototype-to-flutter/01-DECISIONS.md) page |
 | CI accepts images and fonts | Nothing yet; without it the required check fails every pull request below | **Done** | [#54](https://github.com/Forged-Sent/ForgedAndSentFitness/pull/54) | — |
 | Publish review and rules cleanup | The dashboard, board and rules on `main` | **Done** | branch `chore/review-rules-and-dashboard` | — |
+| Obsidian focus workspace | HOME opens with one next action; this board shows as five lanes in Obsidian, generated from this page | **Done** | branch `claude/obsidian-adhd-workspace` | Set the Homepage plugin to open HOME: one command, in the [Obsidian setup guide](OBSIDIAN-SETUP.md) under Set up once per vault |
 | Agents may merge after review | Nothing on screen; app and docs pull requests that pass independent review no longer wait for the maintainer | **Next** | — | Run prompt [P13](../reviews/2026-11-10-prototype-to-flutter/prompts/P13-let-agents-merge-after-review.md) after its merge check is fixed (see Later) |
 | Native hosts | The app builds for Android and iOS from committed host projects | **Done** | branch `codex/native-host-acceptance` | None. iOS is built only by CI's `ios-simulator` job: it has not been built locally, and there is no simulator or physical-device run yet. Release signing is a row under Later |
 | S0 Design foundation | The app opens looking like the prototype: brand bar, hero header, six-tab bar | **Next** | — | Run prompt [P04](../reviews/2026-11-10-prototype-to-flutter/prompts/P04-S0-design-foundation-and-shell.md) |
@@ -49,5 +52,11 @@ Plan and reasoning: [prototype-to-Flutter review](../reviews/2026-11-10-prototyp
 
 - Starting a row: set State to **In progress** and add your branch.
 - Finishing a row: in the pull request that finishes it, set State to **Done** and write the next row's next action.
+- After any edit to a row, run `python tooling/knowledge/work_board.py --write` and commit the regenerated [board view](WORK-BOARD-VIEW.md) and `docs/HOME.md` with it. `python tooling/knowledge/check.py` and CI fail when they do not match this page.
+- Lanes on the board view: **Next** is State Next; **In progress** is State In progress; **Done** is State Done; **Waiting** is the Paused table, or State Blocked, Decision needed or Review; **Later** is the Later table. Any other State is an error.
+- A waiting row says why it waits and what resumes it. A Next or In progress row needs a next action that starts with a verb.
+- Row order is priority. HOME recommends the first In progress row, or the first Next row when nothing is in progress.
+- Dragging a card in Obsidian does not change this page; the next refresh puts the card back.
+- Remove a Done row once it is old news. Its outcome stays in its pull request and in Git history.
 - Do not add "open", "merged" or "CI green". Link the pull request.
 - CI fails a pull request that changes `mobile/lib/`, `firebase/` or `functions/` without changing this file.

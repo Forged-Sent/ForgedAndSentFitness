@@ -9,7 +9,7 @@ What changed, why, and which issue or decision it addresses:
 
 ## Docs are part of done
 Each page is written as it will be true once this merges. Tick or mark n/a.
-- [ ] My row in `docs/knowledge/WORK.md`
+- [ ] My row in `docs/knowledge/WORK.md`, then `python3 tooling/knowledge/work_board.py --write` for the board view and dashboard block
 - [ ] Screen status in `docs/knowledge/PROTOTYPE-PARITY.md`
 - [ ] Feature contract status and test paths under `docs/features/`
 - [ ] `docs/design/DESIGN-SYSTEM.md` for colors, type, spacing or shared widgets

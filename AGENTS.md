@@ -38,6 +38,7 @@ Forged & Sent is a faith-centered devotional workout and group accountability pl
 - `docs/knowledge/WORK.md` is the one board. Read your row before starting.
 - Any pull request that starts, finishes or changes a board item edits that row **in the same pull request, written as it will be true once the pull request merges**. Do not open follow-up "refresh" pull requests.
 - Edit only your own row. Do not record CI or merge state in the repository; link the pull request or branch instead. GitHub is the source for that.
+- After editing a row, run `python3 tooling/knowledge/work_board.py --write` and commit the regenerated `docs/knowledge/WORK-BOARD-VIEW.md` and `docs/HOME.md` in the same pull request. Both are views generated from `WORK.md` (the Obsidian Kanban board and the "Do this next" block on the dashboard): never edit them by hand, and never move a card to change status. `python3 tooling/knowledge/check.py` fails in `ci-gate` when a view is stale.
 - CI fails a pull request that changes `mobile/lib/`, `firebase/` or `functions/` without changing `docs/knowledge/WORK.md`.
 - The pull request description is the handoff. Create `docs/knowledge/handoffs/<task>.md` only for work that must pause across sessions before a pull request exists.
 - `docs/knowledge/HISTORY.md`, `docs/knowledge/archive/**` and `versions/**` are reference only. Leave them out of default searches unless the task needs a specific historical record.
@@ -47,7 +48,7 @@ The maintainer reads this project in Obsidian from the `main` checkout. A pull r
 
 | If your pull request changes | Update in the same pull request |
 |---|---|
-| Anything on the board | Your row in `docs/knowledge/WORK.md` (CI-checked for app and backend code) |
+| Anything on the board | Your row in `docs/knowledge/WORK.md` (CI-checked for app and backend code), then the board view and dashboard block by running the generator (CI-checked) |
 | A prototype screen's Flutter status | Its row in `docs/knowledge/PROTOTYPE-PARITY.md`: Not started, In progress or Implemented |
 | A feature's behavior | Its contract under `docs/features/<slug>/`: status, implementation paths, verified tests |
 | Colors, type, spacing or shared widgets | `docs/design/DESIGN-SYSTEM.md` (CI-checked) |
@@ -75,6 +76,7 @@ The maintainer reads this project in Obsidian from the `main` checkout. A pull r
 - `cd mobile && flutter pub get && flutter analyze && flutter test`, using the Flutter version pinned in `.github/workflows/ci-gate.yml`.
 - `cd mobile && flutter build apk --debug` once Android platform files exist.
 - `python3 tooling/knowledge/check.py` after changing anything under `docs/knowledge/`, `docs/features/` or `docs/HOME.md`.
+- `python3 tooling/knowledge/work_board.py --write` after changing `docs/knowledge/WORK.md`; CI rejects a stale `docs/knowledge/WORK-BOARD-VIEW.md` or dashboard block.
 - `python3 tooling/architecture/generate.py --write` after changing `mobile/lib/**`; CI rejects a stale `docs/architecture/CODE-MAP.md`.
 - `python3 tooling/skills/sync.py --check` after changing a skill. `.agents/skills` is canonical; `.claude/skills` must match.
 - Do not claim Android or iOS device behavior until it has been run and recorded.

@@ -4,3 +4,5 @@ mobile/analysis_options.yaml text eol=lf
 *.cmd text eol=crlf
 *.ps1 text eol=lf
 *.sh text eol=lf
+# The Kanban plugin saves this generated view with LF and no final newline.
+docs/knowledge/WORK-BOARD-VIEW.md text eol=lf
