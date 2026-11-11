@@ -81,7 +81,7 @@ CSS `text-transform: uppercase` has no Flutter equivalent. Widgets that use a ca
 
 ## Hero photograph
 
-`mobile/assets/images/hero_mountain.jpg`, with a 2.0x variant. It is the prototype's `--mtn-photo`, 750×1333, unchanged at 2.0x and scaled down for 1x. There is no 3.0x: the source is too small. **Its origin and licence are not recorded anywhere in this repository**; that has to be settled before the app is distributed (see the board).
+`mobile/assets/images/hero_mountain.jpg`, with a 2.0x variant. It is the prototype's `--mtn-photo`, 750×1333, unchanged at 2.0x and scaled down for 1x. There is no 3.0x: the source is too small. **Its origin and licence are not recorded anywhere in this repository.** The photograph is already public: this repository is public, and the photo has been on `main` inside the prototype since v145 (`275fce2`). Settling this is the maintainer's, and it matters now, not only before the app is distributed (see the board).
 
 ## Conventions
 

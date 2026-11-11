@@ -37,4 +37,6 @@ Two families are not the newest release, on purpose:
 | `2.0x/hero_mountain.jpg` | The `--mtn-photo` data URI in the prototype (`versions/app-v254.html` at `3ff4a6f`; identical in `index.html` on `main`), decoded and written unchanged. JPEG, 750×1333 | `93d81490de4e713eab6fe6e0fffac844c3467be6b0e51b0cfee9432ffb6c5196` |
 | `hero_mountain.jpg` | The same image scaled to 375×667 (Lanczos, JPEG quality 88) | `0de7ff8671e2c05c61970f1f1c07e52b98110e866064cc92e6121ff20f87bc65` |
 
-There is no 3.0x file: the source is 750 pixels wide, and a 3.0x image for a 390-point screen needs 1170. The photograph's own origin and licence are not recorded in the prototype.
+There is no 3.0x file: the source is 750 pixels wide, and a 3.0x image for a 390-point screen needs 1170. 
+
+**The photograph's own origin and licence are not recorded anywhere in the repository.** It is already public: the repository is public, and the photo has been on `main` inside `index.html` since v145 (commit `275fce2`, 2026-10-26). Settling its licence is the maintainer's, and it is on the work board as high priority now.
