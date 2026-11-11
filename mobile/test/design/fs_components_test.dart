@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/semantics.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:forged_and_sent/src/design/fs_button.dart';
 import 'package:forged_and_sent/src/design/fs_card.dart';
@@ -161,6 +162,56 @@ void main() {
         tester.getSize(find.byType(FsButton).first).height,
         FsSizes.miniButtonHeight,
       );
+    });
+
+    testWidgets('a screen reader can press each kind of button', (
+      tester,
+    ) async {
+      final handle = tester.ensureSemantics();
+      final pressed = <String>[];
+      await _pump(
+        tester,
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            FsButton(label: 'Start', onPressed: () => pressed.add('primary')),
+            FsButton.ghost(
+              label: 'Build status',
+              onPressed: () => pressed.add('ghost'),
+            ),
+            FsButton.mini(
+              label: 'This week',
+              onPressed: () => pressed.add('mini'),
+            ),
+            const FsButton(label: 'Save', onPressed: null),
+          ],
+        ),
+      );
+      // Through the semantics tree, with no pointer on the screen.
+      await semanticsTap(tester, find.widgetWithText(FsButton, 'START'));
+      expect(pressed, <String>['primary']);
+      await semanticsTap(tester, find.widgetWithText(FsButton, 'BUILD STATUS'));
+      await semanticsTap(tester, find.widgetWithText(FsButton, 'THIS WEEK'));
+      expect(pressed, <String>['primary', 'ghost', 'mini']);
+
+      // A disabled button offers no tap, so there is nothing to activate.
+      final disabled = tester.semantics.find(
+        find.widgetWithText(FsButton, 'SAVE'),
+      );
+      expect(
+        disabled.getSemanticsData().hasAction(SemanticsAction.tap),
+        isFalse,
+      );
+      expect(
+        () => tester.semantics.tap(
+          find.semantics.byPredicate(
+            (SemanticsNode node) => node.id == disabled.id,
+          ),
+        ),
+        throwsStateError,
+      );
+      expect(pressed, hasLength(3));
+      handle.dispose();
     });
 
     testWidgets('a button with nothing to do is disabled, not hidden', (
@@ -338,6 +389,9 @@ void main() {
       expect(find.bySemanticsLabel('New journal entry'), findsOneWidget);
       await tester.tap(find.byType(FsIcon));
       expect(opened, 1);
+      // And through the semantics tree, as a screen reader does it.
+      await semanticsTap(tester, find.byType(FsIcon));
+      expect(opened, 2);
       handle.dispose();
     });
 

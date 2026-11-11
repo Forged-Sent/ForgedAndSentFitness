@@ -176,7 +176,10 @@ class _Tab extends StatelessWidget {
       button: true,
       selected: current,
       label: destination.label,
+      // This node stands in for everything under it, so it has to carry the
+      // tap itself, or a screen reader could name the tab but not open it.
       excludeSemantics: true,
+      onTap: onTap,
       child: InkWell(
         key: ValueKey<String>('fs-tab-${destination.label.toLowerCase()}'),
         onTap: onTap,

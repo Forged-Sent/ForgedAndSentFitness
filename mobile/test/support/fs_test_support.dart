@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/semantics.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:forged_and_sent/src/app/forged_sent_app.dart';
@@ -80,6 +81,17 @@ Future<void> openStatusPage(WidgetTester tester) async {
   await tester.ensureVisible(find.text('BUILD STATUS'));
   await tester.pumpAndSettle();
   await tester.tap(find.text('BUILD STATUS'));
+  await tester.pumpAndSettle();
+}
+
+/// Activates [widget] the way TalkBack and VoiceOver do: through its node in
+/// the semantics tree, with no pointer on the screen. Fails if that node
+/// offers no tap action. The test must have called `ensureSemantics` first.
+Future<void> semanticsTap(WidgetTester tester, Finder widget) async {
+  final node = tester.semantics.find(widget);
+  tester.semantics.tap(
+    find.semantics.byPredicate((SemanticsNode other) => other.id == node.id),
+  );
   await tester.pumpAndSettle();
 }
 

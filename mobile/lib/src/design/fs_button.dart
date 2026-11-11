@@ -88,7 +88,10 @@ class FsButton extends StatelessWidget {
       enabled: enabled,
       selected: mini ? selected : null,
       label: label,
+      // This node stands in for everything under it, so it carries the tap
+      // for assistive technology. A disabled button offers none.
       excludeSemantics: true,
+      onTap: onPressed,
       child: Opacity(
         opacity: enabled ? 1 : 0.45,
         child: Material(

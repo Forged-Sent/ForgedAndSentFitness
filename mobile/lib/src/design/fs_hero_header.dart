@@ -358,7 +358,9 @@ class _HeroRoundButton extends StatelessWidget {
     return Semantics(
       button: true,
       label: action.label,
+      // This node stands in for the glyph under it, so it carries the tap.
       excludeSemantics: true,
+      onTap: onPressed,
       child: InkResponse(onTap: onPressed, radius: size / 2 + 6, child: circle),
     );
   }

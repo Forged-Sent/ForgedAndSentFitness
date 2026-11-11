@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:forged_and_sent/src/app/forged_sent_app.dart';
 import 'package:forged_and_sent/src/app/tab_pages.dart';
+import 'package:forged_and_sent/src/design/fs_button.dart';
 import 'package:forged_and_sent/src/design/fs_colors.dart';
 import 'package:forged_and_sent/src/design/fs_shell.dart';
 
@@ -238,6 +239,31 @@ void main() {
     // The round header buttons do nothing yet, so they are not announced.
     expect(find.bySemanticsLabel('New journal entry'), findsNothing);
     expect(find.bySemanticsLabel('Your profile'), findsNothing);
+    handle.dispose();
+  });
+
+  testWidgets('a screen reader can open every tab and press Build status', (
+    tester,
+  ) async {
+    final handle = tester.ensureSemantics();
+    await pumpApp(tester);
+    // Last to first, so each tab is opened from a different one. No pointer
+    // touches the screen: the action goes through the semantics tree.
+    for (final (label, title) in _tabs.reversed) {
+      await semanticsTap(tester, tab(label));
+      expect(_isCurrent(tester, label), isTrue, reason: label);
+      expect(find.text(title), findsWidgets, reason: label);
+    }
+    expect(find.byType(TodayPlaceholderPage), findsOneWidget);
+
+    // The button on Today opens the nested page the same way.
+    await semanticsTap(tester, find.byType(FsButton));
+    expect(find.byType(FoundationHomeScreen), findsOneWidget);
+
+    // Activating the tab he is on returns it to its first page, as a tap does.
+    await semanticsTap(tester, tab('Today'));
+    expect(find.byType(FoundationHomeScreen), findsNothing);
+    expect(find.text('TODAY’S MISSION'), findsOneWidget);
     handle.dispose();
   });
 
