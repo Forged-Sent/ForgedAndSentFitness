@@ -365,7 +365,8 @@ class StaleCheckTest(unittest.TestCase):
     def test_crlf_checkout_is_not_reported_as_stale(self):
         write(self.root)
         for path in (BOARD, HOME):
-            data = (self.root / path).read_bytes().replace(b"\n", b"\r\n")
+            # On Windows the fixture is already written with CRLF; convert from LF either way.
+            data = (self.root / path).read_bytes().replace(b"\r\n", b"\n").replace(b"\n", b"\r\n")
             (self.root / path).write_bytes(data)
         self.assertEqual(problems(self.root), [])
 

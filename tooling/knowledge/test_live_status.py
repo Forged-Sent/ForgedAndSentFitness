@@ -286,6 +286,31 @@ class PullTest(TwoClones):
         self.assertEqual(self.head(self.vault), before)
         self.assertEqual((self.vault / "board.md").read_text(encoding="utf-8"), "my unsaved board\n")
 
+    def test_a_landed_edit_is_written_back_when_another_file_still_blocks_the_pull(self):
+        # Upstream also changes notes.md, and the vault has its own unsaved notes.
+        (self.author / "notes.md").write_text("notes two\n", encoding="utf-8")
+        self.git(self.author, "commit", "-qam", "third")
+        self.git(self.author, "push", "-q", "origin", "HEAD")
+        before = self.head(self.vault)
+        (self.vault / "board.md").write_text("two\n", encoding="utf-8")            # already upstream
+        (self.vault / "notes.md").write_text("my unsaved notes\n", encoding="utf-8")  # blocks the pull
+        problem = pull(self.vault)
+        self.assertIn("Could not fast-forward", problem)
+        self.assertIn("notes.md", problem)
+        self.assertEqual(self.head(self.vault), before)
+        self.assertEqual((self.vault / "board.md").read_text(encoding="utf-8"), "two\n")
+        self.assertEqual((self.vault / "notes.md").read_text(encoding="utf-8"), "my unsaved notes\n")
+        self.assertEqual(local_edits(self.vault), ["board.md", "notes.md"])      # both still reported
+
+    def test_a_landed_edit_is_written_back_when_main_has_diverged(self):
+        self.commit(self.vault, "local-only.md")                                 # a commit upstream lacks
+        before = self.head(self.vault)
+        (self.vault / "board.md").write_text("two\n", encoding="utf-8")
+        self.assertIn("Could not fast-forward", pull(self.vault))
+        self.assertEqual(self.head(self.vault), before)
+        self.assertEqual((self.vault / "board.md").read_text(encoding="utf-8"), "two\n")
+        self.assertEqual(local_edits(self.vault), ["board.md"])
+
 
 class UnpublishedBranchesTest(TwoClones):
     def test_lists_work_github_cannot_show_and_says_what_is_missing(self):

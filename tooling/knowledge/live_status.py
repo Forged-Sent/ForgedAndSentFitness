@@ -283,7 +283,9 @@ def pull(vault: Path) -> str:
     through a pull request is still an uncommitted change here, and Git refuses
     to fast-forward over it even though the incoming file is identical. Such a
     file is put back to its committed state and the pull is tried once more.
-    Nothing is lost: the fast-forward brings the same content.
+    Nothing is lost: the fast-forward brings the same content. If the second try
+    still fails (another file is in the way, or main has diverged), each file is
+    written back exactly as it was, so the checkout is left as it was found.
     """
     code, branch = run(["git", "symbolic-ref", "--short", "-q", "HEAD"], vault)
     if code != 0 or branch.strip() != "main":
@@ -296,30 +298,40 @@ def pull(vault: Path) -> str:
         return f"Could not fast-forward {vault}: {error}"
     if done.returncode == 0:
         return ""
-    if restore_landed_edits(vault):
+    restored = restore_landed_edits(vault)
+    if restored:
         code, _ = run(["git", "pull", "--ff-only", "--quiet"], vault)
         if code == 0:
             return ""
+        for path, content in restored.items():      # the pull still failed: undo our own change
+            (vault / path).write_bytes(content)
     message = (done.stderr or done.stdout or "").strip() or f"git pull exited with {done.returncode}"
     return f"Could not fast-forward {vault}:\n{message}"
 
 
-def restore_landed_edits(vault: Path) -> list[str]:
+def restore_landed_edits(vault: Path) -> dict[str, bytes]:
     """Put back uncommitted edits whose content is already on the upstream branch.
 
     Only unstaged edits to tracked files are considered, and only when the file in
     the checkout is identical to the upstream version, so no work can be lost.
-    Returns the files restored.
+    Returns each file restored with the bytes it held, so the caller can write
+    them back if the pull it was clearing the way for does not happen.
     """
     if run(["git", "fetch", "--quiet"], vault)[0] != 0:
-        return []
+        return {}
     code, out = run(["git", "diff", "--name-only"], vault)
-    restored = []
+    restored: dict[str, bytes] = {}
     for path in out.splitlines() if code == 0 else []:
         staged = run(["git", "diff", "--cached", "--quiet", "--", path], vault)[0] != 0
         same_as_upstream = run(["git", "diff", "--quiet", "@{upstream}", "--", path], vault)[0] == 0
-        if not staged and same_as_upstream and run(["git", "checkout", "--", path], vault)[0] == 0:
-            restored.append(path)
+        if staged or not same_as_upstream:
+            continue
+        try:
+            content = (vault / path).read_bytes()
+        except OSError:
+            continue
+        if run(["git", "checkout", "--", path], vault)[0] == 0:
+            restored[path] = content
     return restored
 
 
