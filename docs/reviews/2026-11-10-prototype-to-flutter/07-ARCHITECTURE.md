@@ -1,6 +1,6 @@
 ---
 title: "Architecture"
-updated: 2026-11-10
+updated: 2026-11-11
 status: review, not an approved decision record
 source_ref: main
 source_sha: 94daa63fe1dea96398bcb3f2286baa1906c44ec0
@@ -101,7 +101,22 @@ These are cheap now and expensive after two or three screens exist.
 | **Events, not flags** | `setCompleted(id, completed)` overwrites state. A retry, a second device or an undo cannot be told apart | An append-only event with a client-generated id, plus a derived day-state row written in the same transaction |
 | **Local date as a value** | The prototype reads the device clock wherever it needs "today"; midnight and travel bugs follow | One `LocalDate` type and one injected clock provider; the date is stamped on the event when the tap happens |
 | **Design tokens** | None | [Section 4.4](06-SCREENS-AND-UI.md) |
-| **Per-user storage** | Not designed; ADR-0005 lists sign-out retention as open | One database file per signed-in user id, closed on sign-out. Account switching then cannot leak rows by construction |
+| **Per-user storage** | Not designed; ADR-0005 lists sign-out retention as open | One Drift database file per signed-in user id, closed on sign-out. This keeps the previous user's **Drift rows** out of reach of the next session. It does nothing for Firestore's cache or listeners; see the note under this table |
+
+**Account change and Firestore.** The per-user Drift file covers Drift only. Firestore keeps its own on-device cache, and it is not per user:
+
+- The cache is on by default on Android and iOS and is not cleared between sessions or on sign-out ([Firebase: access data offline](https://firebase.google.com/docs/firestore/manage-data/enable-offline)).
+- Cached documents are not separated by user, and a read answered from the cache is not checked against security rules. A Firebase engineer states the client treats the device account as the user and does not try to protect data inside it ([firebase-js-sdk #449](https://github.com/firebase/firebase-js-sdk/issues/449)). So the next user can be shown the previous user's cached feed, standings or roster before the server answers.
+- A listener left open across sign-out keeps the old user's query and delivers its cached results. Rules then reject it on the server, but only after the cached snapshot has been shown.
+
+So an account change needs a defined Firestore step, chosen in the S4 contract ([P08](prompts/P08-S4-contract-identity-groups-board.md), "Sign-out and account switching"):
+
+| Option | What happens on account change | Cost |
+|---|---|---|
+| **A. Memory-only Firestore cache** (`persistenceEnabled: false`) | Nothing is written to disk; cancel listeners and the cache goes with the instance | Shared feeds are not readable offline after a restart. Firebase strongly recommends this where cached data must not pass between user sessions ([`clearPersistence` docs](https://pub.dev/documentation/cloud_firestore/latest/cloud_firestore/FirebaseFirestore/clearPersistence.html)) |
+| **B. Persistent cache, wiped on sign-out** | Cancel every listener, `terminate()`, `clearPersistence()`, then create a new instance before the next sign-in | Documented as mainly for tests; it does not securely erase data; it also drops Firestore's own pending writes. Acceptable only because Drift's outbox, not Firestore, owns everything the man creates (section 5.6). A crash between sign-out and the wipe leaves the cache in place |
+
+Either way, every Firestore listener is session-scoped (section 5.7) and is cancelled **before** sign-out completes, and the next user's listeners start only after the new session exists. Recommendation, not a decision: **A** for the pilot, because the only Firestore data is shared group data (5.6) and offline reading of it after a restart is a small loss; revisit if a feed must work offline from a cold start. Listener behaviour across sign-out is from Firebase's documentation and issue thread, not tested here: NOT VERIFIED.
 
 ## 5.5 What can stay simple, and what should wait
 
