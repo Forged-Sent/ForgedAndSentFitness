@@ -20,7 +20,6 @@ Plan and reasoning: [prototype-to-Flutter review](../reviews/2026-11-10-prototyp
 
 | Step | What a man can see when it is done | Prompt |
 |---|---|---|
-| Archive Copilot and Gemini rule files | Nothing on screen; fewer rule files to keep in step, recoverable later | [P14](../reviews/2026-11-10-prototype-to-flutter/prompts/P14-archive-copilot-and-gemini-rules.md), any time after P01 |
 | S2 Private journal | "Write it down" saves to a private journal | [P06](../reviews/2026-11-10-prototype-to-flutter/prompts/P06-S2-private-journal.md) |
 | S3 Workout logging | Log today's workout; nothing lost if the app is killed | [P07](../reviews/2026-11-10-prototype-to-flutter/prompts/P07-S3-workout-logging.md) |
 | S4 Sign-in, groups, first board | Sign in and see a server-computed board for his group | [P08](../reviews/2026-11-10-prototype-to-flutter/prompts/P08-S4-contract-identity-groups-board.md), then [P09](../reviews/2026-11-10-prototype-to-flutter/prompts/P09-S4-implement-identity-groups-board.md), after the account-switch claim is fixed (two rows down) |

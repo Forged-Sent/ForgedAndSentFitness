@@ -4,6 +4,7 @@ Read CURRENT and the active task first. Consult one matching record for historic
 
 | Date | Record | Use |
 |---|---|---|
+| 2026-11-11 | [Copilot and Gemini CLI rule files](archive/2026-11-10-copilot-gemini-rules/README.md) | Archived under decision A1; original paths, removed checks and how to restore |
 | 2026-11-05 | [Obsidian plugin research](archive/2026-11-05-agent-workspace/RESEARCH-2026-11-05-obsidian-plugins.md) | Core Bases versus Tasks/QuickAdd/Dataview/Kanban; maintenance evidence and local pilot gates |
 | 2026-11-05 | [Agent integration research](archive/2026-11-05-agent-workspace/RESEARCH-2026-11-05-agent-integrations.md) | Agent Client/Claudian capabilities, permissions, account limits and independent-review boundaries |
 | 2026-11-05 | [Architecture blueprint](archive/2026-11-05-architecture-audit/EXECUTION-BLUEPRINT.md) | Proposed architecture, 16-PR roadmap and execution packages; unapproved |

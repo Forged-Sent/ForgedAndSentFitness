@@ -1,3 +1,13 @@
+---
+status: archived
+updated: 2026-11-11
+owner: Chadillac12
+source_ref: main
+source_sha: 1c26ccd05d11df3c00a6a7824b2027346406bc2f
+superseded_by: AGENTS.md
+original_path: .github/copilot-instructions.md
+original_sha256: 2d849c8e676012994d6f5ba459e4933253475e984e7c4989474addbe9d5f5d26
+---
 # GitHub Copilot repository instructions
 
 Follow `AGENTS.md` and `docs/development/START_HERE.md`.

@@ -52,7 +52,7 @@ class ClassificationTests(unittest.TestCase):
         self.assertFalse(mac["windows"] or mac["mobile"] or mac["prototype"])
 
     def test_agent_instructions_do_not_require_platform_builds(self):
-        v = classify(["AGENTS.md", "CLAUDE.md", ".claude/rules/prototype.md", ".github/instructions/flutter.instructions.md"])
+        v = classify(["AGENTS.md", "CLAUDE.md", ".claude/rules/prototype.md", ".github/pull_request_template.md"])
         self.assertFalse(any(v.values()))
 
     def test_changed_workflow_runs_every_lane(self):
