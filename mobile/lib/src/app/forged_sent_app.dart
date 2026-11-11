@@ -43,6 +43,8 @@ class _ForgedSentAppState extends State<ForgedSentApp> {
   Widget build(BuildContext context) {
     return MaterialApp.router(
       title: 'Forged & Sent',
+      // The corner ribbon would sit on top of the brand bar.
+      debugShowCheckedModeBanner: false,
       theme: FsTheme.light,
       darkTheme: FsTheme.dark,
       themeMode: widget.themeMode,
