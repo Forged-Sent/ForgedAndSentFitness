@@ -4,7 +4,7 @@ description: Coordinate a scoped repository task using task-based model selectio
 ---
 # Task coordinator
 
-Use for a delegated development task or a request to start/resume a task from the project vault. Follow root AGENTS.md; read docs/knowledge/INDEX.md, CURRENT.md and only the assigned handoff/contract. Model routing is defined in [AGENT-WORKSPACE](../../../docs/knowledge/AGENT-WORKSPACE.md#coordinator-routing).
+Use for a delegated development task or a request to start/resume a task from the project vault. Follow root AGENTS.md; read docs/knowledge/INDEX.md, WORK.md and only the assigned prompt or contract. Model routing is defined in [AGENT-WORKSPACE](../../../docs/knowledge/AGENT-WORKSPACE.md#coordinator-routing).
 
 ## Start and route
 
@@ -23,7 +23,7 @@ Use for a delegated development task or a request to start/resume a task from th
 
 ## Close or transfer
 
-10. Update the handoff with actual models/providers, base/head and diff evidence, owned files, executed tests, review findings, remaining risks and one next action. Set lifecycle/stage honestly; a locally complete edit is not merged or released. Update WORK/CURRENT only for changed coordination facts. Preserve historical audit snapshots.
+10. Update the handoff with actual models/providers, base/head and diff evidence, owned files, executed tests, review findings, remaining risks and one next action. Set lifecycle/stage honestly; a locally complete edit is not merged or released. Update the task's WORK.md row in the same pull request, written as it will be true after merge. Preserve historical audit snapshots.
 11. If handing to another lead, checkpoint first, stop old dispatch, list remaining workers and their ownership, and have the new lead verify the checkpoint against the real checkout before resuming. Record the actual new model; a role instruction cannot change a session's model.
 
 Completion: the scoped outcome and evidence are inspectable, unresolved decisions/coverage are explicit, and a fresh agent can resume from the task note without chat history.

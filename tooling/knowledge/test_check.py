@@ -6,7 +6,7 @@ from tempfile import TemporaryDirectory
 import unittest
 from unittest import mock
 
-from check import BASE_REF_ENV, validate
+from check import BASE_REF_ENV, doc_rule_problems, validate
 
 
 VALID_SHA = "1" * 40
@@ -56,6 +56,29 @@ class KnowledgeValidationTest(unittest.TestCase):
         )
         (self.notes / "INDEX.md").write_text("[Archived](archive/old.md)", encoding="utf-8")
         self.assertTrue(any("must not link directly" in error for error in validate(self.root)))
+
+
+class DocRuleTest(unittest.TestCase):
+    def test_app_code_without_board_update_fails(self):
+        problems = doc_rule_problems(["mobile/lib/src/features/today/today_screen.dart"])
+        self.assertEqual(len(problems), 1)
+        self.assertIn("docs/knowledge/WORK.md", problems[0])
+
+    def test_app_code_with_board_update_passes(self):
+        self.assertEqual(doc_rule_problems(
+            ["mobile/lib/src/features/today/today_screen.dart", "docs/knowledge/WORK.md"]), [])
+
+    def test_rules_change_needs_board_update(self):
+        self.assertTrue(doc_rule_problems(["firebase/firestore.rules"]))
+
+    def test_design_change_needs_design_page_and_board(self):
+        problems = doc_rule_problems(["mobile/lib/src/design/tokens.dart", "docs/knowledge/WORK.md"])
+        self.assertEqual(len(problems), 1)
+        self.assertIn("docs/design/DESIGN-SYSTEM.md", problems[0])
+
+    def test_docs_tooling_and_dependency_changes_are_exempt(self):
+        self.assertEqual(doc_rule_problems(
+            ["docs/HOME.md", "tooling/knowledge/check.py", "mobile/pubspec.lock", "mobile/test/widget_test.dart"]), [])
 
 
 class FeatureContractTest(unittest.TestCase):

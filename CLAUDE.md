@@ -1,26 +1,10 @@
-# Claude Code instructions
+@AGENTS.md
 
-Read `AGENTS.md` as the shared source of truth and `docs/development/START_HERE.md` before modifying files.
+# Claude Code
 
-Workflow: every change uses a short-lived branch and a pull request. The live ruleset currently requires ci-gate and zero human approvals; do not imply another person's approval is enforced. For functional Flutter/backend changes, declare authorship:claude and follow docs/development/FLUTTER-AI-REVIEW-GATE.md so Codex reviews the current diff. The hosted rule remains staged until its documented activation checks pass. Other AI reviews remain optional. Agents may push to a non-`main` branch only under the agent push rule in `AGENTS.md`: explicit human authorization in this session, all PR review threads closed, and `ci-gate` green (or the push fixes a red `ci-gate`). Agents never push to `main`, force-push, approve or merge. Never bypass controls.
+The line above imports `AGENTS.md`, the shared rule set. Everything there applies to you. This file adds only what is specific to Claude Code.
 
-When working on the prototype (`index.html`, `versions/`, `seed/`, `dev/`):
-- Read the root `AGENTS.md`, including its HTML prototype workflow.
-- Make focused visual or content changes without modifying `mobile/` unless explicitly requested.
-- Preserve historical `versions/app-vN.html` snapshots.
-- Run `python3 dev/make_preview.py` and report any browser or Claude-runtime behaviors not tested.
-- Escalate changes to scoring, privacy, authorization, dependencies or product decisions to a human, even when only the prototype changes.
-- Never report the local mock as proof of real identity, persistent storage or sharing behavior.
-
-When implementing Flutter:
-- Preserve existing prototype and `seed/` references.
-- Use feature-first modules and small, testable classes.
-- Provide explicit acceptance tests.
-- Do not introduce Firebase credentials or deploy cloud infrastructure.
-- Do not write competition scores from untrusted clients.
-- Do not add custom authentication or expose confidential group content.
-- Escalate product decisions to the project maintainer, who may approve them without another reviewer.
-
-Repository agents live in `.claude/agents/` and repeatable workflows in `.claude/skills/`.
-
-Use the shared skills in `.claude/skills/` (checked for parity with `.agents/skills/`) and review `docs/architecture/SYSTEM.md` / `CODE-MAP.md`. For independent code reviews follow `docs/development/AI-REVIEW-WORKFLOW.md`. Claude may not be its own reviewer.
+- Skills are in `.claude/skills/` (a CI-checked mirror of `.agents/skills/`). Subagents are in `.claude/agents/`.
+- `mobile/CLAUDE.md` and `dev/CLAUDE.md` import the rules for those folders; they load when you read files there.
+- `.claude/settings.json` denies force-push, pushing to `main`, `gh pr merge` and `firebase deploy`, and asks before every commit and push. Do not work around a denied command.
+- When you write a functional Flutter or backend change, say so in the pull request description. You may not be the independent reviewer of your own change.
