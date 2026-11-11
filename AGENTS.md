@@ -1,106 +1,103 @@
 # Forged & Sent: agent instructions
 
+This file is the shared rule set for every AI agent. Codex loads it directly. Claude Code loads it through the `@AGENTS.md` import in `CLAUDE.md`.
+
 ## Product
-Forged & Sent is a faith-centered devotional workout and group accountability platform. The current `index.html` is a behavioral prototype, NOT the production mobile client. Preserve the prototype and its seed files unless the assigned issue explicitly requires changing them.
+Forged & Sent is a faith-centered devotional workout and group accountability platform. The current `index.html` is a behavioral prototype, NOT the production mobile client. Preserve the prototype and its seed files unless the assigned task explicitly requires changing them.
 
 ## Architectural decisions
 - Production mobile: Flutter/Dart for Android and iOS.
+- Client stack (ADR-0005, accepted): Riverpod for state, go_router for navigation, Drift on native SQLite for durable local data.
 - Preferred managed backend: Firebase (Auth, Firestore, Functions, Storage). No server is configured or deployed yet.
-- Both developers must be able to work independently using shared cloud-backed development environments; no home Linux server dependency.
 - Offline workout state must be locally durable and sync with idempotent event identifiers. Firebase cache alone is insufficient for durable media and conflict-prone writes.
 - Group and role authorization must be enforced server-side. Private prayers, reflections, nutrition, injuries and body measurements must not appear in group queries.
 - Scripture can be completed before, after, during safe rest periods, or at separate times of day. Prompts are optional.
 - Team challenges and scoreboards are server-authoritative; no spirituality-quality scoring or points for eating less.
 - Initially adult men's groups; design domain boundaries for future households and youth without enabling youth functionality by default.
+- Product decisions and their status live in `docs/reviews/2026-11-10-prototype-to-flutter/01-DECISIONS.md`. An answer still marked TODO is undecided: stop and ask. Never infer product rules from the HTML prototype.
 
 ## Protected operations
-- GitHub rulesets, not instructions or AI reviews, enforce protected branches and mandatory checks. The live ruleset currently requires ci-gate but ZERO human approvals. Do NOT claim a second human review is enforced. Never push to main, force-push main, bypass protections, or merge before required checks pass.
+- GitHub rulesets, not instructions or AI reviews, enforce protected branches and mandatory checks. The live ruleset requires `ci-gate` and ZERO human approvals. Do not claim a second human review is enforced. Never push to `main`, force-push, bypass protections, or merge before required checks pass.
 - **Agent push rule.** An AI agent may push commits to a non-`main` branch only when ALL of the following are confirmed immediately before the push: (1) a human explicitly authorized that push in the current session; (2) every review thread on the PR is closed (resolved or outdated), checked on GitHub rather than assumed; (3) `ci-gate` on the PR's current head is green, or the push is the fix for a failing `ci-gate`. Agents never push to `main`, force-push, approve or merge, even with authorization.
-- Deterministic CI is mandatory; no additional human approval is required. Functional Flutter/backend changes follow docs/development/FLUTTER-AI-REVIEW-GATE.md: declare authorship and obtain the routed current-head AI review. The hosted rule is staged until its activation checks pass; never claim it is enforced merely because this instruction exists. Other AI reviews remain optional.
-- Never use an AI agent's review as an approval. Agents must not self-approve, self-merge, change branch protections, or impersonate a human reviewer.
-- AI reviews are advisory and never satisfy required approval.
-- No default cloud Firebase MCP, Firebase deployment, or PROD credentials on colleague devices.
-- Contributor development is emulator-first, with demo-* project IDs and no cloud CLI login.
-- Never automatically execute flutterfire configure or include production FirebaseOptions in Contributor builds.
-- Follow docs/architecture/ADR-0002-emulator-first-firebase.md.
+- AI reviews are advisory and never count as approval. Agents must not self-approve, self-merge, change branch protections, or impersonate a human reviewer. A tool that wrote a change is not an independent reviewer of it.
+- Hosted review today: a Claude review runs automatically on pull requests that change `mobile/`, `firebase/` or `functions/` (`.github/workflows/claude-code-review.yml`). The separate functional AI review gate (`docs/development/FLUTTER-AI-REVIEW-GATE.md`) is staged and its ruleset is disabled; never claim it is enforced.
+- Contributor development is emulator-first, with `demo-*` project IDs and no cloud CLI login. No default cloud Firebase MCP, Firebase deployment, or PROD credentials on colleague devices. Never run `flutterfire configure` automatically or include production FirebaseOptions in contributor builds. Follow `docs/architecture/ADR-0002-emulator-first-firebase.md`.
+- Project MCP stdio commands use the allowlisted Node launcher. Never add a Firebase cloud MCP or request credentials automatically.
 
 ## Working agreement
-1. Read `docs/development/START_HERE.md` and any applicable ADR before work.
-2. One focused issue per branch. Never change `main` directly.
-3. The project maintainer makes explicit product decisions for dependencies, authentication/data access, scoring, health permissions and communications. A solo maintainer can make these decisions without a separate reviewer. Prototype-only changes do not implicitly approve production behavior.
+1. Read the task's prompt or feature contract and any applicable ADR before work. `docs/development/START_HERE.md` is workstation setup for people; read it only for setup problems.
+2. One focused task per branch. Never change `main` directly. Contributors use the project `fs-start` / `fs-save` / `fs-sync` / `fs-share` / `fs-status` helpers.
+3. The maintainer makes product decisions for dependencies, authentication and data access, scoring, health permissions and communications, and may do so without a separate reviewer. Prototype-only changes do not approve production behavior.
 4. Prefer a minimal vertical slice with tests over a large unreviewable implementation.
-5. Keep Flutter features under `mobile/lib/src/features/`; UI depends on application/domain services, not Firebase SDK types.
+5. Keep Flutter features under `mobile/lib/src/features/`; UI depends on application and domain code, not Firebase SDK types.
 6. Do not commit credentials, Firebase service account JSON, signing keys, personal data, or large generated media.
-7. Pull requests report changed files, test commands/results, potential data exposure, and unresolved decisions.
-8. Never claim an integration is tested until it has actually been run.
+7. Pull requests report changed files, test commands and results, potential data exposure, and unresolved decisions.
+8. Never claim an integration is tested until it has actually been run. Label what you did not run NOT VERIFIED.
 
-## HTML prototype workflow (lighter review, same hygiene)
-- For prototype edits create a short-lived `prototype/<topic>` branch and a PR to `main`. Use a descriptive summary and a screenshot or notes for visual changes. A formal issue is optional for small iterations. Only `index.html`, archived `versions/**`, `dev/*.html`, `dev/mock-claude.js`, `seed/devotionals*.json`, `seed/lifts.json`, `seed/esv-verses.json` and root `README.md` qualify for optional formal review.
-- PRs touching ONLY listed low-risk exceptions do not require a formal approval by default. A human should still choose when to merge. Do not merge with failing CI, requested changes or any protected file. All unknown/new paths require review.
-- `index.html` is the active prototype. Preserve existing `versions/app-vN.html` files as an append-only history; use a new version file when recording a milestone, never rewrite an older version.
-- Run `python3 dev/make_preview.py`, open `dev/preview.html` in a browser, and note any untested `window.claude` behavior. The local mock is not proof of data access, sharing, identity or persistence.
-- `seed/db-rules.json`, `seed/tasks.json`, `seed/weekly-challenges.json`, `seed/movement-standards.json`, `dev/make_preview.py`, `dev/patches/**`, `dev/firebase/**` and `docs/development/**` are review-protected. If even an otherwise exempt `index.html` change alters authorization, scoring or privacy semantics, escalate for human review.
-- Prototype work is reference material. Do not introduce prototype runtime dependencies into `mobile/` or treat its backend adapter as production authorization.
+## The work board
+- `docs/knowledge/WORK.md` is the one board. Read your row before starting.
+- Any pull request that starts, finishes or changes a board item edits that row **in the same pull request, written as it will be true once the pull request merges**. Do not open follow-up "refresh" pull requests.
+- Edit only your own row. Do not record CI or merge state in the repository; link the pull request or branch instead. GitHub is the source for that.
+- CI fails a pull request that changes `mobile/lib/`, `firebase/` or `functions/` without changing `docs/knowledge/WORK.md`.
+- The pull request description is the handoff. Create `docs/knowledge/handoffs/<task>.md` only for work that must pause across sessions before a pull request exists.
+- `docs/knowledge/HISTORY.md`, `docs/knowledge/archive/**` and `versions/**` are reference only. Leave them out of default searches unless the task needs a specific historical record.
+
+## Docs are part of done
+The maintainer reads this project in Obsidian from the `main` checkout. A pull request is not finished until every page that describes what it changed says what is now true. Write each page as it will be true once the pull request merges.
+
+| If your pull request changes | Update in the same pull request |
+|---|---|
+| Anything on the board | Your row in `docs/knowledge/WORK.md` (CI-checked for app and backend code) |
+| A prototype screen's Flutter status | Its row in `docs/knowledge/PROTOTYPE-PARITY.md`: Not started, In progress or Implemented |
+| A feature's behavior | Its contract under `docs/features/<slug>/`: status, implementation paths, verified tests |
+| Colors, type, spacing or shared widgets | `docs/design/DESIGN-SYSTEM.md` (CI-checked) |
+| A boundary, data store, service or permission | `docs/architecture/SYSTEM.md`, plus an ADR for a lasting decision |
+| Dart files | `docs/architecture/CODE-MAP.md`, by running the generator (CI-checked) |
+| A product decision | `docs/reviews/2026-11-10-prototype-to-flutter/01-DECISIONS.md`, by the maintainer only |
+
+- Every page separates what is planned from what is implemented. Never describe planned work as existing.
+- Do not hand-write pull request or CI state. After you open or update a pull request, and at the end of every session, run `python3 tooling/knowledge/live_status.py --pull`. It fast-forwards the `main` checkout and regenerates `docs/knowledge/LIVE.md`, the "needs your attention" section of the dashboard. That file is git-ignored; never commit it.
+
+## HTML prototype workflow
+- `index.html` is the active prototype. Use a short-lived `prototype/<topic>` branch and a PR to `main`, with a screenshot or notes for visual changes.
+- Preserve `versions/app-vN.html` as append-only history; record a milestone in a new version file and never rewrite an older one.
+- Run `python3 dev/make_preview.py`, open `dev/preview.html`, and note any untested `window.claude` behavior. The local mock is not proof of data access, sharing, identity or persistence.
+- Only `index.html`, `versions/**`, `dev/*.html`, `dev/mock-claude.js`, `seed/devotionals*.json`, `seed/lifts.json`, `seed/esv-verses.json` and root `README.md` qualify for the lighter prototype review. `seed/db-rules.json`, `seed/tasks.json`, `seed/weekly-challenges.json`, `seed/movement-standards.json`, `dev/make_preview.py`, `dev/patches/**`, `dev/firebase/**` and `docs/development/**` are review-protected.
+- If a prototype change alters authorization, scoring or privacy semantics, escalate to the maintainer. Do not introduce prototype runtime dependencies into `mobile/` or treat its backend adapter as production authorization.
 
 ## Pull request classification
-- **Prototype (explicit exceptions only):** HTML/versions, mock and listed seed content. Lightweight preview CI, optional formal review, required PR. Executable preview scripts are *not* review-exempt.
-- **Application:** `mobile/` and production app architecture. Flutter CI and the functional AI review policy apply; see docs/development/FLUTTER-AI-REVIEW-GATE.md for scope and rollout status.
-- **Infrastructure/security:** `tooling/`, workflows, agent instructions, MCP settings, Firebase config, architecture ADRs and protected seed rules. Mandatory policy CI and maintainer decision. The functional AI review gate includes these paths and other unclassified paths unless they are explicitly exempted in `tooling/review/flutter_scope.py`; consult that classifier and the gate guide before declaring review optional.
-- A mixed PR receives the strictest applicable checks and review requirements. Prefer splitting unrelated changes.
-- The live GitHub ruleset requires `ci-gate` but zero outside approvals. The functional AI review gate is a separate completion check, not a human approval. Other AI reviews are optional. Maintainers choose whether to merge; agents never self-merge.
-
-## Platform-specific onboarding
-- Windows bootstrap: START-WINDOWS.cmd; Mac bootstrap: START-MAC.command; numbered steps in `launchers/<os>/`. All must preserve emulator-first/no-cloud-Firebase MCP defaults.
-- Both platforms set up Preview and Contributor (practice Firebase included). Windows also offers Mobile/Maintainer (Android Studio, Maestro); Mac offers optional iPhone simulator setup. Do not claim Android/iOS device integration until it has been run and recorded; no Maestro flows exist yet.
-- Project MCP stdio commands use the allowlisted Node launcher on both platforms. Never add Firebase cloud MCP or automatically request credentials.
+- **Prototype:** the explicit exceptions above. Lightweight preview CI, required PR.
+- **Application:** `mobile/` and production app architecture. Flutter CI applies.
+- **Infrastructure and security:** `tooling/`, workflows, agent instructions, MCP settings, Firebase config, ADRs and protected seed rules. Policy CI and a maintainer decision.
+- A mixed PR receives the strictest applicable checks. Prefer splitting unrelated changes. The maintainer decides when to merge; agents never self-merge.
 
 ## Checks
-- `cd mobile && flutter pub get && flutter analyze && flutter test`
-- `cd mobile && flutter build apk --debug` once Android platform files are generated.
-- `mobile/android/` and `mobile/ios/` are committed Flutter 3.47.8 template hosts (`--org=com.forgedandsent --project-name=forged_and_sent`). The only reviewed customization is the ADR-0002 Android Network Security Configuration: `mobile/android/app/src/main/AndroidManifest.xml` references `@xml/network_security_config`; `src/main/res/xml/network_security_config.xml` sets `base-config cleartextTrafficPermitted="false"` for main, profile and release on every supported API level (minSdk 24, where API 24-27 would otherwise allow cleartext), and the same-named debug overlay `src/debug/res/xml/network_security_config.xml` keeps that base and adds an HTTP exception only for `10.0.2.2`. Setup launchers and CI still run `flutter create` with the same flags; it only adds missing files, and the web host stays git-ignored. Do not edit or regenerate the committed hosts outside a reviewed change. Release signing, store identifiers, Firebase native config and iOS device runs are not set up (see ADR-0003).
+- `cd mobile && flutter pub get && flutter analyze && flutter test`, using the Flutter version pinned in `.github/workflows/ci-gate.yml`.
+- `cd mobile && flutter build apk --debug` once Android platform files exist.
+- `python3 tooling/knowledge/check.py` after changing anything under `docs/knowledge/`, `docs/features/` or `docs/HOME.md`.
+- `python3 tooling/architecture/generate.py --write` after changing `mobile/lib/**`; CI rejects a stale `docs/architecture/CODE-MAP.md`.
+- `python3 tooling/skills/sync.py --check` after changing a skill. `.agents/skills` is canonical; `.claude/skills` must match.
+- Do not claim Android or iOS device behavior until it has been run and recorded.
 
-## Agent roles
-- Flutter Builder: one vertical slice, widget tests, no backend policy changes.
-- Architecture Reviewer: independent read-only design and requirements assessment.
-- Firebase Security Reviewer: authentication, rules, functions, storage and adversarial access tests.
-Use one builder by default. Route functional Flutter/backend changes to the opposite provider under the functional AI review policy; offer additional security reviews when useful. If invoked, never count the authoring model as independent. Mark missing coverage NOT VERIFIED.
-- After a hosted review finishes, read the PR handoff comment and linked review evidence in the implementing Codex or Claude session. Address findings once on the same feature branch, rerun checks, and request a fresh review for the new head. If that next review still has findings, pause implementation and wait for the maintainer's human review before making another fix. GitHub comments notify the PR author but do not wake a local agent session on their own.
+## Skills and roles
+Use one builder per task. Name the skill you are using in the pull request description.
 
-## Safe beginner Git collaboration
+| Use this skill | When |
+|---|---|
+| `flutter-vertical-slice` | Building or changing one Flutter feature |
+| `flutter-platform-parity` | Porting or comparing a prototype screen |
+| `independent-code-review` | Reviewing a change you did not write |
+| `flutter-architecture-review` | Reviewing boundaries, imports and ADR compliance |
+| `firebase-security-review` | Reviewing rules, auth, scoring or private data |
+| `knowledge-steward` | Updating the work board or retiring a stale note |
+| `task-coordinator` | Only when the maintainer asks for multi-agent coordination |
 
-Use project-local fs-start / fs-save / fs-sync / fs-share / fs-status helpers
-for contributor workflow. Never directly commit or push to main. Only open
-draft PRs for teammates. Do not run firebase deploy, overwrite production
-configurations, force-push, or merge PRs without explicit human approval.
-GitHub server rules are the actual enforcement boundary; local prompts and
-agent instructions are advisory. No cloud Firebase MCP is enabled by default.
+After a review, address findings once on the same branch, rerun checks, and ask for a fresh review of the new head. If that review still has findings, stop and wait for the maintainer.
 
-## Living architecture and shared agent instructions
+## Architecture records
+- `docs/architecture/SYSTEM.md` separates what exists from what is planned. `docs/architecture/CODE-MAP.md` is generated from real Dart source. Update `SYSTEM.md` and add an ADR when a boundary or lasting decision changes.
+- The Architecture Explorer is generated by `python3 tooling/architecture/build_explorer.py --write`; keep `docs/architecture/explorer/model.json` aligned with real code and never label a proposed component as implemented.
+- For Flutter, Dart or library questions, check the pinned SDK and `mobile/pubspec.lock` and current official documentation. See `docs/knowledge/FLUTTER-AI-DOCS.md`. Android and iOS come first; web is a preview; desktop is proposed only (`docs/knowledge/FLUTTER-PLATFORMS.md`).
 
-- Read docs/architecture/SYSTEM.md for current vs planned system boundaries and CODE-MAP.md for actual Dart symbols/imports.
-- Update SYSTEM.md/ADRs when boundaries change; run `python3 tooling/architecture/generate.py --write` for Dart changes.
-- Canonical skills are in .agents/skills; .claude/skills must match, enforced by `python3 tooling/skills/sync.py --check`.
-- Before pushing, run `python3 tooling/review/review.py --dry-run`; functional Flutter/backend changes also follow docs/development/FLUTTER-AI-REVIEW-GATE.md; additional local reviews remain advisory.
-
-## Architecture Explorer update contract
-
-- The clickable static site is generated via `python3 tooling/architecture/build_explorer.py --write`. The source UI lives under `docs/architecture/explorer/`, and the generated site lives in the ignored `build/architecture-explorer/` directory.
-- Keep the curated component/function glossary in `docs/architecture/explorer/model.json` aligned with `SYSTEM.md` and real code. Never label a proposed component as implemented.
-- For new components or meaningful behavior, update model descriptions, source paths, dependencies, and the appropriate ADR. CI builds the latest file/symbol index and rejects dangling model file references.
-- Never describe lexical file mentions or best-effort symbol detection as a complete runtime call graph. Explain uncertainty honestly.
-## Git-backed development memory and Flutter platform strategy
-- Start a new or resumed complex task at `docs/knowledge/INDEX.md` and `docs/knowledge/CURRENT.md`. Follow the scoped handoff, check exact PR/branch SHA and verify current tests before trusting a note.
-- Use `docs/knowledge/WORK.md` to find the assigned task, owner, blocker and next action. Load only its contract, handoff and relevant source/ADRs. Consult `docs/knowledge/HISTORY.md` and archives only for a specific historical evidence, rationale or regression question; exclude archives and `versions/` from default context searches. Update one handoff per task across sessions.
-- For a task assigned to an orchestrator, use the `task-coordinator` skill and `docs/knowledge/AGENT-WORKSPACE.md` routing. Select available authorized coordinators by task; delegate bounded work, record actual models and all authors, and keep one active lead per task. This grants no extra push, merge, deployment or spending authority.
-- On meaningful handoff, write a dated, task-specific `docs/knowledge/handoffs/<task>.md` with owner, full source SHA, verified observations, unrun tests, blockers and a concrete next action. Never overwrite parallel agent work.
-- Obsidian is an optional Markdown viewer/editor for `docs/`, NOT a second source of truth. Follow `docs/knowledge/LIFECYCLE.md` for superseding/archiving; never delete approved ADR history, generated docs or `versions/` snapshots.
-- Flutter app code is the target, while `index.html` is behavioral reference only. Follow `docs/knowledge/PROTOTYPE-PARITY.md` and `docs/knowledge/FLUTTER-PLATFORMS.md`. Android/iOS are first, web is a preview target; Windows/Linux/macOS require separate reviewed host/CI/runtime qualification.
-- For any Flutter/Dart/library/API question, check the installed/pinned SDK and current official docs or Dart MCP; use version-matched Context7 for third-party APIs when appropriate. Never treat stale snippets as project policy. Use `docs/knowledge/FLUTTER-AI-DOCS.md`; never paste large live docs into startup rules or silently install plugins.
-- Use `flutter-platform-parity` and `knowledge-steward` skills for the matching tasks. Recheck the generated architecture map and handoff links after documentation changes.
-
-
-## Risk-based approved requirements and optional knowledge preview
-
-- Read docs/HOME.md and docs/features/README.md when starting a new product behavior task. Agents may propose but not approve requirements. High-risk Auth, Firebase rules, scoring, group privacy, offline sync, health-related data and architectural changes require the maintainer's approved requirements/design/tasks contract; never infer product rules from the HTML prototype.
-- One task owner per branch/worktree and a commit-SHA-bound handoff. CURRENT.md and Markdown ledgers are orientation only, never locks. Reconcile overlapping edits in PR review.
-- `launchers/windows/more/Knowledge workspace.cmd` / `launchers/mac/more/Knowledge workspace.command` launch a read-only allowlisted localhost preview of root index.html and the generated Atlas. Obsidian may open docs/ as a vault but is not required. Never serve the whole repo, expose credentials, or claim live Windows/Mac/Obsidian tests passed based on CI.
+## Feature contracts
+High-risk work (auth, Firebase rules, scoring, group privacy, offline sync, health-related data, architectural boundaries) needs the maintainer's approved requirements, design and tasks contract under `docs/features/`. Agents may draft a contract but may not mark it approved. See `docs/features/README.md`.

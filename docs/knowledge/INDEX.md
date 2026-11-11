@@ -1,11 +1,11 @@
 # Agent entrypoint
 
-Read this page and [CURRENT](CURRENT.md), then the assigned item in [WORK](WORK.md). Read AGENTS.md and scoped instructions as required. Initial orientation should take only a few minutes.
+Read this page, then your row in [WORK](WORK.md). Read AGENTS.md and scoped instructions as required. Initial orientation should take only a few minutes.
 
 1. Verify branch, HEAD, working changes and live PR/dependency status. Record exact baseline and relevant checks in the task handoff.
 2. Read only that task's handoff, contract, relevant ADRs and source/tests. Identify acceptance conditions, unapproved decisions and next executable action.
 3. Work within that scope; run required checks and distinguish actual results from NOT VERIFIED coverage.
-4. Update the same task handoff. The coordinator updates WORK/CURRENT for changed ownership, blockers, decisions or milestones. Another agent must be able to resume without chat history.
+4. In the same pull request as the work, update your WORK row so it reads as it will be true after merge. The pull request description is the handoff. Another agent must be able to resume without chat history.
 
 ## Conditional reading
 

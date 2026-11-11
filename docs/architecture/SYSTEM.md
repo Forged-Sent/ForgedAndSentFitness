@@ -48,6 +48,8 @@ flowchart TB
 
 **Accepted client stack (not yet implemented):** [ADR-0005](ADR-0005-flutter-client-stack.md) selects Riverpod for presentation state and composition, go_router for navigation, and Drift/native SQLite for the durable local event store. These packages are not yet in `mobile/pubspec.yaml`; the planned diagram does not imply working storage or sync.
 
+**ADR set that is not on `main`:** ADR-0001 to ADR-0019 on branch `arch/firebase-reconciliation` (commit `0d21d21`, under `docs/adr/`) are not on `main`. Their numbers collide with `main`'s ADR-0001 to ADR-0005 in this folder, which are different documents, so a number alone does not say which ADR is meant. The [Decisions](../reviews/2026-11-10-prototype-to-flutter/01-DECISIONS.md) page records which of those decisions the maintainer carries forward.
+
 ## Engineering and review pipeline
 
 ```mermaid

@@ -113,12 +113,14 @@ establish an independent provider for every part; human assessment may be needed
   existing pending status in place. If the initial pending write fails, the
   notifier refuses to finalize; the check may be absent rather than pending.
   The trusted publisher job grants the notifier `statuses: write` and
-  `pull-requests: write`. The branch-targeted PR #48 test posted failure
-  handoffs with `pull-requests: write`; the follow-up removes `issues: write`
-  to avoid retaining both accepted comment-write scopes. A hosted run with the
-  narrowed set is still needed. GitHub reports Actions PR approvals disabled.
-  A clean PASS handoff and final success remain unverified. Documentation-only
-  success does not wait for a handoff.
+  `pull-requests: write`. The branch-targeted PR #51
+  [permission test](https://github.com/Forged-Sent/ForgedAndSentFitness/actions/runs/42764015046)
+  posted a failure handoff with this narrowed set and no `issues: write`.
+  A later [PR #48 hosted run](https://github.com/Forged-Sent/ForgedAndSentFitness/actions/runs/42769581873)
+  posted a Claude PASS handoff between pending and final exact-head success on
+  `97acf7a`. The current native Codex route and remaining hosted failure cases
+  are still unverified. GitHub reports Actions PR approvals disabled.
+  Documentation-only success does not wait for a handoff.
 - The publisher and notifier instantiate `PublisherGitHub`, which permits only
   the read endpoints needed for PR identity, run ownership and Codex evidence,
   plus handoff comment and commit-status POSTs. PR review, state-change and
@@ -141,7 +143,8 @@ establish an independent provider for every part; human assessment may be needed
   with that earlier scope still received HTTP 403. A PR #48 branch-targeted
   run with `pull-requests: write` posted failure handoffs. It
   did not demonstrate a clean PASS handoff or final review success because its
-  Claude responses failed JSON validation.
+  Claude responses failed JSON validation. The later PR #48 run linked above
+  demonstrated the delivered Claude handoff and final success.
 - The implementor addresses the first review's findings once. If a later review
   on a new head still has findings, the handoff directs the implementor to pause
   for maintainer review instead of starting another fix cycle.

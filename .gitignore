@@ -13,3 +13,6 @@ __pycache__/
 # Optional local Obsidian metadata, never Git controlled
 **/.obsidian/
 **/.trash/
+
+# Generated dashboard block (tooling/knowledge/live_status.py); never committed
+docs/knowledge/LIVE.md
