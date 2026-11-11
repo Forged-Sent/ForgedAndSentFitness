@@ -78,11 +78,35 @@ class FsHeroHeader extends StatelessWidget {
           Align(alignment: Alignment.centerRight, child: buttons),
       ];
     } else {
+      // The prototype centers the small caps line against the buttons only on
+      // pages that have the search and help buttons. Where they are absent
+      // (Walk), it sets the line on the buttons' text baseline, which puts it
+      // lower: 17 points down in the prototype's layout, plus 1 for where
+      // Flutter places a line within its height.
+      final centered =
+          buttons == null ||
+          actions.any(
+            (FsHeroAction action) =>
+                action.kind == FsHeroActionKind.search ||
+                action.kind == FsHeroActionKind.help,
+          );
       lines = <Widget>[
         if (kickerText != null || buttons != null)
           Row(
+            crossAxisAlignment: centered
+                ? CrossAxisAlignment.center
+                : CrossAxisAlignment.start,
             children: <Widget>[
-              Expanded(child: kickerText ?? const SizedBox.shrink()),
+              Expanded(
+                child: kickerText == null
+                    ? const SizedBox.shrink()
+                    : centered
+                    ? kickerText
+                    : Padding(
+                        padding: const EdgeInsets.only(top: 18),
+                        child: kickerText,
+                      ),
+              ),
               if (buttons != null) ...<Widget>[
                 const SizedBox(width: 12),
                 buttons,

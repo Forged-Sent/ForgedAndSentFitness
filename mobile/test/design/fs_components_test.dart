@@ -269,6 +269,40 @@ void main() {
       expect(rule.color, FsColors.gold);
     });
 
+    testWidgets('without the help buttons the small caps line sits lower', (
+      tester,
+    ) async {
+      // As in the prototype: centered against the buttons on pages that
+      // have search and help, on the buttons' text baseline on Walk.
+      Future<double> kickerTop(List<FsHeroAction> shown) async {
+        await _pump(
+          tester,
+          FsHeroHeader(
+            kicker: 'Walk with your brothers',
+            title: 'Walk',
+            actions: shown,
+          ),
+        );
+        return tester.getRect(find.text('WALK WITH YOUR BROTHERS')).top;
+      }
+
+      // The row of buttons starts 18 points down and is 40 tall, the height
+      // of the profile button.
+      final withHelp = await kickerTop(actions);
+      final lineHeight = tester
+          .getSize(find.text('WALK WITH YOUR BROTHERS'))
+          .height;
+      expect(
+        withHelp,
+        closeTo(FsSpacing.heroTop + (40 - lineHeight) / 2, 0.01),
+      );
+      final walk = await kickerTop(actions.sublist(2));
+      expect(walk, closeTo(FsSpacing.heroTop + 18, 0.01));
+      // With no buttons at all there is nothing to line up with.
+      final alone = await kickerTop(const <FsHeroAction>[]);
+      expect(alone, closeTo(FsSpacing.heroTop, 0.01));
+    });
+
     testWidgets('buttons with no action are drawn but not announced', (
       tester,
     ) async {
