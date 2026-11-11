@@ -1,6 +1,6 @@
 ---
 title: "Full report (single file)"
-updated: 2026-11-10
+updated: 2026-11-11
 status: review, not an approved decision record
 source_ref: main
 source_sha: 94daa63fe1dea96398bcb3f2286baa1906c44ec0
@@ -457,7 +457,24 @@ Legend: **E** exists on `main` · **L** local branch · **M** missing with no pl
 | Resulting state: ring, tally, streak, mission complete | `drawHeader`, `streak` L2921 | **M** |
 | Feedback | Checkbox and tally; no failure state | **L** "Completed in this demo" |
 
-Stress: *double tap* → in the prototype, check then uncheck. *Reload mid-save* → the write may or may not land, with no indication. *Two devices* → whole-document last-write-wins. Proposed design: the tap writes one event row and updates day state in one Drift transaction; the row's unique key is (owner, date, item), so a duplicate tap is a no-op or an explicit undo event; the UI reads from a Drift stream, so restart shows the same state.
+Stress: *double tap* → in the prototype, check then uncheck. *Reload mid-save* → the write may or may not land, with no indication. *Two devices* → whole-document last-write-wins. Proposed design: the tap writes one event row and updates day state in one Drift transaction; the UI reads from a Drift stream, so restart shows the same state. The event's key is set out below.
+
+> [!IMPORTANT]
+> **Proposed, needs the maintainer's decision: the completion event's key.** An earlier version of this review made (owner, date, item) the event row's unique key. That allows one event per item per day, so "complete, undo, complete again" cannot be stored, and an undo would have to overwrite the completion, which is the flag model 5.4 rejects.
+
+| Option | Unique key on the event row | Complete → undo → complete | Same event sent twice (retry, sync replay) | Two devices | Cost |
+|---|---|---|---|---|---|
+| **A. Event id only** *(recommended)* | The client-generated event id. Day state is a separate row keyed by (owner, date, item) | Three rows | Second insert is a no-op on the id | Both devices' events are kept; day state follows the latest event (rule below) | Needs an ordering rule for the derived state |
+| **B. (owner, date, item, sequence)** | A per-item, per-day counter assigned in the transaction | Three rows, sequence 1 to 3 | Only safe if the sequence travels with the event; a fresh retry gets a new number | Two devices both write sequence 1; the server must renumber or reject | Breaks "document id equal to the event id" in J4 |
+| **C. (owner, date, item) on a state row, no event table** | One mutable row per item per day | Overwrites | Idempotent | Last write wins, history lost | This is the flag model again; no audit for scoring |
+| **D. (owner, date, item, kind)** | One "complete" and one "undo" per item per day | The second "complete" is refused | Idempotent | As A | Re-completing after an undo is impossible |
+
+**Recommendation: A.** It is the only option that stores every real action, makes a replayed event a no-op by construction, keeps J4's "document id equal to the event id", and matches P05's acceptance test 2 ("replaying the same event id leaves exactly one completion"). Details to settle with it:
+
+- **Events state the target, not a toggle.** Each event says `done: true` or `done: false`. A tap whose target equals the current day state writes nothing, so a double tap on Amen cannot complete and then undo.
+- **Ordering rule for day state.** Latest by the time stamped at the tap (with its UTC offset, Q9), then by event id to break ties. The same rule runs on the device and, from S4, in the Cloud Function.
+- **Scoring.** Credit, when it exists, is derived from the final day state per (owner, date, item), never by counting events, so undo and redo cannot earn twice. How credit is computed stays with S4.
+- **Event id form.** A random UUID minted once per tap and kept through retries. A time-ordered UUID would also do; the choice does not change the key design.
 
 **J2. Workout (core, most demanding)**
 
