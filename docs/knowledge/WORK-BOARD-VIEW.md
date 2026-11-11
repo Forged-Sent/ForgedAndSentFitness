@@ -11,12 +11,8 @@ update-by: edit WORK.md then run tooling/knowledge/work_board.py --write
 - [ ] **Agents may merge after review**
 	**Next:** Run prompt [P13](../reviews/2026-11-10-prototype-to-flutter/prompts/P13-let-agents-merge-after-review.md) after its merge check is fixed (see Later)
 	[Edit this row in WORK](WORK.md)
-- [ ] **Native hosts**
-	**Next:** Run prompt [P03](../reviews/2026-11-10-prototype-to-flutter/prompts/P03-native-hosts-pr.md)
-	**Branch or PR:** local branch `codex/native-host-acceptance`, no PR yet
-	[Edit this row in WORK](WORK.md)
 - [ ] **S0 Design foundation**
-	**Next:** Run prompt [P04](../reviews/2026-11-10-prototype-to-flutter/prompts/P04-S0-design-foundation-and-shell.md) after the hosts merge
+	**Next:** Run prompt [P04](../reviews/2026-11-10-prototype-to-flutter/prompts/P04-S0-design-foundation-and-shell.md)
 	[Edit this row in WORK](WORK.md)
 - [ ] **S1 Today and Devotional**
 	**Next:** Run prompt [P05](../reviews/2026-11-10-prototype-to-flutter/prompts/P05-S1-today-and-devotional.md) after S0 and after the completion-event key is fixed (see Later)
@@ -64,6 +60,10 @@ update-by: edit WORK.md then run tooling/knowledge/work_board.py --write
 	**Note:** Set the Homepage plugin to open HOME: one command, in the [Obsidian setup guide](OBSIDIAN-SETUP.md) under Set up once per vault
 	**Branch or PR:** branch `claude/obsidian-adhd-workspace`
 	[Edit this row in WORK](WORK.md)
+- [x] **Native hosts**
+	**Note:** None. iOS is built only by CI's `ios-simulator` job: it has not been built locally, and there is no simulator or physical-device run yet. Release signing is a row under Later
+	**Branch or PR:** branch `codex/native-host-acceptance`
+	[Edit this row in WORK](WORK.md)
 
 
 ## Later
@@ -97,6 +97,18 @@ update-by: edit WORK.md then run tooling/knowledge/work_board.py --write
 	[Edit this row in WORK](WORK.md)
 - [ ] **Local Linux checks reach the Python floor**
 	**Prompt:** No prompt yet. Not blocking: GitHub runs the job on a newer Python
+	[Edit this row in WORK](WORK.md)
+- [ ] **Android release signing**
+	**Prompt:** No prompt yet. Do it before anything is distributed
+	[Edit this row in WORK](WORK.md)
+- [ ] **Onboarding tests pass on a Windows workstation**
+	**Prompt:** No prompt yet. Not blocking: they pass in WSL and on GitHub
+	[Edit this row in WORK](WORK.md)
+- [ ] **Pinned Flutter first on the maintainer's PATH**
+	**Prompt:** No prompt yet. Not blocking: the launchers and VS Code use the pinned SDK, and agents put it first for their own commands
+	[Edit this row in WORK](WORK.md)
+- [ ] **Host wording left over from the generated hosts**
+	**Prompt:** No prompt yet. Not blocking; needs a Mac to check
 	[Edit this row in WORK](WORK.md)
 - [ ] **`flutter-ai-review` on unlabeled tooling pull requests**
 	**Prompt:** No prompt yet. Not blocking: only `ci-gate` is required

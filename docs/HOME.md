@@ -11,12 +11,10 @@ Open this page first, in Obsidian, from the `main` checkout. Pick the one action
 
 ## Also ready or in progress
 
-- **Next** · Native hosts (Branch or PR: local branch `codex/native-host-acceptance`, no PR yet): Run prompt [P03](reviews/2026-11-10-prototype-to-flutter/prompts/P03-native-hosts-pr.md)
-- **Next** · S0 Design foundation: Run prompt [P04](reviews/2026-11-10-prototype-to-flutter/prompts/P04-S0-design-foundation-and-shell.md) after the hosts merge
+- **Next** · S0 Design foundation: Run prompt [P04](reviews/2026-11-10-prototype-to-flutter/prompts/P04-S0-design-foundation-and-shell.md)
+- **Next** · S1 Today and Devotional: Run prompt [P05](reviews/2026-11-10-prototype-to-flutter/prompts/P05-S1-today-and-devotional.md) after S0 and after the completion-event key is fixed (see Later)
 
-1 more ready or active item on the [Work board](knowledge/WORK-BOARD-VIEW.md).
-
-Board now: Next 4 · In progress 0 · Waiting 4 · Done 4 · Later 11.
+Board now: Next 3 · In progress 0 · Waiting 4 · Done 5 · Later 15.
 <!-- work-focus:end -->
 
 ## Where to go
