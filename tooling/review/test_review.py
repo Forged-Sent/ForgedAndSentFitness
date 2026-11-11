@@ -17,6 +17,20 @@ from review import (MAX_BINARY_ASSET, SENSITIVE, build_prompt, chunk_patch, chun
 # Starts like a real PNG; the NUL bytes make Git treat it as binary.
 PNG = b"\x89PNG\r\n\x1a\n\x00\x00\x00\rIHDR" + bytes(range(256)) * 4
 BINARY_REFUSED = "Binary changes are outside this text-only AI review."
+GAP_REFUSED = "PASS contradicts reviewer's own coverage gap in 'unverified'"
+RUN_ONE = review.run_one        # the real one; BinaryAssetTests.cli swaps review.run_one for a fake
+
+
+def answered(raw: str) -> dict:
+    """What the real run_one returns when the reviewer's CLI prints `raw`."""
+    with tempfile.TemporaryDirectory() as tmp:
+        def launched(cmd, **kwargs):
+            (Path(tmp) / "codex-last.txt").write_text(raw, encoding="utf-8")
+            return subprocess.CompletedProcess(cmd, 0, stdout="", stderr="")
+
+        with mock.patch.object(review.shutil, "which", return_value="codex"), \
+                mock.patch.object(review.subprocess, "run", side_effect=launched):
+            return RUN_ONE("codex", "the prompt", Path(tmp))
 
 
 class ReviewTests(unittest.TestCase):
@@ -227,6 +241,38 @@ class ReviewTests(unittest.TestCase):
             run.assert_not_called()
             self.assertEqual(result["status"], "ERROR")
             self.assertIn("codex CLI missing", result["reason"])
+
+    def test_a_gap_in_unverified_still_fails_a_pass_wherever_the_gap_is(self):
+        # The prompt now says `unverified` is about the reviewer's own slice and
+        # that the tool records the rest. The rule itself is not relaxed: any
+        # admission of unread content fails the PASS, in the slice or outside it.
+        for gap in ("The last hunk of this slice was cut off and not reviewed",
+                    "Omitted diff slices and the five binary images were not reviewed."):
+            answer = {"verdict": "PASS", "slice_complete": True, "findings": [], "unverified": [gap]}
+            with self.subTest(gap=gap):
+                with self.assertRaises(review.RejectedReview) as caught:
+                    parse_report(json.dumps(answer))
+                self.assertEqual(str(caught.exception), GAP_REFUSED)
+                self.assertEqual(caught.exception.answer, answer)
+
+    def test_rejected_answer_keeps_its_findings_as_advisory_and_never_counts(self):
+        finding = {"severity": "medium", "path": "app.py", "line": 3, "explanation": "bug", "fix": "fix"}
+        answer = {"verdict": "PASS", "slice_complete": True, "findings": [finding],
+                  "unverified": ["second half of this slice not reviewed"]}
+        result = answered(json.dumps(answer))
+        self.assertEqual(result, {"status": "ERROR", "reason": GAP_REFUSED, "rejected_answer": answer})
+        report, ok = summarize({"codex": result}, "abc", "digest", "origin/main", 1)
+        self.assertFalse(ok)
+        self.assertEqual((report["status"], report["blocking_providers"]), ("NOT_VERIFIED", ["codex"]))
+        # The other two PASS rules keep the answer in the same way.
+        for refused in ({**answer, "unverified": [], "findings": [{**finding, "severity": "high"}]},
+                        {**answer, "unverified": [], "slice_complete": False}):
+            with self.subTest(refused=refused):
+                self.assertEqual(answered(json.dumps(refused))["rejected_answer"], refused)
+        # An answer that is not well formed has nothing trustworthy to keep.
+        for raw in ("I found no problems", json.dumps({**answer, "extra": 1})):
+            with self.subTest(raw=raw):
+                self.assertEqual(set(answered(raw)), {"status", "reason"})
 
 
 class BinaryAssetTests(unittest.TestCase):
@@ -555,6 +601,69 @@ class BinaryAssetTests(unittest.TestCase):
         code, _, err, _ = self.cli(root, "--dry-run", "--base", base)
         self.assertEqual(code, 1)
         self.assertIn("No reviewable changes against", err)
+
+    def two_slices_and_two_images(self):
+        """A change the runner must split in two, with two images no reviewer reads."""
+        root, run, base = self.repo()
+        self.write(root, "docs/design/mockup.png", PNG)
+        self.write(root, "mobile/assets/images/hero.png", PNG + b"hero")
+        for name in ("one.py", "two.py"):
+            self.write(root, name, "".join(f"value_{i} = {i}\n" for i in range(6000)).encode())
+        run("add", ".")
+        run("commit", "-qm", "two large files and two images")
+        self.assertEqual(len(chunk_patch(patch_context(root, base)[2])), 2)
+        return root, base
+
+    def report(self, root: Path) -> tuple[dict, str]:
+        return (json.loads((root / ".review/last-review.json").read_text(encoding="utf-8")),
+                (root / ".review/summary.md").read_text(encoding="utf-8"))
+
+    def test_several_slices_with_images_can_pass_and_the_tool_records_the_coverage(self):
+        root, base = self.two_slices_and_two_images()
+        # Each answer speaks for its own slice only; it says nothing of the other slice or the images.
+        passing = '{"verdict":"PASS","slice_complete":true,"findings":[],"unverified":["flutter test not run"]}'
+        code, _, _, provider = self.cli(root, "--base", base, reviewer=lambda *a: answered(passing))
+        self.assertEqual(code, 0)
+        self.assertEqual(provider.call_count, 2)
+        report, summary = self.report(root)
+        self.assertEqual(report["status"], "PASS")
+        pinned = report["excluded_from_ai_review"]
+        self.assertEqual([(e["path"], len(e["blob"]), e["kind"]) for e in pinned],
+                         [("docs/design/mockup.png", 40, "binary"),
+                          ("mobile/assets/images/hero.png", 40, "binary")])
+        slices = [{"slice": i, **item} for i, item in enumerate(report["chunks"], 1)]
+        for this, other, call in zip(slices, reversed(slices), provider.call_args_list):
+            prompt = call.args[1]
+            self.assertIn("`unverified` is for THIS SLICE ONLY", prompt)
+            self.assertIn("recorded by the review tool, not by you", prompt)
+            self.assertIn('["docs/design/mockup.png", "mobile/assets/images/hero.png"]', prompt)
+            # The runner, not the reviewer, records what each answer leaves out.
+            self.assertEqual(report["providers"][f"codex#{this['slice']}/2"]["coverage"],
+                             {**this, "of": 2, "other_slices": [other], "excluded": pinned})
+        self.assertIn("Coverage, recorded by the tool: slice 1 of 2", summary)
+        self.assertIn("Other slices, each with its own answer: 1. Files no reviewer read: 2.", summary)
+        self.assertEqual(self.cli(root, "--verify", "--base", base)[0], 0)
+
+    def test_gap_inside_a_slice_still_fails_and_its_findings_stay_in_the_report(self):
+        root, base = self.two_slices_and_two_images()
+        clean = {"verdict": "PASS", "slice_complete": True, "findings": [], "unverified": []}
+        gap = {**clean, "unverified": ["The end of this slice was truncated"], "findings": [
+            {"severity": "medium", "path": "two.py", "line": 7, "explanation": "wrong value", "fix": "correct it"}]}
+        answers = iter([clean, gap])
+        code, _, _, _ = self.cli(root, "--base", base,
+                                 reviewer=lambda *a: answered(json.dumps(next(answers))))
+        self.assertEqual(code, 1)
+        report, summary = self.report(root)
+        self.assertEqual((report["status"], report["blocking_providers"]), ("NOT_VERIFIED", ["codex#2/2"]))
+        rejected = report["providers"]["codex#2/2"]
+        self.assertEqual((rejected["status"], rejected["reason"]), ("ERROR", GAP_REFUSED))
+        self.assertEqual(rejected["rejected_answer"], gap)
+        self.assertIn("NOT VERIFIED: " + GAP_REFUSED + "\n"
+                      "The reviewer answered PASS and the tool rejected that answer. "
+                      "What it reported is kept as advisory and does not count as a review:\n"
+                      "- MEDIUM two.py:7: wrong value Fix: correct it\n"
+                      "- Unverified: The end of this slice was truncated\n", summary)
+        self.assertEqual(self.cli(root, "--verify", "--base", base)[0], 1)
 
 
 if __name__ == "__main__":
