@@ -12,8 +12,8 @@ Plan and reasoning: [prototype-to-Flutter review](../reviews/2026-11-10-prototyp
 | CI accepts images and fonts | Nothing yet; without it the required check fails every pull request below | **Done** | [#54](https://github.com/Forged-Sent/ForgedAndSentFitness/pull/54) | — |
 | Publish review and rules cleanup | The dashboard, board and rules on `main` | **Done** | branch `chore/review-rules-and-dashboard` | — |
 | Agents may merge after review | Nothing on screen; app and docs pull requests that pass independent review no longer wait for the maintainer | **Next** | — | Run prompt [P13](../reviews/2026-11-10-prototype-to-flutter/prompts/P13-let-agents-merge-after-review.md) after its merge check is fixed (see Later) |
-| Native hosts | The app builds for Android and iOS from committed host projects | **Next** | local branch `codex/native-host-acceptance`, no PR yet | Run prompt [P03](../reviews/2026-11-10-prototype-to-flutter/prompts/P03-native-hosts-pr.md) |
-| S0 Design foundation | The app opens looking like the prototype: brand bar, hero header, six-tab bar | **Next** | — | Run prompt [P04](../reviews/2026-11-10-prototype-to-flutter/prompts/P04-S0-design-foundation-and-shell.md) after the hosts merge |
+| Native hosts | The app builds for Android and iOS from committed host projects | **Done** | branch `codex/native-host-acceptance` | None. The release build still signs with the debug key: do not distribute it |
+| S0 Design foundation | The app opens looking like the prototype: brand bar, hero header, six-tab bar | **Next** | — | Run prompt [P04](../reviews/2026-11-10-prototype-to-flutter/prompts/P04-S0-design-foundation-and-shell.md) |
 | S1 Today and Devotional | Today and today's real devotional; Amen is still checked after a restart | **Next** | — | Run prompt [P05](../reviews/2026-11-10-prototype-to-flutter/prompts/P05-S1-today-and-devotional.md) after S0 and after the completion-event key is fixed (see Later) |
 
 ## Later
@@ -30,6 +30,9 @@ Plan and reasoning: [prototype-to-Flutter review](../reviews/2026-11-10-prototyp
 | Dashboard lists branches whose GitHub branch was deleted | Nothing on screen; such a branch is listed when it still holds commits that are not on `main`. Today it is skipped, so work on it can go unseen | No prompt yet. Review finding (Codex, medium) on `tooling/knowledge/live_status.py`. Not blocking |
 | Dashboard waits for GitHub's conflict check | Nothing on screen; a pull request is not called ready while GitHub is still working out whether it conflicts. Seen once, for a moment after `main` moved | No prompt yet. Not blocking: the next refresh corrects it |
 | Local Linux checks reach the Python floor | Nothing on screen; the whole `policy` job runs in WSL. Today WSL has Python 3.10 and `tooling/policy` needs 3.11 or newer, so its two commands fail there | No prompt yet. Not blocking: GitHub runs the job on a newer Python |
+| Onboarding tests pass on a Windows workstation | Nothing on screen; the Mac shell tests in `tooling/onboarding` run on Windows. Today Python's bare `bash` starts WSL's, which cannot open `C:\` paths, so 16 of the 29 tests fail there | No prompt yet. Not blocking: they pass in WSL and on GitHub |
+| Pinned Flutter first on the maintainer's PATH | Nothing on screen; typing `flutter` on the maintainer's workstation runs the pinned 3.47.8. Today an older 3.44.8 at `C:\ws_c\flutter` comes first; the pinned SDK is the one setup installed in the user folder | No prompt yet. Not blocking: the launchers and VS Code use the pinned SDK, and agents put it first for their own commands |
+| Host wording left over from the generated hosts | Nothing on screen; the Mac setup script no longer calls the iOS host git-ignored, and the iOS display name says "Forged & Sent" like Android (today "Forged And Sent") | No prompt yet. Not blocking; needs a Mac to check |
 | `flutter-ai-review` on unlabeled tooling pull requests | Nothing on screen; a pull request that touches `tooling/review/` or the workflows and has no `authorship:` label no longer shows a failed check by default | No prompt yet. Not blocking: only `ci-gate` is required |
 
 ## Paused

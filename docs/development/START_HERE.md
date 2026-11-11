@@ -63,7 +63,7 @@ The tracked `mobile/android/` and `mobile/ios/` folders are Flutter 3.47.8 templ
 ## Security
 This is a public repo. Never commit API secrets, signing credentials, real prayers, health data, member records or test media. Be especially cautious before running AI agents on external PRs or user input. Keep workflow permissions read-only by default.
 
-For Android/iOS compilation, CI checks Android debug and unsigned iOS simulator builds; this PR must confirm those checks use the tracked hosts. Real signing and full workstation/device qualification remain future steps. Preview contributors generate only the web host.
+For Android/iOS compilation, CI builds the Android debug APK and the unsigned iOS simulator app from the tracked hosts. Real signing and full workstation/device qualification remain future steps. Preview contributors generate only the web host.
 
 ## Architecture and optional local AI review
 
