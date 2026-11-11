@@ -155,6 +155,42 @@ def _source_sha_problem(root: Path, sha: str, cache: dict[str, str | None]) -> s
     return None
 
 
+# Docs are part of done. A pull request that changes one of these areas must also
+# change the page that describes it, written as it will be true once it merges.
+# Only areas a machine can judge are listed; the rest is in the PR template.
+DOC_RULES = (
+    (("mobile/lib/", "firebase/", "functions/"), "docs/knowledge/WORK.md",
+     "update your row on the work board to its after-merge state in the same pull request"),
+    (("mobile/lib/src/design/",), "docs/design/DESIGN-SYSTEM.md",
+     "record the tokens or components you changed on the design system page in the same pull request"),
+)
+
+
+def doc_rule_problems(changed: list[str]) -> list[str]:
+    """Problems for a set of changed paths; pure, so it is easy to test."""
+    problems = []
+    for prefixes, page, action in DOC_RULES:
+        touched = [path for path in changed if path.startswith(prefixes)]
+        if touched and page not in changed:
+            problems.append(f"{touched[0]} changed but {page} did not: {action}")
+    return problems
+
+
+def changed_since_base(root: Path) -> list[str] | None:
+    """Paths this branch changed relative to main, or None when that cannot be known here."""
+    try:
+        base = canonical_base(root)
+        if base is None:
+            return None
+        merge_base = _git(root, "merge-base", base, "HEAD")
+        if merge_base.returncode:
+            return None
+        diff = _git(root, "diff", "--name-only", f"{merge_base.stdout.strip()}..HEAD")
+    except FileNotFoundError:
+        return None
+    return None if diff.returncode else [line for line in diff.stdout.splitlines() if line]
+
+
 def strict_feature_metadata(text: str) -> tuple[dict[str, str], list[str]]:
     """Parse the deliberately simple one-line YAML subset without ambiguity."""
     if not text.startswith("---\n"):
@@ -250,6 +286,7 @@ def validate_feature_contracts(root: Path, errors: list[str]) -> None:
 
 def main() -> int:
     issues = validate(ROOT)
+    issues += doc_rule_problems(changed_since_base(ROOT) or [])
     for issue in issues:
         print("ERROR: " + issue)
     if not issues:

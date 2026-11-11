@@ -9,5 +9,5 @@ description: Independently audit Flutter app boundaries, architecture changes, s
 4. Identify forbidden dependencies (UI to Firebase SDK, domain to platform IO), cross-group leaks, privacy regressions, untrusted scoring, and missing offline idempotency.
 5. Compare the actual declared functions/import graph to the diagram, flag missing or inaccurate boundaries, and recommend an ADR when a lasting decision changed.
 6. For each finding return path:line, severity, concrete evidence, user impact, and smallest verifiable fix. If evidence is absent say unverified; do not invent files.
-7. State tests observed versus recommended. The reviewer is advisory and cannot satisfy GitHub's human approval requirement.
+7. State tests observed versus recommended. The review is advisory; the maintainer decides whether to merge.
 Trusted reference: https://docs.flutter.dev/app-architecture/recommendations

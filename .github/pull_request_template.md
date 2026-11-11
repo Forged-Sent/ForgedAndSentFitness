@@ -7,6 +7,15 @@ What changed, why, and which issue or decision it addresses:
 - [ ] Firebase/Auth/Firestore/Storage/scoring/private data
 - [ ] Tooling, CI, agent instructions or security settings
 
+## Docs are part of done
+Each page is written as it will be true once this merges. Tick or mark n/a.
+- [ ] My row in `docs/knowledge/WORK.md`
+- [ ] Screen status in `docs/knowledge/PROTOTYPE-PARITY.md`
+- [ ] Feature contract status and test paths under `docs/features/`
+- [ ] `docs/design/DESIGN-SYSTEM.md` for colors, type, spacing or shared widgets
+- [ ] `docs/architecture/SYSTEM.md` or an ADR for a changed boundary or lasting decision
+- [ ] Ran `python3 tooling/knowledge/live_status.py --pull` so the dashboard is current
+
 ## Verification (required)
 Commands/tests actually run, plus NOT VERIFIED checks:
 

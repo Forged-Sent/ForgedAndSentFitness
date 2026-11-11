@@ -2,17 +2,37 @@
 
 The current `index.html` is a large working behavioral prototype, not Flutter source or a trusted backend. Its `window.claude` and `B` adapter cannot be copied as Firebase production authorization. Historical HTML files under `versions/` are snapshots; don't ingest them into agent context by default.
 
+This page is the live record of which prototype screens exist in Flutter. Each pull request that builds or changes a screen updates its row here in the same pull request (Not started, In progress, Implemented).
+
 Use a traceable screen-by-screen migration. Every future vertical slice links the relevant prototype function or UI state at a source SHA, an approved requirement, a Flutter implementation path, positive/negative tests and platform screenshots as appropriate.
 
-| Existing prototype surface | Flutter target behavior to specify | Highest risk or open decision | Porting status |
+**Prototype baseline (decision Q1 on the [Decisions](../reviews/2026-11-10-prototype-to-flutter/01-DECISIONS.md) page):** v254 for layout and navigation; `main`'s behavior for saves and privacy. Reconcile once and tag it. v254's Bold Step and Instagram actions are left out until scoring is decided in S4. v254 is `versions/app-v254.html` on branch `app/v241-bold` at commit `3ff4a6f`. `main`'s prototype is `index.html` as last changed in commit `dd35157` (v238 plus hardening). The reconciliation and the tag do not exist yet; they are prompt [P02](../reviews/2026-11-10-prototype-to-flutter/prompts/P02-reconcile-prototype-baseline.md).
+
+Detail for every row, with actions, data and acceptance criteria: [screens and UI](../reviews/2026-11-10-prototype-to-flutter/06-SCREENS-AND-UI.md).
+
+| Prototype view | Flutter status | Planned in | Biggest gap to close |
 |---|---|---|---|
-| Today checklist + devotional | Daily checklist, scripture workflow, optional timing | Completion evidence, private reflection | Not implemented/verified |
-| Train calendar + PRs | Exercise logging, progress, weekly summaries | Offline outbox and server score authority | Not implemented/verified |
-| Fuel + macro tracking | Meal/water entries and personal goals | Privacy, accuracy and health permissions | Not implemented/verified |
-| Board | Group scores/standings | Tenant isolation, tamper resistance | Not implemented/verified |
-| Check-in | Community posts, reports, blocks | Moderation and access control | Not implemented/verified |
-| Profile | Avatar, motto, records | Shared versus private fields | Not implemented/verified |
-| Settings | Preferences, reminders, data deletion | Platform permissions, deletion compliance | Not implemented/verified |
+| App shell: brand bar, hero header, six-tab bar | Not started | S0 | No design tokens, fonts or shared components yet |
+| Legal gate | Not started | Later, not yet scheduled | Prototype stores it in private settings and does not enforce it on writes |
+| Setup wizard | Not started | Later, not yet scheduled | Body stats and injuries are sensitive; ADR-0005 defers storing them |
+| Today | Not started | S1 | FNS-001 is two synthetic cards with Material buttons; no header, ring, boxes or content |
+| Devotional | Not started | S1 |  |
+| Journal editor and page | Not started | S2 | Sensitive-field storage and sign-out retention are undecided (ADR-0005) |
+| Train | Not started | S3 | Plan-start dead zone (U1) |
+| Workout | Not started | S3 | Index-keyed history (U3); midnight (U2); rest timer silent when the phone is locked |
+| Exercise detail | Not started | Later, not yet scheduled | Video is an outbound link |
+| Weekly challenges | Not started | Later, not yet scheduled | Deadline enforced on the device clock; approved direction requires video capture in the first challenge release |
+| Fuel | Not started | Later, not yet scheduled | Fasting rule (R3) |
+| Board | Not started | S4 | R1, R2; client-computed totals |
+| Campaign and team | Not started | Later, not yet scheduled | Tab placement differs between forks |
+| Rally | Not started | Later, not yet scheduled | Report and block unreachable (U7) |
+| Profile | Not started | Later, not yet scheduled | Two unrelated PR systems |
+| Settings | Not started | Later, not yet scheduled | Reminders and health are stubs; delete is incomplete (U8) |
+| Owner tools | Not started | Later, not yet scheduled | Owner gating is hidden-flag only |
+| Paul & Timothy | Not started | Later, not yet scheduled | The forks disagree; `main` deferred it for privacy |
+| Legacy log, family report, junior challenge | Not started | Later, not yet scheduled | Family report sends personal text to a model without saying so |
+| Help and Ask | Not started | Later, not yet scheduled |  |
+| Sign-in | Not started | S4 | No implementation plan |
 
 These are migration candidates, not a decision to copy every prototype feature or its numeric formulas. Existing details live in `docs/architecture-notes.md`, `seed/` and current `index.html`, with many prior versions preserved.
 

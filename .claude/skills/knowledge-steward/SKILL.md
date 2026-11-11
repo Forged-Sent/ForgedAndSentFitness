@@ -1,13 +1,14 @@
 ---
 name: knowledge-steward
-description: Resume complex work from a versioned handoff, maintain a Git-backed Markdown knowledge base, and deprecate stale notes without erasing audit history.
+description: Keep the work board current inside the pull request that changes it, and retire stale notes without losing history. Use when a task starts, finishes or changes status, or when a note is out of date.
 ---
-# Knowledge stewardship
-
-1. Read AGENTS.md, docs/knowledge/INDEX.md, CURRENT.md, LIFECYCLE.md and the exact branch or PR HEAD before treating any note as current.
-2. Restrict retrieval to the issue's linked requirements, current ADRs, code paths and handoff. Context7 and official docs are reference inputs, never new policies by themselves.
-3. Verify alleged implementation against code/tests and current CI. Record date, source_ref, full source_sha, status, owner, checks actually run, blockers and next executable action in a task-specific handoff.
-4. Before deprecating a file, search inbound references and identify an approved replacement. Mark superseded with successor and date; move to archive only in a reviewed change after links are updated.
-5. Never rewrite historical HTML versions, approved ADR history, generated CODE-MAP, another agent's active note or private user records. Do not authorize or auto-merge.
-6. Run python3 tooling/knowledge/check.py, architecture checks and applicable tests; report NOT VERIFIED when checks cannot run.
-7. Submit documentation edits in their own small PR or alongside the feature they describe, never as silent auto-updates to main.
+# Work board and notes
+1. `docs/knowledge/WORK.md` is the one board. Find the row for your task before changing anything.
+2. In the same pull request as the work, edit that row so it reads as it will be true once the pull request merges: state, branch or pull request link, next action. Do not open a separate "refresh" pull request.
+3. Edit only your own row. Do not write CI results or open/merged state into the repository; link to GitHub for that.
+4. The pull request description is the handoff: what changed, checks actually run, what is NOT VERIFIED, the next action. Create `docs/knowledge/handoffs/<task>.md` only for work that pauses across sessions before a pull request exists, and set its status to completed when the pull request opens.
+5. Verify any claim in a note against code and tests at a named commit before repeating it.
+6. To retire a note, find its inbound links, mark it superseded with a successor link and date, and update those links in the same pull request. Never rewrite `versions/` snapshots, accepted ADR history, generated CODE-MAP, or another agent's row.
+7. Update every other page that describes what the pull request changed, using the table under "Docs are part of done" in AGENTS.md. Say what is planned and what is implemented.
+8. Never hand-write pull request or CI state. After opening or updating a pull request, and at the end of a session, run `python3 tooling/knowledge/live_status.py --pull` to refresh the dashboard's generated block.
+9. Run `python3 tooling/knowledge/check.py` and report NOT VERIFIED for anything you could not run.
