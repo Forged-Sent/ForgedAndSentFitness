@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Main/profile/release policy (ADR-0002): block cleartext HTTP to every host
+     on all supported API levels (minSdk 24+). Without this file, API 24-27
+     would permit cleartext by default. Debug builds replace this resource with
+     src/debug/res/xml/network_security_config.xml (same name, higher-priority
+     source set), which adds the 10.0.2.2 emulator exception only. -->
+<network-security-config>
+    <base-config cleartextTrafficPermitted="false" />
+</network-security-config>

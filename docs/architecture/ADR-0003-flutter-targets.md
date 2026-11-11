@@ -16,6 +16,9 @@ Use one Flutter/Dart source for shared application/domain/data contracts across 
 - Use a feature parity matrix and platform-specific test evidence. Do not announce a target as supported without build, runtime and permission verification.
 - Separate emulator-first development from reviewed DEV and PROD environments; no release pipeline or credentials are created by this ADR.
 
+## Implementation status (2026-11-09)
+At the maintainer's request, Android and iOS template hosts are committed under `mobile/android/` and `mobile/ios/`. The only edit to template output is the ADR-0002 Android Network Security Configuration: the main config (`src/main/res/xml/`) blocks cleartext for all hosts in main, profile and release builds on every supported API level (minSdk 24), and a same-named debug overlay (`src/debug/res/xml/`) allows cleartext HTTP only to `10.0.2.2`; release and profile builds do not include the exception. This does not change this ADR's Proposed status or certify either platform. Signing, store identifiers, native Firebase configuration and device/simulator runs from the committed hosts remain open, as do the package compatibility audit and milestone approval above. Web and desktop hosts stay uncommitted.
+
 ## Alternatives considered
 Single platform-specific native applications would duplicate logic and reviews. Wrapping the prototype as a WebView would not address trusted server-side rules, offline events or native integration. Enabling all native hosts immediately would add untested build/toolchain and plugin commitments.
 
