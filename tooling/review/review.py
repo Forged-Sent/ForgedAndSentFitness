@@ -63,7 +63,8 @@ EXCLUDED_ONLY = tuple(p.replace(":(exclude,glob)", ":(glob)").replace(":(exclude
 # are accepted (maintainer decision A2). Like the lock files they are left out
 # of the patch, pinned in the report by blob SHA and scanned for secrets; they
 # are NOT read by any reviewer. A binary anywhere else, or of any other type,
-# stays in the patch and is refused.
+# stays in the patch and is refused. So is a file with one of these names
+# whose old or new content is text: text is never left out of the review.
 BINARY_ASSET_FOLDERS = ("mobile/android", "mobile/ios", "mobile/assets",
                         "mobile/test/**/goldens", "docs/design", "docs/**/reference")
 BINARY_ASSET_TYPES = ("png", "jpg", "webp", "ttf", "otf")
@@ -116,43 +117,83 @@ def minimal_env(environ: dict | None = None) -> dict:
     return {k: v for k, v in source.items() if k.upper() in allowed}
 
 
-def changed(root: Path, base: str, pathspecs: tuple[str, ...]) -> list[str]:
-    """Paths matching `pathspecs` that differ on this branch or in the working tree."""
-    names: set[str] = set()
-    for revision in (f"{base}...HEAD", "HEAD"):
-        listing = git(root, "diff", "--name-only", "--no-renames", "-z", revision, "--", *pathspecs)
-        names.update(name for name in listing.split("\0") if name)
-    return sorted(names)
+def asset_changes(root: Path, base: str) -> dict[str, tuple[set[tuple[str, str]], str]]:
+    """Each allow-listed path in the diff: every committed (mode, blob) version
+    the change touches, old or new, and the path's final status letter."""
+    found: dict[str, tuple[set[tuple[str, str]], str]] = {}
+    for revision in (f"{base}...HEAD", "HEAD"):   # the working tree, read last, has the final word
+        fields = git(root, "diff", "--raw", "--no-renames", "--no-abbrev", "-z", revision,
+                     "--", *BINARY_ASSET_ONLY).split("\0")
+        for meta, name in zip(fields[0::2], fields[1::2]):
+            parts = meta.lstrip(":").split()
+            if len(parts) != 5 or "�" in name:
+                raise RuntimeError(f"Cannot read the change to this file safely: {name!r}")
+            old_mode, new_mode, old_blob, new_blob, status = parts
+            versions = found[name][0] if name in found else set()
+            # A missing side has mode 000000. An unstaged side has no blob yet (all
+            # zeros); that one is read from the working tree instead.
+            versions.update((mode, blob) for mode, blob in ((old_mode, old_blob), (new_mode, new_blob))
+                            if mode != "000000" and set(blob) != {"0"})
+            found[name] = (versions, status)
+    return found
 
 
-def binary_asset(root: Path, name: str) -> dict:
+def blob_bytes(root: Path, blob: str) -> bytes:
+    p = subprocess.run(["git", "cat-file", "blob", blob], cwd=root, capture_output=True)
+    if p.returncode:
+        raise RuntimeError(f"git cat-file blob {blob} failed")
+    return p.stdout
+
+
+def is_binary(data: bytes) -> bool:
+    return b"\0" in data[:BINARY_PROBE]
+
+
+def binary_asset(root: Path, name: str, versions: set[tuple[str, str]], status: str) -> dict:
     """Pin one allowed image or font; refuse anything that must not go unread."""
+    def text(which: str) -> RuntimeError:
+        return RuntimeError(f"{name} is named like an image or font but {which} is text. "
+                            "Text is never left out of the review.")
+
+    not_regular = RuntimeError(f"Not a regular file, so not an allowed binary asset: {name}")
     file = root / name
-    if not os.path.lexists(file):
-        return {"path": name, "blob": "deleted", "kind": "binary"}
-    if file.is_symlink() or not file.is_file():
-        raise RuntimeError(f"Not a regular file, so not an allowed binary asset: {name}")
-    size = file.stat().st_size
-    if size > MAX_BINARY_ASSET:
-        raise RuntimeError(f"Binary asset is over the {MAX_BINARY_ASSET // (1024 * 1024)} MB "
-                           f"limit ({size} bytes): {name}")
-    data = file.read_bytes()
-    if b"\0" not in data[:BINARY_PROBE]:
-        raise RuntimeError(f"{name} is named like an image or font but its content is text. "
-                           "Text is never left out of the review.")
-    if SENSITIVE.search(data.decode("latin-1")):
-        raise RuntimeError("Possible secret in diff. Stop and remove it BEFORE AI review.")
-    return {"path": name, "blob": git(root, "hash-object", "--", name).strip(), "kind": "binary"}
+    current = "deleted"
+    if os.path.lexists(file):
+        if file.is_symlink() or not file.is_file():
+            raise not_regular
+        size = file.stat().st_size
+        if size > MAX_BINARY_ASSET:
+            raise RuntimeError(f"Binary asset is over the {MAX_BINARY_ASSET // (1024 * 1024)} MB "
+                               f"limit ({size} bytes): {name}")
+        data = file.read_bytes()
+        if not is_binary(data):
+            raise text("its content")
+        if SENSITIVE.search(data.decode("latin-1")):
+            raise RuntimeError("Possible secret in diff. Stop and remove it BEFORE AI review.")
+        current = git(root, "hash-object", "--", name).strip()
+    elif status != "D":
+        raise RuntimeError(f"{name} is part of this change but missing from the working tree.")
+    # What the change replaces or deletes is part of the diff too. It must also
+    # have been a regular binary file, or removed text would go unread.
+    for mode, blob in sorted(versions):
+        if mode not in ("100644", "100755"):
+            raise not_regular
+        if blob != current and not is_binary(blob_bytes(root, blob)):
+            raise text("a version this change replaces or deletes")
+    return {"path": name, "blob": current, "kind": "binary"}
 
 
 def excluded_manifest(root: Path, base: str) -> list[dict]:
     """Paths left out of AI review, pinned to their exact content."""
+    names = set(git(root, "diff", "--name-only", f"{base}...HEAD", "--", *EXCLUDED_ONLY).split())
+    names |= set(git(root, "diff", "--name-only", "HEAD", "--", *EXCLUDED_ONLY).split())
     result = []
-    for name in changed(root, base, EXCLUDED_ONLY):
+    for name in sorted(names):
         file = root / name
         blob = (git(root, "hash-object", "--", name).strip() if file.is_file() else "deleted")
         result.append({"path": name, "blob": blob, "kind": "generated"})
-    result += [binary_asset(root, name) for name in changed(root, base, BINARY_ASSET_ONLY)]
+    assets = asset_changes(root, base)
+    result += [binary_asset(root, name, *assets[name]) for name in sorted(assets)]
     return result
 
 
@@ -174,7 +215,8 @@ def patch_context(root: Path, base: str) -> tuple[str, str, str, list[dict]]:
     if untracked:
         raise RuntimeError("Untracked files are not in the review. Stage them first:\n" +
                            "\n".join(untracked.splitlines()[:20]))
-    # Also checks every allowed binary asset: regular file, size, content, secrets.
+    # Also checks every allowed binary asset: each version the change touches
+    # is a regular binary file; the current one is size-capped and secret-scanned.
     excluded = excluded_manifest(root, base)
     # A change made only of allowed binary assets has no text to read, but it
     # is still a change: it is pinned and reported, never passed as reviewed.

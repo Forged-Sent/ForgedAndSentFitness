@@ -354,7 +354,32 @@ class BinaryAssetTests(unittest.TestCase):
         run("checkout", "-q", "-B", "replace", base)
         self.write(root, "docs/design/logo.png", script)
         run("commit", "-qam", "text replaces an image")
-        with self.assertRaisesRegex(RuntimeError, r"logo\.png is named like an image or font"):
+        with self.assertRaisesRegex(RuntimeError, r"logo\.png is named like an image or font "
+                                                  "but its content is text"):
+            patch_context(root, base)
+
+    def test_removed_text_named_like_an_image_is_never_left_unread(self):
+        # The old side of a change is part of the diff: deleting or replacing text
+        # that only has an image name must not drop that text from the review.
+        script = b"import os\nos.remove('everything')\n"
+        root, run, base = self.repo({"docs/design/notes.png": script})
+        refused = r"notes\.png is named like an image or font but a version this change " \
+                  "replaces or deletes is text"
+        (root / "docs/design/notes.png").unlink()
+        self.write(root, "app.py", b"x = 1\n")
+        run("add", ".")
+        run("commit", "-qm", "delete text that has an image name")
+        with self.assertRaisesRegex(RuntimeError, refused):
+            patch_context(root, base)
+        run("checkout", "-q", "-B", "replace", base)
+        self.write(root, "docs/design/notes.png", PNG)
+        run("commit", "-qam", "a real image replaces the text")
+        with self.assertRaisesRegex(RuntimeError, refused):
+            patch_context(root, base)
+        # Not staged yet: the version being replaced is the committed image, which is fine,
+        # but the text it replaced on this branch is still part of the branch diff.
+        self.write(root, "docs/design/notes.png", PNG + b"edited")
+        with self.assertRaisesRegex(RuntimeError, refused):
             patch_context(root, base)
 
     def test_symlink_named_like_an_image_is_refused(self):
@@ -369,6 +394,30 @@ class BinaryAssetTests(unittest.TestCase):
         run("add", ".")
         run("commit", "-qm", "symlink with an image name")
         with self.assertRaisesRegex(RuntimeError, "Not a regular file"):
+            patch_context(root, base)
+
+    def test_committed_symlink_is_refused_even_where_links_cannot_be_checked_out(self):
+        # Git records a symlink as mode 120000 whatever the platform does on disk.
+        root, run, base = self.repo()
+        target = subprocess.run(["git", "hash-object", "-w", "--stdin"], cwd=root, input=b"../../../app.py",
+                                check=True, capture_output=True).stdout.decode().strip()
+        self.write(root, "app.py", b"x = 1\n")
+        run("add", ".")
+        run("update-index", "--add", "--cacheinfo", f"120000,{target},mobile/assets/images/link.png")
+        run("commit", "-qm", "symlink with an image name, never written to disk")
+        with self.assertRaisesRegex(RuntimeError, r"Not a regular file.*link\.png"):
+            patch_context(root, base)
+
+    def test_asset_missing_from_the_working_tree_is_not_recorded_as_deleted(self):
+        # Git must agree a file is deleted; a file that is merely absent was never checked.
+        root, run, base = self.repo()
+        self.write(root, "mobile/assets/images/hero.png", PNG)
+        self.write(root, "app.py", b"x = 1\n")
+        run("add", ".")
+        run("commit", "-qm", "code and an image")
+        run("update-index", "--skip-worktree", "mobile/assets/images/hero.png")
+        (root / "mobile/assets/images/hero.png").unlink()
+        with self.assertRaisesRegex(RuntimeError, r"hero\.png is part of this change but missing"):
             patch_context(root, base)
 
     def test_deleted_asset_is_recorded_as_deleted(self):
