@@ -12,7 +12,7 @@ Detail for every row, with actions, data and acceptance criteria: [screens and U
 
 | Prototype view | Flutter status | Planned in | Biggest gap to close |
 |---|---|---|---|
-| App shell: brand bar, hero header, six-tab bar | Not started | S0 | No design tokens, fonts or shared components yet |
+| App shell: brand bar, hero header, six-tab bar | Implemented | S0 | The round header buttons do nothing yet; five of the six tabs are titled placeholders; Rally's own compact header is not built; not run on a phone or an emulator |
 | Legal gate | Not started | Later, not yet scheduled | Prototype stores it in private settings and does not enforce it on writes |
 | Setup wizard | Not started | Later, not yet scheduled | Body stats and injuries are sensitive; ADR-0005 defers storing them |
 | Today | Not started | S1 | FNS-001 is two synthetic cards with Material buttons; no header, ring, boxes or content |
