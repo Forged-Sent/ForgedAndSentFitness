@@ -199,6 +199,35 @@ class ReviewTests(unittest.TestCase):
                 self.assertNotIn("--dangerously-skip-permissions", cmd)
                 self.assertNotIn("--yolo", cmd)
 
+    def test_provider_is_launched_by_its_resolved_path(self):
+        # npm installs provider CLIs on Windows as .cmd launchers. A bare name
+        # passes the "installed" check and then fails to start: [WinError 2].
+        resolved = r"C:\Users\dev\AppData\Roaming\npm\codex.CMD"
+        report = '{"verdict":"PASS","slice_complete":true,"findings":[],"unverified":[]}'
+        with tempfile.TemporaryDirectory() as tmp:
+            directory = Path(tmp)
+            last = directory / "codex-last.txt"
+
+            def launched(cmd, **kwargs):
+                last.write_text(report, encoding="utf-8")
+                return subprocess.CompletedProcess(cmd, 0, stdout="", stderr="")
+
+            with mock.patch.object(review.shutil, "which", return_value=resolved) as which, \
+                    mock.patch.object(review.subprocess, "run", side_effect=launched) as run:
+                result = review.run_one("codex", "the prompt", directory)
+            which.assert_called_once_with("codex")
+            run.assert_called_once()
+            self.assertEqual(run.call_args.args[0], [resolved, *command_for("codex", last)[1:]])
+            self.assertEqual(run.call_args.kwargs["input"], "the prompt")
+            self.assertEqual(result["status"], "OK")
+            # A provider that cannot be found is reported and never launched.
+            with mock.patch.object(review.shutil, "which", return_value=None), \
+                    mock.patch.object(review.subprocess, "run") as run:
+                result = review.run_one("codex", "the prompt", directory)
+            run.assert_not_called()
+            self.assertEqual(result["status"], "ERROR")
+            self.assertIn("codex CLI missing", result["reason"])
+
 
 class BinaryAssetTests(unittest.TestCase):
     """Decision A2: images and fonts in listed folders pass, pinned by hash and unread.

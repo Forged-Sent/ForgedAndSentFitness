@@ -424,10 +424,13 @@ def parse_report(text: str) -> dict:
 
 
 def run_one(provider: str, prompt: str, directory: Path) -> dict:
-    if not shutil.which(provider):
+    executable = shutil.which(provider)
+    if not executable:
         return {"status": "ERROR", "reason": f"{provider} CLI missing; install and sign in"}
     out = directory / f"{provider}-last.txt"
-    cmd = command_for(provider, out)
+    # Launch the resolved path, not the bare name. Windows starts a bare name
+    # only if it is an .exe, and npm installs these CLIs as .cmd launchers.
+    cmd = [executable, *command_for(provider, out)[1:]]
     try:
         # Tool runs from an isolated temporary cwd, never the live git worktree.
         proc = subprocess.run(cmd, input=prompt, text=True, cwd=directory,
