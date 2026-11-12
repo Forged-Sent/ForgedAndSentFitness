@@ -7,7 +7,12 @@
 ```mermaid
 flowchart LR
     Person[Developer / local browser / emulator] --> Entry[mobile/lib/main.dart]
-    Entry --> UI[forged_sent_app.dart: Foundation UI]
+    Entry --> UI[forged_sent_app.dart: app, themes, status page]
+    UI --> Router[fs_router.dart: six-tab shell routes]
+    Router --> Pages[tab_pages.dart: Today and placeholder pages]
+    UI --> Design[src/design: theme, shell, hero header, card, button, icons]
+    Router --> Design
+    Pages --> Design
     Entry --> Runtime[forged_firebase_runtime.dart: demo-only connector]
     Runtime --> Auth[Local Firebase Auth emulator :9099]
     Runtime --> DB[Local Firestore emulator :8080]
@@ -20,7 +25,7 @@ flowchart LR
     Legacy[index.html + seed: behavior prototype only] -. reference .-> UI
 ```
 
-**Implemented:** `main()` selects preview or emulator mode and rejects cloud mode; `ForgedFirebaseRuntime.connectEmulators()` attaches client SDKs to local endpoints and performs anonymous Auth smoke sign-in. `ForgedSentApp`/`FoundationHomeScreen` show the foundation status. Local Firestore and Storage rules allow authenticated developer smoke paths and deny other paths. That smoke permission is **not** suitable for production data.
+**Implemented:** `main()` selects preview or emulator mode and rejects cloud mode; `ForgedFirebaseRuntime.connectEmulators()` attaches client SDKs to local endpoints and performs anonymous Auth smoke sign-in. `ForgedSentApp` opens the six-tab shell from build step S0: a go_router `StatefulShellRoute` with one stack per tab, drawn by the design system under `mobile/lib/src/design/` in an explicit dark and an explicit light theme, with bundled fonts and the hero photograph. Today and the five other tabs are placeholders with no feature logic, and nothing is stored or sent. `FoundationHomeScreen` is the developer status page, nested under Today and shown first when the emulator start-up check fails. Local Firestore and Storage rules allow authenticated developer smoke paths and deny other paths. That smoke permission is **not** suitable for production data.
 
 **Native hosts:** `mobile/android/` and `mobile/ios/` are committed Flutter 3.47.8 template hosts (`com.forgedandsent`, project `forged_and_sent`). The only customization is the ADR-0002 Android Network Security Configuration: `src/main/res/xml/network_security_config.xml` (referenced from the main manifest) blocks cleartext for all hosts in main, profile and release builds on every supported API level (minSdk 24), and the same-named debug overlay in `mobile/android/app/src/debug/res/xml/` additionally permits cleartext HTTP only to the Android Emulator host alias `10.0.2.2`. They contain no custom native code, added permissions, Firebase native config or signing material; the Dart entrypoint and emulator-first runtime above are unchanged. A local Windows debug APK build passed. iOS has not been built from the committed host. Web and desktop hosts remain temporary and git-ignored.
 
@@ -46,7 +51,7 @@ flowchart TB
 
 **Direction:** UI depends on view models, view models on repositories (and optional use cases), repositories on data sources. Firebase SDK types stay out of views and domain interfaces. Local durable events precede an offline action being represented as safely saved. All group authorization and score authority are enforced on trusted backends.
 
-**Accepted client stack (not yet implemented):** [ADR-0005](ADR-0005-flutter-client-stack.md) selects Riverpod for presentation state and composition, go_router for navigation, and Drift/native SQLite for the durable local event store. These packages are not yet in `mobile/pubspec.yaml`; the planned diagram does not imply working storage or sync.
+**Accepted client stack (partly implemented):** [ADR-0005](ADR-0005-flutter-client-stack.md) selects Riverpod for presentation state and composition, go_router for navigation, and Drift/native SQLite for the durable local event store. go_router 18.1.4 is in `mobile/pubspec.yaml` and drives the tab shell (step S0). Riverpod and Drift are not yet added; the planned diagram does not imply working storage or sync.
 
 **ADR set that is not on `main`:** ADR-0001 to ADR-0019 on branch `arch/firebase-reconciliation` (commit `0d21d21`, under `docs/adr/`) are not on `main`. Their numbers collide with `main`'s ADR-0001 to ADR-0005 in this folder, which are different documents, so a number alone does not say which ADR is meant. The [Decisions](../reviews/2026-11-10-prototype-to-flutter/01-DECISIONS.md) page records which of those decisions the maintainer carries forward.
 
@@ -86,7 +91,10 @@ Review agents are **advisory**: their findings are evidence, not human approvals
 | Role | Source |
 |---|---|
 | Flutter startup | `mobile/lib/main.dart` |
-| Foundation widgets | `mobile/lib/src/app/forged_sent_app.dart` |
+| App, themes and developer status page | `mobile/lib/src/app/forged_sent_app.dart` |
+| Tab shell routes and placeholder pages | `mobile/lib/src/app/fs_router.dart`, `mobile/lib/src/app/shell_destinations.dart`, `mobile/lib/src/app/tab_pages.dart` |
+| Design system: tokens, themes, shell, components, icons | `mobile/lib/src/design/` ([design system page](../design/DESIGN-SYSTEM.md)) |
+| Bundled fonts and hero photograph | `mobile/assets/` (sources and checksums in `mobile/assets/SOURCES.md`) |
 | Local emulator adapter | `mobile/lib/src/firebase/forged_firebase_runtime.dart` |
 | Android host (template + network security policy) | `mobile/android/app/build.gradle.kts`, `mobile/android/app/src/main/AndroidManifest.xml`, `mobile/android/app/src/main/res/xml/network_security_config.xml`, `mobile/android/app/src/debug/res/xml/network_security_config.xml` |
 | iOS host (template) | `mobile/ios/Runner.xcodeproj/project.pbxproj`, `mobile/ios/Runner/Info.plist` |
