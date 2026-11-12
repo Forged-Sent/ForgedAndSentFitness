@@ -10,9 +10,56 @@
 flowchart LR
     N0["mobile/lib/main.dart"]
     N1["mobile/lib/src/app/forged_sent_app.dart"]
-    N2["mobile/lib/src/firebase/forged_firebase_runtime.dart"]
+    N2["mobile/lib/src/app/fs_router.dart"]
+    N3["mobile/lib/src/app/shell_destinations.dart"]
+    N4["mobile/lib/src/app/tab_pages.dart"]
+    N5["mobile/lib/src/design/fs_button.dart"]
+    N6["mobile/lib/src/design/fs_card.dart"]
+    N7["mobile/lib/src/design/fs_colors.dart"]
+    N8["mobile/lib/src/design/fs_hero_header.dart"]
+    N9["mobile/lib/src/design/fs_icons.dart"]
+    N10["mobile/lib/src/design/fs_label_caps.dart"]
+    N11["mobile/lib/src/design/fs_shell.dart"]
+    N12["mobile/lib/src/design/fs_theme.dart"]
+    N13["mobile/lib/src/design/fs_tokens.dart"]
+    N14["mobile/lib/src/design/fs_typography.dart"]
+    N15["mobile/lib/src/firebase/forged_firebase_runtime.dart"]
     N0 --> N1
-    N0 --> N2
+    N0 --> N15
+    N1 --> N2
+    N1 --> N12
+    N2 --> N1
+    N2 --> N3
+    N2 --> N4
+    N2 --> N11
+    N3 --> N8
+    N3 --> N9
+    N4 --> N3
+    N4 --> N5
+    N4 --> N6
+    N4 --> N7
+    N4 --> N8
+    N4 --> N10
+    N4 --> N13
+    N4 --> N14
+    N5 --> N7
+    N5 --> N13
+    N5 --> N14
+    N6 --> N7
+    N6 --> N13
+    N8 --> N7
+    N8 --> N9
+    N8 --> N10
+    N8 --> N13
+    N8 --> N14
+    N10 --> N7
+    N10 --> N14
+    N11 --> N7
+    N11 --> N9
+    N11 --> N13
+    N11 --> N14
+    N12 --> N7
+    N12 --> N14
 ```
 
 ## Declared classes and functions
@@ -24,8 +71,88 @@ flowchart LR
 ### mobile/lib/src/app/forged_sent_app.dart
 
 - class ForgedSentApp
+- class _ForgedSentAppState
+- fn dispose()
 - fn build()
 - class FoundationHomeScreen
+
+### mobile/lib/src/app/fs_router.dart
+
+- No classes or named methods matched by the simple inventory parser
+
+### mobile/lib/src/app/shell_destinations.dart
+
+- class ShellDestination
+
+### mobile/lib/src/app/tab_pages.dart
+
+- fn heroDateLine()
+- class _ShellPage
+- fn build()
+- class _PlaceholderCard
+- class TodayPlaceholderPage
+- class TabPlaceholderPage
+
+### mobile/lib/src/design/fs_button.dart
+
+- class FsButton
+- fn build()
+
+### mobile/lib/src/design/fs_card.dart
+
+- class FsCard
+- fn build()
+
+### mobile/lib/src/design/fs_colors.dart
+
+- class FsColors
+
+### mobile/lib/src/design/fs_hero_header.dart
+
+- class FsHeroAction
+- class FsHeroHeader
+- fn build()
+- class _HeroBackdrop
+- class _RidgePainter
+- fn paint()
+- fn shouldRepaint()
+- class _HeroActions
+- class _HeroRoundButton
+
+### mobile/lib/src/design/fs_icons.dart
+
+- class FsIconData
+- class FsIcon
+- fn build()
+- class _FsIconPainter
+- fn paint()
+- fn shouldRepaint()
+
+### mobile/lib/src/design/fs_label_caps.dart
+
+- class FsLabelCaps
+- fn build()
+
+### mobile/lib/src/design/fs_shell.dart
+
+- class FsShellDestination
+- class FsShell
+- fn build()
+- class _BrandBar
+- class _TabBar
+- class _Tab
+
+### mobile/lib/src/design/fs_theme.dart
+
+- No classes or named methods matched by the simple inventory parser
+
+### mobile/lib/src/design/fs_tokens.dart
+
+- No classes or named methods matched by the simple inventory parser
+
+### mobile/lib/src/design/fs_typography.dart
+
+- No classes or named methods matched by the simple inventory parser
 
 ### mobile/lib/src/firebase/forged_firebase_runtime.dart
 

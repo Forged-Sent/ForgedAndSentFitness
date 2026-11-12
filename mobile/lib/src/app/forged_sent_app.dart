@@ -1,27 +1,61 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
-class ForgedSentApp extends StatelessWidget {
-  const ForgedSentApp({super.key, this.mode = 'preview', this.startupError});
+import '../design/fs_theme.dart';
+import 'fs_router.dart';
+
+class ForgedSentApp extends StatefulWidget {
+  const ForgedSentApp({
+    super.key,
+    this.mode = 'preview',
+    this.startupError,
+    this.themeMode = ThemeMode.system,
+    this.now,
+  });
 
   final String mode;
   final String? startupError;
 
+  /// Follows the phone's dark or light setting unless a test fixes it.
+  final ThemeMode themeMode;
+
+  /// The clock. Tests pass a fixed one; the app uses the device's.
+  final DateTime Function()? now;
+
+  @override
+  State<ForgedSentApp> createState() => _ForgedSentAppState();
+}
+
+class _ForgedSentAppState extends State<ForgedSentApp> {
+  late final GoRouter _router = buildFsRouter(
+    mode: widget.mode,
+    startupError: widget.startupError,
+    now: widget.now ?? DateTime.now,
+  );
+
+  @override
+  void dispose() {
+    _router.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return MaterialApp.router(
       title: 'Forged & Sent',
-      theme: ThemeData(
-        useMaterial3: true,
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xFF6B7C43),
-          brightness: Brightness.dark,
-        ),
-      ),
-      home: FoundationHomeScreen(mode: mode, startupError: startupError),
+      // The corner ribbon would sit on top of the brand bar.
+      debugShowCheckedModeBanner: false,
+      theme: FsTheme.light,
+      darkTheme: FsTheme.dark,
+      themeMode: widget.themeMode,
+      routerConfig: _router,
     );
   }
 }
 
+/// The developer status page: which mode this build runs in, and whether the
+/// local emulator check passed. Reached from Today, and shown first when the
+/// start-up check fails.
 class FoundationHomeScreen extends StatelessWidget {
   const FoundationHomeScreen({
     super.key,
@@ -41,10 +75,10 @@ class FoundationHomeScreen extends StatelessWidget {
         : 'Preview mode. No Firebase cloud connection configured.';
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Forged & Sent')),
+      appBar: AppBar(title: const Text('Build status')),
       body: SafeArea(
         child: Center(
-          child: Padding(
+          child: SingleChildScrollView(
             padding: const EdgeInsets.all(24),
             child: Column(
               mainAxisSize: MainAxisSize.min,

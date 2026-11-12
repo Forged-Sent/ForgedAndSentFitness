@@ -14,6 +14,7 @@ dependencies:
   firebase_auth: 7.0.1
   cloud_firestore: 7.1.0
   firebase_storage: 14.0.1
+  go_router: 18.1.4
 
 dev_dependencies:
   flutter_test:
@@ -21,3 +22,41 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+
+  # The hero photograph. Flutter picks the 2.0x folder on dense screens.
+  # Each font family ships with its licence text (SIL Open Font License 1.1).
+  assets:
+    - assets/images/hero_mountain.jpg
+    - assets/fonts/saira_condensed/OFL.txt
+    - assets/fonts/saira_stencil_one/OFL.txt
+    - assets/fonts/ibm_plex_sans/OFL.txt
+    - assets/fonts/merriweather/OFL.txt
+
+  # Bundled, never fetched at runtime. Sources and checksums are recorded in
+  # docs/design/DESIGN-SYSTEM.md.
+  fonts:
+    - family: Saira Condensed
+      fonts:
+        - asset: assets/fonts/saira_condensed/SairaCondensed-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/saira_condensed/SairaCondensed-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/saira_condensed/SairaCondensed-Bold.ttf
+          weight: 700
+        - asset: assets/fonts/saira_condensed/SairaCondensed-ExtraBold.ttf
+          weight: 800
+    - family: Saira Stencil One
+      fonts:
+        - asset: assets/fonts/saira_stencil_one/SairaStencilOne-Regular.ttf
+    - family: IBM Plex Sans
+      fonts:
+        - asset: assets/fonts/ibm_plex_sans/IBMPlexSans-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/ibm_plex_sans/IBMPlexSans-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/ibm_plex_sans/IBMPlexSans-SemiBold.ttf
+          weight: 600
+    - family: Merriweather
+      fonts:
+        - asset: assets/fonts/merriweather/Merriweather-Italic.ttf
+          style: italic
