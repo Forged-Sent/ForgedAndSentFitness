@@ -40,3 +40,17 @@ Two families are not the newest release, on purpose:
 There is no 3.0x file: the source is 750 pixels wide, and a 3.0x image for a 390-point screen needs 1170. 
 
 **The photograph's own origin and licence are not recorded anywhere in the repository.** It is already public: the repository is public, and the photo has been on `main` inside `index.html` since v145 (commit `275fce2`, 2026-10-26). Settling its licence is the maintainer's, and it is on the work board as high priority now.
+
+
+## Bundled content
+
+Text the app shows that is not the member's own data. Nothing is fetched at runtime.
+
+| File (under `content/`) | Source | Kept in step by |
+|---|---|---|
+| `devotionals.json` | A copy of `seed/devotionals.json`: 366 readings with verse text from the Berean Standard Bible (public domain), and the twelve month themes | `test/features/devotional/bundled_content_test.dart` fails if the copy says anything else |
+| `esv_verses.json` | A copy of `seed/esv-verses.json`: the same verses in the ESV, keyed by reference | The same test |
+| `tasks.json` | A copy of `seed/tasks.json`: the list of daily boxes | The same test |
+| `missions.json` | The 14 mission lines of the `MISSIONS` list inside `index.html` (identical on `main` at `dd35157` and in `versions/app-v254.html` at `3ff4a6f`). They exist nowhere else in the repository | The same test reads the list out of `index.html` and compares |
+
+**ESV text (decision Q7).** ESV text may be bundled for at most 499 distinct verses until there is a licence. The same test counts them on every run and fails above 499: today 437, across 368 references. It also checks Crossway's other two conditions: no more than half of any one book (the largest share today is Philippians, 15.4%) and under a quarter of all bundled text (22.8% today). The ESV notice is shown wherever ESV text is. Confirming with Crossway that this permission covers an app is the maintainer's, before public release.

@@ -8,7 +8,7 @@ Flutter supports all six target families, but a Flutter package or Firebase plug
 |---|---|---|---|
 | Android | Windows, macOS or Linux with Android SDK | analyzer + unit/widget tests; debug APK; emulator/device integration; native permissions | Template host committed in `mobile/android/` plus the ADR-0002 network security policy (main config blocks cleartext for all hosts on API 24+; debug overlay adds only `10.0.2.2`); debug, profile and release APKs built locally on Windows with Flutter 3.47.8 and their packaged `network_security_config` inspected (profile/release: base cleartext false, no exceptions; debug: base false plus `10.0.2.2`). CI's `flutter` job also builds the debug APK from the committed host. Emulator/device run, Firebase emulator connection and release signing NOT VERIFIED |
 | iOS | macOS + Xcode | unsigned simulator build; physical device tests; separate signed distribution | Template host committed in `mobile/ios/` (generated on Windows, deployment target 15.0). It is built only by CI's `ios-simulator` job, as an unsigned simulator app. It has not been built locally, and there is no simulator or physical-device run yet |
-| Web | Any supported build host/browser | web build; Chrome/Firefox/Safari responsive and keyboard checks; browser limits | Foundation preview target, not feature parity |
+| Web | Any supported build host/browser | web build; Chrome/Firefox/Safari responsive and keyboard checks; browser limits | Foundation preview target, not feature parity. Since build step S1 the web build opens no database: it keeps the day in memory and says on screen that nothing is saved (ADR-0005) |
 | Windows | Windows + Visual Studio C++ desktop workload | native Windows build, smoke test and plugin matrix | Proposed; not enabled |
 | Linux | Linux + clang/CMake/Ninja/GTK toolchain | native Linux build, smoke test and plugin matrix | Proposed; not enabled |
 | macOS | macOS + Xcode | native macOS build, smoke test and plugin matrix | Proposed; not enabled |
@@ -21,6 +21,15 @@ Flutter supports all six target families, but a Flutter package or Firebase plug
 - State and authorization remain consistent across platforms. All clients untrusted; scoring stays server-authoritative. Offline event ID and durable outbox semantics require tests.
 - At each package addition, verify exact version in `mobile/pubspec.lock` and native support for each intended target. Record unsupported platforms before acceptance.
 - Native hosts (android/, ios/, web/, windows/, linux/, macos/) must be generated/committed through reviewed changes with reproducible configuration; no unattended blanket `flutter create --platforms` that modifies tracked hosts. Android and iOS are committed. Web and desktop hosts and `.metadata` stay git-ignored, because `flutter create` rewrites `.metadata` whenever it adds a platform. The setup/CI `flutter create` calls were checked to leave committed host files byte-identical.
+
+## Packages with native parts (since build step S1)
+
+| Package | What it needs on the device | Android | iOS | Web |
+|---|---|---|---|---|
+| `sqlite3` 3.5.2 (through `drift` 2.35.4) | SQLite itself, supplied by the package's build hook. No `sqlite3_flutter_libs` | The debug APK built on Windows contains `libsqlite3.so` for arm64-v8a, armeabi-v7a and x86_64 | Built only by CI's `ios-simulator` job; never run | Not used: the web build opens no database |
+| `path_provider` 2.1.6 | The app's own support and temporary folders | Used to place the database file and SQLite's temporary files | Built only by CI; never run | Not used |
+
+On the development host, `flutter test` gets SQLite the same way: `mobile/test/storage/sqlite_available_test.dart` fails on a machine where the hook did not supply it.
 
 ## Validation sequence (not proof these commands ran)
 ```sh

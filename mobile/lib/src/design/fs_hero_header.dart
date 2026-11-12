@@ -37,6 +37,7 @@ class FsHeroHeader extends StatelessWidget {
     required this.title,
     this.kicker,
     this.subtitle,
+    this.note,
     this.actions = const <FsHeroAction>[],
     this.large = false,
   });
@@ -51,6 +52,10 @@ class FsHeroHeader extends StatelessWidget {
 
   /// The line under the title.
   final String? subtitle;
+
+  /// A second small caps line, set to the left of the buttons. Today shows
+  /// the streak here. Used by the [large] layout only.
+  final String? note;
 
   final List<FsHeroAction> actions;
 
@@ -73,9 +78,26 @@ class FsHeroHeader extends StatelessWidget {
     if (large) {
       lines = <Widget>[
         if (kickerText != null) kickerText,
-        if (kickerText != null && buttons != null) const SizedBox(height: 12),
-        if (buttons != null)
-          Align(alignment: Alignment.centerRight, child: buttons),
+        if (kickerText != null && (buttons != null || note != null))
+          const SizedBox(height: 12),
+        if (buttons != null || note != null)
+          Row(
+            children: <Widget>[
+              Expanded(
+                child: note == null
+                    ? const SizedBox.shrink()
+                    : FsLabelCaps(
+                        note!,
+                        style: FsText.kicker,
+                        color: FsColors.heroKicker,
+                      ),
+              ),
+              if (buttons != null) ...<Widget>[
+                const SizedBox(width: 12),
+                buttons,
+              ],
+            ],
+          ),
       ];
     } else {
       // The prototype centers the small caps line against the buttons only on
@@ -157,7 +179,96 @@ class FsHeroHeader extends StatelessWidget {
         ClipRect(
           child: Stack(
             children: <Widget>[
-              const Positioned.fill(child: _HeroBackdrop()),
+              const Positioned.fill(child: FsHeroBackdrop()),
+              content,
+            ],
+          ),
+        ),
+        const ColoredBox(
+          color: FsColors.gold,
+          child: SizedBox(height: FsSizes.heroRule),
+        ),
+      ],
+    );
+  }
+}
+
+/// The header of a reading: the same photograph and wash as [FsHeroHeader],
+/// over a month line, the date set as scripture, and a line about the
+/// month. The prototype's `.devo-head`.
+class FsReadingHeader extends StatelessWidget {
+  const FsReadingHeader({
+    super.key,
+    required this.kicker,
+    required this.title,
+    this.series,
+    this.note,
+  });
+
+  /// The small caps line above the date, for example
+  /// "November · Gratitude and Contentment".
+  final String kicker;
+
+  /// The date, for example "November 12".
+  final String title;
+
+  /// The series the reading belongs to, where it has one.
+  final String? series;
+
+  /// The month's one-line tag.
+  final String? note;
+
+  @override
+  Widget build(BuildContext context) {
+    final content = Padding(
+      padding: const EdgeInsets.fromLTRB(
+        FsSpacing.page,
+        FsSpacing.heroTop,
+        FsSpacing.page,
+        FsSpacing.heroBottom,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        mainAxisSize: MainAxisSize.min,
+        children: <Widget>[
+          if (kicker.isNotEmpty) ...<Widget>[
+            FsLabelCaps(kicker, color: FsColors.heroKicker),
+            const SizedBox(height: 6),
+          ],
+          Semantics(
+            header: true,
+            child: Text(
+              title,
+              style: FsText.readingTitle.copyWith(color: FsColors.heroInk),
+            ),
+          ),
+          if (series != null && series!.isNotEmpty) ...<Widget>[
+            const SizedBox(height: 8),
+            Text(
+              series!.toUpperCase(),
+              semanticsLabel: series,
+              style: FsText.readingSeries.copyWith(color: FsColors.heroSubtle),
+            ),
+          ],
+          if (note != null && note!.isNotEmpty) ...<Widget>[
+            const SizedBox(height: 6),
+            Text(
+              note!,
+              style: FsText.bodySmall.copyWith(color: FsColors.heroSubtle),
+            ),
+          ],
+        ],
+      ),
+    );
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: <Widget>[
+        ClipRect(
+          child: Stack(
+            children: <Widget>[
+              const Positioned.fill(child: FsHeroBackdrop()),
               content,
             ],
           ),
@@ -172,8 +283,8 @@ class FsHeroHeader extends StatelessWidget {
 }
 
 /// Photograph, dark wash, then the two drawn ridges along the bottom.
-class _HeroBackdrop extends StatelessWidget {
-  const _HeroBackdrop();
+class FsHeroBackdrop extends StatelessWidget {
+  const FsHeroBackdrop({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -356,6 +467,7 @@ class _HeroRoundButton extends StatelessWidget {
       return ExcludeSemantics(child: circle);
     }
     return Semantics(
+      key: ValueKey<String>('fs-hero-${action.kind.name}'),
       button: true,
       label: action.label,
       // This node stands in for the glyph under it, so it carries the tap.

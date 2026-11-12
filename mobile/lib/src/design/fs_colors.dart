@@ -111,6 +111,16 @@ class FsColors extends ThemeExtension<FsColors> {
   static const Color heroRidgeFar = Color(0xFF2A241B);
   static const Color heroRidgeNear = Color(0xFF14120E);
 
+  /// The progress panel under Today's header. Like the header, it is dark
+  /// in both themes.
+  static const Color panel = Color(0xFF1C1F21);
+
+  /// The unfilled part of the progress ring.
+  static const Color ringTrack = Color(0xFF3A3326);
+
+  /// The filled part of the ring and the numbers beside it.
+  static const Color ringValue = Color(0xFFFF974C);
+
   static const Color tabInactive = Color(0xFFAAA9A5);
   static const Color tabActive = Color(0xFFFF8840);
 

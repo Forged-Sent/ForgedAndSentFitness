@@ -1,0 +1,92 @@
+---
+kind: feature-spec
+feature_id: FNS-002
+status: proposed
+risk: medium
+owner: maintainer
+source_ref: claude/s1-today-devotional
+source_sha: 11555db2b977fadb92651cccbe807185a56b9413
+approved_by: none
+test_plan: completion-event rules against the Drift and in-memory stores, close and reopen on a real SQLite file, streak rule, clock and midnight rollover, bundled content and ESV limit checks, Today and reading widget tests including screen-reader activation, golden images at 390x844 in dark and light, one emulator run of complete, kill, relaunch
+verified_tests: mobile/test/features/today/drift_day_repository_test.dart, mobile/test/features/today/memory_day_repository_test.dart, mobile/test/features/today/streak_test.dart, mobile/test/features/today/today_page_test.dart, mobile/test/features/today/today_golden_test.dart, mobile/test/features/devotional/devotional_page_test.dart, mobile/test/features/devotional/bundled_content_test.dart, mobile/test/features/settings/settings_page_test.dart, mobile/test/features/no_firebase_import_test.dart, mobile/test/core/clock_test.dart, mobile/test/core/local_date_test.dart, mobile/test/storage/sqlite_available_test.dart
+implementation_paths: mobile/lib/src/features/today, mobile/lib/src/features/devotional, mobile/lib/src/features/settings, mobile/lib/src/core, mobile/lib/src/storage, mobile/lib/src/app/local_store.dart, mobile/lib/src/app/open_local_store.dart, mobile/assets/content
+verification: see the pull request that adds this page for the commands and their output
+---
+
+# Today and the day's devotional, saved on the device
+
+Build step S1 of the [prototype-to-Flutter review](../../reviews/2026-11-10-prototype-to-flutter/02-BUILD-PLAN.md), built from prompt [P05](../../reviews/2026-11-10-prototype-to-flutter/prompts/P05-S1-today-and-devotional.md). This page is a **proposed** contract drafted by Claude. Only the maintainer can approve it.
+
+The decisions it rests on are the maintainer's, on the [Decisions](../../reviews/2026-11-10-prototype-to-flutter/01-DECISIONS.md) page: Q5 (points), Q6 (streak), Q7 (translations), Q9 (day boundary), Q10 (use before sign-in), and the completion event's key (option A, 2026-11-11, in [the architecture page](../../reviews/2026-11-10-prototype-to-flutter/07-ARCHITECTURE.md), journey J1).
+
+## User outcome
+
+A man opens the app and sees today: the date, a mission line, a ring that shows how many of the day's boxes are done, and the boxes. He taps Daily Devotional and gets today's reading. When he has scrolled to the end he can say Amen. That checks the box, and it is still checked after the app is killed and opened again. He can undo it. Nothing leaves his phone.
+
+## Acceptance and failure cases
+
+**What he sees**
+
+- **Today:** the date, the streak line, the mission line, the ring with Spirit, Body and Brotherhood counts and the streak, and seven boxes. Only Daily Devotional can be opened and checked. The other six are drawn faded, say "Not active yet", offer no tap, and are announced to a screen reader as not available.
+- **The reading:** the month and its theme, the date, the month's line, then Open in prayer, Reading, Reflect and Act. Amen is disabled, and says what it waits for, until he is within 12 points of the end. The page is always at least 220 points taller than the screen, so there is always an end to reach. Amen returns him to Today. Once the box is checked the button reads "Amen. Undo".
+- **Translations (Q7):** the verse opens in the BSB every time. A BSB / ESV tab switches it. The Crossway notice is shown wherever ESV text is. A verse with no ESV text bundled shows "ESV limit reached until we have a licence" on its ESV tab, and no ESV notice.
+- **Points (Q5):** no point values, and no totals, anywhere. A switch in Settings, off by default, shows the prototype's value on each box under the words "Points: preview, not official".
+- **Streak (Q6):** consecutive days with the devotional done. It ends today if today is done, otherwise yesterday: a day that is not over does not break it.
+
+**What is saved, and how**
+
+- A completion is an event with a client-generated id, which is its only key. What a box shows is a separate row for (owner, local day, box). Both are written in one transaction.
+- An event states its target (done or not done). Sending the same event again changes nothing. A second tap for the state the box already has stores nothing.
+- The later of two events is the one with the higher counter in that database, never the one with the later time on the phone.
+- **Day boundary (Q9):** a completion belongs to the local date at the moment of the tap. Past local midnight Today is a new, unchecked day and shows the new date, also when the app was left open or is resumed.
+- **Undo after the clock has moved:** an undo clears the box on the day the completion was recorded, also when the clock has moved to another day since.
+- **Owner (Q10):** before sign-in the owner is a local profile, made on first launch. Each owner has his own database file. Adopting the profile at sign-in is not built.
+
+**Failure and edge states**
+
+- **A save fails:** he stays on the reading and reads "That did not save. Try again." The box is not shown as checked.
+- **The day cannot be loaded:** Today says so and offers "Try again". The header still shows the date.
+- **Storage cannot be opened at start-up:** the app opens on the status page and says nothing is saved on this device.
+- **Nothing can be kept (the web preview):** Today and the reading say "Nothing you check here is saved."
+- **No reading for the date:** the page says "No devotional today". The bundled file has all 366 dates, so this cannot happen today.
+
+**What must not change**
+
+- Nothing is written to Firebase, and no feature code imports its SDK.
+- The app computes no score and no total.
+
+## Rules taken from the prototype, confirmed by the maintainer on 2026-11-12
+
+These two rules are the prototype's, read from `index.html` (identical on `main` at `dd35157` and in v254). The project's rule is that product behavior is not inferred from the prototype, so they were put to the maintainer, who **confirmed both as they are on 2026-11-12**: the reading by month and day, repeating yearly, and the mission line by the day of the year modulo 14.
+
+| Rule | How it works | What shows after the last entry |
+|---|---|---|
+| **Which reading is today's** (`devoToday`) | By the calendar month and day of the local date. There are 366 readings, one for every date including February 29 | After December 31 the year starts again at January 1. The same date shows the same reading every year. February 29 has its own reading and is skipped in other years |
+| **Which mission line is today's** (`drawHeader`) | The day of the year (January 1 is 1) modulo the number of lines, which is 14 | After the 14th line the list starts again. The count restarts every January 1, so the position in the list jumps at New Year: December 31 and January 1 show the same line in an ordinary year |
+
+One deliberate difference: the prototype works out the day of the year from elapsed milliseconds. During daylight-saving time that is an hour short, so for the first hour after midnight it shows the previous day's line. The app uses the calendar.
+
+## Boundaries and evidence
+
+- **Source:** `mobile/lib/src/features/today/`, `devotional/` and `settings/`; `mobile/lib/src/core/` (local date, clock, event ids); `mobile/lib/src/storage/` (Drift tables, the local profile, the database file); `mobile/assets/content/` (bundled readings, ESV text, boxes, mission lines).
+- **Architecture:** [ADR-0005](../../architecture/ADR-0005-flutter-client-stack.md) (Riverpod, go_router, Drift) and [SYSTEM](../../architecture/SYSTEM.md).
+- **Prototype:** layout from `versions/app-v254.html` at `3ff4a6f` (decision Q1); reference pictures in `docs/design/reference/s1-today/`. What differs from it is listed on the [parity page](../../knowledge/PROTOTYPE-PARITY.md).
+- **Tests:** the files in `verified_tests` above. The emulator test is two files run one after the other with the app's process killed in between; how to run it is in `mobile/README.md`.
+
+**Not verified**
+
+- iOS: built only by CI's simulator job; never run.
+- The emulator test of complete, kill, relaunch (`mobile/integration_test/restart_1_complete_test.dart`, then `restart_2_verify_test.dart`) is written and has not been run yet. No CI lane has an emulator. Nothing has run on a physical phone.
+- The golden images are compared on Windows only.
+- Schema migration: the database is at version 1, so there is nothing to migrate yet.
+- That Crossway's permission covers an app. That is the maintainer's to confirm before public release (Q7).
+
+## Tasks
+
+- [x] Storage: Drift tables, the local profile, one database file per owner.
+- [x] Rules: event id as the only key, target not toggle, counter order, undo on the completion's day.
+- [x] Content: readings, ESV text, boxes and mission lines bundled, each checked against its source.
+- [x] Screens: Today, the reading, and Settings with the preview points switch.
+- [x] Tests for each acceptance item, and golden images in dark and light.
+- [x] Maintainer: confirmed the two rules taken from the prototype, on 2026-11-12.
+- [ ] Maintainer: approve this contract, or say what to change.

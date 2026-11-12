@@ -1,10 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:forged_and_sent/src/app/forged_sent_app.dart';
-import 'package:forged_and_sent/src/app/tab_pages.dart';
+import 'package:forged_and_sent/src/core/date_text.dart';
+import 'package:forged_and_sent/src/core/local_date.dart';
 import 'package:forged_and_sent/src/design/fs_button.dart';
 import 'package:forged_and_sent/src/design/fs_colors.dart';
+import 'package:forged_and_sent/src/design/fs_hero_header.dart';
 import 'package:forged_and_sent/src/design/fs_shell.dart';
+import 'package:forged_and_sent/src/features/devotional/presentation/devotional_page.dart';
+import 'package:forged_and_sent/src/features/settings/presentation/settings_page.dart';
+import 'package:forged_and_sent/src/features/today/presentation/today_page.dart';
 
 import '../support/fs_test_support.dart';
 
@@ -19,8 +24,10 @@ const List<(String label, String title)> _tabs = <(String, String)>[
 ];
 
 /// How far the page on screen is scrolled.
-double _scrollOffset(WidgetTester tester) =>
-    tester.state<ScrollableState>(find.byType(Scrollable)).position.pixels;
+double _scrollOffset(WidgetTester tester) => tester
+    .state<ScrollableState>(find.byType(Scrollable).first)
+    .position
+    .pixels;
 
 /// Whether the shell shows [label] as the tab the member is on.
 bool _isCurrent(WidgetTester tester, String label) {
@@ -63,7 +70,7 @@ void main() {
     await pumpApp(tester);
     expect(_isCurrent(tester, 'Today'), isTrue);
     expect(find.text('TUESDAY, NOVEMBER 10'), findsOneWidget);
-    expect(find.text('COMING NEXT'), findsOneWidget);
+    expect(find.byType(TodayPage), findsOneWidget);
 
     for (final (label, title) in _tabs.skip(1)) {
       await openTab(tester, label);
@@ -89,50 +96,72 @@ void main() {
     tester,
   ) async {
     await pumpApp(tester);
-    await openStatusPage(tester);
-    expect(find.byType(FoundationHomeScreen), findsOneWidget);
+    await openDevotional(tester);
+    expect(find.byType(DevotionalPage), findsOneWidget);
     // The nested page sits inside the shell: the bars are still there.
     expect(find.text('FORGED & SENT'), findsOneWidget);
     expect(_isCurrent(tester, 'Today'), isTrue);
 
     await systemBack(tester);
-    expect(find.byType(FoundationHomeScreen), findsNothing);
-    expect(find.byType(TodayPlaceholderPage), findsOneWidget);
-    expect(find.text('TODAY’S MISSION'), findsOneWidget);
+    expect(find.byType(DevotionalPage), findsNothing);
+    expect(find.byType(TodayPage), findsOneWidget);
     expect(_isCurrent(tester, 'Today'), isTrue);
 
-    // The back arrow in the page's own bar does the same.
+    // The Back button in the page's own bar does the same.
+    await openDevotional(tester);
+    await tester.tap(find.widgetWithText(FsButton, '‹ BACK'));
+    await tester.pumpAndSettle();
+    expect(find.byType(DevotionalPage), findsNothing);
+    expect(find.byType(TodayPage), findsOneWidget);
+  });
+
+  testWidgets('back from Build status returns to Settings, then to Today', (
+    tester,
+  ) async {
+    await pumpApp(tester);
+    await openStatusPage(tester);
+    expect(find.byType(FoundationHomeScreen), findsOneWidget);
+    expect(find.text('FORGED & SENT'), findsOneWidget);
+
+    await systemBack(tester);
+    expect(find.byType(FoundationHomeScreen), findsNothing);
+    expect(find.byType(SettingsPage), findsOneWidget);
+
+    await systemBack(tester);
+    expect(find.byType(SettingsPage), findsNothing);
+    expect(find.text('TODAY’S MISSION'), findsOneWidget);
+
+    // The back arrow in the status page's own bar goes to Settings too.
     await openStatusPage(tester);
     await tester.tap(find.byType(BackButton));
     await tester.pumpAndSettle();
-    expect(find.byType(FoundationHomeScreen), findsNothing);
-    expect(find.text('TODAY’S MISSION'), findsOneWidget);
+    expect(find.byType(SettingsPage), findsOneWidget);
   });
 
   testWidgets('a tab keeps its own stack while another tab is open', (
     tester,
   ) async {
     await pumpApp(tester);
-    await openStatusPage(tester);
+    await openDevotional(tester);
 
     await openTab(tester, 'Fuel');
-    expect(find.byType(FoundationHomeScreen), findsNothing);
+    expect(find.byType(DevotionalPage), findsNothing);
     expect(find.text('FUEL'), findsWidgets);
 
     // Back on Today, the nested page is still open.
     await openTab(tester, 'Today');
-    expect(find.byType(FoundationHomeScreen), findsOneWidget);
+    expect(find.byType(DevotionalPage), findsOneWidget);
 
     // Back from there returns to Today's first page, not to Fuel.
     await systemBack(tester);
-    expect(find.text('TODAY’S MISSION'), findsOneWidget);
+    expect(find.byType(TodayPage), findsOneWidget);
     expect(_isCurrent(tester, 'Today'), isTrue);
 
     // Tapping the tab he is on returns it to its first page.
-    await openStatusPage(tester);
+    await openDevotional(tester);
     await openTab(tester, 'Today');
-    expect(find.byType(FoundationHomeScreen), findsNothing);
-    expect(find.text('TODAY’S MISSION'), findsOneWidget);
+    expect(find.byType(DevotionalPage), findsNothing);
+    expect(find.byType(TodayPage), findsOneWidget);
   });
 
   testWidgets('each tab keeps its scroll position', (tester) async {
@@ -140,14 +169,14 @@ void main() {
     await pumpApp(tester, size: const Size(390, 300));
     expect(_scrollOffset(tester), 0);
 
-    await tester.drag(find.byType(Scrollable), const Offset(0, -150));
+    await tester.drag(find.byType(Scrollable).first, const Offset(0, -150));
     await tester.pumpAndSettle();
     final todayOffset = _scrollOffset(tester);
     expect(todayOffset, greaterThan(100));
 
     await openTab(tester, 'Fuel');
     expect(_scrollOffset(tester), 0);
-    await tester.drag(find.byType(Scrollable), const Offset(0, -30));
+    await tester.drag(find.byType(Scrollable).first, const Offset(0, -30));
     await tester.pumpAndSettle();
     final fuelOffset = _scrollOffset(tester);
     expect(fuelOffset, greaterThan(10));
@@ -242,7 +271,7 @@ void main() {
     handle.dispose();
   });
 
-  testWidgets('a screen reader can open every tab and press Build status', (
+  testWidgets('a screen reader can open every tab, Settings and Build status', (
     tester,
   ) async {
     final handle = tester.ensureSemantics();
@@ -254,10 +283,13 @@ void main() {
       expect(_isCurrent(tester, label), isTrue, reason: label);
       expect(find.text(title), findsWidgets, reason: label);
     }
-    expect(find.byType(TodayPlaceholderPage), findsOneWidget);
+    expect(find.byType(TodayPage), findsOneWidget);
 
-    // The button on Today opens the nested page the same way.
-    await semanticsTap(tester, find.byType(FsButton));
+    // The profile button in Today's header opens Settings the same way,
+    // and the button there opens the status page.
+    await semanticsTap(tester, heroButton(FsHeroActionKind.profile));
+    expect(find.byType(SettingsPage), findsOneWidget);
+    await semanticsTap(tester, find.widgetWithText(FsButton, 'BUILD STATUS'));
     expect(find.byType(FoundationHomeScreen), findsOneWidget);
 
     // Activating the tab he is on returns it to its first page, as a tap does.
@@ -268,8 +300,11 @@ void main() {
   });
 
   test('the date line reads as the prototype writes it', () {
-    expect(heroDateLine(DateTime(2026, 11, 10)), 'Tuesday, November 10');
-    expect(heroDateLine(DateTime(2027, 1, 3)), 'Sunday, January 3');
-    expect(heroDateLine(DateTime(2026, 12, 31)), 'Thursday, December 31');
+    expect(heroDateLine(const LocalDate(2026, 11, 10)), 'Tuesday, November 10');
+    expect(heroDateLine(const LocalDate(2027, 1, 3)), 'Sunday, January 3');
+    expect(
+      heroDateLine(const LocalDate(2026, 12, 31)),
+      'Thursday, December 31',
+    );
   });
 }

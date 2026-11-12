@@ -26,12 +26,14 @@ class FsButton extends StatelessWidget {
     required this.onPressed,
     this.variant = FsButtonVariant.primary,
     this.selected = false,
+    this.semanticLabel,
   });
 
   const FsButton.ghost({
     super.key,
     required this.label,
     required this.onPressed,
+    this.semanticLabel,
   }) : variant = FsButtonVariant.ghost,
        selected = false;
 
@@ -40,9 +42,14 @@ class FsButton extends StatelessWidget {
     required this.label,
     required this.onPressed,
     this.selected = false,
+    this.semanticLabel,
   }) : variant = FsButtonVariant.mini;
 
   final String label;
+
+  /// What a screen reader says, where the text on the button is too short
+  /// to stand alone ("ESV"). Defaults to [label].
+  final String? semanticLabel;
   final VoidCallback? onPressed;
   final FsButtonVariant variant;
   final bool selected;
@@ -87,7 +94,7 @@ class FsButton extends StatelessWidget {
       button: true,
       enabled: enabled,
       selected: mini ? selected : null,
-      label: label,
+      label: semanticLabel ?? label,
       // This node stands in for everything under it, so it carries the tap
       // for assistive technology. A disabled button offers none.
       excludeSemantics: true,

@@ -6,7 +6,9 @@ import 'package:flutter_test/flutter_test.dart';
 import '../support/fs_test_support.dart';
 
 /// Golden images of the shell at 390x844, the size of the prototype
-/// reference screenshots.
+/// reference screenshots. Walk stands for the tabs that are still
+/// placeholders; Today has its own images in
+/// `test/features/today/today_golden_test.dart`.
 ///
 /// A Flutter render cannot match a browser render pixel for pixel. The
 /// maintainer approves each image by eye beside the prototype; after that
@@ -26,15 +28,6 @@ void main() {
     ('dark', ThemeMode.dark),
     ('light', ThemeMode.light),
   ]) {
-    testWidgets('Today, $name', (tester) async {
-      await pumpApp(tester, themeMode: themeMode);
-      await loadHeroPhoto(tester);
-      await expectLater(
-        find.byType(MaterialApp),
-        matchesGoldenFile('goldens/shell_today_$name.png'),
-      );
-    }, skip: skip);
-
     testWidgets('Walk, $name', (tester) async {
       await pumpApp(tester, themeMode: themeMode);
       await openTab(tester, 'Walk');

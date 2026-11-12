@@ -11,55 +11,189 @@ flowchart LR
     N0["mobile/lib/main.dart"]
     N1["mobile/lib/src/app/forged_sent_app.dart"]
     N2["mobile/lib/src/app/fs_router.dart"]
-    N3["mobile/lib/src/app/shell_destinations.dart"]
-    N4["mobile/lib/src/app/tab_pages.dart"]
-    N5["mobile/lib/src/design/fs_button.dart"]
-    N6["mobile/lib/src/design/fs_card.dart"]
-    N7["mobile/lib/src/design/fs_colors.dart"]
-    N8["mobile/lib/src/design/fs_hero_header.dart"]
-    N9["mobile/lib/src/design/fs_icons.dart"]
-    N10["mobile/lib/src/design/fs_label_caps.dart"]
-    N11["mobile/lib/src/design/fs_shell.dart"]
-    N12["mobile/lib/src/design/fs_theme.dart"]
-    N13["mobile/lib/src/design/fs_tokens.dart"]
-    N14["mobile/lib/src/design/fs_typography.dart"]
-    N15["mobile/lib/src/firebase/forged_firebase_runtime.dart"]
+    N3["mobile/lib/src/app/local_store.dart"]
+    N4["mobile/lib/src/app/open_local_store.dart"]
+    N5["mobile/lib/src/app/open_local_store_native.dart"]
+    N6["mobile/lib/src/app/open_local_store_web.dart"]
+    N7["mobile/lib/src/app/shell_destinations.dart"]
+    N8["mobile/lib/src/app/tab_pages.dart"]
+    N9["mobile/lib/src/core/clock.dart"]
+    N10["mobile/lib/src/core/date_text.dart"]
+    N11["mobile/lib/src/core/event_id.dart"]
+    N12["mobile/lib/src/core/local_date.dart"]
+    N13["mobile/lib/src/design/fs_box_row.dart"]
+    N14["mobile/lib/src/design/fs_button.dart"]
+    N15["mobile/lib/src/design/fs_card.dart"]
+    N16["mobile/lib/src/design/fs_colors.dart"]
+    N17["mobile/lib/src/design/fs_hero_header.dart"]
+    N18["mobile/lib/src/design/fs_icons.dart"]
+    N19["mobile/lib/src/design/fs_label_caps.dart"]
+    N20["mobile/lib/src/design/fs_page_bar.dart"]
+    N21["mobile/lib/src/design/fs_progress_ring.dart"]
+    N22["mobile/lib/src/design/fs_scripture.dart"]
+    N23["mobile/lib/src/design/fs_section_head.dart"]
+    N24["mobile/lib/src/design/fs_segmented.dart"]
+    N25["mobile/lib/src/design/fs_shell.dart"]
+    N26["mobile/lib/src/design/fs_theme.dart"]
+    N27["mobile/lib/src/design/fs_tokens.dart"]
+    N28["mobile/lib/src/design/fs_typography.dart"]
+    N29["mobile/lib/src/features/devotional/data/devotional_library.dart"]
+    N30["mobile/lib/src/features/devotional/domain/devotional.dart"]
+    N31["mobile/lib/src/features/devotional/domain/scripture_reference.dart"]
+    N32["mobile/lib/src/features/devotional/presentation/devotional_page.dart"]
+    N33["mobile/lib/src/features/settings/data/settings_repository.dart"]
+    N34["mobile/lib/src/features/settings/presentation/settings_page.dart"]
+    N35["mobile/lib/src/features/today/data/day_repository.dart"]
+    N36["mobile/lib/src/features/today/data/drift_day_repository.dart"]
+    N37["mobile/lib/src/features/today/data/memory_day_repository.dart"]
+    N38["mobile/lib/src/features/today/data/today_content.dart"]
+    N39["mobile/lib/src/features/today/domain/completion_event.dart"]
+    N40["mobile/lib/src/features/today/domain/day_box.dart"]
+    N41["mobile/lib/src/features/today/domain/streak.dart"]
+    N42["mobile/lib/src/features/today/presentation/today_page.dart"]
+    N43["mobile/lib/src/features/today/presentation/today_view_model.dart"]
+    N44["mobile/lib/src/firebase/forged_firebase_runtime.dart"]
+    N45["mobile/lib/src/storage/app_database.dart"]
+    N46["mobile/lib/src/storage/app_database.g.dart"]
+    N47["mobile/lib/src/storage/native_storage.dart"]
     N0 --> N1
-    N0 --> N15
+    N0 --> N3
+    N0 --> N4
+    N0 --> N44
     N1 --> N2
-    N1 --> N12
+    N1 --> N9
+    N1 --> N26
     N2 --> N1
-    N2 --> N3
-    N2 --> N4
-    N2 --> N11
-    N3 --> N8
-    N3 --> N9
+    N2 --> N7
+    N2 --> N8
+    N2 --> N25
+    N2 --> N32
+    N2 --> N34
+    N2 --> N42
+    N3 --> N33
+    N3 --> N35
+    N3 --> N37
     N4 --> N3
-    N4 --> N5
-    N4 --> N6
-    N4 --> N7
-    N4 --> N8
-    N4 --> N10
-    N4 --> N13
-    N4 --> N14
-    N5 --> N7
-    N5 --> N13
-    N5 --> N14
-    N6 --> N7
-    N6 --> N13
+    N5 --> N3
+    N5 --> N33
+    N5 --> N36
+    N5 --> N47
+    N6 --> N3
+    N7 --> N17
+    N7 --> N18
     N8 --> N7
-    N8 --> N9
-    N8 --> N10
-    N8 --> N13
-    N8 --> N14
-    N10 --> N7
-    N10 --> N14
-    N11 --> N7
-    N11 --> N9
-    N11 --> N13
-    N11 --> N14
-    N12 --> N7
-    N12 --> N14
+    N8 --> N15
+    N8 --> N16
+    N8 --> N17
+    N8 --> N19
+    N8 --> N27
+    N8 --> N28
+    N9 --> N12
+    N10 --> N12
+    N13 --> N16
+    N13 --> N27
+    N13 --> N28
+    N14 --> N16
+    N14 --> N27
+    N14 --> N28
+    N15 --> N16
+    N15 --> N27
+    N17 --> N16
+    N17 --> N18
+    N17 --> N19
+    N17 --> N27
+    N17 --> N28
+    N19 --> N16
+    N19 --> N28
+    N20 --> N14
+    N20 --> N16
+    N20 --> N19
+    N20 --> N28
+    N21 --> N16
+    N21 --> N28
+    N22 --> N16
+    N22 --> N19
+    N22 --> N28
+    N23 --> N16
+    N23 --> N27
+    N23 --> N28
+    N24 --> N14
+    N25 --> N16
+    N25 --> N18
+    N25 --> N27
+    N25 --> N28
+    N26 --> N16
+    N26 --> N28
+    N29 --> N12
+    N29 --> N30
+    N30 --> N12
+    N32 --> N9
+    N32 --> N10
+    N32 --> N12
+    N32 --> N14
+    N32 --> N16
+    N32 --> N17
+    N32 --> N20
+    N32 --> N22
+    N32 --> N24
+    N32 --> N27
+    N32 --> N28
+    N32 --> N30
+    N32 --> N43
+    N33 --> N45
+    N34 --> N14
+    N34 --> N15
+    N34 --> N16
+    N34 --> N17
+    N34 --> N20
+    N34 --> N23
+    N34 --> N27
+    N34 --> N28
+    N34 --> N30
+    N34 --> N43
+    N35 --> N12
+    N35 --> N39
+    N36 --> N12
+    N36 --> N35
+    N36 --> N39
+    N36 --> N45
+    N37 --> N12
+    N37 --> N35
+    N37 --> N39
+    N38 --> N12
+    N38 --> N29
+    N38 --> N39
+    N38 --> N40
+    N39 --> N12
+    N40 --> N12
+    N41 --> N12
+    N41 --> N39
+    N42 --> N9
+    N42 --> N10
+    N42 --> N13
+    N42 --> N14
+    N42 --> N15
+    N42 --> N16
+    N42 --> N17
+    N42 --> N19
+    N42 --> N21
+    N42 --> N23
+    N42 --> N27
+    N42 --> N28
+    N42 --> N40
+    N42 --> N43
+    N43 --> N3
+    N43 --> N9
+    N43 --> N11
+    N43 --> N12
+    N43 --> N29
+    N43 --> N30
+    N43 --> N38
+    N43 --> N39
+    N43 --> N40
+    N43 --> N41
+    N47 --> N11
+    N47 --> N45
 ```
 
 ## Declared classes and functions
@@ -67,11 +201,13 @@ flowchart LR
 ### mobile/lib/main.dart
 
 - fn main()
+- fn start()
 
 ### mobile/lib/src/app/forged_sent_app.dart
 
 - class ForgedSentApp
 - class _ForgedSentAppState
+- fn initState()
 - fn dispose()
 - fn build()
 - class FoundationHomeScreen
@@ -80,18 +216,71 @@ flowchart LR
 
 - No classes or named methods matched by the simple inventory parser
 
+### mobile/lib/src/app/local_store.dart
+
+- class LocalStore
+
+### mobile/lib/src/app/open_local_store.dart
+
+- fn openLocalStore()
+
+### mobile/lib/src/app/open_local_store_native.dart
+
+- fn openLocalStore()
+- fn openLocalStoreIn()
+
+### mobile/lib/src/app/open_local_store_web.dart
+
+- fn openLocalStore()
+
 ### mobile/lib/src/app/shell_destinations.dart
 
 - class ShellDestination
 
 ### mobile/lib/src/app/tab_pages.dart
 
-- fn heroDateLine()
 - class _ShellPage
 - fn build()
 - class _PlaceholderCard
-- class TodayPlaceholderPage
 - class TabPlaceholderPage
+
+### mobile/lib/src/core/clock.dart
+
+- class SystemClock
+- class TodayDate
+- fn refresh()
+- fn _scheduleMidnight()
+
+### mobile/lib/src/core/date_text.dart
+
+- fn weekdayName()
+- fn monthAndDay()
+- fn heroDateLine()
+
+### mobile/lib/src/core/event_id.dart
+
+- fn newEventId()
+
+### mobile/lib/src/core/local_date.dart
+
+- class LocalDate
+- fn iso()
+- fn monthDayKey()
+- fn weekday()
+- fn dayOfYear()
+- fn _two()
+- fn compareTo()
+- fn hashCode()
+- fn toString()
+
+### mobile/lib/src/design/fs_box_row.dart
+
+- class FsBoxRow
+- fn build()
+- class _Box
+- class _CheckPainter
+- fn paint()
+- fn shouldRepaint()
 
 ### mobile/lib/src/design/fs_button.dart
 
@@ -112,7 +301,8 @@ flowchart LR
 - class FsHeroAction
 - class FsHeroHeader
 - fn build()
-- class _HeroBackdrop
+- class FsReadingHeader
+- class FsHeroBackdrop
 - class _RidgePainter
 - fn paint()
 - fn shouldRepaint()
@@ -131,6 +321,37 @@ flowchart LR
 ### mobile/lib/src/design/fs_label_caps.dart
 
 - class FsLabelCaps
+- fn build()
+
+### mobile/lib/src/design/fs_page_bar.dart
+
+- class FsPageBar
+- fn build()
+
+### mobile/lib/src/design/fs_progress_ring.dart
+
+- class FsProgressRing
+- fn build()
+- class _RingPainter
+- fn paint()
+- fn shouldRepaint()
+
+### mobile/lib/src/design/fs_scripture.dart
+
+- class FsScripture
+- fn build()
+
+### mobile/lib/src/design/fs_section_head.dart
+
+- class FsSectionHead
+- fn build()
+- class FsTally
+- class FsMeter
+
+### mobile/lib/src/design/fs_segmented.dart
+
+- class FsSegment
+- class FsSegmented
 - fn build()
 
 ### mobile/lib/src/design/fs_shell.dart
@@ -154,12 +375,157 @@ flowchart LR
 
 - No classes or named methods matched by the simple inventory parser
 
+### mobile/lib/src/features/devotional/data/devotional_library.dart
+
+- class DevotionalLibrary
+- fn load()
+- fn length()
+
+### mobile/lib/src/features/devotional/domain/devotional.dart
+
+- fn of()
+- class Devotional
+- fn readingKeyFor()
+
+### mobile/lib/src/features/devotional/domain/scripture_reference.dart
+
+- No classes or named methods matched by the simple inventory parser
+
+### mobile/lib/src/features/devotional/presentation/devotional_page.dart
+
+- class DevotionalPage
+- class _DevotionalPageState
+- fn dispose()
+- fn _onMetrics()
+- fn _onNewDay()
+- fn _amen()
+- fn _undo()
+- fn build()
+- class _Section
+- class _End
+- class _Plain
+
+### mobile/lib/src/features/settings/data/settings_repository.dart
+
+- fn watchShowPreviewPoints()
+- fn setShowPreviewPoints()
+- class DriftSettingsRepository
+- class MemorySettingsRepository
+
+### mobile/lib/src/features/settings/presentation/settings_page.dart
+
+- class SettingsPage
+- fn build()
+
+### mobile/lib/src/features/today/data/day_repository.dart
+
+- fn watchDay()
+- fn record()
+
+### mobile/lib/src/features/today/data/drift_day_repository.dart
+
+- class DriftDayRepository
+- fn durable()
+- fn watchDay()
+- fn record()
+- fn _stateRow()
+
+### mobile/lib/src/features/today/data/memory_day_repository.dart
+
+- class MemoryDayRepository
+- fn durable()
+- fn watchDay()
+- fn record()
+
+### mobile/lib/src/features/today/data/today_content.dart
+
+- class TodayContent
+- fn load()
+- fn missionFor()
+
+### mobile/lib/src/features/today/domain/completion_event.dart
+
+- class CompletionEvent
+- class ItemState
+- fn hashCode()
+- class DayRecord
+- fn isDone()
+- fn _sameItems()
+
+### mobile/lib/src/features/today/domain/day_box.dart
+
+- class DayBox
+- fn active()
+- fn missionLineFor()
+
+### mobile/lib/src/features/today/domain/streak.dart
+
+- class StreakRule
+- fn _counts()
+- fn length()
+
+### mobile/lib/src/features/today/presentation/today_page.dart
+
+- fn pointsLabel()
+- fn streakLine()
+- class TodayPage
+- fn build()
+- class _ProgressPanel
+- class _BoxesCard
+- fn _row()
+- class _LoadingCard
+- class _LoadFailedCard
+
+### mobile/lib/src/features/today/presentation/today_view_model.dart
+
+- class BoxView
+- class TodayView
+- fn total()
+- fn doneCount()
+- fn devotionalDone()
+- class TodayViewModel
+- fn build()
+- fn retry()
+- fn completeDevotional()
+- fn undoDevotional()
+- fn _record()
+- fn setShowPreviewPoints()
+
 ### mobile/lib/src/firebase/forged_firebase_runtime.dart
 
 - class ForgedFirebaseRuntime
 - fn emulatorRequested()
 - fn emulatorHost()
 - fn connectEmulators()
+
+### mobile/lib/src/storage/app_database.dart
+
+- class CompletionEvents
+- class DayStates
+- class AppSettings
+- class AppDatabase
+- fn schemaVersion()
+
+### mobile/lib/src/storage/app_database.g.dart
+
+- fn aliasedName()
+- fn actualTableName()
+- class CompletionEventRow
+- fn toString()
+- fn hashCode()
+- class CompletionEventsCompanion
+- class DayStateRow
+- class DayStatesCompanion
+- class AppSettingRow
+- class AppSettingsCompanion
+- class _
+
+### mobile/lib/src/storage/native_storage.dart
+
+- fn appDataDirectory()
+- fn useAppTemporaryDirectoryForSqlite()
+- fn loadOrCreateLocalProfileId()
+- fn Function()
 
 ## Limitations
 

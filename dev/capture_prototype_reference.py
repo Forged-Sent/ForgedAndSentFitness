@@ -9,6 +9,13 @@ then asks a headless Chrome or Edge for a screenshot of each page and theme.
     python3 dev/capture_prototype_reference.py
     python3 dev/capture_prototype_reference.py --source origin/main:index.html --pages today,fuel
     python3 dev/capture_prototype_reference.py --out some/other/folder
+    python3 dev/capture_prototype_reference.py --out docs/design/reference/s1-today \
+        --pages "today,today@#tasks,today+devo,today+devo@end"
+
+A page is a tab's data-page name. Two things may follow it:
+- "+devo" opens today's reading from Today's devotional box;
+- "@where" scrolls before the picture is taken: "@end" to the bottom, or
+  "@" and a CSS selector to bring that element to the top.
 
 Nothing in the repository is changed except the PNG files written to --out.
 The preview is built in a temporary folder and deleted afterwards.
@@ -23,11 +30,13 @@ What the pictures are and are not:
 from __future__ import annotations
 
 import argparse
+import re
 import shutil
 import subprocess
 import sys
 import tempfile
 from pathlib import Path
+from urllib.parse import urlencode
 
 ROOT = Path(__file__).resolve().parent.parent
 DEFAULT_SOURCE = "origin/app/v241-bold:versions/app-v254.html"   # decision Q1: v254 for layout
@@ -50,6 +59,7 @@ BOOTSTRAP = r"""
 (function () {
   var query = new URLSearchParams(location.search);
   var page = query.get("page") || "today", theme = query.get("theme") || "dark";
+  var opens = query.get("open") || "", where = query.get("at") || "";
   var shown = function (el) { return !!(el && el.offsetParent !== null); };
   var buttons = function (root) { return Array.prototype.filter.call(root.querySelectorAll("button"), shown); };
   var named = function (root, re) { return buttons(root).filter(function (b) { return re.test(b.textContent.trim()); })[0]; };
@@ -78,9 +88,21 @@ BOOTSTRAP = r"""
     if (tab) tab.click();
     setTimeout(function () {
       document.documentElement.setAttribute("data-theme", theme);
-      var scroller = document.getElementById("scroll");
-      if (scroller) scroller.scrollTop = 0;
+      // The devotional box is the first row of Today's list.
+      var row = opens === "devo" ? document.querySelector("#tasks li.item .hit") : null;
+      if (row) row.click();
+      setTimeout(place, row ? 600 : 0);
     }, 500);
+  }
+  function place() {
+    var scroller = document.getElementById("scroll");
+    if (!scroller) return;
+    var target = where && where !== "end" ? document.querySelector(where) : null;
+    scroller.scrollTop = where === "end" ? scroller.scrollHeight
+      : target ? scroller.scrollTop + target.getBoundingClientRect().top - scroller.getBoundingClientRect().top - 12
+      : 0;
+    // The reading unlocks Amen from its scroll handler.
+    scroller.dispatchEvent(new Event("scroll"));
   }
   window.addEventListener("load", function () { setTimeout(next, 500); });
 })();
@@ -121,8 +143,17 @@ def build_preview(folder: Path, source: str) -> Path:
     return frame
 
 
-def capture(browser: str, page: Path, name: str, theme: str, target: Path, profile: Path) -> None:
-    url = page.as_uri() + f"?page={name}&theme={theme}"
+def parse_view(spec: str) -> tuple[str, str, str, str]:
+    """Split "today+devo@end" into page, what to open, where to scroll, and a file-name part."""
+    rest, _, where = spec.partition("@")
+    page, _, opens = rest.partition("+")
+    label = "-".join(part for part in (page, opens, re.sub(r"[^a-z0-9]+", "-", where.lower()).strip("-")) if part)
+    return page, opens, where, label
+
+
+def capture(browser: str, page: Path, view: tuple[str, str, str, str], theme: str, target: Path, profile: Path) -> None:
+    name, opens, where, _ = view
+    url = page.as_uri() + "?" + urlencode({"page": name, "theme": theme, "open": opens, "at": where})
     command = [
         browser, "--headless=new", "--disable-gpu", "--hide-scrollbars", "--no-first-run",
         "--no-default-browser-check", f"--user-data-dir={profile}",
@@ -140,7 +171,8 @@ def main() -> int:
     parser.add_argument("--source", default=DEFAULT_SOURCE,
                         help=f"git revision and path of the prototype file (default: {DEFAULT_SOURCE})")
     parser.add_argument("--pages", default="today,walk",
-                        help="comma-separated data-page names from the prototype's tab bar (default: today,walk)")
+                        help="comma-separated data-page names from the prototype's tab bar, each optionally "
+                             'followed by "+devo" and "@where" (default: today,walk)')
     parser.add_argument("--themes", default="dark,light", help="comma-separated: dark, light")
     parser.add_argument("--prefix", default="v254", help="start of each file name (default: v254)")
     parser.add_argument("--out", default=DEFAULT_OUT, help=f"folder for the PNG files (default: {DEFAULT_OUT})")
@@ -153,11 +185,11 @@ def main() -> int:
     with tempfile.TemporaryDirectory(prefix="fs-prototype-capture-") as tmp:
         folder = Path(tmp)
         page = build_preview(folder, args.source)
-        for name in [p.strip() for p in args.pages.split(",") if p.strip()]:
+        for view in [parse_view(p.strip()) for p in args.pages.split(",") if p.strip()]:
             for theme in [t.strip() for t in args.themes.split(",") if t.strip()]:
-                target = out / f"{args.prefix}-{name}-{theme}.png"
+                target = out / f"{args.prefix}-{view[3]}-{theme}.png"
                 # A fresh browser profile each time, so every picture starts from first run.
-                capture(browser, page, name, theme, target, folder / f"profile-{name}-{theme}")
+                capture(browser, page, view, theme, target, folder / f"profile-{view[3]}-{theme}")
                 print(f"wrote {target.relative_to(ROOT) if target.is_relative_to(ROOT) else target}")
     print(f"source: {args.source}; size {WIDTH}x{HEIGHT}; browser: {browser}")
     return 0

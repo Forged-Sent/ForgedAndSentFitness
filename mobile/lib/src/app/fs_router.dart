@@ -2,6 +2,9 @@ import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
 
 import '../design/fs_shell.dart';
+import '../features/devotional/presentation/devotional_page.dart';
+import '../features/settings/presentation/settings_page.dart';
+import '../features/today/presentation/today_page.dart';
 import 'forged_sent_app.dart';
 import 'shell_destinations.dart';
 import 'tab_pages.dart';
@@ -12,12 +15,15 @@ import 'tab_pages.dart';
 /// is where the member left it, scroll position included, when he comes back
 /// to it. Android's system back pops the current tab's stack.
 ///
-/// If the start-up check failed, the app opens on the status page so the
+/// Today has two pages under it: the day's reading and Settings. The
+/// developer's build status page is under Settings.
+///
+/// If a start-up check failed, the app opens on the status page so the
 /// reason is on screen. It never falls back to a cloud connection.
 GoRouter buildFsRouter({
   required String mode,
   required String? startupError,
-  required DateTime Function() now,
+  required bool storageFailed,
 }) {
   final destinations = <FsShellDestination>[
     for (final destination in ShellDestinations.all)
@@ -25,7 +31,7 @@ GoRouter buildFsRouter({
   ];
 
   return GoRouter(
-    initialLocation: startupError == null
+    initialLocation: startupError == null && !storageFailed
         ? ShellDestinations.todayPath
         : ShellDestinations.statusPath,
     routes: <RouteBase>[
@@ -53,21 +59,43 @@ GoRouter buildFsRouter({
               GoRoute(
                 path: ShellDestinations.todayPath,
                 builder: (BuildContext context, GoRouterState state) {
-                  return TodayPlaceholderPage(
-                    now: now,
-                    onOpenStatus: () =>
-                        context.go(ShellDestinations.statusPath),
+                  return TodayPage(
+                    onOpenDevotional: () =>
+                        context.go(ShellDestinations.devotionalPath),
+                    onOpenSettings: () =>
+                        context.go(ShellDestinations.settingsPath),
                   );
                 },
                 routes: <RouteBase>[
                   GoRoute(
-                    path: 'status',
+                    path: 'devotional',
                     builder: (BuildContext context, GoRouterState state) {
-                      return FoundationHomeScreen(
-                        mode: mode,
-                        startupError: startupError,
+                      return DevotionalPage(
+                        onBack: () => context.go(ShellDestinations.todayPath),
                       );
                     },
+                  ),
+                  GoRoute(
+                    path: 'settings',
+                    builder: (BuildContext context, GoRouterState state) {
+                      return SettingsPage(
+                        onBack: () => context.go(ShellDestinations.todayPath),
+                        onOpenStatus: () =>
+                            context.go(ShellDestinations.statusPath),
+                      );
+                    },
+                    routes: <RouteBase>[
+                      GoRoute(
+                        path: 'status',
+                        builder: (BuildContext context, GoRouterState state) {
+                          return FoundationHomeScreen(
+                            mode: mode,
+                            startupError: startupError,
+                            storageFailed: storageFailed,
+                          );
+                        },
+                      ),
+                    ],
                   ),
                 ],
               ),
