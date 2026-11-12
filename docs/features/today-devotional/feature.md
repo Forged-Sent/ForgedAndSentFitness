@@ -8,7 +8,7 @@ source_ref: claude/s1-today-devotional
 source_sha: 11555db2b977fadb92651cccbe807185a56b9413
 approved_by: none
 test_plan: completion-event rules against the Drift and in-memory stores, close and reopen on a real SQLite file, streak rule, clock and midnight rollover, bundled content and ESV limit checks, Today and reading widget tests including screen-reader activation, golden images at 390x844 in dark and light, one emulator run of complete, kill, relaunch
-verified_tests: mobile/test/features/today/drift_day_repository_test.dart, mobile/test/features/today/memory_day_repository_test.dart, mobile/test/features/today/streak_test.dart, mobile/test/features/today/today_page_test.dart, mobile/test/features/today/today_golden_test.dart, mobile/test/features/devotional/devotional_page_test.dart, mobile/test/features/devotional/bundled_content_test.dart, mobile/test/features/settings/settings_page_test.dart, mobile/test/features/no_firebase_import_test.dart, mobile/test/core/clock_test.dart, mobile/test/core/local_date_test.dart, mobile/test/storage/sqlite_available_test.dart
+verified_tests: mobile/test/features/today/drift_day_repository_test.dart, mobile/test/features/today/memory_day_repository_test.dart, mobile/test/features/today/streak_test.dart, mobile/test/features/today/today_page_test.dart, mobile/test/features/today/today_golden_test.dart, mobile/test/features/devotional/devotional_page_test.dart, mobile/test/features/devotional/bundled_content_test.dart, mobile/test/features/settings/settings_page_test.dart, mobile/test/features/no_firebase_import_test.dart, mobile/test/core/clock_test.dart, mobile/test/core/local_date_test.dart, mobile/test/storage/sqlite_available_test.dart, mobile/integration_test/restart_1_complete_test.dart, mobile/integration_test/restart_2_verify_test.dart
 implementation_paths: mobile/lib/src/features/today, mobile/lib/src/features/devotional, mobile/lib/src/features/settings, mobile/lib/src/core, mobile/lib/src/storage, mobile/lib/src/app/local_store.dart, mobile/lib/src/app/open_local_store.dart, mobile/assets/content
 verification: see the pull request that adds this page for the commands and their output
 ---
@@ -78,7 +78,7 @@ One deliberate difference: the prototype works out the day of the year from elap
 **Not verified**
 
 - iOS: built only by CI's simulator job; never run.
-- The emulator test of complete, kill, relaunch (`mobile/integration_test/restart_1_complete_test.dart`, then `restart_2_verify_test.dart`) is written and has not been run yet. No CI lane has an emulator. Nothing has run on a physical phone.
+- The emulator test of complete, kill, relaunch passed on 2026-11-12 on one emulator only: an emulator made for this test, `FS_S1_Restart_API_36`, from the installed `system-images;android-36;google_apis_playstore;x86_64` image (Android 16, API 36), on the maintainer's Windows workstation. No CI lane has an emulator. Nothing has run on a physical phone, and no other Android version was tried.
 - The golden images are compared on Windows only.
 - Schema migration: the database is at version 1, so there is nothing to migrate yet.
 - That Crossway's permission covers an app. That is the maintainer's to confirm before public release (Q7).

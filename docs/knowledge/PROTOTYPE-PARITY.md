@@ -12,7 +12,7 @@ Detail for every row, with actions, data and acceptance criteria: [screens and U
 
 | Prototype view | Flutter status | Planned in | Biggest gap to close |
 |---|---|---|---|
-| App shell: brand bar, hero header, six-tab bar | Implemented | S0 | The round header buttons do nothing yet, except Today's profile button, which opens Settings; five of the six tabs are titled placeholders; Rally's own compact header is not built; not run on a phone or an emulator |
+| App shell: brand bar, hero header, six-tab bar | Implemented | S0 | The round header buttons do nothing yet, except Today's profile button, which opens Settings; five of the six tabs are titled placeholders; Rally's own compact header is not built; run on one Android emulator (the S1 restart test), not on a phone |
 | Legal gate | Not started | Later, not yet scheduled | Prototype stores it in private settings and does not enforce it on writes |
 | Setup wizard | Not started | Later, not yet scheduled | Body stats and injuries are sensitive; ADR-0005 defers storing them |
 | Today | Implemented | S1 | Shows the date, the streak line, the mission line, the progress ring and the seven daily boxes. Only the devotional box works; the other six are drawn faded and say "Not active yet". Not built: first orders, "Your two" habits, the campaign card, the Stand Firm creed card, the grace and sit-out cards, the Sabbath-only boxes (weigh-in, photos, family report, legacy log) and the mission-complete dialog. Point values are hidden unless the preview switch is on, and no total is shown (decision Q5); the streak counts devotional days, not full days (decision Q6) |
