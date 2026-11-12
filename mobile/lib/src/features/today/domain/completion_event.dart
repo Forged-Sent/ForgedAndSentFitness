@@ -12,26 +12,32 @@ abstract final class DayItems {
 /// Design: `docs/reviews/2026-11-10-prototype-to-flutter/07-ARCHITECTURE.md`,
 /// journey J1, option A.
 class CompletionEvent {
-  const CompletionEvent({
+  /// An event exactly as it is stored. [tappedAtUtc] must be a UTC
+  /// `DateTime`.
+  CompletionEvent({
     required this.id,
     required this.ownerId,
     required this.day,
     required this.item,
     required this.done,
-    required this.tappedAt,
+    required this.tappedAtUtc,
+    required this.utcOffset,
     this.replacesEventId,
-  });
+  }) : assert(tappedAtUtc.isUtc, 'tappedAtUtc must be a UTC DateTime');
 
-  /// A completion. Its day is the local date at the moment of the tap
-  /// (decision Q9), read from [tappedAt] here and nowhere else.
+  /// A completion tapped at [tappedAt], the phone's local time. Its day is
+  /// the local date at the moment of the tap (decision Q9), read from
+  /// [tappedAt] here and nowhere else.
   CompletionEvent.complete({
     required this.id,
     required this.ownerId,
     required this.item,
-    required this.tappedAt,
+    required DateTime tappedAt,
     this.replacesEventId,
   }) : day = LocalDate.of(tappedAt),
-       done = true;
+       done = true,
+       tappedAtUtc = tappedAt.toUtc(),
+       utcOffset = tappedAt.timeZoneOffset;
 
   /// An undo of the completion that set [completion]. It is filed under the
   /// day that completion was recorded on, whatever the clock says now, so a
@@ -42,8 +48,10 @@ class CompletionEvent {
     required this.item,
     required this.day,
     required ItemState completion,
-    required this.tappedAt,
+    required DateTime tappedAt,
   }) : done = false,
+       tappedAtUtc = tappedAt.toUtc(),
+       utcOffset = tappedAt.timeZoneOffset,
        replacesEventId = completion.latestEventId;
 
   /// Client-generated, and the event's only key. Sending the same event
@@ -61,10 +69,20 @@ class CompletionEvent {
   /// toggle.
   final bool done;
 
-  /// When the tap happened, as a local-time `DateTime`. Stored as a UTC
-  /// instant plus the offset. Kept for the record and for display; it is
-  /// never used to decide which of two events is the later one.
-  final DateTime tappedAt;
+  /// When the tap happened, as an instant in UTC. Kept for the record and
+  /// for display; it is never used to decide which of two events is the
+  /// later one.
+  final DateTime tappedAtUtc;
+
+  /// The phone's offset from UTC at that moment. Stored beside the instant,
+  /// so the time on the phone's clock can be shown again later, on any
+  /// device, without changing the instant.
+  final Duration utcOffset;
+
+  /// The local calendar day the phone showed when the tap was made: the
+  /// instant moved by the offset. Not always [day]: an undo is filed under
+  /// the day of the completion it undoes.
+  LocalDate get tapLocalDate => LocalDate.of(tappedAtUtc.add(utcOffset));
 
   /// The event that set this box when the tap was made, if any. Unused on
   /// one device; from build step S4 the server orders events from two

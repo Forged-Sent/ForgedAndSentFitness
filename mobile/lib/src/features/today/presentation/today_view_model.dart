@@ -64,6 +64,20 @@ class TodayView {
   }
 }
 
+/// What a tap on Amen did.
+enum AmenOutcome {
+  /// The devotional is recorded as done for today.
+  saved,
+
+  /// The reading on screen was no longer today's: the clock had passed into
+  /// another day. Nothing was saved, and the screen now shows today's
+  /// reading, which has to be read to its end before Amen.
+  newDay,
+
+  /// The completion could not be saved.
+  failed,
+}
+
 /// One owner's boxes for [day], straight from the store.
 final dayRecordProvider = StreamProvider.family<DayRecord, LocalDate>((
   ref,
@@ -132,18 +146,25 @@ class TodayViewModel extends AsyncNotifier<TodayView> {
     await future.then<void>((_) {}, onError: (Object _) {});
   }
 
-  /// Records "Amen": the devotional is done for the local day of this tap
-  /// (decision Q9). Returns false if it could not be saved.
-  Future<bool> completeDevotional() async {
+  /// Records "Amen" for the reading of [shownDay], the one on screen.
+  ///
+  /// A completion belongs to the local day of the tap (decision Q9). If
+  /// that is no longer [shownDay], because midnight passed while the reading
+  /// was open, the tap is refused and nothing is saved: he has not read
+  /// today's reading, and yesterday's box is not checked late. The screen
+  /// moves to today instead. Decided by the maintainer on 2026-11-12.
+  Future<AmenOutcome> completeDevotional({required LocalDate shownDay}) async {
     final store = ref.read(localStoreProvider);
     final now = ref.read(clockProvider).now();
+    if (LocalDate.of(now) != shownDay) {
+      ref.read(todayDateProvider.notifier).refresh();
+      return AmenOutcome.newDay;
+    }
     final view = state.value;
-    // The box this replaces, if the day on screen is still the day of the
-    // tap. Past midnight it is a new day's box, which nothing has set.
-    final current = view != null && view.date == LocalDate.of(now)
+    final current = view != null && view.date == shownDay
         ? view.record.items[DayItems.devotional]
         : null;
-    return _record(
+    final saved = await _record(
       CompletionEvent.complete(
         id: ref.read(eventIdProvider)(),
         ownerId: store.ownerId,
@@ -152,6 +173,7 @@ class TodayViewModel extends AsyncNotifier<TodayView> {
         replacesEventId: current?.latestEventId,
       ),
     );
+    return saved ? AmenOutcome.saved : AmenOutcome.failed;
   }
 
   /// Records an undo of the completion on screen. It clears the box on the

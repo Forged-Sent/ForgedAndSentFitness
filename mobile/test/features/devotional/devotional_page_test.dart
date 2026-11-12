@@ -293,7 +293,7 @@ void main() {
         expect(events.map((e) => e.done), <bool>[true, false]);
         // The undo was tapped on the other day and filed under the 10th.
         expect(events.last.day, _nov10);
-        expect(LocalDate.of(events.last.tappedAt), other);
+        expect(events.last.tapLocalDate, other);
         // Nothing was filed under the day the clock moved to.
         expect((await app.savedDay(tester, other)).items, isEmpty);
         expect(
@@ -323,6 +323,8 @@ void main() {
     expect(readerPosition(tester).pixels, 0);
     // He has not read this one: Amen waits for the end again.
     expect(_amen(tester).onPressed, isNull);
+    // And the page says why it changed under him.
+    expect(find.text(newDayNotice), findsOneWidget);
 
     // Amen now belongs to the 11th, the day of the tap (decision Q9).
     await scrollReaderToEnd(tester);
@@ -332,23 +334,85 @@ void main() {
     expect((await app.savedDay(tester, _nov10)).items, isEmpty);
   });
 
-  testWidgets('Amen tapped past midnight is filed under the day of the tap', (
-    tester,
-  ) async {
-    final app = await pumpApp(tester);
-    await openDevotional(tester);
-    await scrollReaderToEnd(tester);
+  group('Amen tapped just after midnight, before the page has changed', () {
+    // Decided by the maintainer on 2026-11-12: the tap is refused, nothing
+    // is saved, the new day's reading is shown locked, and one line says
+    // it is a new day.
+    testWidgets('is refused: nothing is saved for either day', (tester) async {
+      final app = await pumpApp(tester);
+      final days = app.store.days as TestDayRepository;
+      await openDevotional(tester);
+      await scrollReaderToEnd(tester);
+      expect(_amen(tester).onPressed, isNotNull);
+      expect(find.text(newDayNotice), findsNothing);
 
-    // The clock passes midnight and he taps before the page has changed.
-    app.clock.time = DateTime(2026, 11, 11, 0, 0, 2);
-    await tester.tap(amenButton);
-    await tester.pumpAndSettle();
+      // The clock passes midnight. No timer has run and the app was not
+      // resumed, so the reading of the 10th is still on screen, unlocked.
+      app.clock.time = DateTime(2026, 11, 11, 0, 0, 2);
+      await tester.tap(amenButton);
+      await tester.pumpAndSettle();
 
-    expect((await app.savedDay(tester, _nov11)).isDone(_devotional), isTrue);
-    expect((await app.savedDay(tester, _nov10)).items, isEmpty);
-    // Today, back on screen, is the 11th with its box checked.
-    await scrollTodayToTop(tester);
-    expect(find.text('WEDNESDAY, NOVEMBER 11'), findsOneWidget);
+      // No box is checked and no event exists, for the old day or the new.
+      expect(days.saveAttempts, 0);
+      expect((await app.savedDay(tester, _nov10)).items, isEmpty);
+      expect((await app.savedDay(tester, _nov11)).items, isEmpty);
+      expect(
+        await app.store.days.eventsFor(app.ownerId, _nov11, _devotional),
+        isEmpty,
+      );
+      expect(await app.savedDoneDays(tester), isEmpty);
+
+      // He stays on the reading, which is now the 11th's, at the top, with
+      // Amen locked again and a line that says why.
+      expect(find.byType(DevotionalPage), findsOneWidget);
+      expect(find.text('November 11'), findsOneWidget);
+      expect(find.text('November 10'), findsNothing);
+      expect(_verse(tester), nextReading.bsbText);
+      expect(readerPosition(tester).pixels, 0);
+      expect(_amen(tester).onPressed, isNull);
+      expect(_amen(tester).label, 'Scroll to the bottom to say Amen');
+      expect(find.text(newDayNotice), findsOneWidget);
+      expect(newDayNotice, contains('new day'));
+      // It is not reported as a failed save.
+      expect(find.text('That did not save. Try again.'), findsNothing);
+    });
+
+    testWidgets('then reading the new day to its end and Amen saves it', (
+      tester,
+    ) async {
+      final app = await pumpApp(tester);
+      await openDevotional(tester);
+      await scrollReaderToEnd(tester);
+      app.clock.time = DateTime(2026, 11, 11, 0, 0, 2);
+      await tester.tap(amenButton);
+      await tester.pumpAndSettle();
+
+      await scrollReaderToEnd(tester);
+      await tester.tap(amenButton);
+      await tester.pumpAndSettle();
+
+      expect(find.byType(TodayPage), findsOneWidget);
+      expect((await app.savedDay(tester, _nov11)).isDone(_devotional), isTrue);
+      expect((await app.savedDay(tester, _nov10)).items, isEmpty);
+      await scrollTodayToTop(tester);
+      expect(find.text('WEDNESDAY, NOVEMBER 11'), findsOneWidget);
+    });
+
+    testWidgets('a screen reader is told about the new day', (tester) async {
+      final handle = tester.ensureSemantics();
+      final app = await pumpApp(tester);
+      await openDevotional(tester);
+      await scrollReaderToEnd(tester);
+      app.clock.time = DateTime(2026, 11, 11, 0, 0, 2);
+      await tester.tap(amenButton);
+      await tester.pumpAndSettle();
+
+      expect(
+        tester.getSemantics(find.byKey(const ValueKey<String>('fs-new-day'))),
+        isSemantics(label: newDayNotice, isLiveRegion: true),
+      );
+      handle.dispose();
+    });
   });
 
   group('the verse (decision Q7)', () {

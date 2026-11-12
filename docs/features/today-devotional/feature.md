@@ -39,6 +39,8 @@ A man opens the app and sees today: the date, a mission line, a ring that shows 
 - An event states its target (done or not done). Sending the same event again changes nothing. A second tap for the state the box already has stores nothing.
 - The later of two events is the one with the higher counter in that database, never the one with the later time on the phone.
 - **Day boundary (Q9):** a completion belongs to the local date at the moment of the tap. Past local midnight Today is a new, unchecked day and shows the new date, also when the app was left open or is resumed.
+- **Amen just after midnight (decided by the maintainer on 2026-11-12):** if midnight passes while a reading is open and he taps Amen before the page has changed, the tap is refused and nothing is saved, for the old day or for the new one. The page shows the new day's reading from the top with Amen locked again, and one line says why: "It is a new day. This is today's reading." He is not credited for a reading he has not opened, and yesterday's box is not checked late. The same line appears when the page changes by itself at midnight.
+- **Tap time:** stored as an instant in UTC and, beside it, the phone's offset from UTC at that moment. Neither is folded into the other, so the instant stays exact and the time on his clock can still be shown.
 - **Undo after the clock has moved:** an undo clears the box on the day the completion was recorded, also when the clock has moved to another day since.
 - **Owner (Q10):** before sign-in the owner is a local profile, made on first launch. Each owner has his own database file. Adopting the profile at sign-in is not built.
 

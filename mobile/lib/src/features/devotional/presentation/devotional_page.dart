@@ -24,6 +24,10 @@ const double _endMargin = 12;
 /// short reading has to be scrolled before Amen. The prototype's `sizeDevo`.
 const double _extraHeight = 220;
 
+/// What the reading says when the day changed while it was open, so he
+/// knows why he is looking at another reading with Amen locked again.
+const String newDayNotice = 'It is a new day. This is today’s reading.';
+
 /// Today's reading. Scrolling to the end enables Amen; Amen checks the
 /// devotional box and returns to Today; "Amen. Undo" clears it again.
 class DevotionalPage extends ConsumerStatefulWidget {
@@ -48,6 +52,10 @@ class _DevotionalPageState extends ConsumerState<DevotionalPage> {
 
   bool _saveFailed = false;
   bool _saving = false;
+
+  /// True once the reading changed under him because the day did, so the
+  /// page can say why it is back at the top with Amen locked.
+  bool _newDay = false;
 
   @override
   void dispose() {
@@ -74,22 +82,25 @@ class _DevotionalPageState extends ConsumerState<DevotionalPage> {
       _reachedEnd = false;
       _translation = Translation.bsb;
       _saveFailed = false;
+      _newDay = true;
     });
     if (_scroll.hasClients) _scroll.jumpTo(0);
   }
 
-  Future<void> _amen() async {
+  Future<void> _amen(LocalDate shownDay) async {
     if (_saving) return;
     setState(() => _saving = true);
-    final saved = await ref
+    final outcome = await ref
         .read(todayViewModelProvider.notifier)
-        .completeDevotional();
+        .completeDevotional(shownDay: shownDay);
     if (!mounted) return;
     setState(() {
       _saving = false;
-      _saveFailed = !saved;
+      _saveFailed = outcome == AmenOutcome.failed;
     });
-    if (saved) widget.onBack();
+    // A refused tap needs nothing more here: the day on screen has already
+    // been moved on, and [_onNewDay] resets the page and says why.
+    if (outcome == AmenOutcome.saved) widget.onBack();
   }
 
   Future<void> _undo() async {
@@ -165,6 +176,25 @@ class _DevotionalPageState extends ConsumerState<DevotionalPage> {
                           trailing: weekdayName(view.date),
                         ),
                       ),
+                      if (_newDay)
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(
+                            FsSpacing.page,
+                            6,
+                            FsSpacing.page,
+                            6,
+                          ),
+                          child: Semantics(
+                            liveRegion: true,
+                            child: Text(
+                              newDayNotice,
+                              key: const ValueKey<String>('fs-new-day'),
+                              style: FsText.bodySmall.copyWith(
+                                color: colors.highlight,
+                              ),
+                            ),
+                          ),
+                        ),
                       FsReadingHeader(
                         kicker: reading.monthTheme.isEmpty
                             ? reading.monthName
@@ -279,7 +309,7 @@ class _DevotionalPageState extends ConsumerState<DevotionalPage> {
                           reachedEnd: _reachedEnd,
                           saveFailed: _saveFailed,
                           durable: view.durable,
-                          onAmen: _amen,
+                          onAmen: () => _amen(view.date),
                           onUndo: _undo,
                         ),
                       ),

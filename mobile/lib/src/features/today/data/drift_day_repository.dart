@@ -81,8 +81,8 @@ class DriftDayRepository implements DayRepository {
               item: event.item,
               done: event.done,
               counter: counter,
-              tappedAtUtcMs: event.tappedAt.toUtc().millisecondsSinceEpoch,
-              utcOffsetMinutes: event.tappedAt.timeZoneOffset.inMinutes,
+              tappedAtUtcMs: event.tappedAtUtc.millisecondsSinceEpoch,
+              utcOffsetMinutes: event.utcOffset.inMinutes,
               replacesEventId: Value(event.replacesEventId),
             ),
           );
@@ -125,13 +125,13 @@ class DriftDayRepository implements DayRepository {
           day: LocalDate.parse(row.day),
           item: row.item,
           done: row.done,
-          // The tap's wall-clock time: the stored instant moved by the
-          // stored offset. Flagged UTC only because Dart has no other way
-          // to carry "local time somewhere else".
-          tappedAt: DateTime.fromMillisecondsSinceEpoch(
+          // The instant and the offset come back as they were stored.
+          // Neither is folded into the other.
+          tappedAtUtc: DateTime.fromMillisecondsSinceEpoch(
             row.tappedAtUtcMs,
             isUtc: true,
-          ).add(Duration(minutes: row.utcOffsetMinutes)),
+          ),
+          utcOffset: Duration(minutes: row.utcOffsetMinutes),
           replacesEventId: row.replacesEventId,
         ),
     ];
