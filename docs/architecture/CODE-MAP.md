@@ -223,6 +223,8 @@ flowchart LR
 ### mobile/lib/src/app/open_local_store.dart
 
 - fn openLocalStore()
+- fn openLocalStoreOrFallback()
+- fn Function()
 
 ### mobile/lib/src/app/open_local_store_native.dart
 
@@ -526,6 +528,7 @@ flowchart LR
 - fn useAppTemporaryDirectoryForSqlite()
 - fn loadOrCreateLocalProfileId()
 - fn Function()
+- fn openCheckedAppDatabase()
 
 ## Limitations
 

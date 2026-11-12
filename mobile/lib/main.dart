@@ -10,17 +10,11 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   const mode = String.fromEnvironment('FS_ENV', defaultValue: 'preview');
 
-  // The member's local storage is opened before the first frame, so a box
-  // he checked yesterday is checked when Today first appears. If it cannot
-  // be opened the app still starts, saves nothing, and says so.
-  LocalStore store;
-  var storageFailed = false;
-  try {
-    store = await openLocalStore();
-  } catch (_) {
-    store = LocalStore.inMemory();
-    storageFailed = true;
-  }
+  // The member's local storage is opened, and read from once, before the
+  // first frame, so a box he checked yesterday is checked when Today first
+  // appears. If it cannot be opened or read the app still starts, saves
+  // nothing, and says so.
+  final (:store, :storageFailed) = await openLocalStoreOrFallback();
 
   void start(String mode, {String? startupError}) {
     runApp(

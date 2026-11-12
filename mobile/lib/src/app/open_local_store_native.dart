@@ -12,14 +12,17 @@ Future<LocalStore> openLocalStore() async {
 }
 
 /// Opens the store kept in [folder]: finds or creates the local profile,
-/// then opens that profile's database file. Tests call this with a
-/// temporary folder.
+/// then opens that profile's database file and reads from it once. Tests
+/// call this with a temporary folder.
+///
+/// Throws if the profile file is damaged, or if the database file is
+/// corrupt or cannot be opened. Nothing is left open in that case.
 Future<LocalStore> openLocalStoreIn(
   Directory folder, {
   bool background = true,
 }) async {
   final ownerId = await loadOrCreateLocalProfileId(folder);
-  final database = openAppDatabase(
+  final database = await openCheckedAppDatabase(
     databaseFileFor(folder, ownerId),
     background: background,
   );

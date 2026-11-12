@@ -8,7 +8,7 @@ source_ref: claude/s1-today-devotional
 source_sha: 11555db2b977fadb92651cccbe807185a56b9413
 approved_by: none
 test_plan: completion-event rules against the Drift and in-memory stores, close and reopen on a real SQLite file, streak rule, clock and midnight rollover, bundled content and ESV limit checks, Today and reading widget tests including screen-reader activation, golden images at 390x844 in dark and light, one emulator run of complete, kill, relaunch
-verified_tests: mobile/test/features/today/drift_day_repository_test.dart, mobile/test/features/today/memory_day_repository_test.dart, mobile/test/features/today/streak_test.dart, mobile/test/features/today/today_page_test.dart, mobile/test/features/today/today_golden_test.dart, mobile/test/features/devotional/devotional_page_test.dart, mobile/test/features/devotional/bundled_content_test.dart, mobile/test/features/settings/settings_page_test.dart, mobile/test/features/no_firebase_import_test.dart, mobile/test/core/clock_test.dart, mobile/test/core/local_date_test.dart, mobile/test/storage/sqlite_available_test.dart, mobile/integration_test/restart_1_complete_test.dart, mobile/integration_test/restart_2_verify_test.dart
+verified_tests: mobile/test/features/today/drift_day_repository_test.dart, mobile/test/features/today/memory_day_repository_test.dart, mobile/test/features/today/streak_test.dart, mobile/test/features/today/today_page_test.dart, mobile/test/features/today/today_golden_test.dart, mobile/test/features/devotional/devotional_page_test.dart, mobile/test/features/devotional/bundled_content_test.dart, mobile/test/features/settings/settings_page_test.dart, mobile/test/features/no_firebase_import_test.dart, mobile/test/core/clock_test.dart, mobile/test/core/local_date_test.dart, mobile/test/storage/sqlite_available_test.dart, mobile/test/storage/corrupt_database_test.dart, mobile/integration_test/restart_1_complete_test.dart, mobile/integration_test/restart_2_verify_test.dart
 implementation_paths: mobile/lib/src/features/today, mobile/lib/src/features/devotional, mobile/lib/src/features/settings, mobile/lib/src/core, mobile/lib/src/storage, mobile/lib/src/app/local_store.dart, mobile/lib/src/app/open_local_store.dart, mobile/assets/content
 verification: see the pull request that adds this page for the commands and their output
 ---
@@ -48,7 +48,7 @@ A man opens the app and sees today: the date, a mission line, a ring that shows 
 
 - **A save fails:** he stays on the reading and reads "That did not save. Try again." The box is not shown as checked.
 - **The day cannot be loaded:** Today says so and offers "Try again". The header still shows the date.
-- **Storage cannot be opened at start-up:** the app opens on the status page and says nothing is saved on this device.
+- **Storage cannot be opened or read at start-up:** the database file is read once before the first screen. If that fails, for example because the file is corrupt, the app opens on the status page and says nothing is saved on this device; Today works and says the same. The file is closed and left as it was.
 - **Nothing can be kept (the web preview):** Today and the reading say "Nothing you check here is saved."
 - **No reading for the date:** the page says "No devotional today". The bundled file has all 366 dates, so this cannot happen today.
 

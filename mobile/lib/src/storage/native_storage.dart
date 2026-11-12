@@ -66,3 +66,32 @@ AppDatabase openAppDatabase(File file, {bool background = true}) {
     background ? NativeDatabase.createInBackground(file) : NativeDatabase(file),
   );
 }
+
+/// Opens [file] and proves it can be read before anything relies on it.
+///
+/// Drift opens a database on its first query, not when it is constructed.
+/// A file that is corrupt, or that cannot be opened at all, would otherwise
+/// be discovered only when Today first asked for the day, long after
+/// start-up had reported that storage was fine. So one query is run here.
+///
+/// If it fails, the database is closed, so the file is not left open, and
+/// the error goes to the caller, which starts the app without storage and
+/// says so.
+Future<AppDatabase> openCheckedAppDatabase(
+  File file, {
+  bool background = true,
+}) async {
+  final database = openAppDatabase(file, background: background);
+  try {
+    // Reading a table makes SQLite read the file's header and its schema.
+    await (database.select(database.appSettings)..limit(1)).get();
+  } catch (_) {
+    try {
+      await database.close();
+    } catch (_) {
+      // The database never opened; there may be nothing to close.
+    }
+    rethrow;
+  }
+  return database;
+}
