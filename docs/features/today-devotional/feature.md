@@ -56,6 +56,7 @@ A man opens the app and sees today: the date, a mission line, a ring that shows 
 
 - For a moment after the day changes, the page still shows yesterday's reading while today's loads. Scrolling that to its end in that moment unlocks Amen for today's reading. (Review finding, medium.)
 - If the preview points switch cannot be saved, nothing on screen says so. (Review finding, medium.)
+- A corrupt database file is found at start-up, and the app says nothing is saved, but there is no way to recover from it inside the app.
 
 **What must not change**
 
