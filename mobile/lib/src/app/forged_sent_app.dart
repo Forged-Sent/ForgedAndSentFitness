@@ -1,40 +1,58 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../core/clock.dart';
 import '../design/fs_theme.dart';
 import 'fs_router.dart';
 
-class ForgedSentApp extends StatefulWidget {
+/// The app. It must sit under a `ProviderScope` that supplies
+/// `localStoreProvider`; `main` and the tests each do that.
+class ForgedSentApp extends ConsumerStatefulWidget {
   const ForgedSentApp({
     super.key,
     this.mode = 'preview',
     this.startupError,
+    this.storageFailed = false,
     this.themeMode = ThemeMode.system,
-    this.now,
   });
 
   final String mode;
   final String? startupError;
 
+  /// True when the member's local storage could not be opened. The app
+  /// then runs without saving, says so, and opens on the status page.
+  final bool storageFailed;
+
   /// Follows the phone's dark or light setting unless a test fixes it.
   final ThemeMode themeMode;
 
-  /// The clock. Tests pass a fixed one; the app uses the device's.
-  final DateTime Function()? now;
-
   @override
-  State<ForgedSentApp> createState() => _ForgedSentAppState();
+  ConsumerState<ForgedSentApp> createState() => _ForgedSentAppState();
 }
 
-class _ForgedSentAppState extends State<ForgedSentApp> {
+class _ForgedSentAppState extends ConsumerState<ForgedSentApp> {
   late final GoRouter _router = buildFsRouter(
     mode: widget.mode,
     startupError: widget.startupError,
-    now: widget.now ?? DateTime.now,
+    storageFailed: widget.storageFailed,
+  );
+
+  /// Coming back to the app after midnight: Today must not still show
+  /// yesterday. Timers do not run while the app is in the background.
+  late final AppLifecycleListener _lifecycle = AppLifecycleListener(
+    onResume: () => ref.read(todayDateProvider.notifier).refresh(),
   );
 
   @override
+  void initState() {
+    super.initState();
+    _lifecycle;
+  }
+
+  @override
   void dispose() {
+    _lifecycle.dispose();
     _router.dispose();
     super.dispose();
   }
@@ -61,14 +79,18 @@ class FoundationHomeScreen extends StatelessWidget {
     super.key,
     this.mode = 'preview',
     this.startupError,
+    this.storageFailed = false,
   });
 
   final String mode;
   final String? startupError;
+  final bool storageFailed;
 
   @override
   Widget build(BuildContext context) {
-    final status = startupError != null
+    final status = storageFailed
+        ? 'Local storage could not be opened. Nothing is saved on this device.'
+        : startupError != null
         ? 'Local emulator not available. No cloud fallback was attempted.'
         : mode == 'emulator'
         ? 'Verified local Auth, Firestore and Storage emulators (demo-forgedandsent).'
@@ -101,7 +123,13 @@ class FoundationHomeScreen extends StatelessWidget {
                   textAlign: TextAlign.center,
                   style: const TextStyle(fontSize: 12),
                 ),
-                if (startupError != null) ...[
+                if (storageFailed) ...[
+                  const SizedBox(height: 12),
+                  const Text(
+                    'Close the app and open it again.',
+                    textAlign: TextAlign.center,
+                  ),
+                ] else if (startupError != null) ...[
                   const SizedBox(height: 12),
                   const Text(
                     'Start the Firebase emulators and relaunch the app.',

@@ -12,11 +12,11 @@ Detail for every row, with actions, data and acceptance criteria: [screens and U
 
 | Prototype view | Flutter status | Planned in | Biggest gap to close |
 |---|---|---|---|
-| App shell: brand bar, hero header, six-tab bar | Implemented | S0 | The round header buttons do nothing yet; five of the six tabs are titled placeholders; Rally's own compact header is not built; not run on a phone or an emulator |
+| App shell: brand bar, hero header, six-tab bar | Implemented | S0 | The round header buttons do nothing yet, except Today's profile button, which opens Settings; five of the six tabs are titled placeholders; Rally's own compact header is not built; run on one Android emulator (the S1 restart test), not on a phone |
 | Legal gate | Not started | Later, not yet scheduled | Prototype stores it in private settings and does not enforce it on writes |
 | Setup wizard | Not started | Later, not yet scheduled | Body stats and injuries are sensitive; ADR-0005 defers storing them |
-| Today | Not started | S1 | FNS-001 is two synthetic cards with Material buttons; no header, ring, boxes or content |
-| Devotional | Not started | S1 |  |
+| Today | Implemented | S1 | Shows the date, the streak line, the mission line, the progress ring and the seven daily boxes. Only the devotional box works; the other six are drawn faded and say "Not active yet". Not built: first orders, "Your two" habits, the campaign card, the Stand Firm creed card, the grace and sit-out cards, the Sabbath-only boxes (weigh-in, photos, family report, legacy log) and the mission-complete dialog. Point values are hidden unless the preview switch is on, and no total is shown (decision Q5); the streak counts devotional days, not full days (decision Q6) |
+| Devotional | Implemented | S1 | Scroll to the end, Amen, Undo, and the BSB / ESV tab work, and the completion survives a restart. Not built: "Write it down" (S2), and the search and help buttons in the page's bar. Three v254 sections have no data to show; see below |
 | Journal editor and page | Not started | S2 | Sensitive-field storage and sign-out retention are undecided (ADR-0005) |
 | Train | Not started | S3 | Plan-start dead zone (U1) |
 | Workout | Not started | S3 | Index-keyed history (U3); midnight (U2); rest timer silent when the phone is locked |
@@ -27,12 +27,24 @@ Detail for every row, with actions, data and acceptance criteria: [screens and U
 | Campaign and team | Not started | Later, not yet scheduled | Tab placement differs between forks |
 | Rally | Not started | Later, not yet scheduled | Report and block unreachable (U7) |
 | Profile | Not started | Later, not yet scheduled | Two unrelated PR systems |
-| Settings | Not started | Later, not yet scheduled | Reminders and health are stubs; delete is incomplete (U8) |
+| Settings | In progress | S1 for one switch; the rest later, not yet scheduled | Only the preview points switch (decision Q5), the scripture credits and the way to the build status page exist. Reminders and health are stubs in the prototype; delete is incomplete (U8) |
 | Owner tools | Not started | Later, not yet scheduled | Owner gating is hidden-flag only |
 | Paul & Timothy | Not started | Later, not yet scheduled | The forks disagree; `main` deferred it for privacy |
 | Legacy log, family report, junior challenge | Not started | Later, not yet scheduled | Family report sends personal text to a model without saying so |
 | Help and Ask | Not started | Later, not yet scheduled |  |
 | Sign-in | Not started | S4 | No implementation plan |
+
+### v254's reading has sections the app has no data for
+
+Prompt P05 bundles `seed/devotionals.json` from `main`. v254 carries a newer set of readings inside its own HTML, which `seed/` does not have. So these parts of v254's reading are not shown, because there is nothing to put in them:
+
+| v254 section | Field in v254's data | In `seed/devotionals.json` on `main` |
+|---|---|---|
+| Headline under the date ("Every gift came from above") | `headline` | Absent for all 366 days |
+| "In Jesus" section, between Reading and Reflect | `jesus` | Absent for all 366 days |
+| "Sent: take it to someone" and "Spirit-led" tags | `sent`, `spirit` | Absent for all 366 days |
+
+The series line (`series`) is shown where the seed has it: the 29 February readings. The wording of prayers, questions and actions also differs between the two sets; the app shows the seed's. Two box titles differ from v254's reference pictures as well: the app shows `seed/tasks.json`'s Rally Call and Hydrate, and the pictures show Daily Check-In and Drink 3 Liters of Water, which are the titles of the mock runtime the prototype is captured with. Bringing the newer readings into `seed/` belongs to the prototype reconciliation (prompt P02, on the work board).
 
 These are migration candidates, not a decision to copy every prototype feature or its numeric formulas. Existing details live in `docs/architecture-notes.md`, `seed/` and current `index.html`, with many prior versions preserved.
 

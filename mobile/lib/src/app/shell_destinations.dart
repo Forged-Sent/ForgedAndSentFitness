@@ -30,8 +30,9 @@ class ShellDestination {
   /// The small caps line above the title.
   final String kicker;
 
-  /// The round buttons the prototype shows in this page's header. None of
-  /// them does anything yet.
+  /// The round buttons the prototype shows in this page's header. They do
+  /// nothing yet, except Today's profile button, which the Today page wires
+  /// to Settings itself.
   final List<FsHeroAction> actions;
 }
 
@@ -55,8 +56,14 @@ const List<FsHeroAction> _walkActions = <FsHeroAction>[
 abstract final class ShellDestinations {
   static const String todayPath = '/today';
 
-  /// The developer status page, nested under Today.
-  static const String statusPath = '/today/status';
+  /// Today's reading, opened from the devotional box.
+  static const String devotionalPath = '/today/devotional';
+
+  /// Settings, opened from the round profile button in Today's header.
+  static const String settingsPath = '/today/settings';
+
+  /// The developer status page, opened from Settings.
+  static const String statusPath = '/today/settings/status';
 
   static const ShellDestination today = ShellDestination(
     label: 'Today',

@@ -143,6 +143,114 @@ abstract final class FsText {
     height: 1.4,
   );
 
+  /// The count in the middle of the progress ring.
+  static const TextStyle ringValue = TextStyle(
+    fontFamily: FsFonts.display,
+    fontWeight: FontWeight.w800,
+    fontSize: 24,
+    height: 1,
+  );
+
+  /// The word under that count.
+  static const TextStyle ringLabel = TextStyle(
+    fontFamily: FsFonts.display,
+    fontWeight: FontWeight.w700,
+    fontSize: 10,
+    letterSpacing: 1.4,
+    height: 1.4,
+  );
+
+  /// A row beside the ring: "SPIRIT" on the left, "0 OF 2" on the right.
+  static const TextStyle stat = TextStyle(
+    fontFamily: FsFonts.display,
+    fontWeight: FontWeight.w600,
+    fontSize: 12,
+    letterSpacing: 1.2,
+    height: 1.4,
+  );
+
+  /// The "1 / 7" at the right of a section head.
+  static const TextStyle tally = TextStyle(
+    fontFamily: FsFonts.display,
+    fontWeight: FontWeight.w700,
+    fontSize: 24.5,
+    height: 1,
+  );
+
+  /// The small caps line above a box's title.
+  static const TextStyle boxCommand = TextStyle(
+    fontFamily: FsFonts.display,
+    fontWeight: FontWeight.w700,
+    fontSize: 10.5,
+    letterSpacing: 1.47,
+    height: 1.2,
+  );
+
+  /// A box's title.
+  static const TextStyle boxTitle = TextStyle(
+    fontFamily: FsFonts.body,
+    fontWeight: FontWeight.w700,
+    fontSize: 15,
+    height: 1.1,
+  );
+
+  /// A box's point value, where it is shown.
+  static const TextStyle boxPoints = TextStyle(
+    fontFamily: FsFonts.display,
+    fontWeight: FontWeight.w700,
+    fontSize: 14,
+    letterSpacing: 1.12,
+    height: 1.4,
+  );
+
+  /// The date at the top of a reading. The prototype asks for a bold
+  /// upright Merriweather; only the italic is bundled, so it is drawn as
+  /// the browser draws it: the italic, thickened.
+  static const TextStyle readingTitle = TextStyle(
+    fontFamily: FsFonts.scripture,
+    fontStyle: FontStyle.italic,
+    fontWeight: FontWeight.w800,
+    fontSize: 26,
+    letterSpacing: 0.52,
+    height: 0.95,
+  );
+
+  /// The series line under a reading's date.
+  static const TextStyle readingSeries = TextStyle(
+    fontFamily: FsFonts.display,
+    fontWeight: FontWeight.w700,
+    fontSize: 13,
+    letterSpacing: 0.78,
+    height: 1.4,
+  );
+
+  /// The label of a section of a reading: "// OPEN IN PRAYER".
+  static const TextStyle sectionLabel = TextStyle(
+    fontFamily: FsFonts.display,
+    fontWeight: FontWeight.w600,
+    fontSize: 13,
+    letterSpacing: 1.56,
+    height: 1.4,
+  );
+
+  /// The verse of a reading.
+  static const TextStyle scriptureLarge = TextStyle(
+    fontFamily: FsFonts.scripture,
+    fontStyle: FontStyle.italic,
+    fontWeight: FontWeight.w400,
+    fontSize: 16.5,
+    height: 1.55,
+  );
+
+  /// A reflection question, set like scripture but smaller.
+  static const TextStyle scriptureSmall = TextStyle(
+    fontFamily: FsFonts.scripture,
+    fontStyle: FontStyle.italic,
+    fontWeight: FontWeight.w400,
+    fontSize: 14,
+    height: 1.55,
+  );
+
   /// Scripture and the "i" of the help button.
   static const TextStyle scripture = TextStyle(
     fontFamily: FsFonts.scripture,

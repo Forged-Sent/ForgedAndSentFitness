@@ -55,6 +55,8 @@ void main() {
     expect(find.textContaining('offline'), findsNothing);
 
     // Leaving the explanation does not turn it into a success message.
+    // Back goes to Settings, which the status page sits under, then Today.
+    await systemBack(tester);
     await systemBack(tester);
     expect(find.text('TODAY’S MISSION'), findsOneWidget);
     await openStatusPage(tester);
