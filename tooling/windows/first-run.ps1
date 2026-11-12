@@ -12,6 +12,7 @@ $verify=Join-Path $PSScriptRoot 'verify-developer.ps1'
 $profileScript=Join-Path $PSScriptRoot 'setup-profile.ps1'
 $previewScript=Join-Path $PSScriptRoot 'setup.ps1'
 . (Join-Path $PSScriptRoot 'diagnostic-model.ps1')
+. (Join-Path $PSScriptRoot 'forge-shell-functions.ps1')
 # Grade "Check my setup" against the profile this clone was set up for. If none was
 # saved yet, a present Firebase CLI means Contributor tools were installed earlier.
 $firebaseFound=([bool](Get-Command firebase.cmd -ErrorAction SilentlyContinue) -or
@@ -68,12 +69,17 @@ function RunSetup([string]$targetProfile){
     $setupArgs+=@('-AIChoice',($agents -join ','))
     Write-Host ("Selected: "+($agents -join ', ')+". No AI account is needed to use Flutter or the demo Firebase emulators.")
   }
+  $shellChoice=Select-FSEngineeringShell
   $status=RunScript $profileScript $setupArgs
   $script:LastSetupStatus=$status
   if($status){
     Write-Host 'One or more installs require attention. Check the error and rerun when resolved.' -ForegroundColor Yellow
   }else{
     Write-Host 'Tools installed. This does not automatically sign in or verify emulator connections.' -ForegroundColor Green
+    if($shellChoice.Apply){
+      try{Install-FSEngineeringShell -ProjectRoot $root -Style $shellChoice.Style -Tools:$shellChoice.Tools}
+      catch{Write-Warning ("Optional shell needs attention: "+$_.Exception.Message+" Retry from More options > 6.")}
+    }
   }
   if($targetProfile -ne 'Preview'){
     # Always offered, even after an install warning; only prompts if not yet set.
@@ -188,6 +194,7 @@ function MoreOptions {
   Write-Host '  3. Sign in to GitHub CLI'
   Write-Host '  4. Show project MCP configuration'
   Write-Host '  5. Check Git commit name/email'
+  Write-Host '  6. Optional ADHD-friendly engineering shell'
   Write-Host '  0. Back'
   switch(Read-Host 'Your choice'){
     '1' {RunSetup 'Mobile'}
@@ -203,6 +210,10 @@ function MoreOptions {
       Write-Host 'Configured does NOT mean connected. Authenticate providers independently.'
     }
     '5' {SetGitIdentity}
+    '6' {
+      $shellChoice=Select-FSEngineeringShell
+      if($shellChoice.Apply){Install-FSEngineeringShell -ProjectRoot $root -Style $shellChoice.Style -Tools:$shellChoice.Tools}
+    }
     default { }
   }
 }
@@ -252,7 +263,7 @@ do {
   Write-Host '  5. Check my setup'
   Write-Host '  6. Preview-only setup (quickest; view only)'
   Write-Host '  7. Open VS Code and the first-contribution guide'
-  Write-Host '  8. More options (Android, maintainer, GitHub sign-in)'
+  Write-Host '  8. More options (Android, maintainer, GitHub sign-in, optional shell)'
   Write-Host '  0. Exit'
   $choice=Read-Host 'Choose a number'
   try{

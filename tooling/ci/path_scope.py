@@ -51,10 +51,10 @@ def classify(paths: list[str]) -> dict[str, bool]:
         elif path.startswith((".github/workflows/", ".github/actions/",
                              "tooling/ci/", "tooling/policy/")):
             enable(*result)
-        elif (path.startswith(("tooling/windows/", "launchers/windows/"))
+        elif (path.startswith(("tooling/windows/", "launchers/windows/", "tooling/forge-shell/windows/"))
               or ("/" not in path and path.endswith(".cmd"))):
             enable("windows")
-        elif (path.startswith(("tooling/macos/", "launchers/mac/"))
+        elif (path.startswith(("tooling/macos/", "launchers/mac/", "tooling/forge-shell/macos/"))
               or ("/" not in path and path.endswith(".command"))):
             enable("mac")
         elif path.startswith("tooling/mcp/"):

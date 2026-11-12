@@ -4,3 +4,6 @@ mobile/analysis_options.yaml text eol=lf
 *.cmd text eol=crlf
 *.ps1 text eol=lf
 *.sh text eol=lf
+*.zsh text eol=lf
+*.command text eol=lf
+tooling/forge-shell/** text eol=lf

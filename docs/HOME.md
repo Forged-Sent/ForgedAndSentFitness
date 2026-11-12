@@ -29,6 +29,7 @@ Full board: [Work board](knowledge/WORK.md).
 | See live pull requests and checks on GitHub | [Pull requests](https://github.com/Forged-Sent/ForgedAndSentFitness/pulls) |
 | Find historical evidence or rationale | [History index](knowledge/HISTORY.md), on demand |
 | Set up a workstation | [Start here](development/START_HERE.md) |
+| Use the optional engineering shell | [Setup](development/SHELL-SETUP.md) · [Windows commands](development/shell/WINDOWS-COMMANDS.md) · [Mac commands](development/shell/MAC-COMMANDS.md) |
 | Start Flutter work with Claude CLI | [Flutter CLI guide](development/FLUTTER-CLAUDE-CLI.md) |
 | Open the prototype or Architecture Atlas | [Workspace guide](development/KNOWLEDGE-WORKSPACE.md) |
 | Agent entrypoint | [Index](knowledge/INDEX.md) |

@@ -143,7 +143,7 @@ while :; do
       open "$FS_ROOT/docs/development/FIRST-CONTRIBUTION.md"
       ;;
     8)
-      printf '\n1. Git name/email\n2. GitHub CLI sign-in\n3. Open Architecture Atlas\n4. Read Mac quickstart\n5. iPhone testing (Xcode + iOS simulator)\n0. Back\nChoice: '
+      printf '\n1. Git name/email\n2. GitHub CLI sign-in\n3. Open Architecture Atlas\n4. Read Mac quickstart\n5. iPhone testing (Xcode + iOS simulator)\n6. Optional ADHD-friendly engineering shell\n0. Back\nChoice: '
       IFS= read -r fs_more || fs_more=0
       case "$fs_more" in
         1) fs_ensure_git_identity || true;;
@@ -151,6 +151,7 @@ while :; do
         3) open "$FS_ROOT/launchers/mac/more/Architecture Atlas.command";;
         4) open "$FS_ROOT/docs/development/MACBOOK-QUICKSTART.md";;
         5) fs_setup_ios_step;;
+        6) /bin/bash "$FS_ROOT/tooling/macos/forge-shell.sh" --offer || true;;
       esac
       ;;
     0) break;;

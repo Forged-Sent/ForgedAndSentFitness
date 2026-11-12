@@ -2,6 +2,7 @@
 # Mac Preview and Contributor only. No cloud Firebase MCP or automatic login.
 set -euo pipefail
 . "$(dirname "$0")/common.sh"
+. "$(dirname "$0")/forge-shell.sh"
 FS_PROFILE=Preview
 FS_CI=0
 FS_SELFTEST=0
@@ -30,6 +31,7 @@ if [ "$FS_CI" -eq 1 ]; then
   exit 0
 fi
 fs_info "Forged & Sent MacBook setup ($FS_PROFILE)"
+fs_select_engineering_shell
 fs_require_clt || exit 2
 fs_require_brew || exit 2
 fs_brew_cask visual-studio-code 'Visual Studio Code.app' code
@@ -74,6 +76,7 @@ cd "$FS_ROOT/mobile"
 "$FS_FLUTTER" test
 "$FS_FLUTTER" build web --release
 fs_ok 'Flutter browser preview build and tests passed.'
+fs_install_engineering_shell || fs_warn 'Optional shell needs attention. Retry from More options > 6.'
 if [ "$FS_PROFILE" = Contributor ]; then
   fs_info 'Local Firebase wiring is implemented. Test it with launchers/mac/3 - Start practice Firebase.command and launchers/mac/4 - Run app with practice Firebase.command.'
   fs_warn 'Live emulator handshake and agent MCP connections still require hands-on verification.'

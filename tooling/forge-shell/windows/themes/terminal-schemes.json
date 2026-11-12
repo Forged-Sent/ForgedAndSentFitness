@@ -1,0 +1,12 @@
+[
+ {
+  "name":"Forge Graphite","background":"#151719","foreground":"#F2F0EB","cursorColor":"#79B8C8","selectionBackground":"#303538",
+  "black":"#222528","red":"#F08076","green":"#7EC89A","yellow":"#E0C46C","blue":"#79A8CF","purple":"#B5A6C8","cyan":"#79B8C8","white":"#DCD8D1",
+  "brightBlack":"#929CA5","brightRed":"#FF9A90","brightGreen":"#9EDBAF","brightYellow":"#F0D78B","brightBlue":"#A4C8E8","brightPurple":"#D1C4DF","brightCyan":"#A1D5DE","brightWhite":"#F2F0EB"
+ },
+ {
+  "name":"Forge Ember","background":"#151719","foreground":"#F2F0EB","cursorColor":"#F17B32","selectionBackground":"#38312C",
+  "black":"#222528","red":"#F08076","green":"#7EC89A","yellow":"#E0C46C","blue":"#79A8CF","purple":"#CFB89C","cyan":"#79B8C8","white":"#DCD8D1",
+  "brightBlack":"#929CA5","brightRed":"#FF9A90","brightGreen":"#9EDBAF","brightYellow":"#FF9A55","brightBlue":"#A4C8E8","brightPurple":"#E3C9AD","brightCyan":"#A1D5DE","brightWhite":"#F2F0EB"
+ }
+]

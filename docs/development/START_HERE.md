@@ -7,6 +7,8 @@
 
 **For first-time contributors:** follow [Your first contribution](FIRST-CONTRIBUTION.md) after [Windows quickstart](WINDOWS-QUICKSTART.md) or [Mac quickstart](MACBOOK-QUICKSTART.md). Use an existing **Git clone**, not a ZIP. Check `git status`, then `git switch main`, `git fetch origin`, `git pull --ff-only`. On Windows use `START-WINDOWS.cmd`; on Mac use `START-MAC.command` (or the numbered files in `launchers/<os>/`). Both set up Preview or Contributor tools, including the local practice Firebase, without Firebase cloud login. Android (Windows) and iPhone simulator (Mac) setup are optional extras; device testing still needs manual platform steps. See [Windows quickstart](WINDOWS-QUICKSTART.md) and [Mac quickstart](MACBOOK-QUICKSTART.md).
 
+Both guided setups offer an [optional ADHD-friendly engineering shell](SHELL-SETUP.md), with commands for any project. Press Enter to skip it, or add it later from **More options → 6**. [Windows command sheet](shell/WINDOWS-COMMANDS.md) · [Mac command sheet](shell/MAC-COMMANDS.md).
+
 ## Branches, pull requests and reviews
 
 - Every contributor works on a short-lived branch and opens a pull request

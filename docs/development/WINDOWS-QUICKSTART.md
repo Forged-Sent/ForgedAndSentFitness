@@ -32,6 +32,8 @@ Only want to look at the app, not edit it? Use `launchers/windows/more/Preview-o
 
 Codex, Claude Code, Copilot and Antigravity are all optional; pick only the ones you already have accounts for. Flutter/Dart tools are independent of a paid AI plan.
 
+Setup also offers the [optional engineering shell](SHELL-SETUP.md): menus, bookmarks, tasks, notes and focus tools in PowerShell 7. **Enter skips it.** Colors and ripgrep/fzf are separate choices. Add it later with **START-WINDOWS.cmd → 8 → 6** or `launchers/windows/more/Optional engineering shell.cmd`. [All Windows commands](shell/WINDOWS-COMMANDS.md).
+
 ## Verify local Firebase
 
 1. Open `launchers/windows/3 - Start practice Firebase.cmd` and keep that window running. Wait until it says **All emulators ready! It is now safe to connect your app.** If it instead says a port "is already in use" ("Are you running another copy of the emulator suite?"), close the other emulator window or development server, or restart the computer, and try again. Don't edit `firebase.json`.

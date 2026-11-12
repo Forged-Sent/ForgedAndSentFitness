@@ -160,6 +160,7 @@ jobs:
           Install-Module PSScriptAnalyzer -RequiredVersion 1.23.0 -Scope CurrentUser -Force -AllowClobber -Repository PSGallery
           Import-Module PSScriptAnalyzer
           $issues=@(Invoke-ScriptAnalyzer -Path tooling/windows -Recurse -IncludeRule PSAvoidAssignmentToAutomaticVariable -Severity Error,Warning)
+          $issues+=@(Invoke-ScriptAnalyzer -Path tooling/forge-shell/windows -Recurse -IncludeRule PSAvoidAssignmentToAutomaticVariable -Severity Error,Warning)
           if($issues.Count){$issues|Format-Table|Out-String|Write-Host;throw 'Reserved automatic variable assignment'}
       - name: Pester tests for WinGet exit semantics and profile diagnostics
         shell: pwsh
@@ -169,6 +170,13 @@ jobs:
           Import-Module Pester -RequiredVersion 5.7.1
           $results=Invoke-Pester -Path tooling/windows/tests -PassThru
           if($results.FailedCount -gt 0 -or $results.PassedCount -eq 0){throw 'PowerShell unit tests failed'}
+      - name: Bundled PowerShell shell integration tests (isolated data)
+        shell: pwsh
+        run: |
+          & pwsh -NoProfile -File tooling/forge-shell/windows/tests/Validate.ps1
+          if($LASTEXITCODE){throw 'Bundled shell tests failed'}
+          & pwsh -NoProfile -File tooling/windows/forge-shell.ps1 -SelfTest
+          if($LASTEXITCODE){throw 'Optional shell self-test failed'}
       - name: Test 5.1 bridge and wizard diagnostics
         shell: pwsh
         run: |
@@ -212,7 +220,7 @@ jobs:
           Push-Location $env:RUNNER_TEMP
           try{& (Join-Path $env:GITHUB_WORKSPACE 'launchers\windows\more\AI code review.cmd') --help; $rc=$LASTEXITCODE}finally{Pop-Location}
           if($rc){throw 'Launcher with spaces in its name failed to run from another folder'}
-          foreach($mode in 'contributor','check','preview','run','emulators','run-emulator'){
+          foreach($mode in 'contributor','check','preview','run','emulators','run-emulator','shell'){
             & powershell.exe -NoProfile -ExecutionPolicy Bypass -File tooling/windows/bootstrap-pwsh.ps1 -Mode $mode -SelfTest
             if($LASTEXITCODE){throw "Bootstrap mode $mode mapping failed"}
           }
@@ -324,6 +332,16 @@ jobs:
           bash tooling/macos/setup.sh --profile Contributor --self-test
           bash tooling/macos/verify.sh --self-test
           bash tooling/macos/first-run.sh --self-test
+      - name: Bundled zsh shell and installer tests (isolated home)
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -m unittest discover -s tooling/forge-shell/macos/tests -p 'test_*.py' -v
+          for s in tooling/forge-shell/macos/*.zsh; do zsh -n "$s"; done
+          zsh -dfi tooling/forge-shell/macos/tests/smoke.zsh
+          bash tooling/macos/forge-shell.sh --self-test
+          CI=1 bash tooling/macos/forge-shell.sh --offer </dev/null
+          (cd /tmp && CI=1 "$GITHUB_WORKSPACE/launchers/mac/more/Optional engineering shell.command" --self-test </dev/null)
       - name: Knowledge preview server on macOS (allowlist, real process, start/stop)
         shell: bash
         run: |

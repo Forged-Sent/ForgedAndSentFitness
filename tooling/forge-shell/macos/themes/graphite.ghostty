@@ -1,0 +1,27 @@
+# Forge Graphite — imported with config-file
+font-family = Menlo
+font-size = 14
+background = #151719
+foreground = #F2F0EB
+cursor-color = #79B8C8
+cursor-text = #151719
+selection-background = #303538
+selection-foreground = #F2F0EB
+window-padding-x = 12
+window-padding-y = 10
+palette = 0=#151719
+palette = 1=#F08076
+palette = 2=#7EC89A
+palette = 3=#E0C46C
+palette = 4=#79B8C8
+palette = 5=#B89ACB
+palette = 6=#7CC5C1
+palette = 7=#D6D8DA
+palette = 8=#929CA5
+palette = 9=#FF9A90
+palette = 10=#9FE0B4
+palette = 11=#F0D998
+palette = 12=#A2D1DF
+palette = 13=#CFB2DF
+palette = 14=#A2DEDA
+palette = 15=#F2F0EB

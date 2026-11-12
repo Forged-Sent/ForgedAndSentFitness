@@ -8,6 +8,12 @@ from path_scope import classify
 
 
 class ClassificationTests(unittest.TestCase):
+    def test_bundled_shells_run_their_platform_checks(self):
+        self.assertEqual(classify(["tooling/forge-shell/windows/modules/Forge/Core.ps1"]),
+                         {"windows": True, "mobile": False, "mac": False, "prototype": False})
+        self.assertEqual(classify(["tooling/forge-shell/macos/install.py"]),
+                         {"windows": False, "mobile": False, "mac": True, "prototype": False})
+
     def test_prototype_only_skips_expensive_build_lanes(self):
         self.assertEqual(classify(["index.html", "versions/app-v183.html", "seed/lifts.json", "dev/mock-claude.js"]),
                          {"windows": False, "mobile": False, "mac": False, "prototype": True})

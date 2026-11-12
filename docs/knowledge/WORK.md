@@ -8,6 +8,7 @@ Plan and reasoning: [prototype-to-Flutter review](../reviews/2026-11-10-prototyp
 
 | Step | What a man can see when it is done | State | Branch or PR | Next action |
 |---|---|---|---|---|
+| Optional engineering shell | Windows and Mac setup offer personal menus, bookmarks, capture/focus tools, and complete command sheets in the project vault | **Done** | branch `codex/optional-engineering-shell` | Try the opt-in setup and terminal appearance on a Mac; see [shell setup](../development/SHELL-SETUP.md) |
 | Decisions | Nothing yet; this unblocks the rest | **Done** | branch `chore/review-rules-and-dashboard` | None; the answers are on the [Decisions](../reviews/2026-11-10-prototype-to-flutter/01-DECISIONS.md) page |
 | CI accepts images and fonts | Nothing yet; without it the required check fails every pull request below | **Done** | [#54](https://github.com/Forged-Sent/ForgedAndSentFitness/pull/54) | — |
 | Publish review and rules cleanup | The dashboard, board and rules on `main` | **Done** | branch `chore/review-rules-and-dashboard` | — |

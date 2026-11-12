@@ -32,6 +32,8 @@ Only want to look at the app, not edit it? Use `launchers/mac/more/Preview-only 
 
 With your consent, the setup can add the project's Flutter SDK folder to your `~/.zprofile` PATH. Reopen Terminal and check `flutter --version`. If you decline, use `~/develop/flutter/bin/flutter` explicitly for manual commands.
 
+Setup also offers the [optional engineering shell](SHELL-SETUP.md): native zsh commands for tasks, notes, bookmarks, focus and general engineering. **Return skips it.** iTerm2/Ghostty colors and Homebrew extras are separate choices. Add it later with **START-MAC.command → 8 → 6** or `launchers/mac/more/Optional engineering shell.command`. [All Mac commands](shell/MAC-COMMANDS.md).
+
 ## Test demo Firebase
 
 Start `launchers/mac/3 - Start practice Firebase.command` in a separate Terminal window. Wait until it says **All emulators ready! It is now safe to connect your app.** If it instead says a port "is already in use" ("Are you running another copy of the emulator suite?"), close the other emulator window or development server, or restart the computer, and try again. Don't edit `firebase.json`. Then run `launchers/mac/4 - Run app with practice Firebase.command` in another window. Confirm that the app reports verified local Auth, Firestore and Storage.

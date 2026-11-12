@@ -5,7 +5,7 @@ Run by the repository's .cmd entrypoints; never changes execution policy globall
 #>
 param(
     [Parameter(Mandatory = $true)]
-    [ValidateSet('wizard','contributor','check','preview','developer','setup','android','run','verify','emulators','run-emulator')]
+    [ValidateSet('wizard','contributor','check','preview','developer','setup','android','run','verify','emulators','run-emulator','shell')]
     [string]$Mode,
     [switch]$SelfTest,
     # Report which PowerShell 7 was found and why a candidate failed; installs nothing.
@@ -21,6 +21,7 @@ $preferred = [version]'7.6.0'
 $minimum = if($Mode -in @('setup','android','run')){[version]'7.4.0'}else{[version]'7.6.0'}
 $entries = @{
     wizard    = @{File='first-run.ps1'; Args=@(); Update=$true}
+    shell     = @{File='forge-shell.ps1'; Args=@('-Offer'); Update=$true}
     # Numbered launchers in launchers\windows run one wizard step and exit.
     contributor = @{File='first-run.ps1'; Args=@('-Action','contributor'); Update=$true}
     check     = @{File='first-run.ps1'; Args=@('-Action','check'); Update=$false}

@@ -1,0 +1,17 @@
+{
+  "SchemaVersion": 1,
+  "Theme": "auto",
+  "PromptMode": "rich",
+  "EnablePrompt": true,
+  "EnableGitStatus": true,
+  "EnableEditing": true,
+  "EnableDirectoryHistory": true,
+  "EnableFzf": true,
+  "NerdIcons": false,
+  "GitCacheSeconds": 5,
+  "GitTimeoutMs": 1500,
+  "DefaultProject": "",
+  "WorkspaceRoots": [],
+  "FlutterSdk": "",
+  "PredictionView": "InlineView"
+}
