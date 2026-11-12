@@ -334,6 +334,42 @@ void main() {
     expect((await app.savedDay(tester, _nov10)).items, isEmpty);
   });
 
+  testWidgets(
+    'reaching the end of one reading as the day changes does not unlock the next',
+    (tester) async {
+      final app = await pumpApp(tester);
+      await openDevotional(tester);
+      expect(_amen(tester).onPressed, isNull);
+
+      // He reaches the end of the 10th's reading. The page notes it, to
+      // unlock Amen once the frame is drawn. No frame is drawn yet.
+      final position = readerPosition(tester);
+      position.jumpTo(position.maxScrollExtent);
+
+      // In that gap midnight passes and the page moves to the 11th.
+      app.clock.time = DateTime(2026, 11, 11, 0, 0, 5);
+      await tester.pump(const Duration(minutes: 1));
+      await tester.pumpAndSettle();
+
+      // The 11th's reading is on screen from the top, and the end he
+      // reached belonged to the 10th: Amen stays locked.
+      expect(find.text('November 11'), findsOneWidget);
+      expect(_verse(tester), nextReading.bsbText);
+      expect(readerPosition(tester).pixels, 0);
+      expect(_amen(tester).onPressed, isNull);
+      expect(_amen(tester).label, 'Scroll to the bottom to say Amen');
+      expect(find.text(newDayNotice), findsOneWidget);
+
+      // Reading the 11th to its end unlocks it as usual.
+      await scrollReaderToEnd(tester);
+      expect(_amen(tester).onPressed, isNotNull);
+      await tester.tap(amenButton);
+      await tester.pumpAndSettle();
+      expect((await app.savedDay(tester, _nov11)).isDone(_devotional), isTrue);
+      expect((await app.savedDay(tester, _nov10)).items, isEmpty);
+    },
+  );
+
   group('Amen tapped just after midnight, before the page has changed', () {
     // Decided by the maintainer on 2026-11-12: the tap is refused, nothing
     // is saved, the new day's reading is shown locked, and one line says

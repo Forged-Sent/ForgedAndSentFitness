@@ -57,6 +57,10 @@ class _DevotionalPageState extends ConsumerState<DevotionalPage> {
   /// page can say why it is back at the top with Amen locked.
   bool _newDay = false;
 
+  /// Which reading this page is showing, counted from the one it opened
+  /// with. Reaching the end of one reading must never unlock the next.
+  int _reading = 0;
+
   @override
   void dispose() {
     _scroll.dispose();
@@ -68,8 +72,14 @@ class _DevotionalPageState extends ConsumerState<DevotionalPage> {
     if (metrics.maxScrollExtent <= 0 ||
         metrics.pixels >= metrics.maxScrollExtent - _endMargin) {
       // Scroll notifications arrive during layout; change state after it.
+      // By then the day may have changed and the page may be showing
+      // another reading, so the unlock applies only to the reading that
+      // was scrolled.
+      final scrolled = _reading;
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted && !_reachedEnd) setState(() => _reachedEnd = true);
+        if (mounted && !_reachedEnd && scrolled == _reading) {
+          setState(() => _reachedEnd = true);
+        }
       });
     }
   }
@@ -79,6 +89,7 @@ class _DevotionalPageState extends ConsumerState<DevotionalPage> {
   void _onNewDay(LocalDate? previous, LocalDate next) {
     if (previous == next) return;
     setState(() {
+      _reading++;
       _reachedEnd = false;
       _translation = Translation.bsb;
       _saveFailed = false;
