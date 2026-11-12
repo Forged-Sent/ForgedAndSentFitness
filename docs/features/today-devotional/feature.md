@@ -52,6 +52,11 @@ A man opens the app and sees today: the date, a mission line, a ring that shows 
 - **Nothing can be kept (the web preview):** Today and the reading say "Nothing you check here is saved."
 - **No reading for the date:** the page says "No devotional today". The bundled file has all 366 dates, so this cannot happen today.
 
+**Known gaps, on the [work board](../../knowledge/WORK.md)**
+
+- For a moment after the day changes, the page still shows yesterday's reading while today's loads. Scrolling that to its end in that moment unlocks Amen for today's reading. (Review finding, medium.)
+- If the preview points switch cannot be saved, nothing on screen says so. (Review finding, medium.)
+
 **What must not change**
 
 - Nothing is written to Firebase, and no feature code imports its SDK.
