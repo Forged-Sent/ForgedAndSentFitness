@@ -37,7 +37,8 @@ void main() {
     await tester.tap(prayerAmenButton);
     await tester.pumpAndSettle();
     expect(find.byType(WorkoutPrayerDialog), findsNothing);
-    expect(workoutClock, findsOneWidget);
+    await pumpUntilFound(tester, workoutClock);
+    await pumpUntilFound(tester, repsField(0, 0));
 
     // Two sets of the first lift.
     for (var set = 0; set < enteredSets.length; set++) {

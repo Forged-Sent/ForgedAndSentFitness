@@ -151,9 +151,10 @@ class _TodayCard extends StatelessWidget {
         children: <Widget>[
           Semantics(
             header: true,
-            child: Text(
+            child: FsLabelCaps(
               heroDateLine(today.date),
-              style: FsText.sectionTitle.copyWith(color: colors.text),
+              style: FsWorkoutText.dayTitle,
+              color: colors.text,
             ),
           ),
           const SizedBox(height: 2),

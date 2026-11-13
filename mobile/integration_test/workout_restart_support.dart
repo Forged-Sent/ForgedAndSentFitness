@@ -128,6 +128,18 @@ Future<NextLiftingDayClock> startAppOnLiftingDay(WidgetTester tester) async {
   return clock;
 }
 
+/// Pumps until [finder] finds something, for up to ten seconds.
+///
+/// On a device a save is real work on another thread: the screen changes
+/// a moment after the tap, and `pumpAndSettle` does not wait for it.
+Future<void> pumpUntilFound(WidgetTester tester, Finder finder) async {
+  for (var i = 0; i < 100 && finder.evaluate().isEmpty; i++) {
+    await tester.pump(const Duration(milliseconds: 100));
+  }
+  await tester.pumpAndSettle();
+  expect(finder, findsWidgets);
+}
+
 /// Opens the Train tab and waits for today's row.
 Future<void> openTrain(WidgetTester tester) async {
   await tester.tap(trainTab);

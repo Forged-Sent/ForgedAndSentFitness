@@ -21,10 +21,12 @@ void main() {
       expect(WorkoutLibrary.program, 'Forged');
     });
 
-    test('the movements are seed/movements.json, byte for byte', () {
+    test('the movements say what seed/movements.json says', () {
+      // Compared as JSON, not as bytes: a Windows checkout may give the
+      // two files different line endings.
       expect(
-        File(WorkoutLibrary.movementsAsset).readAsBytesSync(),
-        File('../seed/movements.json').readAsBytesSync(),
+        _json(WorkoutLibrary.movementsAsset),
+        _json('../seed/movements.json'),
       );
     });
 

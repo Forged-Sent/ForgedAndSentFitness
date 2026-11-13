@@ -35,6 +35,13 @@ abstract final class FsWorkoutText {
     fontWeight: FontWeight.w700,
   );
 
+  /// The date at the top of Train's day card (`.day-panel h3`).
+  static final TextStyle dayTitle = FsText.labelCaps.copyWith(
+    fontSize: 17,
+    fontWeight: FontWeight.w700,
+    height: 1.25,
+  );
+
   /// A day's status on Train: "READY TO TRAIN" (`.status`).
   static final TextStyle status = FsText.labelCaps.copyWith(fontSize: 14.5);
 

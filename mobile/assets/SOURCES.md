@@ -58,7 +58,7 @@ Added in build step S3, each written by a script and never by hand:
 | File (under `content/`) | Source | Kept in step by |
 |---|---|---|
 | `workouts_forged.json` | The `Forged` list of `seed/workouts.json`: 365 plan days, one per line. The other three programs are not bundled | `test/features/workout/workout_library_test.dart` fails if the copy says anything else |
-| `movements.json` | A byte-for-byte copy of `seed/movements.json`: 218 movements. The app reads only each movement's name per equipment setup; the video links and how-to text are carried along unread | The same test compares the bytes |
+| `movements.json` | A copy of `seed/movements.json`: 218 movements. The app reads only each movement's name per equipment setup; the video links and how-to text are carried along unread | The same test |
 | `workout_prayer.json` | The six lines of the `WORKOUT_PRAYER` list inside `index.html` (identical on `main` and in `versions/app-v254.html` at `3ff4a6f`). They exist nowhere else in the repository | The same test reads the list out of `index.html` and compares |
 
 **The workout prayer and scripture.** The prayer has no reference and is not set as a quotation, but it echoes scripture closely: its fourth line follows 1 Corinthians 16:13-14 nearly word for word, its first alludes to 1 Corinthians 6:19-20 and its second to Ephesians 6:11. It is not counted among the ESV verses below. Whether it should carry references is the maintainer's, and is on the work board.

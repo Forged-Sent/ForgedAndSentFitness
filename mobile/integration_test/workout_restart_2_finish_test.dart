@@ -41,6 +41,7 @@ void main() {
 
     // Train says it is in progress, and opens it.
     await openTodaysWorkout(tester);
+    await pumpUntilFound(tester, workoutClock);
     expect(startWorkoutButton, findsNothing);
 
     // The clock is worked out from the stored start, so it shows the real
@@ -70,7 +71,7 @@ void main() {
     await tester.pumpAndSettle();
 
     // A locked summary, and the session is finished in the file.
-    expect(lockedSummary, findsOneWidget);
+    await pumpUntilFound(tester, lockedSummary);
     expect(find.byType(FsNumberField), findsNothing);
     expect(find.text('5 reps × 135 lb'), findsOneWidget);
     expect(find.text('4 reps × 137.5 lb'), findsOneWidget);

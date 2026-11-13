@@ -36,7 +36,7 @@ void main() {
     expect(find.byType(TrainPage), findsOneWidget);
     expect(find.text('TRAIN'), findsWidgets);
     expect(find.text('STRENGTH IS FOR SERVING'), findsOneWidget);
-    expect(find.text('Tuesday, November 10'), findsOneWidget);
+    expect(find.text('TUESDAY, NOVEMBER 10'), findsOneWidget);
     expect(_status(tester), 'READY TO TRAIN');
 
     final today = tester.widget<FsChevronRow>(trainTodayRow);
@@ -101,7 +101,7 @@ void main() {
     // On Friday the session is there to start.
     clock.time = DateTime(2026, 11, 13, 17);
     await backgroundAndResume(tester);
-    expect(find.text('Friday, November 13'), findsOneWidget);
+    expect(find.text('FRIDAY, NOVEMBER 13'), findsOneWidget);
     await tester.tap(trainTodayRow);
     await tester.pumpAndSettle();
     expect(find.byType(WorkoutPage), findsOneWidget);

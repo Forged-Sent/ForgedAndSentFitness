@@ -291,7 +291,9 @@ class _WorkoutPageState extends ConsumerState<WorkoutPage> {
                   constraints: const BoxConstraints(minHeight: 60),
                   child: FsButton(
                     key: const ValueKey<String>('fs-start-workout'),
-                    label: 'Start workout',
+                    // v254's words for it (decision Q1). The prototype on
+                    // `main` says "Start workout".
+                    label: 'Pray, then train',
                     onPressed: _busy ? null : _start,
                   ),
                 ),
@@ -1047,7 +1049,7 @@ class _RestBar extends StatelessWidget {
 /// A finished workout: when it was finished, what was done, and every
 /// logged set as text. Nothing here can be edited. The prototype's
 /// `drawLockedSummary`, without its PR count and share button, which are
-/// later build steps.
+/// later build steps, and without warm-up sets, which are not logged.
 class _LockedSummary extends StatelessWidget {
   const _LockedSummary({required this.session});
 
@@ -1100,9 +1102,7 @@ class _LockedSummary extends StatelessWidget {
                 Expanded(
                   child: _Stat(
                     value: '${totals.loggedSets}',
-                    label: totals.loggedSets == 1
-                        ? 'set logged'
-                        : 'sets logged',
+                    label: totals.loggedSets == 1 ? 'work set' : 'work sets',
                   ),
                 ),
               ],
@@ -1113,8 +1113,8 @@ class _LockedSummary extends StatelessWidget {
         Semantics(
           header: true,
           child: Text(
-            'LOGGED',
-            semanticsLabel: 'Logged',
+            'WORK SETS',
+            semanticsLabel: 'Work sets',
             style: FsWorkoutText.summaryHead.copyWith(color: colors.highlight),
           ),
         ),

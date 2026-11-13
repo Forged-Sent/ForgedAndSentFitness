@@ -65,6 +65,10 @@ void main() {
       expect(find.text('WEEK 1 · DAY 1 · 45 MIN'), findsOneWidget);
       expect(find.text('FULL BODY A: BACK SQUAT'), findsOneWidget);
       expect(startWorkoutButton, findsOneWidget);
+      expect(
+        tester.widget<FsButton>(startWorkoutButton).label,
+        'Pray, then train',
+      );
       // The exercises, by the names for a full gym, with what to do.
       expect(find.text('Barbell Back Squat'), findsOneWidget);
       expect(find.text('3 x 5 (RPE 7, rest 2 min)'), findsOneWidget);
@@ -696,7 +700,8 @@ void main() {
       expect(find.text('1,375'), findsOneWidget); // 5 x 135 + 5 x 140
       expect(find.text('LB VOLUME'), findsOneWidget);
       expect(find.text('2'), findsOneWidget);
-      expect(find.text('SETS LOGGED'), findsOneWidget);
+      // The count's label and the section's heading.
+      expect(find.text('WORK SETS'), findsNWidgets(2));
       expect(find.text('5 reps × 135 lb'), findsOneWidget);
       expect(find.text('5 reps × 140 lb'), findsOneWidget);
       expect(find.text('Not logged'), findsWidgets);
@@ -899,7 +904,7 @@ void main() {
       await tester.pumpAndSettle();
       await tester.tap(find.text('‹ BACK'));
       await tester.pumpAndSettle();
-      expect(find.text('Tuesday, November 10'), findsOneWidget);
+      expect(find.text('TUESDAY, NOVEMBER 10'), findsOneWidget);
       expect(find.text('WORKOUT IN PROGRESS'), findsOneWidget);
       final carried = find.byKey(
         const ValueKey<String>('fs-train-carried-over'),

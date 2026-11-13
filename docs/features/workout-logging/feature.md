@@ -162,7 +162,8 @@ Not done in this step, and on the work board: the challenge point values, which 
 **Not verified**
 
 - iOS: built only by CI's simulator job; never run.
-- A physical phone. The emulator test ran on one emulator only; see the pull request.
+- A physical phone. The emulator test of start, two sets, kill, relaunch, finish passed on 2026-11-13 on one emulator only: `FS_S1_Restart_API_36`, from the installed `system-images;android-36;google_apis_playstore;x86_64` image (Android 16, API 36), on the maintainer's Windows workstation. No CI lane has an emulator, and no other Android version was tried.
+- The migration on a member's phone. It was seen once on that emulator, which still held an S1 build and its version 1 database with three completion events: the S3 build was installed over it, the file read version 2 afterwards, and the three events and both day states were still there. That is one observation, not a test that is repeated.
 - The golden images are **not approved**. They are compared on Windows only.
 - A release build was not made, so the clock guard is proven by its unit test, not by running a release build.
 - The keyboard on a real device: that the box being typed in stays in view above it.

@@ -83,7 +83,7 @@ The first starts today's workout through the prayer, types two sets, checks that
 - **The clock.** A workout can be started only on a day that has one, and logging weights needs a lifting day. So both halves start the app with its clock moved forward by whole days to the next Monday, Wednesday or Friday; on those days it is not moved at all. The clock still runs. Run both halves on the same real day, and not across midnight.
 - **A release build cannot be given a clock.** `startApp` passes the clock through `clockForStart`, which throws in release mode; `test/app/start_clock_test.dart` tests that, and that nothing else in the app can set the clock. These two files run in debug mode.
 
-No CI lane has an emulator, so this test too runs only where someone runs it.
+No CI lane has an emulator, so this test too runs only where someone runs it. It last passed on 2026-11-13 on `FS_S1_Restart_API_36` (Android 16, API 36), a Friday, so the clock was not moved.
 
 ## Where each of P07's acceptance items is tested
 
