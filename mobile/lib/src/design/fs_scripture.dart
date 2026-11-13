@@ -2,6 +2,7 @@ import 'package:flutter/widgets.dart';
 
 import 'fs_colors.dart';
 import 'fs_label_caps.dart';
+import 'fs_ruled.dart';
 import 'fs_typography.dart';
 
 /// A verse set as scripture: italic Merriweather behind a brass rule, with
@@ -29,18 +30,11 @@ class FsScripture extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       mainAxisSize: MainAxisSize.min,
       children: <Widget>[
-        DecoratedBox(
-          decoration: BoxDecoration(
-            border: Border(
-              left: BorderSide(color: colors.highlight, width: 3.6),
-            ),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.only(left: 14),
-            child: Text(
-              text,
-              style: FsText.scriptureLarge.copyWith(color: colors.text),
-            ),
+        FsRuled(
+          color: colors.highlight,
+          child: Text(
+            text,
+            style: FsText.scriptureLarge.copyWith(color: colors.text),
           ),
         ),
         const SizedBox(height: 8),

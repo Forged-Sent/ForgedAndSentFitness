@@ -11,18 +11,24 @@ then asks a headless Chrome or Edge for a screenshot of each page and theme.
     python3 dev/capture_prototype_reference.py --out some/other/folder
     python3 dev/capture_prototype_reference.py --out docs/design/reference/s1-today \
         --pages "today,today@#tasks,today+devo,today+devo@end"
+    python3 dev/capture_prototype_reference.py --out docs/design/reference/s1-today \
+        --pages today+devo --date 2026-02-07
 
 A page is a tab's data-page name. Two things may follow it:
 - "+devo" opens today's reading from Today's devotional box;
 - "@where" scrolls before the picture is taken: "@end" to the bottom, or
   "@" and a CSS selector to bring that element to the top.
 
+--date shows the prototype as it would look on another day, by setting the
+prototype's own test date (the "fs-test-date" key its Settings page writes).
+The date is then part of each file name.
+
 Nothing in the repository is changed except the PNG files written to --out.
 The preview is built in a temporary folder and deleted afterwards.
 
 What the pictures are and are not:
 - They show the prototype as it renders today: the date on Today is the day
-  the script ran, and the mission line changes daily.
+  the script ran, or the --date given, and the mission line changes daily.
 - Fonts come from Google Fonts over the network, as in the prototype. Offline,
   the browser falls back to system fonts and the pictures are not a reference.
 - The mock runtime is not a backend. These are pictures of layout and color only.
@@ -50,6 +56,18 @@ BROWSERS = (
     "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
     "google-chrome", "chromium", "chromium-browser", "msedge",
 )
+
+# Runs before the prototype's own script, which reads its test date once as
+# it starts. Each picture uses a fresh browser profile, so the date set here
+# is gone afterwards.
+DATE_HOOK = r"""
+<script>
+(function () {
+  var date = new URLSearchParams(location.search).get("date") || "";
+  if (/^\d{4}-\d{2}-\d{2}$/.test(date)) { try { localStorage.setItem("fs-test-date", date); } catch (e) {} }
+})();
+</script>
+"""
 
 # Runs inside the page. Agrees to the legal gate, skips the setup wizard,
 # opens the requested page, sets the theme, and scrolls to the top. It only
@@ -136,7 +154,7 @@ FRAME = f"""<!doctype html><meta charset="utf-8"><body style="margin:0;backgroun
 def build_preview(folder: Path, source: str) -> Path:
     shutil.copyfile(ROOT / "dev" / "mock-claude.js", folder / "mock-claude.js")
     (folder / "preview.html").write_text(
-        '<meta charset="utf-8">\n<script src="mock-claude.js"></script>\n'
+        '<meta charset="utf-8">\n<script src="mock-claude.js"></script>\n' + DATE_HOOK
         + prototype_html(source) + BOOTSTRAP, encoding="utf-8")
     frame = folder / "frame.html"
     frame.write_text(FRAME, encoding="utf-8")
@@ -151,9 +169,10 @@ def parse_view(spec: str) -> tuple[str, str, str, str]:
     return page, opens, where, label
 
 
-def capture(browser: str, page: Path, view: tuple[str, str, str, str], theme: str, target: Path, profile: Path) -> None:
+def capture(browser: str, page: Path, view: tuple[str, str, str, str], theme: str, target: Path, profile: Path,
+            date: str = "") -> None:
     name, opens, where, _ = view
-    url = page.as_uri() + "?" + urlencode({"page": name, "theme": theme, "open": opens, "at": where})
+    url = page.as_uri() + "?" + urlencode({"page": name, "theme": theme, "open": opens, "at": where, "date": date})
     command = [
         browser, "--headless=new", "--disable-gpu", "--hide-scrollbars", "--no-first-run",
         "--no-default-browser-check", f"--user-data-dir={profile}",
@@ -175,10 +194,14 @@ def main() -> int:
                              'followed by "+devo" and "@where" (default: today,walk)')
     parser.add_argument("--themes", default="dark,light", help="comma-separated: dark, light")
     parser.add_argument("--prefix", default="v254", help="start of each file name (default: v254)")
+    parser.add_argument("--date", default="",
+                        help="show the prototype as on this day, YYYY-MM-DD (default: the day the script runs)")
     parser.add_argument("--out", default=DEFAULT_OUT, help=f"folder for the PNG files (default: {DEFAULT_OUT})")
     parser.add_argument("--browser", help="path to Chrome or Edge, if it is not in a usual place")
     args = parser.parse_args()
 
+    if args.date and not re.fullmatch(r"\d{4}-\d{2}-\d{2}", args.date):
+        raise SystemExit("--date must be YYYY-MM-DD.")
     browser = find_browser(args.browser)
     out = (ROOT / args.out).resolve() if not Path(args.out).is_absolute() else Path(args.out)
     out.mkdir(parents=True, exist_ok=True)
@@ -187,11 +210,12 @@ def main() -> int:
         page = build_preview(folder, args.source)
         for view in [parse_view(p.strip()) for p in args.pages.split(",") if p.strip()]:
             for theme in [t.strip() for t in args.themes.split(",") if t.strip()]:
-                target = out / f"{args.prefix}-{view[3]}-{theme}.png"
+                label = f"{view[3]}-{args.date}" if args.date else view[3]
+                target = out / f"{args.prefix}-{label}-{theme}.png"
                 # A fresh browser profile each time, so every picture starts from first run.
-                capture(browser, page, view, theme, target, folder / f"profile-{view[3]}-{theme}")
+                capture(browser, page, view, theme, target, folder / f"profile-{view[3]}-{theme}", args.date)
                 print(f"wrote {target.relative_to(ROOT) if target.is_relative_to(ROOT) else target}")
-    print(f"source: {args.source}; size {WIDTH}x{HEIGHT}; browser: {browser}")
+    print(f"source: {args.source}; size {WIDTH}x{HEIGHT}; date: {args.date or 'today'}; browser: {browser}")
     return 0
 
 

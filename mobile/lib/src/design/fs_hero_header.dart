@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 
+import 'fs_balanced.dart';
 import 'fs_colors.dart';
 import 'fs_icons.dart';
 import 'fs_label_caps.dart';
+import 'fs_tag.dart';
 import 'fs_tokens.dart';
 import 'fs_typography.dart';
 
@@ -50,7 +52,8 @@ class FsHeroHeader extends StatelessWidget {
   /// The small caps line above the title.
   final String? kicker;
 
-  /// The line under the title.
+  /// The line under the title: Today's mission line. Its lines are
+  /// balanced, as the prototype's are.
   final String? subtitle;
 
   /// A second small caps line, set to the left of the buttons. Today shows
@@ -162,10 +165,14 @@ class FsHeroHeader extends StatelessWidget {
           ),
           if (subtitle != null) ...<Widget>[
             const SizedBox(height: FsSpacing.heroGap),
-            Text(
-              subtitle!.toUpperCase(),
-              semanticsLabel: subtitle,
-              style: FsText.heroSubtitle.copyWith(color: FsColors.heroSubtle),
+            // The prototype balances this line (`.mission`, `text-wrap:
+            // balance`).
+            FsBalanced(
+              child: Text(
+                subtitle!.toUpperCase(),
+                semanticsLabel: subtitle,
+                style: FsText.heroSubtitle.copyWith(color: FsColors.heroSubtle),
+              ),
             ),
           ],
         ],
@@ -194,14 +201,16 @@ class FsHeroHeader extends StatelessWidget {
 }
 
 /// The header of a reading: the same photograph and wash as [FsHeroHeader],
-/// over a month line, the date set as scripture, and a line about the
-/// month. The prototype's `.devo-head`.
+/// over a month line, the date set as scripture, the reading's headline
+/// and tags, and a line about the month. The prototype's `.devo-head`.
 class FsReadingHeader extends StatelessWidget {
   const FsReadingHeader({
     super.key,
     required this.kicker,
     required this.title,
     this.series,
+    this.headline,
+    this.tags = const <FsTag>[],
     this.note,
   });
 
@@ -215,11 +224,81 @@ class FsReadingHeader extends StatelessWidget {
   /// The series the reading belongs to, where it has one.
   final String? series;
 
+  /// The reading's headline, under the date.
+  final String? headline;
+
+  /// The reading's tags, under the headline.
+  final List<FsTag> tags;
+
   /// The month's one-line tag.
   final String? note;
 
+  /// The space between two lines of the header that have no margin of
+  /// their own. The prototype's `.devo-head` gap.
+  static const double _gap = 6;
+
   @override
   Widget build(BuildContext context) {
+    // Each line with the margin the prototype gives it above and below.
+    // The space between two lines is the gap plus the margins that meet.
+    final lines = <({Widget child, double above, double below})>[
+      if (kicker.isNotEmpty)
+        (
+          child: FsLabelCaps(kicker, color: FsColors.heroKicker),
+          above: 0,
+          below: 0,
+        ),
+      (
+        child: Semantics(
+          header: true,
+          child: Text(
+            title,
+            style: FsText.readingTitle.copyWith(color: FsColors.heroInk),
+          ),
+        ),
+        above: 0,
+        below: 0,
+      ),
+      if (series != null && series!.isNotEmpty)
+        (
+          child: Text(
+            series!.toUpperCase(),
+            semanticsLabel: series,
+            style: FsText.readingSeries.copyWith(color: FsColors.heroSubtle),
+          ),
+          above: 2,
+          below: 6,
+        ),
+      if (headline != null && headline!.isNotEmpty)
+        (
+          // The prototype balances this text's lines (`text-wrap: balance`).
+          child: FsBalanced(
+            child: Text(
+              headline!.toUpperCase(),
+              semanticsLabel: headline,
+              style: FsText.readingHeadline.copyWith(color: FsColors.heroInk),
+            ),
+          ),
+          above: 2,
+          below: 4,
+        ),
+      if (tags.isNotEmpty)
+        (
+          child: Wrap(spacing: 6, runSpacing: 6, children: tags),
+          above: 2,
+          below: 4,
+        ),
+      if (note != null && note!.isNotEmpty)
+        (
+          child: Text(
+            note!,
+            style: FsText.bodySmall.copyWith(color: FsColors.heroSubtle),
+          ),
+          above: 0,
+          below: 0,
+        ),
+    ];
+
     final content = Padding(
       padding: const EdgeInsets.fromLTRB(
         FsSpacing.page,
@@ -231,31 +310,10 @@ class FsReadingHeader extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
-          if (kicker.isNotEmpty) ...<Widget>[
-            FsLabelCaps(kicker, color: FsColors.heroKicker),
-            const SizedBox(height: 6),
-          ],
-          Semantics(
-            header: true,
-            child: Text(
-              title,
-              style: FsText.readingTitle.copyWith(color: FsColors.heroInk),
-            ),
-          ),
-          if (series != null && series!.isNotEmpty) ...<Widget>[
-            const SizedBox(height: 8),
-            Text(
-              series!.toUpperCase(),
-              semanticsLabel: series,
-              style: FsText.readingSeries.copyWith(color: FsColors.heroSubtle),
-            ),
-          ],
-          if (note != null && note!.isNotEmpty) ...<Widget>[
-            const SizedBox(height: 6),
-            Text(
-              note!,
-              style: FsText.bodySmall.copyWith(color: FsColors.heroSubtle),
-            ),
+          for (var i = 0; i < lines.length; i++) ...<Widget>[
+            if (i > 0)
+              SizedBox(height: _gap + lines[i - 1].below + lines[i].above),
+            lines[i].child,
           ],
         ],
       ),

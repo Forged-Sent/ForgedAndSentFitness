@@ -64,6 +64,24 @@ abstract final class FsIcons {
     join: StrokeJoin.round,
   );
 
+  // Tag pills on a reading (`drawDevo`): 24x24, stroke 2.2, round.
+
+  /// The arrow on the "Sent" tag.
+  static const FsIconData sent = FsIconData._(
+    _sent,
+    strokeWidth: 2.2,
+    cap: StrokeCap.round,
+    join: StrokeJoin.round,
+  );
+
+  /// The flame on the "Spirit-led" tag.
+  static const FsIconData flame = FsIconData._(
+    _flame,
+    strokeWidth: 2.2,
+    cap: StrokeCap.round,
+    join: StrokeJoin.round,
+  );
+
   /// The shield with a cross in the brand bar.
   static const FsIconData shield = FsIconData._(
     _shield,
@@ -192,6 +210,28 @@ abstract final class FsIcons {
     ..moveTo(5, 20)
     ..relativeCubicTo(0.6, -4, 3.4, -6, 7, -6)
     ..relativeCubicTo(3.6, 0, 6.4, 2, 7, 6);
+
+  // M4 12h13  M12 6l6 6-6 6
+  static Path _sent() => Path()
+    ..moveTo(4, 12)
+    ..relativeLineTo(13, 0)
+    ..moveTo(12, 6)
+    ..relativeLineTo(6, 6)
+    ..relativeLineTo(-6, 6);
+
+  // M12 3c2.5 3 4.5 5.3 4.5 8.5a4.5 4.5 0 0 1-9 0c0-1.6.7-2.9 1.6-4
+  // .3 1.4 1 2.3 2 2.6C11 8 11.2 5.5 12 3z
+  static Path _flame() => Path()
+    ..moveTo(12, 3)
+    ..relativeCubicTo(2.5, 3, 4.5, 5.3, 4.5, 8.5)
+    ..relativeArcToPoint(
+      const Offset(-9, 0),
+      radius: const Radius.circular(4.5),
+    )
+    ..relativeCubicTo(0, -1.6, 0.7, -2.9, 1.6, -4)
+    ..relativeCubicTo(0.3, 1.4, 1, 2.3, 2, 2.6)
+    ..cubicTo(11, 8, 11.2, 5.5, 12, 3)
+    ..close();
 
   // M66 6 122 24v44c0 38-26 64-56 76C36 132 10 106 10 68V24z
   // line (66,34)-(66,118)  line (40,62)-(92,62)
