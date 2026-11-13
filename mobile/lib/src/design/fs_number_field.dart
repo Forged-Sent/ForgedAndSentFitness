@@ -103,46 +103,74 @@ class _FsNumberFieldState extends State<FsNumberField> {
         ? border(colors.danger, 2)
         : border(colors.hairline, 1);
 
-    return Semantics(
-      label: widget.semanticLabel,
-      child: TextField(
-        controller: _controller,
-        focusNode: _focus,
-        onChanged: (String text) => widget.onChanged(_parse(text)),
-        textAlign: TextAlign.center,
-        keyboardType: TextInputType.numberWithOptions(decimal: widget.decimal),
-        textInputAction: TextInputAction.next,
-        inputFormatters: <TextInputFormatter>[
-          if (widget.decimal)
-            FilteringTextInputFormatter.allow(_oneDecimal)
-          else ...<TextInputFormatter>[
-            FilteringTextInputFormatter.digitsOnly,
-            LengthLimitingTextInputFormatter(3),
-          ],
-        ],
-        style: FsWorkoutText.fieldValue.copyWith(color: colors.text),
-        cursorColor: colors.accent,
-        decoration: InputDecoration(
-          hintText: widget.hint,
-          hintStyle: FsWorkoutText.fieldValue.copyWith(
-            color: colors.textMuted,
-            fontWeight: FontWeight.w400,
-          ),
-          isDense: true,
-          filled: true,
-          fillColor: colors.surfaceRaised,
-          contentPadding: const EdgeInsets.symmetric(
-            horizontal: 10,
-            vertical: 13,
-          ),
-          border: resting,
-          enabledBorder: resting,
-          focusedBorder: border(
-            widget.invalid ? colors.danger : colors.accent,
-            2,
+    return Stack(
+      alignment: Alignment.center,
+      children: <Widget>[
+        Semantics(
+          label: widget.semanticLabel,
+          child: TextField(
+            controller: _controller,
+            focusNode: _focus,
+            onChanged: (String text) => widget.onChanged(_parse(text)),
+            textAlign: TextAlign.center,
+            keyboardType: TextInputType.numberWithOptions(
+              decimal: widget.decimal,
+            ),
+            textInputAction: TextInputAction.next,
+            inputFormatters: <TextInputFormatter>[
+              if (widget.decimal)
+                FilteringTextInputFormatter.allow(_oneDecimal)
+              else ...<TextInputFormatter>[
+                FilteringTextInputFormatter.digitsOnly,
+                LengthLimitingTextInputFormatter(3),
+              ],
+            ],
+            style: FsWorkoutText.fieldValue.copyWith(color: colors.text),
+            cursorColor: colors.accent,
+            decoration: InputDecoration(
+              isDense: true,
+              filled: true,
+              fillColor: colors.surfaceRaised,
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 10,
+                vertical: 13,
+              ),
+              border: resting,
+              enabledBorder: resting,
+              focusedBorder: border(
+                widget.invalid ? colors.danger : colors.accent,
+                2,
+              ),
+            ),
           ),
         ),
-      ),
+        // The grey word in an empty box. Drawn here and not as the text
+        // field's own hint, which a screen reader would read out after
+        // the box's name ("Set 1 reps, reps").
+        ValueListenableBuilder<TextEditingValue>(
+          valueListenable: _controller,
+          builder: (BuildContext context, TextEditingValue value, _) {
+            if (value.text.isNotEmpty) return const SizedBox.shrink();
+            return IgnorePointer(
+              child: ExcludeSemantics(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 6),
+                  child: Text(
+                    widget.hint,
+                    maxLines: 1,
+                    overflow: TextOverflow.fade,
+                    softWrap: false,
+                    style: FsWorkoutText.fieldValue.copyWith(
+                      color: colors.textMuted,
+                      fontWeight: FontWeight.w400,
+                    ),
+                  ),
+                ),
+              ),
+            );
+          },
+        ),
+      ],
     );
   }
 }

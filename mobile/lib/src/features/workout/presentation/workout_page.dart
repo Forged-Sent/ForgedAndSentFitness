@@ -62,6 +62,8 @@ class _WorkoutPageState extends ConsumerState<WorkoutPage> {
   /// The sets the finish check pointed at, outlined until they are fixed.
   Set<String> _needsFixing = const <String>{};
 
+  final ScrollController _scroll = ScrollController();
+
   /// When the phone puts the app in the background it may stop it at any
   /// moment. Every change is already on its way to the store; this waits
   /// for the last of them.
@@ -83,6 +85,7 @@ class _WorkoutPageState extends ConsumerState<WorkoutPage> {
   @override
   void dispose() {
     _lifecycle.dispose();
+    _scroll.dispose();
     super.dispose();
   }
 
@@ -161,6 +164,9 @@ class _WorkoutPageState extends ConsumerState<WorkoutPage> {
       _saveFailed = !saved;
       _needsFixing = const <String>{};
     });
+    // Finish is at the foot of the page. The summary that replaces the
+    // set rows, or the notice that it did not save, is at the top.
+    if (_scroll.hasClients) _scroll.jumpTo(0);
   }
 
   @override
@@ -238,6 +244,7 @@ class _WorkoutPageState extends ConsumerState<WorkoutPage> {
           ),
         Expanded(
           child: ListView(
+            controller: _scroll,
             padding: const EdgeInsets.fromLTRB(
               FsSpacing.page,
               10,
@@ -493,17 +500,29 @@ class _ExerciseFrame extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           mainAxisSize: MainAxisSize.min,
           children: <Widget>[
+            // One stop for a screen reader: the exercise and what to do.
             Semantics(
+              container: true,
               header: true,
-              child: Text(
-                name,
-                style: FsWorkoutText.exerciseName.copyWith(color: colors.text),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  Text(
+                    name,
+                    style: FsWorkoutText.exerciseName.copyWith(
+                      color: colors.text,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    prescription,
+                    style: FsWorkoutText.prescription.copyWith(
+                      color: colors.accent,
+                    ),
+                  ),
+                ],
               ),
-            ),
-            const SizedBox(height: 2),
-            Text(
-              prescription,
-              style: FsWorkoutText.prescription.copyWith(color: colors.accent),
             ),
             ...children,
           ],
@@ -714,33 +733,38 @@ class _SetRow extends StatelessWidget {
         children: <Widget>[
           SizedBox(
             width: 52,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: <Widget>[
-                Text(
-                  label.toUpperCase(),
-                  semanticsLabel: label,
-                  style: FsWorkoutText.setLabel.copyWith(
-                    color: colors.textMuted,
-                  ),
-                ),
-                if (before != null)
+            // The set's number and last time's value are one stop for a
+            // screen reader; the two boxes after it name the set again.
+            child: Semantics(
+              container: true,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
                   Text(
-                    before.weightLb != null && before.weightLb! > 0
-                        ? '${loaded ? '' : '+'}'
-                              '${FsNumberField.format(before.weightLb)}'
-                              '×${before.reps}'
-                        : '${before.reps}',
-                    key: ValueKey<String>('fs-last-$exerciseIndex-$setIndex'),
-                    semanticsLabel:
-                        'Last time '
-                        '${_setText(before.reps, before.weightLb, loaded: loaded)}',
-                    style: FsWorkoutText.setPrevious.copyWith(
-                      color: colors.highlight,
+                    label.toUpperCase(),
+                    semanticsLabel: label,
+                    style: FsWorkoutText.setLabel.copyWith(
+                      color: colors.textMuted,
                     ),
                   ),
-              ],
+                  if (before != null)
+                    Text(
+                      before.weightLb != null && before.weightLb! > 0
+                          ? '${loaded ? '' : '+'}'
+                                '${FsNumberField.format(before.weightLb)}'
+                                '×${before.reps}'
+                          : '${before.reps}',
+                      key: ValueKey<String>('fs-last-$exerciseIndex-$setIndex'),
+                      semanticsLabel:
+                          'Last time '
+                          '${_setText(before.reps, before.weightLb, loaded: loaded)}',
+                      style: FsWorkoutText.setPrevious.copyWith(
+                        color: colors.highlight,
+                      ),
+                    ),
+                ],
+              ),
             ),
           ),
           const SizedBox(width: 6),
@@ -792,6 +816,7 @@ class _SetRow extends StatelessWidget {
           ),
           const SizedBox(width: 6),
           Semantics(
+            container: true,
             label: '$label ${logged ? 'logged' : 'not logged yet'}',
             child: _LoggedMark(
               key: ValueKey<String>('fs-logged-$exerciseIndex-$setIndex'),

@@ -112,25 +112,43 @@ class SessionExercise {
 
   /// The rest timer at [nowUtc], worked out from the stored timestamps, so
   /// it is right after the app was closed and opened again.
-  RestState restAt(DateTime nowUtc) {
-    final endsAt = restEndsAtUtc;
-    if (endsAt != null) {
-      final left = (endsAt.difference(nowUtc).inMilliseconds / 1000).ceil();
-      return left > 0
-          ? RestState(left: left, running: true, over: false, paused: false)
-          : const RestState(left: 0, running: false, over: true, paused: false);
-    }
-    final paused = restPausedSeconds;
-    if (paused != null) {
-      return RestState(left: paused, running: false, over: false, paused: true);
-    }
+  RestState restAt(DateTime nowUtc) => restStateAt(
+    nowUtc,
+    baseSeconds: restBaseSeconds,
+    endsAtUtc: restEndsAtUtc,
+    pausedSeconds: restPausedSeconds,
+  );
+}
+
+/// Where a rest timer stands at [nowUtc], given what is stored for it: its
+/// full length, and either the instant it reaches zero (running), the
+/// seconds left (paused), or neither (waiting at its full length).
+RestState restStateAt(
+  DateTime nowUtc, {
+  required int baseSeconds,
+  required DateTime? endsAtUtc,
+  required int? pausedSeconds,
+}) {
+  if (endsAtUtc != null) {
+    final left = (endsAtUtc.difference(nowUtc).inMilliseconds / 1000).ceil();
+    return left > 0
+        ? RestState(left: left, running: true, over: false, paused: false)
+        : const RestState(left: 0, running: false, over: true, paused: false);
+  }
+  if (pausedSeconds != null) {
     return RestState(
-      left: restBaseSeconds,
+      left: pausedSeconds,
       running: false,
       over: false,
-      paused: false,
+      paused: true,
     );
   }
+  return RestState(
+    left: baseSeconds,
+    running: false,
+    over: false,
+    paused: false,
+  );
 }
 
 /// One workout the member started.

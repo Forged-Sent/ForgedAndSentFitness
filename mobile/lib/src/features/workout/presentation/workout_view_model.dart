@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../app/local_store.dart';
@@ -124,6 +125,9 @@ class WorkoutViewModel extends AsyncNotifier<WorkoutView> {
   /// The writes still on their way to the store, one after another in the
   /// order they were made.
   Future<void> _pending = Future<void>.value();
+
+  /// The last rest timer change made on this page, by exercise id.
+  final Map<String, _Rest> _rest = <String, _Rest>{};
 
   String? _lastTimesSession;
   Map<String, LastTime> _lastTimes = const <String, LastTime>{};
@@ -262,7 +266,15 @@ class WorkoutViewModel extends AsyncNotifier<WorkoutView> {
   /// Waits until every change made so far is in the store. Called when the
   /// app is paused, so nothing typed is still on its way when the phone
   /// stops the app.
-  Future<void> flush() => _pending;
+  Future<void> flush() {
+    flushes++;
+    return _pending;
+  }
+
+  /// How often [flush] was asked for. Read by tests only, to prove the
+  /// page asks when the app is paused.
+  @visibleForTesting
+  int flushes = 0;
 
   Future<bool> setReps(String setId, int? reps) =>
       _write(() => ref.read(localStoreProvider).workouts.setReps(setId, reps));
@@ -276,71 +288,92 @@ class WorkoutViewModel extends AsyncNotifier<WorkoutView> {
         ref.read(localStoreProvider).workouts.setTicked(setId, ticked: ticked),
   );
 
+  /// Where [exercise]'s rest timer stands as far as this page knows: the
+  /// last change made here, or else what the store holds.
+  ///
+  /// Each change is worked out from the one before it. The page is redrawn
+  /// from the store a moment after a change is written, so two quick taps
+  /// on "+15" would otherwise both start from the same old value and add
+  /// 15 seconds once.
+  _Rest _restOf(SessionExercise exercise) =>
+      _rest[exercise.id] ??
+      _Rest(
+        base: exercise.restBaseSeconds,
+        endsAtUtc: exercise.restEndsAtUtc,
+        pausedSeconds: exercise.restPausedSeconds,
+      );
+
   /// Starts the rest timer, or carries on a paused one. A timer that ran
   /// out starts again from its full length.
   Future<bool> startRest(SessionExercise exercise) {
     final now = ref.read(clockProvider).now().toUtc();
-    final rest = exercise.restAt(now);
-    final left = rest.over || rest.left <= 0
-        ? exercise.restBaseSeconds
-        : rest.left;
+    final current = _restOf(exercise);
+    final rest = current.at(now);
+    if (rest.running) return Future<bool>.value(true);
+    final left = rest.over || rest.left <= 0 ? current.base : rest.left;
     return _setRest(
       exercise,
-      base: exercise.restBaseSeconds,
-      endsAtUtc: now.add(Duration(seconds: left)),
+      _Rest(
+        base: current.base,
+        endsAtUtc: now.add(Duration(seconds: left)),
+      ),
     );
   }
 
   /// Stops a running rest timer where it stands.
   Future<bool> pauseRest(SessionExercise exercise) {
     final now = ref.read(clockProvider).now().toUtc();
-    final rest = exercise.restAt(now);
+    final current = _restOf(exercise);
+    final rest = current.at(now);
     if (!rest.running) return Future<bool>.value(true);
     return _setRest(
       exercise,
-      base: exercise.restBaseSeconds,
-      pausedSeconds: rest.left,
+      _Rest(base: current.base, pausedSeconds: rest.left),
     );
   }
 
   /// Puts the rest timer back to its full length, not running.
   Future<bool> resetRest(SessionExercise exercise) =>
-      _setRest(exercise, base: exercise.restBaseSeconds);
+      _setRest(exercise, _Rest(base: _restOf(exercise).base));
 
   /// Makes the rest [seconds] longer, or shorter when negative, within
   /// 15 seconds to 10 minutes. A running timer moves by the same amount; a
   /// timer that is not running goes back to its new full length.
   Future<bool> adjustRest(SessionExercise exercise, int seconds) {
-    final base = (exercise.restBaseSeconds + seconds).clamp(
-      minRestSeconds,
-      maxRestSeconds,
-    );
+    final current = _restOf(exercise);
+    final base = (current.base + seconds).clamp(minRestSeconds, maxRestSeconds);
     final now = ref.read(clockProvider).now().toUtc();
-    final rest = exercise.restAt(now);
-    if (!rest.running) return _setRest(exercise, base: base);
+    if (!current.at(now).running) return _setRest(exercise, _Rest(base: base));
     return _setRest(
       exercise,
-      base: base,
-      endsAtUtc: exercise.restEndsAtUtc!.add(Duration(seconds: seconds)),
+      _Rest(
+        base: base,
+        endsAtUtc: current.endsAtUtc!.add(Duration(seconds: seconds)),
+      ),
     );
   }
 
-  Future<bool> _setRest(
-    SessionExercise exercise, {
-    required int base,
-    DateTime? endsAtUtc,
-    int? pausedSeconds,
-  }) => _write(
-    () => ref
-        .read(localStoreProvider)
-        .workouts
-        .setRest(
-          exercise.id,
-          baseSeconds: base,
-          endsAtUtc: endsAtUtc,
-          pausedSeconds: pausedSeconds,
-        ),
-  );
+  Future<bool> _setRest(SessionExercise exercise, _Rest rest) {
+    _rest[exercise.id] = rest;
+    return _write(
+      () => ref
+          .read(localStoreProvider)
+          .workouts
+          .setRest(
+            exercise.id,
+            baseSeconds: rest.base,
+            endsAtUtc: rest.endsAtUtc,
+            pausedSeconds: rest.pausedSeconds,
+          ),
+    ).then((bool saved) {
+      // What could not be stored is not what the timer is: go back to
+      // what the store holds.
+      if (!saved && identical(_rest[exercise.id], rest)) {
+        _rest.remove(exercise.id);
+      }
+      return saved;
+    });
+  }
 
   /// Finishes the session on this page. It checks the Workout box of the
   /// day the session was started on, also after midnight. Finishing twice
@@ -360,4 +393,20 @@ class WorkoutViewModel extends AsyncNotifier<WorkoutView> {
     }
     return saved;
   }
+}
+
+/// What is stored for one rest timer.
+class _Rest {
+  const _Rest({required this.base, this.endsAtUtc, this.pausedSeconds});
+
+  final int base;
+  final DateTime? endsAtUtc;
+  final int? pausedSeconds;
+
+  RestState at(DateTime nowUtc) => restStateAt(
+    nowUtc,
+    baseSeconds: base,
+    endsAtUtc: endsAtUtc,
+    pausedSeconds: pausedSeconds,
+  );
 }
