@@ -5,7 +5,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:forged_and_sent/src/core/local_date.dart';
 import 'package:forged_and_sent/src/design/fs_button.dart';
+import 'package:forged_and_sent/src/design/fs_colors.dart';
 import 'package:forged_and_sent/src/design/fs_scripture.dart';
+import 'package:forged_and_sent/src/design/fs_tag.dart';
 import 'package:forged_and_sent/src/features/devotional/data/devotional_library.dart';
 import 'package:forged_and_sent/src/features/devotional/domain/devotional.dart';
 import 'package:forged_and_sent/src/features/devotional/presentation/devotional_page.dart';
@@ -25,6 +27,56 @@ String _verse(WidgetTester tester) =>
     tester.widget<FsScripture>(find.byType(FsScripture)).text;
 
 Finder get _notice => find.byKey(const ValueKey<String>('fs-scripture-notice'));
+
+Finder get _inJesus => find.byKey(const ValueKey<String>('fs-in-jesus'));
+
+Finder get _sentTag => find.byKey(const ValueKey<String>('fs-tag-sent'));
+
+Finder get _spiritTag => find.byKey(const ValueKey<String>('fs-tag-spirit'));
+
+/// A clock at half past seven in the morning of [day].
+TestClock _at(LocalDate day) =>
+    TestClock(DateTime(day.year, day.month, day.day, 7, 30));
+
+/// The date [reading] is shown on, in a leap year so that February 29 has
+/// one too.
+LocalDate _dateOf(Devotional reading) => LocalDate(
+  2028,
+  int.parse(reading.monthDayKey.substring(0, 2)),
+  int.parse(reading.monthDayKey.substring(3)),
+);
+
+/// How much there is to read in [reading].
+int _length(Devotional reading) =>
+    (reading.headline ?? '').length +
+    reading.prayer.length +
+    reading.bsbText.length +
+    (reading.inJesus ?? '').length +
+    reading.reflect.length +
+    reading.act.length;
+
+/// What a screen reader says, in the order it says it.
+List<String> _spoken(WidgetTester tester) => tester.semantics
+    .simulatedAccessibilityTraversal()
+    .map((node) => node.label)
+    .where((label) => label.isNotEmpty)
+    .toList();
+
+/// Fails unless [labels] are all in [spoken], in this order.
+void _expectInOrder(List<String> spoken, List<String> labels) {
+  var from = 0;
+  for (final label in labels) {
+    final at = spoken.indexOf(label, from);
+    expect(
+      at,
+      isNot(-1),
+      reason:
+          '"$label" is not read after ${labels.take(labels.indexOf(label))}'
+          ' in $spoken',
+    );
+    from = at + 1;
+  }
+}
 
 Future<void> _choose(WidgetTester tester, String translation) async {
   await tester.ensureVisible(find.widgetWithText(FsButton, translation));
@@ -55,11 +107,15 @@ void main() {
     for (final label in <String>[
       'OPEN IN PRAYER',
       'READING',
+      'IN JESUS',
       'REFLECT',
       'ACT',
     ]) {
       expect(find.text('// $label'), findsOneWidget, reason: label);
     }
+    // v254's headline and "In Jesus" paragraph, word for word.
+    expect(find.text(reading.headline!.toUpperCase()), findsOneWidget);
+    expect(tester.widget<Text>(_inJesus).data, reading.inJesus);
     expect(find.text(reading.prayer), findsOneWidget);
     expect(find.text(reading.reflect), findsOneWidget);
     expect(find.text(reading.act), findsOneWidget);
@@ -451,6 +507,294 @@ void main() {
     });
   });
 
+  group('the headline, the tags and "In Jesus" (S1b)', () {
+    // A Saturday in the February series, tagged Sent; a Saturday whose
+    // headline takes two lines, tagged Spirit-led; and a day with no tag.
+    const sentDay = LocalDate(2026, 2, 7);
+    const spiritDay = LocalDate(2026, 1, 3);
+    const plainDay = LocalDate(2026, 11, 12);
+    final sent = library.forDate(sentDay)!;
+    final spirit = library.forDate(spiritDay)!;
+    final plain = library.forDate(plainDay)!;
+
+    test('the three dates are what these tests take them to be', () {
+      expect(sent.series, isNotNull);
+      expect(sent.tags, <ReadingTag>[ReadingTag.sent]);
+      expect(spirit.series, isNull);
+      expect(spirit.tags, <ReadingTag>[ReadingTag.spiritLed]);
+      expect(plain.tags, isEmpty);
+    });
+
+    testWidgets('the headline is under the date, the tag under the headline', (
+      tester,
+    ) async {
+      await pumpApp(tester, clock: _at(sentDay));
+      await openDevotional(tester);
+
+      final lines = <Rect>[
+        tester.getRect(find.text('February 7')),
+        tester.getRect(find.text(sent.series!.toUpperCase())),
+        tester.getRect(find.text(sent.headline!.toUpperCase())),
+        tester.getRect(_sentTag),
+        tester.getRect(find.text(sent.monthTag)),
+        tester.getRect(find.text('// OPEN IN PRAYER')),
+      ];
+      for (var i = 1; i < lines.length; i++) {
+        expect(
+          lines[i].top,
+          greaterThanOrEqualTo(lines[i - 1].bottom),
+          reason: 'line $i starts above the end of line ${i - 1}',
+        );
+      }
+      // The spacing the prototype has between them: 8 under the date, 14
+      // under a series line, 12 above the tags, 10 above the month line.
+      expect(lines[1].top - lines[0].bottom, moreOrLessEquals(8, epsilon: 0.5));
+      expect(
+        lines[2].top - lines[1].bottom,
+        moreOrLessEquals(14, epsilon: 0.5),
+      );
+      expect(
+        lines[3].top - lines[2].bottom,
+        moreOrLessEquals(12, epsilon: 0.5),
+      );
+      expect(
+        lines[4].top - lines[3].bottom,
+        moreOrLessEquals(10, epsilon: 0.5),
+      );
+    });
+
+    testWidgets('"In Jesus" sits between the Reading and Reflect', (
+      tester,
+    ) async {
+      await pumpApp(tester);
+      await openDevotional(tester);
+
+      final tops = <double>[
+        for (final label in <String>[
+          'OPEN IN PRAYER',
+          'READING',
+          'IN JESUS',
+          'REFLECT',
+          'ACT',
+        ])
+          tester.getRect(find.text('// $label')).top,
+      ];
+      expect(tops, orderedEquals(<double>[...tops]..sort()));
+
+      final label = tester.getRect(find.text('// IN JESUS'));
+      final text = tester.getRect(_inJesus);
+      // Under everything that belongs to the verse, the notice included.
+      expect(label.top, greaterThan(tester.getRect(_notice).bottom));
+      expect(text.top, greaterThanOrEqualTo(label.bottom));
+      expect(
+        tester.getRect(find.text('// REFLECT')).top,
+        greaterThan(text.bottom),
+      );
+      expect(tester.widget<Text>(_inJesus).data, reading.inJesus);
+    });
+
+    testWidgets('a screen reader reads them in that order, as written', (
+      tester,
+    ) async {
+      final handle = tester.ensureSemantics();
+      await pumpApp(tester, clock: _at(sentDay));
+      await openDevotional(tester);
+
+      // The top of the page: date, series, headline, tag, month line.
+      _expectInOrder(_spoken(tester), <String>[
+        'February 7',
+        sent.series!,
+        sent.headline!,
+        'Sent: take it to someone',
+        sent.monthTag,
+        'Open in prayer',
+        sent.prayer,
+      ]);
+      // The headline is read as a sentence, not as the capitals drawn.
+      expect(find.bySemanticsLabel(sent.headline!), findsOneWidget);
+      expect(find.bySemanticsLabel(sent.headline!.toUpperCase()), findsNothing);
+
+      // Further down: the verse, then "In Jesus", then Reflect.
+      await tester.ensureVisible(_inJesus);
+      await tester.pumpAndSettle();
+      _expectInOrder(_spoken(tester), <String>[
+        '— ${sent.reference} (BSB)',
+        ScriptureNotices.bsb,
+        'In Jesus',
+        sent.inJesus!,
+        'Reflect',
+        sent.reflect,
+      ]);
+      expect(
+        tester.getSemantics(find.text('// IN JESUS')),
+        isSemantics(label: 'In Jesus', isHeader: true),
+      );
+      handle.dispose();
+    });
+
+    testWidgets('a Sent reading shows the Sent tag and no other', (
+      tester,
+    ) async {
+      await pumpApp(tester, clock: _at(sentDay));
+      await openDevotional(tester);
+
+      expect(find.byType(FsTag), findsOneWidget);
+      expect(find.text('SENT: TAKE IT TO SOMEONE'), findsOneWidget);
+      expect(tester.widget<FsTag>(_sentTag).tone, FsTagTone.accent);
+      expect(_spiritTag, findsNothing);
+    });
+
+    for (final (name, themeMode, color) in <(String, ThemeMode, Color)>[
+      ('dark', ThemeMode.dark, FsColors.dark.accent),
+      ('light', ThemeMode.light, FsColors.ringValue),
+    ]) {
+      testWidgets('the Sent tag is bright orange on the dark header, $name', (
+        tester,
+      ) async {
+        await pumpApp(tester, themeMode: themeMode, clock: _at(sentDay));
+        await openDevotional(tester);
+
+        final words = tester.widget<Text>(
+          find.text('SENT: TAKE IT TO SOMEONE'),
+        );
+        expect(words.style?.color, color);
+        // Never the light theme's dark orange, which is hard to read there.
+        expect(words.style?.color, isNot(FsColors.light.accent));
+      });
+    }
+
+    testWidgets('a Spirit-led reading shows the Spirit-led tag and no other', (
+      tester,
+    ) async {
+      await pumpApp(tester, clock: _at(spiritDay));
+      await openDevotional(tester);
+
+      expect(find.byType(FsTag), findsOneWidget);
+      expect(find.text('SPIRIT-LED'), findsOneWidget);
+      expect(tester.widget<FsTag>(_spiritTag).tone, FsTagTone.gold);
+      expect(_sentTag, findsNothing);
+      expect(find.text(spirit.headline!.toUpperCase()), findsOneWidget);
+    });
+
+    testWidgets('a reading with no tag shows none', (tester) async {
+      await pumpApp(tester, clock: _at(plainDay));
+      await openDevotional(tester);
+
+      expect(find.byType(FsTag), findsNothing);
+      expect(find.text(plain.headline!.toUpperCase()), findsOneWidget);
+      // The line about the month follows the headline directly, 10 below.
+      expect(
+        tester.getRect(find.text(plain.monthTag)).top -
+            tester.getRect(find.text(plain.headline!.toUpperCase())).bottom,
+        moreOrLessEquals(10, epsilon: 0.5),
+      );
+    });
+
+    testWidgets('a tag is words to read: tapping it does nothing', (
+      tester,
+    ) async {
+      final handle = tester.ensureSemantics();
+      final app = await pumpApp(tester, clock: _at(sentDay));
+      final days = app.store.days as TestDayRepository;
+      await openDevotional(tester);
+
+      expect(
+        tester.getSemantics(find.text('SENT: TAKE IT TO SOMEONE')),
+        isSemantics(
+          label: 'Sent: take it to someone',
+          isButton: false,
+          hasTapAction: false,
+        ),
+      );
+      await tester.tap(_sentTag);
+      await tester.pumpAndSettle();
+
+      expect(find.byType(DevotionalPage), findsOneWidget);
+      expect(days.saveAttempts, 0);
+      expect((await app.savedDay(tester, sentDay)).items, isEmpty);
+      handle.dispose();
+    });
+
+    testWidgets(
+      'a reading with no headline, tag or "In Jesus" text shows none of them',
+      (tester) async {
+        final file =
+            json.decode(
+                  File(DevotionalLibrary.devotionalsAsset).readAsStringSync(),
+                )
+                as Map<String, dynamic>;
+        ((file['days'] as Map<String, dynamic>)[sentDay.monthDayKey]
+              as Map<String, dynamic>)
+          ..remove('headline')
+          ..remove('jesus')
+          ..remove('sent');
+        await pumpApp(
+          tester,
+          clock: _at(sentDay),
+          library: DevotionalLibrary.fromJson(
+            devotionals: json.encode(file),
+            esvVerses: File(DevotionalLibrary.esvAsset).readAsStringSync(),
+          ),
+        );
+        await openDevotional(tester);
+
+        expect(find.text(sent.headline!.toUpperCase()), findsNothing);
+        expect(find.byType(FsTag), findsNothing);
+        expect(find.text('// IN JESUS'), findsNothing);
+        expect(_inJesus, findsNothing);
+        // The rest of the reading is there, and Amen works as it did.
+        expect(find.text('February 7'), findsOneWidget);
+        expect(find.text('// REFLECT'), findsOneWidget);
+        expect(_verse(tester), sent.bsbText);
+        await scrollReaderToEnd(tester);
+        expect(_amen(tester).onPressed, isNotNull);
+        expect(tester.takeException(), isNull);
+      },
+    );
+
+    testWidgets('Amen still waits for the end of the longest reading', (
+      tester,
+    ) async {
+      final longest = library.all.reduce(
+        (a, b) => _length(a) >= _length(b) ? a : b,
+      );
+      final day = _dateOf(longest);
+      final app = await pumpApp(tester, clock: _at(day));
+      final days = app.store.days as TestDayRepository;
+      await openDevotional(tester);
+
+      final position = readerPosition(tester);
+      expect(position.pixels, 0);
+      // Longer than the screen by more than the 220 points every reading
+      // is given: there is real text to scroll through.
+      expect(position.maxScrollExtent, greaterThan(220));
+      expect(_amen(tester).onPressed, isNull);
+
+      // Past "In Jesus" and most of the way down is not the end.
+      position.jumpTo(position.maxScrollExtent - 40);
+      await tester.pumpAndSettle();
+      expect(
+        tester.getRect(_inJesus).bottom,
+        lessThan(tester.getRect(find.byType(DevotionalPage)).bottom),
+      );
+      expect(_amen(tester).onPressed, isNull);
+      expect(_amen(tester).label, 'Scroll to the bottom to say Amen');
+      await tester.tap(amenButton, warnIfMissed: false);
+      await tester.pumpAndSettle();
+      expect(days.saveAttempts, 0);
+
+      // The end is.
+      position.jumpTo(position.maxScrollExtent - 8);
+      await tester.pumpAndSettle();
+      expect(_amen(tester).label, 'Amen');
+      await tester.tap(amenButton);
+      await tester.pumpAndSettle();
+
+      expect(find.byType(TodayPage), findsOneWidget);
+      expect((await app.savedDay(tester, day)).isDone(_devotional), isTrue);
+    });
+  });
+
   group('the verse (decision Q7)', () {
     testWidgets('opens in the BSB and switches to the ESV on its tab', (
       tester,
@@ -590,5 +934,72 @@ void main() {
     await _choose(tester, 'ESV');
     await scrollReaderToEnd(tester);
     expect(tester.takeException(), isNull);
+  });
+
+  group('the headline and the tags at larger text sizes', () {
+    Devotional longest(Iterable<Devotional> readings) => readings.reduce(
+      (a, b) => a.headline!.length >= b.headline!.length ? a : b,
+    );
+    // The longest headline of all, and the longest that carries each tag.
+    final cases = <(String, Devotional)>[
+      ('the longest headline', longest(library.all)),
+      (
+        'a Sent tag',
+        longest(library.all.where((r) => r.tags.contains(ReadingTag.sent))),
+      ),
+      (
+        'a Spirit-led tag',
+        longest(
+          library.all.where((r) => r.tags.contains(ReadingTag.spiritLed)),
+        ),
+      ),
+    ];
+
+    for (final (size, scale) in <(Size, double)>[
+      (phone, 1.3),
+      (phone, 2.0),
+      (const Size(320, 568), 1.3),
+    ]) {
+      for (final (name, shown) in cases) {
+        testWidgets('$name fits at $scale times the text size on a '
+            '${size.width.toInt()} by ${size.height.toInt()} screen', (
+          tester,
+        ) async {
+          await pumpApp(
+            tester,
+            size: size,
+            textScale: scale,
+            clock: _at(_dateOf(shown)),
+          );
+          await openDevotional(tester);
+          expect(tester.takeException(), isNull);
+
+          // The headline and every tag stay inside the page margins, and
+          // no line of their words is cut off.
+          final page = tester.getRect(find.byType(DevotionalPage));
+          final parts = <Finder>[
+            find.text(shown.headline!.toUpperCase()),
+            for (final tag in shown.tags) find.text(tag.label.toUpperCase()),
+            find.byType(FsTag),
+          ];
+          for (final part in parts) {
+            expect(part, findsOneWidget);
+            final rect = tester.getRect(part);
+            expect(rect.left, greaterThanOrEqualTo(page.left + 16));
+            expect(rect.right, lessThanOrEqualTo(page.right - 16));
+            final drawn = paragraphOf(tester, part);
+            expect(drawn.didExceedMaxLines, isFalse);
+            expect(drawn.size.width, greaterThan(0));
+            // Its lines put back together are the words, all of them.
+            expect(linesOf(tester, part).join(' '), drawn.text.toPlainText());
+          }
+          expect(find.byType(FsTag), findsNWidgets(shown.tags.length));
+
+          await scrollReaderToEnd(tester);
+          expect(tester.takeException(), isNull);
+          expect(_amen(tester).onPressed, isNotNull);
+        });
+      }
+    }
   });
 }

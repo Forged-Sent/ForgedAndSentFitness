@@ -16,7 +16,7 @@ Detail for every row, with actions, data and acceptance criteria: [screens and U
 | Legal gate | Not started | Later, not yet scheduled | Prototype stores it in private settings and does not enforce it on writes |
 | Setup wizard | Not started | Later, not yet scheduled | Body stats and injuries are sensitive; ADR-0005 defers storing them |
 | Today | Implemented | S1 | Shows the date, the streak line, the mission line, the progress ring and the seven daily boxes. Only the devotional box works; the other six are drawn faded and say "Not active yet". Not built: first orders, "Your two" habits, the campaign card, the Stand Firm creed card, the grace and sit-out cards, the Sabbath-only boxes (weigh-in, photos, family report, legacy log) and the mission-complete dialog. Point values are hidden unless the preview switch is on, and no total is shown (decision Q5); the streak counts devotional days, not full days (decision Q6) |
-| Devotional | Implemented | S1 | Scroll to the end, Amen, Undo, and the BSB / ESV tab work, and the completion survives a restart. Not built: "Write it down" (S2), and the search and help buttons in the page's bar. Three v254 sections have no data to show; see below |
+| Devotional | Implemented | S1 | Scroll to the end, Amen, Undo, and the BSB / ESV tab work, and the completion survives a restart. Not built: "Write it down" (S2), and the search and help buttons in the page's bar. Since S1b the reading shows v254's words, headline, tags and "In Jesus" section; what still differs is listed below |
 | Journal editor and page | Not started | S2 | Sensitive-field storage and sign-out retention are undecided (ADR-0005) |
 | Train | Not started | S3 | Plan-start dead zone (U1) |
 | Workout | Not started | S3 | Index-keyed history (U3); midnight (U2); rest timer silent when the phone is locked |
@@ -34,17 +34,28 @@ Detail for every row, with actions, data and acceptance criteria: [screens and U
 | Help and Ask | Not started | Later, not yet scheduled |  |
 | Sign-in | Not started | S4 | No implementation plan |
 
-### v254's reading has sections the app has no data for
+### The reading shows v254's words (step S1b)
 
-Prompt P05 bundles `seed/devotionals.json` from `main`. v254 carries a newer set of readings inside its own HTML, which `seed/` does not have. So these parts of v254's reading are not shown, because there is nothing to put in them:
+The maintainer decided on 2026-11-12 that the readings inside v254 are the real readings for the pilot. Step S1b put them in `seed/devotionals.json` and in the app's copy, for all 366 dates, and the reading now shows the parts it had no data for:
 
-| v254 section | Field in v254's data | In `seed/devotionals.json` on `main` |
+| v254 section | Field | In the app |
 |---|---|---|
-| Headline under the date ("Every gift came from above") | `headline` | Absent for all 366 days |
-| "In Jesus" section, between Reading and Reflect | `jesus` | Absent for all 366 days |
-| "Sent: take it to someone" and "Spirit-led" tags | `sent`, `spirit` | Absent for all 366 days |
+| Headline under the date ("Every gift came from above") | `headline` | Implemented, on all 366 dates. Its lines are balanced as the prototype's are (`text-wrap: balance`) |
+| "In Jesus" section, between Reading and Reflect | `jesus` | Implemented, on all 366 dates |
+| "Sent: take it to someone" and "Spirit-led" tags | `sent`, `spirit` | Implemented as words to read, on 48 and 55 dates. They do nothing in v254 either |
+| Series line | `series` | Implemented in S1: the 29 February readings |
 
-The series line (`series`) is shown where the seed has it: the 29 February readings. The wording of prayers, questions and actions also differs between the two sets; the app shows the seed's. Two box titles differ from v254's reference pictures as well: the app shows `seed/tasks.json`'s Rally Call and Hydrate, and the pictures show Daily Check-In and Drink 3 Liters of Water, which are the titles of the mock runtime the prototype is captured with. Bringing the newer readings into `seed/` belongs to the prototype reconciliation (prompt P02, on the work board).
+The prayer, the reflection question and the action are v254's too. What still differs from v254 in the reading:
+
+| Difference | Kind | Why |
+|---|---|---|
+| The verse opens in the BSB, with a BSB / ESV tab and a credit line under it; v254 shows the ESV only | Design change, decided | Decision Q7 |
+| The ESV wording is `seed/esv-verses.json`'s, not v254's own. The two differ on 108 dates, mostly in quotation marks, a first capital or a final full stop | Left as it was | Scripture text is copied only from a named source and has not been checked against a published one. On the work board |
+| In the light theme the Sent tag is the bright orange of the Spirit-led tag; v254 draws it in the light theme's dark orange | Design change, decided by the maintainer on 2026-11-12 | The dark orange is hard to read on the dark header (about 3 to 1) |
+| A verse or a reflection question can break a word earlier than in v254 | Bundled font file | The bundled Merriweather draws 2 to 4% wider than the one the prototype loads from Google Fonts. Body text (IBM Plex Sans) breaks where v254's does since S1b removed a stray letter spacing. See the [design system page](../design/DESIGN-SYSTEM.md) |
+| "Write it down" and the search and help buttons are absent | Not built | S2, and later |
+
+Two box titles on Today differ from v254's reference pictures as well: the app shows `seed/tasks.json`'s Rally Call and Hydrate, and the pictures show Daily Check-In and Drink 3 Liters of Water, which are the titles of the mock runtime the prototype is captured with. That belongs to the prototype reconciliation (prompt P02, on the work board).
 
 These are migration candidates, not a decision to copy every prototype feature or its numeric formulas. Existing details live in `docs/architecture-notes.md`, `seed/` and current `index.html`, with many prior versions preserved.
 

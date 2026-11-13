@@ -10,8 +10,9 @@ import '../domain/devotional.dart';
 ///
 /// Two files, both copies of the repository's `seed/` files, kept identical
 /// by a test:
-/// - `devotionals.json`: 366 readings with BSB verse text, and the month
-///   themes;
+/// - `devotionals.json`: 366 readings and the month themes. The verse text
+///   in it is the BSB's; the headline, prayer, "In Jesus" paragraph,
+///   reflection, action and tags are v254's (see `assets/SOURCES.md`);
 /// - `esv_verses.json`: the ESV text of the same verses, keyed by reference.
 class DevotionalLibrary {
   DevotionalLibrary._(this._byKey);
@@ -44,16 +45,26 @@ class DevotionalLibrary {
         monthTheme: month['theme'] as String? ?? '',
         monthTag: month['tag'] as String? ?? '',
         series: day['series'] as String?,
+        headline: _text(day['headline']),
+        tags: List<ReadingTag>.unmodifiable(<ReadingTag>[
+          if (day['sent'] == true) ReadingTag.sent,
+          if (day['spirit'] == true) ReadingTag.spiritLed,
+        ]),
         prayer: day['prayer'] as String,
         reference: reference,
         bsbText: day['text'] as String,
         esvText: esv[reference],
+        inJesus: _text(day['jesus']),
         reflect: day['reflect'] as String,
         act: day['act'] as String,
       );
     }
     return DevotionalLibrary._(byKey);
   }
+
+  /// A field that may be absent: its text, or null when there is none.
+  static String? _text(Object? value) =>
+      value is String && value.trim().isNotEmpty ? value : null;
 
   static Future<DevotionalLibrary> load(AssetBundle bundle) async {
     return DevotionalLibrary.fromJson(

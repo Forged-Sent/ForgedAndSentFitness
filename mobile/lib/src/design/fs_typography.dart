@@ -19,6 +19,12 @@ abstract final class FsFonts {
 /// prototype's computed values at 390x844. Colors are applied where a style
 /// is used, because most of them change with the theme.
 ///
+/// Every style states its tracking, also where the prototype has none
+/// (`letterSpacing: 0`). A style that leaves it out takes Material's default
+/// for body text, a quarter of a point between letters, from the text style
+/// around it; that made lines break a word earlier than the prototype's
+/// until step S1b.
+///
 /// CSS `text-transform: uppercase` has no Flutter equivalent, so the widgets
 /// that use the caps styles uppercase their own text.
 abstract final class FsText {
@@ -117,6 +123,7 @@ abstract final class FsText {
     fontFamily: FsFonts.display,
     fontWeight: FontWeight.w700,
     fontSize: 14,
+    letterSpacing: 0,
     height: 1.4,
   );
 
@@ -125,6 +132,7 @@ abstract final class FsText {
     fontFamily: FsFonts.body,
     fontWeight: FontWeight.w600,
     fontSize: 15,
+    letterSpacing: 0,
     height: 1.4,
   );
 
@@ -132,6 +140,7 @@ abstract final class FsText {
     fontFamily: FsFonts.body,
     fontWeight: FontWeight.w400,
     fontSize: 14,
+    letterSpacing: 0,
     height: 1.4,
   );
 
@@ -140,6 +149,7 @@ abstract final class FsText {
     fontFamily: FsFonts.body,
     fontWeight: FontWeight.w400,
     fontSize: 12.5,
+    letterSpacing: 0,
     height: 1.4,
   );
 
@@ -148,6 +158,7 @@ abstract final class FsText {
     fontFamily: FsFonts.display,
     fontWeight: FontWeight.w800,
     fontSize: 24,
+    letterSpacing: 0,
     height: 1,
   );
 
@@ -174,6 +185,7 @@ abstract final class FsText {
     fontFamily: FsFonts.display,
     fontWeight: FontWeight.w700,
     fontSize: 24.5,
+    letterSpacing: 0,
     height: 1,
   );
 
@@ -191,6 +203,7 @@ abstract final class FsText {
     fontFamily: FsFonts.body,
     fontWeight: FontWeight.w700,
     fontSize: 15,
+    letterSpacing: 0,
     height: 1.1,
   );
 
@@ -224,6 +237,24 @@ abstract final class FsText {
     height: 1.4,
   );
 
+  /// The headline under a reading's date.
+  static const TextStyle readingHeadline = TextStyle(
+    fontFamily: FsFonts.display,
+    fontWeight: FontWeight.w700,
+    fontSize: 22,
+    letterSpacing: 0.22,
+    height: 1.15,
+  );
+
+  /// The words in a tag pill ([FsTag]).
+  static const TextStyle tag = TextStyle(
+    fontFamily: FsFonts.display,
+    fontWeight: FontWeight.w700,
+    fontSize: 12,
+    letterSpacing: 0.96,
+    height: 1.4,
+  );
+
   /// The label of a section of a reading: "// OPEN IN PRAYER".
   static const TextStyle sectionLabel = TextStyle(
     fontFamily: FsFonts.display,
@@ -239,6 +270,7 @@ abstract final class FsText {
     fontStyle: FontStyle.italic,
     fontWeight: FontWeight.w400,
     fontSize: 16.5,
+    letterSpacing: 0,
     height: 1.55,
   );
 
@@ -248,6 +280,7 @@ abstract final class FsText {
     fontStyle: FontStyle.italic,
     fontWeight: FontWeight.w400,
     fontSize: 14,
+    letterSpacing: 0,
     height: 1.55,
   );
 
@@ -257,6 +290,7 @@ abstract final class FsText {
     fontStyle: FontStyle.italic,
     fontWeight: FontWeight.w400,
     fontSize: 15,
+    letterSpacing: 0,
     height: 1.45,
   );
 }

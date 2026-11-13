@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/semantics.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -257,6 +257,33 @@ Future<void> completeDevotional(WidgetTester tester) async {
   await scrollReaderToEnd(tester);
   await tester.tap(amenButton);
   await tester.pumpAndSettle();
+}
+
+/// What draws the one text inside [widget]. A `Text` with a semantics
+/// label is not drawn by its own render object but by the `RichText` it
+/// builds, so this looks for that.
+RenderParagraph paragraphOf(WidgetTester tester, Finder widget) =>
+    tester.renderObject<RenderParagraph>(
+      find.descendant(of: widget, matching: find.byType(RichText)),
+    );
+
+/// The words on each line of the text found by [text], from the top line
+/// down, as it is drawn.
+List<String> linesOf(WidgetTester tester, Finder text) {
+  final paragraph = paragraphOf(tester, text);
+  final plain = paragraph.text.toPlainText();
+  final lines = <int, StringBuffer>{};
+  for (var i = 0; i < plain.length; i++) {
+    final boxes = paragraph.getBoxesForSelection(
+      TextSelection(baseOffset: i, extentOffset: i + 1),
+    );
+    if (boxes.isEmpty) continue;
+    // Every letter of a line has the same top.
+    lines
+        .putIfAbsent((boxes.first.top * 10).round(), StringBuffer.new)
+        .write(plain[i]);
+  }
+  return <String>[for (final line in lines.values) line.toString().trim()];
 }
 
 /// The reading's scroll position.

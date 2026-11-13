@@ -29,6 +29,28 @@ void main() {
 
   final reading = loadBundledLibrary().forDate(const LocalDate(2026, 11, 10))!;
 
+  testWidgets('the mission line breaks where the prototype breaks it', (
+    tester,
+  ) async {
+    // The day and the size of the reference pictures. v254's picture
+    // (`docs/design/reference/s1-today/v254-today-dark.png`) shows this
+    // line balanced over two lines, broken after "forward."
+    await pumpApp(tester, clock: TestClock(DateTime(2026, 11, 12, 7, 30)));
+
+    const line =
+        'Confess it, drop it, move forward. '
+        'Grace covers the man who gets back up.';
+    expect(linesOf(tester, find.text(line.toUpperCase())), <String>[
+      'CONFESS IT, DROP IT, MOVE FORWARD.',
+      'GRACE COVERS THE MAN WHO GETS BACK UP.',
+    ]);
+    // A screen reader still hears one sentence, as written.
+    expect(
+      tester.widget<Text>(find.text(line.toUpperCase())).semanticsLabel,
+      line,
+    );
+  });
+
   testWidgets(
     'Today shows the date, the mission line, the ring and the boxes',
     (tester) async {

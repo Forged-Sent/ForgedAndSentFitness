@@ -7,9 +7,12 @@ import '../../../core/local_date.dart';
 import '../../../design/fs_button.dart';
 import '../../../design/fs_colors.dart';
 import '../../../design/fs_hero_header.dart';
+import '../../../design/fs_icons.dart';
 import '../../../design/fs_page_bar.dart';
+import '../../../design/fs_ruled.dart';
 import '../../../design/fs_scripture.dart';
 import '../../../design/fs_segmented.dart';
+import '../../../design/fs_tag.dart';
 import '../../../design/fs_tokens.dart';
 import '../../../design/fs_typography.dart';
 import '../../today/presentation/today_page.dart' show notSavedNotice;
@@ -27,6 +30,22 @@ const double _extraHeight = 220;
 /// What the reading says when the day changed while it was open, so he
 /// knows why he is looking at another reading with Amen locked again.
 const String newDayNotice = 'It is a new day. This is today’s reading.';
+
+/// How a reading's tag is drawn. The tags are shown and nothing more, as
+/// in the prototype.
+FsTag _pill(ReadingTag tag) => switch (tag) {
+  ReadingTag.sent => FsTag(
+    key: const ValueKey<String>('fs-tag-sent'),
+    label: tag.label,
+    icon: FsIcons.sent,
+  ),
+  ReadingTag.spiritLed => FsTag(
+    key: const ValueKey<String>('fs-tag-spirit'),
+    label: tag.label,
+    icon: FsIcons.flame,
+    tone: FsTagTone.gold,
+  ),
+};
 
 /// Today's reading. Scrolling to the end enables Amen; Amen checks the
 /// devotional box and returns to Today; "Amen. Undo" clears it again.
@@ -212,6 +231,8 @@ class _DevotionalPageState extends ConsumerState<DevotionalPage> {
                             : '${reading.monthName} · ${reading.monthTheme}',
                         title: monthAndDay(view.date),
                         series: reading.series,
+                        headline: reading.headline,
+                        tags: reading.tags.map(_pill).toList(),
                         note: reading.monthTag,
                       ),
                       Padding(
@@ -286,6 +307,22 @@ class _DevotionalPageState extends ConsumerState<DevotionalPage> {
                                       ],
                                     ),
                             ),
+                            if (reading.inJesus != null) ...<Widget>[
+                              const SizedBox(height: 28),
+                              _Section(
+                                label: 'In Jesus',
+                                child: FsRuled(
+                                  color: colors.accent,
+                                  child: Text(
+                                    reading.inJesus!,
+                                    key: const ValueKey<String>('fs-in-jesus'),
+                                    style: FsText.body.copyWith(
+                                      color: colors.text,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
                             const SizedBox(height: 28),
                             _Section(
                               label: 'Reflect',

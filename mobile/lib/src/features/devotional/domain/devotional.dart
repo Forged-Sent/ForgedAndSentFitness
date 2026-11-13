@@ -40,6 +40,18 @@ abstract final class ScriptureNotices {
   };
 }
 
+/// A mark some readings carry under their headline. It is shown and
+/// nothing more: it has no action, and nothing is counted or scored from
+/// it. The words are the prototype's (`drawDevo` in v254).
+enum ReadingTag {
+  sent('Sent: take it to someone'),
+  spiritLed('Spirit-led');
+
+  const ReadingTag(this.label);
+
+  final String label;
+}
+
 /// One day's reading.
 class Devotional {
   const Devotional({
@@ -54,6 +66,9 @@ class Devotional {
     required this.reflect,
     required this.act,
     this.series,
+    this.headline,
+    this.inJesus,
+    this.tags = const <ReadingTag>[],
   });
 
   /// `11-12`: the calendar date this reading belongs to, in every year.
@@ -67,6 +82,14 @@ class Devotional {
   /// The series a reading belongs to, where it has one.
   final String? series;
 
+  /// The line under the date. Every bundled reading has one; a reading
+  /// without it shows none, as in the prototype.
+  final String? headline;
+
+  /// The reading's marks, in the order they are shown. The library hands
+  /// out a list that cannot be changed.
+  final List<ReadingTag> tags;
+
   final String prayer;
 
   /// For example `James 1:17`.
@@ -77,6 +100,11 @@ class Devotional {
   /// Null when this verse's ESV text is not bundled. The ESV tab then shows
   /// [ScriptureNotices.esvLimitReached].
   final String? esvText;
+
+  /// The "In Jesus" paragraph, shown between the verse and the reflection.
+  /// Every bundled reading has one; a reading without it shows no such
+  /// section, as in the prototype.
+  final String? inJesus;
 
   final String reflect;
   final String act;

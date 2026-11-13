@@ -21,179 +21,191 @@ flowchart LR
     N10["mobile/lib/src/core/date_text.dart"]
     N11["mobile/lib/src/core/event_id.dart"]
     N12["mobile/lib/src/core/local_date.dart"]
-    N13["mobile/lib/src/design/fs_box_row.dart"]
-    N14["mobile/lib/src/design/fs_button.dart"]
-    N15["mobile/lib/src/design/fs_card.dart"]
-    N16["mobile/lib/src/design/fs_colors.dart"]
-    N17["mobile/lib/src/design/fs_hero_header.dart"]
-    N18["mobile/lib/src/design/fs_icons.dart"]
-    N19["mobile/lib/src/design/fs_label_caps.dart"]
-    N20["mobile/lib/src/design/fs_page_bar.dart"]
-    N21["mobile/lib/src/design/fs_progress_ring.dart"]
-    N22["mobile/lib/src/design/fs_scripture.dart"]
-    N23["mobile/lib/src/design/fs_section_head.dart"]
-    N24["mobile/lib/src/design/fs_segmented.dart"]
-    N25["mobile/lib/src/design/fs_shell.dart"]
-    N26["mobile/lib/src/design/fs_theme.dart"]
-    N27["mobile/lib/src/design/fs_tokens.dart"]
-    N28["mobile/lib/src/design/fs_typography.dart"]
-    N29["mobile/lib/src/features/devotional/data/devotional_library.dart"]
-    N30["mobile/lib/src/features/devotional/domain/devotional.dart"]
-    N31["mobile/lib/src/features/devotional/domain/scripture_reference.dart"]
-    N32["mobile/lib/src/features/devotional/presentation/devotional_page.dart"]
-    N33["mobile/lib/src/features/settings/data/settings_repository.dart"]
-    N34["mobile/lib/src/features/settings/presentation/settings_page.dart"]
-    N35["mobile/lib/src/features/today/data/day_repository.dart"]
-    N36["mobile/lib/src/features/today/data/drift_day_repository.dart"]
-    N37["mobile/lib/src/features/today/data/memory_day_repository.dart"]
-    N38["mobile/lib/src/features/today/data/today_content.dart"]
-    N39["mobile/lib/src/features/today/domain/completion_event.dart"]
-    N40["mobile/lib/src/features/today/domain/day_box.dart"]
-    N41["mobile/lib/src/features/today/domain/streak.dart"]
-    N42["mobile/lib/src/features/today/presentation/today_page.dart"]
-    N43["mobile/lib/src/features/today/presentation/today_view_model.dart"]
-    N44["mobile/lib/src/firebase/forged_firebase_runtime.dart"]
-    N45["mobile/lib/src/storage/app_database.dart"]
-    N46["mobile/lib/src/storage/app_database.g.dart"]
-    N47["mobile/lib/src/storage/native_storage.dart"]
+    N13["mobile/lib/src/design/fs_balanced.dart"]
+    N14["mobile/lib/src/design/fs_box_row.dart"]
+    N15["mobile/lib/src/design/fs_button.dart"]
+    N16["mobile/lib/src/design/fs_card.dart"]
+    N17["mobile/lib/src/design/fs_colors.dart"]
+    N18["mobile/lib/src/design/fs_hero_header.dart"]
+    N19["mobile/lib/src/design/fs_icons.dart"]
+    N20["mobile/lib/src/design/fs_label_caps.dart"]
+    N21["mobile/lib/src/design/fs_page_bar.dart"]
+    N22["mobile/lib/src/design/fs_progress_ring.dart"]
+    N23["mobile/lib/src/design/fs_ruled.dart"]
+    N24["mobile/lib/src/design/fs_scripture.dart"]
+    N25["mobile/lib/src/design/fs_section_head.dart"]
+    N26["mobile/lib/src/design/fs_segmented.dart"]
+    N27["mobile/lib/src/design/fs_shell.dart"]
+    N28["mobile/lib/src/design/fs_tag.dart"]
+    N29["mobile/lib/src/design/fs_theme.dart"]
+    N30["mobile/lib/src/design/fs_tokens.dart"]
+    N31["mobile/lib/src/design/fs_typography.dart"]
+    N32["mobile/lib/src/features/devotional/data/devotional_library.dart"]
+    N33["mobile/lib/src/features/devotional/domain/devotional.dart"]
+    N34["mobile/lib/src/features/devotional/domain/scripture_reference.dart"]
+    N35["mobile/lib/src/features/devotional/presentation/devotional_page.dart"]
+    N36["mobile/lib/src/features/settings/data/settings_repository.dart"]
+    N37["mobile/lib/src/features/settings/presentation/settings_page.dart"]
+    N38["mobile/lib/src/features/today/data/day_repository.dart"]
+    N39["mobile/lib/src/features/today/data/drift_day_repository.dart"]
+    N40["mobile/lib/src/features/today/data/memory_day_repository.dart"]
+    N41["mobile/lib/src/features/today/data/today_content.dart"]
+    N42["mobile/lib/src/features/today/domain/completion_event.dart"]
+    N43["mobile/lib/src/features/today/domain/day_box.dart"]
+    N44["mobile/lib/src/features/today/domain/streak.dart"]
+    N45["mobile/lib/src/features/today/presentation/today_page.dart"]
+    N46["mobile/lib/src/features/today/presentation/today_view_model.dart"]
+    N47["mobile/lib/src/firebase/forged_firebase_runtime.dart"]
+    N48["mobile/lib/src/storage/app_database.dart"]
+    N49["mobile/lib/src/storage/app_database.g.dart"]
+    N50["mobile/lib/src/storage/native_storage.dart"]
     N0 --> N1
     N0 --> N3
     N0 --> N4
-    N0 --> N44
+    N0 --> N47
     N1 --> N2
     N1 --> N9
-    N1 --> N26
+    N1 --> N29
     N2 --> N1
     N2 --> N7
     N2 --> N8
-    N2 --> N25
-    N2 --> N32
-    N2 --> N34
-    N2 --> N42
-    N3 --> N33
-    N3 --> N35
-    N3 --> N37
+    N2 --> N27
+    N2 --> N35
+    N2 --> N37
+    N2 --> N45
+    N3 --> N36
+    N3 --> N38
+    N3 --> N40
     N4 --> N3
     N5 --> N3
-    N5 --> N33
     N5 --> N36
-    N5 --> N47
+    N5 --> N39
+    N5 --> N50
     N6 --> N3
-    N7 --> N17
     N7 --> N18
+    N7 --> N19
     N8 --> N7
-    N8 --> N15
     N8 --> N16
     N8 --> N17
-    N8 --> N19
-    N8 --> N27
-    N8 --> N28
+    N8 --> N18
+    N8 --> N20
+    N8 --> N30
+    N8 --> N31
     N9 --> N12
     N10 --> N12
-    N13 --> N16
-    N13 --> N27
-    N13 --> N28
-    N14 --> N16
-    N14 --> N27
-    N14 --> N28
-    N15 --> N16
-    N15 --> N27
-    N17 --> N16
-    N17 --> N18
-    N17 --> N19
-    N17 --> N27
-    N17 --> N28
-    N19 --> N16
-    N19 --> N28
-    N20 --> N14
-    N20 --> N16
-    N20 --> N19
-    N20 --> N28
-    N21 --> N16
-    N21 --> N28
-    N22 --> N16
-    N22 --> N19
-    N22 --> N28
-    N23 --> N16
-    N23 --> N27
-    N23 --> N28
-    N24 --> N14
-    N25 --> N16
-    N25 --> N18
-    N25 --> N27
-    N25 --> N28
-    N26 --> N16
-    N26 --> N28
-    N29 --> N12
-    N29 --> N30
-    N30 --> N12
-    N32 --> N9
-    N32 --> N10
+    N14 --> N17
+    N14 --> N30
+    N14 --> N31
+    N15 --> N17
+    N15 --> N30
+    N15 --> N31
+    N16 --> N17
+    N16 --> N30
+    N18 --> N13
+    N18 --> N17
+    N18 --> N19
+    N18 --> N20
+    N18 --> N28
+    N18 --> N30
+    N18 --> N31
+    N20 --> N17
+    N20 --> N31
+    N21 --> N15
+    N21 --> N17
+    N21 --> N20
+    N21 --> N31
+    N22 --> N17
+    N22 --> N31
+    N24 --> N17
+    N24 --> N20
+    N24 --> N23
+    N24 --> N31
+    N25 --> N17
+    N25 --> N30
+    N25 --> N31
+    N26 --> N15
+    N27 --> N17
+    N27 --> N19
+    N27 --> N30
+    N27 --> N31
+    N28 --> N17
+    N28 --> N19
+    N28 --> N31
+    N29 --> N17
+    N29 --> N31
     N32 --> N12
-    N32 --> N14
-    N32 --> N16
-    N32 --> N17
-    N32 --> N20
-    N32 --> N22
-    N32 --> N24
-    N32 --> N27
-    N32 --> N28
-    N32 --> N30
-    N32 --> N43
-    N33 --> N45
-    N34 --> N14
-    N34 --> N15
-    N34 --> N16
-    N34 --> N17
-    N34 --> N20
-    N34 --> N23
-    N34 --> N27
-    N34 --> N28
-    N34 --> N30
-    N34 --> N43
+    N32 --> N33
+    N33 --> N12
+    N35 --> N9
+    N35 --> N10
     N35 --> N12
-    N35 --> N39
-    N36 --> N12
-    N36 --> N35
-    N36 --> N39
-    N36 --> N45
-    N37 --> N12
-    N37 --> N35
-    N37 --> N39
+    N35 --> N15
+    N35 --> N17
+    N35 --> N18
+    N35 --> N19
+    N35 --> N21
+    N35 --> N23
+    N35 --> N24
+    N35 --> N26
+    N35 --> N28
+    N35 --> N30
+    N35 --> N31
+    N35 --> N33
+    N35 --> N46
+    N36 --> N48
+    N37 --> N15
+    N37 --> N16
+    N37 --> N17
+    N37 --> N18
+    N37 --> N21
+    N37 --> N25
+    N37 --> N30
+    N37 --> N31
+    N37 --> N33
+    N37 --> N46
     N38 --> N12
-    N38 --> N29
-    N38 --> N39
-    N38 --> N40
+    N38 --> N42
     N39 --> N12
+    N39 --> N38
+    N39 --> N42
+    N39 --> N48
     N40 --> N12
+    N40 --> N38
+    N40 --> N42
     N41 --> N12
-    N41 --> N39
-    N42 --> N9
-    N42 --> N10
-    N42 --> N13
-    N42 --> N14
-    N42 --> N15
-    N42 --> N16
-    N42 --> N17
-    N42 --> N19
-    N42 --> N21
-    N42 --> N23
-    N42 --> N27
-    N42 --> N28
-    N42 --> N40
-    N42 --> N43
-    N43 --> N3
-    N43 --> N9
-    N43 --> N11
+    N41 --> N32
+    N41 --> N42
+    N41 --> N43
+    N42 --> N12
     N43 --> N12
-    N43 --> N29
-    N43 --> N30
-    N43 --> N38
-    N43 --> N39
-    N43 --> N40
-    N43 --> N41
-    N47 --> N11
-    N47 --> N45
+    N44 --> N12
+    N44 --> N42
+    N45 --> N9
+    N45 --> N10
+    N45 --> N14
+    N45 --> N15
+    N45 --> N16
+    N45 --> N17
+    N45 --> N18
+    N45 --> N20
+    N45 --> N22
+    N45 --> N25
+    N45 --> N30
+    N45 --> N31
+    N45 --> N43
+    N45 --> N46
+    N46 --> N3
+    N46 --> N9
+    N46 --> N11
+    N46 --> N12
+    N46 --> N32
+    N46 --> N33
+    N46 --> N41
+    N46 --> N42
+    N46 --> N43
+    N46 --> N44
+    N50 --> N11
+    N50 --> N48
 ```
 
 ## Declared classes and functions
@@ -275,6 +287,12 @@ flowchart LR
 - fn hashCode()
 - fn toString()
 
+### mobile/lib/src/design/fs_balanced.dart
+
+- class FsBalanced
+- class _RenderBalanced
+- fn performLayout()
+
 ### mobile/lib/src/design/fs_box_row.dart
 
 - class FsBoxRow
@@ -338,6 +356,11 @@ flowchart LR
 - fn paint()
 - fn shouldRepaint()
 
+### mobile/lib/src/design/fs_ruled.dart
+
+- class FsRuled
+- fn build()
+
 ### mobile/lib/src/design/fs_scripture.dart
 
 - class FsScripture
@@ -364,6 +387,11 @@ flowchart LR
 - class _BrandBar
 - class _TabBar
 - class _Tab
+
+### mobile/lib/src/design/fs_tag.dart
+
+- class FsTag
+- fn build()
 
 ### mobile/lib/src/design/fs_theme.dart
 
