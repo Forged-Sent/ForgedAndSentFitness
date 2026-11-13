@@ -19,6 +19,10 @@ import '../../support/fs_test_support.dart';
 ///
 /// To redraw them:
 /// `flutter test --update-goldens test/features/today/today_golden_test.dart`.
+///
+/// November 12 has no tag, so two more dates show the tags: February 7
+/// (a series line, a headline and the Sent tag) and January 3 (a headline
+/// on two lines and the Spirit-led tag).
 void main() {
   setUpAll(loadAppFonts);
 
@@ -88,5 +92,20 @@ void main() {
         matchesGoldenFile('goldens/reading_end_$name.png'),
       );
     }, skip: skip);
+
+    for (final (tag, day) in <(String, DateTime)>[
+      ('sent', DateTime(2026, 2, 7, 7, 30)),
+      ('spirit', DateTime(2026, 1, 3, 7, 30)),
+    ]) {
+      testWidgets('a reading with the $tag tag, $name', (tester) async {
+        await pumpApp(tester, themeMode: themeMode, clock: TestClock(day));
+        await openDevotional(tester);
+        await loadHeroPhoto(tester);
+        await expectLater(
+          find.byType(MaterialApp),
+          matchesGoldenFile('goldens/reading_${tag}_$name.png'),
+        );
+      }, skip: skip);
+    }
   }
 }

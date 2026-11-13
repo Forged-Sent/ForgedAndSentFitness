@@ -40,7 +40,7 @@ The brand bar, the hero header and the tab bar are dark on a light page too, and
 | Hero ridges | `heroRidgeFar` / `heroRidgeNear` | `#2a241b` / `#14120e` | The two drawn ridges along the bottom of the hero |
 | Tab inactive / active | `tabInactive` / `tabActive` | `#aaa9a5` / `#ff8840` | Tab icons, labels and the bar above the current tab |
 | Panel | `panel` | `#1c1f21` | The progress panel under Today's header (added in S1) |
-| Ring track / ring value | `ringTrack` / `ringValue` | `#3a3326` / `#ff974c` | The progress ring's unfilled and filled parts; the numbers beside it (added in S1) |
+| Ring track / ring value | `ringTrack` / `ringValue` | `#3a3326` / `#ff974c` | The progress ring's unfilled and filled parts; the numbers beside it (added in S1). `ringValue` is the prototype's `--gold-2`, and since S1b also the color of the Spirit-led tag |
 
 **Changed in S0, because the prototype differs from what this page said:**
 
@@ -70,12 +70,16 @@ Implemented in `mobile/lib/src/design/fs_typography.dart` (`FsFonts`, `FsText`).
 
 | Role | Typeface | Style in code |
 |---|---|---|
-| Headings and labels (uppercase, tracked) | Saira Condensed 500–800 | `heroTitleLarge` 38/800, `heroTitle` 32/800, `heroSubtitle` 16.5/600, `kicker` 12.5/600, `labelCaps` 14/600, `button` 14/700, `buttonMini` 12.5/600, `tabLabel` 10.5/600, `brandBar` 12.5/700. Added in S1: `ringValue` 24/800, `ringLabel` 10/700, `stat` 12/600, `tally` 24.5/700, `boxCommand` 10.5/700, `boxPoints` 14/700, `sectionLabel` 13/600, `readingSeries` 13/700 |
+| Headings and labels (uppercase, tracked) | Saira Condensed 500–800 | `heroTitleLarge` 38/800, `heroTitle` 32/800, `heroSubtitle` 16.5/600, `kicker` 12.5/600, `labelCaps` 14/600, `button` 14/700, `buttonMini` 12.5/600, `tabLabel` 10.5/600, `brandBar` 12.5/700. Added in S1: `ringValue` 24/800, `ringLabel` 10/700, `stat` 12/600, `tally` 24.5/700, `boxCommand` 10.5/700, `boxPoints` 14/700, `sectionLabel` 13/600, `readingSeries` 13/700. Added in S1b: `readingHeadline` 22/700 (the headline under a reading's date), `tag` 12/700 (the words in a tag pill) |
 | Body | IBM Plex Sans 400–600 | `body` 14, `bodySmall` 12.5, `sectionTitle` 15/600. Added in S1: `boxTitle` 15/700 |
 | Scripture | Merriweather italic | `scripture` 15. Added in S1: `scriptureLarge` 16.5 (the verse of a reading), `scriptureSmall` 14 (its reflection question), `readingTitle` 26 (the date above a reading) |
 | Wordmark on the opening screen | Saira Stencil One | `wordmark`; bundled, not used by any screen yet |
 
 **Changed in S0:** the brand bar's "Forged & Sent" is Saira Condensed 700, as in the prototype. This page gave Saira Stencil One as the brand wordmark; the prototype uses the stencil face only on its opening screen.
+
+**Changed in S1b: every style states its tracking.** Ten styles had no letter spacing of their own, because the prototype has none there: `body`, `bodySmall`, `sectionTitle`, `boxTitle`, `scripture`, `scriptureLarge`, `scriptureSmall`, `ringValue`, `tally` and `avatar`. A Flutter style that leaves it out takes it from the text style around it, and Material's default for body text is a quarter of a point between letters. So body text and scripture ran wider than the prototype's and lines broke a word earlier. Each of the ten now says `letterSpacing: 0`. Measured on 2026-11-12 for one 53-character line of body text at 14 points: 356.35 in Chrome, 369.59 in the app before, 356.34 after. All 14 golden images changed and were redrawn.
+
+**Merriweather still runs wider than the prototype's, and that is the bundled font file.** With the stray spacing gone, the same words in Merriweather italic are still 2 to 4% wider in the app than in Chrome (one reflection question at 14 points: 288.70 in Chrome, 298.10 in the app). The prototype loads Merriweather from Google Fonts; the app bundles the last static release, as said below. So a verse or a reflection question can still break a word earlier than in v254. Left as it is. IBM Plex Sans matches Chrome to a hundredth of a point at 14 points and to a tenth at 12.5.
 
 **Added in S1:** the date above a reading. The prototype asks for bold upright Merriweather, which it does not load, so the browser draws the bundled italic and thickens it. `readingTitle` does the same: Merriweather italic at weight 800, thickened by the text engine. No upright or bold Merriweather file is bundled.
 
@@ -99,13 +103,16 @@ In Flutter so far: the app follows the phone's dark or light setting (there is n
 |---|---|---|---|
 | `FsTheme` (two `ColorScheme`s, `TextTheme`, spacing and radius constants) | Everything | Implemented | `mobile/lib/src/design/fs_theme.dart`, `fs_colors.dart`, `fs_typography.dart`, `fs_tokens.dart` |
 | `FsShell`: brand bar plus a six-destination tab bar with a top indicator | All top-level pages | Implemented | `mobile/lib/src/design/fs_shell.dart` |
-| `FsHeroHeader`: mountain photograph, kicker, title, round action buttons; `FsReadingHeader`: the same photograph over a reading's month, date and month line | Today, Fuel, Train, Board, Campaign, Settings, Devotional | Implemented. Today's profile button opens Settings; the other round buttons are drawn but do nothing yet. S1 added the streak line beside Today's buttons and `FsReadingHeader` | `mobile/lib/src/design/fs_hero_header.dart` |
+| `FsHeroHeader`: mountain photograph, kicker, title, round action buttons; `FsReadingHeader`: the same photograph over a reading's month, date, series line, headline, tags and month line | Today, Fuel, Train, Board, Campaign, Settings, Devotional | Implemented. Today's profile button opens Settings; the other round buttons are drawn but do nothing yet. S1 added the streak line beside Today's buttons and `FsReadingHeader`; S1b added the headline and the tags to it, spaced as the prototype's `.devo-head` spaces them, and balanced the line under `FsHeroHeader`'s title | `mobile/lib/src/design/fs_hero_header.dart` |
+| `FsTag`: a small outlined pill with an icon and a caps label. Words to read, never a button. Two tones: the dark theme's accent ("Sent") and the ring's bright orange ("Spirit-led"). In the light theme both are the ring's orange: the tag stands on the dark header, where the light theme's dark-orange accent is hard to read (about 3 to 1). The prototype draws Sent in that dark orange; the maintainer chose the bright one on 2026-11-12 | A reading's "Sent" and "Spirit-led" tags | Implemented in S1b (the prototype's `.devo-tg`) | `mobile/lib/src/design/fs_tag.dart` |
+| `FsRuled`: content behind a vertical rule on its left | A reading's verse (inside `FsScripture`) and its "In Jesus" paragraph | Implemented in S1b; the rule and inset were inside `FsScripture` before | `mobile/lib/src/design/fs_ruled.dart` |
+| `FsBalanced`: sets a text so its lines are as even as they can be without adding a line (CSS `text-wrap: balance`) | A reading's headline, and the mission line under Today's title | Implemented in S1b. The prototype balances both (`.devo-hl`, `.mission`) | `mobile/lib/src/design/fs_balanced.dart` |
 | `FsCard` | Everything | Implemented | `mobile/lib/src/design/fs_card.dart` |
 | `FsLabelCaps` | Everything | Implemented | `mobile/lib/src/design/fs_label_caps.dart` |
 | `FsSectionHead`, with `FsTally` ("1 / 7") | Everything | Implemented in S1 | `mobile/lib/src/design/fs_section_head.dart` |
 | `FsButton` (primary, ghost, mini) | Everything | Implemented. S1 added an optional screen-reader label, for buttons whose text is too short to stand alone ("ESV") | `mobile/lib/src/design/fs_button.dart` |
 | `FsIconAction` | Everything | Planned. The hero's round buttons are private to `FsHeroHeader` for now | — |
-| `FsIcon` and `FsIcons`: the prototype's line icons, drawn from its own SVG paths | Tab bar, hero buttons, brand bar | Implemented (added in S0; no icon package is used) | `mobile/lib/src/design/fs_icons.dart` |
+| `FsIcon` and `FsIcons`: the prototype's line icons, drawn from its own SVG paths | Tab bar, hero buttons, brand bar, tag pills | Implemented (added in S0; no icon package is used). S1b added the arrow and the flame of the two tags | `mobile/lib/src/design/fs_icons.dart` |
 | `FsBoxRow`: checkbox, small caps line, title, sub-line, points, chevron | Today, first orders, habits | Implemented in S1. Points are shown only when they are passed in | `mobile/lib/src/design/fs_box_row.dart` |
 | `FsProgressRing`, `FsMeter` | Today, Fuel | Implemented in S1 | `mobile/lib/src/design/fs_progress_ring.dart`; `FsMeter` is in `fs_section_head.dart` |
 | `FsSegmented` | Board, Settings, Profile, the reading's BSB / ESV tab | Implemented in S1, built from mini buttons | `mobile/lib/src/design/fs_segmented.dart` |
@@ -116,7 +123,14 @@ In Flutter so far: the app follows the phone's dark or light setting (there is n
 
 ## Golden images
 
-`mobile/test/app/goldens/` holds Walk at 390×844, dark and light, standing for the tabs that are still placeholders; the maintainer approved it beside the prototype on 2026-11-11. `mobile/test/features/today/goldens/` holds Today as it opens, Today's boxes with the devotional done, the reading as it opens and the end of the reading, each in dark and light; the maintainer approved those eight beside the [S1 captures](reference/s1-today/README.md) on 2026-11-12, and they replace S0's two images of Today. All ten are the baseline. They are compared on Windows only, because text is drawn slightly differently on each operating system. No CI lane checks them yet.
+`mobile/test/app/goldens/` holds Walk at 390×844, dark and light, standing for the tabs that are still placeholders. `mobile/test/features/today/goldens/` holds Today as it opens, Today's boxes with the devotional done, the reading as it opens, the end of the reading, a reading with the Sent tag (February 7) and a reading with the Spirit-led tag (January 3), each in dark and light. All 14 are the baseline. They are compared on Windows only, because text is drawn slightly differently on each operating system. No CI lane checks them yet.
+
+How they were approved:
+
+- **S0, 2026-11-11:** the maintainer approved Walk beside the prototype.
+- **S1, 2026-11-12:** the maintainer approved the eight Today and reading images beside the [S1 captures](reference/s1-today/README.md).
+- **S1b, 2026-11-12:** every one of those ten changed, because removing the stray letter spacing (see Type) moves text on every screen, and four images of tagged readings were added. The maintainer approved all 14 as redrawn.
+- **After that approval** the mission line on Today was balanced, which redrew `today_dark.png` and `today_light.png` once more. Those two were locked on the maintainer's condition that the line breaks on the same words as in v254's picture; `mobile/test/features/today/today_page_test.dart` checks that.
 
 ## Rules
 

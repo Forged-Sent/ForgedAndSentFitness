@@ -126,6 +126,54 @@ void main() {
       expect(bundled, hasLength(14));
     });
 
+    // WHEN TO RETIRE THIS TEST. It proves that step S1b copied v254's
+    // readings into `seed/devotionals.json` faithfully, and it holds only
+    // while the prototype and the seed are meant to say the same. Remove it
+    // in the first pull request that does either of these:
+    // - edits a reading in `seed/devotionals.json` (from then on the seed
+    //   is the source, and the prototype's copy is expected to differ);
+    // - finishes the prototype reconciliation (prompt P02, the "Reconcile
+    //   the prototype baseline" row on the work board), which decides what
+    //   `index.html` is.
+    // Until then, a failure here means one of the two was changed without
+    // the other: tell the maintainer rather than editing either to match.
+    test('the readings\' words are the ones inside the prototype', () {
+      // The prototype keeps its readings on one line: `var DEVOS = {...};`.
+      // `index.html` on `main` and `versions/app-v254.html` hold the same
+      // ones (see assets/SOURCES.md).
+      final line = File('../index.html').readAsLinesSync().firstWhere(
+        (line) => line.trimLeft().startsWith('var DEVOS = '),
+        orElse: () => '',
+      );
+      expect(line, isNotEmpty, reason: 'DEVOS not found in index.html');
+      final prototype =
+          json.decode(
+                line.substring(line.indexOf('{'), line.lastIndexOf('}') + 1),
+              )
+              as Map<String, dynamic>;
+      final theirs = prototype['days'] as Map<String, dynamic>;
+      final ours = devotionals['days'] as Map<String, dynamic>;
+
+      expect(ours.keys.toList()..sort(), theirs.keys.toList()..sort());
+      expect(devotionals['months'], prototype['months']);
+      // Every field but the verse text. The prototype quotes the ESV; the
+      // app's file keeps the BSB (decision Q7) and the ESV lives in its own
+      // file, under the limits tested below.
+      final same = <String, int>{};
+      for (final key in ours.keys) {
+        final mine = Map<String, dynamic>.of(ours[key] as Map<String, dynamic>)
+          ..remove('text');
+        final its = Map<String, dynamic>.of(theirs[key] as Map<String, dynamic>)
+          ..remove('text');
+        expect(mine, its, reason: key);
+        for (final field in mine.keys) {
+          same.update(field, (n) => n + 1, ifAbsent: () => 1);
+        }
+      }
+      // ignore: avoid_print
+      print('Readings equal to the prototype\'s, dates per field: $same.');
+    });
+
     test('the app bundle serves all four files', () async {
       TestWidgetsFlutterBinding.ensureInitialized();
       for (final asset in <String>[
@@ -169,12 +217,87 @@ void main() {
       }
     });
 
+    test('every date has every part, and no part the app does not know', () {
+      const always = <String>{
+        'headline',
+        'prayer',
+        'ref',
+        'text',
+        'jesus',
+        'reflect',
+        'act',
+      };
+      const sometimes = <String>{'series', 'sent', 'spirit'};
+      final days = devotionals['days'] as Map<String, dynamic>;
+
+      expect(days, hasLength(366));
+      for (final entry in days.entries) {
+        final day = entry.value as Map<String, dynamic>;
+        final fields = day.keys.toSet();
+        expect(fields.containsAll(always), isTrue, reason: entry.key);
+        expect(
+          fields.difference(always).difference(sometimes),
+          isEmpty,
+          reason: entry.key,
+        );
+        for (final field in <String>[...always, 'series']) {
+          if (!day.containsKey(field)) continue;
+          expect(day[field], isA<String>(), reason: '${entry.key} $field');
+          expect(
+            (day[field] as String).trim(),
+            isNotEmpty,
+            reason: '${entry.key} $field',
+          );
+        }
+        // A tag is present and true, or absent.
+        for (final tag in <String>['sent', 'spirit']) {
+          if (day.containsKey(tag)) {
+            expect(day[tag], isTrue, reason: '${entry.key} $tag');
+          }
+        }
+      }
+    });
+
+    test('every reading has a headline and an "In Jesus" paragraph', () {
+      for (final reading in library.all) {
+        expect(reading.headline, isNotNull, reason: reading.monthDayKey);
+        expect(
+          reading.headline!.trim(),
+          isNotEmpty,
+          reason: reading.monthDayKey,
+        );
+        expect(reading.inJesus, isNotNull, reason: reading.monthDayKey);
+        expect(
+          reading.inJesus!.trim(),
+          isNotEmpty,
+          reason: reading.monthDayKey,
+        );
+      }
+    });
+
+    test('a reading carries at most one tag', () {
+      final sent = library.all.where((r) => r.tags.contains(ReadingTag.sent));
+      final spiritLed = library.all.where(
+        (r) => r.tags.contains(ReadingTag.spiritLed),
+      );
+      // ignore: avoid_print
+      print(
+        'Tags: ${sent.length} Sent, ${spiritLed.length} Spirit-led, '
+        '${library.all.where((r) => r.tags.isEmpty).length} with none; '
+        '${library.all.where((r) => r.series != null).length} in a series.',
+      );
+      expect(sent, hasLength(48));
+      expect(spiritLed, hasLength(55));
+      expect(library.all.where((r) => r.tags.length > 1), isEmpty);
+    });
+
     test('a reading is chosen by month and day, the same every year', () {
       final a = library.forDate(const LocalDate(2026, 11, 12))!;
       final b = library.forDate(const LocalDate(2031, 11, 12))!;
 
       expect(a.monthDayKey, '11-12');
       expect(a.reference, 'James 1:17');
+      expect(a.headline, 'Every gift came from above');
       expect(a.monthName, 'November');
       expect(identical(a, b), isTrue);
       expect(readingKeyFor(const LocalDate(2026, 3, 7)), '03-07');

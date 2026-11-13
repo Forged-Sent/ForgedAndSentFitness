@@ -1,13 +1,19 @@
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:flutter/material.dart';
-import 'package:flutter/semantics.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:forged_and_sent/src/design/fs_balanced.dart';
 import 'package:forged_and_sent/src/design/fs_button.dart';
 import 'package:forged_and_sent/src/design/fs_card.dart';
 import 'package:forged_and_sent/src/design/fs_colors.dart';
 import 'package:forged_and_sent/src/design/fs_hero_header.dart';
 import 'package:forged_and_sent/src/design/fs_icons.dart';
 import 'package:forged_and_sent/src/design/fs_label_caps.dart';
+import 'package:forged_and_sent/src/design/fs_ruled.dart';
 import 'package:forged_and_sent/src/design/fs_shell.dart';
+import 'package:forged_and_sent/src/design/fs_tag.dart';
 import 'package:forged_and_sent/src/design/fs_theme.dart';
 import 'package:forged_and_sent/src/design/fs_tokens.dart';
 import 'package:forged_and_sent/src/design/fs_typography.dart';
@@ -291,6 +297,67 @@ void main() {
       handle.dispose();
     });
 
+    testWidgets('balances the line under the title, as the prototype does', (
+      tester,
+    ) async {
+      const line =
+          'Confess it, drop it, move forward. '
+          'Grace covers the man who gets back up.';
+      await _pump(
+        tester,
+        const SizedBox(
+          width: 390,
+          child: FsHeroHeader(
+            large: true,
+            kicker: 'Thursday, November 12',
+            title: 'Today’s Mission',
+            subtitle: line,
+            actions: actions,
+          ),
+        ),
+      );
+      // Flutter alone would fill the first line as far as "GRACE COVERS".
+      expect(linesOf(tester, find.text(line.toUpperCase())), <String>[
+        'CONFESS IT, DROP IT, MOVE FORWARD.',
+        'GRACE COVERS THE MAN WHO GETS BACK UP.',
+      ]);
+      expect(find.byType(FsBalanced), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('every bundled mission line is drawn whole', (tester) async {
+      final lines =
+          ((json.decode(File('assets/content/missions.json').readAsStringSync())
+                      as Map<String, dynamic>)['lines']
+                  as List<dynamic>)
+              .cast<String>();
+      expect(lines, hasLength(14));
+      for (final width in <double>[390, 320]) {
+        for (final line in lines) {
+          await _pump(
+            tester,
+            SizedBox(
+              width: width,
+              child: FsHeroHeader(
+                large: true,
+                kicker: 'Thursday, November 12',
+                title: 'Today’s Mission',
+                subtitle: line,
+                actions: actions,
+              ),
+            ),
+          );
+          expect(tester.takeException(), isNull, reason: '$width: $line');
+          final drawn = linesOf(tester, find.text(line.toUpperCase()));
+          // No word is lost or cut, and balancing adds no line.
+          expect(drawn.join(' '), line.toUpperCase(), reason: '$width: $line');
+          expect(drawn.length, lessThanOrEqualTo(3), reason: '$width: $line');
+          final right = tester.getRect(find.text(line.toUpperCase())).right;
+          expect(right, lessThanOrEqualTo(width - FsSpacing.page));
+        }
+      }
+    });
+
     testWidgets('other pages put the buttons beside the small caps line', (
       tester,
     ) async {
@@ -434,6 +501,359 @@ void main() {
     });
   });
 
+  group('FsReadingHeader', () {
+    const tag = FsTag(label: 'Sent: take it to someone', icon: FsIcons.sent);
+
+    testWidgets('sets the headline under the date and the tags under it', (
+      tester,
+    ) async {
+      final handle = tester.ensureSemantics();
+      await _pump(
+        tester,
+        const FsReadingHeader(
+          kicker: 'January · New Start',
+          title: 'January 7',
+          headline: 'No condemnation. Not one ounce.',
+          tags: <FsTag>[tag],
+          note: 'A line about the month.',
+        ),
+      );
+
+      final headline = tester.widget<Text>(
+        find.text('NO CONDEMNATION. NOT ONE OUNCE.'),
+      );
+      expect(headline.semanticsLabel, 'No condemnation. Not one ounce.');
+      expect(headline.style?.fontFamily, FsFonts.display);
+      expect(headline.style?.fontSize, 22);
+      expect(headline.style?.fontWeight, FontWeight.w700);
+      expect(headline.style?.color, FsColors.heroInk);
+      expect(
+        tester.getSemantics(find.text('January 7')),
+        isSemantics(label: 'January 7', isHeader: true),
+      );
+
+      // The prototype's spacing: 8 under the date, 12 above the tags, 10
+      // above the line about the month.
+      final date = tester.getRect(find.text('January 7'));
+      final words = tester.getRect(
+        find.text('NO CONDEMNATION. NOT ONE OUNCE.'),
+      );
+      final pill = tester.getRect(find.byType(FsTag));
+      final note = tester.getRect(find.text('A line about the month.'));
+      expect(words.top - date.bottom, moreOrLessEquals(8, epsilon: 0.01));
+      expect(pill.top - words.bottom, moreOrLessEquals(12, epsilon: 0.01));
+      expect(note.top - pill.bottom, moreOrLessEquals(10, epsilon: 0.01));
+      // One line of 22-point type at a line height of 1.15.
+      expect(words.height, moreOrLessEquals(25.3, epsilon: 0.5));
+      handle.dispose();
+    });
+
+    testWidgets('keeps its earlier spacing where there is no headline', (
+      tester,
+    ) async {
+      await _pump(
+        tester,
+        const FsReadingHeader(
+          kicker: 'November · Gratitude and Contentment',
+          title: 'November 12',
+          note: 'A line about the month.',
+        ),
+      );
+      final kicker = tester.getRect(
+        find.text('NOVEMBER · GRATITUDE AND CONTENTMENT'),
+      );
+      final date = tester.getRect(find.text('November 12'));
+      final note = tester.getRect(find.text('A line about the month.'));
+      expect(date.top - kicker.bottom, moreOrLessEquals(6, epsilon: 0.01));
+      expect(note.top - date.bottom, moreOrLessEquals(6, epsilon: 0.01));
+      expect(find.byType(FsTag), findsNothing);
+    });
+
+    testWidgets('a series line stands between the date and the headline', (
+      tester,
+    ) async {
+      await _pump(
+        tester,
+        const FsReadingHeader(
+          kicker: 'February · Love',
+          title: 'February 7',
+          series: 'A series of readings',
+          headline: 'A headline',
+        ),
+      );
+      final date = tester.getRect(find.text('February 7'));
+      final series = tester.getRect(find.text('A SERIES OF READINGS'));
+      final words = tester.getRect(find.text('A HEADLINE'));
+      expect(series.top - date.bottom, moreOrLessEquals(8, epsilon: 0.01));
+      expect(words.top - series.bottom, moreOrLessEquals(14, epsilon: 0.01));
+    });
+
+    testWidgets('long words and two tags wrap instead of overflowing', (
+      tester,
+    ) async {
+      await _pump(
+        tester,
+        const SizedBox(
+          width: 240,
+          child: FsReadingHeader(
+            kicker: 'January · New Start',
+            title: 'January 3',
+            headline:
+                'A headline long enough to need three lines at this width',
+            tags: <FsTag>[
+              tag,
+              FsTag(
+                label: 'Spirit-led',
+                icon: FsIcons.flame,
+                tone: FsTagTone.gold,
+              ),
+            ],
+            note: 'A line about the month.',
+          ),
+        ),
+      );
+      expect(tester.takeException(), isNull);
+      final pills = find.byType(FsTag);
+      expect(pills, findsNWidgets(2));
+      // The second pill has gone to a line of its own.
+      expect(
+        tester.getRect(pills.last).top,
+        greaterThanOrEqualTo(tester.getRect(pills.first).bottom),
+      );
+      for (final pill in pills.evaluate()) {
+        final box = pill.renderObject! as RenderBox;
+        final right = box.localToGlobal(Offset(box.size.width, 0)).dx;
+        expect(right, lessThanOrEqualTo(240 - FsSpacing.page));
+      }
+    });
+  });
+
+  group('FsBalanced', () {
+    /// The width of each line of the text found by [words].
+    List<double> lineWidths(WidgetTester tester, Finder words) {
+      final paragraph = tester.renderObject<RenderParagraph>(words);
+      final length = paragraph.text.toPlainText().length;
+      final boxes = paragraph.getBoxesForSelection(
+        TextSelection(baseOffset: 0, extentOffset: length),
+      );
+      final lines = <double, (double, double)>{};
+      for (final box in boxes) {
+        final line = lines[box.top];
+        lines[box.top] = line == null
+            ? (box.left, box.right)
+            : (
+                box.left < line.$1 ? box.left : line.$1,
+                box.right > line.$2 ? box.right : line.$2,
+              );
+      }
+      return <double>[for (final line in lines.values) line.$2 - line.$1];
+    }
+
+    const words = 'YOU WERE MADE FOR WORK ALREADY PREPARED';
+    final style = FsText.readingHeadline.copyWith(color: FsColors.heroInk);
+
+    testWidgets('evens out two lines without adding a third', (tester) async {
+      // First as Flutter breaks it: the first line is filled, and one word
+      // is left on the second.
+      await _pump(
+        tester,
+        SizedBox(width: 358, child: Text(words, style: style)),
+      );
+      final filled = lineWidths(tester, find.text(words));
+      expect(filled, hasLength(2));
+      expect(filled.first - filled.last, greaterThan(150));
+      final height = tester.getSize(find.text(words)).height;
+
+      await _pump(
+        tester,
+        SizedBox(
+          width: 358,
+          child: FsBalanced(child: Text(words, style: style)),
+        ),
+      );
+      final balanced = lineWidths(tester, find.text(words));
+      expect(balanced, hasLength(2));
+      // "YOU WERE MADE FOR" over "WORK ALREADY PREPARED".
+      expect((balanced.first - balanced.last).abs(), lessThan(60));
+      expect(tester.getSize(find.text(words)).height, height);
+      // It starts where it did, and the box keeps the width it was given.
+      expect(tester.getTopLeft(find.text(words)).dx, 0);
+      expect(tester.getSize(find.byType(FsBalanced)), Size(358, height));
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('leaves a text that fits on one line as it was', (
+      tester,
+    ) async {
+      await _pump(
+        tester,
+        SizedBox(
+          width: 358,
+          child: FsBalanced(child: Text('A SHORT LINE', style: style)),
+        ),
+      );
+      expect(lineWidths(tester, find.text('A SHORT LINE')), hasLength(1));
+      expect(tester.getTopLeft(find.text('A SHORT LINE')).dx, 0);
+      expect(
+        tester.getSize(find.byType(FsBalanced)).height,
+        moreOrLessEquals(25.3, epsilon: 0.5),
+      );
+    });
+
+    testWidgets('can be measured before it is laid out', (tester) async {
+      // The reading page asks its content how tall it wants to be.
+      await _pump(
+        tester,
+        SizedBox(
+          width: 358,
+          child: IntrinsicHeight(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: <Widget>[FsBalanced(child: Text(words, style: style))],
+            ),
+          ),
+        ),
+      );
+      expect(tester.takeException(), isNull);
+      expect(lineWidths(tester, find.text(words)), hasLength(2));
+    });
+  });
+
+  group('FsTag', () {
+    for (final dark in <bool>[true, false]) {
+      testWidgets('is an outlined pill (${dark ? 'dark' : 'light'})', (
+        tester,
+      ) async {
+        final handle = tester.ensureSemantics();
+        await _pump(
+          tester,
+          const Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              FsTag(label: 'Sent: take it to someone', icon: FsIcons.sent),
+              FsTag(
+                label: 'Spirit-led',
+                icon: FsIcons.flame,
+                tone: FsTagTone.gold,
+              ),
+            ],
+          ),
+          dark: dark,
+        );
+        // The tag stands on the dark header. The dark theme's accent reads
+        // well there; the light theme's is a dark orange that does not, so
+        // in the light theme the tag takes the ring's bright orange.
+        final accent = dark ? FsColors.dark.accent : FsColors.ringValue;
+        expect(accent, isNot(FsColors.light.accent));
+
+        // Capitals on screen; the words as written for a screen reader.
+        final sent = tester.widget<Text>(find.text('SENT: TAKE IT TO SOMEONE'));
+        expect(sent.semanticsLabel, 'Sent: take it to someone');
+        expect(sent.style?.color, accent);
+        expect(sent.style?.fontSize, FsText.tag.fontSize);
+        expect(sent.style?.letterSpacing, FsText.tag.letterSpacing);
+        // The Spirit-led orange is the same in both themes.
+        expect(
+          tester.widget<Text>(find.text('SPIRIT-LED')).style?.color,
+          FsColors.ringValue,
+        );
+
+        // An outline in the same color, fully rounded, 26 high.
+        final outline =
+            tester
+                    .widget<DecoratedBox>(
+                      find
+                          .descendant(
+                            of: find.byType(FsTag).first,
+                            matching: find.byType(DecoratedBox),
+                          )
+                          .first,
+                    )
+                    .decoration
+                as BoxDecoration;
+        expect((outline.border! as Border).top.color, accent);
+        expect(outline.color, isNull);
+        expect(
+          outline.borderRadius,
+          const BorderRadius.all(Radius.circular(13)),
+        );
+        expect(tester.getSize(find.byType(FsTag).first).height, 26);
+        expect(tester.getSize(find.byType(FsTag).last).height, 26);
+
+        // The icon is 14 across, in the pill's color, and is not announced.
+        final icons = tester.widgetList<FsIcon>(find.byType(FsIcon)).toList();
+        expect(icons.map((icon) => icon.size), everyElement(14));
+        expect(icons.first.color, accent);
+        expect(icons.last.color, FsColors.ringValue);
+
+        // Words to read: no button, nothing to tap.
+        expect(
+          tester.getSemantics(find.text('SENT: TAKE IT TO SOMEONE')),
+          isSemantics(
+            label: 'Sent: take it to someone',
+            isButton: false,
+            hasTapAction: false,
+          ),
+        );
+        handle.dispose();
+      });
+    }
+
+    testWidgets('a label too long for its space wraps inside the pill', (
+      tester,
+    ) async {
+      await _pump(
+        tester,
+        const SizedBox(
+          width: 120,
+          child: Align(
+            alignment: Alignment.topLeft,
+            child: FsTag(label: 'Sent: take it to someone', icon: FsIcons.sent),
+          ),
+        ),
+      );
+      expect(tester.takeException(), isNull);
+      final pill = tester.getSize(find.byType(FsTag));
+      expect(pill.width, lessThanOrEqualTo(120));
+      expect(pill.height, greaterThan(FsTag.minHeight));
+    });
+  });
+
+  group('FsRuled', () {
+    testWidgets('sets its content behind a rule in the color given', (
+      tester,
+    ) async {
+      await _pump(
+        tester,
+        const SizedBox(
+          width: 200,
+          child: FsRuled(color: FsColors.gold, child: Text('Behind the rule')),
+        ),
+      );
+      final decoration =
+          tester
+                  .widget<DecoratedBox>(
+                    find.descendant(
+                      of: find.byType(FsRuled),
+                      matching: find.byType(DecoratedBox),
+                    ),
+                  )
+                  .decoration
+              as BoxDecoration;
+      final rule = (decoration.border! as Border).left;
+      expect(rule.color, FsColors.gold);
+      expect(rule.width, FsRuled.ruleWidth);
+      expect((decoration.border! as Border).top, BorderSide.none);
+      // The words start 14 points in from the rule's outer edge.
+      expect(
+        tester.getTopLeft(find.text('Behind the rule')).dx -
+            tester.getTopLeft(find.byType(FsRuled)).dx,
+        FsRuled.inset,
+      );
+    });
+  });
+
   group('FsIcon', () {
     testWidgets('every icon draws at its size', (tester) async {
       const icons = <FsIconData>[
@@ -447,6 +867,8 @@ void main() {
         FsIcons.journal,
         FsIcons.bell,
         FsIcons.person,
+        FsIcons.sent,
+        FsIcons.flame,
         FsIcons.shield,
       ];
       await _pump(

@@ -48,9 +48,22 @@ Text the app shows that is not the member's own data. Nothing is fetched at runt
 
 | File (under `content/`) | Source | Kept in step by |
 |---|---|---|
-| `devotionals.json` | A copy of `seed/devotionals.json`: 366 readings with verse text from the Berean Standard Bible (public domain), and the twelve month themes | `test/features/devotional/bundled_content_test.dart` fails if the copy says anything else |
+| `devotionals.json` | A copy of `seed/devotionals.json`: 366 readings and the twelve month themes. Where each part of a reading comes from is in the table below | `test/features/devotional/bundled_content_test.dart` fails if the copy says anything else than `seed/devotionals.json`, or if any part but the verse text differs from the readings inside `index.html` |
 | `esv_verses.json` | A copy of `seed/esv-verses.json`: the same verses in the ESV, keyed by reference | The same test |
 | `tasks.json` | A copy of `seed/tasks.json`: the list of daily boxes | The same test |
 | `missions.json` | The 14 mission lines of the `MISSIONS` list inside `index.html` (identical on `main` at `dd35157` and in `versions/app-v254.html` at `3ff4a6f`). They exist nowhere else in the repository | The same test reads the list out of `index.html` and compares |
 
-**ESV text (decision Q7).** ESV text may be bundled for at most 499 distinct verses until there is a licence. The same test counts them on every run and fails above 499: today 437, across 368 references. It also checks Crossway's other two conditions: no more than half of any one book (the largest share today is Philippians, 15.4%) and under a quarter of all bundled text (22.8% today). The ESV notice is shown wherever ESV text is. Confirming with Crossway that this permission covers an app is the maintainer's, before public release.
+**Where a reading's parts come from (step S1b, 2026-11-12).** The maintainer decided on 2026-11-12 that the readings inside `versions/app-v254.html` on `origin/app/v241-bold` (commit `3ff4a6f`) are the real readings for the pilot. `index.html` on `main` holds the same 366. They were copied into `seed/devotionals.json` by a script that read that file out of git; nothing was typed.
+
+| Part | Source |
+|---|---|
+| Headline, prayer, "In Jesus" paragraph, reflection, action, and the Sent and Spirit-led tags | `versions/app-v254.html` at `3ff4a6f`: the `DEVOS` object, fields `headline`, `prayer`, `jesus`, `reflect`, `act`, `sent`, `spirit`. Equal to v254 on all 366 dates |
+| Verse reference | Unchanged from `seed/devotionals.json` on `main` at `449b947`. v254 has the same reference on every date |
+| Verse text, BSB (`text`) | Unchanged from `seed/devotionals.json` on `main` at `449b947`: the Berean Standard Bible, public domain. v254's own verse text is the ESV and was **not** copied |
+| Series line, month names, themes and month lines | Unchanged; v254 has the same |
+
+**Not checked against a published source.** Neither the BSB text in `devotionals.json` nor the ESV text in `esv_verses.json` has been compared with a published Bible. v254's own ESV wording differs from `esv_verses.json` on 108 dates (56 only in quotation marks and apostrophes, 46 in a first capital or a final full stop, 6 in a closing quotation mark); which is the published wording is not known. On the work board, to do before public release.
+
+**Scripture inside the readings' own text.** Some headlines, prayers, "In Jesus" paragraphs and actions quote scripture themselves. That text is v254's, copied unchanged with the rest. The places found are listed in `docs/features/today-devotional/inline-scripture-in-v254.md`; checking them is on the work board.
+
+**ESV text (decision Q7).** ESV text may be bundled for at most 499 distinct verses until there is a licence. The same test counts them on every run and fails above 499: today 437, across 368 references. It also checks Crossway's other two conditions: no more than half of any one book (the largest share today is Philippians, 15.4%) and under a quarter of all bundled text (16.2% today; 22.8% before S1b, when the readings' own text was shorter). The count is of `esv_verses.json` only: ESV wording inside a reading's own text is not counted. The ESV notice is shown wherever ESV text is. Confirming with Crossway that this permission covers an app is the maintainer's, before public release.
