@@ -13,6 +13,7 @@ import '../../../design/fs_progress_ring.dart';
 import '../../../design/fs_section_head.dart';
 import '../../../design/fs_tokens.dart';
 import '../../../design/fs_typography.dart';
+import '../domain/completion_event.dart';
 import '../domain/day_box.dart';
 import 'today_view_model.dart';
 
@@ -34,16 +35,22 @@ String streakLine(int days) => days > 0
     : 'Start today. Grace for yesterday.';
 
 /// Today: the date, the mission line, the progress ring and the day's
-/// boxes. Only the devotional can be opened and checked in build step S1.
+/// boxes. Two boxes are live: the devotional, which opens the day's
+/// reading, and the workout, which opens Train and checks itself when a
+/// workout is finished there.
 class TodayPage extends ConsumerWidget {
   const TodayPage({
     super.key,
     required this.onOpenDevotional,
     required this.onOpenSettings,
+    required this.onOpenTrain,
   });
 
   final VoidCallback onOpenDevotional;
   final VoidCallback onOpenSettings;
+
+  /// Opens the Train tab, where a workout is started and finished.
+  final VoidCallback onOpenTrain;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -92,7 +99,11 @@ class TodayPage extends ConsumerWidget {
             FsSpacing.pageBottom,
           ),
           child: view != null
-              ? _BoxesCard(view: view, onOpenDevotional: onOpenDevotional)
+              ? _BoxesCard(
+                  view: view,
+                  onOpenDevotional: onOpenDevotional,
+                  onOpenTrain: onOpenTrain,
+                )
               : state.hasError
               ? _LoadFailedCard(
                   onRetry: () =>
@@ -179,10 +190,15 @@ class _ProgressPanel extends StatelessWidget {
 }
 
 class _BoxesCard extends StatelessWidget {
-  const _BoxesCard({required this.view, required this.onOpenDevotional});
+  const _BoxesCard({
+    required this.view,
+    required this.onOpenDevotional,
+    required this.onOpenTrain,
+  });
 
   final TodayView view;
   final VoidCallback onOpenDevotional;
+  final VoidCallback onOpenTrain;
 
   @override
   Widget build(BuildContext context) {
@@ -242,6 +258,22 @@ class _BoxesCard extends StatelessWidget {
         checked: false,
         points: points,
         onTap: null,
+      );
+    }
+    if (box.item == DayItems.workout) {
+      // The prototype's "auto" box: a tap never checks it. It is checked
+      // by finishing a workout, so the tap leads to where that is done.
+      return FsBoxRow(
+        key: ValueKey<String>('fs-box-${box.id}'),
+        command: box.command,
+        title: box.title,
+        subtitle: boxView.done
+            ? 'Finished in Train'
+            : 'Checks itself when you finish a workout',
+        checked: boxView.done,
+        points: points,
+        showChevron: true,
+        onTap: onOpenTrain,
       );
     }
     return FsBoxRow(

@@ -10,6 +10,7 @@ import 'package:forged_and_sent/src/design/fs_shell.dart';
 import 'package:forged_and_sent/src/features/devotional/presentation/devotional_page.dart';
 import 'package:forged_and_sent/src/features/settings/presentation/settings_page.dart';
 import 'package:forged_and_sent/src/features/today/presentation/today_page.dart';
+import 'package:forged_and_sent/src/features/workout/presentation/train_page.dart';
 
 import '../support/fs_test_support.dart';
 
@@ -75,12 +76,18 @@ void main() {
     for (final (label, title) in _tabs.skip(1)) {
       await openTab(tester, label);
       expect(find.text(title), findsWidgets, reason: label);
-      expect(find.text('NOT BUILT YET'), findsOneWidget, reason: label);
-      expect(
-        find.text('$label arrives in a later step.'),
-        findsOneWidget,
-        reason: label,
-      );
+      if (label == 'Train') {
+        // Built in step S3: the week, not a placeholder.
+        expect(find.byType(TrainPage), findsOneWidget);
+        expect(find.text('NOT BUILT YET'), findsNothing);
+      } else {
+        expect(find.text('NOT BUILT YET'), findsOneWidget, reason: label);
+        expect(
+          find.text('$label arrives in a later step.'),
+          findsOneWidget,
+          reason: label,
+        );
+      }
       expect(_isCurrent(tester, label), isTrue, reason: label);
       expect(_isCurrent(tester, 'Today'), isFalse, reason: label);
       // The brand bar and the tab bar stay put.

@@ -2,6 +2,7 @@ import 'dart:io';
 
 import '../features/settings/data/settings_repository.dart';
 import '../features/today/data/drift_day_repository.dart';
+import '../features/workout/data/drift_workout_repository.dart';
 import '../storage/native_storage.dart';
 import 'local_store.dart';
 
@@ -26,10 +27,12 @@ Future<LocalStore> openLocalStoreIn(
     databaseFileFor(folder, ownerId),
     background: background,
   );
+  final days = DriftDayRepository(database);
   return LocalStore(
     ownerId: ownerId,
-    days: DriftDayRepository(database),
+    days: days,
     settings: DriftSettingsRepository(database),
+    workouts: DriftWorkoutRepository(database, days),
     close: database.close,
   );
 }

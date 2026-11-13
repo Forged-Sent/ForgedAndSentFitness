@@ -19,6 +19,9 @@ import 'package:forged_and_sent/src/features/today/data/memory_day_repository.da
 import 'package:forged_and_sent/src/features/today/data/today_content.dart';
 import 'package:forged_and_sent/src/features/today/domain/completion_event.dart';
 import 'package:forged_and_sent/src/features/today/presentation/today_page.dart';
+import 'package:forged_and_sent/src/features/workout/data/memory_workout_repository.dart';
+import 'package:forged_and_sent/src/features/workout/data/workout_library.dart';
+import 'package:forged_and_sent/src/features/workout/domain/workout_session.dart';
 
 /// The size the prototype reference screenshots were taken at.
 const Size phone = Size(390, 844);
@@ -72,6 +75,14 @@ TodayContent loadBundledTodayContent() => TodayContent.fromJson(
   missions: _asset(TodayContent.missionsAsset),
 );
 
+/// The app's bundled workout program, movement names and workout prayer,
+/// read the same way.
+WorkoutLibrary loadBundledWorkoutLibrary() => WorkoutLibrary.fromJson(
+  workouts: _asset(WorkoutLibrary.workoutsAsset),
+  movements: _asset(WorkoutLibrary.movementsAsset),
+  prayer: _asset(WorkoutLibrary.prayerAsset),
+);
+
 /// The in-memory store standing in for the phone's database in a widget
 /// test: it reports itself as durable, as the Drift store does, so the
 /// screens look as they do on a phone. It can also be told to fail.
@@ -93,13 +104,58 @@ class TestDayRepository extends MemoryDayRepository {
   }
 }
 
+/// The in-memory workout store of a widget test. Like [TestDayRepository]
+/// it reports itself as durable, and it can be told to fail.
+class TestWorkoutRepository extends MemoryWorkoutRepository {
+  TestWorkoutRepository(super.days);
+
+  /// When true, every change to a set or a rest timer, and every start,
+  /// throws, as a full or broken disk would.
+  bool failWrites = false;
+
+  @override
+  bool get durable => true;
+
+  void _refuse() {
+    if (failWrites) throw StateError('The test refused this save.');
+  }
+
+  @override
+  Future<WorkoutSession> startSession(NewSession session) async {
+    _refuse();
+    return super.startSession(session);
+  }
+
+  @override
+  Future<void> setReps(String setId, int? reps) async {
+    _refuse();
+    return super.setReps(setId, reps);
+  }
+
+  @override
+  Future<void> setWeight(String setId, double? weightLb) async {
+    _refuse();
+    return super.setWeight(setId, weightLb);
+  }
+
+  @override
+  Future<void> setTicked(String setId, {required bool ticked}) async {
+    _refuse();
+    return super.setTicked(setId, ticked: ticked);
+  }
+}
+
 /// A store for a widget test. Its owner is `local-test`.
-LocalStore testStore({TestDayRepository? days}) => LocalStore(
-  ownerId: 'local-test',
-  days: days ?? TestDayRepository(),
-  settings: MemorySettingsRepository(),
-  close: () async {},
-);
+LocalStore testStore({TestDayRepository? days}) {
+  final dayStore = days ?? TestDayRepository();
+  return LocalStore(
+    ownerId: 'local-test',
+    days: dayStore,
+    settings: MemorySettingsRepository(),
+    workouts: TestWorkoutRepository(dayStore),
+    close: () async {},
+  );
+}
 
 /// What a test holds on to after starting the app.
 class AppHarness {
@@ -162,6 +218,9 @@ Future<AppHarness> pumpApp(
         ),
         todayContentProvider.overrideWith(
           (ref) async => loadBundledTodayContent(),
+        ),
+        workoutLibraryProvider.overrideWith(
+          (ref) async => loadBundledWorkoutLibrary(),
         ),
       ],
       child: ForgedSentApp(

@@ -12,7 +12,6 @@ import '../../support/fs_test_support.dart';
 const List<String> _inactive = <String>[
   't_motto',
   't_comms',
-  't_workout',
   't_water',
   't_cal',
   't_steps',

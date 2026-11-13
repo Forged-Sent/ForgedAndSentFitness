@@ -385,12 +385,18 @@ void main() {
       ]);
     });
 
-    test('only the devotional can be checked in this build step', () {
-      final active = content.boxes.where((box) => box.active).toList();
+    test(
+      'the devotional and the workout are the boxes that can be checked',
+      () {
+        final active = content.boxes.where((box) => box.active).toList();
 
-      expect(active.map((box) => box.id), <String>['t_devo']);
-      expect(active.single.item, DayItems.devotional);
-    });
+        expect(active.map((box) => box.id), <String>['t_devo', 't_workout']);
+        expect(active.map((box) => box.item), <String>[
+          DayItems.devotional,
+          DayItems.workout,
+        ]);
+      },
+    );
 
     test('count in the ring\'s three groups as the prototype counts them', () {
       int inGroup(BoxCategory category) =>

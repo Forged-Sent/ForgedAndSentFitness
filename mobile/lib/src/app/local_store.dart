@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../features/settings/data/settings_repository.dart';
 import '../features/today/data/day_repository.dart';
 import '../features/today/data/memory_day_repository.dart';
+import '../features/workout/data/memory_workout_repository.dart';
+import '../features/workout/data/workout_repository.dart';
 
 /// Everything the app keeps on the device for one member: who he is here,
 /// and the repositories that hold his data.
@@ -11,23 +13,32 @@ class LocalStore {
     required this.ownerId,
     required this.days,
     required this.settings,
+    required this.workouts,
     required this.close,
   });
 
   /// A store that keeps nothing after the app closes. The web preview and
   /// widget tests use it; the screen says that nothing is saved.
-  factory LocalStore.inMemory({String ownerId = 'preview'}) => LocalStore(
-    ownerId: ownerId,
-    days: MemoryDayRepository(),
-    settings: MemorySettingsRepository(),
-    close: () async {},
-  );
+  factory LocalStore.inMemory({String ownerId = 'preview'}) {
+    final days = MemoryDayRepository();
+    return LocalStore(
+      ownerId: ownerId,
+      days: days,
+      settings: MemorySettingsRepository(),
+      workouts: MemoryWorkoutRepository(days),
+      close: () async {},
+    );
+  }
 
   /// Decision Q10: before sign-in this is the id of the local profile.
   final String ownerId;
 
   final DayRepository days;
   final SettingsRepository settings;
+
+  /// The member's workout plan and sessions. Finishing a session checks
+  /// the Workout box in [days].
+  final WorkoutRepository workouts;
 
   /// Closes the database file. The app never needs to; tests do, to prove
   /// that what was recorded is still there when the file is opened again.

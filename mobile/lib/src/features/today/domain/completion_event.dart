@@ -1,9 +1,13 @@
 import '../../../core/local_date.dart';
 
-/// The box ids the app knows. Only the devotional can be completed in build
-/// step S1.
+/// The box ids the app knows.
 abstract final class DayItems {
+  /// Checked by Amen at the end of the day's reading.
   static const String devotional = 'devotional';
+
+  /// Checked by finishing a workout session, never by a tap on the box.
+  /// It is filed under the day the session was started on.
+  static const String workout = 'workout';
 }
 
 /// One tap that checks or clears a box. Events are only ever added: an undo
