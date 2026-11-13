@@ -811,6 +811,15 @@ button.fo-item { cursor: pointer; min-height: 44px; }
 .rest .rt-time.run { color: var(--accent); }
 .rest .rt-time.fin { color: var(--danger); }
 .rest .mini { min-width: 48px; min-height: 48px; padding: 0 8px; }
+/* Rest timer stays on one row: label, time, -15, +15, Start, Reset. */
+.rest { flex-wrap: nowrap; gap: 6px; }
+.rest .rt-label { flex: 0 1 auto; min-width: 0; font-size: clamp(10px, 2.9vw, 13px); letter-spacing: .06em; line-height: 1.15; }
+.rest .rt-time { flex: 1 1 auto; min-width: 0; font-size: clamp(17px, 5vw, 21.5px); white-space: nowrap; }
+.rest .mini { flex: none; min-width: 0; min-height: 44px; padding: 0 clamp(5px, 1.6vw, 9px); font-size: clamp(10.5px, 3vw, 12.5px); letter-spacing: .04em; }
+.rest .rt-label.two { display: flex; flex-direction: column; white-space: nowrap; }
+@media (max-width: 390px) { .rest .mini { min-width: 0; padding: 0 5px; font-size: 11px; } }
+.rest .rt-time { flex: 0 0 auto; margin-right: auto; }
+@media (max-width: 360px) { .rest { gap: 4px; } .rest .mini { padding: 0 4px; font-size: 10px; letter-spacing: 0; } .rest .rt-time { font-size: 16px; } .rest .rt-label { font-size: 9.5px; letter-spacing: .02em; } }
 .wlog { font-size: 12.5px; color: var(--ink); }
 .wu-item .wlink, .wx .wlink { align-self: flex-start; text-align: left; background: transparent; border: 0; padding: 4px 0; min-height: 44px; color: var(--ink); text-decoration: underline; text-decoration-color: var(--accent); text-underline-offset: 4px; text-decoration-thickness: 2px; display: inline-flex; align-items: center; gap: 8px; }
 .wu-item .wlink .pl, .wx .wlink .pl { color: var(--accent); font-size: 13px; text-decoration: none; }
@@ -911,6 +920,14 @@ button.fo-item { cursor: pointer; min-height: 44px; }
 .chip { display: inline-flex; align-items: center; gap: 6px; padding: 4px 8px; border: 1px solid var(--line); font-size: 13px; max-width: 100%; }
 .chip span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 200px; }
 .chip button { background: transparent; border: 0; color: var(--muted); padding: 4px; }
+#file-chips { gap: 8px; padding-top: 8px; }
+#file-chips:empty { display: none; }
+.att-th { position: relative; width: 72px; height: 72px; flex: none; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; background: #000; }
+.att-th img, .att-th video { width: 100%; height: 100%; object-fit: cover; display: block; pointer-events: none; }
+.att-th .att-play { position: absolute; left: 6px; bottom: 6px; width: 22px; height: 22px; border-radius: 50%; background: rgba(0,0,0,.6); display: grid; place-items: center; }
+.att-th .att-play svg { width: 10px; height: 10px; fill: #fff; margin-left: 2px; }
+.att-th .att-x { position: absolute; top: 4px; right: 4px; width: 24px; height: 24px; min-height: 0; padding: 0; border-radius: 50%; border: 0; background: rgba(0,0,0,.7); color: #fff; font-size: 14px; line-height: 1; display: grid; place-items: center; cursor: pointer; }
+.att-th .att-doc { position: absolute; inset: 0; display: grid; place-items: center; padding: 4px; font-size: 10.5px; color: var(--muted); text-align: center; overflow: hidden; }
 .composer-actions { display: flex; gap: 8px; flex-wrap: wrap; }
 .composer-actions .btn { flex: 1 1 140px; cursor: pointer; }
 .feed { display: flex; flex-direction: column; border-top: 1px solid var(--line); }
@@ -1449,6 +1466,11 @@ header.hero .mini:hover, header.hero .pts-btn:hover { border-color: var(--gold-2
 /* Challenge patches */
 .chb { display: block; width: 100%; height: 100%; overflow: visible; --slotc: #7d8c45; --chb-ink: var(--ink); }
 .chb-family { --slotc: var(--gold-2, #e0c46c); } .chb-endure { --slotc: #d0642f; } .chb-iron { --slotc: #8f9f50; }
+.creed { margin: 0; padding: 10px 12px 10px 14px; border-left: 3px solid var(--accent); background: var(--surface); border-radius: 6px; }
+.creed-k { font-family: var(--f-label); font-weight: 700; font-size: 11px; letter-spacing: .16em; text-transform: uppercase; color: var(--brass, #b08d57); }
+.creed-q { margin: 4px 0 2px; font-family: Georgia, "Times New Roman", serif; font-style: italic; font-size: 15px; line-height: 1.45; color: var(--ink); }
+.creed-r { font-family: var(--f-label); font-weight: 700; font-size: 11px; letter-spacing: .12em; color: var(--accent); }
+.txt .cmd { font-family: var(--f-label); font-weight: 700; font-size: 10.5px; letter-spacing: .14em; text-transform: uppercase; color: var(--brass, #b08d57); line-height: 1.2; }
 .chb-fr { fill: #16130e; fill: color-mix(in srgb, var(--slotc) 14%, #14120d); stroke: var(--slotc); stroke-width: 2.6; stroke-linejoin: round; }
 .chb-st { fill: none; stroke: var(--slotc); stroke-width: 1; stroke-dasharray: 2.2 2; opacity: .55; }
 .chb-o { fill: none; stroke: var(--chb-ink); stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; }
@@ -1533,6 +1555,26 @@ header.hero .mini:hover, header.hero .pts-btn:hover { border-color: var(--gold-2
 /* Devotional reading */
 .devo-head.hero h1.pg { font-family: var(--f-scripture, Georgia, serif); text-transform: none; font-size: 26px; }
 .d-read { font-family: var(--f-scripture, Georgia, serif); }
+
+/* Walk navigation and Today footnotes from v254. */
+.walk-seg { display: grid; grid-template-columns: repeat(3, 1fr); border: 1px solid var(--line); border-radius: var(--radius, 4px); overflow: hidden; margin: -16px 0 0; }
+.walk-seg button { min-height: 44px; border: 0; border-left: 1px solid var(--line); background: transparent; color: var(--muted); font-family: var(--f-label); font-weight: 700; font-size: 13.5px; letter-spacing: .1em; text-transform: uppercase; }
+.walk-seg button:first-child { border-left: 0; }
+.walk-seg button[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); }
+.walk-cards { display: flex; flex-direction: column; gap: 10px; margin-bottom: 14px; }
+.walk-card { display: flex; align-items: center; gap: 12px; width: 100%; padding: 12px; text-align: left; color: inherit; font: inherit; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; cursor: pointer; }
+.walk-card.on { border-color: var(--accent); }
+.walk-card > span:first-child { flex: 1; min-width: 0; }
+.walk-card b { display: block; font-family: var(--f-label); font-weight: 700; font-size: 16px; text-transform: uppercase; letter-spacing: .03em; }
+.walk-card small { display: block; font-size: 12.5px; color: var(--muted); line-height: 1.4; }
+.walk-card .btn { flex: none; min-height: 40px; padding: 0 14px; font-size: 13px; pointer-events: none; }
+#page-journal .topline .right { display: inline-flex; align-items: center; gap: 10px; }
+#camp-seg { margin: -16px 0 0; }
+.jr-tabs:empty { display: none; }
+#mentor-today:empty { display: none; }
+#page-journal .jr-tabs { grid-template-columns: 1fr 1fr; }
+.today-foot { margin-top: 14px; }
+.today-foot:empty { display: none; }
 /* Footer verse on Today */
 .anchor { border-top-color: var(--gold); }
 
@@ -1964,6 +2006,11 @@ header.hero .me-btn { border-color:#e87328; }
 
     <div class="cmp-today-wrap" id="camp-today" hidden></div>
     <div id="mentor-today"></div>
+    <footer class="anchor creed" id="creed-today">
+      <div class="creed-k">The Stand Firm creed</div>
+      <blockquote class="creed-q">Be watchful, stand firm in the faith, act like men, be strong. Let all that you do be done in love.</blockquote>
+      <span class="ref label-caps creed-r">1 Corinthians 16:13&ndash;14 (ESV)</span>
+    </footer>
     <section aria-labelledby="h-today">
       <div class="section-head">
         <h2 class="label-caps" id="h-today">Today's boxes</h2>
@@ -1981,13 +2028,10 @@ header.hero .me-btn { border-color:#e87328; }
       <div class="rows" id="yours"></div>
       <p class="note" id="yours-note"></p>
 
-      <div class="banner" id="banner" hidden>Every box checked. Mission complete.</div>
+      <div class="banner" id="banner" hidden>Every box checked. Mission accomplished.</div>
+      <ul class="today-foot" id="today-foot"></ul>
     </section>
 
-    <footer class="anchor">
-      <blockquote>Be watchful, stand firm in the faith, act like men, be strong. Let all that you do be done in love.</blockquote>
-      <span class="ref label-caps">1 Corinthians 16:13&ndash;14 (ESV)</span>
-    </footer>
   </div>
 
   <!-- FUEL -->
@@ -2049,7 +2093,7 @@ header.hero .me-btn { border-color:#e87328; }
     </header>
 
     <section aria-labelledby="h-chal">
-      <div class="section-head"><h2 class="label-caps" id="h-chal">This week's challenges</h2></div>
+      <div class="section-head"><h2 class="label-caps" id="h-chal">Orders for the week</h2></div>
       <p class="note chal-sub" id="chal-sub"></p>
       <div class="chal-grid" id="chal-btns"></div>
     </section>
@@ -2214,21 +2258,22 @@ header.hero .me-btn { border-color:#e87328; }
 
   <!-- WEEKLY CHALLENGE -->
   <div class="page" id="page-journal" hidden>
-    <div class="pbar">
-      <button class="mini" type="button" id="jr-back">&lsaquo; Today</button>
-      <span class="date label-caps">Write it down</span>
-      <button type="button" class="jr-pen" id="jr-new" aria-label="New journal entry"></button>
-    </div>
-    <h1 class="pg">My journal</h1>
+    <header>
+      <div class="topline"><span class="date label-caps">Walk with God · Private</span><button type="button" class="me-btn" data-open="me" aria-label="Your profile"></button></div>
+      <h1 class="pg">Walk</h1>
+    </header>
+    <button class="mini" type="button" id="jr-back" hidden>&lsaquo; Today</button><button type="button" class="jr-pen" id="jr-new" aria-label="New journal entry" hidden></button>
+    <div class="walk-seg" role="group" aria-label="Walk"><button type="button" data-w="mentor">Brothers</button><button type="button" data-w="journal">Journal</button><button type="button" data-w="pray">Prayers</button></div>
     <div id="jr-body"></div>
   </div>
 
   <div class="page" id="page-mentor" hidden>
-    <div class="pbar">
-      <button class="mini" type="button" id="men-back">&lsaquo; Today</button>
-      <span class="date label-caps">Iron sharpens iron</span>
-    </div>
-    <h1 class="pg">Paul &amp; Timothy</h1>
+    <header>
+      <div class="topline"><span class="date label-caps">Walk with your brothers</span><button type="button" class="me-btn" data-open="me" aria-label="Your profile"></button></div>
+      <h1 class="pg">Walk</h1>
+    </header>
+    <button class="mini" type="button" id="men-back" hidden>&lsaquo; Today</button>
+    <div class="walk-seg" role="group" aria-label="Walk"><button type="button" data-w="mentor">Brothers</button><button type="button" data-w="journal">Journal</button><button type="button" data-w="pray">Prayers</button></div>
     <div id="men-body"></div>
   </div>
 
@@ -2275,6 +2320,7 @@ header.hero .me-btn { border-color:#e87328; }
       <div class="topline"><span class="date label-caps">Iron sharpens iron</span><button type="button" class="me-btn" data-open="me" aria-label="Your profile"></button></div>
       <h1 class="pg">Campaign</h1>
     </header>
+    <div class="bd-seg" id="camp-seg" role="group" aria-label="Which board"><button type="button" id="cs-ind" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="7.6" r="3.6"/><path d="M4.6 20.4c.8-4.2 3.8-6.6 7.4-6.6s6.6 2.4 7.4 6.6"/></svg>Individual</button><button type="button" id="cs-camp" aria-pressed="true"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3h14v12.6L12 21l-7-5.4Z"/><path d="M9 8.6h6M12 6v8"/></svg>Campaign</button></div>
     <div id="camp-page"></div>
   </div>
 
@@ -2551,8 +2597,8 @@ header.hero .me-btn { border-color:#e87328; }
   <button type="button" data-page="today"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h16v16H4z"/><path d="M8 12l3 3 5-6"/></svg>Today</button>
   <button type="button" data-page="fuel"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3c2.5 3.5 6 6.5 6 11a6 6 0 0 1-12 0c0-2.5 1.2-4.3 2.5-5.5.3 2 1.3 3 2.5 3.5C11 9 11 6 12 3z"/><path d="M12 20.5a2.5 2.5 0 0 1-2.5-2.5c0-1.5 1.2-2.5 2.5-4 1.3 1.5 2.5 2.5 2.5 4a2.5 2.5 0 0 1-2.5 2.5z"/></svg>Fuel</button>
   <button type="button" data-page="train"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 9v6M6 7v10M18 7v10M21 9v6M6 12h12"/></svg>Train</button>
+  <button type="button" data-page="walk"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="8" cy="7" r="2.6"/><circle cx="16.5" cy="8" r="2.2"/><path d="M3.5 20c.4-4 2.2-6.5 4.5-6.5s4 2.5 4.5 6.5M12.5 20c.3-3 1.8-5 4-5s3.6 2 4 5"/></svg>Walk</button>
   <button type="button" data-page="board"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 20V10M12 20V4M19 20v-7"/></svg>Board</button>
-  <button type="button" data-page="camp"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3h14v12.6L12 21l-7-5.4Z"/><path d="M9 8.6h6M12 6v8"/></svg>Campaign</button>
   <button type="button" data-page="checkin"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v11H9l-5 4z"/></svg>Rally</button>
 </nav>
 </div>
@@ -3334,6 +3380,8 @@ header.hero .me-btn { border-color:#e87328; }
   /* ---------- Pages ---------- */
   var stripBuilt = false, STRIP_BACK = 8, STRIP_FWD = 8;
   function go(p) {
+    if (p === "walk") p = state.walkPage === "journal" ? "journal" : "mentor";
+    if (p === "mentor" || p === "journal") state.walkPage = p;
     if (p === "board" && state.page !== "board") state.boardView = "kw";
     if (p === "checkin") { state.chan = state.chanNext || ""; state.chanNext = ""; } else state.chan = "";
     paintChanHead();
@@ -3343,7 +3391,7 @@ header.hero .me-btn { border-color:#e87328; }
     if (p !== "fuel") { state.add = null; var fsh = document.getElementById("fsheet"); if (fsh) fsh.remove(); }
     ["today", "fuel", "train", "board", "checkin", "profile", "settings", "devo", "workout", "video", "chal", "ideas", "team", "camp", "owner", "mentor", "journal"].forEach(function (n) { $("page-" + n).hidden = n !== p; });
     Array.prototype.forEach.call(document.querySelectorAll(".tabbar button"), function (b) {
-      if (b.dataset.page === (p === "workout" || p === "video" || p === "chal" ? "train" : p === "ideas" ? "fuel" : p === "mentor" || p === "journal" ? "today" : p === "team" || (p === "checkin" && state.chan) ? "camp" : p)) b.setAttribute("aria-current", "page"); else b.removeAttribute("aria-current");
+      if (b.dataset.page === (p === "workout" || p === "video" || p === "chal" ? "train" : p === "ideas" ? "fuel" : p === "mentor" || p === "journal" ? "walk" : p === "camp" || p === "team" || (p === "checkin" && state.chan) ? "board" : p)) b.setAttribute("aria-current", "page"); else b.removeAttribute("aria-current");
     });
     $("scroll").scrollTop = 0;
     if (p === "workout") startWkTick(); else if (p !== "video") { if (wkTick) saveWkNow(); stopWkTick(); cancelAllTones(); }
@@ -3359,6 +3407,8 @@ header.hero .me-btn { border-color:#e87328; }
     if (p === "owner") { ownerWatch(); drawOwner(); drawOwnerPairs(); }
     if (p === "mentor") drawMentorPage();
     if (p === "journal") drawJournalPage();
+    if (p === "mentor" || p === "journal") paintWalkSeg();
+    if (p === "camp") paintCampSeg();
     $("scroll").classList.toggle("rally-mode", p === "checkin"); rlBadge();
     if (p === "checkin") { rlStick = true; drawFeed(true); }
     if (p === "devo") { sizeDevo(); $("scroll").scrollTop = 0; devoScroll(); }
@@ -3694,7 +3744,7 @@ header.hero .me-btn { border-color:#e87328; }
     var notice = $("notice"); notice.textContent = "";
     var so = state.me ? outNow(state.me) : null, gO = so ? null : graceOffer();
     if (so) { var sli = el("li", "item gr-li"), sb2 = el("button", "hit gr-card out"); sb2.type = "button"; var st2 = el("span", "txt"); st2.appendChild(el("span", "name", "Sitting out through " + shortDate(so.to))); st2.appendChild(el("span", "sub", "Rest up. Your streak is held. Tap if you\u2019re back early.")); sb2.appendChild(st2); sb2.appendChild(el("span", "chev", "\u203A")); sb2.addEventListener("click", openSitOut); sli.appendChild(sb2); list.appendChild(sli); }
-    else if (gO && gO.ready) { var gli = el("li", "item gr-li"), gb2 = el("button", "hit gr-card"); gb2.type = "button"; var gt2 = el("span", "txt"); gt2.appendChild(el("span", "name", "Yesterday\u2019s gone. Own it and get back on the line.")); gt2.appendChild(el("span", "sub", "Keep your " + gO.streak + "-day streak. Tap to own it.")); gb2.appendChild(gt2); gb2.appendChild(el("span", "chev", "\u203A")); gb2.addEventListener("click", function () { openOwnIt(gO); }); gli.appendChild(gb2); list.appendChild(gli); }
+    else if (gO && gO.ready) { var gli = el("li", "item gr-li"), gb2 = el("button", "hit gr-card"); gb2.type = "button"; var gt2 = el("span", "txt"); gt2.appendChild(el("span", "name", "Grace for yesterday. Own it and get back in the line.")); gt2.appendChild(el("span", "sub", "Keep your " + gO.streak + "-day streak. Tap to own it.")); gb2.appendChild(gt2); gb2.appendChild(el("span", "chev", "\u203A")); gb2.addEventListener("click", function () { openOwnIt(gO); }); gli.appendChild(gb2); list.appendChild(gli); }
     var rec = myDoc(), done = rec.done, log = logFor(todayKey()), t = targets();
     var tasks = dayTasks(todayKey()), total = tasks.length + filledSlots().length;
     var n = tasks.filter(function (t) { return done[t.id]; }).length + filledSlots().filter(function (k) { return done[k]; }).length;
@@ -3720,7 +3770,7 @@ header.hero .me-btn { border-color:#e87328; }
       b.disabled = !isDevo && !auto && (!state.me || !state.canWrite);
       var box = el("span", "box"); box.innerHTML = CHECK_SVG; b.appendChild(box);
       var txt = el("span", "txt"), nm = el("span", "name", tk.kind === "calories" && foodMode() !== "app" ? FOOD_MODES[foodMode()].box : tk.title);
-      txt.appendChild(nm);
+      txt.appendChild(el("span", "cmd", cmdOf(tk))); txt.appendChild(nm);
       var sub = tk.sub || "";
       if (isDevo) { var dv = devoToday(); sub = done[tk.id] ? "Read today" : (dv ? dv.e.ref + ". Tap to open today's reading" : "Tap to open today's reading"); }
       else if (tk.kind === "water") sub = Math.round(log.water) + " of " + Math.round(WATER_GOAL_OZ) + " oz (3 L). Log it in Fuel";
@@ -3751,39 +3801,31 @@ header.hero .me-btn { border-color:#e87328; }
       var fli = el("li", "item fr-li"), fb = el("button", "hit fr-open"); fb.type = "button";
       var frx = (state.settings.freport || {})[todayKey()], frDone = !!(frx && frx.shared);
       if (frDone) { fb.classList.add("fr-done"); var fbx = el("span", "box"); fbx.innerHTML = CHECK_SVG; fb.appendChild(fbx); } else fb.appendChild(el("span", "fr-ic", "\u2709"));
-      var ftx = el("span", "txt"); ftx.appendChild(el("span", "name", "Family report"));
+      var ftx = el("span", "txt"); ftx.appendChild(el("span", "cmd", "Act like men")); ftx.appendChild(el("span", "name", "Family report"));
       ftx.appendChild(el("span", "sub", frDone ? "Shared with your family \u00B7 No points, just leadership" : frx ? "Ready. Tap to review and share" : "Your week, ready to share with your family")); fb.appendChild(ftx);
       if (frDone) fb.appendChild(el("span", "pts fr-tag", "Done")); fb.appendChild(el("span", "chev", "\u203A"));
       fb.addEventListener("click", openFamilyReport); fli.appendChild(fb); list.appendChild(fli);
       var lcw = chalWeekFor(todayKey()), ln0 = lcw.pre ? 1 : lcw.n, lw = legacyThisWeek(ln0), lli = el("li", "item fr-li"), lb0 = el("button", "hit fr-open"); lb0.type = "button";
       if (lw) { lb0.classList.add("fr-done"); var lbx = el("span", "box"); lbx.innerHTML = CHECK_SVG; lb0.appendChild(lbx); } else lb0.appendChild(el("span", "fr-ic", "\u270D\uFE0E"));
-      var ltx = el("span", "txt"); ltx.appendChild(el("span", "name", "Legacy log"));
+      var ltx = el("span", "txt"); ltx.appendChild(el("span", "cmd", "Act like men")); ltx.appendChild(el("span", "name", "Legacy log"));
       ltx.appendChild(el("span", "sub", lw ? "Written this week \u00B7 Tap to add another" : legacyPrompt(ln0, 0))); lb0.appendChild(ltx);
       if (lw) lb0.appendChild(el("span", "pts fr-tag", "Done")); lb0.appendChild(el("span", "chev", "\u203A"));
       lb0.addEventListener("click", function () { openLegacy(); }); lli.appendChild(lb0); list.appendChild(lli);
     }
-    if (state.me) {
-      var jt = journalToday(), jli = el("li", "item fr-li"), jb = el("button", "hit fr-open"); jb.type = "button"; jb.id = "jr-today";
-      if (jt.length) { jb.classList.add("fr-done"); var jbx = el("span", "box"); jbx.innerHTML = CHECK_SVG; jb.appendChild(jbx); } else { var jic = el("span", "fr-ic"); jic.innerHTML = PEN_SVG; jb.appendChild(jic); }
-      var jtx = el("span", "txt"); jtx.appendChild(el("span", "name", "Journal"));
-      jtx.appendChild(el("span", "sub", jt.length ? "Written today \u00B7 Tap to read or add" : "Your workout, your day, your family, your faith. No points, just write.")); jb.appendChild(jtx);
-      if (jt.length) jb.appendChild(el("span", "pts fr-tag", "Done")); jb.appendChild(el("span", "chev", "\u203A"));
-      jb.addEventListener("click", function () { if (journalToday().length) go("journal"); else openJournal(); }); jli.appendChild(jb); list.appendChild(jli);
-    }
-    var wt = taskOfKind("weigh");
+    var wt = taskOfKind("weigh"), foot = $("today-foot") || list; if (foot !== list) foot.textContent = "";
     if (wt && !isWeighDay(todayKey())) {
       var nx = 0; while (nx < 7 && !isWeighDay(addDays(todayKey(), nx))) nx++;
-      list.appendChild(el("li", "wk-hint", "Weekly weigh-in" + (taskOfKind("photos") ? " and progress photos are" : " is") + " on your Sabbath, " + DAYN[sabbathDow()] + (nx === 1 ? " (tomorrow)." : " (in " + nx + " days).")));
+      foot.appendChild(el("li", "wk-hint", "Weekly weigh-in" + (taskOfKind("photos") ? " and progress photos are" : " is") + " on your Sabbath, " + DAYN[sabbathDow()] + (nx === 1 ? " (tomorrow)." : " (in " + nx + " days).")));
     }
-    if (state.me && state.canWrite && !so) { var soli = el("li", "wk-hint so-li"), sol = el("button", "linkish", "On vacation or sick? Sit out a week"); sol.type = "button"; sol.addEventListener("click", openSitOut); soli.appendChild(sol); list.appendChild(soli); }
+    if (state.me && state.canWrite && !so) { var soli = el("li", "wk-hint so-li"), sol = el("button", "linkish", "On vacation or sick? Sit out a week"); sol.type = "button"; sol.addEventListener("click", openSitOut); soli.appendChild(sol); foot.appendChild(soli); }
   }
   function drawYours() {
     var wrap = $("yours"), a = document.activeElement;
     var hadFocus = a && a.id === "habit-input", sel = hadFocus ? [a.selectionStart, a.selectionEnd] : null;
     wrap.textContent = "";
     var done = myDoc().done, used = filledSlots().length;
-    $("slots-hint").textContent = used + " of 3 used";
-    $("yours-note").textContent = used < 3 ? "Choose habits you are building, or ones you are putting to death by the Spirit. Example: no scrolling after 9 pm." : "";
+    $("slots-hint").textContent = used + " of " + CUSTOM.length + " used";
+    $("yours-note").textContent = used < CUSTOM.length ? "Choose habits you are building, or ones you are putting to death by the Spirit. Example: no scrolling after 9 pm." : "";
     CUSTOM.forEach(function (k) {
       var title = state.habits[k];
       if (state.editSlot === k) {
@@ -4248,7 +4290,7 @@ header.hero .me-btn { border-color:#e87328; }
     var old = $("cdlg"); if (old) old.remove();
     var back = el("div", "cdlg"); back.id = "cdlg";
     var box = el("div", "cdlg-box nw-box aw-box"); box.setAttribute("role", "dialog"); box.setAttribute("aria-modal", "true"); box.setAttribute("aria-labelledby", "aw-t");
-    var t = el("h2", null, "Workout complete"); t.id = "aw-t"; box.appendChild(t);
+    var t = el("h2", null, list.length ? "Stronger to serve" : "Workout complete"); t.id = "aw-t"; box.appendChild(t);
     var total = (boxPts || 0) + list.length * PR_PTS, rows = el("div", "aw-list");
     if (boxPts) { var r0 = el("div", "aw-row"); var tx0 = el("div", "txt"); tx0.appendChild(el("b", null, "Workout box")); tx0.appendChild(el("span", null, "You finished today’s planned workout.")); r0.appendChild(tx0); r0.appendChild(el("span", "aw-pts", "+" + boxPts)); rows.appendChild(r0); }
     list.forEach(function (x) {
@@ -5793,7 +5835,7 @@ header.hero .me-btn { border-color:#e87328; }
       var lb = el("button", "btn", "Lock"); lb.type = "button"; lb.addEventListener("click", function () { lockWorkout(key); });
       eb.appendChild(et); eb.appendChild(lb); body.insertBefore(eb, body.firstChild);
     }
-    if (isToday && !started && !done && !altW) { var sb = el("button", "btn wk-start", "Start workout"); sb.type = "button"; sb.disabled = off || !wk.loaded; sb.addEventListener("click", function () { openWorkoutPrayer(function () { if (!wk.root) wk.root = emptyWk(key); if (!wk.rec) wk.rec = wk.root; if (!wk.rec.startedAt) wk.rec.startedAt = Date.now(); saveWkNow(); drawWorkoutPage(true); }); }); body.appendChild(sb); }
+    if (isToday && !started && !done && !altW) { var sb = el("button", "btn wk-start", "Pray, then train"); sb.type = "button"; sb.disabled = off || !wk.loaded; sb.addEventListener("click", function () { openWorkoutPrayer(function () { if (!wk.root) wk.root = emptyWk(key); if (!wk.rec) wk.rec = wk.root; if (!wk.rec.startedAt) wk.rec.startedAt = Date.now(); saveWkNow(); drawWorkoutPage(true); }); }); body.appendChild(sb); }
     if (live && !editing) body.appendChild(el("p", "note", "Started " + new Date(rec.startedAt).toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" }) + ". Log each set, then rest."));
     if (live && !S && !off) {
       var rr = rateOf(rec), pc = el("div", "rate-card"); pc.appendChild(el("div", "rate-h", "Before you lift"));
@@ -7520,7 +7562,7 @@ header.hero .me-btn { border-color:#e87328; }
     var ix = campIndex(), back = el("div", "cdlg"); back.id = "cdlg";
     var box = el("div", "cdlg-box nw-box ci-box"); box.setAttribute("role", "dialog"); box.setAttribute("aria-modal", "true"); box.setAttribute("aria-labelledby", "ci-t");
     var h = el("h2", null, "Invite a brother"); h.id = "ci-t"; box.appendChild(h);
-    box.appendChild(el("p", "note", "He’ll see your invite on Today and tap Join."));
+    box.appendChild(el("p", "note", "He’ll see your invite on Today and tap Answer the call."));
     var q = el("input", "field"); q.type = "search"; q.placeholder = "Search by name or @handle"; q.setAttribute("aria-label", "Search brothers"); box.appendChild(q);
     var list = el("div", "ci-list"); box.appendChild(list);
     function draw() {
@@ -7588,7 +7630,7 @@ header.hero .me-btn { border-color:#e87328; }
     card.appendChild(el("span", "label-caps cmp-k", "Campaign " + (c.n || 1) + " · Sign-ups open · starts " + campDateText(c.start)));
     invs.forEach(function (tt) {
       var r = el("div", "cmp-inv"); r.appendChild(bannerEl(tt.banner)); var tx2 = el("span", "cmp-tx"); tx2.appendChild(el("span", "cmp-nm", tt.name)); tx2.appendChild(el("span", "cmp-sub", nameOf(tt.cap) + " invited you · " + tt.men.length + " of " + CAMP_MAX + " men")); r.appendChild(tx2);
-      var acts = el("span", "cmp-acts"), j = el("button", "mini on", "Join"), d = el("button", "mini", "Decline"); j.type = "button"; d.type = "button"; j.disabled = d.disabled = !state.canWrite || tt.men.length >= CAMP_MAX;
+      var acts = el("span", "cmp-acts"), j = el("button", "mini on", "Answer the call"), d = el("button", "mini", "Decline"); j.type = "button"; d.type = "button"; j.disabled = d.disabled = !state.canWrite || tt.men.length >= CAMP_MAX;
       j.addEventListener("click", function () { B.saveTMember(state.me, { camp: c.id, team: tt.id, at: Date.now(), declined: declined }).then(function () { openTeam(tt.id); }).catch(noop); });
       d.addEventListener("click", function () { B.saveTMember(state.me, { camp: c.id, team: "", at: 0, declined: declined.concat([tt.id]) }).catch(noop); });
       acts.appendChild(j); acts.appendChild(d); r.appendChild(acts); card.appendChild(r);
@@ -8048,10 +8090,21 @@ header.hero .me-btn { border-color:#e87328; }
   }
   function drawChips() {
     var c = $("file-chips"); c.textContent = "";
+    // Free preview URLs for files that are no longer attached.
+    (c._urls || []).forEach(function (u) { if (!state.files.some(function (f) { return f.__thumb === u; })) { try { URL.revokeObjectURL(u); } catch (e) {} } });
+    c._urls = [];
     state.files.forEach(function (f, i) {
-      var chip = el("span", "chip"); chip.appendChild(el("span", null, f.name));
-      var x = el("button", null, "×"); x.type = "button"; x.setAttribute("aria-label", "Remove " + f.name);
-      x.addEventListener("click", function () { state.files.splice(i, 1); drawChips(); }); chip.appendChild(x); c.appendChild(chip);
+      var isV = /^video\//.test(f.type || ""), isI = /^image\//.test(f.type || "");
+      var tile = el("span", "att-th"); tile.setAttribute("role", "group"); tile.setAttribute("aria-label", (isV ? "Video" : isI ? "Photo" : "File") + " attached");
+      if ((isV || isI) && !f.__thumb) { try { f.__thumb = URL.createObjectURL(f); } catch (e) {} }
+      if (f.__thumb) c._urls.push(f.__thumb);
+      if (isI && f.__thumb) { var im = el("img"); im.alt = ""; im.src = f.__thumb; tile.appendChild(im); }
+      else if (isV && f.__thumb) {
+        var vd = el("video"); vd.muted = true; vd.setAttribute("muted", ""); vd.playsInline = true; vd.setAttribute("playsinline", ""); vd.preload = "metadata"; vd.src = f.__thumb + "#t=0.1"; tile.appendChild(vd);
+        var pl = el("span", "att-play"); pl.innerHTML = '<svg viewBox="0 0 10 10" aria-hidden="true"><path d="M0 0l10 5-10 5z"/></svg>'; tile.appendChild(pl);
+      } else tile.appendChild(el("span", "att-doc", f.name || "File"));
+      var x = el("button", "att-x", "×"); x.type = "button"; x.setAttribute("aria-label", "Remove " + (isV ? "video" : isI ? "photo" : f.name));
+      x.addEventListener("click", function () { state.files.splice(i, 1); drawChips(); }); tile.appendChild(x); c.appendChild(tile);
     });
   }
   function rlFit() { var t = $("post-text"); if (!t) return; t.style.height = "auto"; t.style.height = Math.min(140, t.scrollHeight + 2) + "px"; }
@@ -8691,7 +8744,7 @@ header.hero .me-btn { border-color:#e87328; }
       "Your Calories box checks itself when you land in your window. Losing fat: 15% under to 10% over your goal. Maintaining: within 5%. Building: within 10%.",
       "Protein bonus: hit or beat your protein target while your calories are in that window for +2 bonus points."] },
     train: { t: "Train", why: "Your training plan, today's workout and your progress over time.", how: [
-      "This week's challenges: three buttons at the top for the Family, Iron and Endure challenges. Tap one to see what it is, then submit your result there.",
+      "Orders for the week: three buttons at the top for the Family, Iron and Endure challenges. Tap one to see what it is, then submit your result there.",
       "Pick your program, equipment, Sabbath day and your 3 lifting days in Workout plan. New lifting days start the next week; the week you\u2019re in stays as it is (use Move day to shift it).",
       "Coach Gideon\u2019s Workout Guidance sits under each day\u2019s workout and at the top of the workout. Read it before you start.",
       "Tap a day on the calendar to see its workout, then open it to start.",
@@ -9437,11 +9490,11 @@ header.hero .me-btn { border-color:#e87328; }
   /* Tour: one card per tab over the real screen. */
   var TOUR = [
     ["today", "Today", ["Tap a box when it's done. Boxes with an arrow open first, like the devotional, your creed and your steps.", "Some boxes fill themselves from Fuel, Train and Rally.", "Steps: 10,000 a day (7,000 on your Sabbath), plus bonus points past 10,000."]],
-    ["journal", "Journal", ["Tap the pen at the top of any page to write about anything: a lift, your work, your family, your faith. Only you can read it.", "After a workout, Write about this workout keeps what you noticed. Tag prayers and mark them answered.", "Look back with search and On this day. No points, just write."]],
+    ["journal", "Walk: Journal and Prayers", ["Open Journal or Prayers under Walk, or tap the pen at the top of any page to write about anything: a lift, your work, your family, your faith. Only you can read it.", "After a workout, Write about this workout keeps what you noticed. Tag prayers and mark them answered.", "Look back with search and On this day. No points, just write."]],
     ["fuel", "Fuel", ["Log meals with search, photo, voice or favorites.", "Tap the water buttons as you drink.", "Your Calories box checks when you land in your window: 15% under to 10% over when losing fat, within 5% when maintaining."]],
     ["train", "Train", ["Tap Start, pray the workout prayer, then tap Amen to start the clock.", "Log reps, then weight. Finish to earn 25 points for each lift PR.", "Weekly challenges are at the top. Due Sunday 8 AM Arizona time, with photo or video proof."]],
     ["board", "Board", ["Kingdom Warrior ranks the men by points: Today, This week and All time.", "Individual and Campaign buttons switch boards. The menu shows top PRs on each lift.", "Tap How points work for the full breakdown."]],
-    ["camp", "Campaign", ["Team battles of 6 to 8 men for 6 weeks. Raise a banner or answer a captain\u2019s invite.", "Your team, Wall Held, this week\u2019s double points and team chat live here.", "Standings and points stay on the Board."]],
+    ["camp", "Campaign", ["Team battles of 6 to 8 men for 6 weeks. Raise a banner or answer a captain\u2019s invite.", "Your team, Wall Held, this week\u2019s double points and team chat live here.", "Open Campaign from Board; standings and points stay on the Board."]],
     ["checkin", "Rally", ["The group thread. Post a win, a photo or a word for a brother.", "Posting checks your Rally Call box. Hold a brother's post to react, or tap Reply.", "Keep it real. No judgment, no gossip.", "Settings: tap your picture at the top of any page, then Settings."]]
   ];
   var tourI = -1;
@@ -9483,7 +9536,7 @@ header.hero .me-btn { border-color:#e87328; }
       box.appendChild(r);
     });
   }
-  var APP_VERSION = "v238";
+  var APP_VERSION = "v255";
   /* ---------- Photo upload diagnostic (Settings > Testing) ---------- */
   async function runPhotoDiag() {
     var out = { at: new Date().toISOString(), version: APP_VERSION, ua: navigator.userAgent, steps: [] };
@@ -10336,6 +10389,25 @@ header.hero .me-btn { border-color:#e87328; }
   // read that collection, even for pairing, until server-side access is enforced.
   function myPaul() { return ""; }
 
+  function paintWalkSeg() {
+    var cur = state.page === "mentor" ? "mentor" : jrUI.tab === "pray" || jrUI.tab === "ans" ? "pray" : "journal";
+    Array.prototype.forEach.call(document.querySelectorAll(".walk-seg button"), function (b) { b.setAttribute("aria-pressed", String(b.dataset.w === cur)); });
+  }
+  function paintCampSeg() { var a = $("cs-ind"), c = $("cs-camp"); if (a) { a.setAttribute("aria-pressed", "false"); c.setAttribute("aria-pressed", "true"); } }
+  function cmdOf(tk) {
+    if (tk.kind === "devo" || tk.id === "t_motto") return "Stand firm";
+    if (tk.kind === "checkin") return "In love";
+    if (tk.id === "t_home") return "Act like men";
+    return "Be strong";
+  }
+  function drawJournalTop(body) {
+    var w = el("div", "walk-cards");
+    var wr = el("button", "walk-card on"); wr.type = "button"; wr.id = "walk-write";
+    var wt = el("span"); wt.appendChild(el("b", null, "Write it down")); wt.appendChild(el("small", null, "A win, a struggle, a prayer, something God showed you. Only you can read it.")); wr.appendChild(wt); wr.appendChild(el("span", "btn", "Write"));
+    wr.addEventListener("click", function () { openJournal(); }); w.appendChild(wr);
+    body.appendChild(w);
+  }
+
   var PEN_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true" style="width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round"><path d="M4 20h4L19 9l-4-4L4 16v4z"/><path d="M13.5 6.5l4 4"/></svg>';
   var JR_TAGS = [["workout", "Workout"], ["win", "Win"], ["struggle", "Struggle"], ["family", "Family"], ["work", "Work"], ["grateful", "Grateful"], ["prayer", "Prayer"], ["god", "God showed me"]];
   function jrLabel(k) { for (var i = 0; i < JR_TAGS.length; i++) if (JR_TAGS[i][0] === k) return JR_TAGS[i][1]; return k; }
@@ -10548,10 +10620,11 @@ header.hero .me-btn { border-color:#e87328; }
   function drawJournalPage() {
     var body = $("jr-body"); if (!body) return;
     var hadFocus = document.activeElement && document.activeElement.id === "jr-q", caret = hadFocus ? document.activeElement.selectionStart : 0;
-    body.textContent = "";
+    body.textContent = ""; paintWalkSeg();
+    if (jrUI.tab === "all" && !jrUI.q) drawJournalTop(body);
     var all = journalSorted(), prayers = all.filter(function (x) { return x.ans; }), open = all.filter(function (x) { return !x.ans && (x.tags || []).indexOf("prayer") >= 0; });
     var tabs = el("div", "jr-tabs"); tabs.setAttribute("role", "tablist");
-    [["all", "Entries"], ["pray", "Praying for · " + open.length], ["ans", "Answered · " + prayers.length]].forEach(function (tb) { var b = el("button", null, tb[1]); b.type = "button"; b.setAttribute("role", "tab"); b.setAttribute("aria-selected", jrUI.tab === tb[0] ? "true" : "false");
+    (jrUI.tab === "all" ? [] : [["pray", "Praying for · " + open.length], ["ans", "Answered · " + prayers.length]]).forEach(function (tb) { var b = el("button", null, tb[1]); b.type = "button"; b.setAttribute("role", "tab"); b.setAttribute("aria-selected", jrUI.tab === tb[0] ? "true" : "false");
       b.addEventListener("click", function () { jrUI.tab = tb[0]; drawJournalPage(); }); tabs.appendChild(b); });
     body.appendChild(tabs);
     var q = el("input", "field jr-search"); q.id = "jr-q"; q.type = "search"; q.placeholder = "Search your journal"; q.setAttribute("aria-label", "Search your journal"); q.value = jrUI.q;
@@ -10612,11 +10685,7 @@ header.hero .me-btn { border-color:#e87328; }
     h.tabIndex = -1; try { h.focus({ preventScroll: true }); } catch (e) {} box.scrollTop = 0;
   }
   function drawMentorToday() {
-    var box = $("mentor-today"); if (!box) return; box.textContent = "";
-    var b = el("button", "men-empty"); b.type = "button";
-    b.appendChild(el("b", null, "Paul & Timothy"));
-    b.appendChild(el("small", null, "Learn about walking with a brother. In-app pairing and check-ins are coming later."));
-    b.addEventListener("click", function () { go("mentor"); }); box.appendChild(b);
+    var box = $("mentor-today"); if (box) box.textContent = ""; // Information is under Walk.
   }
   function drawMentorPage() {
     var box = $("men-body"); if (!box) return; box.textContent = "";
@@ -11031,7 +11100,10 @@ header.hero .me-btn { border-color:#e87328; }
     $("board-sel").addEventListener("change", function (ev) { state.boardView = ev.target.value; drawBoard(); });
     wireJournal();
     $("bd-ind").addEventListener("click", function () { if (state.boardView === "camp") { state.boardView = state.boardIndView || "kw"; drawBoard(); } });
-    $("bd-camp").addEventListener("click", function () { if (state.boardView !== "camp") { state.boardIndView = state.boardView; state.boardView = "camp"; drawBoard(); } });
+    $("bd-camp").addEventListener("click", function () { if (state.boardView === "camp") return; state.boardIndView = state.boardView; go("camp"); });
+    $("cs-ind").addEventListener("click", function () { go("board"); });
+    Array.prototype.forEach.call(document.querySelectorAll(".walk-seg button"), function (b) { b.addEventListener("click", function () {
+      if (b.dataset.w === "mentor") { state.menView = ""; go("mentor"); } else { jrUI.tab = b.dataset.w === "pray" ? "pray" : "all"; go("journal"); } }); });
     wireDevo();
     $("water-add").addEventListener("click", function () { addWater(WATER_STEP); });
     $("water-sub-btn").addEventListener("click", function () { addWater(-WATER_STEP); });
