@@ -6,6 +6,8 @@ The values were read from the prototype as it renders, not from its stylesheet b
 
 Reference pictures: the [review's screenshots](../reviews/2026-11-10-prototype-to-flutter/06-SCREENS-AND-UI.md) (dark only), the [S0 captures](reference/s0-shell/README.md) of v254's shell and the [S1 captures](reference/s1-today/README.md) of v254's Today and reading, each in dark and light.
 
+**Prototype reference v255:** `index.html` and `versions/app-v255.html` reconcile Q1. The six tabs now include Walk (Brothers, Journal, Prayers), with Campaign under Board. Today moves its unchanged Scripture above the boxes, adds v254's small command labels, and places weigh-in/Sit out below personal habits. v254's compact rest-timer CSS and Rally attachment thumbnails are included. Main's three habits, My Creed wording, workout image/export, save behavior and privacy restrictions remain. The core palette, fonts and hero photograph are unchanged. Existing S0/S1 pictures still depict v254; this prototype reconciliation does not change Flutter components or their approved goldens.
+
 ## Colors that change with the theme
 
 Implemented in `mobile/lib/src/design/fs_colors.dart` (`FsColors.dark`, `FsColors.light`) and written out as two explicit color schemes in `fs_theme.dart`. Nothing is derived from a seed color.

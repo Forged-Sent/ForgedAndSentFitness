@@ -45,8 +45,8 @@ Stuck? Run step 5, then see [First-run troubleshooting](docs/development/FIRST-R
 
 | Path | What it is |
 |---|---|
-| `index.html` | Current version. A single self-contained file: HTML, CSS and JS. |
-| `versions/app-v1.html` ... `app-v238.html` | Every earlier iteration, kept for rollback. A new version file is created for each iteration; never overwrite old ones. |
+| `index.html` | v255 reference prototype: v254 layout/navigation with main's save and privacy behavior, reconciled under decision Q1. A single self-contained file: HTML, CSS and JS. |
+| `versions/app-v1.html` ... `app-v255.html` | Append-only snapshots. v239–v254 are byte-identical imports from `app/v241-bold` at `3ff4a6f`; v255 matches `index.html`. Older snapshots are history, not active save/privacy requirements. |
 | `seed/` | Starting data: `tasks.json` (standard daily list), `lifts.json` (core lifts), `devotionals.json` (366 daily devotionals, one per calendar date, also embedded in `index.html`), `db-rules.json` (access rules and runtime capabilities the page declares). `weekly-challenges.json` (52-week challenge program: one Family, one Iron and one Endure challenge per week, with the 0-100 age-bracket scoring rules, injury-friendly alternates and season metadata) and `movement-standards.json` (what counts as a rep). |
 | `START-WINDOWS.cmd`, `START-MAC.command`, `launchers/` | Double-click setup and run launchers (see "New here? Start here"). The scripts they call are in `tooling/`. |
 | `dev/` | Local preview. `mock-claude.js` is an in-memory stand-in for `window.claude`; `make_preview.py` builds `dev/preview.html`. |
@@ -54,6 +54,10 @@ Stuck? Run step 5, then see [First-run troubleshooting](docs/development/FIRST-R
 | `docs/health-integration.md` | Apple Health and Health Connect plan, bridge contract and store requirements. |
 
 ## Working together
+
+The v255 reference uses Today, Fuel, Train, Walk, Board and Rally. Walk holds the information-only Brothers page, Journal and Prayers; Campaign is reached from Board. Today places its existing Scripture block above the boxes and its weigh-in reminder and Sit out link below personal habits. Readings and the 14 mission lines remain identical to main at `449b947`.
+
+Main's three personal habits, My Creed wording, workout sharing/export, journal acknowledgements and retries, deferred mentoring, superset permissions and bodyweight-volume refresh are retained. Bold Step, Instagram points, Protector points, Ready to protect, the Sabbath self-check and commissioning are not adopted. These are prototype boundaries, not new production decisions. The proposed reference tag is `prototype-v255-reference`; creating it remains a maintainer action.
 
 All changes use short-lived branches and pull requests to protected `main`.
 The solo maintainer is not required to obtain a second human or independent AI approval.
