@@ -82,6 +82,13 @@ The emulator test has to run on a lifting day whatever day it really is, so `sta
 - **Nothing can be kept (the web preview):** Train and the workout page say "Nothing you check here is saved."
 - **Storage cannot be opened at start-up,** including a migration that fails: as in S1, the app opens on the status page and says nothing is saved.
 
+**Known gaps, on the [work board](../../knowledge/WORK.md)**
+
+- If Train cannot be loaded because today's session cannot be read, "Try again" does not read the session again. (Review finding, medium, from the last review round.)
+- "That did not save. Try again." is cleared by the next change that is stored, also when that is a different change and the one that failed is still not stored. (Review finding, medium, from the last review round.)
+- A workout that is never finished stays "in progress" on Train for good.
+- The rest timer makes no sound.
+
 **What must not change**
 
 - Nothing is written to Firebase, and no feature code imports its SDK.
