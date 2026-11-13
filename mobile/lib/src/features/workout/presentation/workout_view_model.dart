@@ -8,6 +8,7 @@ import '../../../core/clock.dart';
 import '../../../core/event_id.dart';
 import '../../../core/local_date.dart';
 import '../data/workout_library.dart';
+import '../data/workout_repository.dart';
 import '../domain/prescription.dart';
 import '../domain/workout_plan.dart';
 import '../domain/workout_session.dart';
@@ -185,8 +186,14 @@ class WorkoutViewModel extends AsyncNotifier<WorkoutView> {
   /// exercise's movement id, shown name and prescription text, and one row
   /// per set. From here on it never reads the plan again.
   Future<StartOutcome> start() async {
+    // Everything is taken from the ref here, before the first wait: he may
+    // leave the page while the session is being stored, and a view model
+    // that has been disposed can no longer be asked for anything.
     final store = ref.read(localStoreProvider);
     final now = ref.read(clockProvider).now();
+    final newId = ref.read(eventIdProvider);
+    final libraryLoading = ref.read(workoutLibraryProvider.future);
+    final planLoading = ref.read(workoutPlanProvider.future);
     // A session belongs to the local day it starts on (decision Q9).
     if (LocalDate.of(now) != day) {
       ref.read(todayDateProvider.notifier).refresh();
@@ -195,8 +202,8 @@ class WorkoutViewModel extends AsyncNotifier<WorkoutView> {
     final WorkoutLibrary library;
     final WorkoutPlan plan;
     try {
-      library = await ref.read(workoutLibraryProvider.future);
-      plan = await ref.read(workoutPlanProvider.future);
+      library = await libraryLoading;
+      plan = await planLoading;
     } catch (_) {
       return StartOutcome.failed;
     }
@@ -204,7 +211,6 @@ class WorkoutViewModel extends AsyncNotifier<WorkoutView> {
     final workout = planDay.workout;
     if (!planDay.isTrain || workout == null) return StartOutcome.failed;
 
-    final newId = ref.read(eventIdProvider);
     final exercises = <SessionExercise>[];
     for (var i = 0; i < workout.exercises.length; i++) {
       final planned = workout.exercises[i];
@@ -255,6 +261,12 @@ class WorkoutViewModel extends AsyncNotifier<WorkoutView> {
   }
 
   /// Queues one write behind the ones before it. True if it was stored.
+  ///
+  /// [write] must not read the ref. It runs when the writes before it are
+  /// done, and by then he may have left the page and this view model may
+  /// have been disposed; a change made before that must still be stored.
+  /// So every caller takes what it needs from the ref first, with
+  /// [_workouts], and hands [write] the repository itself.
   Future<bool> _write(Future<void> Function() write) {
     final result = _pending
         .then((_) => write())
@@ -276,17 +288,23 @@ class WorkoutViewModel extends AsyncNotifier<WorkoutView> {
   @visibleForTesting
   int flushes = 0;
 
-  Future<bool> setReps(String setId, int? reps) =>
-      _write(() => ref.read(localStoreProvider).workouts.setReps(setId, reps));
+  /// The store, read now. See [_write].
+  WorkoutRepository get _workouts => ref.read(localStoreProvider).workouts;
 
-  Future<bool> setWeight(String setId, double? weightLb) => _write(
-    () => ref.read(localStoreProvider).workouts.setWeight(setId, weightLb),
-  );
+  Future<bool> setReps(String setId, int? reps) {
+    final workouts = _workouts;
+    return _write(() => workouts.setReps(setId, reps));
+  }
 
-  Future<bool> setTicked(String setId, {required bool ticked}) => _write(
-    () =>
-        ref.read(localStoreProvider).workouts.setTicked(setId, ticked: ticked),
-  );
+  Future<bool> setWeight(String setId, double? weightLb) {
+    final workouts = _workouts;
+    return _write(() => workouts.setWeight(setId, weightLb));
+  }
+
+  Future<bool> setTicked(String setId, {required bool ticked}) {
+    final workouts = _workouts;
+    return _write(() => workouts.setTicked(setId, ticked: ticked));
+  }
 
   /// Where [exercise]'s rest timer stands as far as this page knows: the
   /// last change made here, or else what the store holds.
@@ -337,8 +355,14 @@ class WorkoutViewModel extends AsyncNotifier<WorkoutView> {
       _setRest(exercise, _Rest(base: _restOf(exercise).base));
 
   /// Makes the rest [seconds] longer, or shorter when negative, within
-  /// 15 seconds to 10 minutes. A running timer moves by the same amount; a
-  /// timer that is not running goes back to its new full length.
+  /// 15 seconds to 10 minutes. A running timer moves by as much as its
+  /// full length did; a timer that is not running goes back to its new
+  /// full length.
+  ///
+  /// At either limit the full length does not change, and neither does a
+  /// running timer. The prototype's `timerAdj` moves a running timer by
+  /// the 15 seconds anyway, so a tap on "+15" at ten minutes makes this
+  /// rest longer than ten minutes; that is not carried over.
   Future<bool> adjustRest(SessionExercise exercise, int seconds) {
     final current = _restOf(exercise);
     final base = (current.base + seconds).clamp(minRestSeconds, maxRestSeconds);
@@ -348,23 +372,23 @@ class WorkoutViewModel extends AsyncNotifier<WorkoutView> {
       exercise,
       _Rest(
         base: base,
-        endsAtUtc: current.endsAtUtc!.add(Duration(seconds: seconds)),
+        endsAtUtc: current.endsAtUtc!.add(
+          Duration(seconds: base - current.base),
+        ),
       ),
     );
   }
 
   Future<bool> _setRest(SessionExercise exercise, _Rest rest) {
     _rest[exercise.id] = rest;
+    final workouts = _workouts;
     return _write(
-      () => ref
-          .read(localStoreProvider)
-          .workouts
-          .setRest(
-            exercise.id,
-            baseSeconds: rest.base,
-            endsAtUtc: rest.endsAtUtc,
-            pausedSeconds: rest.pausedSeconds,
-          ),
+      () => workouts.setRest(
+        exercise.id,
+        baseSeconds: rest.base,
+        endsAtUtc: rest.endsAtUtc,
+        pausedSeconds: rest.pausedSeconds,
+      ),
     ).then((bool saved) {
       // What could not be stored is not what the timer is: go back to
       // what the store holds.
@@ -381,12 +405,11 @@ class WorkoutViewModel extends AsyncNotifier<WorkoutView> {
   Future<bool> finish() async {
     final session = state.value?.session;
     if (session == null) return false;
-    final saved = await _write(
-      () => ref
-          .read(localStoreProvider)
-          .workouts
-          .finishSession(session.id, ref.read(clockProvider).now()),
-    );
+    // The finish time is the moment of the tap, not the moment its turn
+    // comes behind the writes still queued.
+    final workouts = _workouts;
+    final now = ref.read(clockProvider).now();
+    final saved = await _write(() => workouts.finishSession(session.id, now));
     if (saved && ref.mounted) {
       // The tap read the clock; make the day on screen agree with it.
       ref.read(todayDateProvider.notifier).refresh();

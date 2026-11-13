@@ -25,6 +25,38 @@ class MemoryWorkoutRepository implements WorkoutRepository {
   final List<WorkoutSession> _sessions = <WorkoutSession>[];
   final StreamController<void> _changes = StreamController<void>.broadcast();
 
+  /// Completes when the change being made now is done. Null when no change
+  /// is being made.
+  Future<void>? _busy;
+
+  /// Runs [change] when every change asked for before it is done.
+  ///
+  /// SQLite does one write transaction at a time, so in the Drift store a
+  /// finish and an edit can never overlap: one is complete before the
+  /// other starts. Finishing here waits for the day's store in the middle,
+  /// so without this an edit, or a second finish, could slip in between
+  /// its two halves. Taking turns gives this store the same rule.
+  ///
+  /// When nothing is being changed, [change] starts at once, with no wait
+  /// on an earlier future. A widget test relies on that: it calls the
+  /// store both under its fake clock and in real time, and a future made
+  /// under one never completes for a caller waiting under the other.
+  Future<T> _inTurn<T>(Future<T> Function() change) async {
+    // Those waiting are woken in the order they came. The first takes its
+    // turn before the next looks, so the next waits again, behind it.
+    while (_busy != null) {
+      await _busy;
+    }
+    final done = Completer<void>();
+    _busy = done.future;
+    try {
+      return await change();
+    } finally {
+      _busy = null;
+      done.complete();
+    }
+  }
+
   @override
   bool get durable => false;
 
@@ -36,20 +68,20 @@ class MemoryWorkoutRepository implements WorkoutRepository {
   Future<WorkoutPlan> ensurePlan(
     String ownerId,
     WorkoutPlan Function() create,
-  ) async {
+  ) => _inTurn(() async {
     final stored = _plans[ownerId];
     if (stored != null) return stored;
     final plan = create();
     _plans[ownerId] = plan;
     _changes.add(null);
     return plan;
-  }
+  });
 
   @override
-  Future<void> savePlan(String ownerId, WorkoutPlan plan) async {
+  Future<void> savePlan(String ownerId, WorkoutPlan plan) => _inTurn(() async {
     _plans[ownerId] = plan;
     _changes.add(null);
-  }
+  });
 
   @override
   Stream<WorkoutSession?> watchSession(String ownerId, LocalDate day) =>
@@ -68,7 +100,7 @@ class MemoryWorkoutRepository implements WorkoutRepository {
   });
 
   @override
-  Future<WorkoutSession> startSession(NewSession session) async {
+  Future<WorkoutSession> startSession(NewSession session) => _inTurn(() async {
     final existing = _find(session.ownerId, session.day);
     if (existing != null) return existing;
     final started = WorkoutSession(
@@ -89,47 +121,52 @@ class MemoryWorkoutRepository implements WorkoutRepository {
     _sessions.add(started);
     _changes.add(null);
     return started;
-  }
+  });
 
   @override
-  Future<void> setReps(String setId, int? reps) async => _changeSet(
-    setId,
-    (set) => SessionSet(
-      id: set.id,
-      position: set.position,
-      target: set.target,
-      reps: reps,
-      weightLb: set.weightLb,
-      ticked: set.ticked,
+  Future<void> setReps(String setId, int? reps) => _inTurn(
+    () async => _changeSet(
+      setId,
+      (set) => SessionSet(
+        id: set.id,
+        position: set.position,
+        target: set.target,
+        reps: reps,
+        weightLb: set.weightLb,
+        ticked: set.ticked,
+      ),
     ),
   );
 
   @override
-  Future<void> setWeight(String setId, double? weightLb) async => _changeSet(
-    setId,
-    (set) => SessionSet(
-      id: set.id,
-      position: set.position,
-      target: set.target,
-      reps: set.reps,
-      weightLb: weightLb,
-      ticked: set.ticked,
+  Future<void> setWeight(String setId, double? weightLb) => _inTurn(
+    () async => _changeSet(
+      setId,
+      (set) => SessionSet(
+        id: set.id,
+        position: set.position,
+        target: set.target,
+        reps: set.reps,
+        weightLb: weightLb,
+        ticked: set.ticked,
+      ),
     ),
   );
 
   @override
-  Future<void> setTicked(String setId, {required bool ticked}) async =>
-      _changeSet(
-        setId,
-        (set) => SessionSet(
-          id: set.id,
-          position: set.position,
-          target: set.target,
-          reps: set.reps,
-          weightLb: set.weightLb,
-          ticked: ticked,
-        ),
-      );
+  Future<void> setTicked(String setId, {required bool ticked}) => _inTurn(
+    () async => _changeSet(
+      setId,
+      (set) => SessionSet(
+        id: set.id,
+        position: set.position,
+        target: set.target,
+        reps: set.reps,
+        weightLb: set.weightLb,
+        ticked: ticked,
+      ),
+    ),
+  );
 
   @override
   Future<void> setRest(
@@ -137,7 +174,7 @@ class MemoryWorkoutRepository implements WorkoutRepository {
     required int baseSeconds,
     DateTime? endsAtUtc,
     int? pausedSeconds,
-  }) async {
+  }) => _inTurn(() async {
     for (var i = 0; i < _sessions.length; i++) {
       final session = _sessions[i];
       // A finished session is locked.
@@ -157,59 +194,62 @@ class MemoryWorkoutRepository implements WorkoutRepository {
       _changes.add(null);
       return;
     }
-  }
+  });
 
   @override
-  Future<FinishOutcome> finishSession(String sessionId, DateTime now) async {
-    final index = _sessions.indexWhere((s) => s.id == sessionId);
-    if (index < 0) {
-      throw StateError('There is no workout session with this id.');
-    }
-    final session = _sessions[index];
-    if (session.finished) return FinishOutcome.alreadyFinished;
+  Future<FinishOutcome> finishSession(String sessionId, DateTime now) =>
+      _inTurn(() async {
+        final index = _sessions.indexWhere((s) => s.id == sessionId);
+        if (index < 0) {
+          throw StateError('There is no workout session with this id.');
+        }
+        final session = _sessions[index];
+        if (session.finished) return FinishOutcome.alreadyFinished;
 
-    // The completion first: if it cannot be stored, the session stays
-    // unfinished, as the Drift store's transaction leaves it.
-    await _days.record(
-      CompletionEvent(
-        id: session.finishEventId,
-        ownerId: session.ownerId,
-        day: session.day,
-        item: DayItems.workout,
-        done: true,
-        tappedAtUtc: now.toUtc(),
-        utcOffset: now.timeZoneOffset,
-      ),
-    );
-    _sessions[index] = WorkoutSession(
-      id: session.id,
-      ownerId: session.ownerId,
-      day: session.day,
-      program: session.program,
-      planDay: session.planDay,
-      planWeek: session.planWeek,
-      title: session.title,
-      sessionType: session.sessionType,
-      minutes: session.minutes,
-      startedAtUtc: session.startedAtUtc,
-      startUtcOffset: session.startUtcOffset,
-      finishedAtUtc: now.toUtc(),
-      finishUtcOffset: now.timeZoneOffset,
-      finishEventId: session.finishEventId,
-      exercises: List<SessionExercise>.unmodifiable(<SessionExercise>[
-        // A rest timer left running stops with the workout.
-        for (final exercise in session.exercises)
-          _copyExercise(
-            exercise,
-            restBaseSeconds: exercise.restBaseSeconds,
-            restEndsAtUtc: null,
-            restPausedSeconds: null,
+        // The completion first: if it cannot be stored, the session stays
+        // unfinished, as the Drift store's transaction leaves it. Nothing
+        // else can change the session while this waits: every change
+        // takes its turn in the queue.
+        await _days.record(
+          CompletionEvent(
+            id: session.finishEventId,
+            ownerId: session.ownerId,
+            day: session.day,
+            item: DayItems.workout,
+            done: true,
+            tappedAtUtc: now.toUtc(),
+            utcOffset: now.timeZoneOffset,
           ),
-      ]),
-    );
-    _changes.add(null);
-    return FinishOutcome.finished;
-  }
+        );
+        _sessions[index] = WorkoutSession(
+          id: session.id,
+          ownerId: session.ownerId,
+          day: session.day,
+          program: session.program,
+          planDay: session.planDay,
+          planWeek: session.planWeek,
+          title: session.title,
+          sessionType: session.sessionType,
+          minutes: session.minutes,
+          startedAtUtc: session.startedAtUtc,
+          startUtcOffset: session.startUtcOffset,
+          finishedAtUtc: now.toUtc(),
+          finishUtcOffset: now.timeZoneOffset,
+          finishEventId: session.finishEventId,
+          exercises: List<SessionExercise>.unmodifiable(<SessionExercise>[
+            // A rest timer left running stops with the workout.
+            for (final exercise in session.exercises)
+              _copyExercise(
+                exercise,
+                restBaseSeconds: exercise.restBaseSeconds,
+                restEndsAtUtc: null,
+                restPausedSeconds: null,
+              ),
+          ]),
+        );
+        _changes.add(null);
+        return FinishOutcome.finished;
+      });
 
   @override
   Future<Map<String, LastTime>> lastTimes(

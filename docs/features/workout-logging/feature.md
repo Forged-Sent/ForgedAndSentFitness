@@ -57,7 +57,7 @@ A man opens Train and sees today and this week from the Forged program. He opens
 **What is saved, and how**
 
 - **The session is its own record.** When Amen is tapped the session is stored with a copy of what the plan prescribed: for every exercise the movement id, the name shown and the prescription text, and one row per set. From then on it never reads the plan again, so changing the plan cannot change a session (P07 acceptance 4).
-- **Every change is written at once.** Each keystroke in a set's box, each tick and each rest timer button is its own write to the database, in the order they were made. When the app is paused the page waits for the last of them. There is no save button and nothing is kept only in memory (P07 acceptance 1).
+- **Every change is written at once.** Each keystroke in a set's box, each tick and each rest timer button is its own write to the database, in the order they were made. When the app is paused the page waits for the last of them. A change still waiting its turn is written also when he leaves the page first. There is no save button and nothing is kept only in memory (P07 acceptance 1).
 - **Time comes from stored instants.** The clock is the time since the stored start; the rest timer counts down to a stored instant. Both are right after the app was closed and opened again.
 - **The day (Q9, U2):** a session belongs to the local date it was started on and keeps it. It can be logged and finished after midnight, with no time limit, and finishing checks the Workout box of the day it started on (P07 acceptance 3). One session per day.
 - **Finishing is one transaction** with the day's completion event, whose id is made when the session starts. Finishing twice records one completion (P07 acceptance 2). If the box cannot be checked the session is not finished either.
@@ -113,7 +113,7 @@ The project's rule is that product behavior is not inferred from the prototype. 
 | Names by equipment | `moveName` | A movement is shown by its name for the member's equipment setup |
 | Sets in a prescription | `parseSets` | "3 x 5 (…)" is three rows aiming for 5; "2 x 25 sec" is timed; "1 x 5, 1 x 3, 1 x 1" is one row each; a superset line counts only its sets; anything else is one "Done?" tick. At most 12 rows |
 | Rest in a prescription | `restOf`, `restBar` | "rest 2 min" is 120 seconds; a range takes its top; outside 10 seconds to 10 minutes is ignored. With none written: 60 seconds after the second exercise of a superset, else 90. The first exercise of a superset has no timer |
-| Rest timer buttons | `timerStart`, `timerAdj` | 15 seconds less or more, within 15 seconds to 10 minutes; a running timer moves by the same amount; "GO" at zero |
+| Rest timer buttons | `timerStart`, `timerAdj` | 15 seconds less or more, within 15 seconds to 10 minutes; a running timer moves by as much as its full length did; "GO" at zero. One difference at the limits is listed below |
 | Whether a set needs a weight | `needsWeight`, `canAddWeight` | Decided from the words in the movement's name: a loaded implement needs a weight, a known bodyweight move does not, a pull-up or dip may take added weight |
 | When a set is logged | `paintDone` | Reps (or seconds) over zero, and a weight where the lift needs one |
 | Number limits | `numField` | Reps to 999, weight to 2,000 lb, added weight to 400 lb, one decimal place for weight |
@@ -130,6 +130,7 @@ The project's rule is that product behavior is not inferred from the prototype. 
 - **U2:** a session stays open past midnight and keeps its start day. The prototype stops offering it once the day changes.
 - **U3:** a session stores each exercise's movement id and prescription. The prototype stores sets by position and reads the names from whatever the plan says later.
 - **Q11:** the prayer has "Not now".
+- At ten minutes "+15" does nothing, and at fifteen seconds "−15" does nothing. In the prototype the full length stays at the limit too, but a running timer still moves by the 15 seconds, so a rest can run longer than ten minutes or be cut to nothing.
 - Reps are whole numbers. The prototype accepts one decimal place.
 - Volume leaves out body weight, because the app stores none.
 - The summary counts "sets logged" and has no PR count; PRs are a later step.

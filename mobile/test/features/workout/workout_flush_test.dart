@@ -50,8 +50,10 @@ void main() {
       'waits for the last of them', () {
     late _SlowWorkouts workouts;
     late ProviderContainer container;
+    late ProviderSubscription<AsyncValue<WorkoutView>> watching;
     late WorkoutViewModel model;
     late String setId;
+    late String secondSetId;
 
     setUp(() async {
       final days = MemoryDayRepository();
@@ -78,7 +80,7 @@ void main() {
       addTearDown(container.dispose);
       final provider = workoutViewModelProvider(_monday);
       // Keeps the view model alive for the test.
-      container.listen(provider, (_, _) {});
+      watching = container.listen(provider, (_, _) {});
       await container.read(provider.future);
       model = container.read(provider.notifier);
       expect(await model.start(), StartOutcome.started);
@@ -86,6 +88,14 @@ void main() {
           .watchSession('local-test', _monday)
           .first)!;
       setId = session.exercises.first.sets.first.id;
+      secondSetId = session.exercises.first.sets[1].id;
+      // The view model has the started session too, as the page would
+      // before it offers Finish.
+      for (var i = 0; i < 50; i++) {
+        if (container.read(provider).value?.session != null) break;
+        await pumpEventQueue();
+      }
+      expect(container.read(provider).value?.session?.id, session.id);
     });
 
     Future<({int? reps, double? weight})> stored() async {
@@ -132,6 +142,67 @@ void main() {
 
       expect(workouts.written, <Object?>[1, 12, 125, 12, 1, null, 8]);
       expect((await stored()).reps, 8);
+    });
+
+    test('leaving the page while changes are still on their way loses '
+        'none of them', () async {
+      // A slow disk: the first write is held, and four more queue up
+      // behind it.
+      workouts.gate = Completer<void>();
+      final writes = <Future<bool>>[
+        model.setReps(setId, 5),
+        model.setWeight(setId, 135),
+        model.setReps(secondSetId, 4),
+        model.setWeight(secondSetId, 137.5),
+        model.setTicked(setId, ticked: true),
+      ];
+
+      // He leaves the workout page: nothing watches the view model any
+      // more, so it is disposed, with the writes still queued.
+      watching.close();
+      await container.pump();
+      await pumpEventQueue();
+      expect(container.read(workoutViewModelProvider(_monday).exists), isFalse);
+
+      // The disk catches up.
+      workouts.gate!.complete();
+      final results = await Future.wait(writes);
+
+      expect(results, everyElement(isTrue));
+      final session = (await workouts
+          .watchSession('local-test', _monday)
+          .first)!;
+      final sets = session.exercises.first.sets;
+      expect(
+        (sets[0].reps, sets[0].weightLb, sets[0].ticked),
+        (5, 135.0, true),
+      );
+      expect((sets[1].reps, sets[1].weightLb), (4, 137.5));
+    });
+
+    test('finishing while leaving the page still finishes, at the time of '
+        'the tap', () async {
+      workouts.gate = Completer<void>();
+      final typed = model.setReps(setId, 5);
+      final clock = container.read(clockProvider) as TestClock;
+      final finishing = model.finish();
+      // The clock moves on while the finish waits its turn.
+      clock.time = liftingEvening.add(const Duration(minutes: 30));
+
+      watching.close();
+      await container.pump();
+      await pumpEventQueue();
+      expect(container.read(workoutViewModelProvider(_monday).exists), isFalse);
+      workouts.gate!.complete();
+
+      expect(await typed, isTrue);
+      expect(await finishing, isTrue);
+      final session = (await workouts
+          .watchSession('local-test', _monday)
+          .first)!;
+      expect(session.finished, isTrue);
+      expect(session.finishedAtUtc, liftingEvening.toUtc());
+      expect(session.exercises.first.sets.first.reps, 5);
     });
 
     test('with nothing on its way, flush returns at once', () async {

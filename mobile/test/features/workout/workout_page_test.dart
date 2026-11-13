@@ -389,6 +389,56 @@ void main() {
       );
     });
 
+    testWidgets('leaving the page while a change is still being written '
+        'loses nothing', (tester) async {
+      final app = await pumpApp(tester, clock: TestClock(liftingEvening));
+      await openTodaysWorkout(tester);
+      await startWorkout(tester);
+      final workouts = app.store.workouts as TestWorkoutRepository;
+
+      // A slow disk: the first keystroke is held, the rest queue behind it.
+      workouts.hold();
+      await typeNumber(tester, repsField(0, 0), '5');
+      await typeNumber(tester, weightField(0, 0), '135');
+      await typeNumber(tester, repsField(0, 1), '4');
+      expect(
+        (await app.savedSession(tester, _monday))!.exercises.first.sets[0].reps,
+        isNull,
+      );
+
+      // He goes back to Train before any of it is written.
+      await systemBack(tester);
+      expect(find.byType(WorkoutPage), findsNothing);
+      expect(find.byType(TrainPage), findsOneWidget);
+
+      // The disk catches up after the page is gone.
+      workouts.release();
+      await tester.pumpAndSettle();
+
+      final squat = (await app.savedSession(tester, _monday))!.exercises.first;
+      expect(squat.sets.map((s) => (s.reps, s.weightLb)), <(int?, double?)>[
+        (5, 135),
+        (4, null),
+        (null, null),
+      ]);
+      // And the page shows them when he comes back.
+      await tester.tap(trainTodayRow);
+      await tester.pumpAndSettle();
+      await showOnWorkoutPage(tester, repsField(0, 0));
+      expect(
+        tester
+            .widget<EditableText>(
+              find.descendant(
+                of: weightField(0, 0),
+                matching: find.byType(EditableText),
+              ),
+            )
+            .controller
+            .text,
+        '135',
+      );
+    });
+
     testWidgets('if the session cannot be stored, it is not started', (
       tester,
     ) async {
@@ -628,6 +678,65 @@ void main() {
       }
       await tester.pumpAndSettle();
       expect(_restTime(tester, 0), '10:00');
+    });
+
+    testWidgets('at ten minutes, +15 does not make a running rest longer; '
+        'at fifteen seconds, −15 does not make it shorter', (tester) async {
+      final app = await pumpApp(tester, clock: TestClock(liftingEvening));
+      await openTodaysWorkout(tester);
+      await startWorkout(tester);
+      await showOnWorkoutPage(tester, _rest('reset', 0));
+      Future<DateTime?> endsAt() async => (await app.savedSession(
+        tester,
+        _monday,
+      ))!.exercises.first.restEndsAtUtc;
+
+      // Up to the longest rest, then start it.
+      for (var i = 0; i < 40; i++) {
+        await tester.tap(_rest('more', 0));
+        await tester.pump();
+      }
+      await tester.pumpAndSettle();
+      await tester.tap(_rest('go', 0));
+      await tester.pumpAndSettle();
+      expect(_restTime(tester, 0), '10:00');
+      final longest = await endsAt();
+      expect(longest, liftingEvening.toUtc().add(const Duration(minutes: 10)));
+
+      for (var i = 0; i < 3; i++) {
+        await tester.tap(_rest('more', 0));
+        await tester.pumpAndSettle();
+      }
+      expect(_restTime(tester, 0), '10:00');
+      expect(await endsAt(), longest);
+      // One step down from the limit does move it, by that step.
+      await tester.tap(_rest('less', 0));
+      await tester.pumpAndSettle();
+      expect(_restTime(tester, 0), '9:45');
+      expect(await endsAt(), longest!.subtract(const Duration(seconds: 15)));
+
+      // Down to the shortest rest, then start it.
+      await tester.tap(_rest('reset', 0));
+      await tester.pumpAndSettle();
+      for (var i = 0; i < 45; i++) {
+        await tester.tap(_rest('less', 0));
+        await tester.pump();
+      }
+      await tester.pumpAndSettle();
+      await tester.tap(_rest('go', 0));
+      await tester.pumpAndSettle();
+      expect(_restTime(tester, 0), '0:15');
+      final shortest = await endsAt();
+      expect(shortest, liftingEvening.toUtc().add(const Duration(seconds: 15)));
+
+      for (var i = 0; i < 3; i++) {
+        await tester.tap(_rest('less', 0));
+        await tester.pumpAndSettle();
+      }
+      // Still running, and still fifteen seconds: it has not run out.
+      expect(_restTime(tester, 0), '0:15');
+      expect(await endsAt(), shortest);
+      expect(tester.widget<FsButton>(_rest('go', 0)).label, 'Pause');
     });
 
     testWidgets('the first half of a superset has no timer; the second '

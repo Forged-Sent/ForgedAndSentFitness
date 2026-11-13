@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
@@ -114,6 +115,18 @@ class TestWorkoutRepository extends MemoryWorkoutRepository {
   /// throws, as a full or broken disk would.
   bool failWrites = false;
 
+  Completer<void>? _held;
+
+  /// From now on a change to a set waits, as it would behind a slow disk,
+  /// until [release] is called.
+  void hold() => _held = Completer<void>();
+
+  /// Lets every waiting change through.
+  void release() {
+    _held?.complete();
+    _held = null;
+  }
+
   @override
   bool get durable => true;
 
@@ -129,18 +142,21 @@ class TestWorkoutRepository extends MemoryWorkoutRepository {
 
   @override
   Future<void> setReps(String setId, int? reps) async {
+    await _held?.future;
     _refuse();
     return super.setReps(setId, reps);
   }
 
   @override
   Future<void> setWeight(String setId, double? weightLb) async {
+    await _held?.future;
     _refuse();
     return super.setWeight(setId, weightLb);
   }
 
   @override
   Future<void> setTicked(String setId, {required bool ticked}) async {
+    await _held?.future;
     _refuse();
     return super.setTicked(setId, ticked: ticked);
   }

@@ -343,6 +343,39 @@ void workoutRepositoryContract(Future<WorkoutStores> Function() create) {
       expect(await workoutBox(nov12), isTrue);
     });
 
+    test('two finishes asked for at the same moment record one '
+        'completion, and one finish time stands', () async {
+      await workouts.startSession(
+        newSession('s1', DateTime(2026, 11, 12, 18, 10)),
+      );
+      final times = <DateTime>[
+        DateTime(2026, 11, 12, 18, 52),
+        DateTime(2026, 11, 12, 18, 53),
+      ];
+
+      // Neither waits for the other, as two quick taps would not.
+      final outcomes = await Future.wait(<Future<FinishOutcome>>[
+        workouts.finishSession('s1', times[0]),
+        workouts.finishSession('s1', times[1]),
+      ]);
+
+      expect(
+        outcomes,
+        unorderedEquals(<FinishOutcome>[
+          FinishOutcome.finished,
+          FinishOutcome.alreadyFinished,
+        ]),
+      );
+      expect(
+        await days.eventsFor(ownerA, nov12, DayItems.workout),
+        hasLength(1),
+      );
+      // The time that stands is the time of the finish that finished it.
+      final winner = times[outcomes.indexOf(FinishOutcome.finished)];
+      expect((await session(nov12))!.finishedAtUtc, winner.toUtc());
+      expect(await workoutBox(nov12), isTrue);
+    });
+
     test('a session started at 23:50 can be finished at 00:10, and it '
         'belongs to the day it started on (P07 acceptance 3)', () async {
       await workouts.startSession(
