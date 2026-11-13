@@ -55,7 +55,7 @@ Stuck? Run step 5, then see [First-run troubleshooting](docs/development/FIRST-R
 
 ## Working together
 
-The v255 reference uses Today, Fuel, Train, Walk, Board and Rally. Walk holds the information-only Brothers page, Journal and Prayers; Campaign is reached from Board. Today places its existing Scripture block above the boxes and its weigh-in reminder and Sit out link below personal habits. Readings and the 14 mission lines remain identical to main at `449b947`.
+The v255 reference uses Today, Fuel, Train, Walk, Board and Rally. Walk holds the information-only Brothers page, Journal and Prayers; Campaign is reached from Board. Today places its existing Scripture block under v254’s “The Stand Firm creed” heading above the boxes and its weigh-in reminder and Sit out link below personal habits. Readings and the 14 mission lines remain identical to main at `449b947`.
 
 Main's three personal habits, My Creed wording, workout sharing/export, journal acknowledgements and retries, deferred mentoring, superset permissions and bodyweight-volume refresh are retained. Bold Step, Instagram points, Protector points, Ready to protect, the Sabbath self-check and commissioning are not adopted. These are prototype boundaries, not new production decisions. The proposed reference tag is `prototype-v255-reference`; creating it remains a maintainer action.
 
