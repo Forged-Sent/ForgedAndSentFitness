@@ -9,18 +9,18 @@ flowchart LR
     Person[Developer / local browser / emulator] --> Entry[mobile/lib/main.dart]
     Entry --> UI[forged_sent_app.dart: app, themes, status page]
     UI --> Router[fs_router.dart: six-tab shell routes]
-    Router --> Pages[tab_pages.dart: placeholder pages for five tabs]
-    Router --> Screens[features: Today, the day's reading, Settings]
-    Screens --> VM[today_view_model.dart: Riverpod view model]
+    Router --> Pages[tab_pages.dart: placeholder pages for four tabs]
+    Router --> Screens[features: Today, the day's reading, Settings, Train, a day's workout]
+    Screens --> VM[Riverpod view models: today, train, workout]
     Screens --> Design
     VM --> Core[core: clock, local date, event ids]
-    VM --> Content[Bundled content: readings, ESV text, boxes, mission lines]
+    VM --> Content[Bundled content: readings, ESV text, boxes, mission lines, the Forged program, movement names, the workout prayer]
     VM --> LocalStore[local_store.dart: owner id + repositories]
     Entry --> Open[open_local_store.dart: opens the store for this platform]
     Open --> LocalStore
     Open --> Native[native_storage.dart: local profile + database file]
-    Open --> Repos[drift_day_repository.dart, settings_repository.dart]
-    Repos --> Sqlite[app_database.dart: Drift tables on SQLite]
+    Open --> Repos[drift_day_repository.dart, settings_repository.dart, drift_workout_repository.dart]
+    Repos --> Sqlite[app_database.dart: Drift tables on SQLite, schema version 2]
     Native --> Sqlite
     UI --> Design[src/design: theme, shell, hero header, card, button, icons]
     Router --> Design
@@ -37,9 +37,15 @@ flowchart LR
     Legacy[index.html + seed: behavior prototype only] -. reference .-> UI
 ```
 
-**Implemented:** `main()` selects preview or emulator mode and rejects cloud mode; `ForgedFirebaseRuntime.connectEmulators()` attaches client SDKs to local endpoints and performs anonymous Auth smoke sign-in. `ForgedSentApp` opens the six-tab shell from build step S0: a go_router `StatefulShellRoute` with one stack per tab, drawn by the design system under `mobile/lib/src/design/` in an explicit dark and an explicit light theme, with bundled fonts and the hero photograph. Fuel, Train, Walk, Board and Rally are placeholders. `FoundationHomeScreen` is the developer status page, reached from Settings and shown first when a start-up check fails. Local Firestore and Storage rules allow authenticated developer smoke paths and deny other paths. That smoke permission is **not** suitable for production data.
+**Implemented:** `main()` selects preview or emulator mode and rejects cloud mode; `ForgedFirebaseRuntime.connectEmulators()` attaches client SDKs to local endpoints and performs anonymous Auth smoke sign-in. `ForgedSentApp` opens the six-tab shell from build step S0: a go_router `StatefulShellRoute` with one stack per tab, drawn by the design system under `mobile/lib/src/design/` in an explicit dark and an explicit light theme, with bundled fonts and the hero photograph. Fuel, Walk, Board and Rally are placeholders. `FoundationHomeScreen` is the developer status page, reached from Settings and shown first when a start-up check fails. Local Firestore and Storage rules allow authenticated developer smoke paths and deny other paths. That smoke permission is **not** suitable for production data.
 
 **Today and the day's reading (build step S1):** `main()` opens the member's local store before the first frame. On a phone that is one SQLite file per owner, through Drift; before sign-in the owner is a local profile made on first launch (decision Q10). Today shows the date, the mission line, a progress ring and the day's boxes; the devotional box opens the day's bundled reading, and Amen records a completion event and the day's state in one transaction. A Riverpod view model combines the day's record, the streak, the bundled content and one setting. Time comes from one injected clock and days are a `LocalDate`, so Today moves to the new day at local midnight and when the app is resumed. The web preview has no database: it keeps the day in memory and says so. Nothing in this path imports a Firebase SDK, and nothing is sent anywhere. Contract: [Today and the day's devotional](../features/today-devotional/feature.md).
+
+**Train and workout logging (build step S3):** Train shows today and this week of the bundled Forged program, placed on the member's week by his plan. A day's workout is a page under Train, at `/train/workout/<date>`. Starting a session, after the workout prayer, stores it with a copy of what the plan prescribed: for every exercise the movement id, the name shown and the prescription text, and one row per set. From then on the session is its own record and never reads the plan. Every change to a set or a rest timer is its own write to the database, queued in the order it was made, and the page waits for the last of them when the app is paused; nothing about a workout in progress lives only in a view model. The clock and the rest timer are worked out from stored instants. A session belongs to the local day it was started on and can be finished after midnight. Finishing sets the finish time and records the day's Workout completion event, whose id was made when the session started, in one transaction, so finishing twice records one completion. The app stores nothing about the member's body. Contract: [Workout logging](../features/workout-logging/feature.md).
+
+**Schema versions:** the database is at version 2. Version 1 (S1) holds completion events, day states and settings; version 2 (S3) adds workout plans, sessions, exercises and sets. The schema of every version is frozen under `mobile/drift_schemas/`; `app_database.steps.dart` is generated from those and each migration step is written against the frozen schema it produces, inside a transaction. `mobile/test/storage/migration_test.dart` opens a version 1 database, and a version 1 file on disk through the app's own start-up call, and checks the schema and every row. A migration that fails is a store that cannot be opened: the app starts on the status page and says nothing is saved. SQLite's foreign-key checks are switched on when the database opens.
+
+**The clock a test can set:** `startApp` in `main.dart` takes an optional clock, which only the emulator restart test under `integration_test/` passes, so that test can run on a lifting day. `clockForStart` throws if a release build is given one, `main()` passes none, and no build flag, setting or stored value reaches it.
 
 **Native hosts:** `mobile/android/` and `mobile/ios/` are committed Flutter 3.47.8 template hosts (`com.forgedandsent`, project `forged_and_sent`). The only customization is the ADR-0002 Android Network Security Configuration: `src/main/res/xml/network_security_config.xml` (referenced from the main manifest) blocks cleartext for all hosts in main, profile and release builds on every supported API level (minSdk 24), and the same-named debug overlay in `mobile/android/app/src/debug/res/xml/` additionally permits cleartext HTTP only to the Android Emulator host alias `10.0.2.2`. They contain no custom native code, added permissions, Firebase native config or signing material; the Dart entrypoint and emulator-first runtime above are unchanged. A local Windows debug APK build passed. iOS has not been built from the committed host. Web and desktop hosts remain temporary and git-ignored.
 
@@ -108,8 +114,9 @@ Review agents are **advisory**: their findings are evidence, not human approvals
 | App, themes and developer status page | `mobile/lib/src/app/forged_sent_app.dart` |
 | Tab shell routes and placeholder pages | `mobile/lib/src/app/fs_router.dart`, `mobile/lib/src/app/shell_destinations.dart`, `mobile/lib/src/app/tab_pages.dart` |
 | Today, the day's reading and Settings | `mobile/lib/src/features/today/`, `mobile/lib/src/features/devotional/`, `mobile/lib/src/features/settings/` ([feature contract](../features/today-devotional/feature.md)) |
-| Local date, clock and event ids | `mobile/lib/src/core/` |
-| Local storage: Drift tables, the local profile, the database file, and the store the app is given | `mobile/lib/src/storage/`, `mobile/lib/src/app/local_store.dart`, `mobile/lib/src/app/open_local_store.dart` |
+| Train and a day's workout | `mobile/lib/src/features/workout/` ([feature contract](../features/workout-logging/feature.md)) |
+| Local date, clock, event ids and time text | `mobile/lib/src/core/` |
+| Local storage: Drift tables, migration steps, the local profile, the database file, and the store the app is given | `mobile/lib/src/storage/`, `mobile/drift_schemas/`, `mobile/lib/src/app/local_store.dart`, `mobile/lib/src/app/open_local_store.dart` |
 | Design system: tokens, themes, shell, components, icons | `mobile/lib/src/design/` ([design system page](../design/DESIGN-SYSTEM.md)) |
 | Bundled fonts, hero photograph and content | `mobile/assets/` (sources and checksums in `mobile/assets/SOURCES.md`) |
 | Local emulator adapter | `mobile/lib/src/firebase/forged_firebase_runtime.dart` |
