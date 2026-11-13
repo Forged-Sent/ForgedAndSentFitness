@@ -46,10 +46,10 @@ class DevotionalLibrary {
         monthTag: month['tag'] as String? ?? '',
         series: day['series'] as String?,
         headline: _text(day['headline']),
-        tags: <ReadingTag>[
+        tags: List<ReadingTag>.unmodifiable(<ReadingTag>[
           if (day['sent'] == true) ReadingTag.sent,
           if (day['spirit'] == true) ReadingTag.spiritLed,
-        ],
+        ]),
         prayer: day['prayer'] as String,
         reference: reference,
         bsbText: day['text'] as String,

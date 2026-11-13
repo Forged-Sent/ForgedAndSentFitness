@@ -86,7 +86,8 @@ class Devotional {
   /// without it shows none, as in the prototype.
   final String? headline;
 
-  /// The reading's marks, in the order they are shown.
+  /// The reading's marks, in the order they are shown. The library hands
+  /// out a list that cannot be changed.
   final List<ReadingTag> tags;
 
   final String prayer;

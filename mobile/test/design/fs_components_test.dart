@@ -588,6 +588,30 @@ void main() {
       expect(words.top - series.bottom, moreOrLessEquals(14, epsilon: 0.01));
     });
 
+    testWidgets('a series line with no headline has 12 above the month line', (
+      tester,
+    ) async {
+      // The prototype gives the series line a margin of 6 below it, on top
+      // of the header's gap of 6: 12 to the line about the month, measured
+      // in v254 with its headline hidden. Step S1 had 6 here. No bundled
+      // reading is in this case, because every one has a headline.
+      await _pump(
+        tester,
+        const FsReadingHeader(
+          kicker: 'February · Love',
+          title: 'February 7',
+          series: 'A series of readings',
+          note: 'A line about the month.',
+        ),
+      );
+      final date = tester.getRect(find.text('February 7'));
+      final series = tester.getRect(find.text('A SERIES OF READINGS'));
+      final note = tester.getRect(find.text('A line about the month.'));
+      expect(series.top - date.bottom, moreOrLessEquals(8, epsilon: 0.01));
+      expect(note.top - series.bottom, moreOrLessEquals(12, epsilon: 0.01));
+      expect(find.byType(FsBalanced), findsNothing);
+    });
+
     testWidgets('long words and two tags wrap instead of overflowing', (
       tester,
     ) async {
@@ -698,6 +722,80 @@ void main() {
         tester.getSize(find.byType(FsBalanced)).height,
         moreOrLessEquals(25.3, epsilon: 0.5),
       );
+    });
+
+    for (final (name, cut) in <(String, Text)>[
+      (
+        'one line with an ellipsis',
+        Text(
+          '$words $words',
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: style,
+        ),
+      ),
+      (
+        'no wrapping',
+        Text(
+          '$words $words',
+          softWrap: false,
+          overflow: TextOverflow.fade,
+          style: style,
+        ),
+      ),
+    ]) {
+      testWidgets('leaves a text that is cut off, not wrapped, alone: $name', (
+        tester,
+      ) async {
+        // Making such a text narrower never makes it taller, so there is
+        // nothing to balance. It must keep its width, not shrink to nothing.
+        await _pump(tester, SizedBox(width: 358, child: cut));
+        final alone = tester.getSize(find.byType(RichText));
+
+        await _pump(
+          tester,
+          SizedBox(width: 358, child: FsBalanced(child: cut)),
+        );
+        expect(tester.getSize(find.byType(RichText)), alone);
+        expect(alone.width, 358);
+        expect(tester.getSize(find.byType(FsBalanced)), alone);
+        expect(lineWidths(tester, find.byType(RichText)), hasLength(1));
+        expect(tester.takeException(), isNull);
+      });
+    }
+
+    testWidgets('leaves a child that is not a text at its full size', (
+      tester,
+    ) async {
+      await _pump(
+        tester,
+        const SizedBox(
+          width: 358,
+          child: FsBalanced(
+            child: ColoredBox(
+              color: FsColors.gold,
+              child: SizedBox(width: double.infinity, height: 20),
+            ),
+          ),
+        ),
+      );
+      expect(tester.getSize(find.byType(ColoredBox).last), const Size(358, 20));
+      expect(tester.getSize(find.byType(FsBalanced)), const Size(358, 20));
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('an empty text takes no space and does not fail', (
+      tester,
+    ) async {
+      await _pump(
+        tester,
+        SizedBox(
+          width: 358,
+          child: FsBalanced(child: Text('', style: style)),
+        ),
+      );
+      expect(tester.takeException(), isNull);
+      expect(tester.getSize(find.byType(FsBalanced)).width, 358);
     });
 
     testWidgets('can be measured before it is laid out', (tester) async {

@@ -291,6 +291,16 @@ void main() {
       expect(library.all.where((r) => r.tags.length > 1), isEmpty);
     });
 
+    test('a reading\'s tags cannot be changed by the code that reads them', () {
+      final tagged = library.all.firstWhere((r) => r.tags.isNotEmpty);
+      final plain = library.all.firstWhere((r) => r.tags.isEmpty);
+
+      expect(() => tagged.tags.add(ReadingTag.sent), throwsUnsupportedError);
+      expect(tagged.tags.clear, throwsUnsupportedError);
+      expect(() => plain.tags.add(ReadingTag.sent), throwsUnsupportedError);
+      expect(plain.tags, isEmpty);
+    });
+
     test('a reading is chosen by month and day, the same every year', () {
       final a = library.forDate(const LocalDate(2026, 11, 12))!;
       final b = library.forDate(const LocalDate(2031, 11, 12))!;

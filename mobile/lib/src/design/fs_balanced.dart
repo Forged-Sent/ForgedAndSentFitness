@@ -8,8 +8,18 @@ import 'package:flutter/widgets.dart';
 /// line of their own.
 ///
 /// The child is a [Text]. It is given the narrowest width that still takes
-/// the same number of lines as the full width would, and it stays at the
-/// start of the line. A text that fits on one line is unchanged.
+/// the same number of lines as the full width would. A text that fits on
+/// one line is unchanged.
+///
+/// Two limits:
+/// - **Left-to-right, start-aligned text only.** The child is placed at
+///   the left edge of the space this widget is given. Right-to-left text,
+///   and centered or end-aligned text, would be drawn against that left
+///   edge instead of where they belong. The app has neither today.
+/// - **Only a text that wraps can be balanced.** A child that is no taller
+///   however narrow it gets is laid out as if this widget were not there:
+///   a text that is cut off instead of wrapped (`maxLines`, `softWrap:
+///   false`), or a child that is not a text.
 class FsBalanced extends SingleChildRenderObjectWidget {
   const FsBalanced({super.key, required Widget super.child});
 
@@ -36,6 +46,11 @@ class _RenderBalanced extends RenderProxyBox {
         wideEnough = middle;
       }
     }
+    // No width made the child taller: it does not wrap, so there is nothing
+    // to balance. The search has by now squeezed `wideEnough` to under a
+    // point, which would collapse the child; it keeps the space it was
+    // given instead.
+    if (tooNarrow == 0) return constraints;
     return BoxConstraints(
       maxWidth: wideEnough,
       minHeight: constraints.minHeight,
@@ -44,7 +59,8 @@ class _RenderBalanced extends RenderProxyBox {
   }
 
   /// This box is as wide as it is told to be; the text inside may be
-  /// narrower.
+  /// narrower. A proxy box paints its child at its own top left corner,
+  /// which is what puts the text at the left edge.
   Size _sizeFor(BoxConstraints constraints, Size child) =>
       constraints.constrain(child);
 
