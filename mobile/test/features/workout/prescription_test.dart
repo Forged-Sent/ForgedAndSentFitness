@@ -357,6 +357,38 @@ void main() {
       ]);
     });
 
+    test('an added weight with no reps must be fixed too, though the '
+        'weight is optional', () {
+      final check = checkBeforeFinish(
+        _session(<SessionExercise>[
+          _exercise(
+            name: 'Pull-Up',
+            weightMode: WeightMode.optional,
+            sets: <SessionSet>[
+              _set('a', reps: 8), // bodyweight only: logged
+              _set('b', reps: 6, weight: 25), // logged with added weight
+              _set('c', weight: 25), // a weight, and no reps
+              _set('d'), // nothing at all
+            ],
+          ),
+          _exercise(
+            name: 'Suitcase Carry',
+            measure: SetMeasure.seconds,
+            sets: <SessionSet>[
+              _set('e', weight: 50), // a weight, and no seconds
+            ],
+          ),
+        ]),
+      );
+
+      expect(check.fixes.map((f) => f.text), <String>[
+        'Pull-Up, Set 3: add the reps',
+        'Suitcase Carry, Set 1: add the seconds',
+      ]);
+      expect(check.fixes.map((f) => f.setId), <String>['c', 'e']);
+      expect(check.blanks.map((b) => b.setId), <String>['d']);
+    });
+
     test('a tick row left unticked holds nothing up', () {
       final check = checkBeforeFinish(
         _session(<SessionExercise>[

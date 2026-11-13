@@ -324,8 +324,9 @@ class SetIssue {
 class FinishCheck {
   const FinishCheck({required this.fixes, required this.blanks});
 
-  /// Sets entered halfway: reps without the weight, or the weight without
-  /// reps. These must be fixed before finishing.
+  /// Sets entered halfway: reps without the weight a loaded lift needs,
+  /// or a weight without reps, whether or not the lift needs a weight.
+  /// These must be fixed before finishing.
   final List<SetIssue> fixes;
 
   /// Sets with nothing entered. He may finish without them.
@@ -347,7 +348,11 @@ FinishCheck checkBeforeFinish(WorkoutSession session) {
       final hasWeight = set.weightLb != null;
       if (hasReps && (noWeightNeeded || hasWeight)) continue;
       final label = '${exercise.name}, Set ${i + 1}';
-      if (!hasReps && (noWeightNeeded || !hasWeight)) {
+      // A weight with no reps is a set entered halfway, also where the
+      // weight is optional. The prototype calls that set blank and lets
+      // him finish without it; the weight he typed would then be in a
+      // locked workout and shown nowhere.
+      if (!hasReps && !hasWeight) {
         blanks.add(SetIssue(setId: set.id, text: '$label: nothing entered'));
       } else {
         fixes.add(

@@ -51,7 +51,7 @@ A man opens Train and sees today and this week from the Forged program. He opens
 - **Last time (U3):** found by the movement, on the most recent earlier day he logged reps for it. Never by where the exercise stood in the plan.
 - **Rest timer:** per exercise, starting at the rest its prescription writes. Start, Pause, Resume, Reset, and 15 seconds less or more. At zero it reads "GO". It makes no sound.
 - **Clock:** the time since Amen, in a bar that stays at the top.
-- **Finish:** a set with reps and no weight (or the reverse) must be fixed first; the page outlines it. Blank sets are listed, and he may finish without them. Finishing locks the workout into a summary: when it was finished, pounds moved, sets logged, and each logged set as text. Nothing in a finished workout can be changed, on the screen or in the store.
+- **Finish:** a set with reps and no weight where the lift needs one, or with a weight and no reps, must be fixed first; the page outlines it. Blank sets are listed, and he may finish without them. Finishing locks the workout into a summary: when it was finished, pounds moved, sets logged, and each logged set as text. Nothing in a finished workout can be changed, on the screen or in the store.
 - **The Workout box on Today** is checked by finishing a workout and by nothing else. A tap on it opens Train.
 
 **What is saved, and how**
@@ -118,7 +118,7 @@ The project's rule is that product behavior is not inferred from the prototype. 
 | When a set is logged | `paintDone` | Reps (or seconds) over zero, and a weight where the lift needs one |
 | Number limits | `numField` | Reps to 999, weight to 2,000 lb, added weight to 400 lb, one decimal place for weight |
 | Last time | `liftSessions`, `lastWorking` | The most recent earlier day with reps logged for that movement; each set's value beside the same set; the last working set in one line |
-| The check before finishing | `workoutFixes`, `openFixes` | Half-entered sets must be fixed; blank sets are listed, eight at most, and may be finished without |
+| The check before finishing | `workoutFixes`, `openFixes` | Half-entered sets must be fixed; blank sets are listed, eight at most, and may be finished without. One difference is listed below |
 | The Workout box | `previewWorkout`, the "auto" box | Checked by finishing; "Checks itself when you finish a workout", then "Finished in Train" |
 | The clock | `wkElapsed`, `fmtElapsed` | The time since the start: "12:34", or "1:02:03" from an hour up; "Workout time", then "Finished in" |
 | The locked summary | `drawLockedSummary`, `volOf` | "Finished at 6:42 PM. Locked."; volume is weight times reps; each logged set as "5 reps × 135 lb", "8 reps (bodyweight)", "25 sec" or "Done" |
@@ -131,6 +131,7 @@ The project's rule is that product behavior is not inferred from the prototype. 
 - **U3:** a session stores each exercise's movement id and prescription. The prototype stores sets by position and reads the names from whatever the plan says later.
 - **Q11:** the prayer has "Not now".
 - At ten minutes "+15" does nothing, and at fifteen seconds "−15" does nothing. In the prototype the full length stays at the limit too, but a running timer still moves by the 15 seconds, so a rest can run longer than ten minutes or be cut to nothing.
+- A weight typed with no reps must be fixed before finishing, also on a bodyweight lift where the weight is optional. The prototype calls that set blank and lets him finish without it, which would leave the weight in a locked workout and show it nowhere.
 - Reps are whole numbers. The prototype accepts one decimal place.
 - Volume leaves out body weight, because the app stores none.
 - The summary counts "sets logged" and has no PR count; PRs are a later step.

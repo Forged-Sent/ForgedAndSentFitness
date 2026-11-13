@@ -2,7 +2,7 @@
 
 These twelve pictures show the HTML prototype at 390×844, the size of the Flutter golden images in `mobile/test/features/workout/goldens/`. They are for comparing Train and the workout page with the prototype by eye.
 
-**The Flutter golden images they are compared with are not approved.** They were drawn on 2026-11-13 for the maintainer to look at. The side-by-side sheets made from these pictures and the goldens are linked from the pull request; they are not in the repository, so no picture is stored twice.
+**The Flutter golden images they are compared with are not approved.** They were drawn on 2026-11-13, after S1b was merged, for the maintainer to look at. The side-by-side sheets made from these pictures and the goldens are linked from the pull request; they are not in the repository, so no picture is stored twice.
 
 **They are not part of the 2026-11-10 review.** They were captured by Claude on 2026-11-13.
 
@@ -36,7 +36,7 @@ The layout is what is being compared. These differ on purpose:
 - **The clock's time.** The prototype's pictures show the seconds its script took; the goldens set the clock to 12:34 and 42:00.
 - **Lines between exercises** are solid in the app and dashed in the prototype.
 - **Today's row in the week** is tinted in the app; in the prototype it has the card's own color and the accent bar only.
-- **Letter spacing.** The app's small caps lines are tracked wider than the prototype's. Another branch is changing that in `fs_typography.dart`; S3 names no letter spacing of its own.
+- **Letter spacing.** The app's small caps lines are tracked a little wider than the prototype's. The goldens were drawn after S1b was merged, so they carry its change to letter spacing; S3 names no letter spacing of its own.
 
 ## How to make them again
 

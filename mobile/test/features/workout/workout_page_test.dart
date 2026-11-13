@@ -339,6 +339,16 @@ void main() {
       expect(squat.sets[0].reps, anyOf(isNull, 12));
       expect(squat.sets[0].weightLb, 2000);
       expect(squat.sets[1].weightLb, 132.5);
+
+      // A second decimal digit is not taken, and the stored weight stays.
+      await typeNumber(tester, weightField(0, 1), '132.55');
+      expect(
+        (await app.savedSession(
+          tester,
+          _monday,
+        ))!.exercises.first.sets[1].weightLb,
+        132.5,
+      );
     });
 
     testWidgets('the boxes say what they are to a screen reader', (

@@ -119,7 +119,14 @@ class _FsNumberFieldState extends State<FsNumberField> {
             textInputAction: TextInputAction.next,
             inputFormatters: <TextInputFormatter>[
               if (widget.decimal)
-                FilteringTextInputFormatter.allow(_oneDecimal)
+                // A keystroke that would make the text something other
+                // than a number with one decimal place is not taken: the
+                // text stays as it was. Filtering by the pattern instead
+                // would empty the box, and with it the stored number.
+                TextInputFormatter.withFunction(
+                  (TextEditingValue before, TextEditingValue after) =>
+                      _oneDecimal.hasMatch(after.text) ? after : before,
+                )
               else ...<TextInputFormatter>[
                 FilteringTextInputFormatter.digitsOnly,
                 LengthLimitingTextInputFormatter(3),
