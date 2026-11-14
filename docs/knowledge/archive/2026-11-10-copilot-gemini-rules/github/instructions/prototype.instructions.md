@@ -1,4 +1,12 @@
 ---
+status: archived
+updated: 2026-11-11
+owner: Chadillac12
+source_ref: main
+source_sha: 1c26ccd05d11df3c00a6a7824b2027346406bc2f
+superseded_by: AGENTS.md
+original_path: .github/instructions/prototype.instructions.md
+original_sha256: 65c44321fe92a4dc2984909beaed55f87e22bdd75a3af1601c2ebab475337fb1
 applyTo: "index.html,versions/**,dev/**,seed/**"
 ---
 
