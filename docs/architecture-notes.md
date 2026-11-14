@@ -1,8 +1,10 @@
-# Forged & Sent: architecture and store-readiness notes
+# Historical prototype architecture notes
+
+> **Superseded for current architecture.** This is an early v8 prototype record, retained as history. Its feature counts, formulas, migration alternatives and store notes are not current implementation or policy. Use [SYSTEM](architecture/SYSTEM.md), [prototype parity](knowledge/PROTOTYPE-PARITY.md) and the [work board](knowledge/WORK.md). New contributors should start with [Project 101](development/PROJECT-101.md).
 
 Name: Forged & Sent (chosen 2026-10-24; earlier working names Roll Call, Forged Men's Health). Foundation: 1 Corinthians 16:13-14 and the Great Commission (Matthew 28:19). Trademark, app store, domain and social handle checks still to do.
 
-Current build: v8, a single-file web app published as a claude.ai Artifact. Earlier versions are kept as app-v1 to app-v7 for rollback.
+At the time of this note: v8, a single-file web prototype. The descriptions below belong to that historical snapshot.
 
 ## Pages
 Today (checklist), Fuel (macros, water, 7-day strip), Train (Mon-Sun calendar strip, PR bonuses), Board (standings), Check-in (community thread), Profile (banner, picture, motto, core-lift PRs), Settings (profile, body and goal calculator, targets, reminders, theme, blocked users, delete my data).

@@ -4,8 +4,9 @@ from tempfile import TemporaryDirectory
 import subprocess
 import unittest
 
-from live_status import (DECISIONS, attention, checks_cell, checks_summary, open_decisions,
-                         optional_failing, pull, render, unpublished_branches)
+from live_status import (BOARD, DECISIONS, agent_actions, attention, board_cell, checks_cell,
+                         checks_summary, local_edits, open_decisions, optional_failing, pull, render,
+                         unpublished_branches)
 
 
 def pr(**kw):
@@ -130,6 +131,36 @@ class RenderTest(unittest.TestCase):
     def test_quiet_when_nothing_is_open(self):
         self.assertIn("Nothing right now.", render([], [], [], [], "now"))
 
+    def test_says_whether_each_pull_request_changes_the_work_board(self):
+        touched = pr(files=[{"path": "mobile/lib/a.dart"}, {"path": BOARD}])
+        untouched = pr(number=8, files=[{"path": "tooling/x.py"}])
+        self.assertEqual(board_cell(touched), "updated")
+        self.assertEqual(board_cell(untouched), "not touched")
+        self.assertEqual(board_cell(pr()), "unknown")                      # gh sent no file list
+        self.assertEqual(board_cell(pr(files=[{"path": f"f{n}"} for n in range(100)])), "unknown")
+        page = render([touched, untouched], [], [], [], "now")
+        self.assertIn("| Needs you | Work board |", page)
+        self.assertIn("| — | updated |", page)
+        self.assertIn("| — | not touched |", page)
+
+    def test_edits_made_in_the_vault_checkout_need_attention(self):
+        page = render([], [], [], [], "now", [BOARD, "docs/HOME.md", "docs/a|b.md"])
+        self.assertIn("The work board was edited in this checkout and the edit is not in a pull request.", page)
+        self.assertIn("2 other files edited in this checkout are not in a pull request:** "
+                      "`docs/HOME.md`, `docs/a\\|b.md`.", page)
+        self.assertNotIn("Nothing right now.", page)
+        one = render([], [], [], [], "now", ["docs/HOME.md"])
+        self.assertIn("1 other file edited in this checkout is not in a pull request", one)
+        self.assertNotIn("The work board was edited", one)
+
+    def test_the_agent_is_told_what_to_do_about_vault_edits(self):
+        self.assertEqual(agent_actions([]), [])
+        actions = agent_actions([BOARD, "docs/HOME.md"])
+        self.assertEqual(len(actions), 2)
+        self.assertTrue(all(action.startswith("ACTION: ") for action in actions))
+        self.assertIn("Publish it before you finish", actions[0])
+        self.assertIn("ask whether to publish", actions[1])
+
 
 class OpenDecisionsTest(unittest.TestCase):
     def test_counts_only_rows_still_marked_todo(self):
@@ -219,6 +250,66 @@ class PullTest(TwoClones):
     def test_a_checkout_with_nowhere_to_pull_from_reports_instead_of_raising(self):
         self.git(self.vault, "remote", "remove", "origin")
         self.assertIn("Could not fast-forward", pull(self.vault))
+
+    def test_an_edit_that_already_landed_upstream_does_not_block_the_fast_forward(self):
+        # The maintainer edited board.md in the vault; an agent published the same edit.
+        (self.vault / "board.md").write_text("two\n", encoding="utf-8")
+        (self.vault / "notes.md").write_text("my unsaved notes\n", encoding="utf-8")
+        self.assertEqual(local_edits(self.vault), ["board.md", "notes.md"])
+        self.assertEqual(pull(self.vault), "")
+        self.assertEqual(self.head(self.vault), self.head(self.author))
+        self.assertEqual((self.vault / "board.md").read_text(encoding="utf-8"), "two\n")
+        self.assertEqual((self.vault / "notes.md").read_text(encoding="utf-8"), "my unsaved notes\n")
+        self.assertEqual(local_edits(self.vault), ["notes.md"])           # only the unpublished edit is left
+
+    def test_a_staged_edit_that_matches_upstream_is_left_to_git(self):
+        # Git itself fast-forwards over an index entry that already equals the incoming file.
+        (self.vault / "board.md").write_text("two\n", encoding="utf-8")
+        self.git(self.vault, "add", "board.md")
+        self.assertEqual(pull(self.vault), "")
+        self.assertEqual(self.head(self.vault), self.head(self.author))
+        self.assertEqual((self.vault / "board.md").read_text(encoding="utf-8"), "two\n")
+
+    def test_a_staged_edit_with_further_unstaged_changes_is_never_put_back(self):
+        before = self.head(self.vault)
+        (self.vault / "board.md").write_text("staged\n", encoding="utf-8")
+        self.git(self.vault, "add", "board.md")
+        (self.vault / "board.md").write_text("two\n", encoding="utf-8")       # worktree now equals upstream
+        self.assertIn("Could not fast-forward", pull(self.vault))
+        self.assertEqual(self.head(self.vault), before)
+        self.assertEqual((self.vault / "board.md").read_text(encoding="utf-8"), "two\n")
+
+    def test_an_edit_that_differs_from_upstream_is_kept_beside_one_that_landed(self):
+        before = self.head(self.vault)
+        (self.vault / "board.md").write_text("my unsaved board\n", encoding="utf-8")
+        self.assertIn("Could not fast-forward", pull(self.vault))
+        self.assertEqual(self.head(self.vault), before)
+        self.assertEqual((self.vault / "board.md").read_text(encoding="utf-8"), "my unsaved board\n")
+
+    def test_a_landed_edit_is_written_back_when_another_file_still_blocks_the_pull(self):
+        # Upstream also changes notes.md, and the vault has its own unsaved notes.
+        (self.author / "notes.md").write_text("notes two\n", encoding="utf-8")
+        self.git(self.author, "commit", "-qam", "third")
+        self.git(self.author, "push", "-q", "origin", "HEAD")
+        before = self.head(self.vault)
+        (self.vault / "board.md").write_text("two\n", encoding="utf-8")            # already upstream
+        (self.vault / "notes.md").write_text("my unsaved notes\n", encoding="utf-8")  # blocks the pull
+        problem = pull(self.vault)
+        self.assertIn("Could not fast-forward", problem)
+        self.assertIn("notes.md", problem)
+        self.assertEqual(self.head(self.vault), before)
+        self.assertEqual((self.vault / "board.md").read_text(encoding="utf-8"), "two\n")
+        self.assertEqual((self.vault / "notes.md").read_text(encoding="utf-8"), "my unsaved notes\n")
+        self.assertEqual(local_edits(self.vault), ["board.md", "notes.md"])      # both still reported
+
+    def test_a_landed_edit_is_written_back_when_main_has_diverged(self):
+        self.commit(self.vault, "local-only.md")                                 # a commit upstream lacks
+        before = self.head(self.vault)
+        (self.vault / "board.md").write_text("two\n", encoding="utf-8")
+        self.assertIn("Could not fast-forward", pull(self.vault))
+        self.assertEqual(self.head(self.vault), before)
+        self.assertEqual((self.vault / "board.md").read_text(encoding="utf-8"), "two\n")
+        self.assertEqual(local_edits(self.vault), ["board.md"])
 
 
 class UnpublishedBranchesTest(TwoClones):

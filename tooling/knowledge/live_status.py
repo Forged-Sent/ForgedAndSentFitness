@@ -21,7 +21,10 @@ from datetime import datetime
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
-PR_FIELDS = "number,title,author,isDraft,headRefName,updatedAt,reviewDecision,statusCheckRollup,mergeable,url"
+PR_FIELDS = ("number,title,author,isDraft,headRefName,updatedAt,reviewDecision,statusCheckRollup,"
+             "mergeable,url,files")
+BOARD = "docs/knowledge/WORK.md"
+FILES_LIMIT = 100  # gh lists at most this many changed files for a pull request
 DECISIONS = "docs/reviews/2026-11-10-prototype-to-flutter/01-DECISIONS.md"
 FAILED = {"FAILURE", "ERROR", "TIMED_OUT", "CANCELLED", "ACTION_REQUIRED", "STARTUP_FAILURE"}
 RUNNING = {"PENDING", "QUEUED", "IN_PROGRESS", "EXPECTED", "WAITING", "REQUESTED"}
@@ -149,6 +152,57 @@ def unpublished_branches(root: Path) -> list[tuple[str, str, str, str]]:
     return rows[:10]
 
 
+def board_cell(pr: dict) -> str:
+    """Whether the pull request changes the work board, as far as GitHub's file list shows."""
+    files = pr.get("files")
+    if not isinstance(files, list):
+        return "unknown"
+    if any(isinstance(item, dict) and item.get("path") == BOARD for item in files):
+        return "updated"
+    return "unknown" if len(files) >= FILES_LIMIT else "not touched"
+
+
+def local_edits(vault: Path) -> list[str]:
+    """Tracked files changed in the vault checkout and not committed: edits made in Obsidian.
+
+    They are invisible to GitHub and they stop the next fast-forward that touches
+    the same file, so the page says so and an agent publishes them.
+    """
+    code, out = run(["git", "status", "--porcelain", "--untracked-files=no"], vault)
+    if code != 0:
+        return []
+    return sorted({line[3:].split(" -> ")[-1].strip().strip('"') for line in out.splitlines() if len(line) > 3})
+
+
+def edit_lines(edits: list[str]) -> list[str]:
+    """What the page says about uncommitted edits in the vault checkout."""
+    lines = []
+    if BOARD in edits:
+        lines.append("- **The work board was edited in this checkout and the edit is not in a pull request.** "
+                     "An agent publishes it at the end of its next session. Until then the board view and the "
+                     "\"Do this next\" block lag behind it; `python tooling/knowledge/work_board.py --write` "
+                     "refreshes them here.")
+    others = [path for path in edits if path != BOARD]
+    if others:
+        shown = ", ".join(f"`{cell(path)}`" for path in others[:6]) + (" and more" if len(others) > 6 else "")
+        lines.append(f"- **{len(others)} other file{'' if len(others) == 1 else 's'} edited in this checkout "
+                     f"{'is' if len(others) == 1 else 'are'} not in a pull request:** {shown}.")
+    return lines
+
+
+def agent_actions(edits: list[str]) -> list[str]:
+    """Printed for the agent that ran this tool; AGENTS.md says what each one means."""
+    actions = []
+    if BOARD in edits:
+        actions.append(f"ACTION: {BOARD} has an uncommitted edit in the main checkout. Publish it before you "
+                       "finish: knowledge-steward skill, \"The maintainer's own edits\".")
+    others = [path for path in edits if path != BOARD]
+    if others:
+        actions.append(f"ACTION: {len(others)} other uncommitted edit(s) in the main checkout "
+                       f"({', '.join(others[:6])}). Tell the maintainer and ask whether to publish them.")
+    return actions
+
+
 def checks_cell(rollup: list[dict] | None) -> str:
     extra = optional_failing(rollup)
     return checks_summary(rollup) + (f" (not required, failing: {cell(', '.join(extra))})" if extra else "")
@@ -159,7 +213,7 @@ def cell(text: object) -> str:
 
 
 def render(prs: list[dict] | None, merged: list[dict] | None, branches: list[tuple[str, str, str, str]],
-           decisions: list[str], now: str) -> str:
+           decisions: list[str], now: str, edits: list[str] | None = None) -> str:
     lines = ["# Live status", "",
              f"Generated {now} by `tooling/knowledge/live_status.py`. Not committed. Refresh it; do not edit it.", ""]
     needs = [(pr, attention(pr)) for pr in prs or []]
@@ -172,18 +226,20 @@ def render(prs: list[dict] | None, merged: list[dict] | None, branches: list[tup
         lines.append(f"- **[#{pr['number']}]({pr['url']}) {cell(pr['title'])}**: {why}")
     if branches:
         lines.append(f"- **{len(branches)} local branches have work that is not on GitHub.** See the table below.")
+    lines += edit_lines(edits or [])
     if prs is None:
         lines.append("- **Pull requests could not be read.** Install the GitHub CLI and run `gh auth login`, then refresh.")
-    if not (decisions or needs or branches or prs is None):
+    if not (decisions or needs or branches or edits or prs is None):
         lines.append("- Nothing right now.")
     lines += ["", "## Open pull requests", ""]
     if prs:
-        lines += ["| PR | Title | Branch | Checks | Review | Needs you |", "|---|---|---|---|---|---|"]
+        lines += ["| PR | Title | Branch | Checks | Review | Needs you | Work board |", "|---|---|---|---|---|---|---|"]
         for pr in prs:
             review = (pr.get("reviewDecision") or "none").replace("_", " ").lower()
             title = cell(pr["title"]) + (" (draft)" if pr.get("isDraft") else "")
             lines.append(f"| [#{pr['number']}]({pr['url']}) | {title} | `{cell(pr.get('headRefName', ''))}` | "
-                         f"{checks_cell(pr.get('statusCheckRollup'))} | {review} | {attention(pr) or '—'} |")
+                         f"{checks_cell(pr.get('statusCheckRollup'))} | {review} | {attention(pr) or '—'} | "
+                         f"{board_cell(pr)} |")
     else:
         lines.append("Unavailable." if prs is None else "None.")
     lines += ["", "## Local work not on GitHub", ""]
@@ -222,6 +278,14 @@ def pull(vault: Path) -> str:
     Otherwise Git decides whether the fast-forward is safe. Uncommitted changes
     do not stop it unless it would overwrite them, and then Git changes nothing
     and says which files are in the way.
+
+    One case is cleared first. An edit made in the vault and then published
+    through a pull request is still an uncommitted change here, and Git refuses
+    to fast-forward over it even though the incoming file is identical. Such a
+    file is put back to its committed state and the pull is tried once more.
+    Nothing is lost: the fast-forward brings the same content. If the second try
+    still fails (another file is in the way, or main has diverged), each file is
+    written back exactly as it was, so the checkout is left as it was found.
     """
     code, branch = run(["git", "symbolic-ref", "--short", "-q", "HEAD"], vault)
     if code != 0 or branch.strip() != "main":
@@ -234,8 +298,41 @@ def pull(vault: Path) -> str:
         return f"Could not fast-forward {vault}: {error}"
     if done.returncode == 0:
         return ""
+    restored = restore_landed_edits(vault)
+    if restored:
+        code, _ = run(["git", "pull", "--ff-only", "--quiet"], vault)
+        if code == 0:
+            return ""
+        for path, content in restored.items():      # the pull still failed: undo our own change
+            (vault / path).write_bytes(content)
     message = (done.stderr or done.stdout or "").strip() or f"git pull exited with {done.returncode}"
     return f"Could not fast-forward {vault}:\n{message}"
+
+
+def restore_landed_edits(vault: Path) -> dict[str, bytes]:
+    """Put back uncommitted edits whose content is already on the upstream branch.
+
+    Only unstaged edits to tracked files are considered, and only when the file in
+    the checkout is identical to the upstream version, so no work can be lost.
+    Returns each file restored with the bytes it held, so the caller can write
+    them back if the pull it was clearing the way for does not happen.
+    """
+    if run(["git", "fetch", "--quiet"], vault)[0] != 0:
+        return {}
+    code, out = run(["git", "diff", "--name-only"], vault)
+    restored: dict[str, bytes] = {}
+    for path in out.splitlines() if code == 0 else []:
+        staged = run(["git", "diff", "--cached", "--quiet", "--", path], vault)[0] != 0
+        same_as_upstream = run(["git", "diff", "--quiet", "@{upstream}", "--", path], vault)[0] == 0
+        if staged or not same_as_upstream:
+            continue
+        try:
+            content = (vault / path).read_bytes()
+        except OSError:
+            continue
+        if run(["git", "checkout", "--", path], vault)[0] == 0:
+            restored[path] = content
+    return restored
 
 
 def main() -> int:
@@ -252,8 +349,11 @@ def main() -> int:
             print(problem)
     prs = gh_json(["pr", "list", "--state", "open", "--limit", "50", "--json", PR_FIELDS], ROOT)
     merged = gh_json(["pr", "list", "--state", "merged", "--limit", "8", "--json", "number,title,mergedAt,url"], ROOT)
+    edits = local_edits(vault)
     page = render(prs, merged, unpublished_branches(ROOT), open_decisions(vault),
-                  datetime.now().astimezone().strftime("%Y-%m-%d %H:%M %Z"))
+                  datetime.now().astimezone().strftime("%Y-%m-%d %H:%M %Z"), edits)
+    for action in agent_actions(edits):
+        print(action)
     if args.stdout:
         print(page, end="")
         return 0

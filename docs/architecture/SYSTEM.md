@@ -71,24 +71,22 @@ flowchart TB
 
 ## Engineering and review pipeline
 
+For a beginner walkthrough of branches, checks and reviews, use [Project 101](../development/PROJECT-101.md). **Current configured path:** branch, local checks, PR, applicable GitHub checks, maintainer decision. AI reviews are advisory. The separate functional AI gate is staged, not an enforced step in the current path.
+
 ```mermaid
 flowchart LR
-    A[Contributor branch] --> B[Deterministic checks + generated code map]
-    B --> C[Independent local AI review: Codex, Claude, optional Gemini]
-    C --> D{Evidence and severity?}
-    D -->|Critical/high or unverified| F[Fix, rerun checks and review]
-    F --> B
-    D -->|No blocking findings| E[Push branch + Draft PR]
-    E --> G[GitHub CI: policy + Flutter + platform builds]
-    G --> J{Functional Flutter or backend change?}
-    J -->|Yes| K[Hosted review gate: opposite provider]
-    J -->|No| H[Human decision / review of risk]
-    K --> L{Current-head review complete?}
-    L -->|Completed review with findings| M[Notify implementor; fix and rerun]
-    M --> B
-    L -->|Complete| H
-    H --> I[Merge when GitHub rules permit]
+    A[Task branch / worktree] --> B[Local checks and matching docs]
+    B --> C[Push feature branch + draft PR]
+    C --> D[GitHub applicable jobs + ci-gate]
+    D --> E[Maintainer decision under current rules]
+    E --> F[Merge when required checks pass]
+    B -. optional .-> R[Independent local AI review]
+    C -. configured paths .-> K[Automatic Claude advisory review]
+    C -. staged, not required .-> S[Functional AI status: ruleset disabled]
+    R -. findings .-> B
+    K -. findings .-> B
 ```
+
 
 Review agents are **advisory**: their findings are evidence, not human approvals. A tool that wrote a change is not counted as an independent reviewer of that change. Local hooks are bypassable. GitHub `ci-gate` is active; the separate `flutter-ai-review` required-status ruleset is **disabled** while its producer is implemented and tested. Once activated, GitHub rules can require the coordinator's status, but the models still do not approve or merge PRs. Codex reviews use the connected Codex GitHub account; Claude reviews use the maintainer's `CLAUDE_CODE_OAUTH_TOKEN` repository secret. Verified same-repository Dependabot PRs use the Codex route through a trusted default-branch dispatch, bypassing the usual PR-author collaborator check only for that route. The scheduled reconciler has `actions: write` to dispatch a gate run when native Codex evidence appears or a new Dependabot PR head needs its initial run. The trusted publisher job grants `pull-requests: write` for the implementor comment and `statuses: write` for commit statuses. A PR #48 branch-targeted run posted failure handoffs with this scope; clean PASS handoff and final success still need hosted verification. A same-event main-ref dispatch with `issues: write` alone also received HTTP 403, while the branch-targeted run with added PR write posted handoffs. The narrowed PR-write-only scope has not been hosted-tested. For a functional PASS, the publisher first posts `pending`. The notifier posts or deduplicates the handoff, rechecks PR identity, unique head, run ownership and native Codex evidence when applicable, then writes final `success`. A failed handoff or final write leaves an existing pending status in place. If the initial pending write fails, the notifier refuses to finalize; the check may be absent rather than pending. The local publisher API wrapper limits calls to PR/status/evidence reads, handoff comment posts and commit-status posts; it rejects PR review and state-mutation endpoints. Automatic runs use the default-branch workflow. Manual branch-targeted acceptance uses that branch's workflow permissions but checks out publisher code from the default branch, so it cannot host-test unmerged Python changes. The coordinator must bind review evidence to the current PR head and base. Classification errors before review are visible in the workflow status. See [ADR-0004](ADR-0004-hosted-ai-review-gate.md) for trust limits. No model may silently log into cloud Firebase, deploy, push to `main`, approve its own PR, or bypass branch protection.
 

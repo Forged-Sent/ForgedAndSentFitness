@@ -1,12 +1,16 @@
 # Forged & Sent
 
-A men's fitness and accountability app for the Forged in Faith men's group. Men follow a shared daily checklist, track food, water and training, post check-ins, and compete on weekly standings. The foundation is 1 Corinthians 16:13-14 and the Great Commission (Matthew 28:19): care for the body so a man can lead his family and do kingdom work.
+A men's fitness and accountability app for the Forged in Faith men's group. The product goal is shared daily habits, training and encouragement. The foundation is 1 Corinthians 16:13-14 and the Great Commission (Matthew 28:19): care for the body so a man can lead his family and do kingdom work.
 
-**Status: working prototype, not yet store-ready.** It runs today as a [claude.ai Artifact](https://claude.ai) (a private hosted page). It does **not** run as a plain static site, because its database, user identity and file storage come from the claude.ai runtime (`window.claude`). See "Running it" and "Path to the App Store and Google Play".
+**Status: Flutter app in development, not yet store-ready.** `mobile/` is the Android/iOS client. Its shell, Today, devotional reading and native local saves exist; five tabs remain placeholders. Cloud sync, real groups and server scoring are planned. Check [prototype parity](docs/knowledge/PROTOTYPE-PARITY.md) for the maintained feature inventory.
+
+**Teaching a new teammate?** Start with the [25-minute project 101](docs/development/PROJECT-101.md), keep the [run commands](docs/development/RUN-COMMANDS.md) beside it, and use the [Obsidian guide](docs/development/OBSIDIAN-101.md) for the board.
+
+The root `index.html` is a separate behavioral prototype. Its hosted identity/data APIs depend on `window.claude`; the local mock is for UI exploration. It is not the production Flutter backend.
 
 ## New here? Start here
 
-You only need to double-click files. No typing commands, no cloud accounts.
+The numbered launchers handle common setup and runs. No Firebase cloud account is required for the local demo. GitHub sign-in is needed when you publish changes. For terminal equivalents, use [run commands](docs/development/RUN-COMMANDS.md).
 
 > Web pages cannot run programs, so clicking a launcher link below on GitHub only shows its text.
 > Click links to *find* the right file, then double-click that file inside your own copy of the
@@ -45,12 +49,14 @@ Stuck? Run step 5, then see [First-run troubleshooting](docs/development/FIRST-R
 
 | Path | What it is |
 |---|---|
-| `index.html` | Current version. A single self-contained file: HTML, CSS and JS. |
+| `mobile/` | Flutter application: screens, local storage, tests and native hosts. |
+| `docs/architecture/SYSTEM.md` | Current and planned architecture; accepted decisions and source entry points. |
+| `index.html` | Behavioral HTML/CSS/JS prototype, separate from Flutter. |
 | `versions/app-v1.html` ... `app-v238.html` | Every earlier iteration, kept for rollback. A new version file is created for each iteration; never overwrite old ones. |
 | `seed/` | Starting data: `tasks.json` (standard daily list), `lifts.json` (core lifts), `devotionals.json` (366 daily devotionals, one per calendar date, also embedded in `index.html`), `db-rules.json` (access rules and runtime capabilities the page declares). `weekly-challenges.json` (52-week challenge program: one Family, one Iron and one Endure challenge per week, with the 0-100 age-bracket scoring rules, injury-friendly alternates and season metadata) and `movement-standards.json` (what counts as a rep). |
 | `START-WINDOWS.cmd`, `START-MAC.command`, `launchers/` | Double-click setup and run launchers (see "New here? Start here"). The scripts they call are in `tooling/`. |
 | `dev/` | Local preview. `mock-claude.js` is an in-memory stand-in for `window.claude`; `make_preview.py` builds `dev/preview.html`. |
-| `docs/architecture-notes.md` | Architecture and store-readiness notes. |
+| `docs/architecture-notes.md` | Historical prototype notes, superseded for current architecture. |
 | `docs/health-integration.md` | Apple Health and Health Connect plan, bridge contract and store requirements. |
 
 ## Working together
@@ -65,7 +71,11 @@ See [repository security and review rules](docs/development/REPOSITORY-SECURITY.
 for the exact path patterns and GitHub administrator setup. Those rules
 must be enabled in GitHub; documentation alone does not enforce them.
 
-## Running it
+## Running the Flutter app
+
+Use launcher 2 above for browser preview, or the [browser, Android, Firebase and iPhone recipes](docs/development/RUN-COMMANDS.md). Browser state is in memory; native devotional saves use SQLite. Firebase emulator mode tests local backend connectivity and does not enable synchronization.
+
+## Running the HTML prototype
 
 **Locally (for development):**
 
@@ -78,11 +88,17 @@ The mock keeps data in memory only, shows one fake user, and cannot display uplo
 
 **On claude.ai:** publish `index.html` with the Artifact tool, declaring the capabilities in `seed/db-rules.json` (`db` with rules, `user` with the `profile` scope, `assets` with `upload: "interact"`, `sample` for the food estimate). Then load `seed/tasks.json` and `seed/lifts.json` into the `tasks` and `lifts` collections (as the developer; both are admin-write).
 
-## Architecture
+## Flutter architecture
+
+Screens send actions to view models. Repositories read and save records. Riverpod supplies state, go_router supplies navigation, and Drift/SQLite supplies native durable storage. See the [system map](docs/architecture/SYSTEM.md) for actual boundaries and the explicitly planned backend. Copying the prototype adapter is not a substitute for the Flutter architecture or server authorization.
+
+## Prototype architecture reference
+
+The following describes the HTML prototype only, not implemented Flutter features or approved production rules.
 
 - **One file, five pages plus Profile and Settings.** Today (checklist), Fuel (macros, water, 7-day strip), Train (Monday-Sunday calendar strip, PR bonuses), Board (standings), Check-in (community thread), Profile (banner, picture, motto, core-lift PRs), Settings (profile, body and goal calculator, targets, reminders, theme, blocked users, delete my data).
 - **App shell:** the page never scrolls. `#scroll` scrolls vertically; the tab bar is a fixed row below it. Safe-area insets are respected for phones.
-- **Backend adapter `B`.** Every call to the database, user profiles and file storage goes through the `B` object near the top of the script. This is the migration boundary: replace `B` with a client for a real backend and the rest of the app is unchanged.
+- **Backend adapter `B`.** Prototype database, user-profile and file-storage calls use this object. Its behavior is reference material; the Flutter client uses its own repositories and reviewed backend boundaries.
 - **Data model** (Firestore-style documents):
   - `tasks/{id}` standard daily list, developer-controlled (`title, sub, points, kind, mandatory`). Kinds: `check`, `devo`, `water`, `workout`, `calories`, `checkin`.
   - `lifts/{id}` core lifts, developer-controlled (`name, order`).
@@ -94,7 +110,9 @@ The mock keeps data in memory only, shows one fake user, and cannot display uplo
   - PRIVATE per user: `data/users/<id>/log/days/<date>` (water oz, calories, protein, fat, carbs totals, plus `meals` {breakfast, lunch, dinner, snack: [{id, name, kcal, p, f, c}]}) and `data/users/<id>/settings` (targets, body stats, reminder times, blocked users).
 - **Access rules** (see `seed/db-rules.json`): standard list and lifts are admin-write; each man writes only his own habits and profile; personal health data lives in the private subtree. A real backend must enforce the same rules server-side.
 
-## Scoring and behavior
+## Prototype scoring and behavior reference
+
+These formulas describe prototype behavior, not production scoring authority. Follow the [Decisions](docs/reviews/2026-11-10-prototype-to-flutter/01-DECISIONS.md) for intended behavior and the [work board](docs/knowledge/WORK.md) for implementation work.
 
 - Points = task points + 1 per custom habit done + PR bonus (+2 per weight PR, +1 per volume PR; assumed values, easy to change via `PR_W` and `PR_V`).
 - Week runs Monday to Sunday. Streak = consecutive days with the devotional done.
@@ -104,12 +122,10 @@ The mock keeps data in memory only, shows one fake user, and cannot display uplo
 
 ## Path to the App Store and Google Play
 
-1. **Real backend:** accounts, database, media storage, push notifications (for example Firebase or Supabase). Implement a new `B` against it and enforce the access rules server-side.
-2. **Native wrapper:** package the front end with Capacitor, or rebuild in React Native or Flutter. Apple guideline 4.2 rejects apps that are just a repackaged website, so add real native features (push, camera, health integrations).
-3. **Account deletion:** an in-app "Delete my data" exists in Settings (Apple 5.1.1(v)). Google Play also requires a web link for deletion requests and a Data safety form.
-4. **User-generated content (Apple 1.2):** report and block exist. Still needed: content filtering, a moderation queue, and published support contact info.
-5. **Health data (Apple 5.1.3 and 1.4.1):** disclose what is collected, no ads or data mining, medical disclaimers (present in Settings).
-6. Privacy policy and terms.
+1. **Finish the selected Flutter client:** complete approved slices and native acceptance checks. Flutter is already selected; wrapper alternatives are historical proposals.
+2. **Build the planned Firebase backend:** real identity, group authorization, private-data boundaries, sync and trusted scoring. Local smoke rules are not production permissions.
+3. **Prepare release behavior:** account deletion, moderation, support, privacy disclosures and any approved health integrations need implementation and review. Prototype controls do not establish production readiness.
+4. **Qualify distribution:** signing, real-device testing, content permissions and current store requirements. Follow the [work board](docs/knowledge/WORK.md); this page is not a store-compliance checklist.
 
 Sources: [Apple App Review Guidelines](https://developer.apple.com/app-store/review/guidelines/), [Google Play account deletion requirements](https://support.google.com/googleplay/android-developer/answer/13327111?hl=en-GB).
 

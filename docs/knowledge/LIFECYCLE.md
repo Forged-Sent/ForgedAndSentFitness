@@ -19,7 +19,7 @@ This policy applies to project knowledge notes, ADRs, agent skills, generated ma
 6. Re-run `python3 tooling/knowledge/check.py`, policy/architecture checks and relevant tests. Never mark an untested migration verified.
 
 ## Obsidian use
-For the selected repository-backed workspace, HOME is the human dashboard and INDEX is the agent entrypoint. Open the dedicated `docs/` vault. Archives are available in the file browser but excluded from normal agent startup/search scope. These retrieval rules guide agents; they are not a filesystem access restriction.
+For the selected repository-backed workspace, HOME is the human dashboard and INDEX is the agent entrypoint. WORK is the only place work status is edited; `WORK-BOARD-VIEW.md` and the focus block at the top of HOME are generated from it by `tooling/knowledge/work_board.py` and are regenerated, never archived or edited. Open the dedicated `docs/` vault. Archives are available in the file browser but excluded from normal agent startup/search scope. These retrieval rules guide agents; they are not a filesystem access restriction.
 
 Open `docs/` as an Obsidian vault. Version-control Markdown, not local Obsidian state: `**/.obsidian/` and `**/.trash/` are Git-ignored. Obsidian is optional, and native Markdown links work without it. Do not introduce a second externally synced knowledge database or grant an Obsidian MCP unrestricted write access. A future MCP proposal needs a scoped, read-only proof before any write permissions.
 
