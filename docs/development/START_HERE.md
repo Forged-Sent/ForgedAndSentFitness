@@ -41,7 +41,7 @@ The tracked `mobile/android/` and `mobile/ios/` folders are Flutter 3.47.8 templ
 ## Collaboration
 - Each developer clones the public repo, uses their own workstation, opens a branch and PR.
 - GitHub Actions runs the configured checks, including applicable Flutter/platform builds. See the workflow and account billing settings for current availability and costs.
-- The repo owner enables paid Copilot cloud agents and Claude/Codex partner agents through GitHub account/repository settings if available. Merely adding .agent.md files does not provision those subscriptions.
+- The repo owner enables paid Copilot cloud agents and Claude/Codex partner agents through GitHub account/repository settings if available. The Copilot `.agent.md` files were archived on 2026-11-10 (see the [archive README](../knowledge/archive/2026-11-10-copilot-gemini-rules/README.md)); restoring them still does not provision those subscriptions.
 - The proposed functional review gate uses the owner's Codex GitHub code review and a Claude subscription token in GitHub Actions. It remains disabled until its hosted checks pass; see [the review gate guide](FLUTTER-AI-REVIEW-GATE.md). AI usage can consume subscription limits.
 - Cloud services, AI usage, runner capacity and artifact storage have their own account limits; check the account before authorizing new spending.
 - Remote app testing comes later via a Firebase DEV project and signed Android/iOS test distributions. No developer-owned Linux server is required.

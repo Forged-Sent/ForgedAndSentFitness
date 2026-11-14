@@ -2,11 +2,12 @@
 
 A men's fitness and accountability app for the Forged in Faith men's group. The product goal is shared daily habits, training and encouragement. The foundation is 1 Corinthians 16:13-14 and the Great Commission (Matthew 28:19): care for the body so a man can lead his family and do kingdom work.
 
-**Status: Flutter app in development, not yet store-ready.** `mobile/` is the Android/iOS client. Its shell, Today, devotional reading and native local saves exist; five tabs remain placeholders. Cloud sync, real groups and server scoring are planned. Check [prototype parity](docs/knowledge/PROTOTYPE-PARITY.md) for the maintained feature inventory.
+**Status: two apps, neither store-ready yet.**
+
+- **The production app** is being rebuilt in Flutter for Android and iOS, in [`mobile/`](mobile/), with Firebase as the backend (local emulators only for now). Today it has the Today page, the day's devotional saved on the device, and the six-tab shell; the other tabs are placeholders. What is built and what is next: the [work board](docs/knowledge/WORK.md) and [prototype parity](docs/knowledge/PROTOTYPE-PARITY.md).
+- **The HTML prototype** (`index.html`) is the visual and behavioral reference. It runs as a [claude.ai Artifact](https://claude.ai) (a private hosted page), not as a plain static site, because its database, user identity and file storage come from the claude.ai runtime (`window.claude`). Most of this README describes the prototype; see "Running it".
 
 **Teaching a new teammate?** Start with the [25-minute project 101](docs/development/PROJECT-101.md), keep the [run commands](docs/development/RUN-COMMANDS.md) beside it, and use the [Obsidian guide](docs/development/OBSIDIAN-101.md) for the board.
-
-The root `index.html` is a separate behavioral prototype. Its hosted identity/data APIs depend on `window.claude`; the local mock is for UI exploration. It is not the production Flutter backend.
 
 ## New here? Start here
 
@@ -49,9 +50,12 @@ Stuck? Run step 5, then see [First-run troubleshooting](docs/development/FIRST-R
 
 | Path | What it is |
 |---|---|
-| `mobile/` | Flutter application: screens, local storage, tests and native hosts. |
+| `mobile/` | The Flutter app (Android, iOS; Chrome for preview). Rules for agents: `mobile/AGENTS.md`. |
+| `firebase/`, `firebase.json`, `.firebaserc` | Firestore and Storage rules and the local `demo-forgedandsent` emulator setup. Nothing is deployed. |
+| `tooling/` | Setup scripts (`windows/`, `macos/`), CI policy, the knowledge and review tools. |
+| `docs/` | The knowledge home ([`docs/HOME.md`](docs/HOME.md), opened in Obsidian), architecture, feature contracts, developer guides. |
 | `docs/architecture/SYSTEM.md` | Current and planned architecture; accepted decisions and source entry points. |
-| `index.html` | Behavioral HTML/CSS/JS prototype, separate from Flutter. |
+| `index.html` | The HTML prototype's current version. A single self-contained file: HTML, CSS and JS. |
 | `versions/app-v1.html` ... `app-v238.html` | Every earlier iteration, kept for rollback. A new version file is created for each iteration; never overwrite old ones. |
 | `seed/` | Starting data: `tasks.json` (standard daily list), `lifts.json` (core lifts), `devotionals.json` (366 daily devotionals, one per calendar date, also embedded in `index.html`), `db-rules.json` (access rules and runtime capabilities the page declares). `weekly-challenges.json` (52-week challenge program: one Family, one Iron and one Endure challenge per week, with the 0-100 age-bracket scoring rules, injury-friendly alternates and season metadata) and `movement-standards.json` (what counts as a rep). |
 | `START-WINDOWS.cmd`, `START-MAC.command`, `launchers/` | Double-click setup and run launchers (see "New here? Start here"). The scripts they call are in `tooling/`. |
@@ -121,6 +125,8 @@ These formulas describe prototype behavior, not production scoring authority. Fo
 - Targets calculator: Mifflin-St Jeor resting burn x activity factor, minus 500 kcal per lb/week to lose, plus 250 to build, with a 1,500 kcal floor. Reference: https://pubmed.ncbi.nlm.nih.gov/2305711/
 
 ## Path to the App Store and Google Play
+
+The decided path (October 2026): a native Flutter app with a Firebase backend, built in `mobile/` ([ADR-0005](docs/architecture/ADR-0005-flutter-client-stack.md)). The checklist below still applies to it.
 
 1. **Finish the selected Flutter client:** complete approved slices and native acceptance checks. Flutter is already selected; wrapper alternatives are historical proposals.
 2. **Build the planned Firebase backend:** real identity, group authorization, private-data boundaries, sync and trusted scoring. Local smoke rules are not production permissions.

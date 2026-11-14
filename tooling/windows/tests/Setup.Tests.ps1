@@ -20,6 +20,12 @@ Describe 'Profile-aware diagnostic exit codes' {
     $checks=@((New-FSCheck Maestro Missing 'missing' 'setup'))
     Get-FSExitCode Mobile $checks | Should -Be 1
   }
+  It 'does not fail Mobile only because no Android device was run' {
+    $checks=@((New-FSCheck Maestro Ready 'present' ''),(New-FSCheck AndroidDevice ConfiguredNotConnected 'not run' 'flutter devices'))
+    Get-FSExitCode Mobile $checks | Should -Be 0
+    Test-FSNotInProfile Mobile AndroidDevice | Should -BeFalse
+    Test-FSNotInProfile Contributor AndroidDevice | Should -BeTrue
+  }
   It 'allows deferred emulator work without claiming full app readiness' { $c=@((New-FSCheck Git Ready 'present' ''),(New-FSCheck EmulatorWiring NotApplicable 'deferred' 'PR4')); Get-FSExitCode Contributor $c | Should -Be 0 }
   It 'fails Contributor when required Node is missing' { $c=@((New-FSCheck Node Missing 'missing' 'Install Node')); Get-FSExitCode Contributor $c | Should -Be 1 }
   It 'does not count a configured MCP as connected' {

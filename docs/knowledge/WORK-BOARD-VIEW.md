@@ -8,8 +8,11 @@ update-by: edit WORK.md then run tooling/knowledge/work_board.py --write
 
 ## Next
 
+- [ ] **S2 Private journal**
+	**Next:** Run prompt [P06](../reviews/2026-11-10-prototype-to-flutter/prompts/P06-S2-private-journal.md)
+	[Edit this row in WORK](WORK.md)
 - [ ] **Agents may merge after review**
-	**Next:** Run prompt [P13](../reviews/2026-11-10-prototype-to-flutter/prompts/P13-let-agents-merge-after-review.md) after its merge check is fixed (see Later)
+	**Next:** Run prompt [P13](../reviews/2026-11-10-prototype-to-flutter/prompts/P13-let-agents-merge-after-review.md)
 	[Edit this row in WORK](WORK.md)
 
 
@@ -74,27 +77,19 @@ update-by: edit WORK.md then run tooling/knowledge/work_board.py --write
 	**Note:** None. All 366 dates; the verse references and all scripture text are unchanged; the Sent and Spirit-led tags are shown as words only. Body text and scripture lost a stray letter spacing, so body text breaks where the prototype's does, on every screen; Today's mission line is balanced as the prototype's is; all 14 golden images were redrawn. Not run on a phone or an emulator: nothing that is saved changed
 	**Branch or PR:** branch `claude/s1b-v254-readings`
 	[Edit this row in WORK](WORK.md)
+- [x] **Setup scripts and guides match the six-tab app**
+	**Note:** Physical run on a fresh Windows PC and a Mac: the Try it now walkthrough, Mobile Check my setup, and a second setup run in the same window
+	**Branch or PR:** branch `claude/bootstrap-test-readiness`
+	[Edit this row in WORK](WORK.md)
 
 
 ## Later
 
-- [ ] **Archive Copilot and Gemini rule files**
-	**Prompt:** [P14](../reviews/2026-11-10-prototype-to-flutter/prompts/P14-archive-copilot-and-gemini-rules.md), any time after P01
-	[Edit this row in WORK](WORK.md)
-- [ ] **S2 Private journal**
-	**Prompt:** [P06](../reviews/2026-11-10-prototype-to-flutter/prompts/P06-S2-private-journal.md)
-	[Edit this row in WORK](WORK.md)
 - [ ] **S3 Workout logging**
 	**Prompt:** [P07](../reviews/2026-11-10-prototype-to-flutter/prompts/P07-S3-workout-logging.md)
 	[Edit this row in WORK](WORK.md)
 - [ ] **S4 Sign-in, groups, first board**
-	**Prompt:** [P08](../reviews/2026-11-10-prototype-to-flutter/prompts/P08-S4-contract-identity-groups-board.md), then [P09](../reviews/2026-11-10-prototype-to-flutter/prompts/P09-S4-implement-identity-groups-board.md), after the account-switch claim is fixed (two rows down)
-	[Edit this row in WORK](WORK.md)
-- [ ] **Fix the merge check in prompt P13**
-	**Prompt:** No prompt yet. Review finding (Codex, medium) on [P13](../reviews/2026-11-10-prototype-to-flutter/prompts/P13-let-agents-merge-after-review.md). Do it before P13 runs
-	[Edit this row in WORK](WORK.md)
-- [ ] **Fix the account-switch claim in the review**
-	**Prompt:** No prompt yet. Review finding (Codex, medium) on [07-ARCHITECTURE](../reviews/2026-11-10-prototype-to-flutter/07-ARCHITECTURE.md), section 5.4. Do it before P08 runs
+	**Prompt:** [P08](../reviews/2026-11-10-prototype-to-flutter/prompts/P08-S4-contract-identity-groups-board.md), then [P09](../reviews/2026-11-10-prototype-to-flutter/prompts/P09-S4-implement-identity-groups-board.md)
 	[Edit this row in WORK](WORK.md)
 - [ ] **Say which unreplaced completion event wins**
 	**Prompt:** No prompt yet. Review finding (Codex, medium) on [07-ARCHITECTURE](../reviews/2026-11-10-prototype-to-flutter/07-ARCHITECTURE.md), section 5.8, and the full report. Do it before P08 runs
@@ -155,9 +150,6 @@ update-by: edit WORK.md then run tooling/knowledge/work_board.py --write
 	[Edit this row in WORK](WORK.md)
 - [ ] **Onboarding tests pass on a Windows workstation**
 	**Prompt:** No prompt yet. Not blocking: they pass in WSL and on GitHub
-	[Edit this row in WORK](WORK.md)
-- [ ] **Pinned Flutter first on the maintainer's PATH**
-	**Prompt:** No prompt yet. Not blocking: the launchers and VS Code use the pinned SDK, and agents put it first for their own commands
 	[Edit this row in WORK](WORK.md)
 - [ ] **Host wording left over from the generated hosts**
 	**Prompt:** No prompt yet. Not blocking; needs a Mac to check

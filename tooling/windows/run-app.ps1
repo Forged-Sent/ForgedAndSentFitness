@@ -7,6 +7,9 @@
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 $root = (Resolve-Path (Join-Path $PSScriptRoot '..\..')).Path
+# A window opened from setup (for example "Try it now") inherits the PATH from
+# before setup installed Node, Git or Java. Read the saved PATH again first.
+$env:Path=[Environment]::GetEnvironmentVariable('Path','Machine')+';'+[Environment]::GetEnvironmentVariable('Path','User')+';'+$env:Path
 $mobile = Join-Path $root 'mobile'
 $localFlutter = Join-Path $env:USERPROFILE 'develop\flutter\bin\flutter.bat'
 $flutter = $null
@@ -34,7 +37,7 @@ try {
         if ($LASTEXITCODE -ne 0) { throw 'Could not install Flutter dependencies.' }
         Write-Host ''
         Write-Host 'Starting Chrome. Keep this window open while testing.' -ForegroundColor Cyan
-        Write-Host 'The current Flutter app is a foundation screen, not the full HTML prototype.'
+        Write-Host 'The app opens on Today. Most other tabs are placeholders; the HTML prototype is not fully migrated yet.'
         & $flutter run -d chrome
         if ($LASTEXITCODE -ne 0) { throw 'Flutter preview did not start.' }
     } finally {

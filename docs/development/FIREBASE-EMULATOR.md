@@ -32,10 +32,10 @@ flutter pub get
 flutter run -d chrome --dart-define=FS_ENV=emulator
 ```
 
-The SDK uses demo-only options, connects to local Auth on port **9099**, Firestore on **8080**, and Storage on **9199**, and makes real requests to all three before displaying a verified status. Failure produces a visible error, **not cloud fallback**.
+The SDK uses demo-only options, connects to local Auth on port **9099**, Firestore on **8080**, and Storage on **9199**, and makes real requests to all three before reporting a verified status. The app opens on Today; to see the status, open **Settings** (the round person button at the top right of Today), scroll to **This build** and tap **Build status**. A failed check opens the app straight on that page with a visible error, **not cloud fallback**.
 
 The `developer_smoke` Firestore collection and Storage path accept only the authenticated owner. Everything else is denied by the demo rules. Mandatory CI includes positive and negative emulator security-rule tests, but these rules are **not production authorization for the real fitness app**.
 
 Browser/desktop emulators use `127.0.0.1`. The Android Emulator's host default is `10.0.2.2`. Physical Android devices require deliberate host/network changes, for example `--dart-define=FNS_EMULATOR_HOST=YOUR-LAN-IP`, and firewall review before exposing any local emulator.
 
-Do not deploy with these demo settings. A separate Firebase DEV project, Auth providers, application registration, least-privilege IAM, and production-quality Firestore/Storage policies will be needed before testing real multi-user cloud flows. Those tasks are **later work**, not prerequisites for PR #4 workstation acceptance.
+Do not deploy with these demo settings. A separate Firebase DEV project, Auth providers, application registration, least-privilege IAM, and production-quality Firestore/Storage policies will be needed before testing real multi-user cloud flows. Those tasks are **later work**, not prerequisites for workstation setup.

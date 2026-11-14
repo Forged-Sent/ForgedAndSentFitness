@@ -6,16 +6,15 @@
 
 ## Open the right folder
 
-For the daily dashboard, open the stable **main checkout** or its **docs folder** as a vault. Pick one and stay consistent. For a branch-specific lesson or edit, open that branch's folder deliberately; its files are not on main until merged.
+Open the **repository folder** as the vault: for the daily dashboard, the repository folder of the stable `main` checkout. Do not open `docs/` as a separate vault. For a branch-specific lesson or edit, open that branch's repository folder deliberately; its files are not on main until merged.
 
 | Vault root | Home page | Plugin settings |
 |---|---|---|
-| Repository folder | `docs/HOME.md` | `<repo>/.obsidian/` |
-| `docs` folder | `HOME.md` | `<repo>/docs/.obsidian/` |
+| Repository folder | `docs/HOME` | `<repo>/.obsidian/` |
 
-The maintainer's registered project vault was the **repository folder** when inspected on 2026-11-13. Its local settings listed Kanban, Homepage and Bases. Those settings do not automatically apply to a separate docs-only vault, another worktree or your friend's machine. This docs update installs or enables no plugins.
+The maintainer's vault is the repository folder of the `main` checkout, `C:\ws_c\ForgedAndSent\ForgedAndSentFitness-main`, with `.obsidian/` at the repository root. Its local settings listed Kanban, Homepage and Bases when inspected on 2026-11-13. Those settings do not automatically apply to another worktree or your friend's machine. This docs update installs or enables no plugins.
 
-**Do:** open HOME and bookmark its tab. If Homepage is already enabled, use its command to set the current page as home. Plain Markdown and links work without plugins.
+**Do:** open HOME and bookmark its tab. If Homepage is enabled, set **Homepage** to `docs/HOME` in its settings. Plain Markdown and links work without plugins.
 
 ## Which board am I looking at?
 
@@ -29,7 +28,7 @@ The maintainer's registered project vault was the **repository folder** when ins
 
 The lesson board uses the **community Kanban plugin** if already enabled. Without it, the same file is headings and links. It deliberately avoids copying work rows into a second status board.
 
-The Base's Kanban is a **different feature**: core Bases in Obsidian 1.14+. It groups handoff notes by `stage`. Dragging a card changes that note's stage; it does **not** change WORK, run a check, merge a PR or prove completion. A table view is the fallback. The Base supports both vault-root choices above.
+The Base's Kanban is a **different feature**: core Bases in Obsidian 1.14+. It groups handoff notes by `stage`. Dragging a card changes that note's stage; it does **not** change WORK, run a check, merge a PR or prove completion. A table view is the fallback.
 
 **An almost empty handoff board can be correct.** Most tasks are work rows or PRs. Only paused work needing a pre-PR handoff gets a handoff note. Completed notes are filtered out. Do not create duplicate task notes just to fill the screen.
 

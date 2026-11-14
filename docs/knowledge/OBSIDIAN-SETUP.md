@@ -16,12 +16,12 @@ Obsidian is optional. Every essential link works as plain Markdown on GitHub. Th
 
 ## Set up once per vault
 
-The vault is one clean `main` checkout: either the checkout folder or its `docs` folder. Paths below show both as **checkout** / **docs**.
+Open the repository folder as the vault: one clean `main` checkout, for the maintainer `C:\ws_c\ForgedAndSent\ForgedAndSentFitness-main`. Obsidian keeps its settings in `.obsidian/` at the repository root (Git-ignored). Do not open `docs/` as a separate vault. Paths below are relative to the repository folder.
 
-1. **Homepage.** Open HOME, then run **Homepage: Set to active file** from the command palette (Ctrl/Cmd+P). The plugin's defaults already open it on startup and replace the tabs left open, so HOME is the first thing you see. Optional: in Settings → Homepage set **Homepage view** to *Reading view*; in an editing view two `work-focus` marker comments are visible around the generated block.
+1. **Homepage.** In Settings → Homepage, set **Homepage** to `docs/HOME`. Or open `docs/HOME.md` and run **Homepage: Set to active file** from the command palette (Ctrl/Cmd+P). The plugin's defaults already open it on startup and replace the tabs left open, so HOME is the first thing you see. Optional: in Settings → Homepage set **Homepage view** to *Reading view*; in an editing view two `work-focus` marker comments are visible around the generated block.
 2. **Return home any time.** Click the house icon in the left ribbon, or run **Homepage: Open homepage** from the command palette.
 3. **Bookmark fallback.** Open HOME, right-click its tab, choose **Bookmark**. It then sits in the Bookmarks panel whether or not Homepage is enabled.
-4. **Templater.** Settings → Templater. Set **Template folder location** to `docs/templates` / `templates`. Leave **Trigger Templater on new file creation** off. Add no startup templates, user scripts or system commands. The templates use only the note title and today's date.
+4. **Templater.** Settings → Templater. Set **Template folder location** to `docs/templates`. Leave **Trigger Templater on new file creation** off. Add no startup templates, user scripts or system commands. The templates use only the note title and today's date.
 5. **Kanban, Dataview, Tasks, Advanced Tables.** Leave the defaults. Dataview JavaScript queries stay off. Tasks needs no global filter.
 
 ## Read it daily

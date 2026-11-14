@@ -13,7 +13,7 @@ The current GitHub main ruleset requires `ci-gate`, with **zero required approvi
 5. Never deploy real Firebase credentials or production changes through demo contributor setup.
 
 ## Optional ownership routing
-The CODEOWNERS file associates changes with the maintainer. It includes `mobile/`, `firebase/`, `.gemini/`, `docs/knowledge/`, tools and agent instructions. No outside person is required to approve. Ruleset settings, not CODEOWNERS or Markdown, determine enforcement.
+The CODEOWNERS file associates changes with the maintainer. It includes `mobile/`, `firebase/`, `docs/knowledge/`, tools and agent instructions. No outside person is required to approve. Ruleset settings, not CODEOWNERS or Markdown, determine enforcement.
 
 ## Scope classification (advisory)
 Keep these patterns synchronized with `tooling/policy/review_scope.py`. They classify changes that deserve scrutiny; **they are not required reviewer rules**.

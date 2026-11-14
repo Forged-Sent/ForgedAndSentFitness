@@ -2,6 +2,9 @@
 Set-StrictMode -Version Latest
 $ErrorActionPreference='Stop'
 $root=(Resolve-Path (Join-Path $PSScriptRoot '..\..')).Path
+# A window opened from setup (for example "Try it now") inherits the PATH from
+# before setup installed Node, Git or Java. Read the saved PATH again first.
+$env:Path=[Environment]::GetEnvironmentVariable('Path','Machine')+';'+[Environment]::GetEnvironmentVariable('Path','User')+';'+$env:Path
 function Check-Port([int]$port){
   $client=[System.Net.Sockets.TcpClient]::new()
   try{
@@ -23,6 +26,7 @@ if(Test-Path -LiteralPath $local){$flutter=[pscustomobject]@{Source=$local}}
 else{$flutter=Get-Command flutter.bat -ErrorAction SilentlyContinue|Select-Object -First 1}
 if(-not $flutter){throw 'Flutter SDK missing. Run Preview setup.'}
 Write-Host 'Flutter will use only demo-forgedandsent emulators (FS_ENV=emulator).' -ForegroundColor Cyan
+Write-Host 'To see the connection check: Today > round person button (top right) > Build status.'
 Push-Location (Join-Path $root 'mobile')
 try {
   & $flutter.Source pub get

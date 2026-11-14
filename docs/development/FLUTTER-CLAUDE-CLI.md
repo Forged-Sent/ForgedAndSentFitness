@@ -1,6 +1,6 @@
 # Starting Flutter work with Claude CLI
 
-The maintainer can stay in the Codex chat while the coordinator invokes Claude CLI for a focused Flutter builder task. An interactive Claude session is optional. Open `docs/` as the Obsidian vault and use [HOME](../HOME.md) for human navigation; agents start from `AGENTS.md`, [START_HERE](START_HERE.md), [SYSTEM](../architecture/SYSTEM.md), and the relevant ADR/feature contract. [ADR-0005](../architecture/ADR-0005-flutter-client-stack.md) is the accepted package direction, but no package or production feature is implemented yet.
+The maintainer can stay in the Codex chat while the coordinator invokes Claude CLI for a focused Flutter builder task. An interactive Claude session is optional. Open the repository folder as the Obsidian vault and use [HOME](../HOME.md) for human navigation; agents start from `AGENTS.md`, [START_HERE](START_HERE.md), [SYSTEM](../architecture/SYSTEM.md), and the relevant ADR/feature contract. [ADR-0005](../architecture/ADR-0005-flutter-client-stack.md) is the accepted package direction, but no package or production feature is implemented yet.
 
 ## Before the first code branch
 

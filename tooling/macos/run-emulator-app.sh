@@ -16,6 +16,7 @@ for fs_port in 9099 8080 9199; do
   fi
 done
 fs_info 'Running against local demo-forgedandsent ONLY (FS_ENV=emulator).'
+fs_info 'To see the connection check: Today > round person button (top right) > Build status.'
 cd "$FS_ROOT/mobile"
 "$FS_FLUTTER" pub get
 "$FS_FLUTTER" run -d chrome --dart-define=FS_ENV=emulator

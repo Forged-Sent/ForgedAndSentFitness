@@ -5,18 +5,22 @@ Open this page first, in Obsidian, from the `main` checkout. Pick the one action
 <!-- work-focus:start (generated from knowledge/WORK.md; edit that table, then run: python tooling/knowledge/work_board.py --write) -->
 ## Do this next
 
-> **Run prompt [P13](reviews/2026-11-10-prototype-to-flutter/prompts/P13-let-agents-merge-after-review.md) after its merge check is fixed (see Later)**
+> **Run prompt [P06](reviews/2026-11-10-prototype-to-flutter/prompts/P06-S2-private-journal.md)**
 >
-> Task: Agents may merge after review · Lane: Next
+> Task: S2 Private journal · Lane: Next
 
-Board now: Next 1 · In progress 0 · Waiting 4 · Done 9 · Later 29.
+## Also ready or in progress
+
+- **Next** · Agents may merge after review: Run prompt [P13](reviews/2026-11-10-prototype-to-flutter/prompts/P13-let-agents-merge-after-review.md)
+
+Board now: Next 2 · In progress 0 · Waiting 4 · Done 10 · Later 24.
 <!-- work-focus:end -->
 
 ## Teach or learn the project
 
 **Start:** [25-minute Project 101](development/PROJECT-101.md) → [Run it yourself](development/RUN-COMMANDS.md) → [Git 101](development/GIT-101.md).
 
-Prefer cards? Open the [teaching board](knowledge/TEACHING-BOARD.md). It holds lesson links, not task statuses. For the project plan, use the [generated work board](knowledge/WORK-BOARD-VIEW.md) and edit its source [WORK](knowledge/WORK.md). [Obsidian 101](development/OBSIDIAN-101.md) explains the boards, vault roots and refresh commands.
+Prefer cards? Open the [teaching board](knowledge/TEACHING-BOARD.md). It holds lesson links, not task statuses. For the project plan, use the [generated work board](knowledge/WORK-BOARD-VIEW.md) and edit its source [WORK](knowledge/WORK.md). [Obsidian 101](development/OBSIDIAN-101.md) explains the vault folder, the boards and refresh commands.
 
 ## Where to go
 

@@ -14,7 +14,7 @@
 | 10–14 min | Follow “What Amen does” below | You know where the record lives |
 | 14–18 min | Open [Git 101](GIT-101.md) | You can explain branch versus worktree |
 | 18–22 min | Read “Helping with a task” below | You can give an agent a bounded request |
-| 22–25 min | Open [the Obsidian guide](OBSIDIAN-101.md) | You can find the work row, decision and next action |
+| 22–25 min | Open the repository folder as the vault in Obsidian, then follow [the Obsidian guide](OBSIDIAN-101.md) | You can find the work row, decision and next action |
 
 **Short on time?** Do browser preview, Git basics and the first review prompt. Android and Firebase are the second lesson.
 
@@ -70,7 +70,7 @@ Nothing in this devotional path syncs to the cloud yet. Firebase's local practic
 | Firebase emulators | Run practice Auth, Firestore and Storage locally |
 | Git / GitHub | Record versions / share proposed changes |
 | GitHub Actions | Run repeatable checks on changes |
-| Obsidian | Read and edit the project's Markdown notes |
+| Obsidian | Read and edit the project's Markdown notes; open the repository folder as the vault |
 
 For deeper questions: [system architecture](../architecture/SYSTEM.md). The [Architecture Atlas](../architecture/explorer/README.md) is a clickable reference, not required reading before your first run.
 

@@ -15,7 +15,7 @@ For a first lesson and the exact board/vault setup, use [Project 101](PROJECT-10
 
 1. Use a **Git clone** set up with `launchers/windows/1 - Set up this computer.cmd` (Contributor). Python 3.11+ is required.
 2. Double-click `launchers/windows/more/Knowledge workspace.cmd` in File Explorer. Keep its terminal window open while browsing. It regenerates the Atlas and starts a loopback-only server.
-3. Open the printed landing URL in Chrome/Edge, or in **desktop** Obsidian's core Web viewer. If you use Obsidian, open the `docs` folder as a vault and select **Open web page** in Web viewer; paste the URL.
+3. Open the printed landing URL in Chrome/Edge, or in **desktop** Obsidian's core Web viewer. If you use Obsidian, open the repository folder as the vault and select **Open web page** in Web viewer; paste the URL.
 4. Test the prototype's menus and JavaScript controls (see [what the prototype can and cannot do here](#what-the-prototype-can-and-cannot-do-here)), and the Atlas tabs, source search and documentation.
 5. To stop, close the terminal window. Ctrl+C also works; if Windows asks `Terminate batch job (Y/N)?`, answer **Y**.
 
@@ -23,7 +23,7 @@ For a first lesson and the exact board/vault setup, use [Project 101](PROJECT-10
 
 1. Use a Git clone set up with `launchers/mac/1 - Set up this computer.command` (Contributor). Python 3.11+ is required.
 2. Double-click `launchers/mac/more/Knowledge workspace.command` (or run `bash "launchers/mac/more/Knowledge workspace.command"` from Terminal). Keep its terminal window open.
-3. Open the printed URL in Safari/Chrome or **desktop** Obsidian's core Web viewer, with `docs/` as the vault.
+3. Open the printed URL in Safari/Chrome or **desktop** Obsidian's core Web viewer, with the repository folder as the vault.
 4. Repeat the interaction checks. To stop, press Ctrl+C or close the Terminal window. If Finder blocks the script, inspect the file and use Terminal rather than disabling system security globally.
 
 ## Local URLs
