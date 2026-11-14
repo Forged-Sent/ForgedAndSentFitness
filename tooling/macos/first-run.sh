@@ -69,7 +69,9 @@ fs_walkthrough() {
   fi
   if [ "$fs_up" -eq 1 ]; then
     fs_ok 'Practice Firebase is ready.'
-    printf '\nChrome will now open the app. Look for this line on the page:\n'
+    printf '\nChrome will now open the app on its Today page. To see the connection check:\n'
+    printf '  tap the round person button at the top right of Today, scroll to "This build",\n'
+    printf '  and tap Build status. Look for this line:\n'
     printf '  Verified local Auth, Firestore and Storage emulators (demo-forgedandsent).\n'
     printf 'Then come back to THIS window and press q to stop the app.\n'
     if /bin/bash "$FS_ROOT/tooling/macos/run-emulator-app.sh"; then

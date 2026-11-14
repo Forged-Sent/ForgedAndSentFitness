@@ -3,6 +3,7 @@ param([ValidateSet('Preview','Contributor','Mobile','Maintainer')][string]$Targe
       [ValidatePattern('^(None|(Codex|Claude|Copilot|Antigravity)(,(Codex|Claude|Copilot|Antigravity))*)$')][string]$AIChoice='None')
 Set-StrictMode -Version Latest
 $ErrorActionPreference='Stop'
+. (Join-Path $PSScriptRoot 'winget.ps1')
 function Run([string]$path,[string[]]$arguments=@()){
   & pwsh -NoLogo -NoProfile -File $path @arguments | Out-Host
   if($LASTEXITCODE -ne 0){throw "Setup step failed: $path. Run diagnostics for a repair guide."}
@@ -25,10 +26,14 @@ $old=[Environment]::GetEnvironmentVariable('Path','User')
 if(($old -split ';') -notcontains $pubBin){
   [Environment]::SetEnvironmentVariable('Path',($old.TrimEnd(';')+';'+$pubBin),'User')
 }
+# WinGet puts Gitleaks in its Links folder, which this window's PATH may not have yet
+# (installed earlier in the same session). Look there too, and let the shared WinGet
+# helper treat "already installed" as success instead of failing a rerun.
+$leaksLink=Join-Path $env:LOCALAPPDATA 'Microsoft\WinGet\Links\gitleaks.exe'
 $leaks=Get-Command gitleaks.exe -ErrorAction SilentlyContinue | Select-Object -First 1
-if(-not $leaks){
-  & winget.exe install --id Gitleaks.Gitleaks --exact --source winget --accept-source-agreements --accept-package-agreements
-  if($LASTEXITCODE -ne 0){throw 'Gitleaks could not be installed. Ask IT or rerun setup.'}
+if(-not $leaks -and -not (Test-Path -LiteralPath $leaksLink)){
+  try{$null=Invoke-FSWinGetPackage -Id 'Gitleaks.Gitleaks' -Action Install}
+  catch{throw ('Gitleaks could not be installed. Ask IT or rerun setup. '+$_.Exception.Message)}
 }
 $root=(Resolve-Path (Join-Path $PSScriptRoot '..\..')).Path
 if(Test-Path -LiteralPath (Join-Path $root '.git')){

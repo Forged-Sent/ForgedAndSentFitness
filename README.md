@@ -2,7 +2,10 @@
 
 A men's fitness and accountability app for the Forged in Faith men's group. Men follow a shared daily checklist, track food, water and training, post check-ins, and compete on weekly standings. The foundation is 1 Corinthians 16:13-14 and the Great Commission (Matthew 28:19): care for the body so a man can lead his family and do kingdom work.
 
-**Status: working prototype, not yet store-ready.** It runs today as a [claude.ai Artifact](https://claude.ai) (a private hosted page). It does **not** run as a plain static site, because its database, user identity and file storage come from the claude.ai runtime (`window.claude`). See "Running it" and "Path to the App Store and Google Play".
+**Status: two apps, neither store-ready yet.**
+
+- **The production app** is being rebuilt in Flutter for Android and iOS, in [`mobile/`](mobile/), with Firebase as the backend (local emulators only for now). Today it has the Today page, the day's devotional saved on the device, and the six-tab shell; the other tabs are placeholders. What is built and what is next: the [work board](docs/knowledge/WORK.md) and [prototype parity](docs/knowledge/PROTOTYPE-PARITY.md).
+- **The HTML prototype** (`index.html`) is the visual and behavioral reference. It runs as a [claude.ai Artifact](https://claude.ai) (a private hosted page), not as a plain static site, because its database, user identity and file storage come from the claude.ai runtime (`window.claude`). Most of this README describes the prototype; see "Running it".
 
 ## New here? Start here
 
@@ -45,7 +48,11 @@ Stuck? Run step 5, then see [First-run troubleshooting](docs/development/FIRST-R
 
 | Path | What it is |
 |---|---|
-| `index.html` | Current version. A single self-contained file: HTML, CSS and JS. |
+| `mobile/` | The Flutter app (Android, iOS; Chrome for preview). Rules for agents: `mobile/AGENTS.md`. |
+| `firebase/`, `firebase.json`, `.firebaserc` | Firestore and Storage rules and the local `demo-forgedandsent` emulator setup. Nothing is deployed. |
+| `tooling/` | Setup scripts (`windows/`, `macos/`), CI policy, the knowledge and review tools. |
+| `docs/` | The knowledge home ([`docs/HOME.md`](docs/HOME.md), opened in Obsidian), architecture, feature contracts, developer guides. |
+| `index.html` | The HTML prototype's current version. A single self-contained file: HTML, CSS and JS. |
 | `versions/app-v1.html` ... `app-v238.html` | Every earlier iteration, kept for rollback. A new version file is created for each iteration; never overwrite old ones. |
 | `seed/` | Starting data: `tasks.json` (standard daily list), `lifts.json` (core lifts), `devotionals.json` (366 daily devotionals, one per calendar date, also embedded in `index.html`), `db-rules.json` (access rules and runtime capabilities the page declares). `weekly-challenges.json` (52-week challenge program: one Family, one Iron and one Endure challenge per week, with the 0-100 age-bracket scoring rules, injury-friendly alternates and season metadata) and `movement-standards.json` (what counts as a rep). |
 | `START-WINDOWS.cmd`, `START-MAC.command`, `launchers/` | Double-click setup and run launchers (see "New here? Start here"). The scripts they call are in `tooling/`. |
@@ -104,8 +111,10 @@ The mock keeps data in memory only, shows one fake user, and cannot display uplo
 
 ## Path to the App Store and Google Play
 
-1. **Real backend:** accounts, database, media storage, push notifications (for example Firebase or Supabase). Implement a new `B` against it and enforce the access rules server-side.
-2. **Native wrapper:** package the front end with Capacitor, or rebuild in React Native or Flutter. Apple guideline 4.2 rejects apps that are just a repackaged website, so add real native features (push, camera, health integrations).
+The decided path (October 2026): a native Flutter app with a Firebase backend, built in `mobile/` ([ADR-0005](docs/architecture/ADR-0005-flutter-client-stack.md)). The checklist below still applies to it.
+
+1. **Real backend:** accounts, database, media storage, push notifications (Firebase). Implement a new `B` against it and enforce the access rules server-side.
+2. **Native app:** the Flutter rebuild, not a wrapped web page. Apple guideline 4.2 rejects apps that are just a repackaged website, so add real native features (push, camera, health integrations).
 3. **Account deletion:** an in-app "Delete my data" exists in Settings (Apple 5.1.1(v)). Google Play also requires a web link for deletion requests and a Data safety form.
 4. **User-generated content (Apple 1.2):** report and block exist. Still needed: content filtering, a moderation queue, and published support contact info.
 5. **Health data (Apple 5.1.3 and 1.4.1):** disclose what is collected, no ads or data mining, medical disclaimers (present in Settings).
