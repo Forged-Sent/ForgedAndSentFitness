@@ -1,6 +1,6 @@
 # Forged & Sent: Windows quickstart (Git, not ZIP)
 
-**Start here.** You do not need programming experience or a Firebase account. The local `demo-forgedandsent` Auth, Firestore and Storage emulators never touch real cloud data. The Flutter screen is currently a starter, not the completed fitness app.
+**Start here.** You do not need programming experience or a Firebase account. The local `demo-forgedandsent` Auth, Firestore and Storage emulators never touch real cloud data. The Flutter app is early: it opens on **Today** with the day's devotional and six tabs, most of which are placeholders. It is not the completed fitness app yet.
 
 ## First time: get the repository
 
@@ -22,7 +22,7 @@ If you've already cloned it, **reuse that folder**. Do not download a ZIP or mak
 Open the cloned `ForgedAndSentFitness` folder in **File Explorer**. Then open `launchers`, then `windows`, and double-click the files in number order:
 
 1. **`1 - Set up this computer.cmd`** installs or reuses Flutter, VS Code, Node, GitHub CLI, Firebase CLI, JDK 21, Python 3 and developer guardrails. Approve only trusted installer prompts. It asks which optional AI assistants you use (any combination, or none) and helps set a Git commit name and email (a GitHub `noreply` address is fine). It also asks whether to add Android testing. When the install finishes it offers **Try it now**: it starts practice Firebase, opens the app connected to it, asks what you saw and prints a checklist. Safe to rerun.
-2. **`2 - Run the app.cmd`** opens the small Forged & Sent screen in Chrome.
+2. **`2 - Run the app.cmd`** opens the Flutter app in Chrome, on its **Today** page.
 3. **`3 - Start practice Firebase.cmd`** and **`4 - Run app with practice Firebase.cmd`** are explained in the next section.
 4. **`5 - Check my setup.cmd`** explains anything missing, with a WHY and FIX line for each item.
 
@@ -36,7 +36,7 @@ Codex, Claude Code, Copilot and Antigravity are all optional; pick only the ones
 
 1. Open `launchers/windows/3 - Start practice Firebase.cmd` and keep that window running. Wait until it says **All emulators ready! It is now safe to connect your app.** If it instead says a port "is already in use" ("Are you running another copy of the emulator suite?"), close the other emulator window or development server, or restart the computer, and try again. Don't edit `firebase.json`.
 2. In another window open `launchers/windows/4 - Run app with practice Firebase.cmd`.
-3. Confirm the Flutter screen reports verified local Auth, Firestore and Storage. Stopping one emulator and starting the app again must produce an error, **never cloud fallback**.
+3. In the app, open **Settings** (the round person button at the top right of Today), scroll to **This build** and tap **Build status**. Confirm it says **Verified local Auth, Firestore and Storage emulators (demo-forgedandsent).** Stopping one emulator and starting the app again must produce an error, **never cloud fallback**.
 
 No Firebase account, `firebase login`, `flutterfire configure`, or production credentials are required.
 

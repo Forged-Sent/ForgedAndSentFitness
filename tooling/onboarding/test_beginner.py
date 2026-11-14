@@ -284,8 +284,10 @@ class BeginnerContractTests(unittest.TestCase):
         for line in ("'1' {RunSetup 'Contributor'}", "'3' {StartEmulators}", "'5' {CheckTools}",
                      "'6' {RunSetup 'Preview'}"):
             self.assertIn(line, win)
-        self.assertRegex(win, r"'2' \{\s+\$rc=RunScript \(Join-Path \$PSScriptRoot 'run-app.ps1'\)")
+        self.assertRegex(win, r"'2' \{[^}]*-File \(Join-Path \$PSScriptRoot 'run-app.ps1'\)")
         self.assertRegex(win, r"'4' \{[^}]*run-emulator-app.ps1")
+        # Flutter runs are not piped through RunScript's Out-Host, so its q (quit) key works.
+        self.assertNotRegex(win, r"RunScript \(Join-Path \$PSScriptRoot '(run-app|run-emulator-app)\.ps1'\)")
 
     def test_any_combination_of_ai_assistants_can_be_picked_on_mac(self):
         cases = {"": "", "0": "", "2": "claude", "2,4": "claude antigravity",
@@ -461,6 +463,32 @@ class SetupRegressionTests(unittest.TestCase):
         for doc in ("docs/development/WINDOWS-QUICKSTART.md", "docs/development/MACBOOK-QUICKSTART.md"):
             self.assertIn("git pull --ff-only", read(doc))
 
+
+
+class AppMatchesGuidesTests(unittest.TestCase):
+    """The guides describe the app as it is on main, not as it was."""
+
+    def test_walkthroughs_send_people_to_build_status(self):
+        # Since S0 the app opens on Today; the emulator check is on Settings > Build status.
+        status = "Verified local Auth, Firestore and Storage emulators (demo-forgedandsent)."
+        self.assertIn(status, read("mobile/lib/src/app/forged_sent_app.dart"))
+        self.assertIn("label: 'Build status'", read("mobile/lib/src/features/settings/presentation/settings_page.dart"))
+        for path in ("tooling/windows/first-run.ps1", "tooling/macos/first-run.sh",
+                     "tooling/windows/run-emulator-app.ps1", "tooling/macos/run-emulator-app.sh",
+                     "docs/development/WINDOWS-QUICKSTART.md", "docs/development/MACBOOK-QUICKSTART.md",
+                     "docs/development/FIREBASE-EMULATOR.md"):
+            with self.subTest(path=path):
+                self.assertIn("Build status", read(path))
+
+    def test_practice_edit_targets_text_no_test_pins(self):
+        guide = read("docs/development/FIRST-CONTRIBUTION.md")
+        target = "Flutter foundation is ready for the first devotional workout."
+        self.assertIn(target, guide)
+        self.assertIn(f"'{target}'", read("mobile/lib/src/app/forged_sent_app.dart"))
+        for test in [*(ROOT / "mobile/test").rglob("*.dart"), *(ROOT / "mobile/integration_test").rglob("*.dart")]:
+            with self.subTest(test=test.name):
+                self.assertNotIn(target, test.read_text(encoding="utf-8"),
+                                 "the practice edit would make flutter test fail")
 
 if __name__ == "__main__":
     unittest.main()
