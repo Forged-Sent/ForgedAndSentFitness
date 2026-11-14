@@ -57,7 +57,7 @@ def category(path: str) -> str:
         return "flutter"
     if path.startswith("firebase/") or path in ("firebase.json", ".firebaserc"):
         return "firebase"
-    if path.startswith((".agents/", ".claude/", ".codex/", ".github/agents/")) or path in ("AGENTS.md", "CLAUDE.md", "GEMINI.md"):
+    if path.startswith((".agents/", ".claude/", ".codex/")) or path in ("AGENTS.md", "CLAUDE.md"):
         return "agents"
     if path.startswith(".github/"):
         return "automation"

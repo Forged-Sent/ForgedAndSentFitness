@@ -1,52 +1,136 @@
 # Design system
 
-**Status: Planned.** Nothing on this page is implemented in Flutter yet. The values below were read from the prototype's stylesheet (`index.html` at `main` commit `94daa63`). Build step S0 implements them under `mobile/lib/src/design/` and must update this page in the same pull request: change the status, list the real file for each token group and component, and note any value that changed.
+**Status: the foundation and the components Today needs are implemented; the rest are still planned.** Build step S0 put the colors, type, spacing, the shell and four components under `mobile/lib/src/design/`. Build step S1 added the progress panel's colors, the reading's type styles and the components Today and the reading are built from. Every row below says which it is. Each later step that builds a planned component changes its row here in the same pull request.
 
-Reference screenshots: [review reference folder](../reviews/2026-11-10-prototype-to-flutter/06-SCREENS-AND-UI.md).
+The values were read from the prototype as it renders, not from its stylesheet by eye: `versions/app-v254.html` on branch `app/v241-bold` at `3ff4a6f` (decision Q1), rendered at 390×844 and inspected in both themes. The theme rules, the font list and the hero photograph are identical in `index.html` on `main`. Where this page and the prototype disagreed, the prototype won.
 
-## Colors
+Reference pictures: the [review's screenshots](../reviews/2026-11-10-prototype-to-flutter/06-SCREENS-AND-UI.md) (dark only), the [S0 captures](reference/s0-shell/README.md) of v254's shell and the [S1 captures](reference/s1-today/README.md) of v254's Today and reading, each in dark and light.
 
-| Token | Dark | Light |
-|---|---|---|
-| Background | `#151719` | `#f3f0eb` |
-| Surface / raised surface | `#222528` / `#303337` | `#ffffff` / `#e4dfd8` |
-| Text / muted text | `#f2f0eb` / `#b6b3ae` | `#292521` / `#68615b` |
-| Hairline | `#414448` | `#d1c9c0` |
-| Accent / text on accent | `#f17b32` / `#171411` | `#ae4514` / `#ffffff` |
-| Highlight ("brass") | `#ff9a55` | `#9d3e13` |
-| Danger | `#f08076` | `#a4281c` |
-| Radius | 8 px base; 10 and 12 px on cards; full round for icon buttons | same |
+## Colors that change with the theme
+
+Implemented in `mobile/lib/src/design/fs_colors.dart` (`FsColors.dark`, `FsColors.light`) and written out as two explicit color schemes in `fs_theme.dart`. Nothing is derived from a seed color.
+
+| Token | In code | Dark | Light |
+|---|---|---|---|
+| Background | `background` | `#151719` | `#f3f0eb` |
+| Surface / raised surface | `surface` / `surfaceRaised` | `#222528` / `#303337` | `#ffffff` / `#e4dfd8` |
+| Text / muted text | `text` / `textMuted` | `#f2f0eb` / `#b6b3ae` | `#292521` / `#68615b` |
+| Hairline | `hairline` | `#414448` | `#d1c9c0` |
+| Accent / text on accent | `accent` / `onAccent` | `#f17b32` / `#171411` | `#ae4514` / `#ffffff` |
+| Highlight ("brass") | `highlight` | `#ff9a55` | `#9d3e13` |
+| Danger | `danger` | `#f08076` | `#a4281c` |
+
+## Colors that are the same in both themes
+
+The brand bar, the hero header and the tab bar are dark on a light page too, and the primary button keeps one orange. These were missing from this page before S0. Implemented as constants on `FsColors`.
+
+| Token | In code | Value | Used for |
+|---|---|---|---|
+| Night | `night` | `#101214` | Brand bar and tab bar background |
+| Brand bar rule | `brandBarRule` | `#333333` | Line under the brand bar |
+| Tab bar rule | `tabBarRule` | `#383a3c` | Line above the tab bar |
+| Brand mark | `brandMark` | `#f17b32` | The shield in the brand bar |
+| Gold | `gold` | `#e87328` | Primary button, the rule under the hero, the profile button's ring |
+| Text on gold | `onGold` | `#151719` | Primary button label |
+| Hero ink | `heroInk` | `#f5f1eb` | Hero title; "Forged & Sent" in the brand bar |
+| Hero subtle | `heroSubtle` | `#e3ddd4` | The line under the hero title |
+| Hero kicker | `heroKicker` | `#f4aa76` | The small caps line above the hero title |
+| Hero button ring / ink | `heroButtonRing` / `heroButtonInk` | `#d0c2a0` / `#efe4c8` | The round hero buttons |
+| Hero scrim | `heroScrimStart` → `heroScrimEnd` | `#0c0d0e` at 92% → 48% | Dark wash over the photograph, left to right |
+| Hero ridges | `heroRidgeFar` / `heroRidgeNear` | `#2a241b` / `#14120e` | The two drawn ridges along the bottom of the hero |
+| Tab inactive / active | `tabInactive` / `tabActive` | `#aaa9a5` / `#ff8840` | Tab icons, labels and the bar above the current tab |
+| Panel | `panel` | `#1c1f21` | The progress panel under Today's header (added in S1) |
+| Ring track / ring value | `ringTrack` / `ringValue` | `#3a3326` / `#ff974c` | The progress ring's unfilled and filled parts; the numbers beside it (added in S1). `ringValue` is the prototype's `--gold-2`, and since S1b also the color of the Spirit-led tag |
+
+**Changed in S0, because the prototype differs from what this page said:**
+
+- **Primary button:** `#e87328` with `#151719` text in both themes. This page implied the accent and text-on-accent pair, which would have made it `#ae4514` with white text in light.
+- **Journal button ring:** the highlight color of the theme (`#ff9a55` dark, `#9d3e13` light), with the glyph in the accent color.
+- **Profile button:** raised surface of the theme with a gold ring.
+
+## Spacing, radius and sizes
+
+Implemented in `mobile/lib/src/design/fs_tokens.dart`.
+
+| Token | Value |
+|---|---|
+| Page margin (`FsSpacing.page`) | 16 |
+| Space between blocks (`FsSpacing.block`) | 22 |
+| Space under the last block (`FsSpacing.pageBottom`) | 28 |
+| Card padding (`FsSpacing.card`) | 14 |
+| Hero padding (`heroTop`, `heroBottom`) and line gap (`heroGap`) | 18, 20 and 10 |
+| Radius (`FsRadius`) | 8 base (buttons); 10 cards; 12 large cards and dialogs; full round for icon buttons |
+| Brand bar / tab bar height (`FsSizes`) | 34 / 60, before the status-bar and home-indicator insets |
+| Bar above the current tab | 3 |
+| Button height | 48; mini 40 |
 
 ## Type
 
-| Role | Typeface |
-|---|---|
-| Brand wordmark | Saira Stencil One |
-| Headings and labels (uppercase, tracked) | Saira Condensed 500–800 |
-| Body | IBM Plex Sans 400–600 |
-| Scripture | Merriweather italic |
+Implemented in `mobile/lib/src/design/fs_typography.dart` (`FsFonts`, `FsText`).
 
-All four families are bundled as assets. Nothing is fetched at runtime.
+| Role | Typeface | Style in code |
+|---|---|---|
+| Headings and labels (uppercase, tracked) | Saira Condensed 500–800 | `heroTitleLarge` 38/800, `heroTitle` 32/800, `heroSubtitle` 16.5/600, `kicker` 12.5/600, `labelCaps` 14/600, `button` 14/700, `buttonMini` 12.5/600, `tabLabel` 10.5/600, `brandBar` 12.5/700. Added in S1: `ringValue` 24/800, `ringLabel` 10/700, `stat` 12/600, `tally` 24.5/700, `boxCommand` 10.5/700, `boxPoints` 14/700, `sectionLabel` 13/600, `readingSeries` 13/700. Added in S1b: `readingHeadline` 22/700 (the headline under a reading's date), `tag` 12/700 (the words in a tag pill) |
+| Body | IBM Plex Sans 400–600 | `body` 14, `bodySmall` 12.5, `sectionTitle` 15/600. Added in S1: `boxTitle` 15/700 |
+| Scripture | Merriweather italic | `scripture` 15. Added in S1: `scriptureLarge` 16.5 (the verse of a reading), `scriptureSmall` 14 (its reflection question), `readingTitle` 26 (the date above a reading) |
+| Wordmark on the opening screen | Saira Stencil One | `wordmark`; bundled, not used by any screen yet |
+
+**Changed in S0:** the brand bar's "Forged & Sent" is Saira Condensed 700, as in the prototype. This page gave Saira Stencil One as the brand wordmark; the prototype uses the stencil face only on its opening screen.
+
+**Changed in S1b: every style states its tracking.** Ten styles had no letter spacing of their own, because the prototype has none there: `body`, `bodySmall`, `sectionTitle`, `boxTitle`, `scripture`, `scriptureLarge`, `scriptureSmall`, `ringValue`, `tally` and `avatar`. A Flutter style that leaves it out takes it from the text style around it, and Material's default for body text is a quarter of a point between letters. So body text and scripture ran wider than the prototype's and lines broke a word earlier. Each of the ten now says `letterSpacing: 0`. Measured on 2026-11-12 for one 53-character line of body text at 14 points: 356.35 in Chrome, 369.59 in the app before, 356.34 after. All 14 golden images changed and were redrawn.
+
+**Merriweather still runs wider than the prototype's, and that is the bundled font file.** With the stray spacing gone, the same words in Merriweather italic are still 2 to 4% wider in the app than in Chrome (one reflection question at 14 points: 288.70 in Chrome, 298.10 in the app). The prototype loads Merriweather from Google Fonts; the app bundles the last static release, as said below. So a verse or a reflection question can still break a word earlier than in v254. Left as it is. IBM Plex Sans matches Chrome to a hundredth of a point at 14 points and to a tenth at 12.5.
+
+**Added in S1:** the date above a reading. The prototype asks for bold upright Merriweather, which it does not load, so the browser draws the bundled italic and thickens it. `readingTitle` does the same: Merriweather italic at weight 800, thickened by the text engine. No upright or bold Merriweather file is bundled.
+
+All four families are bundled as assets under `mobile/assets/fonts/`. Nothing is fetched at runtime. Every family is under the SIL Open Font License 1.1, and its `OFL.txt` is bundled beside it. Source commits and SHA-256 values: `mobile/assets/SOURCES.md`. Merriweather and IBM Plex Sans are the last static releases, not the current variable ones; Merriweather's current file is over the repository's 2 MB limit for a binary asset.
+
+CSS `text-transform: uppercase` has no Flutter equivalent. Widgets that use a caps style uppercase their own text and give screen readers the text as written.
+
+## Hero photograph
+
+`mobile/assets/images/hero_mountain.jpg`, with a 2.0x variant. It is the prototype's `--mtn-photo`, 750×1333, unchanged at 2.0x and scaled down for 1x. There is no 3.0x: the source is too small. **Its origin and licence are not recorded anywhere in this repository.** The photograph is already public: this repository is public, and the photo has been on `main` inside the prototype since v145 (`275fce2`). Settling this is the maintainer's, and it matters now, not only before the app is distributed (see the board).
 
 ## Conventions
 
 Other measurable conventions: tap targets mostly 44–52 px; body text mostly 12–15 px; `safe-area-inset` used 32 times; reduced-motion handled; breakpoints only below 430 px (phone-only layout); Dark, Light and Auto themes.
 
+In Flutter so far: the app follows the phone's dark or light setting (there is no Dark / Light / Auto switch yet); text follows the phone's text size, and the shell, Today, the reading and Settings are tested without overflow at 1.3× and 2×; the brand bar and tab bar cover the status-bar and home-indicator insets. A box that cannot be used yet is drawn at half opacity, offers no tap, and is announced to a screen reader as not available.
+
 ## Shared components
 
 | Component | Used by | Status | File |
 |---|---|---|---|
-| `FsTheme` (two `ColorScheme`s, `TextTheme`, spacing and radius constants) | Everything | Planned | — |
-| `FsShell`: brand bar plus a six-destination tab bar with a top indicator | All top-level pages | Planned | — |
-| `FsHeroHeader`: mountain photograph, kicker, title, round action buttons | Today, Fuel, Train, Board, Campaign, Settings, Devotional | Planned | — |
-| `FsCard`, `FsSectionHead`, `FsLabelCaps` | Everything | Planned | — |
-| `FsButton` (primary, ghost, mini), `FsIconAction` | Everything | Planned | — |
-| `FsBoxRow`: checkbox, title, sub-line, points, chevron | Today, first orders, habits | Planned | — |
-| `FsProgressRing`, `FsMeter` | Today, Fuel | Planned | — |
-| `FsSegmented` | Board, Settings, Profile | Planned | — |
+| `FsTheme` (two `ColorScheme`s, `TextTheme`, spacing and radius constants) | Everything | Implemented | `mobile/lib/src/design/fs_theme.dart`, `fs_colors.dart`, `fs_typography.dart`, `fs_tokens.dart` |
+| `FsShell`: brand bar plus a six-destination tab bar with a top indicator | All top-level pages | Implemented | `mobile/lib/src/design/fs_shell.dart` |
+| `FsHeroHeader`: mountain photograph, kicker, title, round action buttons; `FsReadingHeader`: the same photograph over a reading's month, date, series line, headline, tags and month line | Today, Fuel, Train, Board, Campaign, Settings, Devotional | Implemented. Today's profile button opens Settings; the other round buttons are drawn but do nothing yet. S1 added the streak line beside Today's buttons and `FsReadingHeader`; S1b added the headline and the tags to it, spaced as the prototype's `.devo-head` spaces them, and balanced the line under `FsHeroHeader`'s title. A series line followed directly by the month line has 12 between them, as in the prototype (S1 had 6); no bundled reading is in that case, since every one has a headline | `mobile/lib/src/design/fs_hero_header.dart` |
+| `FsTag`: a small outlined pill with an icon and a caps label. Words to read, never a button. Two tones: the dark theme's accent ("Sent") and the ring's bright orange ("Spirit-led"). In the light theme both are the ring's orange: the tag stands on the dark header, where the light theme's dark-orange accent is hard to read (about 3 to 1). The prototype draws Sent in that dark orange; the maintainer chose the bright one on 2026-11-12 | A reading's "Sent" and "Spirit-led" tags | Implemented in S1b (the prototype's `.devo-tg`) | `mobile/lib/src/design/fs_tag.dart` |
+| `FsRuled`: content behind a vertical rule on its left | A reading's verse (inside `FsScripture`) and its "In Jesus" paragraph | Implemented in S1b; the rule and inset were inside `FsScripture` before | `mobile/lib/src/design/fs_ruled.dart` |
+| `FsBalanced`: sets a text so its lines are as even as they can be without adding a line (CSS `text-wrap: balance`) | A reading's headline, and the mission line under Today's title | Implemented in S1b. The prototype balances both (`.devo-hl`, `.mission`). It places the text at the left edge, so it is for left-to-right, start-aligned text only; a text that is cut off instead of wrapped is left as it is | `mobile/lib/src/design/fs_balanced.dart` |
+| `FsCard` | Everything | Implemented | `mobile/lib/src/design/fs_card.dart` |
+| `FsLabelCaps` | Everything | Implemented | `mobile/lib/src/design/fs_label_caps.dart` |
+| `FsSectionHead`, with `FsTally` ("1 / 7") | Everything | Implemented in S1 | `mobile/lib/src/design/fs_section_head.dart` |
+| `FsButton` (primary, ghost, mini) | Everything | Implemented. S1 added an optional screen-reader label, for buttons whose text is too short to stand alone ("ESV") | `mobile/lib/src/design/fs_button.dart` |
+| `FsIconAction` | Everything | Planned. The hero's round buttons are private to `FsHeroHeader` for now | — |
+| `FsIcon` and `FsIcons`: the prototype's line icons, drawn from its own SVG paths | Tab bar, hero buttons, brand bar, tag pills | Implemented (added in S0; no icon package is used). S1b added the arrow and the flame of the two tags | `mobile/lib/src/design/fs_icons.dart` |
+| `FsBoxRow`: checkbox, small caps line, title, sub-line, points, chevron | Today, first orders, habits | Implemented in S1. Points are shown only when they are passed in | `mobile/lib/src/design/fs_box_row.dart` |
+| `FsProgressRing`, `FsMeter` | Today, Fuel | Implemented in S1 | `mobile/lib/src/design/fs_progress_ring.dart`; `FsMeter` is in `fs_section_head.dart` |
+| `FsSegmented` | Board, Settings, Profile, the reading's BSB / ESV tab | Implemented in S1, built from mini buttons | `mobile/lib/src/design/fs_segmented.dart` |
 | `FsDialog`, `FsSheet` | About 40 dialogs | Planned | — |
-| `FsScripture` block | Devotional, workout prayer, footers | Planned | — |
+| `FsScripture` block | Devotional, workout prayer, footers | Implemented in S1 | `mobile/lib/src/design/fs_scripture.dart` |
+| `FsPageBar`: a small "‹ Back" button and a small caps line | Pages opened from another: the reading, Settings | Implemented in S1 (the prototype's `.pbar`) | `mobile/lib/src/design/fs_page_bar.dart` |
 | `FsEmptyState` (dashed outline) | Rally, journal, boards | Planned | — |
+
+## Golden images
+
+`mobile/test/app/goldens/` holds Walk at 390×844, dark and light, standing for the tabs that are still placeholders. `mobile/test/features/today/goldens/` holds Today as it opens, Today's boxes with the devotional done, the reading as it opens, the end of the reading, a reading with the Sent tag (February 7) and a reading with the Spirit-led tag (January 3), each in dark and light. All 14 are the baseline. They are compared on Windows only, because text is drawn slightly differently on each operating system. No CI lane checks them yet.
+
+How they were approved:
+
+- **S0, 2026-11-11:** the maintainer approved Walk beside the prototype.
+- **S1, 2026-11-12:** the maintainer approved the eight Today and reading images beside the [S1 captures](reference/s1-today/README.md).
+- **S1b, 2026-11-12:** every one of those ten changed, because removing the stray letter spacing (see Type) moves text on every screen, and four images of tagged readings were added. The maintainer approved all 14 as redrawn.
+- **After that approval** the mission line on Today was balanced, which redrew `today_dark.png` and `today_light.png` once more. Those two were locked on the maintainer's condition that the line breaks on the same words as in v254's picture; `mobile/test/features/today/today_page_test.dart` checks that.
 
 ## Rules
 

@@ -1,0 +1,537 @@
+import 'package:flutter/material.dart';
+
+import 'fs_balanced.dart';
+import 'fs_colors.dart';
+import 'fs_icons.dart';
+import 'fs_label_caps.dart';
+import 'fs_tag.dart';
+import 'fs_tokens.dart';
+import 'fs_typography.dart';
+
+/// The round buttons a hero header can show, in the prototype's order.
+enum FsHeroActionKind { search, help, journal, tags, profile }
+
+/// One round button in a hero header.
+///
+/// With a null [onPressed] the button is drawn but does nothing and is hidden
+/// from screen readers. That is every button in step S0: their behavior comes
+/// with the features they open.
+@immutable
+class FsHeroAction {
+  const FsHeroAction(this.kind, {required this.label, this.onPressed});
+
+  final FsHeroActionKind kind;
+
+  /// What a screen reader says, for example "New journal entry".
+  final String label;
+
+  final VoidCallback? onPressed;
+}
+
+/// The header of a top-level page: the mountain photograph under a dark
+/// wash, a small caps line, the page title and round action buttons.
+///
+/// It looks the same in both themes, as it does in the prototype
+/// (`header.hero`).
+class FsHeroHeader extends StatelessWidget {
+  const FsHeroHeader({
+    super.key,
+    required this.title,
+    this.kicker,
+    this.subtitle,
+    this.note,
+    this.actions = const <FsHeroAction>[],
+    this.large = false,
+  });
+
+  /// The bundled photograph, with a 2.0x variant beside it.
+  static const String photoAsset = 'assets/images/hero_mountain.jpg';
+
+  final String title;
+
+  /// The small caps line above the title.
+  final String? kicker;
+
+  /// The line under the title: Today's mission line. Its lines are
+  /// balanced, as the prototype's are.
+  final String? subtitle;
+
+  /// A second small caps line, set to the left of the buttons. Today shows
+  /// the streak here. Used by the [large] layout only.
+  final String? note;
+
+  final List<FsHeroAction> actions;
+
+  /// Today's layout: a larger title, with the buttons on their own row
+  /// under the small caps line.
+  final bool large;
+
+  @override
+  Widget build(BuildContext context) {
+    final kickerText = kicker == null
+        ? null
+        : FsLabelCaps(
+            kicker!,
+            style: FsText.kicker,
+            color: FsColors.heroKicker,
+          );
+    final buttons = actions.isEmpty ? null : _HeroActions(actions: actions);
+
+    final List<Widget> lines;
+    if (large) {
+      lines = <Widget>[
+        if (kickerText != null) kickerText,
+        if (kickerText != null && (buttons != null || note != null))
+          const SizedBox(height: 12),
+        if (buttons != null || note != null)
+          Row(
+            children: <Widget>[
+              Expanded(
+                child: note == null
+                    ? const SizedBox.shrink()
+                    : FsLabelCaps(
+                        note!,
+                        style: FsText.kicker,
+                        color: FsColors.heroKicker,
+                      ),
+              ),
+              if (buttons != null) ...<Widget>[
+                const SizedBox(width: 12),
+                buttons,
+              ],
+            ],
+          ),
+      ];
+    } else {
+      // The prototype centers the small caps line against the buttons only on
+      // pages that have the search and help buttons. Where they are absent
+      // (Walk), it sets the line on the buttons' text baseline, which puts it
+      // lower: 17 points down in the prototype's layout, plus 1 for where
+      // Flutter places a line within its height.
+      final centered =
+          buttons == null ||
+          actions.any(
+            (FsHeroAction action) =>
+                action.kind == FsHeroActionKind.search ||
+                action.kind == FsHeroActionKind.help,
+          );
+      lines = <Widget>[
+        if (kickerText != null || buttons != null)
+          Row(
+            crossAxisAlignment: centered
+                ? CrossAxisAlignment.center
+                : CrossAxisAlignment.start,
+            children: <Widget>[
+              Expanded(
+                child: kickerText == null
+                    ? const SizedBox.shrink()
+                    : centered
+                    ? kickerText
+                    : Padding(
+                        padding: const EdgeInsets.only(top: 18),
+                        child: kickerText,
+                      ),
+              ),
+              if (buttons != null) ...<Widget>[
+                const SizedBox(width: 12),
+                buttons,
+              ],
+            ],
+          ),
+      ];
+    }
+
+    final content = Padding(
+      padding: const EdgeInsets.fromLTRB(
+        FsSpacing.page,
+        FsSpacing.heroTop,
+        FsSpacing.page,
+        FsSpacing.heroBottom,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        mainAxisSize: MainAxisSize.min,
+        children: <Widget>[
+          ...lines,
+          if (lines.isNotEmpty) const SizedBox(height: FsSpacing.heroGap),
+          Semantics(
+            header: true,
+            child: Text(
+              title.toUpperCase(),
+              semanticsLabel: title,
+              style: (large ? FsText.heroTitleLarge : FsText.heroTitle)
+                  .copyWith(color: FsColors.heroInk),
+            ),
+          ),
+          if (subtitle != null) ...<Widget>[
+            const SizedBox(height: FsSpacing.heroGap),
+            // The prototype balances this line (`.mission`, `text-wrap:
+            // balance`).
+            FsBalanced(
+              child: Text(
+                subtitle!.toUpperCase(),
+                semanticsLabel: subtitle,
+                style: FsText.heroSubtitle.copyWith(color: FsColors.heroSubtle),
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: <Widget>[
+        ClipRect(
+          child: Stack(
+            children: <Widget>[
+              const Positioned.fill(child: FsHeroBackdrop()),
+              content,
+            ],
+          ),
+        ),
+        const ColoredBox(
+          color: FsColors.gold,
+          child: SizedBox(height: FsSizes.heroRule),
+        ),
+      ],
+    );
+  }
+}
+
+/// The header of a reading: the same photograph and wash as [FsHeroHeader],
+/// over a month line, the date set as scripture, the reading's headline
+/// and tags, and a line about the month. The prototype's `.devo-head`.
+class FsReadingHeader extends StatelessWidget {
+  const FsReadingHeader({
+    super.key,
+    required this.kicker,
+    required this.title,
+    this.series,
+    this.headline,
+    this.tags = const <FsTag>[],
+    this.note,
+  });
+
+  /// The small caps line above the date, for example
+  /// "November · Gratitude and Contentment".
+  final String kicker;
+
+  /// The date, for example "November 12".
+  final String title;
+
+  /// The series the reading belongs to, where it has one.
+  final String? series;
+
+  /// The reading's headline, under the date.
+  final String? headline;
+
+  /// The reading's tags, under the headline.
+  final List<FsTag> tags;
+
+  /// The month's one-line tag.
+  final String? note;
+
+  /// The space between two lines of the header that have no margin of
+  /// their own. The prototype's `.devo-head` gap.
+  static const double _gap = 6;
+
+  @override
+  Widget build(BuildContext context) {
+    // Each line with the margin the prototype gives it above and below.
+    // The space between two lines is the gap plus the margins that meet.
+    final lines = <({Widget child, double above, double below})>[
+      if (kicker.isNotEmpty)
+        (
+          child: FsLabelCaps(kicker, color: FsColors.heroKicker),
+          above: 0,
+          below: 0,
+        ),
+      (
+        child: Semantics(
+          header: true,
+          child: Text(
+            title,
+            style: FsText.readingTitle.copyWith(color: FsColors.heroInk),
+          ),
+        ),
+        above: 0,
+        below: 0,
+      ),
+      if (series != null && series!.isNotEmpty)
+        (
+          child: Text(
+            series!.toUpperCase(),
+            semanticsLabel: series,
+            style: FsText.readingSeries.copyWith(color: FsColors.heroSubtle),
+          ),
+          above: 2,
+          below: 6,
+        ),
+      if (headline != null && headline!.isNotEmpty)
+        (
+          // The prototype balances this text's lines (`text-wrap: balance`).
+          child: FsBalanced(
+            child: Text(
+              headline!.toUpperCase(),
+              semanticsLabel: headline,
+              style: FsText.readingHeadline.copyWith(color: FsColors.heroInk),
+            ),
+          ),
+          above: 2,
+          below: 4,
+        ),
+      if (tags.isNotEmpty)
+        (
+          child: Wrap(spacing: 6, runSpacing: 6, children: tags),
+          above: 2,
+          below: 4,
+        ),
+      if (note != null && note!.isNotEmpty)
+        (
+          child: Text(
+            note!,
+            style: FsText.bodySmall.copyWith(color: FsColors.heroSubtle),
+          ),
+          above: 0,
+          below: 0,
+        ),
+    ];
+
+    final content = Padding(
+      padding: const EdgeInsets.fromLTRB(
+        FsSpacing.page,
+        FsSpacing.heroTop,
+        FsSpacing.page,
+        FsSpacing.heroBottom,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        mainAxisSize: MainAxisSize.min,
+        children: <Widget>[
+          for (var i = 0; i < lines.length; i++) ...<Widget>[
+            if (i > 0)
+              SizedBox(height: _gap + lines[i - 1].below + lines[i].above),
+            lines[i].child,
+          ],
+        ],
+      ),
+    );
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: <Widget>[
+        ClipRect(
+          child: Stack(
+            children: <Widget>[
+              const Positioned.fill(child: FsHeroBackdrop()),
+              content,
+            ],
+          ),
+        ),
+        const ColoredBox(
+          color: FsColors.gold,
+          child: SizedBox(height: FsSizes.heroRule),
+        ),
+      ],
+    );
+  }
+}
+
+/// Photograph, dark wash, then the two drawn ridges along the bottom.
+class FsHeroBackdrop extends StatelessWidget {
+  const FsHeroBackdrop({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      fit: StackFit.expand,
+      children: <Widget>[
+        Image.asset(
+          FsHeroHeader.photoAsset,
+          fit: BoxFit.cover,
+          // The prototype positions the photo at "center 44%".
+          alignment: const Alignment(0, -0.12),
+          excludeFromSemantics: true,
+          errorBuilder: (context, error, stackTrace) =>
+              const ColoredBox(color: FsColors.night),
+        ),
+        const DecoratedBox(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: <Color>[FsColors.heroScrimStart, FsColors.heroScrimEnd],
+            ),
+          ),
+        ),
+        // The prototype's `.hero-mtn`: the bottom 62% of the header.
+        const FractionallySizedBox(
+          alignment: Alignment.bottomCenter,
+          heightFactor: 0.62,
+          child: CustomPaint(painter: _RidgePainter()),
+        ),
+      ],
+    );
+  }
+}
+
+/// The prototype's two mountain silhouettes, drawn in a 300x120 box that is
+/// stretched to the space it is given.
+class _RidgePainter extends CustomPainter {
+  const _RidgePainter();
+
+  // M0 120V70l30-22 22 14 40-38 30 26 26-18 44 40 30-20 34 24 44-30v74z
+  static const List<Offset> _far = <Offset>[
+    Offset(30, -22),
+    Offset(22, 14),
+    Offset(40, -38),
+    Offset(30, 26),
+    Offset(26, -18),
+    Offset(44, 40),
+    Offset(30, -20),
+    Offset(34, 24),
+    Offset(44, -30),
+  ];
+
+  // M0 120V92l40-14 34 10 46-24 40 22 38-12 52 18 50-16v44z
+  static const List<Offset> _near = <Offset>[
+    Offset(40, -14),
+    Offset(34, 10),
+    Offset(46, -24),
+    Offset(40, 22),
+    Offset(38, -12),
+    Offset(52, 18),
+    Offset(50, -16),
+  ];
+
+  static Path _ridge(double startY, List<Offset> steps) {
+    final path = Path()
+      ..moveTo(0, 120)
+      ..lineTo(0, startY);
+    for (final step in steps) {
+      path.relativeLineTo(step.dx, step.dy);
+    }
+    return path
+      ..lineTo(300, 120)
+      ..close();
+  }
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    canvas.scale(size.width / 300, size.height / 120);
+    canvas.drawPath(_ridge(70, _far), Paint()..color = FsColors.heroRidgeFar);
+    canvas.drawPath(_ridge(92, _near), Paint()..color = FsColors.heroRidgeNear);
+  }
+
+  @override
+  bool shouldRepaint(_RidgePainter oldDelegate) => false;
+}
+
+class _HeroActions extends StatelessWidget {
+  const _HeroActions({required this.actions});
+
+  final List<FsHeroAction> actions;
+
+  @override
+  Widget build(BuildContext context) {
+    final children = <Widget>[];
+    for (var i = 0; i < actions.length; i++) {
+      final action = actions[i];
+      if (i > 0) {
+        // The journal button stands a little apart from what follows it.
+        final previous = actions[i - 1].kind;
+        children.add(
+          SizedBox(width: previous == FsHeroActionKind.journal ? 16 : 10),
+        );
+      }
+      children.add(_HeroRoundButton(action: action));
+    }
+    return Row(mainAxisSize: MainAxisSize.min, children: children);
+  }
+}
+
+class _HeroRoundButton extends StatelessWidget {
+  const _HeroRoundButton({required this.action});
+
+  final FsHeroAction action;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = FsColors.of(context);
+
+    final double size;
+    final Color ring;
+    final Color fill;
+    final Widget glyph;
+    switch (action.kind) {
+      case FsHeroActionKind.search:
+        size = 30;
+        ring = FsColors.heroButtonRing;
+        fill = const Color(0x00000000);
+        glyph = const FsIcon(
+          FsIcons.search,
+          size: 16,
+          color: FsColors.heroButtonInk,
+        );
+      case FsHeroActionKind.help:
+        size = 30;
+        ring = FsColors.heroButtonRing;
+        fill = const Color(0x00000000);
+        glyph = Text(
+          'i',
+          textScaler: TextScaler.noScaling,
+          style: FsText.scripture.copyWith(
+            fontSize: 16,
+            height: 1,
+            color: FsColors.heroButtonInk,
+          ),
+        );
+      case FsHeroActionKind.journal:
+        size = 34;
+        ring = colors.highlight;
+        fill = const Color(0x00000000);
+        glyph = FsIcon(FsIcons.journal, size: 20, color: colors.accent);
+      case FsHeroActionKind.tags:
+        size = 34;
+        ring = FsColors.heroButtonRing;
+        fill = const Color(0x00000000);
+        glyph = const FsIcon(
+          FsIcons.bell,
+          size: 17,
+          color: FsColors.heroButtonInk,
+        );
+      case FsHeroActionKind.profile:
+        size = 40;
+        ring = FsColors.gold;
+        fill = colors.surfaceRaised;
+        glyph = FsIcon(FsIcons.person, size: 20, color: colors.text);
+    }
+
+    final circle = Container(
+      width: size,
+      height: size,
+      alignment: Alignment.center,
+      decoration: BoxDecoration(
+        color: fill,
+        shape: BoxShape.circle,
+        border: Border.all(color: ring, width: 1.5),
+      ),
+      child: glyph,
+    );
+
+    final onPressed = action.onPressed;
+    if (onPressed == null) {
+      return ExcludeSemantics(child: circle);
+    }
+    return Semantics(
+      key: ValueKey<String>('fs-hero-${action.kind.name}'),
+      button: true,
+      label: action.label,
+      // This node stands in for the glyph under it, so it carries the tap.
+      excludeSemantics: true,
+      onTap: onPressed,
+      child: InkResponse(onTap: onPressed, radius: size / 2 + 6, child: circle),
+    );
+  }
+}

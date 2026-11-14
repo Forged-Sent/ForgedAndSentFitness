@@ -114,7 +114,9 @@ function Start-FSWalkthrough {
   if($firebaseUp){
     Write-Host 'Practice Firebase is ready.' -ForegroundColor Green
     Write-Host ''
-    Write-Host 'Chrome will now open the app. Look for this line on the page:'
+    Write-Host 'Chrome will now open the app on its Today page. To see the connection check:'
+    Write-Host '  tap the round person button at the top right of Today, scroll to "This build",'
+    Write-Host '  and tap Build status. Look for this line:'
     Write-Host '  Verified local Auth, Firestore and Storage emulators (demo-forgedandsent).' -ForegroundColor Cyan
     Write-Host 'Then come back to THIS window and press q to stop the app.'
     # Not piped, so Flutter keeps the console and its q (quit) key works.
@@ -198,7 +200,7 @@ function MoreOptions {
       else{Write-Host 'GitHub CLI missing. Run Contributor setup first.'}
     }
     '4' {
-      Write-Host '.vscode/mcp.json (VS Code, Copilot), .mcp.json (Claude), .codex/config.toml (Codex), .gemini/settings.json (Gemini CLI).'
+      Write-Host '.vscode/mcp.json (VS Code, Copilot), .mcp.json (Claude), .codex/config.toml (Codex).'
       Write-Host 'Antigravity CLI reads AGENTS.md and .agents/skills; its MCP servers are not preconfigured yet.'
       Write-Host 'Configured does NOT mean connected. Authenticate providers independently.'
     }
@@ -259,13 +261,16 @@ do {
     switch($choice){
       '1' {RunSetup 'Contributor'}
       '2' {
-        $rc=RunScript (Join-Path $PSScriptRoot 'run-app.ps1')
+        # Not piped (unlike RunScript), so Flutter keeps the console and its q (quit) key works.
+        & (Join-Path $PSHOME 'pwsh.exe') -NoLogo -NoProfile -File (Join-Path $PSScriptRoot 'run-app.ps1')
+        $rc=[int]$LASTEXITCODE
         if($rc){Write-Host 'Flutter did not launch. Run option 1 (setup), then option 5 (check).' -ForegroundColor Yellow}
       }
       '3' {StartEmulators}
       '4' {
         Write-Host 'Start practice Firebase with option 3 first and wait until it says ready.'
-        $rc=RunScript (Join-Path $PSScriptRoot 'run-emulator-app.ps1')
+        & (Join-Path $PSHOME 'pwsh.exe') -NoLogo -NoProfile -File (Join-Path $PSScriptRoot 'run-emulator-app.ps1')
+        $rc=[int]$LASTEXITCODE
         if($rc){Write-Host 'Emulator-mode app failed. Check that all three local services are running.' -ForegroundColor Yellow}
       }
       '5' {CheckTools}

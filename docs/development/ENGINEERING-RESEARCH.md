@@ -49,7 +49,7 @@ Deterministic checks validate syntax, imports, tests, known invariants and stale
 
 - `AGENTS.md`: short global rules; nested `mobile/AGENTS.md`: Flutter-specific invariants.
 - `.agents/skills/<name>/SKILL.md`: canonical reusable workflow; `.claude/skills/` mirrors exactly, verified in CI.
-- `CLAUDE.md` and `GEMINI.md`: provider-specific introductions pointing at shared rules and diagrams.
+- `CLAUDE.md`: provider-specific introduction pointing at shared rules and diagrams. `GEMINI.md` and the Copilot rule files were archived on 2026-11-10 (see the [archive README](../knowledge/archive/2026-11-10-copilot-gemini-rules/README.md)).
 - `docs/architecture/SYSTEM.md`: living current vs planned systems and security boundaries. Edit on design changes.
 - `docs/architecture/CODE-MAP.md`: generated actual Dart imports and symbols. Run `python3 tooling/architecture/generate.py --write`, commit and validate.
 - `docs/architecture/ADR-*`: decisions that should outlive a feature or engine choice.

@@ -10,7 +10,7 @@ if [ "${1:-}" = "--self-test" ]; then
 fi
 [ "$(uname -s)" = Darwin ] || { fs_fail 'The iPhone simulator needs macOS.'; exit 1; }
 fs_flutter_version_ok || { fs_fail 'Pinned Flutter SDK missing. Run launchers/mac/1 - Set up this computer.command.'; exit 1; }
-[ -d "$FS_ROOT/mobile/ios" ] && fs_has xcrun || { fs_fail 'iPhone testing is not set up. Run START-MAC.command > 8 > 5.'; exit 1; }
+{ [ -d "$FS_ROOT/mobile/ios" ] && fs_has xcrun && [ -d /Applications/Xcode.app ]; } || { fs_fail 'iPhone testing is not set up (Xcode missing). Run START-MAC.command > 8 > 5.'; exit 1; }
 open -a Simulator
 # Boot the newest available iPhone if none is running yet.
 fs_device="$(xcrun simctl list devices booted -j | python3 -c 'import json,sys

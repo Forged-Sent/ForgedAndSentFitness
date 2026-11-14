@@ -1,0 +1,296 @@
+import 'package:flutter/painting.dart';
+
+/// The four bundled typefaces. Nothing is fetched at runtime.
+abstract final class FsFonts {
+  /// Headings and labels: uppercase, tracked.
+  static const String display = 'Saira Condensed';
+
+  /// The splash wordmark in the prototype. Bundled; not used by the shell.
+  static const String stencil = 'Saira Stencil One';
+
+  /// Body text.
+  static const String body = 'IBM Plex Sans';
+
+  /// Scripture. Only the italic is bundled.
+  static const String scripture = 'Merriweather';
+}
+
+/// Text styles by role. Sizes, weights, tracking and line heights are the
+/// prototype's computed values at 390x844. Colors are applied where a style
+/// is used, because most of them change with the theme.
+///
+/// Every style states its tracking, also where the prototype has none
+/// (`letterSpacing: 0`). A style that leaves it out takes Material's default
+/// for body text, a quarter of a point between letters, from the text style
+/// around it; that made lines break a word earlier than the prototype's
+/// until step S1b.
+///
+/// CSS `text-transform: uppercase` has no Flutter equivalent, so the widgets
+/// that use the caps styles uppercase their own text.
+abstract final class FsText {
+  /// "FORGED & SENT" in the brand bar.
+  static const TextStyle brandBar = TextStyle(
+    fontFamily: FsFonts.display,
+    fontWeight: FontWeight.w700,
+    fontSize: 12.5,
+    letterSpacing: 2.25,
+    height: 1.4,
+  );
+
+  /// The splash wordmark. Defined for later use.
+  static const TextStyle wordmark = TextStyle(
+    fontFamily: FsFonts.stencil,
+    fontWeight: FontWeight.w400,
+    fontSize: 28,
+    letterSpacing: 1.4,
+    height: 1.1,
+  );
+
+  /// The small caps line above a hero title.
+  static const TextStyle kicker = TextStyle(
+    fontFamily: FsFonts.display,
+    fontWeight: FontWeight.w600,
+    fontSize: 12.5,
+    letterSpacing: 1.5,
+    height: 1.4,
+  );
+
+  /// Today's hero title.
+  static const TextStyle heroTitleLarge = TextStyle(
+    fontFamily: FsFonts.display,
+    fontWeight: FontWeight.w800,
+    fontSize: 38,
+    letterSpacing: 0.76,
+    height: 0.95,
+  );
+
+  /// Every other page's hero title.
+  static const TextStyle heroTitle = TextStyle(
+    fontFamily: FsFonts.display,
+    fontWeight: FontWeight.w800,
+    fontSize: 32,
+    letterSpacing: 0.64,
+    height: 0.95,
+  );
+
+  /// The line under the hero title.
+  static const TextStyle heroSubtitle = TextStyle(
+    fontFamily: FsFonts.display,
+    fontWeight: FontWeight.w600,
+    fontSize: 16.5,
+    letterSpacing: 0.495,
+    height: 1.2,
+  );
+
+  /// Uppercase tracked label ([FsLabelCaps]).
+  static const TextStyle labelCaps = TextStyle(
+    fontFamily: FsFonts.display,
+    fontWeight: FontWeight.w600,
+    fontSize: 14,
+    letterSpacing: 1.68,
+    height: 1.4,
+  );
+
+  /// Primary and ghost buttons.
+  static const TextStyle button = TextStyle(
+    fontFamily: FsFonts.display,
+    fontWeight: FontWeight.w700,
+    fontSize: 14,
+    letterSpacing: 1.4,
+    height: 1.4,
+  );
+
+  /// Mini buttons.
+  static const TextStyle buttonMini = TextStyle(
+    fontFamily: FsFonts.display,
+    fontWeight: FontWeight.w600,
+    fontSize: 12.5,
+    letterSpacing: 1.25,
+    height: 1.4,
+  );
+
+  /// Tab bar labels.
+  static const TextStyle tabLabel = TextStyle(
+    fontFamily: FsFonts.display,
+    fontWeight: FontWeight.w600,
+    fontSize: 10.5,
+    letterSpacing: 0.21,
+    height: 1.4,
+  );
+
+  /// The initial or glyph in the round profile button.
+  static const TextStyle avatar = TextStyle(
+    fontFamily: FsFonts.display,
+    fontWeight: FontWeight.w700,
+    fontSize: 14,
+    letterSpacing: 0,
+    height: 1.4,
+  );
+
+  /// A card's title.
+  static const TextStyle sectionTitle = TextStyle(
+    fontFamily: FsFonts.body,
+    fontWeight: FontWeight.w600,
+    fontSize: 15,
+    letterSpacing: 0,
+    height: 1.4,
+  );
+
+  static const TextStyle body = TextStyle(
+    fontFamily: FsFonts.body,
+    fontWeight: FontWeight.w400,
+    fontSize: 14,
+    letterSpacing: 0,
+    height: 1.4,
+  );
+
+  /// Notes under a card's content.
+  static const TextStyle bodySmall = TextStyle(
+    fontFamily: FsFonts.body,
+    fontWeight: FontWeight.w400,
+    fontSize: 12.5,
+    letterSpacing: 0,
+    height: 1.4,
+  );
+
+  /// The count in the middle of the progress ring.
+  static const TextStyle ringValue = TextStyle(
+    fontFamily: FsFonts.display,
+    fontWeight: FontWeight.w800,
+    fontSize: 24,
+    letterSpacing: 0,
+    height: 1,
+  );
+
+  /// The word under that count.
+  static const TextStyle ringLabel = TextStyle(
+    fontFamily: FsFonts.display,
+    fontWeight: FontWeight.w700,
+    fontSize: 10,
+    letterSpacing: 1.4,
+    height: 1.4,
+  );
+
+  /// A row beside the ring: "SPIRIT" on the left, "0 OF 2" on the right.
+  static const TextStyle stat = TextStyle(
+    fontFamily: FsFonts.display,
+    fontWeight: FontWeight.w600,
+    fontSize: 12,
+    letterSpacing: 1.2,
+    height: 1.4,
+  );
+
+  /// The "1 / 7" at the right of a section head.
+  static const TextStyle tally = TextStyle(
+    fontFamily: FsFonts.display,
+    fontWeight: FontWeight.w700,
+    fontSize: 24.5,
+    letterSpacing: 0,
+    height: 1,
+  );
+
+  /// The small caps line above a box's title.
+  static const TextStyle boxCommand = TextStyle(
+    fontFamily: FsFonts.display,
+    fontWeight: FontWeight.w700,
+    fontSize: 10.5,
+    letterSpacing: 1.47,
+    height: 1.2,
+  );
+
+  /// A box's title.
+  static const TextStyle boxTitle = TextStyle(
+    fontFamily: FsFonts.body,
+    fontWeight: FontWeight.w700,
+    fontSize: 15,
+    letterSpacing: 0,
+    height: 1.1,
+  );
+
+  /// A box's point value, where it is shown.
+  static const TextStyle boxPoints = TextStyle(
+    fontFamily: FsFonts.display,
+    fontWeight: FontWeight.w700,
+    fontSize: 14,
+    letterSpacing: 1.12,
+    height: 1.4,
+  );
+
+  /// The date at the top of a reading. The prototype asks for a bold
+  /// upright Merriweather; only the italic is bundled, so it is drawn as
+  /// the browser draws it: the italic, thickened.
+  static const TextStyle readingTitle = TextStyle(
+    fontFamily: FsFonts.scripture,
+    fontStyle: FontStyle.italic,
+    fontWeight: FontWeight.w800,
+    fontSize: 26,
+    letterSpacing: 0.52,
+    height: 0.95,
+  );
+
+  /// The series line under a reading's date.
+  static const TextStyle readingSeries = TextStyle(
+    fontFamily: FsFonts.display,
+    fontWeight: FontWeight.w700,
+    fontSize: 13,
+    letterSpacing: 0.78,
+    height: 1.4,
+  );
+
+  /// The headline under a reading's date.
+  static const TextStyle readingHeadline = TextStyle(
+    fontFamily: FsFonts.display,
+    fontWeight: FontWeight.w700,
+    fontSize: 22,
+    letterSpacing: 0.22,
+    height: 1.15,
+  );
+
+  /// The words in a tag pill ([FsTag]).
+  static const TextStyle tag = TextStyle(
+    fontFamily: FsFonts.display,
+    fontWeight: FontWeight.w700,
+    fontSize: 12,
+    letterSpacing: 0.96,
+    height: 1.4,
+  );
+
+  /// The label of a section of a reading: "// OPEN IN PRAYER".
+  static const TextStyle sectionLabel = TextStyle(
+    fontFamily: FsFonts.display,
+    fontWeight: FontWeight.w600,
+    fontSize: 13,
+    letterSpacing: 1.56,
+    height: 1.4,
+  );
+
+  /// The verse of a reading.
+  static const TextStyle scriptureLarge = TextStyle(
+    fontFamily: FsFonts.scripture,
+    fontStyle: FontStyle.italic,
+    fontWeight: FontWeight.w400,
+    fontSize: 16.5,
+    letterSpacing: 0,
+    height: 1.55,
+  );
+
+  /// A reflection question, set like scripture but smaller.
+  static const TextStyle scriptureSmall = TextStyle(
+    fontFamily: FsFonts.scripture,
+    fontStyle: FontStyle.italic,
+    fontWeight: FontWeight.w400,
+    fontSize: 14,
+    letterSpacing: 0,
+    height: 1.55,
+  );
+
+  /// Scripture and the "i" of the help button.
+  static const TextStyle scripture = TextStyle(
+    fontFamily: FsFonts.scripture,
+    fontStyle: FontStyle.italic,
+    fontWeight: FontWeight.w400,
+    fontSize: 15,
+    letterSpacing: 0,
+    height: 1.45,
+  );
+}
