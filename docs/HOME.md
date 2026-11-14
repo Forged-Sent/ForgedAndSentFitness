@@ -9,12 +9,7 @@ Open this page first, in Obsidian, from the `main` checkout. Pick the one action
 >
 > Task: Agents may merge after review · Lane: Next
 
-## Also ready or in progress
-
-- **Next** · S0 Design foundation: Run prompt [P04](reviews/2026-11-10-prototype-to-flutter/prompts/P04-S0-design-foundation-and-shell.md)
-- **Next** · S1 Today and Devotional: Run prompt [P05](reviews/2026-11-10-prototype-to-flutter/prompts/P05-S1-today-and-devotional.md) after S0 and after the completion-event key is fixed (see Later)
-
-Board now: Next 3 · In progress 0 · Waiting 4 · Done 5 · Later 15.
+Board now: Next 1 · In progress 0 · Waiting 4 · Done 8 · Later 29.
 <!-- work-focus:end -->
 
 ## Where to go
