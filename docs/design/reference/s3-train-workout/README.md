@@ -31,7 +31,7 @@ The layout is what is being compared. These differ on purpose:
 - **Left out of S3 (prompt P07):** on Train, the weekly challenge buttons, "New to the gym", "Ready to protect", the calendar strip, "Move day", "Add your own workout", the week's collapse button, the charts and the plan form. On the workout page, the search and help buttons, Coach Gideon's guidance, the warm-up, "Add exercise", the "Alt" swap button, the muscle picture and video link, the cue line, "Add a note for next time", "Warm-up set" and "Add set", the superset group, the cool-down, the PR count and "Share".
 - **Nothing about the body.** The prototype's "Before you lift" (sleep and stress), "On your last set, how many more could you have done?" and "After your workout" are not in the app: it stores and asks for nothing about the body.
 - **The prayer has "Not now"** (decision Q11). The prototype has Amen only.
-- **RPE and RIR.** The app shows "3 x 5 (RPE 7, rest 2 min)", as `seed/workouts.json` has it; the prototype strips the guidance and shows "3 x 5 (rest 2 min)". Not yet confirmed by the maintainer.
+- **RPE and RIR.** The app shows "3 x 5 (RPE 7, rest 2 min)", as `seed/workouts.json` has it; the prototype strips the guidance and shows "3 x 5 (rest 2 min)". The maintainer decided on 2026-11-13 that the app shows it.
 - **Pause.** The prototype's clock has a Pause button; the app's clock has none.
 - **The clock's time.** The prototype's pictures show the seconds its script took; the goldens set the clock to 12:34 and 42:00.
 - **Lines between exercises** are solid in the app and dashed in the prototype.

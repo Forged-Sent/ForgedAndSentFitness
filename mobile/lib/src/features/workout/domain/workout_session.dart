@@ -110,6 +110,16 @@ class SessionExercise {
             set.weightLb != null);
   }
 
+  /// What [set] is missing, if something is entered in it and it still
+  /// does not count: its reps (or seconds) where only a weight was typed,
+  /// or its weight where the lift needs one. Null for a set that counts,
+  /// for one left empty, and for a tick row.
+  SetGap? gapOf(SessionSet set) {
+    if (measure == SetMeasure.tick || isLogged(set)) return null;
+    if ((set.reps ?? 0) > 0) return SetGap.weight;
+    return set.weightLb == null ? null : SetGap.reps;
+  }
+
   /// The rest timer at [nowUtc], worked out from the stored timestamps, so
   /// it is right after the app was closed and opened again.
   RestState restAt(DateTime nowUtc) => restStateAt(
@@ -118,6 +128,15 @@ class SessionExercise {
     endsAtUtc: restEndsAtUtc,
     pausedSeconds: restPausedSeconds,
   );
+}
+
+/// What a set entered halfway is missing. See [SessionExercise.gapOf].
+enum SetGap {
+  /// A weight was typed and no reps, or no seconds for a timed set.
+  reps,
+
+  /// Reps were typed and no weight, on a lift that needs one.
+  weight,
 }
 
 /// Where a rest timer stands at [nowUtc], given what is stored for it: its
@@ -311,62 +330,70 @@ class LastSet {
 
 /// One set the finish check points at.
 class SetIssue {
-  const SetIssue({required this.setId, required this.text});
+  const SetIssue({required this.setId, required this.text, this.blank = false});
 
   final String setId;
 
   /// For example `Barbell Back Squat, Set 2: add the weight`.
   final String text;
+
+  /// True if nothing at all is entered in the set.
+  final bool blank;
 }
 
 /// What stands between a session and finishing it. The prototype's
-/// `workoutFixes`.
+/// `workoutFixes`, with the maintainer's rule of 2026-11-13 for a weight
+/// with no reps.
 class FinishCheck {
-  const FinishCheck({required this.fixes, required this.blanks});
+  const FinishCheck({required this.fixes, required this.uncounted});
 
-  /// Sets entered halfway: reps without the weight a loaded lift needs,
-  /// or a weight without reps, whether or not the lift needs a weight.
-  /// These must be fixed before finishing.
+  /// Sets with reps and no weight, on a lift that needs one. These must be
+  /// fixed before finishing.
   final List<SetIssue> fixes;
 
-  /// Sets with nothing entered. He may finish without them.
-  final List<SetIssue> blanks;
+  /// Sets that will not be counted, in the order they stand on the page:
+  /// nothing is entered, or a weight and no reps (or seconds). He may
+  /// finish without them, and the summary then says which had a weight.
+  final List<SetIssue> uncounted;
 
-  bool get clear => fixes.isEmpty && blanks.isEmpty;
+  /// True if every set in [uncounted] has nothing entered at all.
+  bool get onlyBlanks => uncounted.every((SetIssue issue) => issue.blank);
+
+  bool get clear => fixes.isEmpty && uncounted.isEmpty;
 }
 
 FinishCheck checkBeforeFinish(WorkoutSession session) {
   final fixes = <SetIssue>[];
-  final blanks = <SetIssue>[];
+  final uncounted = <SetIssue>[];
   for (final exercise in session.exercises) {
     if (exercise.measure == SetMeasure.tick) continue;
-    final timed = exercise.measure == SetMeasure.seconds;
-    final noWeightNeeded = timed || exercise.weightMode != WeightMode.required;
+    final unit = exercise.measure == SetMeasure.seconds ? 'seconds' : 'reps';
     for (var i = 0; i < exercise.sets.length; i++) {
       final set = exercise.sets[i];
-      final hasReps = (set.reps ?? 0) > 0;
-      final hasWeight = set.weightLb != null;
-      if (hasReps && (noWeightNeeded || hasWeight)) continue;
+      if (exercise.isLogged(set)) continue;
       final label = '${exercise.name}, Set ${i + 1}';
-      // A weight with no reps is a set entered halfway, also where the
-      // weight is optional. The prototype calls that set blank and lets
-      // him finish without it; the weight he typed would then be in a
-      // locked workout and shown nowhere.
-      if (!hasReps && !hasWeight) {
-        blanks.add(SetIssue(setId: set.id, text: '$label: nothing entered'));
-      } else {
-        fixes.add(
-          SetIssue(
-            setId: set.id,
-            text: hasReps
-                ? '$label: add the weight'
-                : '$label: add the ${timed ? 'seconds' : 'reps'}',
-          ),
-        );
+      switch (exercise.gapOf(set)) {
+        case SetGap.weight:
+          fixes.add(SetIssue(setId: set.id, text: '$label: add the weight'));
+        case SetGap.reps:
+          // The maintainer's rule: a weight with no reps does not hold
+          // Finish up, on any lift. The prototype holds it up on a loaded
+          // lift ("add the reps") and calls it blank on the others.
+          uncounted.add(
+            SetIssue(setId: set.id, text: '$label: a weight but no $unit'),
+          );
+        case null:
+          uncounted.add(
+            SetIssue(
+              setId: set.id,
+              text: '$label: nothing entered',
+              blank: true,
+            ),
+          );
       }
     }
   }
-  return FinishCheck(fixes: fixes, blanks: blanks);
+  return FinishCheck(fixes: fixes, uncounted: uncounted);
 }
 
 /// What finishing a session did.

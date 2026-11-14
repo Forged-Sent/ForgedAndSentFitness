@@ -295,6 +295,29 @@ void main() {
       expect(walk.isLogged(_set('a', ticked: true)), isTrue);
       expect(walk.isLogged(_set('a')), isFalse);
     });
+
+    test('a set entered halfway says what it is missing; a set that '
+        'counts, and one left empty, are missing nothing', () {
+      final squat = _exercise();
+      expect(squat.gapOf(_set('a', reps: 5)), SetGap.weight);
+      expect(squat.gapOf(_set('a', weight: 135)), SetGap.reps);
+      expect(squat.gapOf(_set('a', reps: 5, weight: 135)), isNull);
+      expect(squat.gapOf(_set('a')), isNull);
+
+      final pullUp = _exercise(weightMode: WeightMode.optional);
+      expect(pullUp.gapOf(_set('a', reps: 8)), isNull);
+      expect(pullUp.gapOf(_set('a', weight: 25)), SetGap.reps);
+
+      final carry = _exercise(measure: SetMeasure.seconds);
+      expect(carry.gapOf(_set('a', reps: 30)), isNull);
+      expect(carry.gapOf(_set('a', weight: 50)), SetGap.reps);
+
+      final walk = _exercise(
+        measure: SetMeasure.tick,
+        weightMode: WeightMode.none,
+      );
+      expect(walk.gapOf(_set('a')), isNull);
+    });
   });
 
   group('the check before finishing (the prototype\'s workoutFixes)', () {
@@ -313,8 +336,8 @@ void main() {
       expect(check.clear, isTrue);
     });
 
-    test('reps without the weight, or the weight without reps, must be '
-        'fixed', () {
+    test('reps without the weight must be fixed; the weight without reps '
+        'holds nothing up and is not counted', () {
       final check = checkBeforeFinish(
         _session(<SessionExercise>[
           _exercise(
@@ -327,12 +350,15 @@ void main() {
         ]),
       );
 
-      expect(check.blanks, isEmpty);
-      expect(check.fixes.map((f) => f.setId), <String>['b', 'c']);
+      expect(check.fixes.map((f) => f.setId), <String>['b']);
       expect(check.fixes.map((f) => f.text), <String>[
         'Barbell Back Squat, Set 2: add the weight',
-        'Barbell Back Squat, Set 3: add the reps',
       ]);
+      expect(check.uncounted.map((u) => u.setId), <String>['c']);
+      expect(check.uncounted.map((u) => u.text), <String>[
+        'Barbell Back Squat, Set 3: a weight but no reps',
+      ]);
+      expect(check.onlyBlanks, isFalse);
     });
 
     test('a set with nothing entered is blank, not wrong', () {
@@ -351,14 +377,15 @@ void main() {
       );
 
       expect(check.fixes, isEmpty);
-      expect(check.blanks.map((b) => b.text), <String>[
+      expect(check.uncounted.map((b) => b.text), <String>[
         'Barbell Back Squat, Set 2: nothing entered',
         'Plank, Set 1: nothing entered',
       ]);
+      expect(check.onlyBlanks, isTrue);
     });
 
-    test('an added weight with no reps must be fixed too, though the '
-        'weight is optional', () {
+    test('a weight with no reps, or no seconds, holds nothing up on any '
+        'lift, and is told apart from a set left empty', () {
       final check = checkBeforeFinish(
         _session(<SessionExercise>[
           _exercise(
@@ -381,12 +408,16 @@ void main() {
         ]),
       );
 
-      expect(check.fixes.map((f) => f.text), <String>[
-        'Pull-Up, Set 3: add the reps',
-        'Suitcase Carry, Set 1: add the seconds',
+      expect(check.fixes, isEmpty);
+      // In the order they stand on the page.
+      expect(check.uncounted.map((u) => u.text), <String>[
+        'Pull-Up, Set 3: a weight but no reps',
+        'Pull-Up, Set 4: nothing entered',
+        'Suitcase Carry, Set 1: a weight but no seconds',
       ]);
-      expect(check.fixes.map((f) => f.setId), <String>['c', 'e']);
-      expect(check.blanks.map((b) => b.setId), <String>['d']);
+      expect(check.uncounted.map((u) => u.setId), <String>['c', 'd', 'e']);
+      expect(check.uncounted.map((u) => u.blank), <bool>[false, true, false]);
+      expect(check.onlyBlanks, isFalse);
     });
 
     test('a tick row left unticked holds nothing up', () {

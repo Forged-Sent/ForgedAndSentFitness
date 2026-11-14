@@ -32,6 +32,15 @@ const String workoutNewDayNotice =
 /// What the page says when a change could not be stored.
 const String workoutSaveFailedNotice = 'That did not save. Try again.';
 
+/// The names the page keeps a change by while it is not stored. A set's
+/// and an exercise's ids are in theirs, so each is told apart.
+const String _startChange = 'start';
+const String _finishChange = 'finish';
+String _repsChange(SessionSet set) => 'reps:${set.id}';
+String _weightChange(SessionSet set) => 'weight:${set.id}';
+String _tickChange(SessionSet set) => 'tick:${set.id}';
+String _restChange(SessionExercise exercise) => 'rest:${exercise.id}';
+
 /// The largest numbers a set accepts: the prototype's limits.
 const double _maxReps = 999;
 const double _maxWeightLb = 2000;
@@ -56,8 +65,12 @@ class WorkoutPage extends ConsumerStatefulWidget {
 
 class _WorkoutPageState extends ConsumerState<WorkoutPage> {
   bool _busy = false;
-  bool _saveFailed = false;
   bool _newDay = false;
+
+  /// What could not be stored and has not been stored since, by what was
+  /// being changed: one set's reps, one exercise's rest timer, the start,
+  /// the finish. The page says "That did not save" while any is left.
+  final Set<String> _unsaved = <String>{};
 
   /// The sets the finish check pointed at, outlined until they are fixed.
   Set<String> _needsFixing = const <String>{};
@@ -91,12 +104,22 @@ class _WorkoutPageState extends ConsumerState<WorkoutPage> {
 
   void _flush() => unawaited(_model.flush());
 
-  /// Follows one write: if it could not be stored, the page says so.
-  void _track(Future<bool> write) {
+  /// Records whether the last attempt at [change] was stored. True if that
+  /// changes what the page has to say.
+  ///
+  /// A change that failed stays in [_unsaved] until a later attempt at the
+  /// same thing is stored. Another change being stored does not clear it:
+  /// the one that failed is still not in the store.
+  bool _mark(String change, {required bool saved}) =>
+      saved ? _unsaved.remove(change) : _unsaved.add(change);
+
+  /// Follows one write of [change]: if it could not be stored, the page
+  /// says so. Writes are stored in the order they were made, so the last
+  /// answer for a change is the answer for what he entered last.
+  void _track(String change, Future<bool> write) {
     unawaited(
       write.then((bool saved) {
-        if (!mounted || saved == !_saveFailed) return;
-        setState(() => _saveFailed = !saved);
+        if (mounted && _mark(change, saved: saved)) setState(() {});
       }),
     );
   }
@@ -111,7 +134,7 @@ class _WorkoutPageState extends ConsumerState<WorkoutPage> {
       if (mounted) {
         setState(() {
           _busy = false;
-          _saveFailed = true;
+          _mark(_startChange, saved: false);
         });
       }
       return;
@@ -128,7 +151,7 @@ class _WorkoutPageState extends ConsumerState<WorkoutPage> {
     if (!mounted) return;
     setState(() {
       _busy = false;
-      _saveFailed = outcome == StartOutcome.failed;
+      _mark(_startChange, saved: outcome != StartOutcome.failed);
       _newDay = outcome == StartOutcome.newDay;
     });
   }
@@ -149,7 +172,7 @@ class _WorkoutPageState extends ConsumerState<WorkoutPage> {
       );
       return;
     }
-    if (check.blanks.isNotEmpty) {
+    if (check.uncounted.isNotEmpty) {
       final anyway = await showFsDialog<bool>(
         context,
         builder: (BuildContext context) => _FinishCheckDialog(check: check),
@@ -161,7 +184,7 @@ class _WorkoutPageState extends ConsumerState<WorkoutPage> {
     if (!mounted) return;
     setState(() {
       _busy = false;
-      _saveFailed = !saved;
+      _mark(_finishChange, saved: saved);
       _needsFixing = const <String>{};
     });
     // Finish is at the foot of the page. The summary that replaces the
@@ -278,7 +301,7 @@ class _WorkoutPageState extends ConsumerState<WorkoutPage> {
                   color: colors.highlight,
                   live: true,
                 ),
-              if (_saveFailed)
+              if (_unsaved.isNotEmpty)
                 _Notice(
                   workoutSaveFailedNotice,
                   key: const ValueKey<String>('fs-workout-save-failed'),
@@ -565,7 +588,9 @@ class _LiveExercise extends StatelessWidget {
 
   final Set<String> needsFixing;
   final WorkoutViewModel model;
-  final void Function(Future<bool> write) track;
+
+  /// Follows one write, named by what it changes.
+  final void Function(String change, Future<bool> write) track;
 
   @override
   Widget build(BuildContext context) {
@@ -595,8 +620,10 @@ class _LiveExercise extends StatelessWidget {
           _TickRow(
             index: index,
             exercise: exercise,
-            onChanged: (bool ticked) =>
-                track(model.setTicked(exercise.sets.first.id, ticked: ticked)),
+            onChanged: (bool ticked) => track(
+              _tickChange(exercise.sets.first),
+              model.setTicked(exercise.sets.first.id, ticked: ticked),
+            ),
           )
         else ...<Widget>[
           for (var i = 0; i < exercise.sets.length; i++)
@@ -610,10 +637,14 @@ class _LiveExercise extends StatelessWidget {
                   ? last.sets[i]
                   : null,
               needsFixing: needsFixing.contains(exercise.sets[i].id),
-              onReps: (double? reps) =>
-                  track(model.setReps(exercise.sets[i].id, reps?.round())),
-              onWeight: (double? weight) =>
-                  track(model.setWeight(exercise.sets[i].id, weight)),
+              onReps: (double? reps) => track(
+                _repsChange(exercise.sets[i]),
+                model.setReps(exercise.sets[i].id, reps?.round()),
+              ),
+              onWeight: (double? weight) => track(
+                _weightChange(exercise.sets[i]),
+                model.setWeight(exercise.sets[i].id, weight),
+              ),
             ),
           const SizedBox(height: 6),
           Text(
@@ -944,11 +975,13 @@ class _RestBar extends StatelessWidget {
   final int index;
   final SessionExercise exercise;
   final WorkoutViewModel model;
-  final void Function(Future<bool> write) track;
+  final void Function(String change, Future<bool> write) track;
 
   @override
   Widget build(BuildContext context) {
     final colors = FsColors.of(context);
+    // Every button writes the timer whole, so they are one change.
+    final change = _restChange(exercise);
     return Padding(
       padding: const EdgeInsets.only(top: 12),
       child: DecoratedBox(
@@ -1001,15 +1034,19 @@ class _RestBar extends StatelessWidget {
                     key: ValueKey<String>('fs-rest-less-$index'),
                     label: '−15',
                     semanticLabel: 'Subtract 15 seconds',
-                    onPressed: () =>
-                        track(model.adjustRest(exercise, -restStepSeconds)),
+                    onPressed: () => track(
+                      change,
+                      model.adjustRest(exercise, -restStepSeconds),
+                    ),
                   ),
                   FsButton.mini(
                     key: ValueKey<String>('fs-rest-more-$index'),
                     label: '+15',
                     semanticLabel: 'Add 15 seconds',
-                    onPressed: () =>
-                        track(model.adjustRest(exercise, restStepSeconds)),
+                    onPressed: () => track(
+                      change,
+                      model.adjustRest(exercise, restStepSeconds),
+                    ),
                   ),
                   FsButton.mini(
                     key: ValueKey<String>('fs-rest-go-$index'),
@@ -1025,6 +1062,7 @@ class _RestBar extends StatelessWidget {
                         : 'Start the rest timer',
                     selected: rest.running,
                     onPressed: () => track(
+                      change,
                       rest.running
                           ? model.pauseRest(exercise)
                           : model.startRest(exercise),
@@ -1034,7 +1072,7 @@ class _RestBar extends StatelessWidget {
                     key: ValueKey<String>('fs-rest-reset-$index'),
                     label: 'Reset',
                     semanticLabel: 'Reset the rest timer',
-                    onPressed: () => track(model.resetRest(exercise)),
+                    onPressed: () => track(change, model.resetRest(exercise)),
                   ),
                 ],
               );
@@ -1169,20 +1207,38 @@ class _Stat extends StatelessWidget {
 }
 
 /// One exercise of a finished workout: its name, then a line per logged
-/// set, or "Not logged".
+/// set, or "Not logged". A set entered halfway has a line too, which says
+/// it was not counted and what it is missing (the maintainer's rule of
+/// 2026-11-13); a set left empty has none.
 class _SummaryExercise extends StatelessWidget {
   const _SummaryExercise({required this.exercise});
 
   final SessionExercise exercise;
 
+  /// "Not counted: 135 lb, no reps". Null for a set that counts and for
+  /// one left empty.
+  String? _notCounted(SessionSet set) {
+    final gap = exercise.gapOf(set);
+    if (gap == null) return null;
+    final unit = exercise.measure == SetMeasure.seconds ? 'seconds' : 'reps';
+    final entered = gap == SetGap.reps
+        ? '${FsNumberField.format(set.weightLb)} lb, no $unit'
+        : '${set.reps} ${set.reps == 1 ? 'rep' : 'reps'}, no weight';
+    return 'Not counted: $entered';
+  }
+
   @override
   Widget build(BuildContext context) {
     final colors = FsColors.of(context);
     final loaded = exercise.weightMode == WeightMode.required;
-    final lines = <(String, String)>[];
+    final lines = <(String label, String value, bool counted)>[];
     for (var i = 0; i < exercise.sets.length; i++) {
       final set = exercise.sets[i];
-      if (!exercise.isLogged(set)) continue;
+      if (!exercise.isLogged(set)) {
+        final notCounted = _notCounted(set);
+        if (notCounted != null) lines.add(('Set ${i + 1}', notCounted, false));
+        continue;
+      }
       final String value;
       switch (exercise.measure) {
         case SetMeasure.tick:
@@ -1201,7 +1257,7 @@ class _SummaryExercise extends StatelessWidget {
             value = '${set.reps} reps (bodyweight)';
           }
       }
-      lines.add(('Set ${i + 1}', value));
+      lines.add(('Set ${i + 1}', value, true));
     }
 
     return DecoratedBox(
@@ -1224,7 +1280,7 @@ class _SummaryExercise extends StatelessWidget {
                 style: FsText.bodySmall.copyWith(color: colors.textMuted),
               )
             else
-              for (final (label, value) in lines)
+              for (final (label, value, counted) in lines)
                 Padding(
                   padding: const EdgeInsets.symmetric(vertical: 3),
                   child: MergeSemantics(
@@ -1243,7 +1299,7 @@ class _SummaryExercise extends StatelessWidget {
                           child: Text(
                             value,
                             style: FsWorkoutText.summaryValue.copyWith(
-                              color: colors.text,
+                              color: counted ? colors.text : colors.textMuted,
                             ),
                           ),
                         ),
@@ -1259,7 +1315,8 @@ class _SummaryExercise extends StatelessWidget {
 }
 
 /// What the finish check found: sets that must be fixed first, or sets
-/// left blank that he may finish without. The prototype's `openFixes`.
+/// that will not be counted, which he may finish without. The prototype's
+/// `openFixes`, whose words are kept where every such set is blank.
 ///
 /// Pops with true for "Finish anyway"; anything else means go back.
 class _FinishCheckDialog extends StatelessWidget {
@@ -1271,14 +1328,31 @@ class _FinishCheckDialog extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = FsColors.of(context);
     final hard = check.fixes.isNotEmpty;
-    final list = hard ? check.fixes : check.blanks;
+    final list = hard ? check.fixes : check.uncounted;
     const shown = 8;
+
+    final String title;
+    final String body;
+    if (hard) {
+      title = 'Fix ${list.length == 1 ? 'this set' : 'these sets'} first';
+      body =
+          'A set with reps needs its weight before you finish. The sets to '
+          'fix are outlined in red.';
+    } else if (check.onlyBlanks) {
+      title = 'Some sets are blank';
+      body =
+          'These sets have nothing entered. Fill them in if you did them, '
+          'or finish without them.';
+    } else {
+      title = 'Some sets will not be counted';
+      body =
+          'A set counts only with its reps or seconds. Fill them in if you '
+          'did them, or finish without them.';
+    }
 
     return FsDialog(
       tone: hard ? FsDialogTone.warning : FsDialogTone.notice,
-      title: hard
-          ? 'Fix ${list.length == 1 ? 'this set' : 'these sets'} first'
-          : 'Some sets are blank',
+      title: title,
       actionsInRow: !hard,
       actions: <Widget>[
         if (hard)
@@ -1302,11 +1376,7 @@ class _FinishCheckDialog extends StatelessWidget {
       ],
       children: <Widget>[
         Text(
-          hard
-              ? 'Every set needs reps and weight before you finish. The sets '
-                    'to fix are outlined in red.'
-              : 'These sets have nothing entered. Fill them in if you did '
-                    'them, or finish without them.',
+          body,
           style: FsWorkoutText.dialogBody.copyWith(color: colors.text),
         ),
         const SizedBox(height: 8),

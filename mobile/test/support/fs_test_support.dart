@@ -115,6 +115,10 @@ class TestWorkoutRepository extends MemoryWorkoutRepository {
   /// throws, as a full or broken disk would.
   bool failWrites = false;
 
+  /// When true, a day's session cannot be read: the stream the screens
+  /// listen to fails, as it would on a broken database file.
+  bool failSessionReads = false;
+
   Completer<void>? _held;
 
   /// From now on a change to a set waits, as it would behind a slow disk,
@@ -133,6 +137,12 @@ class TestWorkoutRepository extends MemoryWorkoutRepository {
   void _refuse() {
     if (failWrites) throw StateError('The test refused this save.');
   }
+
+  @override
+  Stream<WorkoutSession?> watchSession(String ownerId, LocalDate day) =>
+      failSessionReads
+      ? Stream<WorkoutSession?>.error(StateError('The test refused this read.'))
+      : super.watchSession(ownerId, day);
 
   @override
   Future<WorkoutSession> startSession(NewSession session) async {
@@ -159,6 +169,22 @@ class TestWorkoutRepository extends MemoryWorkoutRepository {
     await _held?.future;
     _refuse();
     return super.setTicked(setId, ticked: ticked);
+  }
+
+  @override
+  Future<void> setRest(
+    String exerciseId, {
+    required int baseSeconds,
+    DateTime? endsAtUtc,
+    int? pausedSeconds,
+  }) async {
+    _refuse();
+    return super.setRest(
+      exerciseId,
+      baseSeconds: baseSeconds,
+      endsAtUtc: endsAtUtc,
+      pausedSeconds: pausedSeconds,
+    );
   }
 }
 

@@ -235,6 +235,31 @@ void main() {
     handle.dispose();
   });
 
+  testWidgets('if today\'s session cannot be read, Train says so, and "Try '
+      'again" reads it again', (tester) async {
+    final store = testStore();
+    final workouts = store.workouts as TestWorkoutRepository;
+    workouts.failSessionReads = true;
+    await pumpApp(tester, store: store, clock: TestClock(liftingEvening));
+    await openTab(tester, 'Train');
+
+    expect(find.text('Your plan could not be loaded.'), findsOneWidget);
+    expect(trainTodayRow, findsNothing);
+
+    // Still broken: trying again says the same.
+    await tester.tap(find.text('TRY AGAIN'));
+    await tester.pumpAndSettle();
+    expect(find.text('Your plan could not be loaded.'), findsOneWidget);
+
+    // The session can be read again: trying again shows the day.
+    workouts.failSessionReads = false;
+    await tester.tap(find.text('TRY AGAIN'));
+    await tester.pumpAndSettle();
+    expect(find.text('Your plan could not be loaded.'), findsNothing);
+    expect(_status(tester), 'READY TO TRAIN');
+    expect(trainTodayRow, findsOneWidget);
+  });
+
   testWidgets('week rows tell a screen reader the day and what it holds', (
     tester,
   ) async {

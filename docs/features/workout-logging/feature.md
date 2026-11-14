@@ -19,16 +19,18 @@ Build step S3 of the [prototype-to-Flutter review](../../reviews/2026-11-10-prot
 
 It rests on the maintainer's decisions on the [Decisions](../../reviews/2026-11-10-prototype-to-flutter/01-DECISIONS.md) page: Q9 (day boundary), Q10 (use before sign-in), Q11 (the workout prayer), L11 (content source), Q5 (points) and Q6 (streak); and on the design in [the architecture page](../../reviews/2026-11-10-prototype-to-flutter/07-ARCHITECTURE.md), journey J2.
 
-## Needs maintainer confirmation
+## The maintainer's decisions of 2026-11-13
 
-Four things are built and work, and are the maintainer's to confirm or change. Each is marked again where it is described below.
+The maintainer decided these six points for S3 on 2026-11-13, in the session that built it. They are recorded here because the [Decisions](../../reviews/2026-11-10-prototype-to-flutter/01-DECISIONS.md) page is the maintainer's to edit. The app is built to each of them.
 
-| # | What | Built as | The alternative |
+| # | Point | The maintainer's decision | How it is built |
 |---|---|---|---|
-| 1 | **A new member's first week** (review finding U1) | Week 1 is the plan week that holds his next lifting day, today included. Lifting days of that week that are already past stay unlogged | His first lifting day always gets plan day 1 |
-| 2 | **Android back on the workout prayer** | The same as "Not now": the prayer closes and nothing starts. A tap outside the box does nothing. Decision Q11 does not say what back does | Back does nothing, and only the two buttons close the prayer |
-| 3 | **Recovery days** | A recovery day is a session like a lifting day: it is started through the prayer, and finishing it checks the Workout box. This is the prototype's rule | Recovery days do not check the box, or have no session |
-| 4 | **RPE and RIR in prescriptions** | Shown, as `seed/workouts.json` has them: "3 x 5 (RPE 7, rest 2 min)". The prototype strips them from its own copy and shows "3 x 5 (rest 2 min)". Decision L11 keeps the guidance in `seed/`; whether the app shows it was not decided | Strip them in the app as the prototype does |
+| 1 | **A new member's first week** (review finding U1) | The calendar week, as built | Week 1 is the plan week that holds his next lifting day, today included. Lifting days of that week that are already past stay unlogged |
+| 2 | **Android back on the workout prayer** | The same as "Not now" | The prayer closes and nothing starts |
+| 3 | **Recovery days** | They are sessions, and finishing one checks the box | A recovery day is started through the prayer like a lifting day, and finishing it checks the Workout box |
+| 4 | **RPE and RIR in prescriptions** | Show the guidance | Shown as `seed/workouts.json` has them: "3 x 5 (RPE 7, rest 2 min)". The prototype strips them from its own copy and shows "3 x 5 (rest 2 min)" |
+| 5 | **The start button's words** | Keep "Pray, then train" | v254's words. The prototype on `main` says "Start workout" |
+| 6 | **A set with a weight and no reps** | It does not block Finish. The summary says which sets were not counted and why | True on every lift, loaded or not, and for a timed set with no seconds. He is told before he finishes; the summary has a line "Not counted: 140 lb, no reps". On a loaded lift this differs from the prototype, which holds Finish up there: see the differences below |
 
 ## User outcome
 
@@ -40,18 +42,18 @@ A man opens Train and sees today and this week from the Forged program. He opens
 
 - Today's card: the date, where the day stands ("Ready to train", "Workout complete", "Rest day", "Nothing finished yet today"), and the session to open, or one line that says why there is none.
 - "Your week": Monday to Sunday, each with its session or "Rest day" / "Sabbath" / "Plan starts Monday". A day with a session opens its workout page. A finished day shows a check.
-- **A new member (U1, needs maintainer confirmation 1):** he has a session on his next lifting day at the latest, which is never more than two days away. He never waits for "next week".
+- **A new member (U1, decision 1 above):** he has a session on his next lifting day at the latest, which is never more than two days away. He never waits for "next week".
 - A workout begun on an earlier day and not finished has its own card at the top of Train, with the way back into it.
 
 **The workout page**
 
-- Before it is started: the plan's exercises and prescriptions, and "Start workout". Only today's session can be started. Another day's page shows its plan and says so.
-- **The prayer (Q11):** Start shows the workout prayer with **Amen** and **Not now**. Amen starts the session. Not now, and Android back (needs maintainer confirmation 2), close it and start nothing. A tap outside the box does nothing.
+- Before it is started: the plan's exercises and prescriptions, and the start button, "Pray, then train" (decision 5 above). Only today's session can be started. Another day's page shows its plan and says so.
+- **The prayer (Q11):** the start button shows the workout prayer with **Amen** and **Not now**. Amen starts the session. Not now, and Android back (decision 2 above), close it and start nothing. A tap outside the box does nothing.
 - In progress: one row per set with a box for reps (or seconds) and, where the lift takes one, a box for the weight in pounds. Last time's value for the same set stands under the set's number. A mark fills once the set is logged. An exercise with nothing to count has one "Done?" tick.
 - **Last time (U3):** found by the movement, on the most recent earlier day he logged reps for it. Never by where the exercise stood in the plan.
 - **Rest timer:** per exercise, starting at the rest its prescription writes. Start, Pause, Resume, Reset, and 15 seconds less or more. At zero it reads "GO". It makes no sound.
 - **Clock:** the time since Amen, in a bar that stays at the top.
-- **Finish:** a set with reps and no weight where the lift needs one, or with a weight and no reps, must be fixed first; the page outlines it. Blank sets are listed, and he may finish without them. Finishing locks the workout into a summary: when it was finished, pounds moved, sets logged, and each logged set as text. Nothing in a finished workout can be changed, on the screen or in the store.
+- **Finish:** a set with reps and no weight, where the lift needs one, must be fixed first; the page outlines it. Sets that will not be counted are listed, and he may finish without them: a set with nothing entered, and a set with a weight and no reps or seconds (decision 6 above). Finishing locks the workout into a summary: when it was finished, pounds moved, sets logged, and each logged set as text. A set entered halfway has a line too, which says it was not counted and what it is missing: "Not counted: 140 lb, no reps". A set left empty has no line. Nothing in a finished workout can be changed, on the screen or in the store.
 - **The Workout box on Today** is checked by finishing a workout and by nothing else. A tap on it opens Train.
 
 **What is saved, and how**
@@ -74,18 +76,16 @@ The emulator test has to run on a lifting day whatever day it really is, so `sta
 
 **Failure and edge states**
 
-- **A change cannot be stored:** the page says "That did not save. Try again." The next change that is stored clears the line.
+- **A change cannot be stored:** the page says "That did not save. Try again." The line stays until that change is stored: the same box typed in again, the same tick, a button of the same rest timer, the start or the finish. Another change being stored does not clear it. The box itself goes back to what is stored when he leaves it.
 - **The session cannot be stored:** nothing starts; the page says the same and Start stays.
 - **Finishing cannot be saved:** the workout stays open and the page says so.
 - **Midnight passes between opening the page and Amen:** nothing is started; the page says "It is a new day. Open today's workout from Train."
-- **The plan cannot be loaded:** Train says so and offers "Try again".
+- **The plan, or today's session, cannot be loaded:** Train says so and offers "Try again", which reads all of it again.
 - **Nothing can be kept (the web preview):** Train and the workout page say "Nothing you check here is saved."
 - **Storage cannot be opened at start-up,** including a migration that fails: as in S1, the app opens on the status page and says nothing is saved.
 
 **Known gaps, on the [work board](../../knowledge/WORK.md)**
 
-- If Train cannot be loaded because today's session cannot be read, "Try again" does not read the session again. (Review finding, medium, from the last review round.)
-- "That did not save. Try again." is cleared by the next change that is stored, also when that is a different change and the one that failed is still not stored. (Review finding, medium, from the last review round.)
 - A workout that is never finished stays "in progress" on Train for good.
 - The rest timer makes no sound.
 
@@ -108,7 +108,7 @@ It is not counted among the bundled ESV verses (decision Q7), because it is not 
 
 ## Rules taken from the prototype
 
-The project's rule is that product behavior is not inferred from the prototype. Every rule below is the prototype's, read from `index.html` on `main` (identical in v254 unless noted), built as it stands, and **listed here for the maintainer to confirm**. The four in the table at the top are the ones most likely to need a decision.
+The project's rule is that product behavior is not inferred from the prototype. Every rule below is the prototype's, read from `index.html` on `main` (identical in v254 unless noted), built as it stands, and **listed here for the maintainer to confirm**. Six points are decided, in the table at the top; the rest of this table is still to confirm.
 
 | Rule | Prototype function | How it works |
 |---|---|---|
@@ -125,7 +125,7 @@ The project's rule is that product behavior is not inferred from the prototype. 
 | When a set is logged | `paintDone` | Reps (or seconds) over zero, and a weight where the lift needs one |
 | Number limits | `numField` | Reps to 999, weight to 2,000 lb, added weight to 400 lb, one decimal place for weight |
 | Last time | `liftSessions`, `lastWorking` | The most recent earlier day with reps logged for that movement; each set's value beside the same set; the last working set in one line |
-| The check before finishing | `workoutFixes`, `openFixes` | Half-entered sets must be fixed; blank sets are listed, eight at most, and may be finished without. One difference is listed below |
+| The check before finishing | `workoutFixes`, `openFixes` | Reps with no weight on a loaded lift must be fixed; sets he may finish without are listed, eight at most. What the app does with a weight and no reps is the maintainer's decision 6, and differs from the prototype as listed below |
 | The Workout box | `previewWorkout`, the "auto" box | Checked by finishing; "Checks itself when you finish a workout", then "Finished in Train" |
 | The clock | `wkElapsed`, `fmtElapsed` | The time since the start: "12:34", or "1:02:03" from an hour up; "Workout time", then "Finished in" |
 | The locked summary | `drawLockedSummary`, `volOf` | "Finished at 6:42 PM. Locked."; volume is weight times reps; each logged set as "5 reps × 135 lb", "8 reps (bodyweight)", "25 sec" or "Done" |
@@ -138,7 +138,9 @@ The project's rule is that product behavior is not inferred from the prototype. 
 - **U3:** a session stores each exercise's movement id and prescription. The prototype stores sets by position and reads the names from whatever the plan says later.
 - **Q11:** the prayer has "Not now".
 - At ten minutes "+15" does nothing, and at fifteen seconds "−15" does nothing. In the prototype the full length stays at the limit too, but a running timer still moves by the 15 seconds, so a rest can run longer than ten minutes or be cut to nothing.
-- A weight typed with no reps must be fixed before finishing, also on a bodyweight lift where the weight is optional. The prototype calls that set blank and lets him finish without it, which would leave the weight in a locked workout and show it nowhere.
+- **Decision 6:** a weight typed with no reps, or no seconds, does not hold Finish up on any lift. He is told before he finishes ("Some sets will not be counted", with "a weight but no reps" beside the set), and the summary says "Not counted: 140 lb, no reps". The prototype treats the two kinds of lift differently: on a loaded lift it holds Finish up ("add the reps"); on a bodyweight or timed lift it calls the set blank and lets him finish, and the weight is then shown nowhere.
+- Because of that, the box that holds Finish up says "A set with reps needs its weight before you finish." The prototype's "Every set needs reps and weight before you finish" would no longer be true.
+- **Decision 5:** the start button says "Pray, then train", as v254 does. The prototype on `main` says "Start workout".
 - Reps are whole numbers. The prototype accepts one decimal place.
 - Volume leaves out body weight, because the app stores none.
 - The summary counts "sets logged" and has no PR count; PRs are a later step.
@@ -153,7 +155,7 @@ The app bundles the Forged program and the movement names as copies of `seed/` f
 
 | Content | Difference | What was done |
 |---|---|---|
-| Workouts | Only RPE and RIR: `seed/` has them, the copy in `index.html` has none | `seed/` kept. Needs maintainer confirmation 4 |
+| Workouts | Only RPE and RIR: `seed/` has them, the copy in `index.html` has none | `seed/` kept, and the app shows them (decision 4 above) |
 | Movements | The same 218 movements and videos, in a different field layout | No change |
 | Themes | The copy in `index.html` has a `brief` on all 28 themes; `seed/` had none | `brief` added to `seed/workout-themes.json` by script: a field only one side has is kept |
 | Program descriptions | Two lines differ. `seed/` was last changed on 2026-10-25, `index.html` on 2026-10-29 | The newer wording copied into `seed/workout-programs.json` by script |
@@ -185,7 +187,7 @@ Not done in this step, and on the work board: the challenge point values, which 
 - [x] Content: the Forged program, movement names and the prayer bundled, each checked against its source; L11 applied to the workout library.
 - [x] Screens: Train, the workout page, the prayer, the Workout box on Today.
 - [x] Tests for each of P07's five acceptance items.
-- [ ] Maintainer: confirm or change the four items at the top.
+- [x] Maintainer: the six points at the top, decided on 2026-11-13.
 - [ ] Maintainer: confirm the rules taken from the prototype.
 - [ ] Maintainer: look at the golden images beside the prototype and approve them.
 - [ ] Maintainer: approve this contract, or say what to change.

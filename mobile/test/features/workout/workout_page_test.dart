@@ -387,7 +387,7 @@ void main() {
         isNull,
       );
 
-      // The next change that is stored clears the notice.
+      // The same box, typed in again and stored, clears the notice.
       workouts.failWrites = false;
       await typeNumber(tester, repsField(0, 0), '6');
       await tester.drag(workoutScrollable, const Offset(0, 600));
@@ -397,6 +397,86 @@ void main() {
         (await app.savedSession(tester, _monday))!.exercises.first.sets[0].reps,
         6,
       );
+    });
+
+    testWidgets('the notice stays until the change that failed is stored: '
+        'other changes being stored do not clear it', (tester) async {
+      final app = await pumpApp(tester, clock: TestClock(liftingEvening));
+      await openTodaysWorkout(tester);
+      await startWorkout(tester);
+      final workouts = app.store.workouts as TestWorkoutRepository;
+      final failed = find.byKey(
+        const ValueKey<String>('fs-workout-save-failed'),
+      );
+      Future<void> expectNotice(Matcher matcher) async {
+        await tester.drag(workoutScrollable, const Offset(0, 3000));
+        await tester.pumpAndSettle();
+        expect(failed, matcher);
+      }
+
+      // The reps of set 1 cannot be stored.
+      workouts.failWrites = true;
+      await typeNumber(tester, repsField(0, 0), '5');
+      workouts.failWrites = false;
+      await expectNotice(findsOneWidget);
+
+      // Three other changes are stored: the same set's weight, the next
+      // set's reps, and a rest timer button.
+      await typeNumber(tester, weightField(0, 0), '135');
+      await expectNotice(findsOneWidget);
+      await typeNumber(tester, repsField(0, 1), '4');
+      await expectNotice(findsOneWidget);
+      await _tapOnPage(tester, _rest('more', 0));
+      await expectNotice(findsOneWidget);
+      var squat = (await app.savedSession(tester, _monday))!.exercises.first;
+      expect(squat.sets[0].reps, isNull);
+      expect(squat.sets[0].weightLb, 135);
+      expect(squat.sets[1].reps, 4);
+      expect(squat.restBaseSeconds, 135);
+
+      // The reps of set 1, typed again and stored: nothing is unsaved now.
+      await typeNumber(tester, repsField(0, 0), '5');
+      await expectNotice(findsNothing);
+      squat = (await app.savedSession(tester, _monday))!.exercises.first;
+      expect(squat.sets[0].reps, 5);
+    });
+
+    testWidgets('two changes that failed are each waited for', (tester) async {
+      final app = await pumpApp(tester, clock: TestClock(liftingEvening));
+      await openTodaysWorkout(tester);
+      await startWorkout(tester);
+      final workouts = app.store.workouts as TestWorkoutRepository;
+      final failed = find.byKey(
+        const ValueKey<String>('fs-workout-save-failed'),
+      );
+      Future<void> expectNotice(Matcher matcher) async {
+        await tester.drag(workoutScrollable, const Offset(0, 3000));
+        await tester.pumpAndSettle();
+        expect(failed, matcher);
+      }
+
+      // A set's reps and a rest timer button both fail.
+      workouts.failWrites = true;
+      await typeNumber(tester, repsField(0, 0), '5');
+      await _tapOnPage(tester, _rest('more', 0));
+      workouts.failWrites = false;
+      await expectNotice(findsOneWidget);
+
+      // The timer is stored: the reps are still not.
+      await _tapOnPage(tester, _rest('more', 0));
+      await expectNotice(findsOneWidget);
+      // The timer that failed changed nothing, so this is its first step.
+      expect(
+        (await app.savedSession(
+          tester,
+          _monday,
+        ))!.exercises.first.restBaseSeconds,
+        135,
+      );
+
+      // The reps are stored: both are.
+      await typeNumber(tester, repsField(0, 0), '5');
+      await expectNotice(findsNothing);
     });
 
     testWidgets('leaving the page while a change is still being written '
@@ -942,6 +1022,57 @@ void main() {
       await typeNumber(tester, weightField(0, 0), '135');
       await _finish(tester);
       expect(lockedSummary, findsOneWidget);
+    });
+
+    testWidgets('a set with a weight and no reps does not hold Finish up, '
+        'and the summary says it was not counted and why', (tester) async {
+      final app = await pumpApp(tester, clock: TestClock(liftingEvening));
+      await openTodaysWorkout(tester);
+      await startWorkout(tester);
+      await typeNumber(tester, repsField(0, 0), '5');
+      await typeNumber(tester, weightField(0, 0), '135');
+      // Set 2: the weight, and no reps.
+      await typeNumber(tester, weightField(0, 1), '140');
+
+      await _tapOnPage(tester, finishWorkoutButton);
+
+      // He is told which set and why, and may finish without it.
+      expect(find.text('SOME SETS WILL NOT BE COUNTED'), findsOneWidget);
+      expect(
+        find.text('• Barbell Back Squat, Set 2: a weight but no reps'),
+        findsOneWidget,
+      );
+      expect(
+        find.text('• Barbell Back Squat, Set 3: nothing entered'),
+        findsOneWidget,
+      );
+      expect(find.byKey(const ValueKey<String>('fs-finish-fix')), findsNothing);
+      expect(
+        tester.widget<FsDialog>(find.byType(FsDialog)).tone,
+        FsDialogTone.notice,
+      );
+      await tester.tap(find.byKey(const ValueKey<String>('fs-finish-anyway')));
+      await tester.pumpAndSettle();
+
+      // Finished. The summary names the set that was not counted and says
+      // what it is missing; the set left empty has no line.
+      expect(lockedSummary, findsOneWidget);
+      expect(find.text('5 reps × 135 lb'), findsOneWidget);
+      expect(find.text('Not counted: 140 lb, no reps'), findsOneWidget);
+      expect(find.textContaining('Not counted'), findsOneWidget);
+      // It adds nothing to the totals: one set, 5 x 135.
+      expect(find.text('675'), findsOneWidget);
+      expect(find.text('WORK SET'), findsOneWidget);
+
+      final session = (await app.savedSession(tester, _monday))!;
+      expect(session.finished, isTrue);
+      expect(session.totals.loggedSets, 1);
+      // What he typed is still in the locked workout.
+      expect(session.exercises.first.sets[1].weightLb, 140);
+      expect(session.exercises.first.sets[1].reps, isNull);
+      expect(await app.savedDoneDays(tester), {
+        _monday: {DayItems.workout},
+      });
     });
 
     testWidgets('Go back and Android back leave the workout open', (

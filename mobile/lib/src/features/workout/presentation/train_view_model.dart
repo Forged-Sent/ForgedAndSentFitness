@@ -182,11 +182,14 @@ class TrainViewModel extends AsyncNotifier<TrainView> {
     );
   }
 
-  /// Loads again after an error.
+  /// Loads again after an error: everything [build] reads is read again,
+  /// today's session among it. A provider that failed keeps its error
+  /// until it is asked again.
   Future<void> retry() async {
     ref.invalidate(workoutLibraryProvider);
     ref.invalidate(workoutPlanProvider);
     ref.invalidate(doneByDayProvider);
+    ref.invalidate(sessionForDayProvider(ref.read(todayDateProvider)));
     ref.invalidate(openSessionProvider);
     ref.invalidateSelf();
     await future.then<void>((_) {}, onError: (Object _) {});

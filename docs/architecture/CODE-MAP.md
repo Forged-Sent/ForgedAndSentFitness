@@ -780,6 +780,7 @@ flowchart LR
 - class LastSet
 - class SetIssue
 - class FinishCheck
+- fn onlyBlanks()
 - fn clear()
 
 ### mobile/lib/src/features/workout/presentation/train_page.dart
@@ -805,11 +806,16 @@ flowchart LR
 
 ### mobile/lib/src/features/workout/presentation/workout_page.dart
 
+- fn _repsChange()
+- fn _weightChange()
+- fn _tickChange()
+- fn _restChange()
 - class WorkoutPage
 - class _WorkoutPageState
 - fn initState()
 - fn dispose()
 - fn _flush()
+- fn _mark()
 - fn _track()
 - fn _start()
 - fn _finish()
