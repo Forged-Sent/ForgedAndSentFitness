@@ -7,7 +7,24 @@
 ```mermaid
 flowchart LR
     Person[Developer / local browser / emulator] --> Entry[mobile/lib/main.dart]
-    Entry --> UI[forged_sent_app.dart: Foundation UI]
+    Entry --> UI[forged_sent_app.dart: app, themes, status page]
+    UI --> Router[fs_router.dart: six-tab shell routes]
+    Router --> Pages[tab_pages.dart: placeholder pages for five tabs]
+    Router --> Screens[features: Today, the day's reading, Settings]
+    Screens --> VM[today_view_model.dart: Riverpod view model]
+    Screens --> Design
+    VM --> Core[core: clock, local date, event ids]
+    VM --> Content[Bundled content: readings, ESV text, boxes, mission lines]
+    VM --> LocalStore[local_store.dart: owner id + repositories]
+    Entry --> Open[open_local_store.dart: opens the store for this platform]
+    Open --> LocalStore
+    Open --> Native[native_storage.dart: local profile + database file]
+    Open --> Repos[drift_day_repository.dart, settings_repository.dart]
+    Repos --> Sqlite[app_database.dart: Drift tables on SQLite]
+    Native --> Sqlite
+    UI --> Design[src/design: theme, shell, hero header, card, button, icons]
+    Router --> Design
+    Pages --> Design
     Entry --> Runtime[forged_firebase_runtime.dart: demo-only connector]
     Runtime --> Auth[Local Firebase Auth emulator :9099]
     Runtime --> DB[Local Firestore emulator :8080]
@@ -20,11 +37,13 @@ flowchart LR
     Legacy[index.html + seed: behavior prototype only] -. reference .-> UI
 ```
 
-**Implemented:** `main()` selects preview or emulator mode and rejects cloud mode; `ForgedFirebaseRuntime.connectEmulators()` attaches client SDKs to local endpoints and performs anonymous Auth smoke sign-in. `ForgedSentApp`/`FoundationHomeScreen` show the foundation status. Local Firestore and Storage rules allow authenticated developer smoke paths and deny other paths. That smoke permission is **not** suitable for production data.
+**Implemented:** `main()` selects preview or emulator mode and rejects cloud mode; `ForgedFirebaseRuntime.connectEmulators()` attaches client SDKs to local endpoints and performs anonymous Auth smoke sign-in. `ForgedSentApp` opens the six-tab shell from build step S0: a go_router `StatefulShellRoute` with one stack per tab, drawn by the design system under `mobile/lib/src/design/` in an explicit dark and an explicit light theme, with bundled fonts and the hero photograph. Fuel, Train, Walk, Board and Rally are placeholders. `FoundationHomeScreen` is the developer status page, reached from Settings and shown first when a start-up check fails. Local Firestore and Storage rules allow authenticated developer smoke paths and deny other paths. That smoke permission is **not** suitable for production data.
+
+**Today and the day's reading (build step S1):** `main()` opens the member's local store before the first frame. On a phone that is one SQLite file per owner, through Drift; before sign-in the owner is a local profile made on first launch (decision Q10). Today shows the date, the mission line, a progress ring and the day's boxes; the devotional box opens the day's bundled reading, and Amen records a completion event and the day's state in one transaction. A Riverpod view model combines the day's record, the streak, the bundled content and one setting. Time comes from one injected clock and days are a `LocalDate`, so Today moves to the new day at local midnight and when the app is resumed. The web preview has no database: it keeps the day in memory and says so. Nothing in this path imports a Firebase SDK, and nothing is sent anywhere. Contract: [Today and the day's devotional](../features/today-devotional/feature.md).
 
 **Native hosts:** `mobile/android/` and `mobile/ios/` are committed Flutter 3.47.8 template hosts (`com.forgedandsent`, project `forged_and_sent`). The only customization is the ADR-0002 Android Network Security Configuration: `src/main/res/xml/network_security_config.xml` (referenced from the main manifest) blocks cleartext for all hosts in main, profile and release builds on every supported API level (minSdk 24), and the same-named debug overlay in `mobile/android/app/src/debug/res/xml/` additionally permits cleartext HTTP only to the Android Emulator host alias `10.0.2.2`. They contain no custom native code, added permissions, Firebase native config or signing material; the Dart entrypoint and emulator-first runtime above are unchanged. A local Windows debug APK build passed. iOS has not been built from the committed host. Web and desktop hosts remain temporary and git-ignored.
 
-**Not implemented or validated:** durable offline outbox, real group membership, actual workout/devotional features, private data model, server-authoritative scoring, DEV/PROD deployment, and authenticated role authorization. Do not infer these from the diagram.
+**Not implemented or validated:** an outbox or any sync of the locally stored events, real group membership, workout features, the private data model, server-authoritative scoring, DEV/PROD deployment, and authenticated role authorization. Nothing the app records leaves the device. Do not infer these from the diagram.
 
 ## Planned target architecture (design intent, not present code)
 
@@ -46,7 +65,7 @@ flowchart TB
 
 **Direction:** UI depends on view models, view models on repositories (and optional use cases), repositories on data sources. Firebase SDK types stay out of views and domain interfaces. Local durable events precede an offline action being represented as safely saved. All group authorization and score authority are enforced on trusted backends.
 
-**Accepted client stack (not yet implemented):** [ADR-0005](ADR-0005-flutter-client-stack.md) selects Riverpod for presentation state and composition, go_router for navigation, and Drift/native SQLite for the durable local event store. These packages are not yet in `mobile/pubspec.yaml`; the planned diagram does not imply working storage or sync.
+**Accepted client stack (partly implemented):** [ADR-0005](ADR-0005-flutter-client-stack.md) selects Riverpod for presentation state and composition, go_router for navigation, and Drift/native SQLite for the durable local event store. All three are in `mobile/pubspec.yaml` at exact versions. go_router drives the tab shell (step S0). Riverpod holds presentation state, and Drift stores the day's completion events in the member's SQLite file (step S1). The planned diagram does not imply working sync.
 
 **ADR set that is not on `main`:** ADR-0001 to ADR-0019 on branch `arch/firebase-reconciliation` (commit `0d21d21`, under `docs/adr/`) are not on `main`. Their numbers collide with `main`'s ADR-0001 to ADR-0005 in this folder, which are different documents, so a number alone does not say which ADR is meant. The [Decisions](../reviews/2026-11-10-prototype-to-flutter/01-DECISIONS.md) page records which of those decisions the maintainer carries forward.
 
@@ -86,7 +105,13 @@ Review agents are **advisory**: their findings are evidence, not human approvals
 | Role | Source |
 |---|---|
 | Flutter startup | `mobile/lib/main.dart` |
-| Foundation widgets | `mobile/lib/src/app/forged_sent_app.dart` |
+| App, themes and developer status page | `mobile/lib/src/app/forged_sent_app.dart` |
+| Tab shell routes and placeholder pages | `mobile/lib/src/app/fs_router.dart`, `mobile/lib/src/app/shell_destinations.dart`, `mobile/lib/src/app/tab_pages.dart` |
+| Today, the day's reading and Settings | `mobile/lib/src/features/today/`, `mobile/lib/src/features/devotional/`, `mobile/lib/src/features/settings/` ([feature contract](../features/today-devotional/feature.md)) |
+| Local date, clock and event ids | `mobile/lib/src/core/` |
+| Local storage: Drift tables, the local profile, the database file, and the store the app is given | `mobile/lib/src/storage/`, `mobile/lib/src/app/local_store.dart`, `mobile/lib/src/app/open_local_store.dart` |
+| Design system: tokens, themes, shell, components, icons | `mobile/lib/src/design/` ([design system page](../design/DESIGN-SYSTEM.md)) |
+| Bundled fonts, hero photograph and content | `mobile/assets/` (sources and checksums in `mobile/assets/SOURCES.md`) |
 | Local emulator adapter | `mobile/lib/src/firebase/forged_firebase_runtime.dart` |
 | Android host (template + network security policy) | `mobile/android/app/build.gradle.kts`, `mobile/android/app/src/main/AndroidManifest.xml`, `mobile/android/app/src/main/res/xml/network_security_config.xml`, `mobile/android/app/src/debug/res/xml/network_security_config.xml` |
 | iOS host (template) | `mobile/ios/Runner.xcodeproj/project.pbxproj`, `mobile/ios/Runner/Info.plist` |

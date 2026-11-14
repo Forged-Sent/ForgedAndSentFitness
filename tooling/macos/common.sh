@@ -217,8 +217,9 @@ fs_ensure_java21(){
   fs_ok 'JDK 21 ready; no system-wide Java settings were changed.'
 }
 
-# Optional iPhone testing: Xcode (App Store, your Apple ID), the iOS simulator,
-# CocoaPods and the locally generated (git-ignored) iOS host for mobile/.
+# Optional iPhone testing: Xcode (App Store, your Apple ID), the iOS simulator and
+# CocoaPods. The iOS host in mobile/ios is committed (P03); flutter create only adds
+# any missing template files and never overwrites committed ones.
 # Every Apple prompt (Apple ID, license, admin password) is answered by the person.
 FS_XCODE_APP=/Applications/Xcode.app
 fs_xcode_version_ok(){
@@ -257,7 +258,7 @@ fs_setup_ios(){
   fi
   fs_ok 'iOS simulator runtime installed.'
   fs_brew_formula cocoapods pod || return 1
-  fs_info 'Generating the local iOS host for the app (git-ignored, like the CI build).'
+  fs_info 'Checking the committed iOS host against this Flutter version (adds only missing files, like the CI build).'
   ( cd "$FS_ROOT/mobile" && "$FS_FLUTTER" create --platforms=ios --project-name=forged_and_sent --org=com.forgedandsent . >/dev/null ) || return 1
   open -a Simulator 2>/dev/null || true
   fs_ok 'iPhone testing is set up. Run launchers/mac/more/Run app on iPhone simulator.command.'

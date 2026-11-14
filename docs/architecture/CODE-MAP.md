@@ -10,9 +10,202 @@
 flowchart LR
     N0["mobile/lib/main.dart"]
     N1["mobile/lib/src/app/forged_sent_app.dart"]
-    N2["mobile/lib/src/firebase/forged_firebase_runtime.dart"]
+    N2["mobile/lib/src/app/fs_router.dart"]
+    N3["mobile/lib/src/app/local_store.dart"]
+    N4["mobile/lib/src/app/open_local_store.dart"]
+    N5["mobile/lib/src/app/open_local_store_native.dart"]
+    N6["mobile/lib/src/app/open_local_store_web.dart"]
+    N7["mobile/lib/src/app/shell_destinations.dart"]
+    N8["mobile/lib/src/app/tab_pages.dart"]
+    N9["mobile/lib/src/core/clock.dart"]
+    N10["mobile/lib/src/core/date_text.dart"]
+    N11["mobile/lib/src/core/event_id.dart"]
+    N12["mobile/lib/src/core/local_date.dart"]
+    N13["mobile/lib/src/design/fs_balanced.dart"]
+    N14["mobile/lib/src/design/fs_box_row.dart"]
+    N15["mobile/lib/src/design/fs_button.dart"]
+    N16["mobile/lib/src/design/fs_card.dart"]
+    N17["mobile/lib/src/design/fs_colors.dart"]
+    N18["mobile/lib/src/design/fs_hero_header.dart"]
+    N19["mobile/lib/src/design/fs_icons.dart"]
+    N20["mobile/lib/src/design/fs_label_caps.dart"]
+    N21["mobile/lib/src/design/fs_page_bar.dart"]
+    N22["mobile/lib/src/design/fs_progress_ring.dart"]
+    N23["mobile/lib/src/design/fs_ruled.dart"]
+    N24["mobile/lib/src/design/fs_scripture.dart"]
+    N25["mobile/lib/src/design/fs_section_head.dart"]
+    N26["mobile/lib/src/design/fs_segmented.dart"]
+    N27["mobile/lib/src/design/fs_shell.dart"]
+    N28["mobile/lib/src/design/fs_tag.dart"]
+    N29["mobile/lib/src/design/fs_theme.dart"]
+    N30["mobile/lib/src/design/fs_tokens.dart"]
+    N31["mobile/lib/src/design/fs_typography.dart"]
+    N32["mobile/lib/src/features/devotional/data/devotional_library.dart"]
+    N33["mobile/lib/src/features/devotional/domain/devotional.dart"]
+    N34["mobile/lib/src/features/devotional/domain/scripture_reference.dart"]
+    N35["mobile/lib/src/features/devotional/presentation/devotional_page.dart"]
+    N36["mobile/lib/src/features/settings/data/settings_repository.dart"]
+    N37["mobile/lib/src/features/settings/presentation/settings_page.dart"]
+    N38["mobile/lib/src/features/today/data/day_repository.dart"]
+    N39["mobile/lib/src/features/today/data/drift_day_repository.dart"]
+    N40["mobile/lib/src/features/today/data/memory_day_repository.dart"]
+    N41["mobile/lib/src/features/today/data/today_content.dart"]
+    N42["mobile/lib/src/features/today/domain/completion_event.dart"]
+    N43["mobile/lib/src/features/today/domain/day_box.dart"]
+    N44["mobile/lib/src/features/today/domain/streak.dart"]
+    N45["mobile/lib/src/features/today/presentation/today_page.dart"]
+    N46["mobile/lib/src/features/today/presentation/today_view_model.dart"]
+    N47["mobile/lib/src/firebase/forged_firebase_runtime.dart"]
+    N48["mobile/lib/src/storage/app_database.dart"]
+    N49["mobile/lib/src/storage/app_database.g.dart"]
+    N50["mobile/lib/src/storage/native_storage.dart"]
     N0 --> N1
-    N0 --> N2
+    N0 --> N3
+    N0 --> N4
+    N0 --> N47
+    N1 --> N2
+    N1 --> N9
+    N1 --> N29
+    N2 --> N1
+    N2 --> N7
+    N2 --> N8
+    N2 --> N27
+    N2 --> N35
+    N2 --> N37
+    N2 --> N45
+    N3 --> N36
+    N3 --> N38
+    N3 --> N40
+    N4 --> N3
+    N5 --> N3
+    N5 --> N36
+    N5 --> N39
+    N5 --> N50
+    N6 --> N3
+    N7 --> N18
+    N7 --> N19
+    N8 --> N7
+    N8 --> N16
+    N8 --> N17
+    N8 --> N18
+    N8 --> N20
+    N8 --> N30
+    N8 --> N31
+    N9 --> N12
+    N10 --> N12
+    N14 --> N17
+    N14 --> N30
+    N14 --> N31
+    N15 --> N17
+    N15 --> N30
+    N15 --> N31
+    N16 --> N17
+    N16 --> N30
+    N18 --> N13
+    N18 --> N17
+    N18 --> N19
+    N18 --> N20
+    N18 --> N28
+    N18 --> N30
+    N18 --> N31
+    N20 --> N17
+    N20 --> N31
+    N21 --> N15
+    N21 --> N17
+    N21 --> N20
+    N21 --> N31
+    N22 --> N17
+    N22 --> N31
+    N24 --> N17
+    N24 --> N20
+    N24 --> N23
+    N24 --> N31
+    N25 --> N17
+    N25 --> N30
+    N25 --> N31
+    N26 --> N15
+    N27 --> N17
+    N27 --> N19
+    N27 --> N30
+    N27 --> N31
+    N28 --> N17
+    N28 --> N19
+    N28 --> N31
+    N29 --> N17
+    N29 --> N31
+    N32 --> N12
+    N32 --> N33
+    N33 --> N12
+    N35 --> N9
+    N35 --> N10
+    N35 --> N12
+    N35 --> N15
+    N35 --> N17
+    N35 --> N18
+    N35 --> N19
+    N35 --> N21
+    N35 --> N23
+    N35 --> N24
+    N35 --> N26
+    N35 --> N28
+    N35 --> N30
+    N35 --> N31
+    N35 --> N33
+    N35 --> N46
+    N36 --> N48
+    N37 --> N15
+    N37 --> N16
+    N37 --> N17
+    N37 --> N18
+    N37 --> N21
+    N37 --> N25
+    N37 --> N30
+    N37 --> N31
+    N37 --> N33
+    N37 --> N46
+    N38 --> N12
+    N38 --> N42
+    N39 --> N12
+    N39 --> N38
+    N39 --> N42
+    N39 --> N48
+    N40 --> N12
+    N40 --> N38
+    N40 --> N42
+    N41 --> N12
+    N41 --> N32
+    N41 --> N42
+    N41 --> N43
+    N42 --> N12
+    N43 --> N12
+    N44 --> N12
+    N44 --> N42
+    N45 --> N9
+    N45 --> N10
+    N45 --> N14
+    N45 --> N15
+    N45 --> N16
+    N45 --> N17
+    N45 --> N18
+    N45 --> N20
+    N45 --> N22
+    N45 --> N25
+    N45 --> N30
+    N45 --> N31
+    N45 --> N43
+    N45 --> N46
+    N46 --> N3
+    N46 --> N9
+    N46 --> N11
+    N46 --> N12
+    N46 --> N32
+    N46 --> N33
+    N46 --> N41
+    N46 --> N42
+    N46 --> N43
+    N46 --> N44
+    N50 --> N11
+    N50 --> N48
 ```
 
 ## Declared classes and functions
@@ -20,12 +213,313 @@ flowchart LR
 ### mobile/lib/main.dart
 
 - fn main()
+- fn start()
 
 ### mobile/lib/src/app/forged_sent_app.dart
 
 - class ForgedSentApp
+- class _ForgedSentAppState
+- fn initState()
+- fn dispose()
 - fn build()
 - class FoundationHomeScreen
+
+### mobile/lib/src/app/fs_router.dart
+
+- No classes or named methods matched by the simple inventory parser
+
+### mobile/lib/src/app/local_store.dart
+
+- class LocalStore
+
+### mobile/lib/src/app/open_local_store.dart
+
+- fn openLocalStore()
+- fn openLocalStoreOrFallback()
+- fn Function()
+
+### mobile/lib/src/app/open_local_store_native.dart
+
+- fn openLocalStore()
+- fn openLocalStoreIn()
+
+### mobile/lib/src/app/open_local_store_web.dart
+
+- fn openLocalStore()
+
+### mobile/lib/src/app/shell_destinations.dart
+
+- class ShellDestination
+
+### mobile/lib/src/app/tab_pages.dart
+
+- class _ShellPage
+- fn build()
+- class _PlaceholderCard
+- class TabPlaceholderPage
+
+### mobile/lib/src/core/clock.dart
+
+- class SystemClock
+- class TodayDate
+- fn refresh()
+- fn _scheduleMidnight()
+
+### mobile/lib/src/core/date_text.dart
+
+- fn weekdayName()
+- fn monthAndDay()
+- fn heroDateLine()
+
+### mobile/lib/src/core/event_id.dart
+
+- fn newEventId()
+
+### mobile/lib/src/core/local_date.dart
+
+- class LocalDate
+- fn iso()
+- fn monthDayKey()
+- fn weekday()
+- fn dayOfYear()
+- fn _two()
+- fn compareTo()
+- fn hashCode()
+- fn toString()
+
+### mobile/lib/src/design/fs_balanced.dart
+
+- class FsBalanced
+- class _RenderBalanced
+- fn performLayout()
+
+### mobile/lib/src/design/fs_box_row.dart
+
+- class FsBoxRow
+- fn build()
+- class _Box
+- class _CheckPainter
+- fn paint()
+- fn shouldRepaint()
+
+### mobile/lib/src/design/fs_button.dart
+
+- class FsButton
+- fn build()
+
+### mobile/lib/src/design/fs_card.dart
+
+- class FsCard
+- fn build()
+
+### mobile/lib/src/design/fs_colors.dart
+
+- class FsColors
+
+### mobile/lib/src/design/fs_hero_header.dart
+
+- class FsHeroAction
+- class FsHeroHeader
+- fn build()
+- class FsReadingHeader
+- class FsHeroBackdrop
+- class _RidgePainter
+- fn paint()
+- fn shouldRepaint()
+- class _HeroActions
+- class _HeroRoundButton
+
+### mobile/lib/src/design/fs_icons.dart
+
+- class FsIconData
+- class FsIcon
+- fn build()
+- class _FsIconPainter
+- fn paint()
+- fn shouldRepaint()
+
+### mobile/lib/src/design/fs_label_caps.dart
+
+- class FsLabelCaps
+- fn build()
+
+### mobile/lib/src/design/fs_page_bar.dart
+
+- class FsPageBar
+- fn build()
+
+### mobile/lib/src/design/fs_progress_ring.dart
+
+- class FsProgressRing
+- fn build()
+- class _RingPainter
+- fn paint()
+- fn shouldRepaint()
+
+### mobile/lib/src/design/fs_ruled.dart
+
+- class FsRuled
+- fn build()
+
+### mobile/lib/src/design/fs_scripture.dart
+
+- class FsScripture
+- fn build()
+
+### mobile/lib/src/design/fs_section_head.dart
+
+- class FsSectionHead
+- fn build()
+- class FsTally
+- class FsMeter
+
+### mobile/lib/src/design/fs_segmented.dart
+
+- class FsSegment
+- class FsSegmented
+- fn build()
+
+### mobile/lib/src/design/fs_shell.dart
+
+- class FsShellDestination
+- class FsShell
+- fn build()
+- class _BrandBar
+- class _TabBar
+- class _Tab
+
+### mobile/lib/src/design/fs_tag.dart
+
+- class FsTag
+- fn build()
+
+### mobile/lib/src/design/fs_theme.dart
+
+- No classes or named methods matched by the simple inventory parser
+
+### mobile/lib/src/design/fs_tokens.dart
+
+- No classes or named methods matched by the simple inventory parser
+
+### mobile/lib/src/design/fs_typography.dart
+
+- No classes or named methods matched by the simple inventory parser
+
+### mobile/lib/src/features/devotional/data/devotional_library.dart
+
+- class DevotionalLibrary
+- fn load()
+- fn length()
+
+### mobile/lib/src/features/devotional/domain/devotional.dart
+
+- fn of()
+- class Devotional
+- fn readingKeyFor()
+
+### mobile/lib/src/features/devotional/domain/scripture_reference.dart
+
+- No classes or named methods matched by the simple inventory parser
+
+### mobile/lib/src/features/devotional/presentation/devotional_page.dart
+
+- class DevotionalPage
+- class _DevotionalPageState
+- fn dispose()
+- fn _onMetrics()
+- fn _onNewDay()
+- fn _amen()
+- fn _undo()
+- fn build()
+- class _Section
+- class _End
+- class _Plain
+
+### mobile/lib/src/features/settings/data/settings_repository.dart
+
+- fn watchShowPreviewPoints()
+- fn setShowPreviewPoints()
+- class DriftSettingsRepository
+- class MemorySettingsRepository
+
+### mobile/lib/src/features/settings/presentation/settings_page.dart
+
+- class SettingsPage
+- fn build()
+
+### mobile/lib/src/features/today/data/day_repository.dart
+
+- fn watchDay()
+- fn record()
+
+### mobile/lib/src/features/today/data/drift_day_repository.dart
+
+- class DriftDayRepository
+- fn durable()
+- fn watchDay()
+- fn record()
+- fn _stateRow()
+
+### mobile/lib/src/features/today/data/memory_day_repository.dart
+
+- class MemoryDayRepository
+- fn durable()
+- fn watchDay()
+- fn record()
+
+### mobile/lib/src/features/today/data/today_content.dart
+
+- class TodayContent
+- fn load()
+- fn missionFor()
+
+### mobile/lib/src/features/today/domain/completion_event.dart
+
+- class CompletionEvent
+- class ItemState
+- fn hashCode()
+- class DayRecord
+- fn isDone()
+- fn _sameItems()
+
+### mobile/lib/src/features/today/domain/day_box.dart
+
+- class DayBox
+- fn active()
+- fn missionLineFor()
+
+### mobile/lib/src/features/today/domain/streak.dart
+
+- class StreakRule
+- fn _counts()
+- fn length()
+
+### mobile/lib/src/features/today/presentation/today_page.dart
+
+- fn pointsLabel()
+- fn streakLine()
+- class TodayPage
+- fn build()
+- class _ProgressPanel
+- class _BoxesCard
+- fn _row()
+- class _LoadingCard
+- class _LoadFailedCard
+
+### mobile/lib/src/features/today/presentation/today_view_model.dart
+
+- class BoxView
+- class TodayView
+- fn total()
+- fn doneCount()
+- fn devotionalDone()
+- class TodayViewModel
+- fn build()
+- fn retry()
+- fn completeDevotional()
+- fn undoDevotional()
+- fn _record()
+- fn setShowPreviewPoints()
 
 ### mobile/lib/src/firebase/forged_firebase_runtime.dart
 
@@ -33,6 +527,36 @@ flowchart LR
 - fn emulatorRequested()
 - fn emulatorHost()
 - fn connectEmulators()
+
+### mobile/lib/src/storage/app_database.dart
+
+- class CompletionEvents
+- class DayStates
+- class AppSettings
+- class AppDatabase
+- fn schemaVersion()
+
+### mobile/lib/src/storage/app_database.g.dart
+
+- fn aliasedName()
+- fn actualTableName()
+- class CompletionEventRow
+- fn toString()
+- fn hashCode()
+- class CompletionEventsCompanion
+- class DayStateRow
+- class DayStatesCompanion
+- class AppSettingRow
+- class AppSettingsCompanion
+- class _
+
+### mobile/lib/src/storage/native_storage.dart
+
+- fn appDataDirectory()
+- fn useAppTemporaryDirectoryForSqlite()
+- fn loadOrCreateLocalProfileId()
+- fn Function()
+- fn openCheckedAppDatabase()
 
 ## Limitations
 
