@@ -480,15 +480,19 @@ class AppMatchesGuidesTests(unittest.TestCase):
             with self.subTest(path=path):
                 self.assertIn("Build status", read(path))
 
-    def test_practice_edit_targets_text_no_test_pins(self):
+    def test_practice_edit_cannot_turn_ci_red(self):
+        # Maintainer decision (2026-11-13): the practice edit is a page, not app code,
+        # so `flutter test` and the WORK.md doc rule both stay green for a tester.
+        import importlib.util
+        spec = importlib.util.spec_from_file_location("knowledge_check", ROOT / "tooling/knowledge/check.py")
+        check = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(check)
+        practice = "docs/development/PRACTICE-GUESTBOOK.md"
+        self.assertTrue((ROOT / practice).is_file())
         guide = read("docs/development/FIRST-CONTRIBUTION.md")
-        target = "Flutter foundation is ready for the first devotional workout."
-        self.assertIn(target, guide)
-        self.assertIn(f"'{target}'", read("mobile/lib/src/app/forged_sent_app.dart"))
-        for test in [*(ROOT / "mobile/test").rglob("*.dart"), *(ROOT / "mobile/integration_test").rglob("*.dart")]:
-            with self.subTest(test=test.name):
-                self.assertNotIn(target, test.read_text(encoding="utf-8"),
-                                 "the practice edit would make flutter test fail")
+        self.assertIn(practice, guide)
+        self.assertNotIn("mobile/lib/", guide.split("## What \"ready\" means")[0])
+        self.assertEqual(check.doc_rule_problems([practice]), [])
 
 if __name__ == "__main__":
     unittest.main()

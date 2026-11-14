@@ -15,14 +15,14 @@
 1. **Open the correct project.** In VS Code select **File > Open Folder** and choose `ForgedAndSentFitness`. Open **Source Control** (branch icon). Confirm there are no unexpected unsaved edits.
 2. **Create your own branch before editing.** Click the current branch name in VS Code's bottom bar (normally `main`). Choose **Create new branch...** and name it `feature/my-first-change`. Do not edit or commit directly on `main`.
 3. **Choose your assistant, if desired.** Open the assistant extension you already use. Sign in through its official account flow. You can also complete the next step by hand.
-4. **Make a tiny change.** Give your assistant this prompt:
+4. **Make a tiny change.** Open [`docs/development/PRACTICE-GUESTBOOK.md`](PRACTICE-GUESTBOOK.md) and add one line at the end of its list, for example `- Your first name: one sentence about why you are here.` Save the file. Or give your assistant this prompt:
 
-   > In `mobile/lib/src/app/forged_sent_app.dart`, on the Build status page, change only the sentence "Flutter foundation is ready for the first devotional workout." to "Practice edit: my first change." Do not change any other text, behavior, tests, access rules or files. Explain what changed and show me the diff before saving.
+   > In `docs/development/PRACTICE-GUESTBOOK.md`, add one line at the end of the "Sign the guestbook" list: "- <my first name>: <one sentence>". Do not change any other line or file. Show me the diff before saving.
 
-   To see that sentence in the running app: open **Settings** (the round person button at the top right of Today), scroll to **This build** and tap **Build status**. Leave the headline "Faith. Training. Brotherhood." alone: a test checks it word for word, so changing it makes `flutter test` fail.
+   This practice change is a page, not app code, on purpose: it cannot break the app, and its pull request can go fully green. App changes come later and have extra rules (for example, they must update their row on the [work board](../knowledge/WORK.md)).
 
-5. **Review before saving.** In VS Code, open **Source Control**. Click the changed file and compare the red/green lines. Make sure only that one sentence changed. Undo any unrelated edits.
-6. **Check the Flutter app.** Open VS Code's terminal from the **Terminal** menu, then:
+5. **Review before saving.** In VS Code, open **Source Control**. Click the changed file and compare the red/green lines. Make sure only your one new line changed. Undo any unrelated edits.
+6. **Check that your computer can build and test the app.** Your change did not touch the app, but every real change runs these two commands first, so practise them now. Open VS Code's terminal from the **Terminal** menu, then:
 
 ```sh
 cd mobile
@@ -30,14 +30,12 @@ flutter analyze
 flutter test
 ```
 
-   Both commands should finish without errors. If `flutter` is missing, rerun Contributor diagnostics. On Mac, reopen Terminal after enabling Flutter PATH. You may also launch the app with `launchers/windows/2 - Run the app.cmd` (Windows) or `launchers/mac/2 - Run the app.command` (Mac).
+   Both commands should finish without errors. If `flutter` is missing, rerun Contributor diagnostics. On Mac, reopen Terminal after enabling Flutter PATH. Then go back to the main folder with `cd ..`. You may also launch the app with `launchers/windows/2 - Run the app.cmd` (Windows) or `launchers/mac/2 - Run the app.command` (Mac).
 7. **Set Git identity, once.** If your first commit says "Please tell me who you are", configure a name and email using the guided wizard or [Git basics](GIT-101.md). Your GitHub noreply email keeps your personal email off public commits.
-8. **Commit your change.** Back in Source Control, enter `Practice: my first change` and select **Commit**. If you see a Gitleaks or Dart formatting warning, follow its fix instructions; don't bypass hooks.
+8. **Commit your change.** Back in Source Control, enter `Practice: sign the guestbook` and select **Commit**. If you see a Gitleaks or Dart formatting warning, follow its fix instructions; don't bypass hooks.
 9. **Publish safely.** Select **Publish Branch**. The first time, VS Code asks you to **sign in to GitHub** in your browser; approve it. If you aren't a project collaborator yet, VS Code offers **Create Fork**: choose it, and your branch is published to your own copy of the project. Do not force-push.
 10. **Open a Draft PR.** Use the **GitHub Pull Requests** VS Code extension (or GitHub's website). Set the target to `Forged-Sent/ForgedAndSentFitness:main` (also when you published to a fork). Choose **Draft** and explain this is a practice change.
-11. **Watch CI.** In the PR, open **Checks** and find required `ci-gate`. Green means automated checks passed; red means click the failing job and inspect the error. If a PR from a fork shows checks **waiting for approval**, that's a GitHub safety step for new contributors: the maintainer clicks **Approve and run** once. Never bypass required CI.
-
-    **Expected for this practice change:** the `policy` job, and so `ci-gate`, is red with a message like *"forged_sent_app.dart changed but docs/knowledge/WORK.md did not"*. Real app changes must update their row on the work board in the same pull request; a practice edit has no row. Every other job should be green. Because the change touches `mobile/`, the optional **Claude Code Review** check also runs on it (from a fork it cannot sign in, so it may show as failed). It is not required; ignore it for a practice PR.
+11. **Watch CI.** In the PR, open **Checks** and find required `ci-gate`. Green means automated checks passed; red means click the failing job and inspect the error. For the guestbook change, `ci-gate` should go green within a few minutes; the app's Flutter, Windows and Mac jobs are skipped because no app file changed. If a PR from a fork shows checks **waiting for approval**, that's a GitHub safety step for new contributors: the maintainer clicks **Approve and run** once. Never bypass required CI.
 12. **You're finished for today.** Leave the PR as a Draft. A maintainer makes the merge decision; agents must not merge automatically. On your next day, open the same clone and branch, check Git status, and keep working. No reinstall needed.
 
 ## What "ready" means
