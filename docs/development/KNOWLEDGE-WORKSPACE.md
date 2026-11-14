@@ -2,6 +2,8 @@
 
 **Purpose:** read one Git-controlled knowledge base and interact with the actual prototype and generated Atlas, without copying either HTML source into the vault.
 
+For a first lesson and the exact board/vault setup, use [Project 101](PROJECT-101.md) and [Obsidian 101](OBSIDIAN-101.md). This page describes the optional HTML preview server, not the Flutter run commands or a live task board.
+
 ## What is already real
 
 - `docs/` contains the Markdown knowledge base; [HOME.md](../HOME.md) is the beginner entrypoint. Obsidian is optional.
@@ -68,6 +70,6 @@ To click through those flows with in-memory fake data, use the existing mock pre
 
 **Fallback:** the existing `launchers/windows/more/Architecture Atlas.cmd` or `launchers/mac/more/Architecture Atlas.command` opens the self-contained Atlas offline; the original `index.html` can be opened in a regular browser when compatible. No localhost or Obsidian integration is required to continue Flutter development.
 
-## Next phases and rollback
+## Rollout history and rollback
 
-This follow-up was stacked on PR #26 (PR #4 is merged); merge it after PR #26. Physical onboarding acceptance for PR #4 is recorded in [CURRENT.md](../knowledge/CURRENT.md); the checklist above for this preview is still a person-run test. Phase 1 is this optional docs vault landing and risk-based contract templates; phase 2 is this minimal localhost preview and launcher; phase 3 is deterministic feature metadata checks in CI. Advanced worktree automation, an environment doctor, read-only MCPVault trial, Obsidian Bases dashboards and RAG are **deferred** until the basic path is physically verified. Rollback is to remove the two launchers/server and use existing offline Atlas/browser paths; Markdown and Git history remain intact.
+The preview server, launchers and feature metadata checks are present in this checkout. Earlier stacked-PR sequencing is historical and is not an instruction to merge old work. Use [WORK](../knowledge/WORK.md) for the current plan and [HISTORY](../knowledge/HISTORY.md) only for dated evidence. The [active handoff Base](../knowledge/ACTIVE-TASKS.base) exists; the [generated project board](../knowledge/WORK-BOARD-VIEW.md) and dashboard focus block derive from WORK. [Obsidian 101](OBSIDIAN-101.md) explains their refresh command. Embedded agent integrations remain optional proposals. For a preview fallback, use the offline Atlas or browser directly; no server or plugin is required to read Markdown.

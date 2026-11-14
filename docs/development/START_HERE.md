@@ -1,11 +1,13 @@
-# Start here: Flutter + GitHub agents foundation
+# Start here: the development workspace
+
+**Learning together:** [Project 101](PROJECT-101.md). **Running without AI:** [command recipes](RUN-COMMANDS.md). **Obsidian and boards:** [Obsidian 101](OBSIDIAN-101.md).
 
 ## Baseline
-`main` contains an intentionally small Flutter scaffold, beginner setup and CI, **not a production app** (merged in PR #4). Existing `index.html` and `seed/` are the behavioral reference.
+The Flutter client has its shell, Today, the devotional and native local saving. It remains **in development**, with five placeholder tabs and no cloud sync. [Prototype parity](../knowledge/PROTOTYPE-PARITY.md) is the maintained screen inventory. Root `index.html` is a separate behavioral prototype.
 
 ## Guided Windows and MacBook setup
 
-**For first-time contributors:** follow [Your first contribution](FIRST-CONTRIBUTION.md) after [Windows quickstart](WINDOWS-QUICKSTART.md) or [Mac quickstart](MACBOOK-QUICKSTART.md). Use an existing **Git clone**, not a ZIP. Check `git status`, then `git switch main`, `git fetch origin`, `git pull --ff-only`. On Windows use `START-WINDOWS.cmd`; on Mac use `START-MAC.command` (or the numbered files in `launchers/<os>/`). Both set up Preview or Contributor tools, including the local practice Firebase, without Firebase cloud login. Android (Windows) and iPhone simulator (Mac) setup are optional extras; device testing still needs manual platform steps. See [Windows quickstart](WINDOWS-QUICKSTART.md) and [Mac quickstart](MACBOOK-QUICKSTART.md).
+**For first-time contributors:** follow [Your first contribution](FIRST-CONTRIBUTION.md) after [Windows quickstart](WINDOWS-QUICKSTART.md) or [Mac quickstart](MACBOOK-QUICKSTART.md). Use an existing **Git clone**, not a ZIP. Check `git status` and `git worktree list`. Update the existing main checkout with `git pull --ff-only` when safe; do not switch another worktree to an already-checked-out main. See [Git 101](GIT-101.md). On Windows use `START-WINDOWS.cmd`; on Mac use `START-MAC.command` (or the numbered files in `launchers/<os>/`). Both set up Preview or Contributor tools, including the local practice Firebase, without Firebase cloud login. Android (Windows) and iPhone simulator (Mac) setup are optional extras; device testing still needs manual platform steps. See [Windows quickstart](WINDOWS-QUICKSTART.md) and [Mac quickstart](MACBOOK-QUICKSTART.md).
 
 ## Branches, pull requests and reviews
 
@@ -20,9 +22,9 @@
 - The existing Protect main ruleset is active; retain required CI and protected-main safeguards. The separate Functional Flutter AI review ruleset remains disabled during hosted acceptance. See `docs/development/REPOSITORY-SECURITY.md` for the solo workflow and live-rule verification.
 
 ## Local setup
-The accepted client package direction is in [ADR-0005](../architecture/ADR-0005-flutter-client-stack.md). Before adding those packages, align the local Flutter SDK with the CI pin and follow the [Flutter + Claude CLI guide](FLUTTER-CLAUDE-CLI.md).
+The accepted client packages are already integrated: Riverpod, go_router and Drift/SQLite ([ADR-0005](../architecture/ADR-0005-flutter-client-stack.md)). Align the selected local Flutter SDK with `tooling/versions.json` and CI; use [run commands](RUN-COMMANDS.md) to avoid accidentally using another SDK on PATH.
 
-Install the stable Flutter SDK and run:
+After selecting the pinned Flutter SDK, the direct browser setup is:
 
 ```bash
 cd mobile
@@ -38,10 +40,10 @@ The tracked `mobile/android/` and `mobile/ios/` folders are Flutter 3.47.8 templ
 
 ## Collaboration
 - Each developer clones the public repo, uses their own workstation, opens a branch and PR.
-- GitHub Actions performs free public-repository standard-runner CI for Flutter (Android) when enabled.
+- GitHub Actions runs the configured checks, including applicable Flutter/platform builds. See the workflow and account billing settings for current availability and costs.
 - The repo owner enables paid Copilot cloud agents and Claude/Codex partner agents through GitHub account/repository settings if available. Merely adding .agent.md files does not provision those subscriptions.
 - The proposed functional review gate uses the owner's Codex GitHub code review and a Claude subscription token in GitHub Actions. It remains disabled until its hosted checks pass; see [the review gate guide](FLUTTER-AI-REVIEW-GATE.md). AI usage can consume subscription limits.
-- Standard GitHub runners are free for public repos; large runners, excessive artifact/cache storage, cloud services and AI use are separate costs.
+- Cloud services, AI usage, runner capacity and artifact storage have their own account limits; check the account before authorizing new spending.
 - Remote app testing comes later via a Firebase DEV project and signed Android/iOS test distributions. No developer-owned Linux server is required.
 
 ## Architecture starting point
@@ -53,12 +55,9 @@ The tracked `mobile/android/` and `mobile/ios/` folders are Flutter 3.47.8 templ
 - Teams and challenges run through versioned server-controlled scoring rules.
 - Youth/family features are future domain work, not enabled in adult pilot.
 
-## First implementation issues
-1. Verify the tracked Android/iOS hosts in CI and on the intended workstations; decide store identifiers and signing before distribution.
-2. Implement the accepted [client stack ADR](../architecture/ADR-0005-flutter-client-stack.md) in a focused PR after toolchain alignment.
-3. Implement one offline devotional-workout screen with a fake repository, then add durable local storage.
-4. Configure Firebase DEV and Auth + group membership; add cross-group security rule tests before live data.
-5. Add integration/test distribution after sign-in and the vertical slice are working.
+## Choosing the next task
+
+Use the assigned row in [WORK](../knowledge/WORK.md) and its linked prompt. The client stack and first durable devotional slice already exist. Journal, workout logging, identity/groups, sync and distribution remain separate work; do not infer their availability from a prototype screen or another branch. The [101 course](PROJECT-101.md) explains a complete contribution from task selection to review.
 
 ## Security
 This is a public repo. Never commit API secrets, signing credentials, real prayers, health data, member records or test media. Be especially cautious before running AI agents on external PRs or user input. Keep workflow permissions read-only by default.

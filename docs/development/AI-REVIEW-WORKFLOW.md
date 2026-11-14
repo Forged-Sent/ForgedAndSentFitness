@@ -1,6 +1,6 @@
 # Independent agent review: beginner workflow
 
-**Start here:** The [functional Flutter AI gate](FLUTTER-AI-REVIEW-GATE.md) implements the maintainer's required cross-provider review policy and records its rollout status. It is separate from this optional local CLI workflow. A local report cannot satisfy the hosted check by itself. Other review scopes remain optional. Select a provider that did not author the change; deterministic CI and emulator tests remain required.
+**Start here:** Local AI reviews are advisory. The separate [functional Flutter AI gate](FLUTTER-AI-REVIEW-GATE.md) has a staged status producer and a disabled required-status ruleset. Do not treat it as an enforced merge gate. The automatic Claude review workflow is another path and is not that staged gate. A local report cannot satisfy a hosted check by itself. Select a provider that did not author the change; applicable deterministic CI and emulator tests remain required. For the beginner explanation, use [Project 101](PROJECT-101.md).
 
 ## The quick path (Windows)
 

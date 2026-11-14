@@ -40,6 +40,10 @@ update-by: edit WORK.md then run tooling/knowledge/work_board.py --write
 ## Done
 
 **Complete**
+- [x] **Project 101 teaching path**
+	**Note:** Use the 25-minute course and manual lesson checklist. Commands are source-checked; the friend's Windows/Mac/device walkthrough and Obsidian rendering still need to be exercised
+	**Branch or PR:** [#63](https://github.com/Forged-Sent/ForgedAndSentFitness/pull/63)
+	[Edit this row in WORK](WORK.md)
 - [x] **Decisions**
 	**Note:** None; the answers are on the [Decisions](../reviews/2026-11-10-prototype-to-flutter/01-DECISIONS.md) page
 	**Branch or PR:** branch `chore/review-rules-and-dashboard`

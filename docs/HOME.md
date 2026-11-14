@@ -9,8 +9,14 @@ Open this page first, in Obsidian, from the `main` checkout. Pick the one action
 >
 > Task: Agents may merge after review · Lane: Next
 
-Board now: Next 1 · In progress 0 · Waiting 4 · Done 8 · Later 29.
+Board now: Next 1 · In progress 0 · Waiting 4 · Done 9 · Later 29.
 <!-- work-focus:end -->
+
+## Teach or learn the project
+
+**Start:** [25-minute Project 101](development/PROJECT-101.md) → [Run it yourself](development/RUN-COMMANDS.md) → [Git 101](development/GIT-101.md).
+
+Prefer cards? Open the [teaching board](knowledge/TEACHING-BOARD.md). It holds lesson links, not task statuses. For the project plan, use the [generated work board](knowledge/WORK-BOARD-VIEW.md) and edit its source [WORK](knowledge/WORK.md). [Obsidian 101](development/OBSIDIAN-101.md) explains the boards, vault roots and refresh commands.
 
 ## Where to go
 
@@ -56,4 +62,4 @@ Board now: Next 1 · In progress 0 · Waiting 4 · Done 8 · Later 29.
 
 ## Dedicated repository vault
 
-Open one clean, current `main` checkout as an Obsidian vault, either the checkout folder or its `docs` folder, and open `HOME.md`. Obsidian settings and plugins are per vault, so use the same folder each time; the [setup guide](knowledge/OBSIDIAN-SETUP.md) says what each plugin adds, and nothing essential needs one. For this workstation, the stable `main` checkout is `C:\ws_c\ForgedAndSent\ForgedAndSentFitness-main`. After a pull request merges, `live_status.py --pull` fast-forwards that checkout so its notes are current. Local `.obsidian` state stays ignored. Avoid editing the same note in multiple worktrees. This public vault must contain no credentials, personal journals, real member records, prayers or health data.
+Open one clean, current `main` checkout as an Obsidian vault, either the checkout folder or its `docs` folder, and open `docs/HOME.md` or `HOME.md`, respectively. Obsidian settings and plugins are per vault, so use the same folder each time; the [setup guide](knowledge/OBSIDIAN-SETUP.md) says what each plugin adds, and nothing essential needs one. For this workstation, the stable `main` checkout is `C:\ws_c\ForgedAndSent\ForgedAndSentFitness-main`. After a pull request merges, `live_status.py --pull` fast-forwards that checkout so its notes are current. Local `.obsidian` state stays ignored. Avoid editing the same note in multiple worktrees. This public vault must contain no credentials, personal journals, real member records, prayers or health data.
