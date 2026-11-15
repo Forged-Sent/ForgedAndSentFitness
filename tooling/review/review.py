@@ -226,9 +226,10 @@ def patch_context(root: Path, base: str) -> tuple[str, str, str, list[dict]]:
     # Also checks every allowed binary asset: each version the change touches
     # is a regular binary file with no secret in it; the current one is size-capped.
     excluded = excluded_manifest(root, base)
-    # A change made only of allowed binary assets has no text to read, but it
-    # is still a change: it is pinned and reported, never passed as reviewed.
-    if not patch.strip() and not any(item["kind"] == "binary" for item in excluded):
+    # A change made only of allowed binary assets, or only of generated/lock
+    # files, has no text to read, but it is still a change: it is pinned and
+    # reported, never passed as reviewed. Only a truly empty diff is an error.
+    if not patch.strip() and not excluded:
         raise RuntimeError(f"No reviewable changes against {base}; choose a feature branch or base.")
     if SENSITIVE.search(patch) or SENSITIVE.search(excluded_patch):
         raise RuntimeError("Possible secret in diff. Stop and remove it BEFORE AI review.")
@@ -576,7 +577,16 @@ def main() -> int:
         return 1
     has_text = bool(patch.strip())
     chunks = chunk_patch(patch) if has_text else []
+    generated_only = not has_text and all(item["kind"] == "generated" for item in excluded)
     if args.dry_run:
+        if generated_only:
+            # Dependabot lockfile bumps land here. CI checks these files itself
+            # (npm ci, pub get, CODE-MAP drift), so readiness is satisfied.
+            print("All changed files are generated or lock files verified by CI; "
+                  f"no AI review needed; SHA256 {digest[:12]}; HEAD {head[:12]}")
+            for item in excluded:
+                print(f"  excluded ({EXCLUDED_LABEL[item['kind']]}): {item['path']} {item['blob'][:12]}")
+            return 0
         if has_text:
             print(f"Reviewable diff: {len(patch)} characters in {len(chunks)} fully covering slices; SHA256 {digest[:12]}; HEAD {head[:12]}")
         else:
@@ -587,6 +597,12 @@ def main() -> int:
             print(f"  {p}: {'installed' if shutil.which(p) else 'MISSING'}")
         print("Dry run complete. No AI services were called.")
         return 0
+    if generated_only:
+        # Never a PASS and never a report: --verify must keep failing for this diff.
+        print("NOT VERIFIED: no AI review applies. Every changed file is a generated or lock "
+              "file that CI verifies, so there is nothing for a reviewer to read. "
+              "Run --dry-run to list them.", file=sys.stderr)
+        return 1
     if not has_text:
         print("NOT VERIFIED: only binary assets changed, so there is no text for an AI reviewer "
               "to read. Run --dry-run to list their hashes; a person must look at them.",
