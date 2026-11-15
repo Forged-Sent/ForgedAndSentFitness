@@ -2,15 +2,22 @@
 
 The one board for this project. Each pull request edits its own row **in the same pull request, written as it will be true once that pull request merges**. Nothing here records CI or merge state; open the linked pull request or the [live list](https://github.com/Forged-Sent/ForgedAndSentFitness/pulls) for that.
 
+**Board view:** [five lanes, one card per row](WORK-BOARD-VIEW.md). It and the block at the top of [HOME](../HOME.md) are generated from this page; see **How to update this page** at the bottom.
+
 Plan and reasoning: [prototype-to-Flutter review](../reviews/2026-11-10-prototype-to-flutter/00-START-HERE.md). Prompts for each row: [agent prompts](../reviews/2026-11-10-prototype-to-flutter/03-AGENT-PROMPTS.md).
+
+**New collaborator:** [Project 101](../development/PROJECT-101.md), [run commands](../development/RUN-COMMANDS.md), and [Obsidian boards](../development/OBSIDIAN-101.md). This table remains the source of project status. Handoff cards and lesson navigation cards do not replace it.
 
 ## Now
 
 | Step | What a man can see when it is done | State | Branch or PR | Next action |
 |---|---|---|---|---|
+| Project 101 teaching path | A collaborator can run the app, understand branches/worktrees and follow an assigned task | **Done** | [#63](https://github.com/Forged-Sent/ForgedAndSentFitness/pull/63) | Use the 25-minute course and manual lesson checklist. Commands are source-checked; the friend's Windows/Mac/device walkthrough and Obsidian rendering still need to be exercised |
 | Decisions | Nothing yet; this unblocks the rest | **Done** | branch `chore/review-rules-and-dashboard` | None; the answers are on the [Decisions](../reviews/2026-11-10-prototype-to-flutter/01-DECISIONS.md) page |
 | CI accepts images and fonts | Nothing yet; without it the required check fails every pull request below | **Done** | [#54](https://github.com/Forged-Sent/ForgedAndSentFitness/pull/54) | — |
 | Publish review and rules cleanup | The dashboard, board and rules on `main` | **Done** | branch `chore/review-rules-and-dashboard` | — |
+| Obsidian focus workspace | HOME opens with one next action; this board shows as five lanes in Obsidian, generated from this page | **Done** | branch `claude/obsidian-adhd-workspace` | Set the Homepage plugin to open HOME: one command, in the [Obsidian setup guide](OBSIDIAN-SETUP.md) under Set up once per vault |
+| S2 Private journal | "Write it down" saves to a private journal | **Next** | — | Run prompt [P06](../reviews/2026-11-10-prototype-to-flutter/prompts/P06-S2-private-journal.md) |
 | Agents may merge after review | Nothing on screen; app and docs pull requests that pass independent review no longer wait for the maintainer | **Next** | — | Run prompt [P13](../reviews/2026-11-10-prototype-to-flutter/prompts/P13-let-agents-merge-after-review.md) |
 | Native hosts | The app builds for Android and iOS from committed host projects | **Done** | branch `codex/native-host-acceptance` | None. iOS is built only by CI's `ios-simulator` job: it has not been built locally, and there is no simulator or physical-device run yet. Release signing is a row under Later |
 | S0 Design foundation | The app opens looking like the prototype: brand bar, hero header, six-tab bar | **Done** | branch `claude/s0-design-foundation` | None. Fuel, Train, Walk, Board and Rally are titled placeholders; the round header buttons do nothing yet. Not run on a phone or an emulator |
@@ -22,12 +29,11 @@ Plan and reasoning: [prototype-to-Flutter review](../reviews/2026-11-10-prototyp
 
 | Step | What a man can see when it is done | Prompt |
 |---|---|---|
-| S2 Private journal | "Write it down" saves to a private journal | [P06](../reviews/2026-11-10-prototype-to-flutter/prompts/P06-S2-private-journal.md) |
 | S3 Workout logging | Log today's workout; nothing lost if the app is killed | [P07](../reviews/2026-11-10-prototype-to-flutter/prompts/P07-S3-workout-logging.md) |
 | S4 Sign-in, groups, first board | Sign in and see a server-computed board for his group | [P08](../reviews/2026-11-10-prototype-to-flutter/prompts/P08-S4-contract-identity-groups-board.md), then [P09](../reviews/2026-11-10-prototype-to-flutter/prompts/P09-S4-implement-identity-groups-board.md) |
 | Say which unreplaced completion event wins | Nothing on screen; the review's ordering rule across devices names one winner among any events that nothing has replaced, and says what happens when an event arrives before the one it replaces. As written in journey J1, it only chooses between two events that replace the same one: if B and C both replace A and D then replaces B, C and D are both left and replace different events, so the day state is undefined | No prompt yet. Review finding (Codex, medium) on [07-ARCHITECTURE](../reviews/2026-11-10-prototype-to-flutter/07-ARCHITECTURE.md), section 5.8, and the full report. Do it before P08 runs |
 | Hero photograph's origin and licence | Nothing on screen; the mountain photograph in every page header has a recorded source and a licence that allows publishing it. Today neither is recorded anywhere, and the photograph is already public: this repository is public and the photo has been on `main`, inside `index.html`, since v145 (`275fce2`). S0 also bundles it as an app asset | No prompt yet. Found in S0. **High now**, not only before distribution. Owner: the maintainer |
-| Review the Dependabot alerts on `main` | Nothing on screen; each alert GitHub raises for the repository's dependencies has been looked at and either fixed or set aside with a reason. Today GitHub reports 5 on `main`: 1 high, 3 moderate, 1 low | No prompt yet. Seen in the push output of S1b on 2026-11-12; S1b changed no dependency. Owner: the maintainer |
+| Review the Dependabot alerts on `main` | Nothing on screen; each alert GitHub raises for the repository's dependencies has been looked at and either fixed or set aside with a reason. Read the current count and severity in [GitHub security alerts](https://github.com/Forged-Sent/ForgedAndSentFitness/security/dependabot); the 2026-11-12 push reported 5 (1 high, 3 moderate, 1 low), which is historical evidence rather than a live count | No prompt yet. Seen in the push output of S1b on 2026-11-12; S1b changed no dependency. Owner: the maintainer |
 | Reconcile the prototype baseline | Nothing on screen; one tagged prototype is the reference, as decision Q1 says. S0 read its six tabs straight from v254 because the reconciliation has not been done. S1's two box titles (Rally Call, Hydrate) come from `seed/tasks.json` and differ from v254's reference pictures, which show those two boxes as Daily Check-In and Drink 3 Liters of Water, the titles of the mock runtime it is captured with | [P02](../reviews/2026-11-10-prototype-to-flutter/prompts/P02-reconcile-prototype-baseline.md). Not blocking S1: the theme rules, fonts and hero photo are identical in v254 and `main`. What still differs from v254 is listed on the [parity page](PROTOTYPE-PARITY.md). When this is done, retire the test that compares `seed/devotionals.json` with the readings inside `index.html` (`mobile/test/features/devotional/bundled_content_test.dart`, added in S1b to prove the copy from v254); retire it earlier if a reading is edited in `seed/` first |
 | CI checks the golden images | Nothing on screen; a pull request that changes how the shell looks fails a required check. Today the golden images are compared on Windows only, because text is drawn slightly differently on each operating system, and no CI lane checks them | No prompt yet. Found in S0. Not blocking |
 | ESV permission confirmed for an app | Nothing on screen; Crossway has confirmed that its permission covers an app, or there is a licence. Today 437 distinct ESV verses are bundled against the limit of 499, and the ESV is 16.2% of the bundled text against a limit of 25% | No prompt yet. Decision Q7. Owner: the maintainer. Do it before public release |
@@ -45,7 +51,6 @@ Plan and reasoning: [prototype-to-Flutter review](../reviews/2026-11-10-prototyp
 | Android release signing | Nothing on screen; a release build is signed with its own release key. Today the release build type uses the debug signing config, so a release build must not be distributed | No prompt yet. Do it before anything is distributed |
 | Preview script runs on a Windows workstation | Nothing on screen; `python3 dev/make_preview.py` runs on Windows as it does on GitHub. Today it reads `index.html` in the system's text encoding and stops with a decoding error there, unless Python is put in UTF-8 mode (`PYTHONUTF8=1`) | No prompt yet. Found in S1b while running the prototype checks. Not blocking: GitHub runs it on Linux, where UTF-8 is the default |
 | Onboarding tests pass on a Windows workstation | Nothing on screen; the Mac shell tests in `tooling/onboarding` run on Windows. Today Python's bare `bash` starts WSL's, which cannot open `C:\` paths, so 16 of the 29 tests fail there | No prompt yet. Not blocking: they pass in WSL and on GitHub |
-| Pinned Flutter first on the maintainer's PATH | Nothing on screen; typing `flutter` on the maintainer's workstation runs the pinned 3.47.8. Today an older 3.44.8 at `C:\ws_c\flutter` comes first; the pinned SDK is the one setup installed in the user folder | No prompt yet. Not blocking: the launchers and VS Code use the pinned SDK, and agents put it first for their own commands |
 | Host wording left over from the generated hosts | Nothing on screen; the iOS display name says "Forged & Sent" like Android (today "Forged And Sent"). The Mac setup script's wording was fixed by `claude/bootstrap-test-readiness` | No prompt yet. Not blocking; needs a Mac to check |
 | `flutter-ai-review` on unlabeled tooling pull requests | Nothing on screen; a pull request that touches `tooling/review/` or the workflows and has no `authorship:` label no longer shows a failed check by default | No prompt yet. Not blocking: only `ci-gate` is required |
 
@@ -62,5 +67,12 @@ Plan and reasoning: [prototype-to-Flutter review](../reviews/2026-11-10-prototyp
 
 - Starting a row: set State to **In progress** and add your branch.
 - Finishing a row: in the pull request that finishes it, set State to **Done** and write the next row's next action.
+- After any edit to a row, run `python tooling/knowledge/work_board.py --write` and commit the regenerated [board view](WORK-BOARD-VIEW.md) and `docs/HOME.md` with it. `python tooling/knowledge/check.py` and CI fail when they do not match this page.
+- Lanes on the board view: **Next** is State Next; **In progress** is State In progress; **Done** is State Done; **Waiting** is the Paused table, or State Blocked, Decision needed or Review; **Later** is the Later table. Any other State is an error.
+- A waiting row says why it waits and what resumes it. A Next or In progress row needs a next action that starts with a verb.
+- Row order is priority. HOME recommends the first In progress row, or the first Next row when nothing is in progress.
+- Dragging a card in Obsidian does not change this page; the next refresh puts the card back.
+- Remove a Done row once it is old news. Its outcome stays in its pull request and in Git history.
 - Do not add "open", "merged" or "CI green". Link the pull request.
-- CI fails a pull request that changes `mobile/lib/`, `firebase/` or `functions/` without changing this file.
+- CI fails a pull request that changes `mobile/lib/`, `firebase/` or `functions/` without changing this file, and any pull request whose branch is named on this page.
+- Maintainer: edit a row here in Obsidian and leave it. The dashboard lists the edit under Needs your attention, and the next agent session publishes it as a pull request for your merge.

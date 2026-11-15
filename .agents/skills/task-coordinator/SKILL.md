@@ -23,7 +23,7 @@ Use for a delegated development task or a request to start/resume a task from th
 
 ## Close or transfer
 
-10. Update the handoff with actual models/providers, base/head and diff evidence, owned files, executed tests, review findings, remaining risks and one next action. Set lifecycle/stage honestly; a locally complete edit is not merged or released. Update the task's WORK.md row in the same pull request, written as it will be true after merge. Preserve historical audit snapshots.
+10. Update the handoff with actual models/providers, base/head and diff evidence, owned files, executed tests, review findings, remaining risks and one next action. Set lifecycle/stage honestly; a locally complete edit is not merged or released. Update the task's WORK.md row in the same pull request, written as it will be true after merge, then run `python3 tooling/knowledge/work_board.py --write` and commit the regenerated board view and dashboard block. Preserve historical audit snapshots.
 11. If handing to another lead, checkpoint first, stop old dispatch, list remaining workers and their ownership, and have the new lead verify the checkpoint against the real checkout before resuming. Record the actual new model; a role instruction cannot change a session's model.
 
 Completion: the scoped outcome and evidence are inspectable, unresolved decisions/coverage are explicit, and a fresh agent can resume from the task note without chat history.
