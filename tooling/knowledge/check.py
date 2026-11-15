@@ -6,11 +6,18 @@ import json
 import os
 import re
 import subprocess
+import sys
 from datetime import date
 from pathlib import Path
 from urllib.parse import unquote
 
-import work_board  # sibling module: the generated work views must match WORK.md
+# Other tools load this file by path (tooling/onboarding/test_beginner.py), which
+# does not put this folder on sys.path, so add it before the sibling import.
+_HERE = str(Path(__file__).resolve().parent)
+if _HERE not in sys.path:
+    sys.path.insert(0, _HERE)
+
+import work_board  # noqa: E402  sibling module: the generated work views must match WORK.md
 
 ROOT = Path(__file__).resolve().parents[2]
 LINK = re.compile(r"(?<!!)\[[^\]]+\]\(([^)]+)\)")
