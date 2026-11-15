@@ -602,6 +602,49 @@ class BinaryAssetTests(unittest.TestCase):
         self.assertEqual(code, 1)
         self.assertIn("No reviewable changes against", err)
 
+    def test_lockfile_only_change_passes_the_dry_run_but_is_never_called_reviewed(self):
+        # Dependabot bumps change one lockfile; CI verifies it, no AI review applies.
+        root, run, base = self.repo()
+        self.write(root, "tooling/firebase/package-lock.json", b'{"lock": 1}\n')
+        self.write(root, "mobile/pubspec.lock", b"packages: {}\n")
+        run("add", ".")
+        run("commit", "-qm", "lockfiles only")
+        self.assertEqual(patch_context(root, base)[2].strip(), "")
+        code, out, _, provider = self.cli(root, "--dry-run", "--base", base)
+        self.assertEqual(code, 0)
+        self.assertIn("generated or lock files verified by CI; no AI review needed", out)
+        self.assertIn("tooling/firebase/package-lock.json", out)
+        self.assertIn("mobile/pubspec.lock", out)
+        provider.assert_not_called()
+        # Without --dry-run: never a PASS, never a report, --verify keeps failing.
+        code, out, err, provider = self.cli(root, "--base", base)
+        self.assertEqual(code, 1)
+        self.assertNotIn("PASS", out)
+        self.assertIn("NOT VERIFIED: no AI review applies", err)
+        provider.assert_not_called()
+        self.assertFalse((root / ".review").exists())
+        self.assertEqual(self.cli(root, "--verify", "--base", base)[0], 1)
+
+    def test_lockfile_plus_reviewable_file_still_gets_the_normal_slice_output(self):
+        root, run, base = self.repo()
+        self.write(root, "tooling/firebase/package-lock.json", b'{"lock": 1}\n')
+        self.write(root, "app.py", b"print('hi')\n")
+        run("add", ".")
+        run("commit", "-qm", "mixed")
+        code, out, _, _ = self.cli(root, "--dry-run", "--base", base)
+        self.assertEqual(code, 0)
+        self.assertIn("Reviewable diff:", out)
+        self.assertIn("fully covering slices", out)
+        self.assertNotIn("no AI review needed", out)
+        self.assertIn("tooling/firebase/package-lock.json", out)
+
+    def test_empty_diff_is_still_an_error_with_or_without_dry_run(self):
+        root, _, base = self.repo()
+        for args in (("--dry-run",), ()):
+            code, _, err, _ = self.cli(root, *args, "--base", base)
+            self.assertEqual(code, 1)
+            self.assertIn("No reviewable changes against", err)
+
     def two_slices_and_two_images(self):
         """A change the runner must split in two, with two images no reviewer reads."""
         root, run, base = self.repo()
