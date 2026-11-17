@@ -27,7 +27,7 @@ The wizard keeps the primary choices short:
 | 7 | Open VS Code and the [first contribution guide](FIRST-CONTRIBUTION.md) |
 | 8 | Advanced: Android, GitHub sign-in, Git identity, project MCP locations |
 
-The Flutter app is early: it opens on Today with the day's devotional; the other tabs are placeholders. Most of the HTML prototype is not migrated yet ([parity](../knowledge/PROTOTYPE-PARITY.md)).
+The Flutter app is early: it opens on Today with the day's devotional, and Train logs a workout; the other four tabs are placeholders. Most of the HTML prototype is not migrated yet ([parity](../knowledge/PROTOTYPE-PARITY.md)).
 
 ## AI and MCP tools
 

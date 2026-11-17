@@ -3,7 +3,7 @@
 **Learning together:** [Project 101](PROJECT-101.md). **Running without AI:** [command recipes](RUN-COMMANDS.md). **Obsidian and boards:** [Obsidian 101](OBSIDIAN-101.md).
 
 ## Baseline
-The Flutter client has its shell, Today, the devotional and native local saving. It remains **in development**, with five placeholder tabs and no cloud sync. [Prototype parity](../knowledge/PROTOTYPE-PARITY.md) is the maintained screen inventory. Root `index.html` is a separate behavioral prototype.
+The Flutter client has its shell, Today, the devotional, Train with workout logging, and native local saving. It remains **in development**, with four placeholder tabs and no cloud sync. [Prototype parity](../knowledge/PROTOTYPE-PARITY.md) is the maintained screen inventory. Root `index.html` is a separate behavioral prototype.
 
 ## Guided Windows and MacBook setup
 
@@ -57,7 +57,7 @@ The tracked `mobile/android/` and `mobile/ios/` folders are Flutter 3.47.8 templ
 
 ## Choosing the next task
 
-Use the assigned row in [WORK](../knowledge/WORK.md) and its linked prompt. The client stack and first durable devotional slice already exist. Journal, workout logging, identity/groups, sync and distribution remain separate work; do not infer their availability from a prototype screen or another branch. The [101 course](PROJECT-101.md) explains a complete contribution from task selection to review.
+Use the assigned row in [WORK](../knowledge/WORK.md) and its linked prompt. The client stack, the first durable devotional slice and workout logging already exist. Journal, identity/groups, sync and distribution remain separate work; do not infer their availability from a prototype screen or another branch. The [101 course](PROJECT-101.md) explains a complete contribution from task selection to review.
 
 ## Security
 This is a public repo. Never commit API secrets, signing credentials, real prayers, health data, member records or test media. Be especially cautious before running AI agents on external PRs or user input. Keep workflow permissions read-only by default.
