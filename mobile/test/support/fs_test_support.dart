@@ -116,7 +116,8 @@ class TestWorkoutRepository extends MemoryWorkoutRepository {
   bool failWrites = false;
 
   /// When true, a day's session cannot be read: the stream the screens
-  /// listen to fails, as it would on a broken database file.
+  /// listen to fails, and so does a single read, as they would on a broken
+  /// database file.
   bool failSessionReads = false;
 
   Completer<void>? _held;
@@ -143,6 +144,12 @@ class TestWorkoutRepository extends MemoryWorkoutRepository {
       failSessionReads
       ? Stream<WorkoutSession?>.error(StateError('The test refused this read.'))
       : super.watchSession(ownerId, day);
+
+  @override
+  Future<WorkoutSession?> readSession(String ownerId, LocalDate day) async {
+    if (failSessionReads) throw StateError('The test refused this read.');
+    return super.readSession(ownerId, day);
+  }
 
   @override
   Future<WorkoutSession> startSession(NewSession session) async {

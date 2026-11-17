@@ -58,15 +58,16 @@ class DriftWorkoutRepository implements WorkoutRepository {
       .insertOnConflictUpdate(_planRow(ownerId, plan));
 
   @override
-  Stream<WorkoutSession?> watchSession(String ownerId, LocalDate day) {
-    return _watch(() async {
-      final row =
-          await (_db.select(_db.workoutSessions)..where(
-                (t) => t.ownerId.equals(ownerId) & t.day.equals(day.iso),
-              ))
-              .getSingleOrNull();
-      return row == null ? null : _session(row);
-    });
+  Stream<WorkoutSession?> watchSession(String ownerId, LocalDate day) =>
+      _watch(() => readSession(ownerId, day));
+
+  @override
+  Future<WorkoutSession?> readSession(String ownerId, LocalDate day) async {
+    final row =
+        await (_db.select(_db.workoutSessions)
+              ..where((t) => t.ownerId.equals(ownerId) & t.day.equals(day.iso)))
+            .getSingleOrNull();
+    return row == null ? null : _session(row);
   }
 
   @override

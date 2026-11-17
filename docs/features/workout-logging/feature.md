@@ -7,7 +7,7 @@ owner: maintainer
 source_ref: claude/s3-workout-logging
 source_sha: 449b9473cc1ba4259f08fa241f4778482289490d
 approved_by: none
-test_plan: plan schedule and prescription rules, workout repository rules against the Drift and in-memory stores, kill and reopen on a real SQLite file, schema migration from version 1, Train and workout page widget tests including the prayer gate and screen-reader labels, the pause flush, the release-build clock guard, golden images at 390x844 in dark and light, one emulator run of start, two sets, kill, relaunch, finish
+test_plan: plan schedule and prescription rules, workout repository rules against the Drift and in-memory stores, kill and reopen on a real SQLite file, schema migration from version 1, Train and workout page widget tests including the prayer gate and screen-reader labels, Finish held while a set he entered is not stored, the pause flush, the release-build clock guard, golden images at 390x844 in dark and light, one emulator run of start, two sets, kill, relaunch, finish
 verified_tests: mobile/test/features/workout/workout_plan_test.dart, mobile/test/features/workout/prescription_test.dart, mobile/test/features/workout/workout_library_test.dart, mobile/test/features/workout/drift_workout_repository_test.dart, mobile/test/features/workout/memory_workout_repository_test.dart, mobile/test/features/workout/train_page_test.dart, mobile/test/features/workout/workout_page_test.dart, mobile/test/features/workout/workout_flush_test.dart, mobile/test/features/workout/workout_golden_test.dart, mobile/test/storage/migration_test.dart, mobile/test/app/start_clock_test.dart, mobile/integration_test/workout_restart_1_start_test.dart, mobile/integration_test/workout_restart_2_finish_test.dart
 implementation_paths: mobile/lib/src/features/workout, mobile/lib/src/storage/app_database.dart, mobile/lib/src/storage/app_database.steps.dart, mobile/drift_schemas, mobile/lib/src/design/fs_dialog.dart, mobile/lib/src/design/fs_number_field.dart, mobile/lib/src/design/fs_chevron_row.dart, mobile/lib/src/design/fs_marks.dart, mobile/lib/src/design/fs_typography_workout.dart, mobile/lib/src/core/time_text.dart, mobile/lib/main.dart, mobile/assets/content
 verification: see the pull request that adds this page for the commands and their output
@@ -53,7 +53,7 @@ A man opens Train and sees today and this week from the Forged program. He opens
 - **Last time (U3):** found by the movement, on the most recent earlier day he logged reps for it. Never by where the exercise stood in the plan.
 - **Rest timer:** per exercise, starting at the rest its prescription writes. Start, Pause, Resume, Reset, and 15 seconds less or more. At zero it reads "GO". It makes no sound.
 - **Clock:** the time since Amen, in a bar that stays at the top.
-- **Finish:** a set with reps and no weight, where the lift needs one, must be fixed first; the page outlines it. Sets that will not be counted are listed, and he may finish without them: a set with nothing entered, and a set with a weight and no reps or seconds (decision 6 above). Finishing locks the workout into a summary: when it was finished, pounds moved, sets logged, and each logged set as text. A set entered halfway has a line too, which says it was not counted and what it is missing: "Not counted: 140 lb, no reps". A set left empty has no line. Nothing in a finished workout can be changed, on the screen or in the store.
+- **Finish:** nothing is finished while a set he entered is not stored (see the failure states below). The workout is then checked as the store holds it, not as the page last drew it: a set with reps and no weight, where the lift needs one, must be fixed first; the page outlines it. Sets that will not be counted are listed, and he may finish without them: a set with nothing entered, and a set with a weight and no reps or seconds (decision 6 above). Finishing locks the workout into a summary: when it was finished, pounds moved, sets logged, and each logged set as text. A set entered halfway has a line too, which says it was not counted and what it is missing: "Not counted: 140 lb, no reps". A set left empty has no line. Nothing in a finished workout can be changed, on the screen or in the store.
 - **The Workout box on Today** is checked by finishing a workout and by nothing else. A tap on it opens Train.
 
 **What is saved, and how**
@@ -77,8 +77,9 @@ The emulator test has to run on a lifting day whatever day it really is, so `sta
 **Failure and edge states**
 
 - **A change cannot be stored:** the page says "That did not save. Try again." The line stays until that change is stored: the same box typed in again, the same tick, a button of the same rest timer, the start or the finish. Another change being stored does not clear it. The box itself goes back to what is stored when he leaves it.
+- **A set he entered is not stored when he taps Finish:** nothing is finished, and he is not asked about blank sets. Finish first waits for the changes still being written. If a set's reps or seconds, its weight or its tick could not be stored, the page goes to the top, where "That did not save. Try again." stands, and the box he was in goes back to what is stored. Finish works once each of those is stored: the same box typed in again, or the same tick. A rest timer that did not save does not hold Finish up, because where a timer stood is no part of a finished workout. Leaving the page forgets what did not save: the boxes then show what is stored, and that is what he finishes.
 - **The session cannot be stored:** nothing starts; the page says the same and Start stays.
-- **Finishing cannot be saved:** the workout stays open and the page says so.
+- **Finishing cannot be saved:** the workout stays open and the page says so. The same when the workout cannot be read back from the store for the check before it is locked.
 - **Midnight passes between opening the page and Amen:** nothing is started; the page says "It is a new day. Open today's workout from Train."
 - **The plan, or today's session, cannot be loaded:** Train says so and offers "Try again", which reads all of it again.
 - **Nothing can be kept (the web preview):** Train and the workout page say "Nothing you check here is saved."
@@ -88,6 +89,7 @@ The emulator test has to run on a lifting day whatever day it really is, so `sta
 
 - A workout that is never finished stays "in progress" on Train for good.
 - The rest timer makes no sound.
+- When "That did not save" appears above the set rows, the box he is typing in loses the keyboard and shows what is stored.
 
 **What must not change**
 

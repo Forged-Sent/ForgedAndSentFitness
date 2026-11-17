@@ -288,6 +288,19 @@ class WorkoutViewModel extends AsyncNotifier<WorkoutView> {
   @visibleForTesting
   int flushes = 0;
 
+  /// The session of this page's day as the store holds it now, read once
+  /// every change made so far has had its turn. Throws if it cannot be
+  /// read.
+  ///
+  /// The view the page draws from is rebuilt a moment after a write, so it
+  /// can be a change behind. What is checked before a workout is locked
+  /// must not be.
+  Future<WorkoutSession?> storedSession() async {
+    final store = ref.read(localStoreProvider);
+    await _pending;
+    return store.workouts.readSession(store.ownerId, day);
+  }
+
   /// The store, read now. See [_write].
   WorkoutRepository get _workouts => ref.read(localStoreProvider).workouts;
 
@@ -402,6 +415,14 @@ class WorkoutViewModel extends AsyncNotifier<WorkoutView> {
   /// Finishes the session on this page. It checks the Workout box of the
   /// day the session was started on, also after midnight. Finishing twice
   /// records one completion. Returns false if it could not be saved.
+  ///
+  /// It takes its turn behind every change already made, whether or not
+  /// those were stored: a write that fails does not stop the ones after
+  /// it. So the page asks for this only once every set change he made is
+  /// stored, and after checking [storedSession] (`_finish` in
+  /// `workout_page.dart`). The page is what knows which boxes he typed in,
+  /// and it forgets them when he leaves, as the boxes then show what is
+  /// stored.
   Future<bool> finish() async {
     final session = state.value?.session;
     if (session == null) return false;

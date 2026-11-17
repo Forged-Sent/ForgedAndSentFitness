@@ -36,10 +36,16 @@ const String workoutSaveFailedNotice = 'That did not save. Try again.';
 /// and an exercise's ids are in theirs, so each is told apart.
 const String _startChange = 'start';
 const String _finishChange = 'finish';
-String _repsChange(SessionSet set) => 'reps:${set.id}';
-String _weightChange(SessionSet set) => 'weight:${set.id}';
-String _tickChange(SessionSet set) => 'tick:${set.id}';
+String _repsChange(SessionSet set) => '${_setChange}reps:${set.id}';
+String _weightChange(SessionSet set) => '${_setChange}weight:${set.id}';
+String _tickChange(SessionSet set) => '${_setChange}tick:${set.id}';
 String _restChange(SessionExercise exercise) => 'rest:${exercise.id}';
+
+/// How the name of every change to what a set holds begins: its reps or
+/// seconds, its weight, its tick. These are what a finished workout keeps,
+/// so Finish waits for them; a rest timer's change is not one.
+const String _setChange = 'set:';
+bool _isSetChange(String change) => change.startsWith(_setChange);
 
 /// The largest numbers a set accepts: the prototype's limits.
 const double _maxReps = 999;
@@ -71,6 +77,10 @@ class _WorkoutPageState extends ConsumerState<WorkoutPage> {
   /// being changed: one set's reps, one exercise's rest timer, the start,
   /// the finish. The page says "That did not save" while any is left.
   final Set<String> _unsaved = <String>{};
+
+  /// Done once every write followed so far has said whether it was stored,
+  /// and [_unsaved] says so too.
+  Future<void> _answered = Future<void>.value();
 
   /// The sets the finish check pointed at, outlined until they are fixed.
   Set<String> _needsFixing = const <String>{};
@@ -117,11 +127,24 @@ class _WorkoutPageState extends ConsumerState<WorkoutPage> {
   /// says so. Writes are stored in the order they were made, so the last
   /// answer for a change is the answer for what he entered last.
   void _track(String change, Future<bool> write) {
-    unawaited(
-      write.then((bool saved) {
-        if (mounted && _mark(change, saved: saved)) setState(() {});
-      }),
-    );
+    final answer = write.then((bool saved) {
+      if (mounted && _mark(change, saved: saved)) setState(() {});
+    });
+    _answered = _answered.then((_) => answer);
+  }
+
+  /// True if everything he has entered for a set on this page is stored.
+  ///
+  /// It first waits for the changes still on their way to the store: one
+  /// of them may yet fail. He can type another while it waits, so it waits
+  /// until none is left.
+  Future<bool> _setChangesStored() async {
+    Future<void> answered;
+    do {
+      answered = _answered;
+      await answered;
+    } while (!identical(answered, _answered));
+    return !_unsaved.any(_isSetChange);
   }
 
   Future<void> _start() async {
@@ -156,8 +179,47 @@ class _WorkoutPageState extends ConsumerState<WorkoutPage> {
     });
   }
 
-  Future<void> _finish(WorkoutSession session) async {
+  Future<void> _finish() async {
     if (_busy) return;
+    setState(() => _busy = true);
+    // A workout is locked as the store holds it, so two things come first.
+    // Every set he entered has to be stored: one the store does not hold
+    // would be lost for good. And the check below is made on the session
+    // read from the store after his last change. The copy this page draws
+    // from is redrawn a moment after a write, so it can be a change behind.
+    WorkoutSession? session;
+    Future<void> answered;
+    do {
+      final stored = await _setChangesStored();
+      if (!mounted) return;
+      if (!stored) {
+        // He is taken to the notice, and the box he was typing in goes
+        // back to what is stored, as it does when he leaves it.
+        setState(() => _busy = false);
+        FocusManager.instance.primaryFocus?.unfocus();
+        _toTop();
+        return;
+      }
+      answered = _answered;
+      try {
+        session = await _model.storedSession();
+      } catch (_) {
+        // What would be locked could not be read, so nothing is finished.
+        if (!mounted) return;
+        setState(() {
+          _busy = false;
+          _mark(_finishChange, saved: false);
+        });
+        _toTop();
+        return;
+      }
+      if (!mounted) return;
+      // He typed while the store was being read: wait for that too.
+    } while (!identical(answered, _answered));
+    if (session == null || session.finished) {
+      setState(() => _busy = false);
+      return;
+    }
     final check = checkBeforeFinish(session);
     if (check.fixes.isNotEmpty) {
       await showFsDialog<void>(
@@ -165,11 +227,10 @@ class _WorkoutPageState extends ConsumerState<WorkoutPage> {
         builder: (BuildContext context) => _FinishCheckDialog(check: check),
       );
       if (!mounted) return;
-      setState(
-        () => _needsFixing = <String>{
-          for (final issue in check.fixes) issue.setId,
-        },
-      );
+      setState(() {
+        _busy = false;
+        _needsFixing = <String>{for (final issue in check.fixes) issue.setId};
+      });
       return;
     }
     if (check.uncounted.isNotEmpty) {
@@ -177,9 +238,12 @@ class _WorkoutPageState extends ConsumerState<WorkoutPage> {
         context,
         builder: (BuildContext context) => _FinishCheckDialog(check: check),
       );
-      if (!mounted || anyway != true) return;
+      if (!mounted) return;
+      if (anyway != true) {
+        setState(() => _busy = false);
+        return;
+      }
     }
-    setState(() => _busy = true);
     final saved = await _model.finish();
     if (!mounted) return;
     setState(() {
@@ -187,8 +251,12 @@ class _WorkoutPageState extends ConsumerState<WorkoutPage> {
       _mark(_finishChange, saved: saved);
       _needsFixing = const <String>{};
     });
-    // Finish is at the foot of the page. The summary that replaces the
-    // set rows, or the notice that it did not save, is at the top.
+    _toTop();
+  }
+
+  /// Finish is at the foot of the page. The summary that replaces the set
+  /// rows, and the line that says something did not save, are at the top.
+  void _toTop() {
     if (_scroll.hasClients) _scroll.jumpTo(0);
   }
 
@@ -358,7 +426,7 @@ class _WorkoutPageState extends ConsumerState<WorkoutPage> {
                   child: FsButton(
                     key: const ValueKey<String>('fs-finish-workout'),
                     label: 'Finish workout',
-                    onPressed: _busy ? null : () => _finish(session),
+                    onPressed: _busy ? null : _finish,
                   ),
                 ),
               ],

@@ -150,6 +150,9 @@ update-by: edit WORK.md then run tooling/knowledge/work_board.py --write
 - [ ] **A workout that is never finished**
 	**Prompt:** No prompt yet. Found in S3. Needs a decision: how long a session may stay open, and what happens to it then
 	[Edit this row in WORK](WORK.md)
+- [ ] **The box he is typing in keeps the keyboard when "That did not save" appears**
+	**Prompt:** No prompt yet. Found in S3 while holding Finish for an unsaved set. Not blocking: give the rows of the page's list keys of their own, and test that the box keeps the keyboard
+	[Edit this row in WORK](WORK.md)
 - [ ] **The rest timer is heard**
 	**Prompt:** No prompt yet. Found in S3. Needs a notification permission, so read `docs/knowledge/FLUTTER-PLATFORMS.md` first
 	[Edit this row in WORK](WORK.md)

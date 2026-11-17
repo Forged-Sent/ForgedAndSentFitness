@@ -88,6 +88,10 @@ class MemoryWorkoutRepository implements WorkoutRepository {
       _watch(() => _find(ownerId, day));
 
   @override
+  Future<WorkoutSession?> readSession(String ownerId, LocalDate day) =>
+      _inTurn(() async => _find(ownerId, day));
+
+  @override
   Stream<WorkoutSession?> watchOpenSession(String ownerId) => _watch(() {
     WorkoutSession? latest;
     for (final session in _sessions) {

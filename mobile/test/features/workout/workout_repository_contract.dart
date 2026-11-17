@@ -243,6 +243,33 @@ void workoutRepositoryContract(Future<WorkoutStores> Function() create) {
       expect((await session(nov12))!.exercises.last.sets[0].ticked, isFalse);
     });
 
+    test('one read gives the session as it is stored at that moment', () async {
+      expect(await workouts.readSession(ownerA, nov9), isNull);
+      expect(await workouts.readSession(ownerB, nov12), isNull);
+      final before = (await workouts.readSession(ownerA, nov12))!;
+      expect(before.id, 's1');
+      expect(before.exercises.map((e) => e.movementId), <String>[
+        'Back Squat',
+        'Plank',
+      ]);
+      expect(before.exercises.first.sets[0].reps, isNull);
+      expect(before.finished, isFalse);
+
+      // Straight after each change is stored, with nobody watching.
+      await workouts.setReps('s1-squat-s0', 5);
+      await workouts.setWeight('s1-squat-s0', 135);
+      await workouts.setTicked('s1-plank-s0', ticked: true);
+      var stored = (await workouts.readSession(ownerA, nov12))!;
+      expect(stored.exercises.first.sets[0].reps, 5);
+      expect(stored.exercises.first.sets[0].weightLb, 135);
+      expect(stored.exercises.last.sets[0].ticked, isTrue);
+
+      await workouts.finishSession('s1', DateTime(2026, 11, 12, 19));
+      stored = (await workouts.readSession(ownerA, nov12))!;
+      expect(stored.finished, isTrue);
+      expect(stored.finishedAtUtc, DateTime(2026, 11, 12, 19).toUtc());
+    });
+
     test('every change reaches whoever is watching the session', () async {
       final seen = <int?>[];
       final watching = workouts

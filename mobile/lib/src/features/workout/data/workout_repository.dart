@@ -30,6 +30,14 @@ abstract interface class WorkoutRepository {
   /// started none that day.
   Stream<WorkoutSession?> watchSession(String ownerId, LocalDate day);
 
+  /// The session the owner started on [day] as it is stored at this
+  /// moment, or null: one read.
+  ///
+  /// For a check that has to see every change already stored. Whoever
+  /// listens to [watchSession] hears of a change a moment after it is
+  /// stored, so what he last heard can be a change behind.
+  Future<WorkoutSession?> readSession(String ownerId, LocalDate day);
+
   /// The owner's most recently started session that is not finished, or
   /// null. This is how a workout begun before midnight is found again the
   /// next day.
