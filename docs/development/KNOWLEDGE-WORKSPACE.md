@@ -2,6 +2,8 @@
 
 **Purpose:** read one Git-controlled knowledge base and interact with the actual prototype and generated Atlas, without copying either HTML source into the vault.
 
+For a first lesson and the exact board/vault setup, use [Project 101](PROJECT-101.md) and [Obsidian 101](OBSIDIAN-101.md). This page describes the optional HTML preview server, not the Flutter run commands or a live task board.
+
 ## What is already real
 
 - `docs/` contains the Markdown knowledge base; [HOME.md](../HOME.md) is the beginner entrypoint. Obsidian is optional.
@@ -13,7 +15,7 @@
 
 1. Use a **Git clone** set up with `launchers/windows/1 - Set up this computer.cmd` (Contributor). Python 3.11+ is required.
 2. Double-click `launchers/windows/more/Knowledge workspace.cmd` in File Explorer. Keep its terminal window open while browsing. It regenerates the Atlas and starts a loopback-only server.
-3. Open the printed landing URL in Chrome/Edge, or in **desktop** Obsidian's core Web viewer. If you use Obsidian, open the `docs` folder as a vault and select **Open web page** in Web viewer; paste the URL.
+3. Open the printed landing URL in Chrome/Edge, or in **desktop** Obsidian's core Web viewer. If you use Obsidian, open the repository folder as the vault and select **Open web page** in Web viewer; paste the URL.
 4. Test the prototype's menus and JavaScript controls (see [what the prototype can and cannot do here](#what-the-prototype-can-and-cannot-do-here)), and the Atlas tabs, source search and documentation.
 5. To stop, close the terminal window. Ctrl+C also works; if Windows asks `Terminate batch job (Y/N)?`, answer **Y**.
 
@@ -21,7 +23,7 @@
 
 1. Use a Git clone set up with `launchers/mac/1 - Set up this computer.command` (Contributor). Python 3.11+ is required.
 2. Double-click `launchers/mac/more/Knowledge workspace.command` (or run `bash "launchers/mac/more/Knowledge workspace.command"` from Terminal). Keep its terminal window open.
-3. Open the printed URL in Safari/Chrome or **desktop** Obsidian's core Web viewer, with `docs/` as the vault.
+3. Open the printed URL in Safari/Chrome or **desktop** Obsidian's core Web viewer, with the repository folder as the vault.
 4. Repeat the interaction checks. To stop, press Ctrl+C or close the Terminal window. If Finder blocks the script, inspect the file and use Terminal rather than disabling system security globally.
 
 ## Local URLs
@@ -68,6 +70,6 @@ To click through those flows with in-memory fake data, use the existing mock pre
 
 **Fallback:** the existing `launchers/windows/more/Architecture Atlas.cmd` or `launchers/mac/more/Architecture Atlas.command` opens the self-contained Atlas offline; the original `index.html` can be opened in a regular browser when compatible. No localhost or Obsidian integration is required to continue Flutter development.
 
-## Next phases and rollback
+## Rollout history and rollback
 
-This follow-up was stacked on PR #26 (PR #4 is merged); merge it after PR #26. Physical onboarding acceptance for PR #4 is recorded in [CURRENT.md](../knowledge/CURRENT.md); the checklist above for this preview is still a person-run test. Phase 1 is this optional docs vault landing and risk-based contract templates; phase 2 is this minimal localhost preview and launcher; phase 3 is deterministic feature metadata checks in CI. Advanced worktree automation, an environment doctor, read-only MCPVault trial, Obsidian Bases dashboards and RAG are **deferred** until the basic path is physically verified. Rollback is to remove the two launchers/server and use existing offline Atlas/browser paths; Markdown and Git history remain intact.
+The preview server, launchers and feature metadata checks are present in this checkout. Earlier stacked-PR sequencing is historical and is not an instruction to merge old work. Use [WORK](../knowledge/WORK.md) for the current plan and [HISTORY](../knowledge/HISTORY.md) only for dated evidence. The [active handoff Base](../knowledge/ACTIVE-TASKS.base) exists; the [generated project board](../knowledge/WORK-BOARD-VIEW.md) and dashboard focus block derive from WORK. [Obsidian 101](OBSIDIAN-101.md) explains their refresh command. Embedded agent integrations remain optional proposals. For a preview fallback, use the offline Atlas or browser directly; no server or plugin is required to read Markdown.

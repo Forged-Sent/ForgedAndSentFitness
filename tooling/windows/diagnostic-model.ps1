@@ -4,8 +4,10 @@ Set-StrictMode -Version Latest
 $script:FSProfiles=@{
   Preview=@('PowerShell7','Git','Chrome','Flutter','VSCode')
   Contributor=@('PowerShell7','Git','Chrome','Flutter','VSCode','Node','Npm','GitHubCLI','FirebaseCLI','FlutterFireCLI','Java21','GitRepo','DemoConfig','Python','GitIdentity')
-  Mobile=@('PowerShell7','Git','Chrome','Flutter','VSCode','Node','Npm','GitHubCLI','FirebaseCLI','FlutterFireCLI','Java21','GitRepo','DemoConfig','Python','GitIdentity','AndroidStudio','Maestro','AndroidDevice')
-  Maintainer=@('PowerShell7','Git','Chrome','Flutter','VSCode','Node','Npm','GitHubCLI','FirebaseCLI','FlutterFireCLI','Java21','GitRepo','DemoConfig','Python','GitIdentity','AndroidStudio','Maestro','AndroidDevice','DevCloudIdentity')
+  # AndroidDevice is not required: Check my setup never runs a device, so it can never
+  # be Ready, and requiring it made every Mobile check fail. It is shown as a reminder.
+  Mobile=@('PowerShell7','Git','Chrome','Flutter','VSCode','Node','Npm','GitHubCLI','FirebaseCLI','FlutterFireCLI','Java21','GitRepo','DemoConfig','Python','GitIdentity','AndroidStudio','Maestro')
+  Maintainer=@('PowerShell7','Git','Chrome','Flutter','VSCode','Node','Npm','GitHubCLI','FirebaseCLI','FlutterFireCLI','Java21','GitRepo','DemoConfig','Python','GitIdentity','AndroidStudio','Maestro','DevCloudIdentity')
 }
 $script:FSStatuses=@('Ready','Missing','Outdated','ConfiguredNotConnected','AuthRequired','PermissionDenied','NotApplicable','Failed')
 function New-FSCheck {
@@ -110,7 +112,7 @@ function Test-FSNotInProfile {
   param([ValidateSet('Preview','Contributor','Mobile','Maintainer')][string]$TargetProfile,[string]$Id)
   if($script:FSExtras -notcontains $Id){return $false}
   if($script:FSProfiles[$TargetProfile] -contains $Id){return $false}
-  if($Id -eq 'Java' -and $TargetProfile -in @('Mobile','Maintainer')){return $false}
+  if($Id -in @('Java','AndroidDevice') -and $TargetProfile -in @('Mobile','Maintainer')){return $false}
   return $true
 }
 function Get-FSExitCode {

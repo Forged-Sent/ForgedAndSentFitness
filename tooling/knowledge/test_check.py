@@ -6,7 +6,7 @@ from tempfile import TemporaryDirectory
 import unittest
 from unittest import mock
 
-from check import BASE_REF_ENV, doc_rule_problems, validate
+from check import BASE_REF_ENV, BOARD, board_branch_problems, current_branch, doc_rule_problems, validate
 
 
 VALID_SHA = "1" * 40
@@ -79,6 +79,42 @@ class DocRuleTest(unittest.TestCase):
     def test_docs_tooling_and_dependency_changes_are_exempt(self):
         self.assertEqual(doc_rule_problems(
             ["docs/HOME.md", "tooling/knowledge/check.py", "mobile/pubspec.lock", "mobile/test/widget_test.dart"]), [])
+
+
+class BoardBranchTest(unittest.TestCase):
+    ROWS = ("| Native hosts | Builds | **In progress** | local branch `codex/native-host`, no PR yet | Run P03 |\n"
+            "| S0 Design | Opens | **Next** | \u2014 | Run P04 |\n")
+
+    def test_branch_named_on_the_board_must_change_the_board(self):
+        problems = board_branch_problems(["docs/HOME.md", "tooling/x.py"], "codex/native-host", self.ROWS)
+        self.assertEqual(len(problems), 1)
+        self.assertIn("codex/native-host is named on the work board", problems[0])
+        self.assertIn(BOARD, problems[0])
+
+    def test_branch_named_on_the_board_passes_once_the_board_changes(self):
+        self.assertEqual(board_branch_problems(["tooling/x.py", BOARD], "codex/native-host", self.ROWS), [])
+
+    def test_branch_the_board_does_not_name_is_left_to_the_path_rules(self):
+        self.assertEqual(board_branch_problems(["tooling/x.py"], "fix/typo", self.ROWS), [])
+        # A longer or shorter name is a different branch.
+        self.assertEqual(board_branch_problems(["tooling/x.py"], "codex/native", self.ROWS), [])
+        self.assertEqual(board_branch_problems(["tooling/x.py"], "codex/native-host-2", self.ROWS), [])
+
+    def test_main_no_branch_and_no_changes_are_never_flagged(self):
+        board = self.ROWS + "| Old | Done | **Done** | branch `main` | \u2014 |\n"
+        self.assertEqual(board_branch_problems(["tooling/x.py"], "main", board), [])
+        self.assertEqual(board_branch_problems(["tooling/x.py"], None, board), [])
+        self.assertEqual(board_branch_problems([], "codex/native-host", board), [])
+
+    def test_pull_request_head_is_read_from_the_ci_environment(self):
+        with TemporaryDirectory() as tmp:
+            with mock.patch.dict(os.environ, {"GITHUB_HEAD_REF": "feat/from-ci"}):
+                self.assertEqual(current_branch(Path(tmp)), "feat/from-ci")
+            with mock.patch.dict(os.environ, {"GITHUB_HEAD_REF": ""}):
+                self.assertIsNone(current_branch(Path(tmp)))        # not a repository
+            subprocess.run(["git", "init", "-q", "-b", "feat/local", tmp], check=True)
+            with mock.patch.dict(os.environ, {"GITHUB_HEAD_REF": ""}):
+                self.assertEqual(current_branch(Path(tmp)), "feat/local")
 
 
 class FeatureContractTest(unittest.TestCase):

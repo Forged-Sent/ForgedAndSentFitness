@@ -1,6 +1,8 @@
 # Obsidian-guided development — recommended rollout
 
-Status: user-authorized task-based coordinator workflow, November 5, 2026; plugin integrations remain proposed and untested. A less technical collaborator can follow work **and run agent sessions** using existing repository skills, contracts, worktrees and review tooling. This note does not authorize plugin installation, new subscriptions or paid API routes.
+> **For the current beginner workflow, start with [Project 101](../development/PROJECT-101.md) and [Obsidian 101](../development/OBSIDIAN-101.md).** This page is a coordination rollout proposal, not a list of installed automations. [WORK](WORK.md) owns the current plan; CURRENT is superseded. The handoff Base and the generated WORK board are different views.
+
+Status: historical coordination proposal from November 5, 2026. The implemented note workspace and its UI test evidence are in [Obsidian setup](OBSIDIAN-SETUP.md); embedded agent integrations remain proposals. A less technical collaborator can follow work **and run agent sessions** using existing repository skills, contracts, worktrees and review tooling. This note does not authorize plugin installation, new subscriptions or paid API routes.
 
 ## The experience to build
 
@@ -8,7 +10,7 @@ Open HOME → choose a ready task → start or resume the coordinator → follow
 
 Obsidian holds durable tasks/decisions/history. Coding agents operate on a real local Git checkout and tools. A dashboard alone cannot provide a compiler, credentials or isolated execution. Workstation setup happens once and its readiness is visible before starting work.
 
-## Recommended tools
+## Earlier tool proposal (see the current setup guide)
 
 | Purpose | Choice | Adoption boundary |
 |---|---|---|
@@ -51,7 +53,7 @@ Invoke the repository [task-coordinator skill](../../.agents/skills/task-coordin
 4. **Non-author reviewer:** reads the exact proposed diff and relevant contract/context; reports severity, file/line, impact and suggested fix. Auth/privacy/scoring/data migrations receive a second independent specialist under the requested team workflow.
 5. **Author fixes, coordinator verifies:** rerun affected checks and review for changed code. Never treat a stale reviewed SHA as the final head.
 6. **Human evaluates:** see a working demonstration, acceptance results, remaining risks and PR. Agent policy still prohibits agent merge/approval; pushes require the existing conditions.
-7. **Knowledge closeout:** update the same handoff, promote verified current facts to CURRENT, and move completed work out of the active view. Archive research with a question-specific index entry.
+7. **Knowledge closeout:** update the task's WORK row and relevant feature/architecture pages in the same change. Use the PR as the handoff once it exists; close a pre-PR handoff note when replaced by the PR. Do not update superseded CURRENT. Archive research with a question-specific index entry.
 
 Roles are reusable across vendors. A second Codex conversation is not an independent provider in the existing runner; use the truthful author identity. Same-provider research agents are useful but do not become independent security approval. If another reviewer is unavailable, continue authorized local implementation, checks and handoff preparation; mark review coverage NOT VERIFIED and surface the process exception for the maintainer. Do not claim the review stage passed or silently waive it. Separate Git push/release constraints still apply. Paid review eligibility is checked before launch.
 

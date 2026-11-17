@@ -12,7 +12,7 @@ Official installation instructions: https://learn.microsoft.com/en-us/powershell
 
 ## Two setups, for different teammates
 
-- Preview-only: run `launchers/windows/more/Preview-only setup.cmd`, then `launchers/windows/2 - Run the app.cmd`. This opens the Flutter starter in Chrome, without accounts.
+- Preview-only: run `launchers/windows/more/Preview-only setup.cmd`, then `launchers/windows/2 - Run the app.cmd`. This opens the Flutter app (Today and the day's devotional) in Chrome, without accounts.
 - Full development: run `launchers/windows/1 - Set up this computer.cmd`, then `launchers/windows/5 - Check my setup.cmd` and `launchers/windows/2 - Run the app.cmd`.
 - Optional Android phone development: run `launchers/windows/more/Android setup.cmd`. Complete Android Studio setup, licenses and device pairing yourself.
 - Local iOS builds require a Mac and Xcode.
@@ -46,7 +46,7 @@ The project VS Code MCP file configures three default servers (no Firebase cloud
 
 **Safety:** MCP providers can execute code or access external data. VS Code asks you to trust servers. Firebase cloud MCP is deliberately absent. DEV cloud authorization is a separate Maintainer opt-in. No Firebase project or API key is created by this bootstrap.
 
-The shared .vscode/mcp.json is for VS Code and Copilot. Claude uses .mcp.json, Codex uses .codex/config.toml after trust, and Gemini CLI uses .gemini/settings.json (Dart and Context7 only, untrusted). The audited optional manifests provide Google Developer Knowledge through a masked key prompt only when the maintainer explicitly opts in. No global Firebase/cloud MCP registration is performed.
+The shared .vscode/mcp.json is for VS Code and Copilot. Claude uses .mcp.json and Codex uses .codex/config.toml after trust. Gemini CLI has no project configuration; its settings were archived on 2026-11-10 (see the [archive README](../knowledge/archive/2026-11-10-copilot-gemini-rules/README.md)). The audited optional manifests provide Google Developer Knowledge through a masked key prompt only when the maintainer explicitly opts in. No global Firebase/cloud MCP registration is performed.
 
 ## Sign-in after setup
 
@@ -81,7 +81,7 @@ Codex official plugin:
     codex plugin marketplace add flutter/agent-plugins
     codex plugin add dart-flutter@dart-flutter
 
-Review and commit only intentional skill changes. The Flutter app still needs further work; the bootstrap starts a foundation screen, not the existing full HTML application.
+Review and commit only intentional skill changes. The Flutter app still needs further work; it has Today and the devotional, not the full HTML prototype.
 
 ## Verification and support
 

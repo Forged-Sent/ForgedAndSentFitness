@@ -590,10 +590,9 @@
       "name": "Gemini CLI",
       "role": "Optional independent third provider",
       "instructions": [
-        "GEMINI.md",
         ".agents/skills/independent-code-review/SKILL.md"
       ],
-      "notes": "Optional; sandbox and CLI flags must be tested on the installed version. Do not assume a particular model variant."
+      "notes": "Optional; sandbox and CLI flags must be tested on the installed version. Do not assume a particular model variant. Its GEMINI.md rule file is archived in docs/knowledge/archive/2026-11-10-copilot-gemini-rules/."
     }
   ]
 }

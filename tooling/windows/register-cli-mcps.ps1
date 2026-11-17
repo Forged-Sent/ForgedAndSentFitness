@@ -6,7 +6,7 @@ Write-Host 'Project MCP configuration (no Firebase cloud MCP):' -ForegroundColor
 Write-Host '  VS Code: .vscode/mcp.json'
 Write-Host '  Claude Code: .mcp.json'
 Write-Host '  Codex: .codex/config.toml (requires project trust)'
-Write-Host '  Gemini CLI: .gemini/settings.json (Dart and Context7 only, untrusted)'
+Write-Host '  Gemini CLI: none (its settings are archived under docs/knowledge/archive/2026-11-10-copilot-gemini-rules)'
 Write-Host 'If a server is configured but not connected, authorize the provider in the client.'
 Write-Host 'Do not register Firebase MCP on Contributor machines.'
 exit 0
