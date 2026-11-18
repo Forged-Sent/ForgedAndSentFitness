@@ -30,6 +30,8 @@ if [ "$FS_CI" -eq 1 ]; then
   exit 0
 fi
 fs_info "Forged & Sent MacBook setup ($FS_PROFILE)"
+fs_warn_synced_folder
+if [ -d "$FS_XCODE_APP" ] && ! fs_xcode_version_ok; then fs_warn "Only for iPhone testing: $FS_XCODE_TOO_OLD"; fi
 fs_require_clt || exit 2
 fs_require_brew || exit 2
 fs_brew_cask visual-studio-code 'Visual Studio Code.app' code

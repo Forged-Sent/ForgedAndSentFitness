@@ -324,6 +324,23 @@ class BeginnerContractTests(unittest.TestCase):
         self.assertIn("--platforms=ios", common)
         self.assertTrue((ROOT / "launchers/mac/more/Run app on iPhone simulator.command").is_file())
 
+    def test_mac_iphone_launcher_survives_xcode_27_and_synced_folders(self):
+        run, common = read("tooling/macos/run-ios.sh"), read("tooling/macos/common.sh")
+        setup, diag = read("tooling/macos/setup.sh"), read("tooling/macos/verify.sh")
+        # Xcode 27 has no Simulator.app, so nothing may depend on `open -a Simulator`.
+        self.assertNotIn("open -a Simulator", run + common)
+        self.assertIn("DeviceHub.app", common)
+        self.assertIn("fs_open_simulator_window", run)
+        # Homebrew rsync needs the folder before pub get copies the Swift packages.
+        self.assertLess(run.index('mkdir -p "$FS_ROOT/mobile/build/ios/SourcePackages"'), run.index('"$FS_FLUTTER" pub get'))
+        self.assertIn("fs_xcode_version_ok", run)
+        for text in (run, setup, common[common.index("fs_setup_ios(){"):]):
+            self.assertIn("fs_warn_synced_folder", text)
+        self.assertIn("fs_record ProjectFolder Warning", diag)
+        self.assertIn("fs_record XcodeVersion Outdated", diag)
+        out = subprocess.run(["bash", str(ROOT / "tooling/macos/run-ios.sh"), "--self-test"], capture_output=True, text=True)
+        self.assertEqual(out.returncode, 0, out.stdout + out.stderr)
+
     def test_report_lists_items_outside_the_profile_on_one_line(self):
         model, verify = read("tooling/windows/diagnostic-model.ps1"), read("tooling/windows/verify-developer.ps1")
         self.assertIn("function Test-FSNotInProfile", model)
