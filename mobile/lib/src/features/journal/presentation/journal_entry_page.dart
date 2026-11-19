@@ -1,0 +1,294 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../../../core/clock.dart';
+import '../../../core/date_text.dart';
+import '../../../core/event_id.dart';
+import '../../../design/fs_button.dart';
+import '../../../design/fs_colors.dart';
+import '../../../design/fs_label_caps.dart';
+import '../../../design/fs_page_bar.dart';
+import '../../../design/fs_ruled.dart';
+import '../../../design/fs_section_head.dart';
+import '../../../design/fs_text_area.dart';
+import '../../../design/fs_tokens.dart';
+import '../../../design/fs_typography.dart';
+import '../domain/journal_entry.dart';
+import 'journal_view_model.dart';
+
+/// What the entry page says, in each case.
+abstract final class JournalEntryText {
+  static const String private =
+      'Private. Write about anything: a lift, your work, your family, your '
+      'faith. Only you can read your journal. It is never scored.';
+  static const String hint = 'Write it down.';
+  static const String empty = 'Write something first.';
+  static const String failed =
+      'That did not save. Your entry is still here. Try again.';
+  static const String deleteFailed =
+      'That did not delete. Your entry is still here. Try again.';
+  static const String delete = 'Delete this entry';
+  static const String deleteSure = 'Tap again to delete for good';
+  static const String gone = 'This entry is no longer in your journal.';
+}
+
+/// One entry, open to be written or changed.
+///
+/// With an [entryId] it edits that entry and can delete it. Without one it
+/// writes a new entry. The prototype's `openJournal` dialog, as a page: a
+/// page keeps the box above the keyboard and gives Android's back button
+/// one clear meaning. Leaving without saving keeps nothing, as closing the
+/// prototype's dialog does.
+class JournalEntryPage extends ConsumerStatefulWidget {
+  const JournalEntryPage({super.key, this.entryId, required this.onDone});
+
+  /// The entry to edit, or null to write a new one.
+  final String? entryId;
+
+  /// Returns to the Journal page.
+  final VoidCallback onDone;
+
+  @override
+  ConsumerState<JournalEntryPage> createState() => _JournalEntryPageState();
+}
+
+class _JournalEntryPageState extends ConsumerState<JournalEntryPage> {
+  final TextEditingController _text = TextEditingController();
+
+  /// The entry's text has been put in the box. Done once, so what he types
+  /// is not replaced when the list is read again.
+  bool _filled = false;
+
+  /// For a new entry: its id and time, made at the first save attempt and
+  /// kept through every retry, so a retry can never make a second entry.
+  String? _newId;
+  DateTime? _newAt;
+
+  /// The last save sent and not known to have been stored: its change id
+  /// and its text. Trying the same text again sends the same change.
+  ({String changeId, String text})? _attempt;
+
+  bool _busy = false;
+  String? _message;
+  bool _deleteArmed = false;
+
+  @override
+  void dispose() {
+    _text.dispose();
+    super.dispose();
+  }
+
+  Future<void> _save(JournalEntry? editing) async {
+    if (_busy) return;
+    final text = JournalText.clean(_text.text);
+    if (text == null) {
+      setState(() => _message = JournalEntryText.empty);
+      return;
+    }
+    final String entryId;
+    final DateTime at;
+    if (editing != null) {
+      entryId = editing.id;
+      at = ref.read(clockProvider).now();
+    } else {
+      entryId = _newId ??= ref.read(eventIdProvider)();
+      at = _newAt ??= ref.read(clockProvider).now();
+    }
+    setState(() {
+      _busy = true;
+      _message = null;
+    });
+    final attempt = _attempt != null && _attempt!.text == text
+        ? _attempt!
+        : (changeId: ref.read(eventIdProvider)(), text: text);
+    _attempt = attempt;
+    final saved = await ref
+        .read(journalActionsProvider)
+        .save(changeId: attempt.changeId, entryId: entryId, text: text, at: at);
+    if (!mounted) return;
+    if (saved) {
+      widget.onDone();
+      return;
+    }
+    setState(() {
+      _busy = false;
+      _message = JournalEntryText.failed;
+    });
+  }
+
+  Future<void> _delete(JournalEntry entry) async {
+    if (_busy) return;
+    if (!_deleteArmed) {
+      setState(() => _deleteArmed = true);
+      return;
+    }
+    setState(() {
+      _busy = true;
+      _message = null;
+    });
+    final deleted = await ref.read(journalActionsProvider).delete(entry.id);
+    if (!mounted) return;
+    if (deleted) {
+      widget.onDone();
+      return;
+    }
+    setState(() {
+      _busy = false;
+      _deleteArmed = false;
+      _message = JournalEntryText.deleteFailed;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = FsColors.of(context);
+    final durable = ref.watch(journalDurableProvider);
+    final today = ref.watch(todayDateProvider);
+    final entries = ref.watch(journalEntriesProvider);
+    final isNew = widget.entryId == null;
+
+    JournalEntry? editing;
+    if (!isNew) {
+      final list = entries.value;
+      if (list == null) {
+        return _plain(
+          entries.hasError
+              ? 'Your journal could not be read.'
+              : 'Loading your entry…',
+        );
+      }
+      for (final entry in list) {
+        if (entry.id == widget.entryId) editing = entry;
+      }
+      // Gone, and not because he just saved or deleted it from this page.
+      if (editing == null) {
+        return _busy ? _plain('') : _plain(JournalEntryText.gone);
+      }
+      if (!_filled) {
+        _filled = true;
+        _text.text = editing.text;
+      }
+    }
+
+    final when = editing == null
+        ? '${shortDate(today)} · ${clockTime(ref.read(clockProvider).now())}'
+        : '${shortDate(editing.day)} · ${clockTime(editing.createdAtLocal)}';
+    final note = FsText.bodySmall.copyWith(color: colors.textMuted);
+
+    // Not a lazy list: the page is short, and every control on it should
+    // exist for a screen reader whether or not it is on screen.
+    return SingleChildScrollView(
+      padding: const EdgeInsets.fromLTRB(
+        FsSpacing.page,
+        20,
+        FsSpacing.page,
+        FsSpacing.pageBottom,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: <Widget>[
+          FsPageBar(onBack: widget.onDone, trailing: 'Write it down'),
+          const SizedBox(height: FsSpacing.block),
+          FsLabelCaps(when, style: FsText.kicker, color: colors.highlight),
+          const SizedBox(height: 4),
+          FsSectionHead(title: isNew ? 'Journal' : 'Edit your entry'),
+          const SizedBox(height: 10),
+          Text(JournalEntryText.private, style: note),
+          if (editing != null && editing.prompt.isNotEmpty) ...<Widget>[
+            const SizedBox(height: 12),
+            FsRuled(
+              color: colors.accent,
+              child: Text(
+                editing.prompt,
+                style: FsText.scriptureSmall.copyWith(color: colors.text),
+              ),
+            ),
+          ],
+          const SizedBox(height: 12),
+          FsTextArea(
+            key: const ValueKey<String>('fs-entry-box'),
+            controller: _text,
+            semanticLabel: 'Your journal entry',
+            hint: JournalEntryText.hint,
+            maxLength: JournalText.maxLength,
+            minLines: 7,
+            enabled: !_busy,
+          ),
+          if (!durable) ...<Widget>[
+            const SizedBox(height: 8),
+            Text(
+              journalNotSavedNotice,
+              style: FsText.bodySmall.copyWith(color: colors.danger),
+            ),
+          ],
+          Semantics(
+            liveRegion: true,
+            child: _message == null
+                ? const SizedBox.shrink()
+                : Padding(
+                    padding: const EdgeInsets.only(top: 8),
+                    child: Text(
+                      _message!,
+                      key: const ValueKey<String>('fs-entry-message'),
+                      style: FsText.bodySmall.copyWith(
+                        color: colors.danger,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+          ),
+          const SizedBox(height: 12),
+          FsButton(
+            key: const ValueKey<String>('fs-entry-save'),
+            label: _busy
+                ? 'Saving…'
+                : isNew
+                ? 'Save'
+                : 'Save changes',
+            onPressed: _busy ? null : () => _save(editing),
+          ),
+          const SizedBox(height: 10),
+          FsButton.ghost(
+            key: const ValueKey<String>('fs-entry-close'),
+            label: 'Close',
+            onPressed: _busy ? null : widget.onDone,
+          ),
+          if (editing != null) ...<Widget>[
+            const SizedBox(height: FsSpacing.block),
+            Align(
+              alignment: Alignment.centerLeft,
+              child: FsButton.mini(
+                key: const ValueKey<String>('fs-entry-delete'),
+                label: _deleteArmed
+                    ? JournalEntryText.deleteSure
+                    : JournalEntryText.delete,
+                onPressed: _busy ? null : () => _delete(editing!),
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _plain(String message) {
+    final colors = FsColors.of(context);
+    return ListView(
+      padding: const EdgeInsets.fromLTRB(
+        FsSpacing.page,
+        20,
+        FsSpacing.page,
+        FsSpacing.pageBottom,
+      ),
+      children: <Widget>[
+        FsPageBar(onBack: widget.onDone, trailing: 'Write it down'),
+        const SizedBox(height: FsSpacing.block),
+        Text(
+          message,
+          key: const ValueKey<String>('fs-entry-state'),
+          style: FsText.body.copyWith(color: colors.text),
+        ),
+      ],
+    );
+  }
+}

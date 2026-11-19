@@ -2,7 +2,7 @@
   "title": "Forged & Sent · Architecture Atlas",
   "product": "Faith-centered workouts, discipleship and group accountability",
   "status": "foundation",
-  "overview": "The Flutter client has its shell, Today and the day's devotional reading. A completed devotional is saved in the member's own SQLite file on the phone and nothing is sent anywhere. Firebase is connected only to local demo emulators. Workouts, sync, group roles, private reflections and production scoring are planned, not implemented.",
+  "overview": "The Flutter client has its shell, Today, the day's devotional reading and a private journal. A completed devotional and his journal entries are saved in the member's own SQLite file on the phone and nothing is sent anywhere. Firebase is connected only to local demo emulators. Workouts, sync, group roles, private reflections and production scoring are planned, not implemented.",
   "source": "docs/architecture/SYSTEM.md",
   "systems": [
     {
@@ -55,12 +55,15 @@
       "x": 635,
       "y": 50,
       "color": "blue",
-      "purpose": "ForgedSentApp sets up MaterialApp and the six-tab shell. Today shows the date, mission line, progress ring and the day's boxes; the devotional box opens the day's reading. FoundationHomeScreen is the developer status page, reached from Settings and shown first when a start-up check fails.",
+      "purpose": "ForgedSentApp sets up MaterialApp and the six-tab shell. Today shows the date, mission line, progress ring and the day's boxes; the devotional box opens the day's reading, which has a Write it down box. The Journal page lists his private entries and an entry page writes, changes and deletes one. FoundationHomeScreen is the developer status page, reached from Settings and shown first when a start-up check fails.",
       "files": [
         "mobile/lib/src/app/forged_sent_app.dart",
         "mobile/lib/src/app/fs_router.dart",
         "mobile/lib/src/features/today/presentation/today_page.dart",
         "mobile/lib/src/features/devotional/presentation/devotional_page.dart",
+        "mobile/lib/src/features/journal/presentation/write_it_down.dart",
+        "mobile/lib/src/features/journal/presentation/journal_page.dart",
+        "mobile/lib/src/features/journal/presentation/journal_entry_page.dart",
         "mobile/lib/src/features/settings/presentation/settings_page.dart"
       ],
       "functions": [
@@ -70,7 +73,7 @@
       "depends": [
         "today"
       ],
-      "notes": "Only the devotional box works. Five tabs are placeholders, and there is no workout feature yet."
+      "notes": "Only the devotional box works. Five tabs are placeholders, and there is no workout feature yet. The journal has no tags, prayer tabs, search or export."
     },
     {
       "id": "today",
@@ -108,20 +111,23 @@
       "x": 920,
       "y": 345,
       "color": "amber",
-      "purpose": "One SQLite file per owner, through Drift. A completion event and the day state it produces are written in one transaction. Before sign-in the owner is a local profile made on first launch. The web preview has no database and keeps the day in memory.",
+      "purpose": "One SQLite file per owner, through Drift. A completion event and the day state it produces are written in one transaction, and so are a journal change and its entry. Journal text is device-only and not encrypted; it passes through one codec so encryption can be added later. Before sign-in the owner is a local profile made on first launch. The web preview has no database and keeps the day in memory.",
       "files": [
         "mobile/lib/src/storage/app_database.dart",
         "mobile/lib/src/storage/native_storage.dart",
         "mobile/lib/src/features/today/data/drift_day_repository.dart",
+        "mobile/lib/src/features/journal/data/drift_journal_repository.dart",
+        "mobile/lib/src/features/journal/data/journal_body_codec.dart",
         "mobile/lib/src/app/local_store.dart",
         "mobile/lib/src/app/open_local_store.dart"
       ],
       "functions": [
         "mobile/lib/src/features/today/data/drift_day_repository.dart::DriftDayRepository",
+        "mobile/lib/src/features/journal/data/drift_journal_repository.dart::DriftJournalRepository",
         "mobile/lib/src/storage/app_database.dart::AppDatabase"
       ],
       "depends": [],
-      "notes": "Events are stored locally only. There is no outbox and no sync yet, and no migration has been needed."
+      "notes": "Events are stored locally only. There is no outbox and no sync yet. The schema is at version 2; the migration from version 1 is tested against a file, not on a phone."
     },
     {
       "id": "adapter",
@@ -236,7 +242,7 @@
       "depends": [
         "repos"
       ],
-      "notes": "The first one exists: TodayViewModel, under Implemented. Others come with their features."
+      "notes": "TodayViewModel and the journal's draft notifier exist, under Implemented. Others come with their features."
     },
     {
       "id": "repos",
@@ -253,7 +259,7 @@
         "outbox",
         "services"
       ],
-      "notes": "DayRepository and SettingsRepository exist, under Implemented. Repositories for workouts, groups and the journal do not."
+      "notes": "DayRepository, JournalRepository and SettingsRepository exist, under Implemented. Repositories for workouts and groups do not."
     },
     {
       "id": "outbox",

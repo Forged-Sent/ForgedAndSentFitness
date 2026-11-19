@@ -10,8 +10,11 @@ flowchart LR
     Entry --> UI[forged_sent_app.dart: app, themes, status page]
     UI --> Router[fs_router.dart: six-tab shell routes]
     Router --> Pages[tab_pages.dart: placeholder pages for five tabs]
-    Router --> Screens[features: Today, the day's reading, Settings]
+    Router --> Screens[features: Today, the day's reading, the journal, Settings]
     Screens --> VM[today_view_model.dart: Riverpod view model]
+    Screens --> JVM[journal_view_model.dart: draft, entries, save and delete]
+    JVM --> Core
+    JVM --> LocalStore
     Screens --> Design
     VM --> Core[core: clock, local date, event ids]
     VM --> Content[Bundled content: readings, ESV text, boxes, mission lines]
@@ -19,7 +22,7 @@ flowchart LR
     Entry --> Open[open_local_store.dart: opens the store for this platform]
     Open --> LocalStore
     Open --> Native[native_storage.dart: local profile + database file]
-    Open --> Repos[drift_day_repository.dart, settings_repository.dart]
+    Open --> Repos[drift_day_repository.dart, drift_journal_repository.dart, settings_repository.dart]
     Repos --> Sqlite[app_database.dart: Drift tables on SQLite]
     Native --> Sqlite
     UI --> Design[src/design: theme, shell, hero header, card, button, icons]
@@ -41,9 +44,11 @@ flowchart LR
 
 **Today and the day's reading (build step S1):** `main()` opens the member's local store before the first frame. On a phone that is one SQLite file per owner, through Drift; before sign-in the owner is a local profile made on first launch (decision Q10). Today shows the date, the mission line, a progress ring and the day's boxes; the devotional box opens the day's bundled reading, and Amen records a completion event and the day's state in one transaction. A Riverpod view model combines the day's record, the streak, the bundled content and one setting. Time comes from one injected clock and days are a `LocalDate`, so Today moves to the new day at local midnight and when the app is resumed. The web preview has no database: it keeps the day in memory and says so. Nothing in this path imports a Firebase SDK, and nothing is sent anywhere. Contract: [Today and the day's devotional](../features/today-devotional/feature.md).
 
+**Private journal (build step S2):** "Write it down" under the day's reading, a Journal page and an entry page write to two tables in the same per-owner SQLite file: `journal_entries` (what each entry says now) and `journal_changes` (every save and delete in order, never any text). A change and the entry it produces are written in one transaction, and the screen says "Saved" only after it commits. An entry's id is made once on the phone, so a retry writes the same entry. Decision Q8: entries stay on the device and are not encrypted. Two things are in place for later and are not built: the text goes through one codec, with the stored format recorded per row, so encryption is a second codec and not a new schema; and stable ids, revision numbers, the change list and empty tombstones for deleted entries are what a sync would use. The schema went from version 1 to 2 with a tested migration. Nothing in the journal feature imports Firebase, and the Firebase connector imports nothing from the app; a test holds both. **Open:** Android and iOS include an app's files in the phone's own backup by default, so "device-only" is not yet true of a phone backup; the maintainer has not decided this.
+
 **Native hosts:** `mobile/android/` and `mobile/ios/` are committed Flutter 3.47.8 template hosts (`com.forgedandsent`, project `forged_and_sent`). The only customization is the ADR-0002 Android Network Security Configuration: `src/main/res/xml/network_security_config.xml` (referenced from the main manifest) blocks cleartext for all hosts in main, profile and release builds on every supported API level (minSdk 24), and the same-named debug overlay in `mobile/android/app/src/debug/res/xml/` additionally permits cleartext HTTP only to the Android Emulator host alias `10.0.2.2`. They contain no custom native code, added permissions, Firebase native config or signing material; the Dart entrypoint and emulator-first runtime above are unchanged. A local Windows debug APK build passed. iOS has not been built from the committed host. Web and desktop hosts remain temporary and git-ignored.
 
-**Not implemented or validated:** an outbox or any sync of the locally stored events, real group membership, workout features, the private data model, server-authoritative scoring, DEV/PROD deployment, and authenticated role authorization. Nothing the app records leaves the device. Do not infer these from the diagram.
+**Not implemented or validated:** an outbox or any sync of the locally stored events, real group membership, workout features, the rest of the private data model (only the journal exists), journal export, encryption of the journal, server-authoritative scoring, DEV/PROD deployment, and authenticated role authorization. Nothing the app records leaves the device. Do not infer these from the diagram.
 
 ## Planned target architecture (design intent, not present code)
 

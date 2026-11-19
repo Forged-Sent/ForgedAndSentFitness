@@ -8,9 +8,6 @@ update-by: edit WORK.md then run tooling/knowledge/work_board.py --write
 
 ## Next
 
-- [ ] **S2 Private journal**
-	**Next:** Run prompt [P06](../reviews/2026-11-10-prototype-to-flutter/prompts/P06-S2-private-journal.md)
-	[Edit this row in WORK](WORK.md)
 - [ ] **Agents may merge after review**
 	**Next:** Run prompt [P13](../reviews/2026-11-10-prototype-to-flutter/prompts/P13-let-agents-merge-after-review.md)
 	[Edit this row in WORK](WORK.md)
@@ -60,6 +57,10 @@ update-by: edit WORK.md then run tooling/knowledge/work_board.py --write
 - [x] **Obsidian focus workspace**
 	**Note:** Set the Homepage plugin to open HOME: one command, in the [Obsidian setup guide](OBSIDIAN-SETUP.md) under Set up once per vault
 	**Branch or PR:** branch `claude/obsidian-adhd-workspace`
+	[Edit this row in WORK](WORK.md)
+- [x] **S2 Private journal**
+	**Note:** Decide whether phone backups may carry the journal: Android and iOS back up app files by default, and Q8 says device-only. Then draw the eight journal golden images and redraw the two end-of-reading ones on Windows, and run it on a phone. Kept on the device only and not encrypted (Q8); the first change to the database schema, with a tested migration. Run once on one iPhone 17 simulator (iOS 27.2) on 2026-11-19: an entry was saved under the reading, shown on the Journal page, and still there after the app was killed and started again. Not run on a phone or an Android emulator, and no Android build on the Mac that built it. Not built: prayer tabs, tags, search, export, sync
+	**Branch or PR:** branch `claude/s2-private-journal`
 	[Edit this row in WORK](WORK.md)
 - [x] **Lockfile-only pull requests pass the review check**
 	**Note:** None. Unblocks Dependabot [#66](https://github.com/Forged-Sent/ForgedAndSentFitness/pull/66). Without `--dry-run` such a change still gets no PASS and no review record, and `--verify` still fails

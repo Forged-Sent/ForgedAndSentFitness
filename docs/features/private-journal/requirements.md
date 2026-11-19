@@ -1,0 +1,79 @@
+---
+kind: feature-spec
+feature_id: FNS-003
+status: proposed
+risk: high
+owner: maintainer
+source_ref: claude/s2-private-journal
+source_sha: 1c1339b25dad47a5760ea7b7eb4ab12fb260c4c4
+approved_by: none
+test_plan: journal store rules against the Drift and in-memory stores, close and reopen on a real SQLite file, a forced save failure and its retry, schema migration from version 1, the box under the reading, the Journal page and the entry page as widget tests, a privacy test that records every platform message and every printed line, golden images at 390x844 in dark and light
+verified_tests: mobile/test/features/journal/journal_entry_test.dart, mobile/test/features/journal/drift_journal_repository_test.dart, mobile/test/features/journal/memory_journal_repository_test.dart, mobile/test/features/journal/write_it_down_test.dart, mobile/test/features/journal/journal_page_test.dart, mobile/test/features/journal/journal_privacy_test.dart, mobile/test/storage/schema_migration_test.dart
+implementation_paths: mobile/lib/src/features/journal, mobile/lib/src/storage/app_database.dart, mobile/lib/src/design/fs_text_area.dart, mobile/lib/src/app/local_store.dart, mobile/lib/src/app/fs_router.dart
+verification: see the pull request that adds this page for the commands and their output
+---
+
+# Private journal, kept on the device
+
+Build step S2 of the [prototype-to-Flutter review](../../reviews/2026-11-10-prototype-to-flutter/02-BUILD-PLAN.md), built from prompt [P06](../../reviews/2026-11-10-prototype-to-flutter/prompts/P06-S2-private-journal.md). Design: [design.md](design.md). Tasks and evidence: [tasks.md](tasks.md).
+
+This page is a draft written by the agent that built the step. It is **proposed, not approved**: only the maintainer approves it. It is filed as high risk because the journal is private data.
+
+## Approved user outcome and scope
+
+The decision it rests on is the maintainer's Q8 answer on the [Decisions](../../reviews/2026-11-10-prototype-to-flutter/01-DECISIONS.md) page: "Device-only with manual export for the pilot. But architect for future case of sync and encrypted (Don't design so that this change would be a complete rework)". Prompt P06 sets the scope and the acceptance tests.
+
+**What he sees**
+
+- **Under the day's reading**, after Act and before Amen: "Write it down". It shows the reading's reflection question, a box with the hint "Answer it honestly. Only you can read this.", and "Save to my journal". Under it: "Today's reflection question starts the entry. Private, and never scored."
+- **After a save:** "Saved to your journal. Only you can read it.", the box is empty again, and a "My journal" button opens the Journal page.
+- **The Journal page:** "My journal", his entries newest first. Each shows when it was written ("Today · Devotional", "Today · 7:30 AM", "Yesterday", "Tue, Nov 3") and its first 220 characters. "New entry" starts one. With nothing written it says how to start.
+- **An entry:** its date and time, the reflection question if it answers one, his words in a box, "Save changes", "Close", and "Delete this entry", which needs a second tap ("Tap again to delete for good").
+- **Ways in:** the "My journal" button after a save, "Open my journal" in Settings, and the pen in Today's header, which opens a new entry. Settings says: "Private. It is not sent to any server, and it is never scored." It does not say "on this phone only", because of the open backup question below.
+- **Writing is optional.** Amen does not look at the box. The devotional can be completed with the box empty, with an unsaved draft in it, or when the journal cannot save at all.
+
+**Out of scope (prompt P06):** prayer tabs, tags, search, export, sync, sharing. Also not built: "On this day", the saved card with its shortcuts, the pen on the five placeholder tabs.
+
+## Authorization, privacy and data ownership
+
+- **Owner.** An entry belongs to one owner. Before sign-in the owner is the local profile (decision Q10). Each owner has his own database file, and the store also refuses a read or a change that names another owner.
+- **Where it is kept (Q8).** In his SQLite file in the app's private folder on the phone, and nowhere else. Not encrypted. Nothing is sent to a server, and there is no account to send it to yet.
+- **Never shared, scored or logged.** Journal text is not part of any shared document, score, log line or analytics event. Nothing in the journal feature imports Firebase; the Firebase connector imports nothing from the app. No scoring exists yet; Today's rules and stores do not read the journal. Printing an entry or a change shows its length, not its words.
+- **Delete.** Deleting empties the entry's text and its question in the database row and marks the row deleted. The row stays, empty, for a later sync.
+- **Web preview.** Nothing is saved, and every journal screen says "Nothing you write here is saved."
+
+**Unknown, so not approved. BLOCKED on the maintainer:**
+
+1. **Phone backups.** Android's Auto Backup and an iOS device backup include an app's files by default. With no change to the host projects, a man's journal file can be copied into his own Google or iCloud backup. Q8 says device-only. Either turn backups off for the app (which also stops Today's completions being restored on a new phone), exclude only the database, or accept it. Not changed in this step.
+2. **Sign-out.** Q8's question also asked whether the journal is kept after sign-out. The answer does not say. There is no sign-in yet (step S4), so nothing is built either way.
+3. **Deleted words on disk.** SQLite does not overwrite freed space by default, so the bytes of a deleted entry may remain in the file until that space is reused. `PRAGMA secure_delete` would overwrite them, at some cost on every delete. Not decided.
+4. **Export.** Q8 names a manual export for the pilot. P06 leaves export out of this step; nothing schedules it yet.
+
+## Failure, offline and migration behavior
+
+- **Everything is local**, so there is no offline case: the journal works the same with no network.
+- **A save fails:** his text stays in the box, the screen says "That did not save. Your entry is still here. Try again.", and nothing is stored. It never says "Saved".
+- **Retry:** a new entry gets its id and its time at the first save attempt and keeps both through every retry. A retry can only write that same entry. This holds also when the first attempt was in fact stored and only its answer was lost.
+- **Discard:** after a failed save under the reading, "Discard draft and start a different entry" (second tap: "Tap again to discard this draft") empties the box; what he writes next is a different entry.
+- **Saving on its way:** the button says "Saving…" and takes no second tap.
+- **Empty:** "Write something first." Nothing is stored.
+- **Length:** the box stops at 4000, counted as the prototype counts (UTF-16 code units, so an emoji is two or more), and never cuts a character in half.
+- **Midnight while writing:** the entry answers the question he began with, and is filed under the date he saved it.
+- **A delete fails:** "That did not delete. Your entry is still here. Try again." and it asks again before it deletes.
+- **Day boundary (Q9):** an entry is filed under the phone's local date at its first save attempt.
+- **An entry that is gone** (opened by an old link): "This entry is no longer in your journal."
+- **A row stored in a form this build cannot read** (written by a later build): the journal shows "Your journal could not be read." It does not show garbage, and the error names the format, never the contents.
+- **Migration:** the database goes from schema version 1 to 2. A phone that ran step S1 keeps its completions and settings and gains the journal tables.
+- **Leaving an entry without saving** keeps nothing, as closing the prototype's dialog does. A draft under the reading is kept while the app is open, and is gone when the app is closed.
+- **Accessibility:** the boxes have a spoken name; the result of a save is a live region; nothing overflows at 1.3 and 2.0 times the text size on a 320 by 568 screen.
+
+## Evidence and traceability
+
+- **Prototype source:** `index.html` on `main` at `1c1339b`: `jrDraftId`, `jrWrite`, `jrSave`, `jrAction` (lines 10344 to 10404), the box under the reading (`#jr-devo`, line 2177, wired at line 10538), `openJournal` (line 10418) and `drawJournalPage` (line 10548). Journey J3 in the review's [architecture page](../../reviews/2026-11-10-prototype-to-flutter/07-ARCHITECTURE.md).
+- **ADR:** [ADR-0005](../../architecture/ADR-0005-flutter-client-stack.md), with its section "Added in build step S2".
+- **Checks actually run, and those not run:** in [tasks.md](tasks.md) and in the pull request description.
+
+## Design and task files
+
+- [design.md](design.md)
+- [tasks.md](tasks.md)

@@ -62,6 +62,17 @@ abstract final class ShellDestinations {
   /// Settings, opened from the round profile button in Today's header.
   static const String settingsPath = '/today/settings';
 
+  /// His private journal, opened from the reading, Settings and the pen in
+  /// Today's header.
+  static const String journalPath = '/today/journal';
+
+  /// A new journal entry.
+  static const String journalNewPath = '/today/journal/new';
+
+  /// One journal entry, open to be changed.
+  static String journalEntryPath(String entryId) =>
+      '/today/journal/entry/${Uri.encodeComponent(entryId)}';
+
   /// The developer status page, opened from Settings.
   static const String statusPath = '/today/settings/status';
 

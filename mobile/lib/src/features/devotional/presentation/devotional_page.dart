@@ -15,6 +15,7 @@ import '../../../design/fs_segmented.dart';
 import '../../../design/fs_tag.dart';
 import '../../../design/fs_tokens.dart';
 import '../../../design/fs_typography.dart';
+import '../../journal/presentation/write_it_down.dart';
 import '../../today/presentation/today_page.dart' show notSavedNotice;
 import '../../today/presentation/today_view_model.dart';
 import '../domain/devotional.dart';
@@ -50,10 +51,17 @@ FsTag _pill(ReadingTag tag) => switch (tag) {
 /// Today's reading. Scrolling to the end enables Amen; Amen checks the
 /// devotional box and returns to Today; "Amen. Undo" clears it again.
 class DevotionalPage extends ConsumerStatefulWidget {
-  const DevotionalPage({super.key, required this.onBack});
+  const DevotionalPage({
+    super.key,
+    required this.onBack,
+    required this.onOpenJournal,
+  });
 
   /// Returns to Today.
   final VoidCallback onBack;
+
+  /// Opens his private journal, from the "Write it down" box.
+  final VoidCallback onOpenJournal;
 
   @override
   ConsumerState<DevotionalPage> createState() => _DevotionalPageState();
@@ -176,12 +184,14 @@ class _DevotionalPageState extends ConsumerState<DevotionalPage> {
       builder: (BuildContext context, BoxConstraints constraints) {
         return NotificationListener<ScrollMetricsNotification>(
           onNotification: (ScrollMetricsNotification notification) {
-            _onMetrics(notification.metrics);
+            // Depth 0 is the reading itself. The journal box under it
+            // scrolls too, and its end is not the reading's.
+            if (notification.depth == 0) _onMetrics(notification.metrics);
             return false;
           },
           child: NotificationListener<ScrollNotification>(
             onNotification: (ScrollNotification notification) {
-              _onMetrics(notification.metrics);
+              if (notification.depth == 0) _onMetrics(notification.metrics);
               return false;
             },
             child: SingleChildScrollView(
@@ -339,6 +349,15 @@ class _DevotionalPageState extends ConsumerState<DevotionalPage> {
                               child: Text(
                                 reading.act,
                                 style: FsText.body.copyWith(color: colors.text),
+                              ),
+                            ),
+                            const SizedBox(height: 28),
+                            // Optional. Amen never looks at this box.
+                            _Section(
+                              label: 'Write it down',
+                              child: WriteItDown(
+                                prompt: reading.reflect,
+                                onOpenJournal: widget.onOpenJournal,
                               ),
                             ),
                           ],

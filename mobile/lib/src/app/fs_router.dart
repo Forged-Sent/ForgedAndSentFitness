@@ -3,6 +3,8 @@ import 'package:go_router/go_router.dart';
 
 import '../design/fs_shell.dart';
 import '../features/devotional/presentation/devotional_page.dart';
+import '../features/journal/presentation/journal_entry_page.dart';
+import '../features/journal/presentation/journal_page.dart';
 import '../features/settings/presentation/settings_page.dart';
 import '../features/today/presentation/today_page.dart';
 import 'forged_sent_app.dart';
@@ -15,8 +17,9 @@ import 'tab_pages.dart';
 /// is where the member left it, scroll position included, when he comes back
 /// to it. Android's system back pops the current tab's stack.
 ///
-/// Today has two pages under it: the day's reading and Settings. The
-/// developer's build status page is under Settings.
+/// Today has three pages under it: the day's reading, the private journal
+/// (with a page for one entry) and Settings. The developer's build status
+/// page is under Settings.
 ///
 /// If a start-up check failed, the app opens on the status page so the
 /// reason is on screen. It never falls back to a cloud connection.
@@ -64,6 +67,8 @@ GoRouter buildFsRouter({
                         context.go(ShellDestinations.devotionalPath),
                     onOpenSettings: () =>
                         context.go(ShellDestinations.settingsPath),
+                    onNewJournalEntry: () =>
+                        context.go(ShellDestinations.journalNewPath),
                   );
                 },
                 routes: <RouteBase>[
@@ -72,8 +77,49 @@ GoRouter buildFsRouter({
                     builder: (BuildContext context, GoRouterState state) {
                       return DevotionalPage(
                         onBack: () => context.go(ShellDestinations.todayPath),
+                        onOpenJournal: () =>
+                            context.go(ShellDestinations.journalPath),
                       );
                     },
+                  ),
+                  GoRoute(
+                    path: 'journal',
+                    builder: (BuildContext context, GoRouterState state) {
+                      return JournalPage(
+                        onBack: () => context.go(ShellDestinations.todayPath),
+                        onNewEntry: () =>
+                            context.go(ShellDestinations.journalNewPath),
+                        onOpenEntry: (String entryId) => context.go(
+                          ShellDestinations.journalEntryPath(entryId),
+                        ),
+                      );
+                    },
+                    routes: <RouteBase>[
+                      GoRoute(
+                        path: 'new',
+                        builder: (BuildContext context, GoRouterState state) {
+                          return JournalEntryPage(
+                            onDone: () =>
+                                context.go(ShellDestinations.journalPath),
+                          );
+                        },
+                      ),
+                      GoRoute(
+                        path: 'entry/:entryId',
+                        builder: (BuildContext context, GoRouterState state) {
+                          return JournalEntryPage(
+                            // A new page for each entry, so one entry's
+                            // text is never left in another's box.
+                            key: ValueKey<String>(
+                              'entry-${state.pathParameters['entryId']}',
+                            ),
+                            entryId: state.pathParameters['entryId'],
+                            onDone: () =>
+                                context.go(ShellDestinations.journalPath),
+                          );
+                        },
+                      ),
+                    ],
                   ),
                   GoRoute(
                     path: 'settings',
@@ -82,6 +128,8 @@ GoRouter buildFsRouter({
                         onBack: () => context.go(ShellDestinations.todayPath),
                         onOpenStatus: () =>
                             context.go(ShellDestinations.statusPath),
+                        onOpenJournal: () =>
+                            context.go(ShellDestinations.journalPath),
                       );
                     },
                     routes: <RouteBase>[

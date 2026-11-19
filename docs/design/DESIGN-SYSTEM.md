@@ -118,8 +118,9 @@ In Flutter so far: the app follows the phone's dark or light setting (there is n
 | `FsSegmented` | Board, Settings, Profile, the reading's BSB / ESV tab | Implemented in S1, built from mini buttons | `mobile/lib/src/design/fs_segmented.dart` |
 | `FsDialog`, `FsSheet` | About 40 dialogs | Planned | — |
 | `FsScripture` block | Devotional, workout prayer, footers | Implemented in S1 | `mobile/lib/src/design/fs_scripture.dart` |
-| `FsPageBar`: a small "‹ Back" button and a small caps line | Pages opened from another: the reading, Settings | Implemented in S1 (the prototype's `.pbar`) | `mobile/lib/src/design/fs_page_bar.dart` |
-| `FsEmptyState` (dashed outline) | Rally, journal, boards | Planned | — |
+| `FsPageBar`: a small "‹ Back" button and a small caps line | Pages opened from another: the reading, Settings, the Journal page, a journal entry | Implemented in S1 (the prototype's `.pbar`) | `mobile/lib/src/design/fs_page_bar.dart` |
+| `FsTextArea`: a box to write several lines in (the prototype's `textarea.field`). Page background fill, hairline outline at the base radius, accent outline when focused, body type, a muted hint, a screen-reader name; grows from its smallest height to its largest and then scrolls; stops at its length limit, counted in UTF-16 code units as the prototype's `maxlength` is, without cutting a character in half (`FsCodeUnitLimit`): typing or pasting at the end keeps what fits, and an edit anywhere else that does not fit is refused, so words already in the box are never dropped; shows no counter; asks the keyboard not to learn from what is typed (Android keyboards honor this, iOS has no such setting) | The "Write it down" box under a reading, the journal entry page | Implemented in S2 | `mobile/lib/src/design/fs_text_area.dart` |
+| `FsEmptyState` (dashed outline) | Rally, journal, boards | Planned. The Journal page's empty state is a line of muted text for now | — |
 
 ## Golden images
 
