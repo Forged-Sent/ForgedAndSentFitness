@@ -252,6 +252,9 @@ jobs:
           try {
             & $flutter create --platforms=web --project-name=forged_and_sent --org=com.forgedandsent .
             if($LASTEXITCODE){throw 'web host failed'}
+            # flutter create rewrites pubspec.lock to the newest versions; build from the committed one.
+            & git restore -- pubspec.lock
+            if($LASTEXITCODE){throw 'lockfile restore failed'}
             & $flutter pub get
             if($LASTEXITCODE){throw 'pub get failed'}
             $dirty=(& git status --porcelain --untracked-files=normal -- .)
@@ -278,7 +281,10 @@ jobs:
           cache: true
       - name: Generate interim hosts
         working-directory: mobile
-        run: flutter create --platforms=android,web --project-name=forged_and_sent --org=com.forgedandsent .
+        # flutter create rewrites pubspec.lock to the newest versions; build from the committed one.
+        run: |
+          flutter create --platforms=android,web --project-name=forged_and_sent --org=com.forgedandsent .
+          git restore -- pubspec.lock
       - name: Analyze, test, build Flutter web and debug Android
         working-directory: mobile
         run: |
@@ -359,6 +365,8 @@ jobs:
         run: |
           set -euo pipefail
           flutter create --platforms=web --project-name=forged_and_sent --org=com.forgedandsent .
+          # flutter create rewrites pubspec.lock to the newest versions; build from the committed one.
+          git restore -- pubspec.lock
           flutter pub get
           git diff --exit-code -- pubspec.lock
           flutter analyze --no-pub
@@ -387,6 +395,8 @@ jobs:
         run: |
           set -euo pipefail
           flutter create --platforms=ios --project-name=forged_and_sent --org=com.forgedandsent .
+          # flutter create rewrites pubspec.lock to the newest versions; build from the committed one.
+          git restore -- pubspec.lock
           flutter pub get
           flutter build ios --simulator --debug --no-codesign
 
