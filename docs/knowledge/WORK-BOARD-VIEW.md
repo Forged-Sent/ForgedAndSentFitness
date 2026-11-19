@@ -85,6 +85,10 @@ update-by: edit WORK.md then run tooling/knowledge/work_board.py --write
 	**Note:** Physical run on a fresh Windows PC and a Mac: the Try it now walkthrough, Mobile Check my setup, and a second setup run in the same window
 	**Branch or PR:** branch `claude/bootstrap-test-readiness`
 	[Edit this row in WORK](WORK.md)
+- [x] **One source for program and challenge content**
+	**Note:** None. The maintainer's choices of 2026-11-19: the two 100-point formula lines are dropped from `seed/weekly-challenges.json`; the generated copy still leaves out RPE/RIR, which `seed/workouts.json` keeps; the workout prayer, camp names and banners, challenge modes and routine patterns moved into `seed/`; the PR points, step goals and step bonus stay in the prototype's code until the official rule set is decided. The branch `workout-library-seed` is set aside: it rewrites the same workout files from a base of 2026-10-24, so reviving it means redoing its edits on top of this, not merging it
+	**Branch or PR:** branch `claude/l11-seed-single-source`
+	[Edit this row in WORK](WORK.md)
 
 
 ## Later
