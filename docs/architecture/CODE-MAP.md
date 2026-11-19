@@ -559,6 +559,7 @@ flowchart LR
 - fn _save()
 - fn _delete()
 - fn build()
+- fn _leave()
 - fn _plain()
 
 ### mobile/lib/src/features/journal/presentation/journal_page.dart

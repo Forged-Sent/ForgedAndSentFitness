@@ -42,6 +42,10 @@ Part of [FNS-003](requirements.md). Proposed, not approved. Commands and their o
 - The upgraded schema is exactly the frozen version 2, and a new install's is the same.
 - A build from before the journal cannot open a version 2 file and leaves it as it was.
 - The list's 220-character cut never splits an emoji or a flag in two.
+- He cannot leave the entry page while a save is on its way; when it then fails, his words and the message are still there.
+- A draft he empties before any save lets its question go; the next words answer the question on screen then.
+- Another owner sees nothing of an entry's change list.
+- A journal golden image that is missing fails its test on Windows.
 
 ## Not done, and why
 

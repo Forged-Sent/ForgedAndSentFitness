@@ -58,7 +58,7 @@ The decision it rests on is the maintainer's Q8 answer on the [Decisions](../../
 - **A save fails:** his text stays in the box, the screen says "That did not save. Your entry is still here. Try again.", and nothing is stored. It never says "Saved".
 - **Retry:** a new entry gets its id and its time at the first save attempt and keeps both through every retry. A retry can only write that same entry. This holds also when the first attempt was in fact stored and only its answer was lost.
 - **Discard:** after a failed save under the reading, "Discard draft and start a different entry" (second tap: "Tap again to discard this draft") empties the box; what he writes next is a different entry.
-- **Saving on its way:** the button says "Saving…" and takes no second tap.
+- **Saving on its way:** the button says "Saving…" and takes no second tap. On the entry page he also cannot leave until the save or the delete has answered: Close, Back in the page's bar and Android's back all wait, so a failure still finds his words on screen and tells him.
 - **Empty:** "Write something first." Nothing is stored.
 - **Length:** the box stops at 4000, counted as the prototype counts (UTF-16 code units, so an emoji is two or more), and never cuts a character in half.
 - **Midnight while writing:** the entry answers the question he began with, and is filed under the date he saved it.

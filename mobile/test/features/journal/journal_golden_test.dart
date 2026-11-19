@@ -12,21 +12,16 @@ import '../../support/fs_test_support.dart';
 /// slightly differently on each operating system. On other systems these
 /// tests are skipped; no CI lane checks the images yet.
 ///
-/// The images were drawn on Windows on 2026-11-19. A new image is added the
-/// same way: an image made on another system would fail on Windows, so
-/// until an image exists its comparison is skipped. Draw it on Windows,
-/// look at it beside the prototype, and commit:
+/// The images were drawn on Windows on 2026-11-19. A new or changed image
+/// is drawn the same way, on Windows, because an image made on another
+/// system would fail there. Look at it beside the prototype, and commit:
 /// `flutter test --update-goldens test/features/journal/journal_golden_test.dart`.
 void main() {
   setUpAll(loadAppFonts);
 
-  /// A comparison runs on Windows once its image exists. Until then it is
-  /// skipped, so a normal test run on Windows passes; `--update-goldens`
-  /// draws the image.
-  bool skipUnlessDrawn(String image) =>
-      !Platform.isWindows ||
-      !(autoUpdateGoldenFiles ||
-          File('test/features/journal/$image').existsSync());
+  /// Compared on Windows only. There a missing image fails its test, so an
+  /// image that was deleted or renamed is noticed.
+  final skipOffWindows = !Platform.isWindows;
 
   TestClock clock() => TestClock(DateTime(2026, 11, 12, 7, 30));
 
@@ -94,7 +89,7 @@ void main() {
         find.byType(MaterialApp),
         matchesGoldenFile('goldens/write_it_down_$name.png'),
       );
-    }, skip: skipUnlessDrawn('goldens/write_it_down_$name.png'));
+    }, skip: skipOffWindows);
 
     testWidgets('the Journal page with three entries, $name', (tester) async {
       await appWithEntries(tester, themeMode);
@@ -104,7 +99,7 @@ void main() {
         find.byType(MaterialApp),
         matchesGoldenFile('goldens/journal_$name.png'),
       );
-    }, skip: skipUnlessDrawn('goldens/journal_$name.png'));
+    }, skip: skipOffWindows);
 
     testWidgets('the Journal page with nothing written, $name', (tester) async {
       await pumpApp(tester, themeMode: themeMode, clock: clock());
@@ -114,7 +109,7 @@ void main() {
         find.byType(MaterialApp),
         matchesGoldenFile('goldens/journal_empty_$name.png'),
       );
-    }, skip: skipUnlessDrawn('goldens/journal_empty_$name.png'));
+    }, skip: skipOffWindows);
 
     testWidgets('an entry open to be changed, $name', (tester) async {
       await appWithEntries(tester, themeMode);
@@ -127,6 +122,6 @@ void main() {
         find.byType(MaterialApp),
         matchesGoldenFile('goldens/journal_entry_$name.png'),
       );
-    }, skip: skipUnlessDrawn('goldens/journal_entry_$name.png'));
+    }, skip: skipOffWindows);
   }
 }

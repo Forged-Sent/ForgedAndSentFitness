@@ -175,6 +175,9 @@ void journalRepositoryContract(Future<JournalRepository> Function() open) {
 
     expect(await entries('someone-else'), isEmpty);
     expect(await journal.entry('someone-else', 'j1'), isNull);
+    // Nor what was done to it, and when.
+    expect(await journal.changesFor('someone-else', 'j1'), isEmpty);
+    expect(await journal.changesFor(owner, 'j1'), hasLength(1));
     expect(
       await journal.apply(
         saveOf('c2', 'j1', 'overwritten', ownerId: 'someone-else'),

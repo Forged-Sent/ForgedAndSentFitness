@@ -132,7 +132,11 @@ class DevotionalDraftNotifier extends Notifier<DevotionalDraft> {
   void typed(String text, {required String prompt}) {
     final draft = state;
     if (draft.status == DraftStatus.saving) return;
-    final started = draft.entryId != null || draft.text.trim().isNotEmpty;
+    // He has started once a save was tried, or while there are words in
+    // the box. Emptying the box before any save is starting over.
+    final started =
+        draft.entryId != null ||
+        (draft.text.trim().isNotEmpty && text.trim().isNotEmpty);
     state = DevotionalDraft(
       text: text,
       status: draft.status == DraftStatus.failed

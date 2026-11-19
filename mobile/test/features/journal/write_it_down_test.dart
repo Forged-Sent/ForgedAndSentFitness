@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:forged_and_sent/src/app/local_store.dart';
 import 'package:forged_and_sent/src/core/local_date.dart';
@@ -9,6 +10,7 @@ import 'package:forged_and_sent/src/design/fs_text_area.dart';
 import 'package:forged_and_sent/src/features/devotional/presentation/devotional_page.dart';
 import 'package:forged_and_sent/src/features/journal/domain/journal_entry.dart';
 import 'package:forged_and_sent/src/features/journal/presentation/journal_page.dart';
+import 'package:forged_and_sent/src/features/journal/presentation/journal_view_model.dart';
 import 'package:forged_and_sent/src/features/journal/presentation/write_it_down.dart';
 import 'package:forged_and_sent/src/features/today/domain/completion_event.dart';
 import 'package:forged_and_sent/src/features/today/presentation/today_page.dart';
@@ -32,6 +34,51 @@ final Finder _discard = find.byKey(
 
 void main() {
   setUpAll(loadAppFonts);
+
+  group('the question a draft answers', () {
+    ProviderContainer container() {
+      final made = ProviderContainer(
+        overrides: [localStoreProvider.overrideWithValue(testStore())],
+      );
+      addTearDown(made.dispose);
+      return made;
+    }
+
+    test('is let go when he empties the box before any save: the next words '
+        'answer the question on screen then', () {
+      final drafts = container();
+      final draft = drafts.read(devotionalDraftProvider.notifier);
+
+      draft.typed('Started last night.', prompt: 'Yesterday\'s question?');
+      expect(
+        drafts.read(devotionalDraftProvider).prompt,
+        'Yesterday\'s question?',
+      );
+
+      // He clears the box. Nothing was saved, so this is starting over.
+      draft.typed('', prompt: 'Today\'s question?');
+      expect(drafts.read(devotionalDraftProvider).prompt, isNull);
+
+      draft.typed('New words.', prompt: 'Today\'s question?');
+      expect(drafts.read(devotionalDraftProvider).prompt, 'Today\'s question?');
+    });
+
+    test('is kept while there are words in the box, whatever is on screen', () {
+      final drafts = container();
+      final draft = drafts.read(devotionalDraftProvider.notifier);
+
+      draft.typed('Started last night.', prompt: 'Yesterday\'s question?');
+      draft.typed(
+        'Started last night, and more.',
+        prompt: 'Today\'s question?',
+      );
+
+      expect(
+        drafts.read(devotionalDraftProvider).prompt,
+        'Yesterday\'s question?',
+      );
+    });
+  });
 
   testWidgets('the box starts from the reading\'s reflection question', (
     tester,

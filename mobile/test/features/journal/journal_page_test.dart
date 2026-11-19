@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:forged_and_sent/src/app/local_store.dart';
@@ -479,6 +481,46 @@ void main() {
         expect(journal.sent.map((c) => c.entryId).toSet(), hasLength(1));
       },
     );
+
+    testWidgets('he cannot leave while a save is on its way, so a failure '
+        'still finds his words and tells him', (tester) async {
+      final journal = TestJournalRepository()..gate = Completer<void>();
+      final app = await pumpApp(tester, store: testStore(journal: journal));
+      await openJournal(tester);
+      await tester.tap(_newEntry);
+      await tester.pumpAndSettle();
+      await typeInto(tester, entryBox, 'Slow to save, then refused.');
+      await tester.ensureVisible(entrySave);
+      await tester.pumpAndSettle();
+      await tester.tap(entrySave);
+      await tester.pump();
+      expect(journal.attempts, 1);
+
+      // Android's back button, and Back in the page's own bar: neither
+      // leaves the page while the save has not answered.
+      await systemBack(tester);
+      expect(find.byType(JournalEntryPage), findsOneWidget);
+      await tester.ensureVisible(find.text('‹ BACK'));
+      await tester.pump();
+      await tester.tap(find.text('‹ BACK'));
+      await tester.pump();
+      expect(find.byType(JournalEntryPage), findsOneWidget);
+      expect(find.byType(JournalPage), findsNothing);
+
+      // The save is refused. He is still here, with his words and the line.
+      journal.failWrites = true;
+      journal.gate!.complete();
+      journal.gate = null;
+      await tester.pumpAndSettle();
+      expect(find.byType(JournalEntryPage), findsOneWidget);
+      expect(_message(tester), JournalEntryText.failed);
+      expect(_typed(tester), 'Slow to save, then refused.');
+      expect(await app.savedJournal(tester), isEmpty);
+
+      // Now nothing is on its way, and Back works again.
+      await systemBack(tester);
+      expect(find.byType(JournalEntryPage), findsNothing);
+    });
 
     testWidgets(
       'a save that was stored after all is not stored twice by the retry',

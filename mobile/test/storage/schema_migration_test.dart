@@ -159,6 +159,12 @@ void main() {
     await expectLater(older.select(older.appSettings).get(), throwsA(anything));
     await older.close();
 
+    // Read before this build touches the file again: the older build did
+    // not lower the version it could not handle.
+    final afterOlder = sqlite3.open(databaseFileFor(folder, ownerId).path);
+    expect(afterOlder.select('PRAGMA user_version').single.values.single, 2);
+    afterOlder.close();
+
     // This build opens the file again and finds everything.
     final again = await openLocalStoreIn(folder, background: false);
     addTearDown(again.close);
@@ -166,9 +172,6 @@ void main() {
       (await again.journal.watchEntries(ownerId).first).single.text,
       'Written before the older build was tried.',
     );
-    final check = sqlite3.open(databaseFileFor(folder, ownerId).path);
-    addTearDown(check.close);
-    expect(check.select('PRAGMA user_version').single.values.single, 2);
   });
 
   test('an update that was cut off after the first new table still opens, and '

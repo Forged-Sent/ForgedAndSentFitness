@@ -177,7 +177,7 @@ class _JournalEntryPageState extends ConsumerState<JournalEntryPage> {
 
     // Not a lazy list: the page is short, and every control on it should
     // exist for a screen reader whether or not it is on screen.
-    return SingleChildScrollView(
+    final page = SingleChildScrollView(
       padding: const EdgeInsets.fromLTRB(
         FsSpacing.page,
         20,
@@ -187,7 +187,7 @@ class _JournalEntryPageState extends ConsumerState<JournalEntryPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: <Widget>[
-          FsPageBar(onBack: widget.onDone, trailing: 'Write it down'),
+          FsPageBar(onBack: _leave, trailing: 'Write it down'),
           const SizedBox(height: FsSpacing.block),
           FsLabelCaps(when, style: FsText.kicker, color: colors.highlight),
           const SizedBox(height: 4),
@@ -269,6 +269,15 @@ class _JournalEntryPageState extends ConsumerState<JournalEntryPage> {
         ],
       ),
     );
+    // While a save or a delete is on its way he stays on the page: if it
+    // fails, his words and the line that says so must still be here.
+    return PopScope(canPop: !_busy, child: page);
+  }
+
+  /// The page bar's Back. It waits, as Close does, while a change is on
+  /// its way.
+  void _leave() {
+    if (!_busy) widget.onDone();
   }
 
   Widget _plain(String message) {
