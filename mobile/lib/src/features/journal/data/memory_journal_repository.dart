@@ -49,6 +49,18 @@ class MemoryJournalRepository implements JournalRepository {
       return JournalOutcome.entryGone;
     }
 
+    // The same rule as the Drift store: a writer that may be out of date
+    // does not replace words that were changed somewhere else since.
+    final known = change.knownChanges;
+    if (change.kind == JournalChangeKind.save &&
+        known != null &&
+        current != null) {
+      final ofEntry = _changes.where((c) => c.$2 == change.entryId);
+      if (ofEntry.isEmpty || !known.contains(ofEntry.last.$3.id)) {
+        return JournalOutcome.changedElsewhere;
+      }
+    }
+
     final int revision;
     switch (change.kind) {
       case JournalChangeKind.save:

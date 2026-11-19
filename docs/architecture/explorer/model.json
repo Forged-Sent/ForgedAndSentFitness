@@ -73,7 +73,7 @@
       "depends": [
         "today"
       ],
-      "notes": "Only the devotional box works. Five tabs are placeholders, and there is no workout feature yet. The journal has no tags, prayer tabs, search or export."
+      "notes": "Only the devotional box works. Four tabs are placeholders (the Walk tab is the journal), and there is no workout feature yet. The journal has no tags, prayer tabs, search or export."
     },
     {
       "id": "today",

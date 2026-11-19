@@ -124,14 +124,15 @@ In Flutter so far: the app follows the phone's dark or light setting (there is n
 
 ## Golden images
 
-`mobile/test/app/goldens/` holds Walk at 390×844, dark and light, standing for the tabs that are still placeholders. `mobile/test/features/today/goldens/` holds Today as it opens, Today's boxes with the devotional done, the reading as it opens, the end of the reading, a reading with the Sent tag (February 7) and a reading with the Spirit-led tag (January 3), each in dark and light. All 14 are the baseline. They are compared on Windows only, because text is drawn slightly differently on each operating system. No CI lane checks them yet.
+`mobile/test/app/goldens/` holds the Walk tab at 390×844, dark and light; since S2 that is the private journal with nothing written, and no image shows a tab that is still a placeholder. `mobile/test/features/journal/goldens/` holds the box under the reading, the journal with three entries, the empty journal and an open entry, each in dark and light. `mobile/test/features/today/goldens/` holds Today as it opens, Today's boxes with the devotional done, the reading as it opens, the end of the reading, a reading with the Sent tag (February 7) and a reading with the Spirit-led tag (January 3), each in dark and light. That is 22 images. Ten are the approved baseline; twelve wait for the maintainer's eye (see S2 below). They are compared on Windows only, because text is drawn slightly differently on each operating system. No CI lane checks them yet.
 
 How they were approved:
 
 - **S0, 2026-11-11:** the maintainer approved Walk beside the prototype.
 - **S1, 2026-11-12:** the maintainer approved the eight Today and reading images beside the [S1 captures](reference/s1-today/README.md).
 - **S1b, 2026-11-12:** every one of those ten changed, because removing the stray letter spacing (see Type) moves text on every screen, and four images of tagged readings were added. The maintainer approved all 14 as redrawn.
-- **After that approval** the mission line on Today was balanced, which redrew `today_dark.png` and `today_light.png` once more. Those two were locked on the maintainer's condition that the line breaks on the same words as in v254's picture; `mobile/test/features/today/today_page_test.dart` checks that.
+- **S2, 2026-11-19: twelve images are not approved yet.** Drawn on Windows by an agent, not yet looked at by the maintainer beside the prototype: the eight journal images (new), `reading_end_dark.png` and `reading_end_light.png` (redrawn: the end of the reading now has the "Write it down" box above Amen), and `shell_walk_dark.png` and `shell_walk_light.png` (redrawn: the Walk tab was a placeholder card and is now the journal).
+- **After the S1b approval** the mission line on Today was balanced, which redrew `today_dark.png` and `today_light.png` once more. Those two were locked on the maintainer's condition that the line breaks on the same words as in v254's picture; `mobile/test/features/today/today_page_test.dart` checks that.
 
 ## Rules
 

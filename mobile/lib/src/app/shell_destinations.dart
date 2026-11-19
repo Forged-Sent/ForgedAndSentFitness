@@ -62,9 +62,13 @@ abstract final class ShellDestinations {
   /// Settings, opened from the round profile button in Today's header.
   static const String settingsPath = '/today/settings';
 
-  /// His private journal, opened from the reading, Settings and the pen in
-  /// Today's header.
+  /// His private journal under Today, opened from the reading, Settings and
+  /// the pen in Today's header. The Walk tab ([walkPath]) is the same
+  /// journal.
   static const String journalPath = '/today/journal';
+
+  /// The Walk tab. Since build step S2 it opens his private journal.
+  static const String walkPath = '/walk';
 
   /// A new journal entry.
   static const String journalNewPath = '/today/journal/new';
@@ -106,7 +110,7 @@ abstract final class ShellDestinations {
     ),
     ShellDestination(
       label: 'Walk',
-      path: '/walk',
+      path: walkPath,
       icon: FsIcons.walk,
       title: 'Walk',
       kicker: 'Walk with your brothers',

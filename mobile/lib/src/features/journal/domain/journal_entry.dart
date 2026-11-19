@@ -122,10 +122,20 @@ class JournalChange {
     required this.text,
     required this.source,
     required this.prompt,
+    this.knownChanges,
   });
 
   /// Saves [text] as the entry [entryId]: a new entry if there is none with
   /// that id, otherwise a change to it.
+  ///
+  /// [knownChanges] is for a writer that may be out of date, such as a
+  /// draft whose earlier save was never answered: the ids of every change
+  /// it has already sent for this entry. The save is then applied only if
+  /// the entry does not exist yet or its latest change is one of those.
+  /// If someone else changed the entry since, nothing is written and the
+  /// store answers [JournalOutcome.changedElsewhere], so the newer words
+  /// are not replaced by older ones. Without it the save is applied
+  /// whatever the entry's history.
   ///
   /// [at] is the phone's local time. For a new entry it must be the time of
   /// the first save attempt, kept through every retry, so a retry writes
@@ -141,6 +151,7 @@ class JournalChange {
     required JournalSource source,
     required DateTime at,
     String prompt = '',
+    Set<String>? knownChanges,
   }) {
     final clean = JournalText.clean(text);
     if (clean == null) {
@@ -160,6 +171,9 @@ class JournalChange {
       text: clean,
       source: source,
       prompt: prompt,
+      knownChanges: knownChanges == null
+          ? null
+          : Set<String>.unmodifiable(knownChanges),
     );
   }
 
@@ -205,6 +219,11 @@ class JournalChange {
   final JournalSource source;
   final String prompt;
 
+  /// For a save from a writer that may be out of date: the changes it has
+  /// already sent for this entry. See [JournalChange.save]. Null for a
+  /// delete, and for a save that is applied whatever the entry's history.
+  final Set<String>? knownChanges;
+
   @override
   String toString() =>
       'JournalChange($id, ${kind.stored}, entry $entryId, '
@@ -222,4 +241,9 @@ enum JournalOutcome {
   /// The entry was deleted earlier (or, for a delete, never existed).
   /// Nothing was written.
   entryGone,
+
+  /// The save named the changes its writer knew of, and the entry's latest
+  /// change is not one of them: it was changed somewhere else since.
+  /// Nothing was written, so the newer words stand.
+  changedElsewhere,
 }

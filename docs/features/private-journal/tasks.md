@@ -10,7 +10,7 @@ Part of [FNS-003](requirements.md). Proposed, not approved. Commands and their o
 | Store interface, Drift store, in-memory store, text codec | `mobile/lib/src/features/journal/data/` | `journal_repository_contract.dart` run by `drift_journal_repository_test.dart` and `memory_journal_repository_test.dart` |
 | Schema version 2 and its migration | `mobile/lib/src/storage/app_database.dart`; the frozen schemas in `mobile/drift_schemas/` | `mobile/test/storage/schema_migration_test.dart` |
 | "Write it down" under the reading | `write_it_down.dart`, `devotional_page.dart` | `write_it_down_test.dart` |
-| Journal page and entry page, routes, ways in | `journal_page.dart`, `journal_entry_page.dart`, `fs_router.dart`, `settings_page.dart`, `today_page.dart` | `journal_page_test.dart` |
+| Journal page and entry page, routes, ways in (the Walk tab among them) | `journal_page.dart`, `journal_entry_page.dart`, `fs_router.dart`, `shell_destinations.dart`, `settings_page.dart`, `today_page.dart` | `journal_page_test.dart`, `mobile/test/app/fs_shell_test.dart` |
 | `FsTextArea` | `mobile/lib/src/design/fs_text_area.dart` | Used by every journal widget test |
 
 ## Prompt P06 acceptance
@@ -45,6 +45,8 @@ Part of [FNS-003](requirements.md). Proposed, not approved. Commands and their o
 - He cannot leave the entry page while a save is on its way; when it then fails, his words and the message are still there.
 - A draft he empties before any save lets its question go; the next words answer the question on screen then.
 - Another owner sees nothing of an entry's change list.
+- A draft whose entry he has since changed in his journal does not replace that edit: nothing is written, the box says so, and the next save is a separate entry. Tested in both stores and on screen; the on-screen test fails without the rule.
+- The Walk tab shows the same entries as the Journal page under Today; an entry can be written, changed and deleted there, and Walk stays the tab he is on.
 - A journal golden image that is missing fails its test on Windows.
 
 ## Not done, and why

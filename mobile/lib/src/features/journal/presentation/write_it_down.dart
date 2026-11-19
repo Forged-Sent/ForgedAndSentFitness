@@ -22,6 +22,12 @@ abstract final class WriteItDownText {
   static const String retryNote =
       'Saving here updates the same journal entry. To write a separate '
       'entry, discard this draft first.';
+
+  /// When the entry this draft was saved as has since been changed or
+  /// deleted in his journal.
+  static const String separate =
+      'These words are not saved. The entry they belonged to was changed '
+      'or deleted in your journal. Saving now writes a separate entry.';
   static const String discard = 'Discard draft and start a different entry';
   static const String discardSure = 'Tap again to discard this draft';
   static const String note =
@@ -96,7 +102,10 @@ class _WriteItDownState extends ConsumerState<WriteItDown> {
 
     final (String? message, Color messageColor) = switch (draft.status) {
       DraftStatus.empty => (WriteItDownText.empty, colors.danger),
-      DraftStatus.failed => (WriteItDownText.failed, colors.danger),
+      DraftStatus.failed => (
+        draft.separate ? WriteItDownText.separate : WriteItDownText.failed,
+        colors.danger,
+      ),
       DraftStatus.saved => (WriteItDownText.saved, colors.text),
       DraftStatus.idle || DraftStatus.saving => (null, colors.text),
     };
@@ -173,8 +182,12 @@ class _WriteItDownState extends ConsumerState<WriteItDown> {
             ),
           ],
           if (draft.status == DraftStatus.failed) ...<Widget>[
-            const SizedBox(height: 8),
-            Text(WriteItDownText.retryNote, style: note),
+            // Not once the draft is separate from its entry: saving it
+            // then writes another entry, which the message above says.
+            if (!draft.separate) ...<Widget>[
+              const SizedBox(height: 8),
+              Text(WriteItDownText.retryNote, style: note),
+            ],
             const SizedBox(height: 6),
             Align(
               alignment: Alignment.centerLeft,

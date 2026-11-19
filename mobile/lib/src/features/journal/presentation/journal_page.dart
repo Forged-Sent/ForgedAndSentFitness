@@ -45,7 +45,9 @@ class JournalPage extends ConsumerWidget {
     required this.onOpenEntry,
   });
 
-  final VoidCallback onBack;
+  /// Where Back goes. Null on the Walk tab, where this is the tab's first
+  /// page and there is no Back to show.
+  final VoidCallback? onBack;
   final VoidCallback onNewEntry;
   final ValueChanged<String> onOpenEntry;
 
@@ -60,15 +62,16 @@ class JournalPage extends ConsumerWidget {
     return ListView(
       padding: EdgeInsets.zero,
       children: <Widget>[
-        Padding(
-          padding: const EdgeInsets.fromLTRB(
-            FsSpacing.page,
-            20,
-            FsSpacing.page,
-            2,
+        if (onBack != null)
+          Padding(
+            padding: const EdgeInsets.fromLTRB(
+              FsSpacing.page,
+              20,
+              FsSpacing.page,
+              2,
+            ),
+            child: FsPageBar(onBack: onBack!, trailing: 'Write it down'),
           ),
-          child: FsPageBar(onBack: onBack, trailing: 'Write it down'),
-        ),
         const FsHeroHeader(kicker: 'Only you can read it', title: 'My journal'),
         Padding(
           padding: const EdgeInsets.fromLTRB(

@@ -573,6 +573,7 @@ flowchart LR
 
 - fn journalWhen()
 - class DevotionalDraft
+- fn separate()
 - class DevotionalDraftNotifier
 - fn typed()
 - fn save()

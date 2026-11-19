@@ -28,7 +28,7 @@ abstract final class JournalEntryText {
   static const String deleteFailed =
       'That did not delete. Your entry is still here. Try again.';
   static const String delete = 'Delete this entry';
-  static const String deleteSure = 'Tap again to delete for good';
+  static const String deleteSure = 'Tap again to delete this entry';
   static const String gone = 'This entry is no longer in your journal.';
 }
 

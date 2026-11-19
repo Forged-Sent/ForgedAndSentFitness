@@ -5,6 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:forged_and_sent/src/app/local_store.dart';
 import 'package:forged_and_sent/src/design/fs_button.dart';
 import 'package:forged_and_sent/src/design/fs_hero_header.dart';
+import 'package:forged_and_sent/src/design/fs_shell.dart';
 import 'package:forged_and_sent/src/features/journal/domain/journal_entry.dart';
 import 'package:forged_and_sent/src/features/journal/presentation/journal_entry_page.dart';
 import 'package:forged_and_sent/src/features/journal/presentation/journal_page.dart';
@@ -167,6 +168,97 @@ void main() {
         find.byKey(const ValueKey<String>('fs-settings-journal')),
       );
       expect(find.byType(JournalPage), findsOneWidget);
+    });
+  });
+
+  group('the Walk tab is the same journal (decided 2026-11-17)', () {
+    testWidgets('it lists the entries the Journal page under Today lists', (
+      tester,
+    ) async {
+      final app = await pumpApp(tester);
+      await _seed(
+        tester,
+        app.store,
+        'j1',
+        'Squatted 225 for five.',
+        at: DateTime(2026, 11, 9, 18),
+      );
+
+      await openTab(tester, 'Walk');
+
+      expect(find.byType(JournalPage), findsOneWidget);
+      expect(find.text('MY JOURNAL'), findsOneWidget);
+      expect(_row('j1'), findsOneWidget);
+      expect(find.text('Squatted 225 for five.'), findsOneWidget);
+      // It is the tab's first page: Walk is the tab he is on, and there is
+      // no Back to show.
+      final shell = tester.widget<FsShell>(find.byType(FsShell));
+      expect(shell.destinations[shell.currentIndex].label, 'Walk');
+      expect(find.text('‹ BACK'), findsNothing);
+
+      // The same entry, from Today, Settings, "Open my journal".
+      await openTab(tester, 'Today');
+      await openJournal(tester);
+      expect(_row('j1'), findsOneWidget);
+      expect(find.text('‹ BACK'), findsOneWidget);
+    });
+
+    testWidgets('a new entry written there is saved and listed there', (
+      tester,
+    ) async {
+      final app = await pumpApp(tester);
+      await openTab(tester, 'Walk');
+      expect(find.byKey(const ValueKey<String>('fs-journal-empty')), findsOne);
+
+      await tester.tap(_newEntry);
+      await tester.pumpAndSettle();
+      expect(find.byType(JournalEntryPage), findsOneWidget);
+      await typeInto(tester, entryBox, 'Written from the Walk tab.');
+      await tapVisible(tester, entrySave);
+
+      // Back on the Walk tab's journal, not under Today.
+      expect(find.byType(JournalPage), findsOneWidget);
+      expect(find.text('Written from the Walk tab.'), findsOneWidget);
+      final shell = tester.widget<FsShell>(find.byType(FsShell));
+      expect(shell.destinations[shell.currentIndex].label, 'Walk');
+      expect(
+        (await app.savedJournal(tester)).single.text,
+        'Written from the Walk tab.',
+      );
+    });
+
+    testWidgets('an entry opened there can be changed and deleted, and '
+        'Android back returns to the list', (tester) async {
+      final app = await pumpApp(tester);
+      await _seed(
+        tester,
+        app.store,
+        'j1',
+        'As it was.',
+        at: DateTime(2026, 11, 9, 18),
+      );
+      await openTab(tester, 'Walk');
+
+      await tester.tap(_row('j1'));
+      await tester.pumpAndSettle();
+      expect(_typed(tester), 'As it was.');
+      await systemBack(tester);
+      expect(find.byType(JournalPage), findsOneWidget);
+
+      await tester.tap(_row('j1'));
+      await tester.pumpAndSettle();
+      await typeInto(tester, entryBox, 'As it is now.');
+      await tapVisible(tester, entrySave);
+      expect(find.text('As it is now.'), findsOneWidget);
+
+      await tester.tap(_row('j1'));
+      await tester.pumpAndSettle();
+      await tapVisible(tester, entryDelete);
+      await tapVisible(tester, entryDelete);
+      expect(find.byType(JournalPage), findsOneWidget);
+      expect(await app.savedJournal(tester), isEmpty);
+      final shell = tester.widget<FsShell>(find.byType(FsShell));
+      expect(shell.destinations[shell.currentIndex].label, 'Walk');
     });
   });
 

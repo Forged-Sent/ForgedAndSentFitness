@@ -70,6 +70,24 @@ class DriftJournalRepository implements JournalRepository {
         return JournalOutcome.entryGone;
       }
 
+      // A writer that may be out of date says which changes it knows of.
+      // If the entry's latest change is not one of them, the entry was
+      // changed somewhere else since, and those words are not replaced.
+      final known = change.knownChanges;
+      if (change.kind == JournalChangeKind.save &&
+          known != null &&
+          current != null) {
+        final latest =
+            await (_db.select(_db.journalChanges)
+                  ..where((t) => t.entryId.equals(change.entryId))
+                  ..orderBy([(t) => OrderingTerm.desc(t.counter)])
+                  ..limit(1))
+                .getSingleOrNull();
+        if (latest == null || !known.contains(latest.id)) {
+          return JournalOutcome.changedElsewhere;
+        }
+      }
+
       final atMs = change.atUtc.millisecondsSinceEpoch;
       final int revision;
       switch (change.kind) {

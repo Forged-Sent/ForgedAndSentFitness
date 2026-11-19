@@ -257,6 +257,85 @@ void main() {
       },
     );
 
+    group('that was stored after all, and he then changed that entry in his '
+        'journal', () {
+      // The overwrite case: the first save was stored and its answer lost,
+      // so the box still holds the draft. He finds the entry in his journal
+      // and changes it there, then comes back to the box.
+      Future<(AppHarness, TestJournalRepository)> draftThenEdit(
+        WidgetTester tester,
+      ) async {
+        final journal = TestJournalRepository()..throwAfterStoring = true;
+        final app = await pumpApp(tester, store: testStore(journal: journal));
+        await writeItDown(tester, 'First words.');
+        expect(_message(tester), WriteItDownText.failed);
+        journal.throwAfterStoring = false;
+        final entryId = (await app.savedJournal(tester)).single.id;
+
+        // He goes to his journal, on the Walk tab, and changes the entry.
+        await systemBack(tester);
+        await openTab(tester, 'Walk');
+        await tester.tap(
+          find.byKey(ValueKey<String>('fs-journal-entry-$entryId')),
+        );
+        await tester.pumpAndSettle();
+        await typeInto(tester, entryBox, 'Edited in the journal.');
+        await tapVisible(tester, entrySave);
+        expect(
+          (await app.savedJournal(tester)).single.text,
+          'Edited in the journal.',
+        );
+
+        // Back to the reading, where the box still holds the draft.
+        await openTab(tester, 'Today');
+        await openDevotional(tester);
+        expect(_typed(tester), 'First words.');
+        return (app, journal);
+      }
+
+      testWidgets('saving other words from the box does not replace the '
+          'edit: it says so, and the next save is a separate entry', (
+        tester,
+      ) async {
+        final (app, journal) = await draftThenEdit(tester);
+
+        await typeInto(tester, journalBox, 'First words, changed.');
+        await tapVisible(tester, journalSave);
+
+        // Nothing was written over his edit, and he is told why.
+        expect(_message(tester), WriteItDownText.separate);
+        expect(find.text(WriteItDownText.retryNote), findsNothing);
+        expect(_typed(tester), 'First words, changed.');
+        final afterRefusal = await app.savedJournal(tester);
+        expect(afterRefusal.single.text, 'Edited in the journal.');
+        expect(afterRefusal.single.revision, 2);
+
+        // His words in the box are not lost either: saving again writes
+        // them as an entry of their own.
+        await tapVisible(tester, journalSave);
+        expect(_message(tester), WriteItDownText.saved);
+        final entries = await app.savedJournal(tester);
+        expect(entries.map((e) => e.text).toSet(), <String>{
+          'Edited in the journal.',
+          'First words, changed.',
+        });
+        expect(entries.map((e) => e.id).toSet(), hasLength(2));
+        expect(journal.sent.last.entryId, isNot(journal.sent.first.entryId));
+      });
+
+      testWidgets('saving the same words again changes nothing: the edit '
+          'stands', (tester) async {
+        final (app, _) = await draftThenEdit(tester);
+
+        await tapVisible(tester, journalSave);
+
+        expect(_message(tester), WriteItDownText.saved);
+        final entry = (await app.savedJournal(tester)).single;
+        expect(entry.text, 'Edited in the journal.');
+        expect(entry.revision, 2);
+      });
+    });
+
     testWidgets(
       'the draft can be discarded, with a second tap, to start another entry',
       (tester) async {

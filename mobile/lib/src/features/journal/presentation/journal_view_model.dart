@@ -66,6 +66,7 @@ class DevotionalDraft {
     this.entryId,
     this.firstSaveAt,
     this.attempt,
+    this.sent = const <String>{},
     this.clears = 0,
   });
 
@@ -92,9 +93,19 @@ class DevotionalDraft {
   /// retry changes nothing.
   final ({String changeId, String text})? attempt;
 
+  /// The id of every change this draft has sent for its entry, stored or
+  /// not. A later save names them, so the store can tell an entry that is
+  /// as this draft left it from one he has since changed in his journal.
+  final Set<String> sent;
+
   /// Goes up each time the box is emptied by a save or a discard, so the
   /// screen knows to clear what is typed.
   final int clears;
+
+  /// True when the entry this draft was saved as has since been changed or
+  /// deleted in his journal. The draft no longer belongs to that entry: his
+  /// words are still in the box, and saving them writes a separate entry.
+  bool get separate => status == DraftStatus.failed && entryId == null;
 
   DevotionalDraft _with({
     String? text,
@@ -110,6 +121,7 @@ class DevotionalDraft {
     entryId: entryId ?? this.entryId,
     firstSaveAt: firstSaveAt ?? this.firstSaveAt,
     attempt: attempt ?? this.attempt,
+    sent: sent,
     clears: clears,
   );
 }
@@ -152,6 +164,7 @@ class DevotionalDraftNotifier extends Notifier<DevotionalDraft> {
       entryId: draft.entryId,
       firstSaveAt: draft.firstSaveAt,
       attempt: draft.attempt,
+      sent: draft.sent,
       clears: draft.clears,
     );
   }
@@ -175,6 +188,9 @@ class DevotionalDraftNotifier extends Notifier<DevotionalDraft> {
     final attempt = draft.attempt != null && draft.attempt!.text == text
         ? draft.attempt!
         : (changeId: ref.read(eventIdProvider)(), text: text);
+    // Recorded before the answer comes: a save can be stored and its
+    // answer lost.
+    final sent = <String>{...draft.sent, attempt.changeId};
     state = DevotionalDraft(
       text: draft.text,
       status: DraftStatus.saving,
@@ -182,6 +198,7 @@ class DevotionalDraftNotifier extends Notifier<DevotionalDraft> {
       entryId: entryId,
       firstSaveAt: at,
       attempt: attempt,
+      sent: sent,
       clears: draft.clears,
     );
 
@@ -196,6 +213,9 @@ class DevotionalDraftNotifier extends Notifier<DevotionalDraft> {
           source: JournalSource.devotional,
           at: at,
           prompt: answered,
+          // If he has changed this entry in his journal since an earlier
+          // attempt of this draft was stored, his newer words stand.
+          knownChanges: draft.sent,
         ),
       );
     } catch (_) {
@@ -212,10 +232,14 @@ class DevotionalDraftNotifier extends Notifier<DevotionalDraft> {
       );
       return;
     }
-    // The save did not commit, or its entry was deleted in the meantime.
-    // A deleted entry cannot be written again, so the next try gets a new
-    // id; otherwise the ids are kept and the retry sends the same change.
-    final gone = outcome == JournalOutcome.entryGone;
+    // The save did not commit, or its entry was deleted or changed in his
+    // journal in the meantime. A deleted entry cannot be written again,
+    // and one he has changed must not be replaced by this older draft, so
+    // in both cases the next try gets a new id and is a separate entry.
+    // Otherwise the ids are kept and the retry sends the same change.
+    final gone =
+        outcome == JournalOutcome.entryGone ||
+        outcome == JournalOutcome.changedElsewhere;
     state = DevotionalDraft(
       text: draft.text,
       status: DraftStatus.failed,
@@ -223,6 +247,7 @@ class DevotionalDraftNotifier extends Notifier<DevotionalDraft> {
       entryId: gone ? null : entryId,
       firstSaveAt: gone ? null : at,
       attempt: gone ? null : attempt,
+      sent: gone ? const <String>{} : sent,
       clears: draft.clears,
     );
   }
