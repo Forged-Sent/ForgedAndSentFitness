@@ -48,6 +48,7 @@ A man opens the app and sees today: the date, a mission line, a ring that shows 
 **Failure and edge states**
 
 - **A save fails:** he stays on the reading and reads "That did not save. Try again." The box is not shown as checked.
+- **A setting cannot be saved:** the preview points switch stays where the store has it, and a line under it reads "That did not save. Try again." Today goes on showing what is saved. The line goes when a change is saved, and it is announced to a screen reader when it appears.
 - **The day cannot be loaded:** Today says so and offers "Try again". The header still shows the date.
 - **Storage cannot be opened or read at start-up:** the database file is read once before the first screen. If that fails, for example because the file is corrupt, the app opens on the status page and says nothing is saved on this device; Today works and says the same. The file is closed and left as it was.
 - **Nothing can be kept (the web preview):** Today and the reading say "Nothing you check here is saved."
@@ -59,7 +60,6 @@ A man opens the app and sees today: the date, a mission line, a ring that shows 
 - The readings' own text quotes scripture inline; those quotations have not been checked against a published text, inline ESV wording is not counted toward the 499-verse limit, and no ESV notice is shown beside it. The [full list](inline-scripture-in-v254.md). (Owner: the maintainer. Before public release.)
 
 - For a moment after the day changes, the page still shows yesterday's reading while today's loads. Scrolling that to its end in that moment unlocks Amen for today's reading. (Review finding, medium.)
-- If the preview points switch cannot be saved, nothing on screen says so. (Review finding, medium.)
 - A corrupt database file is found at start-up, and the app says nothing is saved, but there is no way to recover from it inside the app.
 
 **What must not change**
