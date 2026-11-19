@@ -52,6 +52,20 @@ void main() {
   setUpAll(loadAppFonts);
 
   group('the Journal page', () {
+    test('the cut in a long entry never splits a character in two', () {
+      // 219 letters, then an emoji that is two code units long, then more.
+      final text = '${'a' * 219}\u{1F64F} and more';
+      expect(text.codeUnitAt(219), inInclusiveRange(0xD800, 0xDBFF));
+      expect(journalPreview(text), '${'a' * 219}\u{1F64F}…');
+      // A flag is two characters to Unicode and one to him.
+      final flag = '${'a' * 219}\u{1F1FA}\u{1F1F8} and more';
+      expect(journalPreview(flag), '${'a' * 219}\u{1F1FA}\u{1F1F8}…');
+      // Plain text is cut where the prototype cuts it, and an entry of
+      // exactly the limit is shown whole.
+      expect(journalPreview('b' * 300), '${'b' * journalPreviewLength}…');
+      expect(journalPreview('b' * journalPreviewLength), 'b' * 220);
+    });
+
     testWidgets('with nothing written says how to start', (tester) async {
       await pumpApp(tester);
       await openJournal(tester);

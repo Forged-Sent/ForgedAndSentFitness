@@ -59,7 +59,7 @@ update-by: edit WORK.md then run tooling/knowledge/work_board.py --write
 	**Branch or PR:** branch `claude/obsidian-adhd-workspace`
 	[Edit this row in WORK](WORK.md)
 - [x] **S2 Private journal**
-	**Note:** Decide whether phone backups may carry the journal: Android and iOS back up app files by default, and Q8 says device-only. Then draw the eight journal golden images and redraw the two end-of-reading ones on Windows, and run it on a phone. Kept on the device only and not encrypted (Q8); the first change to the database schema, with a tested migration. Run once on one iPhone 17 simulator (iOS 27.2) on 2026-11-19: an entry was saved under the reading, shown on the Journal page, and still there after the app was killed and started again. Not run on a phone or an Android emulator, and no Android build on the Mac that built it. Not built: prayer tabs, tags, search, export, sync
+	**Note:** Run it on a phone. Kept on the device only and not encrypted (Q8); the first change to the database schema, with a migration tested against the frozen schema of each version. The phone's own backup includes the database file, journal text with it: the maintainer decided on 2026-11-17 to leave phone backups on. Write, kill, relaunch passed on 2026-11-19 on one Android emulator on the maintainer's workstation (`FS_S1_Restart_API_36`, Android 16), with a test that is in the repository, and once by hand on one iPhone 17 simulator (iOS 27.2); not on a phone, and not in CI. The golden images are drawn and compared on Windows only. Not built: prayer tabs, tags, search, export, sync
 	**Branch or PR:** branch `claude/s2-private-journal`
 	[Edit this row in WORK](WORK.md)
 - [x] **Lockfile-only pull requests pass the review check**
@@ -131,9 +131,6 @@ update-by: edit WORK.md then run tooling/knowledge/work_board.py --write
 	[Edit this row in WORK](WORK.md)
 - [ ] **Recover from a corrupt database file**
 	**Prompt:** No prompt yet. Found in S1 while fixing the start-up check (Codex's review of #65 on GitHub). Needs a decision on what to keep and what to tell him
-	[Edit this row in WORK](WORK.md)
-- [ ] **First schema migration is tested**
-	**Prompt:** No prompt yet. Do it in the pull request that first changes a table
 	[Edit this row in WORK](WORK.md)
 - [ ] **Local profile adopted at sign-in**
 	**Prompt:** Part of S4: [P08](../reviews/2026-11-10-prototype-to-flutter/prompts/P08-S4-contract-identity-groups-board.md), then [P09](../reviews/2026-11-10-prototype-to-flutter/prompts/P09-S4-implement-identity-groups-board.md)

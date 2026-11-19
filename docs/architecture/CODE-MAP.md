@@ -517,6 +517,7 @@ flowchart LR
 - fn durable()
 - fn entry()
 - fn apply()
+- fn _apply()
 - fn _row()
 
 ### mobile/lib/src/features/journal/data/journal_body_codec.dart
@@ -532,6 +533,8 @@ flowchart LR
 
 - fn entry()
 - fn apply()
+- class JournalStoreFailure
+- fn toString()
 - class StoredJournalChange
 
 ### mobile/lib/src/features/journal/data/memory_journal_repository.dart
@@ -560,6 +563,7 @@ flowchart LR
 
 ### mobile/lib/src/features/journal/presentation/journal_page.dart
 
+- fn journalPreview()
 - class JournalPage
 - fn build()
 - class _EntryRow

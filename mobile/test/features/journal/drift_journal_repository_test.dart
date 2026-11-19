@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:drift/native.dart';
@@ -5,6 +6,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:forged_and_sent/src/app/open_local_store_native.dart';
 import 'package:forged_and_sent/src/features/journal/data/drift_journal_repository.dart';
 import 'package:forged_and_sent/src/features/journal/data/journal_body_codec.dart';
+import 'package:forged_and_sent/src/features/journal/data/journal_repository.dart';
 import 'package:forged_and_sent/src/features/journal/domain/journal_entry.dart';
 import 'package:forged_and_sent/src/storage/app_database.dart';
 import 'package:forged_and_sent/src/storage/native_storage.dart';
@@ -212,6 +214,126 @@ void main() {
       expect(entry.text, 'as it was');
       expect(entry.revision, 1);
     });
+
+    group(
+      'a change the database refuses is reported with none of his words',
+      () {
+        // The words are bound to the statements that write `journal_entries`,
+        // so that is the table these tests make fail. SQLite's own error can
+        // quote the values it was given.
+        const words = 'zqxv-entry words that stay private';
+        const question = 'zqxv-question about his heart';
+
+        Future<void> refuse(AppDatabase database, String change) =>
+            database.customStatement(
+              'CREATE TRIGGER refuse_entry_${change.toLowerCase()} '
+              'BEFORE $change ON journal_entries '
+              "BEGIN SELECT RAISE(ABORT, 'refused by the test'); END;",
+            );
+
+        /// The error [change] fails with, and what was printed meanwhile.
+        Future<(Object, String)> failureOf(
+          Future<Object?> Function() change,
+        ) async {
+          final printed = <String>[];
+          Object? thrown;
+          await runZoned(
+            () async {
+              try {
+                await change();
+              } catch (error) {
+                thrown = error;
+              }
+            },
+            zoneSpecification: ZoneSpecification(
+              print: (self, parent, zone, line) => printed.add(line),
+            ),
+          );
+          expect(thrown, isNotNull, reason: 'the change was expected to fail');
+          return (thrown!, printed.join('\n'));
+        }
+
+        test('a new entry', () async {
+          final database = await fileDatabase('refused-insert');
+          final journal = DriftJournalRepository(database);
+          await database.select(database.journalEntries).get();
+          await refuse(database, 'INSERT');
+
+          final (error, printed) = await failureOf(
+            () => journal.apply(saveOf('c1', 'j1', words, prompt: question)),
+          );
+
+          expect(error, isA<JournalStoreFailure>());
+          expect('$error', isNot(contains('zqxv')));
+          expect(printed, isNot(contains('zqxv')));
+          expect(await database.select(database.journalEntries).get(), isEmpty);
+          expect(await database.select(database.journalChanges).get(), isEmpty);
+        });
+
+        test('an edit, and a delete', () async {
+          final database = await fileDatabase('refused-update');
+          final journal = DriftJournalRepository(database);
+          await journal.apply(saveOf('c1', 'j1', 'as it was'));
+          await refuse(database, 'UPDATE');
+
+          final (edit, printedByEdit) = await failureOf(
+            () => journal.apply(saveOf('c2', 'j1', words)),
+          );
+          final (delete, _) = await failureOf(
+            () => journal.apply(deleteOf('c3', 'j1')),
+          );
+
+          expect(edit, isA<JournalStoreFailure>());
+          expect('$edit', isNot(contains('zqxv')));
+          expect(printedByEdit, isNot(contains('zqxv')));
+          expect(delete, isA<JournalStoreFailure>());
+          final entry = (await journal.watchEntries(owner).first).single;
+          expect(entry.text, 'as it was');
+          expect(entry.revision, 1);
+        });
+
+        test(
+          'on the background isolate, where a phone runs its database',
+          () async {
+            final folder = await temporaryFolder();
+            final database = openAppDatabase(
+              File('${folder.path}/refused.sqlite'),
+            );
+            addTearDown(database.close);
+            final journal = DriftJournalRepository(database);
+            await database.select(database.journalEntries).get();
+            await refuse(database, 'INSERT');
+
+            // Only the error that comes back is checked here: what the database
+            // isolate itself might print cannot be seen from this one.
+            final (error, _) = await failureOf(
+              () => journal.apply(saveOf('c1', 'j1', words, prompt: question)),
+            );
+
+            expect(error, isA<JournalStoreFailure>());
+            expect('$error', isNot(contains('zqxv')));
+            expect(
+              await database.select(database.journalEntries).get(),
+              isEmpty,
+            );
+          },
+        );
+
+        test('a store that has been closed', () async {
+          final database = await fileDatabase('closed');
+          final journal = DriftJournalRepository(database);
+          await database.select(database.journalEntries).get();
+          await database.close();
+
+          final (error, _) = await failureOf(
+            () => journal.apply(saveOf('c1', 'j1', words)),
+          );
+
+          expect(error, isA<JournalStoreFailure>());
+          expect('$error', isNot(contains('zqxv')));
+        });
+      },
+    );
 
     test('deleting removes the words from the row, and the question', () async {
       final database = await fileDatabase('delete');

@@ -12,8 +12,21 @@ import '../../../design/fs_typography.dart';
 import '../domain/journal_entry.dart';
 import 'journal_view_model.dart';
 
-/// How much of an entry the list shows before "…". The prototype's 220.
+/// How many characters of an entry the list shows before "…". The
+/// prototype's 220.
 const int journalPreviewLength = 220;
+
+/// What the list shows of [text]: all of it, or its start and "…".
+///
+/// Counted and cut in whole characters as he sees them, so an emoji or an
+/// accented letter at the cut is never split in two. For plain text this is
+/// the same place the prototype cuts.
+String journalPreview(String text) {
+  final characters = text.characters;
+  return characters.length > journalPreviewLength
+      ? '${characters.take(journalPreviewLength)}…'
+      : text;
+}
 
 /// What the Journal page says when there is nothing in it.
 const String journalEmptyText =
@@ -138,9 +151,7 @@ class _EntryRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = FsColors.of(context);
-    final preview = entry.text.length > journalPreviewLength
-        ? '${entry.text.substring(0, journalPreviewLength)}…'
-        : entry.text;
+    final preview = journalPreview(entry.text);
 
     return Semantics(
       button: true,

@@ -7,9 +7,9 @@ owner: maintainer
 source_ref: claude/s2-private-journal
 source_sha: 1c1339b25dad47a5760ea7b7eb4ab12fb260c4c4
 approved_by: none
-test_plan: journal store rules against the Drift and in-memory stores, close and reopen on a real SQLite file, a forced save failure and its retry, schema migration from version 1, the box under the reading, the Journal page and the entry page as widget tests, a privacy test that records every platform message and every printed line, golden images at 390x844 in dark and light
-verified_tests: mobile/test/features/journal/journal_entry_test.dart, mobile/test/features/journal/drift_journal_repository_test.dart, mobile/test/features/journal/memory_journal_repository_test.dart, mobile/test/features/journal/write_it_down_test.dart, mobile/test/features/journal/journal_page_test.dart, mobile/test/features/journal/journal_privacy_test.dart, mobile/test/storage/schema_migration_test.dart
-implementation_paths: mobile/lib/src/features/journal, mobile/lib/src/storage/app_database.dart, mobile/lib/src/design/fs_text_area.dart, mobile/lib/src/app/local_store.dart, mobile/lib/src/app/fs_router.dart
+test_plan: journal store rules against the Drift and in-memory stores, close and reopen on a real SQLite file, a forced save failure and its retry, schema migration from version 1, the box under the reading, the Journal page and the entry page as widget tests, a privacy test that records every platform message and every printed line, golden images at 390x844 in dark and light, one Android emulator run of write, kill, relaunch
+verified_tests: mobile/test/features/journal/journal_entry_test.dart, mobile/test/features/journal/drift_journal_repository_test.dart, mobile/test/features/journal/memory_journal_repository_test.dart, mobile/test/features/journal/write_it_down_test.dart, mobile/test/features/journal/journal_page_test.dart, mobile/test/features/journal/journal_privacy_test.dart, mobile/test/features/journal/journal_golden_test.dart, mobile/test/storage/schema_migration_test.dart, mobile/integration_test/journal_restart_1_write_test.dart, mobile/integration_test/journal_restart_2_verify_test.dart
+implementation_paths: mobile/lib/src/features/journal, mobile/lib/src/storage/app_database.dart, mobile/drift_schemas, mobile/lib/src/design/fs_text_area.dart, mobile/lib/src/app/local_store.dart, mobile/lib/src/app/fs_router.dart
 verification: see the pull request that adds this page for the commands and their output
 ---
 
@@ -42,9 +42,11 @@ The decision it rests on is the maintainer's Q8 answer on the [Decisions](../../
 - **Delete.** Deleting empties the entry's text and its question in the database row and marks the row deleted. The row stays, empty, for a later sync.
 - **Web preview.** Nothing is saved, and every journal screen says "Nothing you write here is saved."
 
+**Decided by the maintainer on 2026-11-17** (while approving an earlier plan for this step, on the Windows workstation): the phone's own backups stay on, and "device-only" means never on our servers and never in scoring; sign-out is decided in step S4. Item 1 below is therefore answered and kept here for the facts; items 2 to 4 are open.
+
 **Unknown, so not approved. BLOCKED on the maintainer:**
 
-1. **Phone backups.** Android's Auto Backup and an iOS device backup include an app's files by default. With no change to the host projects, a man's journal file can be copied into his own Google or iCloud backup. Q8 says device-only. Either turn backups off for the app (which also stops Today's completions being restored on a new phone), exclude only the database, or accept it. Not changed in this step.
+1. **Phone backups: answered, they stay on.** Checked on 2026-11-19 in the host projects and the `path_provider` source, not by making and restoring a backup. Android: the manifest sets no `android:allowBackup`, `fullBackupContent` or `dataExtractionRules`, and the database is under `getFilesDir()`, which Auto Backup includes; with his phone's backup on, the file goes to his Google account and travels in a device-to-device transfer. iOS: the file is in `Library/Application Support`, which iCloud Backup and a computer backup include, and nothing sets the exclude-from-backup flag. So a man's journal, not encrypted by the app, can be in his own Google or iCloud backup. The other choices were to turn backups off for the app (which also stops Today's completions being restored on a new phone) or to exclude only the database. Not changed in this step.
 2. **Sign-out.** Q8's question also asked whether the journal is kept after sign-out. The answer does not say. There is no sign-in yet (step S4), so nothing is built either way.
 3. **Deleted words on disk.** SQLite does not overwrite freed space by default, so the bytes of a deleted entry may remain in the file until that space is reused. `PRAGMA secure_delete` would overwrite them, at some cost on every delete. Not decided.
 4. **Export.** Q8 names a manual export for the pilot. P06 leaves export out of this step; nothing schedules it yet.
@@ -52,6 +54,7 @@ The decision it rests on is the maintainer's Q8 answer on the [Decisions](../../
 ## Failure, offline and migration behavior
 
 - **Everything is local**, so there is no offline case: the journal works the same with no network.
+- **The database refuses a change:** the store reports a failure that carries nothing. The database's own error, which can quote his words, is dropped inside the store and never reaches a screen, a log or a crash report.
 - **A save fails:** his text stays in the box, the screen says "That did not save. Your entry is still here. Try again.", and nothing is stored. It never says "Saved".
 - **Retry:** a new entry gets its id and its time at the first save attempt and keeps both through every retry. A retry can only write that same entry. This holds also when the first attempt was in fact stored and only its answer was lost.
 - **Discard:** after a failed save under the reading, "Discard draft and start a different entry" (second tap: "Tap again to discard this draft") empties the box; what he writes next is a different entry.
@@ -63,7 +66,7 @@ The decision it rests on is the maintainer's Q8 answer on the [Decisions](../../
 - **Day boundary (Q9):** an entry is filed under the phone's local date at its first save attempt.
 - **An entry that is gone** (opened by an old link): "This entry is no longer in your journal."
 - **A row stored in a form this build cannot read** (written by a later build): the journal shows "Your journal could not be read." It does not show garbage, and the error names the format, never the contents.
-- **Migration:** the database goes from schema version 1 to 2. A phone that ran step S1 keeps its completions and settings and gains the journal tables.
+- **Migration:** the database goes from schema version 1 to 2. A phone that ran step S1 keeps its completions and settings and gains the journal tables. Each version's schema is frozen in `mobile/drift_schemas/`, and a test checks that the upgraded file has exactly the frozen version 2. A build from before this step cannot open a version 2 file and leaves it untouched.
 - **Leaving an entry without saving** keeps nothing, as closing the prototype's dialog does. A draft under the reading is kept while the app is open, and is gone when the app is closed.
 - **Accessibility:** the boxes have a spoken name; the result of a save is a live region; nothing overflows at 1.3 and 2.0 times the text size on a 320 by 568 screen.
 

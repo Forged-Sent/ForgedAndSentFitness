@@ -12,10 +12,10 @@ import '../../support/fs_test_support.dart';
 /// slightly differently on each operating system. On other systems these
 /// tests are skipped; no CI lane checks the images yet.
 ///
-/// The images themselves are not in the repository yet. This step was
-/// written on a Mac, and an image made there would fail on Windows. Until
-/// an image exists its comparison is skipped. Draw them once on Windows,
-/// look at them beside the prototype, and commit:
+/// The images were drawn on Windows on 2026-11-19. A new image is added the
+/// same way: an image made on another system would fail on Windows, so
+/// until an image exists its comparison is skipped. Draw it on Windows,
+/// look at it beside the prototype, and commit:
 /// `flutter test --update-goldens test/features/journal/journal_golden_test.dart`.
 void main() {
   setUpAll(loadAppFonts);

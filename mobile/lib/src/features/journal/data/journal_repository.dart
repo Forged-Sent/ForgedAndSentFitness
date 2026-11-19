@@ -25,12 +25,26 @@ abstract interface class JournalRepository {
   /// deleted. A change whose id is already stored changes nothing, and so
   /// does any change to an entry that was deleted.
   ///
-  /// Throws if the transaction did not commit; nothing is stored then.
+  /// Throws a [JournalStoreFailure] if the transaction did not commit;
+  /// nothing is stored then.
   Future<JournalOutcome> apply(JournalChange change);
 
   /// Every stored change for one entry, oldest first, as (change id, kind,
   /// revision). For tests and for later sync; no screen reads it.
   Future<List<StoredJournalChange>> changesFor(String ownerId, String entryId);
+}
+
+/// A journal change that was not stored.
+///
+/// It carries no detail on purpose. The database's own error can quote the
+/// values of the statement that failed, which are his words, and whatever
+/// catches this may print it or send it somewhere.
+class JournalStoreFailure implements Exception {
+  const JournalStoreFailure();
+
+  @override
+  String toString() =>
+      'JournalStoreFailure: the journal change was not stored.';
 }
 
 /// A row of the change list. It carries no text.

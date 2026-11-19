@@ -11,6 +11,8 @@ import 'journal_repository.dart';
 /// A change and the entry it produces are written in one transaction, so
 /// the app can never show an entry as saved without the row that holds
 /// it. The text passes through [JournalBodyCodec] on its way in and out.
+/// A change that fails is reported as a bare [JournalStoreFailure]: the
+/// database's own error is dropped, because it can quote what he wrote.
 class DriftJournalRepository implements JournalRepository {
   DriftJournalRepository(
     this._db, {
@@ -44,7 +46,17 @@ class DriftJournalRepository implements JournalRepository {
   }
 
   @override
-  Future<JournalOutcome> apply(JournalChange change) {
+  Future<JournalOutcome> apply(JournalChange change) async {
+    try {
+      return await _apply(change);
+    } catch (_) {
+      // SQLite's error text can quote the values of the statement that
+      // failed, his words among them. It goes no further than here.
+      throw const JournalStoreFailure();
+    }
+  }
+
+  Future<JournalOutcome> _apply(JournalChange change) {
     return _db.transaction(() async {
       final stored = await (_db.select(
         _db.journalChanges,

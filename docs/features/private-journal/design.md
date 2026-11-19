@@ -35,14 +35,14 @@ Q8 asks for device-only storage now, and a design that sync and encryption can b
 
 **Considered and not chosen:** one table with upsert by id (enough for "a retry never makes a second entry", but nothing for a sync to work from, and it departs from the event-plus-state rule the project uses for completions); events that carry the text (deleted words would live on in the log).
 
-**Migration.** Version 1 to 2 creates both tables inside one transaction and skips a table that already exists, so an update that was cut off partway finishes on the next launch instead of failing on every launch.
+**Migration.** Version 1 to 2 creates both tables inside one transaction and skips a table that already exists, so an update that was cut off partway finishes on the next launch instead of failing on every launch. The schema of each version is frozen as a file in `mobile/drift_schemas/` (`drift_dev schema dump`), and `schema_migration_test.dart` uses Drift's schema verifier to check that a version 1 file ends up with exactly the frozen version 2, and that a new install has the same. The commands are in `mobile/README.md`. Build step S3, on a local branch that is not on GitHub, freezes the same version 1 file and also calls its own tables version 2; whichever of the two steps merges second becomes version 3.
 
 **Known limit, accepted for this step.** If a save under the reading was stored without its answer coming back, and he then edits that same entry on the Journal page before retrying the draft, the retry replaces the edit with the draft's words. It needs a failed answer and two screens used in a particular order on one phone. A sync will need a revision check here anyway.
 
 ## Trust boundaries
 
 - The journal feature and `mobile/lib/src/storage/` import no Firebase SDK. `mobile/lib/src/firebase/` imports nothing from the app, so it cannot reach an entry. A test fails if either changes.
-- Failures are caught without logging the error, because a database error message can quote the statement's values.
+- Failures are caught without logging the error, because a database error message can quote the statement's values. The Drift store goes one step further and never lets that error out: `apply` catches whatever the database throws and throws a bare `JournalStoreFailure`, so a later caller that logs or reports errors cannot carry his words off. Tests refuse an insert, an update and a delete and check the error that comes back.
 - `JournalEntry.toString`, `JournalChange.toString` and the database row class `JournalEntryRow` (written by hand for this reason) print lengths, not words. Drift's generated `JournalEntriesCompanion`, the object a write is built from, still prints its values; nothing prints one, and no app code prints or logs at all, which a test holds.
 
 ## Screens and state

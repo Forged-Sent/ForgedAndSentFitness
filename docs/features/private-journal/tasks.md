@@ -8,7 +8,7 @@ Part of [FNS-003](requirements.md). Proposed, not approved. Commands and their o
 |---|---|---|
 | Entry, change and text rules | `mobile/lib/src/features/journal/domain/journal_entry.dart` | `journal_entry_test.dart` |
 | Store interface, Drift store, in-memory store, text codec | `mobile/lib/src/features/journal/data/` | `journal_repository_contract.dart` run by `drift_journal_repository_test.dart` and `memory_journal_repository_test.dart` |
-| Schema version 2 and its migration | `mobile/lib/src/storage/app_database.dart` | `mobile/test/storage/schema_migration_test.dart` |
+| Schema version 2 and its migration | `mobile/lib/src/storage/app_database.dart`; the frozen schemas in `mobile/drift_schemas/` | `mobile/test/storage/schema_migration_test.dart` |
 | "Write it down" under the reading | `write_it_down.dart`, `devotional_page.dart` | `write_it_down_test.dart` |
 | Journal page and entry page, routes, ways in | `journal_page.dart`, `journal_entry_page.dart`, `fs_router.dart`, `settings_page.dart`, `today_page.dart` | `journal_page_test.dart` |
 | `FsTextArea` | `mobile/lib/src/design/fs_text_area.dart` | Used by every journal widget test |
@@ -38,17 +38,21 @@ Part of [FNS-003](requirements.md). Proposed, not approved. Commands and their o
 - An entry of emoji at the length limit saves; typing past the limit stops at it.
 - A draft begun before midnight is saved with the question it was begun under.
 - A database row prints its length, not its words.
+- A change the database refuses (a new entry, an edit, a delete, a closed store) fails with an error that holds none of his words, also on the background isolate a phone uses, and nothing is printed.
+- The upgraded schema is exactly the frozen version 2, and a new install's is the same.
+- A build from before the journal cannot open a version 2 file and leaves it as it was.
+- The list's 220-character cut never splits an emoji or a flag in two.
 
 ## Not done, and why
 
 | Item | State |
 |---|---|
-| Golden images at 390x844, dark and light | The tests exist (`journal_golden_test.dart`, eight images). Each is skipped off Windows, as Today's are, and on Windows until its image exists. The images are not drawn: this step was built on a Mac. The two end-of-reading images from S1 need redrawing too, because the reading now has the journal box above Amen |
-| Run on a phone or an Android emulator | Not run. No Android toolchain on the Mac that built it. On 2026-11-19, on one iPhone 17 simulator (iOS 27.2), an entry written under the reading was saved, shown on the Journal page, and still there after the app's process was stopped and the app started again. That was a one-off run with a test that is not in the repository; no committed test covers the journal across a restart on a device |
+| Golden images at 390x844, dark and light | Done on 2026-11-19, on Windows: the eight journal images are drawn and the two end-of-reading images are redrawn with the journal box above Amen. They are compared on Windows only, as Today's are, and no CI lane other than the Windows one runs them |
+| Run on a phone | Not run on a phone. On an Android emulator: `integration_test/journal_restart_1_write_test.dart` and `journal_restart_2_verify_test.dart` write an entry under the reading, stop the app's process, start it again and find the entry in the journal with every word. Both passed on 2026-11-19 on `FS_S1_Restart_API_36` (Android 16, API 36) on the maintainer's Windows workstation, after the S1 restart pair passed on the same build. On one iPhone 17 simulator (iOS 27.2) the same was done once by hand on 2026-11-19; the committed pair has not been run on iOS. No CI lane has an emulator |
 | Text scaling at 1.3x | Covered by widget tests at 1.3 and 2.0, not by eye |
 | Keyboard over the box, safe areas | Not checked on a device |
 | Phone backups, sign-out, secure delete, export | Open decisions; see [requirements.md](requirements.md) |
 
 ## Rollback
 
-The step adds two tables and changes none. Removing the feature's screens leaves the tables unused. A build older than this one was written for a version 1 database and has no rule for a version 2 file; what it does with one has not been tested. Do not ship an older build over this one.
+The step adds two tables and changes none. Removing the feature's screens leaves the tables unused. A build older than this one was written for a version 1 database and has no rule for a version 2 file: it cannot open one, and it leaves the file as it was, so this build opens it again with everything in it (`schema_migration_test.dart`). On a phone that older build would start without storage and say nothing is saved. Do not ship an older build over this one.
