@@ -85,6 +85,14 @@ update-by: edit WORK.md then run tooling/knowledge/work_board.py --write
 	**Note:** Physical run on a fresh Windows PC and a Mac: the Try it now walkthrough, Mobile Check my setup, and a second setup run in the same window
 	**Branch or PR:** branch `claude/bootstrap-test-readiness`
 	[Edit this row in WORK](WORK.md)
+- [x] **Preview script runs on a Windows workstation**
+	**Note:** None. The script reads `index.html` and writes `dev/preview.html` as UTF-8, whatever the system's own encoding is. A test in `tooling/preview`, which CI runs on Linux, macOS and Windows, keeps it so
+	**Branch or PR:** branch `claude/windows-workstation-checks`
+	[Edit this row in WORK](WORK.md)
+- [x] **Onboarding tests pass on a Windows workstation**
+	**Note:** None. On Windows the tests run the Mac scripts with the Bash that Git for Windows ships, not the WSL launcher a bare `bash` starts. Run from WSL in a Windows checkout, the three launcher tests still fail, because `.command` files are checked out there with Windows line ends; that was so before and is not changed here
+	**Branch or PR:** branch `claude/windows-workstation-checks`
+	[Edit this row in WORK](WORK.md)
 
 
 ## Later
@@ -148,12 +156,6 @@ update-by: edit WORK.md then run tooling/knowledge/work_board.py --write
 	[Edit this row in WORK](WORK.md)
 - [ ] **Android release signing**
 	**Prompt:** No prompt yet. Do it before anything is distributed
-	[Edit this row in WORK](WORK.md)
-- [ ] **Preview script runs on a Windows workstation**
-	**Prompt:** No prompt yet. Found in S1b while running the prototype checks. Not blocking: GitHub runs it on Linux, where UTF-8 is the default
-	[Edit this row in WORK](WORK.md)
-- [ ] **Onboarding tests pass on a Windows workstation**
-	**Prompt:** No prompt yet. Not blocking: they pass in WSL and on GitHub
 	[Edit this row in WORK](WORK.md)
 - [ ] **Host wording left over from the generated hosts**
 	**Prompt:** No prompt yet. Not blocking; needs a Mac to check

@@ -13,7 +13,7 @@ Open this page first, in Obsidian, from the `main` checkout. Pick the one action
 
 - **Next** · Agents may merge after review: Run prompt [P13](reviews/2026-11-10-prototype-to-flutter/prompts/P13-let-agents-merge-after-review.md)
 
-Board now: Next 2 · In progress 0 · Waiting 4 · Done 11 · Later 24.
+Board now: Next 2 · In progress 0 · Waiting 4 · Done 13 · Later 22.
 <!-- work-focus:end -->
 
 ## Teach or learn the project
