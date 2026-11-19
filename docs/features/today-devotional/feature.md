@@ -122,7 +122,7 @@ One deliberate difference: the prototype works out the day of the year from elap
 
 **Not verified**
 
-- iOS: built only by CI's simulator job; never run.
+- iOS: built by CI's simulator job. Complete, kill, relaunch passed on 2026-11-19 on one iPhone 17 simulator only (iOS 27.2), with a debug simulator build made on the maintainer's Mac (Xcode 27.2, Flutter 3.47.8): `restart_1_complete_test.dart`, the app's process stopped, then `restart_2_verify_test.dart`. No CI lane runs it, and nothing has run on a physical iPhone. The first run that day failed, because on iOS a drag can pass the end of the reading and spring back, which left Amen unlocked below the screen; `readToTheEnd` in `integration_test/restart_support.dart` now brings Amen onto the screen before the tap. Whether a finger can leave Amen below the screen in the same way was not checked, and the Android emulator run has not been repeated since the helper changed.
 - The emulator test of complete, kill, relaunch passed on 2026-11-12 on one emulator only: an emulator made for this test, `FS_S1_Restart_API_36`, from the installed `system-images;android-36;google_apis_playstore;x86_64` image (Android 16, API 36), on the maintainer's Windows workstation. No CI lane has an emulator. Nothing has run on a physical phone, and no other Android version was tried.
 - The golden images are compared on Windows only.
 - S1b was not run on a phone or an emulator. It changes what the reading shows, not what is saved.

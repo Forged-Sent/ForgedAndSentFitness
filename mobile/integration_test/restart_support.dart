@@ -56,14 +56,24 @@ Future<void> showDevotionalBox(WidgetTester tester) async {
 bool devotionalChecked(WidgetTester tester) =>
     tester.widget<FsBoxRow>(devotionalBox).checked;
 
-/// Scrolls the reading down with a finger until Amen has a tap to offer.
+/// Scrolls the reading down with a finger until Amen has a tap to offer,
+/// then brings Amen onto the screen.
+///
+/// The last step is for iOS. Android stops a drag at the end of the page,
+/// so Amen is on screen when it unlocks. iOS lets a drag pass the end and
+/// spring back: Amen unlocks while the page is past its end and can come to
+/// rest below the screen, where a tap would miss it.
 Future<void> readToTheEnd(WidgetTester tester) async {
   final reading = scrollableOf(DevotionalPage).first;
   for (var i = 0; i < 30; i++) {
     final button = amenButton.evaluate().isEmpty
         ? null
         : tester.widget<FsButton>(amenButton);
-    if (button != null && button.onPressed != null) return;
+    if (button != null && button.onPressed != null) {
+      await tester.ensureVisible(amenButton);
+      await tester.pumpAndSettle();
+      return;
+    }
     await tester.drag(reading, const Offset(0, -400));
     await tester.pumpAndSettle();
   }
