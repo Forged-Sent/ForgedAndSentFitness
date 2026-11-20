@@ -6,9 +6,10 @@ import 'package:flutter_test/flutter_test.dart';
 import '../support/fs_test_support.dart';
 
 /// Golden images of the shell at 390x844, the size of the prototype
-/// reference screenshots. Walk stands for the tabs that are still
-/// placeholders; Today has its own images in
-/// `test/features/today/today_golden_test.dart`.
+/// reference screenshots: the Walk tab, which since build step S2 is the
+/// private journal, here with nothing written. Today has its own images in
+/// `test/features/today/today_golden_test.dart`. No image shows a tab that
+/// is still a placeholder.
 ///
 /// A Flutter render cannot match a browser render pixel for pixel. The
 /// maintainer approves each image by eye beside the prototype; after that

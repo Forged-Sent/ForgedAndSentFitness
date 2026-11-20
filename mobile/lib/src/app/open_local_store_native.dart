@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import '../features/journal/data/drift_journal_repository.dart';
 import '../features/settings/data/settings_repository.dart';
 import '../features/today/data/drift_day_repository.dart';
 import '../storage/native_storage.dart';
@@ -29,6 +30,7 @@ Future<LocalStore> openLocalStoreIn(
   return LocalStore(
     ownerId: ownerId,
     days: DriftDayRepository(database),
+    journal: DriftJournalRepository(database),
     settings: DriftSettingsRepository(database),
     close: database.close,
   );
