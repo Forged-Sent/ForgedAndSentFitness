@@ -33,6 +33,7 @@ Groups, teams, scoring and the board: a man joins a group, the server turns his 
 | Q2, the board | "Team board is the default view. A selector on the Board switches to an individual ranking of the men in his own group. Each man can hide himself from the individual ranking in Settings; he still counts toward his team. Expanding a team shows each man's total, not a per-category breakdown. Devotional (faith) points count toward the team total only and are never shown per man: not on the individual ranking and not in the expanded team view. A man sees his own." |
 | Q3, fasting | "Private by default, an explicit 'ask the brothers to pray' action, no points." |
 | Q4, the four Phase 0 decisions | Group isolation, the scoring ledger, membership-document authorization and faith-participation privacy. On `main` they are ADR-0006 to ADR-0009 once pull request #80 merges |
+| ADR-0008, membership documents authorize | It stays Proposed until S4b starts (decided 2026-11-19). Whether it becomes Accepted is one of the first things S4b settles |
 | Q5, points on screen | Hidden until server scoring exists |
 | The ordering rule | R2, decided 2026-11-19; see S4a |
 | Standing rules | Group and role authorization is enforced server-side. Scoreboards are server-authoritative. No scoring of spiritual quality and no points for eating less (`AGENTS.md`) |

@@ -39,24 +39,37 @@ All of this section is **proposed**. It follows the [sign-in design](../../desig
 - **Agreement.** `users/{uid}/agreements/{version}` is created by the owner, once per version, with the server's time. He can read it. Nobody can change it. A new version prompts again. The text is a marked placeholder in S4a (O5).
 - **Settings › Sign-in & security** shows: the sign-in method, Change password (email accounts only), the agreement he accepted, Sign out of this phone, Sign out and erase this phone, Sign out everywhere, Delete account. It has no list of devices: per-device sign-out is decided later (decided 2026-11-19).
 
-## Adoption of the local profile
+## The signed-out profile and adoption
 
-Decided: Q10 (the local profile is adopted at first sign-in). Decided 2026-11-19: when the account and the phone both have days, keep both and never ask.
+Decided: Q10 (a man may use the app before signing in, and the local profile is adopted at first sign-in). Decided 2026-11-19: when the account and the phone both have days, keep both and never ask about any of them. Decided 2026-11-19: when a man signs in on a phone whose signed-out profile holds something, he is asked once, "Are these yours?". "No" leaves that data untouched as a signed-out profile; it is never deleted and never merged.
 
-S1 gives each owner his own database file, and before sign-in the owner is a local profile. Proposed, for a successful sign-in while a local profile is in use:
+Proposed:
 
-1. **The account has no file on this phone.** In one local transaction the local profile's file is linked to the uid, and every event in it is put in the outbox. Event ids do not change, so sending them is idempotent. The link is what makes adoption happen once: if the app is killed, the next start finds the transaction either committed or not.
-2. **The account already has a file on this phone** (he signed out earlier, used the app signed out, and signs in again). Two files cannot share one transaction, so the move has three steps, each safe to repeat:
-   1. Write into the local profile's file that it is being adopted by this uid. From now on no other account can adopt it.
-   2. In one transaction on the account's file, copy every row across and record that this profile was merged. Events are inserted if their id is absent and put in the outbox.
-   3. Remove the local profile's file.
+- **One signed-out profile per phone.** It is the local profile S1 already makes: its own database file, shown whenever nobody is signed in. Signing in never destroys it.
+- **It is open to whoever holds the phone.** No sign-in protects it. That is Q10, and it is unchanged.
+- **"Holds something"** means it has at least one thing a man entered: a completion event, a journal entry, or a row of any other table of his that is on `main` when this is built. Settings alone do not count.
 
-   On every start, before any sign-in is offered, the app finishes an adoption that was interrupted: a profile marked for a uid is merged into that uid's file if the record of the merge is missing, and then removed. Nothing is dropped silently: for each other table that is on `main` when this is built, the implementing pull request says how its rows move and tests it, and stops to ask if a table cannot be merged without a choice.
-3. **The account already has events on the server.** They are downloaded (below) and stored beside the phone's own. Rule R2 gives each box its state. He is not asked anything.
+At a successful sign-in:
 
-- The journal stays in his file and is not sent (Q8).
-- A local profile is adopted by the account that signs in while it is in use (O4).
-- Sign-in that fails or is cancelled adopts nothing.
+1. **The account's file is opened**, or made if this is his first sign-in on this phone.
+2. **If the signed-out profile holds nothing**, he is asked nothing and nothing moves.
+3. **If it holds something, he is asked once: "Are these yours?"** The question says how much there is (so many days, so many journal entries) and shows none of it.
+   - **Yes.** Everything in the signed-out profile moves into his account's file, by the three steps below. The signed-out profile is left empty. His days are put in the outbox. The journal moves on the phone and is not sent (Q8).
+   - **No.** Nothing moves and nothing is deleted. The data stays in the signed-out profile exactly as it was, and is there again when nobody is signed in. While he is signed in, no screen, query or repository reaches it.
+   - Closing the question without answering is No.
+   - He is not asked again about the same data. After a No, the app asks that account again only when the signed-out profile holds something made after his answer (O4).
+4. **If his account already has events on the server**, they are downloaded (below) and stored beside the phone's own. Rule R2 gives each box its state. He is not asked about any box.
+
+**The move, after Yes.** Two files cannot share one transaction, so the move has three steps, each safe to repeat:
+
+1. Write into the signed-out profile's file that it is being moved to this uid. From now on no other account can take it.
+2. In one transaction on the account's file, copy every row across and record that this profile was moved. Events are inserted if their id is absent and put in the outbox. Event ids do not change, so sending them is idempotent.
+3. Empty the signed-out profile.
+
+On every start, before any sign-in is offered, the app finishes a move that was interrupted: a profile marked for a uid is copied into that uid's file if the record of the move is missing, and then emptied. Nothing is dropped silently: for each table that is on `main` when this is built, the implementing pull request says how its rows move and tests it, and stops to ask if a table cannot be moved without a choice.
+
+- Sign-in that fails or is cancelled asks nothing and moves nothing.
+- The question prevents an accident, not a theft. A man who answers Yes to data that is not his takes it. He could already read it: a signed-out profile is open to whoever holds the phone.
 
 ## His events on his account
 
@@ -64,13 +77,13 @@ Decided: completion events are sent once; the document id equals the event id; e
 
 Proposed:
 
-- **What is sent.** One document per completion event at `users/{uid}/events/{eventId}` with exactly these fields: `id` (equal to the document id), `owner` (equal to the uid), `localDate`, `item`, `done`, `tappedAtUtc`, `utcOffsetMinutes`, `replaces` (an event id or null), `chainLength`, `schema`, and `receivedAt`, which the rules require to equal the server's time. Nothing else is accepted: no text, no note, no points.
+- **What is sent.** One document per completion event at `users/{uid}/events/{eventId}` with exactly these fields: `id` (equal to the document id; a UUID in lowercase, as S1 already makes them), `owner` (equal to the uid), `localDate`, `item`, `done`, `tappedAtUtc`, `utcOffsetMinutes`, `replaces` (an event id or null), `chainLength`, `schema`, and `receivedAt`, which the rules require to equal the server's time. Nothing else is accepted: no text, no note, no points.
 - **Why under `users/{uid}`.** An event is the man's own fact. Under his own path, no query by anyone else can return it. When groups exist (S4b) it still must not move under a group path.
 - **The outbox is in Drift.** Each event row has a **send state**: pending, uploaded, refused (with the reason) or blocked. It is written in the same transaction as the event. The Firestore SDK's own offline queue is not relied on to remember anything (`AGENTS.md`: Firebase's cache alone is not durable enough). Proposed: the SDK's offline persistence is turned off, so nothing of his is stored on the phone outside his file.
 - **Uploaded means the server holds the event.** It does not mean scored. There is no "accepted" or "counted" state in S4a, because nothing on the server looks at the event.
 - **Sending.** The sync worker runs when the app starts, when the network returns and after each new event. For each pending event, oldest first, it creates the document. **An event is sent only after the event it replaces is uploaded**, so the server never holds an event whose chain it cannot hold. Then:
   - created: mark uploaded;
-  - denied: a create-only rule denies a replay in the same way as any other denial, so the phone cannot tell which it was from the error. It reads that id back from his own path, **from the server and never from a cache**. If a document is there and the event fields the phone sent equal the local event's, mark uploaded. If a document is there and differs, mark refused with "id in use" and report it, since that can only be a defect. If the server answers that no document is there, the create itself was refused: mark refused with the denial and do not retry unchanged;
+  - denied: a create-only rule denies a replay in the same way as any other denial, so the phone cannot tell which it was from the error. It reads that id back from his own path, **from the server and never from a cache**. If a document is there and the fields the phone wrote equal the local event's, mark uploaded. `receivedAt` is left out of the comparison: the server sets it, and a replay's time differs from the first attempt's. If a document is there and differs, mark refused with "id in use" and report it, since that can only be a defect. If the server answers that no document is there, the create itself was refused: mark refused with the denial and do not retry unchanged;
   - no answer, to the create or to the read-back: leave the event pending and try again later, with a growing wait. An event is never marked uploaded or refused without an answer from the server.
 - **A refused event blocks what follows it.** Every later event for that box on that day that replaces it, directly or through others, is marked blocked and is not sent: another device could never confirm it under R2. A refusal should not happen with an honest client and correct rules, so it is reported as a defect. The box on this phone is still right. His other devices do not see the blocked taps, and the app says so: in Settings, and in the warning before "Sign out and erase this phone", which counts blocked events with unsent ones.
 - **Send-once in what sense.** The network may deliver a create more than once. The event exists once, because its id is its key.
@@ -95,12 +108,12 @@ Every "Own" row also requires both of these, read from `users/{uid}/account/stat
 
 - **When a session began** is the token's `auth_time`, the moment he signed in. It does not change when a token is refreshed, so a phone that refreshes its token after the cutoff is still refused. Times are whole seconds: a session passes only if it began in a later second than the cutoff. A sign-in in the same second is refused, and he signs in again.
 - **A missing state document** means there has been no "Sign out everywhere" and no deletion: the request is judged on the rest of its row. Nothing has to be created when an account is made.
-- **The smoke path** is not part of this contract. It is in today's rules for the emulator check, and the tests assert it on its own. Before any ruleset is used with a cloud project it is removed, and a test asserts that it is then denied.
+- **The smoke path** exists today for the emulator check, and the tests assert it on its own. In S4a its rule gains the same two conditions as every "Own" row, and account deletion removes what is under it, so nothing of his is left there. Before any ruleset is used with a cloud project the path is removed, and a test asserts that it is then denied.
 
 | Resource | Actor | Read | Write (create or update) | Delete |
 |---|---|---|---|---|
 | `users/{uid}/events/{eventId}` | Signed-out | No | No | No |
-| | Own | Yes | Create only, when the document id equals `id`, `owner` equals the uid, the fields are exactly the allowed ones with the right types and bounded lengths, and `receivedAt` is the server's time. Never update | No |
+| | Own | Yes | Create only, when the document id equals `id` and is a lowercase UUID, `owner` equals the uid, the fields are exactly the allowed ones with the right types and bounded lengths, and `receivedAt` is the server's time. Never update | No |
 | | Any other signed-in man | No | No | No |
 | | Function | Never reads the content | Never | Only in account deletion |
 | `users/{uid}/agreements/{version}` | Own | Yes | Create only, with the server's time. Never update | No |
@@ -112,6 +125,7 @@ Every "Own" row also requires both of these, read from `users/{uid}/account/stat
 | `groups/**` and every other path, and all of Storage | Any client | No | No | No |
 | Collection-group queries over any of the above | Any client | No | | |
 | `developer_smoke/{uid}/**` (exists today, emulator only) | Own | Yes | Yes | Yes |
+| | Function | No | No | Only in account deletion |
 
 Each request reads at most one extra document (`account/state`).
 
@@ -124,8 +138,16 @@ Proposed:
 - **Sign out of this phone.** In this order: stop the sync worker and cancel every listener; close his database file; throw away every provider that held his data (architecture 5.7); sign out of Firebase Authentication. No read or write is made as the wrong user.
 - **Locked to his account** means: the file is tied to his uid, and the app opens it only after a successful sign-in as that uid. No screen, query or repository can reach it otherwise. It is not encrypted (Q8 leaves that for later), and the requirements page says so under the cases that are not stopped.
 - **Unsent events at sign-out** stay in his file. He is told how many before he signs out, and they are sent at his next sign-in (O3).
-- **After sign-out** the app shows a fresh local profile that can be used without signing in (O3, Q10). Signing in as another account opens that account's file or makes a new one. No query can reach across files.
-- **Sign out and erase this phone.** He is told what will be lost: any unsent days, and his journal, which exists nowhere else. After he confirms: stop sync, close the file, delete it with its side files, sign out. It works without a network.
+- **After sign-out** the app shows the phone's signed-out profile, which can be used without signing in (O3, Q10). It is empty, or holds what a "No" left there. Signing in as another account opens that account's file or makes a new one. No query can reach across files.
+- **Sign out and erase this phone.** He is told what will be lost: any unsent or blocked days, and his journal, which exists nowhere else. It works without a network. After he confirms, the erase is done so that it finishes even if the app is killed halfway:
+  1. Write an **erase record** for his uid in a small file outside his database, and flush it to disk. From this moment the app treats his file as gone.
+  2. Stop the sync worker, cancel every listener, close his file, and throw away every provider that held his data.
+  3. Sign out of Firebase Authentication.
+  4. Delete his database file and its side files.
+  5. Remove the erase record.
+
+  **On every start, before anything else**, the app looks for an erase record: before a session is restored, before any account's file is opened, and before sync starts. If there is one, it runs steps 2 to 5 again; each is safe to repeat. So a kill at any point ends the same way: no file, no session, and nothing downloaded into a new file. If the file cannot be deleted, the record stays, his file is never opened, and the app says so and tries again at the next start.
+- **Erasing the phone does not delete his account.** Days already sent stay on his account and come back if he signs in again. The journal and any unsent days do not.
 - **Sign out everywhere.** A Function, called by the signed-in man, writes the current time to `users/{uid}/account/state` as the cutoff and then revokes his refresh tokens. The rules compare the moment each request's session began with the cutoff, so his other phones are refused at once, not after their tokens run out, and a token refreshed between the two steps does not get through. Both Functions make the same comparison themselves and check that the token is not revoked, because rules do not apply to them. The phone he used signs out as above. Each other phone shows the signed-out state when it next reaches the server; its file stays, locked. It needs a network; "Sign out of this phone" does not.
 
 | On the phone | Sign out of this phone | Sign out and erase this phone |
@@ -133,7 +155,7 @@ Proposed:
 | His database file (events, day state, journal) | Kept, closed; opened again only when he signs in to the same account | Deleted |
 | Unsent events | Kept in his file; sent at his next sign-in | Lost, after a warning that names them |
 | Anything of his in memory | Thrown away | Thrown away |
-| What the app shows next | A fresh local profile | A fresh local profile |
+| What the app shows next | The phone's signed-out profile | The phone's signed-out profile |
 
 ## Account deletion
 
@@ -149,13 +171,22 @@ Proposed: a request the man makes, and a worker that needs no client.
 **The worker**, a Function started by the marker and also run by a scheduled sweep. It uses no token of his and needs no second request, so it can finish a deletion that was interrupted at any point:
 
 3. **Revoke** his refresh tokens.
-4. **Delete** every document under `users/{uid}`, subcollections included, **except `account/state`**. Deleting a document does not delete its subcollections, so the routine walks them. The list of paths is the rules table's, and the test fails if the table gains a path the routine does not know. The marker records that the data is gone.
+4. **Delete** every document under `users/{uid}`, subcollections included, **except `account/state`**, and everything under `developer_smoke/{uid}` where that path exists. Deleting a document does not delete its subcollections, so the routine walks them. The list of paths is the rules table's, and the test fails if the table gains a path the routine does not know. The marker records that the data is gone.
 5. **Delete the Firebase Authentication user.** The marker records it.
 6. **Remove the marker** once no token issued before the request can still be valid (proposed: two hours after step 5). Until then the marker holds a uid, the times and the progress, and nothing else of his.
 
 - Each step is safe to repeat. The sweep picks up any marker whose deletion is not finished and carries on from the step it records.
 - The marker stays in place from step 2 to step 6. That is what stops a phone with a still-valid token from writing an event after the data has been deleted.
-- **His file on the phone** is open item O1.
+
+**His file on the phone where he deletes** (decided 2026-11-19): he is warned, then his file on that phone is erased. The warning says that his journal is in that file and exists nowhere else. No export is offered: the app has none, and S4a does not add one.
+
+1. An erase record is written for his uid, marked "waiting for the server", before the request is sent.
+2. The request is sent. When the server answers that it has recorded the deletion, the mark is taken off and the erase runs as in "Sign out and erase this phone".
+3. If the server refuses, or cannot be reached, the record is removed and nothing on the phone changes.
+4. On a start that finds a record still marked "waiting for the server", the app asks the server whether his account is being deleted or is gone. Yes: the erase runs. No: the record is removed and nothing is erased. No answer: his file stays closed and the app asks again later.
+
+**His other phones** are not erased. Their files stay closed, and can no longer be opened because the account is gone. Removing the app removes them. S4a adds no other way (O1).
+
 - Neither Function reads the content of what it deletes.
 
 ## The earlier draft's six review findings
@@ -168,7 +199,7 @@ One contract for the whole of S4 was drafted and reviewed on 2026-11-19, and nev
 | 2 | High. Standings were not tied to the roster they were computed from | S4a has no roster. Carried to the S4b stub as a constraint |
 | 3 | High. A removed member, offline, could be shown cached standings | S4a has no board. Proposed here: the Firestore SDK's cache is turned off, so nothing is shown from it. Carried to the S4b stub as a constraint: membership is confirmed by the server before any board data is shown |
 | 4 | Medium. The read-back after a denied create had to be a server read, and an unanswered read-back had to leave the event pending | Fixed, under "Sending" above and in the tests |
-| 5 | Medium. "Accepted" was written before scoring committed, and the phone had no state for it | Fixed for S4a by removing it: the phone's states are pending, uploaded and refused, and nothing on the server marks an event. Carried to the S4b stub: "counted" is written only after scoring commits, and the phone has a name for every value the server can write |
+| 5 | Medium. "Accepted" was written before scoring committed, and the phone had no state for it | Fixed for S4a by removing it: the phone's states are pending, uploaded, refused and blocked, and nothing on the server marks an event. Carried to the S4b stub: "counted" is written only after scoring commits, and the phone has a name for every value the server can write |
 | 6 | Low. The board row "Say which unreplaced completion event wins" still said "before P08 runs" | Fixed: the row is rewritten in the same pull request as this contract |
 
 ## Options considered

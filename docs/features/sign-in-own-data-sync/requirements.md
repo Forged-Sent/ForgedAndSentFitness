@@ -50,9 +50,10 @@ The split and the answers marked "2026-11-19" below were given in conversation. 
 | Faith participation is private | No leader, admin client or Function reads a journal. Which box a man did on which day is his own | Decided (Q4; the record is ADR-0009 once pull request #80 merges, Phase 0 ADR-0012 before that) |
 | The split into S4a and S4b | As above | Decided 2026-11-19 |
 | Which unreplaced completion event wins (was B1) | Rule R2: longest chain, then event id | Decided 2026-11-19. The rule is written out in [Architecture](../../reviews/2026-11-10-prototype-to-flutter/07-ARCHITECTURE.md), journey J1 |
-| The account and the phone both have days (was B9) | Keep both. Never ask him | Decided 2026-11-19 |
+| The account and the phone both have days (was B9) | Keep both. Never ask him about any of them | Decided 2026-11-19 |
+| A signed-out profile that holds something when he signs in | Ask once, "Are these yours?". "No" leaves that data untouched as a signed-out profile; it is never deleted or merged. An empty profile is not asked about | Decided 2026-11-19 |
 | What stays on the phone at sign-out (was B10) | His file stays on the phone, locked to his account. There is also a separate "Sign out and erase this phone" | Decided 2026-11-19 |
-| Account deletion (was B14) | It is part of S4a | Decided 2026-11-19 |
+| Account deletion (was B14) | It is part of S4a. He is warned, then his file on that phone is erased. An export is offered only if the app already has one; S4a adds none | Decided 2026-11-19 |
 | Per-device sign-out (was B15) | Build "Sign out of this phone" and "Sign out everywhere". Decide per-device sign-out later | Decided 2026-11-19 (the earlier draft's default) |
 | Server language and cloud project (was B19) | TypeScript on the Node version CI already uses, in the emulator only. No cloud project | Decided 2026-11-19 (the earlier draft's default) |
 | Sign-in: Apple, Google, or email and password, behind the 18+ terms checkbox; no app lock; the security baseline | As written in the [sign-in design](../../design/sign-in.md) | **Proposed.** That page says "Approved by Curtis" (2026-11-01). The maintainer has said to treat that as not his approval. Every rule this contract takes from it is a proposal until he approves it |
@@ -64,13 +65,13 @@ Nothing in this section is approved yet. It is what the maintainer is asked to a
 **What a man can see when S4a is done**
 
 1. **Sign in.** He ticks the 18+ terms box and continues with Apple, with Google, or with email and password. He stays signed in on that phone until he signs out. (Proposed: sign-in design.)
-2. **His days come with him.** What he did before signing in is still there after he signs in: the local profile becomes his account's data on that phone. (Decided: Q10.) If his account already has days, both sets are kept and he is never asked to choose. (Decided 2026-11-19.)
+2. **His days come with him, if they are his.** When he signs in on a phone that was used signed out, he is asked once, "Are these yours?". Yes moves those days and that journal into his account's data on the phone. No leaves them where they were, untouched. If nothing was there he is not asked. (Decided: Q10; decided 2026-11-19.) If his account already has days, both sets are kept and he is never asked to choose between them. (Decided 2026-11-19.)
 3. **His completions are kept on his account, once each.** A box he checks offline is sent when the phone is back online. Sending it twice changes nothing. (Decided: the event id is the only key. Proposed: the outbox in [design](design.md).)
 4. **A second phone shows the same days.** He signs in on another device and his days are there. If two devices changed the same box without seeing each other, rule R2 settles it, the same way on both. (Decided 2026-11-19: R2.)
 5. **Sign out.** His data stays on the phone and can be opened again only by signing in to his account. A second account on the same phone sees none of it. (Decided: build plan S4 "Done when"; decided 2026-11-19: the file is kept.)
 6. **Sign out and erase this phone.** A separate, explicit action removes his data from that phone. (Decided 2026-11-19.)
 7. **Sign out everywhere.** Every phone signed in to his account is signed out. (Proposed: sign-in design. Decided 2026-11-19: it is in S4a.)
-8. **Delete his account.** Everything of his on the server is deleted, and the sign-in itself. (Decided 2026-11-19: it is in S4a. Proposed: how.)
+8. **Delete his account.** Everything of his on the server is deleted, and the sign-in itself. He is warned, and then his data on that phone is erased, journal included. (Decided 2026-11-19. Proposed: how.)
 
 **Not in S4a**
 
@@ -139,13 +140,16 @@ The full rules table, by actor and resource, is in [design](design.md#firestore-
 - A faulty or altered client sends an event with a false chain length or a link that loops: rule R2 rejects it on every device.
 - Someone holding his unlocked phone deletes his account or changes his password: both need a recent sign-in.
 - A second account on his phone reaches his file.
+- A man signs in on a phone another man used signed out, and that man's days or journal end up in his account without anyone choosing it.
+- "Sign out and erase this phone" is cut short by the app being killed, and leaves him signed in, or his file half there, or his days downloaded again into a new file.
 - A phone signed out by "Sign out everywhere" goes on writing to his account until its token runs out, or refreshes its token to get past the cutoff: the rules refuse it at once, by the time the session began.
 - An event arrives while his account is being deleted and is left behind afterwards.
 
-Three cases are **not** stopped, and are listed so they are not mistaken for solved:
+Four cases are **not** stopped, and are listed so they are not mistaken for solved:
 
 - **A man can check a box he did not do.** Events are self-reported. Nothing in S4a turns them into points.
 - **A signed-in man can fill his own path with well-formed events.** It costs storage and touches nobody else's data. No rate limit is designed here.
+- **A man who answers "Yes" to days and a journal that are not his takes them.** The question prevents an accident, not a theft. He could already read them: a signed-out profile is open to whoever holds the phone (Q10).
 - **"Locked to his account" is not encryption.** The app will not open his file without his sign-in. Someone who can read the phone's storage directly, or a backup of it, can read the file. Q8 leaves encryption for later.
 
 ## Failure, offline and migration behavior
@@ -159,17 +163,19 @@ Three cases are **not** stopped, and are listed so they are not mistaken for sol
 | Two of his devices change the same box | Rule R2. Both devices show the same result once they hold the same events | Decided 2026-11-19 |
 | An event arrives before the one it replaces | It is provisional under R2: it does not count until its chain is held. It is not rejected for arriving early | Decided 2026-11-19 |
 | He is offline for days, then syncs old dates | The events are stored whatever their date. Whether a late event earns points is S4b's question | Proposed for S4a; parked for scoring |
-| Sign-in fails or is cancelled | He stays where he was, with the local profile untouched. Nothing is adopted until sign-in has succeeded | Proposed |
-| Adoption is interrupted (app killed) | The local profile is marked for one account before anything moves. On the next start the app finishes that adoption before it offers any sign-in, so no other account can take the same profile | Proposed |
-| The account already has days and so does the phone | Both sets of events are kept. R2 settles each box. He is not asked | Decided 2026-11-19 |
+| Sign-in fails or is cancelled | He stays where he was, with the signed-out profile untouched. Nothing is asked or moved until sign-in has succeeded | Proposed |
+| The move after "Yes" is interrupted (app killed) | The signed-out profile is marked for one account before anything moves. On the next start the app finishes that move before it offers any sign-in, so no other account can take the same data | Proposed |
+| The account already has days and so does the phone | Both sets of events are kept. R2 settles each box. He is not asked about any box | Decided 2026-11-19 |
 | He signs out with events not yet sent | He is told how many, and can go back. If he continues, they stay in his file and are sent at his next sign-in | Proposed; see O3 |
 | He chooses "Sign out and erase this phone" with events not yet sent, or with a journal | He is told what will be lost, in words: unsent days, and his journal, which exists nowhere else. He must confirm | Proposed |
+| "Sign out and erase this phone" is interrupted (app killed) | The erase is recorded outside his file before anything is touched. On every start the app finishes a recorded erase before it restores a session, opens a file or syncs. It always ends with no file and no session | Proposed |
 | "Sign out everywhere" | His other phones are refused by the rules at once, and show the signed-out state when they next reach the server. Their files stay, locked | Proposed |
 | Account deletion with no network | Refused with a message. Deletion needs the server | Proposed |
 | Account deletion is interrupted | The server finishes it without the phone: the request is recorded before anything is deleted, and a worker carries on from that record. An event that arrives during deletion is refused, not left behind | Proposed |
-| His file on the phone when his account is deleted | See O1 | **Open** |
+| His file on the phone when his account is deleted | On the phone where he deletes: warned, then erased, by the same safe erase, once the server has recorded the deletion. If the server refuses or cannot be reached, nothing is erased | Decided 2026-11-19; the steps are proposed |
+| His files on his other phones when his account is deleted | Not erased. They stay closed and can no longer be opened. Removing the app removes them | Proposed; see O1 |
 | Accessibility | Every new screen works with a screen reader and with large text. Sign-in buttons meet the providers' own rules for labels | Proposed |
-| Database migration | S4a adds a chain length to each event, an outbox state, and the account link. A migration from the schema on `main` is tested on a real file, as the board row "First schema migration is tested" requires | Proposed |
+| Database migration | S4a adds a chain length to each event, an outbox state, and the record of a move. The migration is tested on a real file against the frozen schema of each earlier version, as the journal's migration is | Proposed |
 | Rollback | Rules and Functions exist only in the emulator in S4a. Rolling back is reverting the pull request. No cloud data exists to migrate back | Decided (ADR-0002: emulator-first) |
 
 ## Open items in S4a
@@ -178,23 +184,35 @@ These are not groups questions, so they stay here. Each has the default this dra
 
 | # | Question | Default taken in this draft | Why it needs a look |
 |---|---|---|---|
-| **O1** | **When he deletes his account, what happens to his file on the phone?** His journal is in that file and nowhere else (Q8). A file locked to an account that no longer exists can never be opened again | On the phone where he deletes: he is told his journal goes too and offered the export first; after the server confirms, the file is erased. On his other phones the file stays closed, and is erased only by an explicit action on that phone | It destroys a journal. The other choice is to turn the file back into a local profile, which keeps everything on the phone after "delete my account" |
+| **O1** | **His files on his other phones when he deletes his account.** Decided for the phone where he deletes: warned, then erased. Not stated: the others. A file locked to an account that no longer exists can never be opened again | They are not erased. They stay closed, and removing the app removes them. S4a adds no button for it | Erasing a journal on a phone he is not holding, on a signal from the server, is not something to do by default. The cost is a file that sits unreachable on that phone |
 | **O2** | **Do workout logs sync in S4a?** Build step S3 is not on `main` as this is written, so this draft cannot say what it stores | No. S4a syncs completion events only. Workout logs sync in a later step, with their own contract | "His own data on his account" could be read to include them |
-| **O3** | **Two parts of the sign-out answer that were not ruled on.** Unsent events at sign-out, and what the app shows after sign-out | Unsent events: warn him, keep them in his file, send them at his next sign-in. After sign-out: a fresh local profile he can use without signing in, as Q10 allows | The maintainer's answer named the kept file and "Sign out and erase", not these two |
-| **O4** | **Which local profile is adopted.** Decided: keep both, never ask. Not stated: when | The local profile in use at the moment of a successful sign-in is adopted by that account, once. Its days go to whichever account signs in first | A man who uses the app signed out, then hands the phone to another man who signs in, gives him those days |
+| **O3** | **Two parts of the sign-out answer that were not ruled on.** Unsent events at sign-out, and what the app shows after sign-out | Unsent events: warn him, keep them in his file, send them at his next sign-in. After sign-out: the phone's signed-out profile, which he can use without signing in, as Q10 allows | The maintainer's answer named the kept file and "Sign out and erase", not these two |
+| **O4** | **When he is asked again.** Decided: asked once, and No leaves the data untouched. Not stated: what "once" means when he signs in again later | After a No, that account is asked again only when the signed-out profile holds something made after his answer. Closing the question without answering is No | Asking at every sign-in would nag him about another man's data; never asking again would strand days he added himself while signed out |
 | **O5** | **The terms text.** Which text and version the checkbox shows is parked with S4b (was B16). S4a still has to show something | S4a builds the checkbox and records a version and the server's time. The text is a marked placeholder. S4a runs in the emulator only, so no real man agrees to a placeholder | S4a cannot go to real users until the text is decided |
 
-## Known problems in this draft
+## Review history
 
-An advisory review of this draft on 2026-11-19 (Codex, second pass) left five findings. They are **not fixed**: one fix round was allowed, and it was used on the first pass. The contract should not be approved until each is fixed or set aside by the maintainer.
+Advisory reviews by Codex, all on 2026-11-19. None is an approval.
 
-| # | Severity | Problem | Fix the review proposes |
+| Pass | Verdict | What happened |
+|---|---|---|
+| First | Changes required: 5 High, 3 Medium | All eight addressed in the first fix round |
+| Second | Changes required: 2 High, 3 Medium (F1 to F5) | The maintainer answered F1 and the account-deletion question and allowed one more fix round. All five addressed: F1 by the question "Are these yours?"; F2 by an erase that is recorded first and finished on start; F3 by leaving `receivedAt` out of the comparison; F4 by deleting the emulator's smoke documents too; F5 by requiring lowercase UUIDs and comparing ids exactly |
+| Third | Changes required: 4 High, 3 Medium (G1 to G7 below) | **Not fixed.** The maintainer allowed one review after the second fix round and said to stop if a High remained |
+
+### Known problems in this draft
+
+From the third review. The contract should not be approved until each is fixed or set aside by the maintainer. "Pick" is Claude's proposal, not a decision.
+
+| # | Severity | Problem | Pick |
 |---|---|---|---|
-| F1 | High | **A shared phone can hand one man's signed-out journal and days to another.** Adoption gives the signed-out profile to whichever account signs in next (O4). If one man used the phone signed out and another signs in, the second inherits the first's journal on the phone, and the first's days are sent to the second's account | Keep the signed-out profile separate unless the man choosing to sign in says it is his. This is a product choice, and it sits beside the answer "never ask" |
-| F2 | High | **"Sign out and erase" can undo itself.** The file is deleted before the Firebase session is cleared. If the app is killed between the two, the next start is still signed in, makes a new file and downloads the days again; the journal and unsent events are already gone | Record "erase in progress" outside the file first; on start, finish the erase and clear the session before opening anything |
-| F3 | Medium | **A replayed event can be mistaken for a clash.** The read-back compares "the fields the phone sent", and `receivedAt` is one of them but is set by the server | Compare only the fields the phone wrote; leave `receivedAt` out |
-| F4 | Medium | **Account deletion leaves the emulator's smoke documents.** The worker walks `users/{uid}` only, and the same man can write under `developer_smoke/{uid}` in the emulator | Delete that subtree too, or take the path out of the S4a ruleset |
-| F5 | Medium | **Rule R2's tie-break is undefined for two ids that differ only by case.** The ids are compared as lowercase text, and nothing requires an id to be lowercase | Require lowercase ids in the event rules, or compare the exact ids last. This is in the architecture page's wording of R2 as well |
+| G1 | High | **A second move from the signed-out profile can lose data.** The record of a move is kept per profile, and the profile is reused. If the same account says Yes a second time and the app stops before the copy, recovery can take the first move's record for the second and empty rows that were never copied | Give each move its own id, and empty the source only when the account's file holds a record with that id |
+| G2 | High | **After a No, a later Yes can move the declined data too.** The declined data stays in the signed-out profile. If the man who said No signs out, adds a day of his own there and then says Yes, the whole profile moves, the other man's journal with it | Remember, per account, where the profile stood at his No. A later question and a later Yes cover only what was made after that point; the rest stays |
+| G3 | High | **A deletion request whose answer is lost strands his file.** The phone removes its erase record when the server cannot be reached, but the server may already have recorded the deletion | Keep the record unless the server gives a definite refusal |
+| G4 | High | **The phone cannot find out what happened to a deletion.** Once deletion is marked, the rules refuse him his own state document; later the account and the marker are gone. A missing marker can mean "never requested" or "finished" (reported twice, from both halves of the review) | The phone makes a random request id and sends it with the request. The server keeps a small receipt under that id, with no personal data, that the phone can read without a sign-in, for 30 days |
+| G5 | Medium | **"Erase" cannot reach a phone backup.** The phone's own backup can hold the database (the journal contract says so), so an erased journal can come back with a restore | Say in the warning and here that the erase covers this installation, not backups |
+| G6 | Medium | **A test on the architecture page contradicts R2.** "Complete, move the clock back a day, undo" cannot clear the completion, because R2 works per local date. The sentence was on `main` before this change | Move the clock back within the same day for that test, and add a second case across dates |
+| G7 | Medium | **R2's Confirmed and Rejected rows overlap** for a first event with a malformed id | State that the Rejected checks come first |
 
 ## Evidence and traceability
 
@@ -204,6 +222,7 @@ An advisory review of this draft on 2026-11-19 (Codex, second pass) left five fi
 - **Records:** ADR-0002 (emulator-first Firebase) and ADR-0005 (Riverpod, go_router, Drift) on `main`. ADR-0009 (faith participation and privacy) is in pull request #80 and not on `main` as this is written.
 - **Review:** [Architecture](../../reviews/2026-11-10-prototype-to-flutter/07-ARCHITECTURE.md) 5.6, 5.7 and journeys J1, J4 and J5; [Findings](../../reviews/2026-11-10-prototype-to-flutter/04-FINDINGS.md) L4 (one deletion routine with a test listing every owned path).
 - **Prompts:** [P08](../../reviews/2026-11-10-prototype-to-flutter/prompts/P08-S4-contract-identity-groups-board.md) and [P09](../../reviews/2026-11-10-prototype-to-flutter/prompts/P09-S4-implement-identity-groups-board.md) were written for one S4. They have not been rewritten for the split. P09 must not be run as written: it would build groups and a board.
+- **ADR-0008** (membership documents authorize) stays Proposed until S4b starts (decided 2026-11-19). S4a has no membership documents and does not depend on it.
 - **Earlier draft:** one contract for the whole of S4 was drafted on 2026-11-19 and never published. Its review left six findings. How each is dealt with is in [design](design.md#the-earlier-drafts-six-review-findings).
 - **Prototype:** not used as a source of rules.
 - **Today's rules:** `firebase/firestore.rules` denies everything except a developer smoke path. That path is for the emulator and must not reach a cloud project; guarding it is listed in [tasks](tasks.md).

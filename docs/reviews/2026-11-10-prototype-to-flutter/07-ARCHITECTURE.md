@@ -210,7 +210,7 @@ The rule:
 | State | When | What the event does |
 |---|---|---|
 | **Confirmed** | It replaces nothing, its chain length is 1 and it asks for done. Or: the event it replaces is held and confirmed, its chain length is exactly one more, and it asks for the opposite | Counts for day state and for scoring, and supersedes the event it replaces |
-| **Rejected** | Any one of these. It names itself. It names a held event of another owner, date or item. It is on a loop of links. It replaces nothing, and its chain length is not 1 or it asks for not done. The event it replaces is held, and its own chain length is not exactly one more or it asks for the same thing. The event it replaces is held and rejected | Kept for the record. Counts for nothing and supersedes nothing |
+| **Rejected** | Any one of these. Its id is not a lowercase UUID. It names itself. It names a held event of another owner, date or item. It is on a loop of links. It replaces nothing, and its chain length is not 1 or it asks for not done. The event it replaces is held, and its own chain length is not exactly one more or it asks for the same thing. The event it replaces is held and rejected | Kept for the record. Counts for nothing and supersedes nothing |
 | **Provisional** | Every other case: the event it replaces is not held yet, or is held and is itself provisional | Counts for nothing and supersedes nothing, for now |
 
 - **A provisional event is waiting, not wrong.** An event is never rejected because an earlier event in its chain has not arrived. Rejection comes only from a check that fails between two held events, or from a rejected event further up the chain.
@@ -219,7 +219,7 @@ The rule:
 - **A device's own taps are confirmed on that device at once.** A tap replaces the event that sets the day state there, and only a confirmed event sets it.
 - An honest client cannot make a loop or a wrong chain length, because a tap can only name an event that already existed. The rejected state is there for a faulty or altered client.
 
-**The winner.** An event is **superseded** when a confirmed event names it as replaced. The **unreplaced** events are the confirmed events that are not superseded. The winner is the unreplaced event with the greatest chain length. If several share it, the winner is the one whose event id sorts last, comparing the ids as lowercase text. With no confirmed event the item is not done.
+**The winner.** An event is **superseded** when a confirmed event names it as replaced. The **unreplaced** events are the confirmed events that are not superseded. The winner is the unreplaced event with the greatest chain length. If several share it, the winner is the one whose event id sorts last, comparing the ids as text, exactly as stored. Event ids are lowercase UUIDs, so two ids never differ only by case. With no confirmed event the item is not done.
 
 - Among confirmed events, chain length fixes the target: odd is done, even is not done. So a tie on chain length is always between events that ask for the same thing. The event id decides which event is recorded as the winner; it never decides what the man sees.
 - A new tap always wins on the device that made it, and on every device that has seen no more than that device had: its chain length is one more than that of any event that counted there.
@@ -254,7 +254,7 @@ Tests the rule needs, beyond those above:
 - An event with a forged chain length is rejected, and so is every event that replaces it. Neither day state nor credit changes.
 - An event that arrives first and is shown to be wrong when the event it replaces arrives is rejected then.
 - An event that names itself is rejected. Two events that name each other are both rejected, whichever arrives first, and the day state is the same in both orders. A link to an event of another owner, date or item is rejected.
-- A tie on chain length is broken by event id, and both tied events ask for the same thing. Two events that claim the same chain length with different targets cannot both be confirmed.
+- A tie on chain length is broken by event id, and both tied events ask for the same thing. An event whose id is not a lowercase UUID is rejected, so two ids that differ only by case can never tie. Two events that claim the same chain length with different targets cannot both be confirmed.
 - A new tap beats everything that counted on the device.
 - The migration is tested with writes to two items interleaved, and gives each row the chain length its links imply, whatever its counter.
 

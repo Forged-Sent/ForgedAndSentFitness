@@ -4,9 +4,9 @@ Tasks for [FNS-005](requirements.md), to be carried out once the maintainer appr
 
 ## Before any code
 
-- [ ] The five known problems on the [requirements page](requirements.md#known-problems-in-this-draft) are fixed or set aside by the maintainer, and the contract is reviewed again.
+- [ ] The known problems G1 to G7 on the [requirements page](requirements.md#known-problems-in-this-draft) are fixed or set aside by the maintainer, and the contract is reviewed again.
 - [ ] The maintainer approves this contract, changing any default under O1 to O5 he does not want. `status` and `approved_by` on the requirements page are changed by him or on his recorded decision, not by an agent.
-- [ ] The maintainer records on the Decisions page the answers this contract marks "Decided 2026-11-19": the split, rule R2, keep both, the kept file with "Sign out and erase", account deletion in S4a.
+- [ ] The maintainer records on the Decisions page the answers this contract marks "Decided 2026-11-19": the split, rule R2, keep both, the question "Are these yours?", the kept file with "Sign out and erase", account deletion in S4a with the erase on that phone.
 - [ ] The maintainer says whether the [sign-in design](../../design/sign-in.md) is approved by him. Until then tasks 2 and 7 are not started.
 - [ ] A prompt for building S4a exists. [P09](../../reviews/2026-11-10-prototype-to-flutter/prompts/P09-S4-implement-identity-groups-board.md) was written for the whole of S4 and must not be run as written.
 - [ ] `firebase-security-review` is run on the rules table and the two Functions' checks before they are implemented, and again on the implementation.
@@ -18,29 +18,32 @@ Each step is its own small pull request, with its tests. Rules and Functions run
 1. **Rules and their tests.** Write `firebase/firestore.rules` from the [rules table](design.md#firestore-rules-as-a-table). Every row gets a positive and a negative test under `tooling/firebase/tests/`. Keep the developer smoke path out of anything but the emulator.
 2. **Session.** `SessionRepository` and its Firebase Auth adapter; the sign-in, create-account and email sign-in screens; the agreement record with its placeholder text.
 3. **Rule R2 on the phone.** The chain length column, its migration tested on a real file, the three states, and the day state worked out from them. This step needs no server and comes before sync.
-4. **Adoption.** The link from a local profile's file to the account, and the merge when the account already has a file on the phone.
+4. **The signed-out profile and adoption.** The question "Are these yours?", the move after Yes with its record, and what No leaves in place.
 5. **Outbox and upload.** The send state on the event row, the sync worker, the server read-back on a denied create.
 6. **Download.** A second device fetches its owner's events and works out day state.
-7. **Sign-out.** "Sign out of this phone", "Sign out and erase this phone", account switching, and the Function for "Sign out everywhere". This adds the `functions/` folder: TypeScript on the Node version CI already uses.
-8. **Account deletion.** The Function, the marker, the sweep, and the test that lists every path.
+7. **Sign-out.** "Sign out of this phone", "Sign out and erase this phone" with its erase record, account switching, and the Function for "Sign out everywhere". This adds the `functions/` folder: TypeScript on the Node version CI already uses.
+8. **Account deletion.** The request, the worker, the marker, the sweep, the erase on the phone, and the test that lists every path.
 
 ## Positive tests
 
 - Sign in with each provider the emulator supports, using mock ID tokens for Apple and Google; the session survives a restart.
 - The agreement is recorded once per version with the server's time; a new version prompts again.
-- A man with days in a local profile signs in: every event is in the outbox with its original id, his days read the same before and after, and the journal has not left the phone.
-- A man signs in to an account that already has days, on a phone whose local profile has days: both sets are held, each box follows R2, and he is asked nothing.
-- A man signs out, uses the app signed out, and signs in again: the days from the signed-out profile are in his account's file, and the signed-out profile's file is gone.
+- A man with days in the signed-out profile signs in and answers Yes: every event is in the outbox with its original id, his days read the same before and after, the journal is in his account's file and has not left the phone, and the signed-out profile is empty.
+- A man signs in on a phone whose signed-out profile is empty: he is asked nothing.
+- A man signs in to an account that already has days, answers Yes for the phone's days: both sets are held, each box follows R2, and he is asked about no box.
+- A man signs out, uses the app signed out, signs in again and answers Yes: the days from the signed-out profile are in his account's file once, and the signed-out profile is empty.
+- After a No, signing out and in again with nothing new in the signed-out profile asks nothing. With something new in it, he is asked.
 - A box checked in airplane mode is created on the server after reconnect, once.
 - A create whose acknowledgement is lost, then replayed and denied: the server read-back finds the same event and the phone marks it uploaded.
 - A second device signs in and shows the same boxes as the first. Two devices given the same events in different orders show the same boxes.
 - An event downloaded before the one it replaces is provisional and does not change the box; when the missing event arrives, the box follows.
 - An event that becomes visible on the server with a time older than the overlap is still stored: by its id when another event waits for it, and by the full pass when nothing does.
-- Adoption killed after the rows are copied and before the local profile's file is removed, then a sign-in as a different account: the profile is not adopted again, and the first account's file holds its rows once.
 - After "Sign out of this phone" and signing in again as the same man, his days and his journal are there, and unsent events are sent.
-- After "Sign out and erase this phone" his file and its side files are gone from the phone.
+- After "Sign out and erase this phone" his file and its side files are gone from the phone, he is signed out, and the erase record is gone. Signing in again brings back the days that had been sent, and not the journal.
+- A lost acknowledgement replayed at a later server time: the read-back still finds the same event, because `receivedAt` is not compared.
 - After "Sign out everywhere" a second phone's next write is refused at once, although its token has not run out.
-- After account deletion, a walk of every path in the rules table finds no document of his, and after the sweep the marker is gone too. Running the deletion twice gives the same result.
+- After account deletion, a walk of every path in the rules table finds no document of his, including a nested document seeded under the emulator's smoke path, and after the sweep the marker is gone too. Running the deletion twice gives the same result.
+- After account deletion on a phone, his file on that phone is gone. If the server refuses the request, his file is untouched.
 
 ## Negative tests
 
@@ -58,7 +61,7 @@ Rules, in the emulator. Each must be refused.
 
 **Events**
 
-- Creates an event whose document id differs from its `id`.
+- Creates an event whose document id differs from its `id`, or whose id is not a lowercase UUID (uppercase letters, no hyphens, another length).
 - Creates an event with a field that is not allowed (for example a text note), with a wrong type, with a value over its length bound, or with a `receivedAt` that is not the server's time.
 - Updates an event. Deletes an event.
 - Changes an agreement record, or creates one with a time that is not the server's.
@@ -90,6 +93,18 @@ Rules, in the emulator. Each must be refused.
 **Rule R2 on the phone**
 
 - The tests listed under the rule on the [architecture page](../../reviews/2026-11-10-prototype-to-flutter/07-ARCHITECTURE.md): a forged chain length, an event that names itself, two events that name each other, a link to another date's or item's event, the D, B, A order.
+
+**A shared phone**
+
+- One man uses the phone signed out and writes days and a journal entry. Another signs in and answers No: his account's file has none of it, none of it is sent, and nothing of it can be reached while he is signed in. After he signs out, all of it is there, unchanged.
+- The same, and the question is closed without an answer: as No.
+- The app is killed after the rows are copied and before the signed-out profile is emptied, then a different account signs in: the data is not moved again, and the first account's file holds its rows once.
+
+**Sign out and erase, cut short**
+
+- The app is killed after the erase record is written; after the sign-out; and after the file is deleted and before the record is removed. In each case the next start ends with no file of his, no session, no record, and nothing downloaded into a new file.
+- The file cannot be deleted: the record stays, his file is not opened, and he is told.
+- Account deletion: the app is killed after the request is sent. On the next start the server is asked. Deletion recorded: the file is erased. Not recorded: the record is removed and the file is untouched. No answer: the file stays closed.
 
 **The phone**
 

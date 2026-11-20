@@ -20,7 +20,7 @@ update-by: edit WORK.md then run tooling/knowledge/work_board.py --write
 ## Waiting
 
 - [ ] **S4a Sign-in and his own data on his account**
-	**Waiting on:** Maintainer: read the [S4a contract](../features/sign-in-own-data-sync/requirements.md) and approve it or change it. It is proposed and nothing is built. Its sign-in parts stay proposed until you say the [sign-in design](../design/sign-in.md) is approved by you. It takes five defaults, O1 to O5; O1 (what happens to his journal on the phone when he deletes his account) is the one to look at. It also lists five known problems from its review, F1 to F5, that are not fixed; F1 (a shared phone can hand one man's signed-out journal to the next man who signs in) needs your answer. Then record on the Decisions page the answers you gave on 2026-11-19, and ask for a build prompt: P09 was written for the whole of S4
+	**Waiting on:** Maintainer: read the [S4a contract](../features/sign-in-own-data-sync/requirements.md) and approve it or change it. It is proposed and nothing is built. Its sign-in parts stay proposed until you say the [sign-in design](../design/sign-in.md) is approved by you. It takes five defaults, O1 to O5. Your answers of 2026-11-19 are in it: the question "Are these yours?" at sign-in, and the erase on the phone when he deletes his account. Its third review still asks for changes: four High findings are listed on the requirements page as G1 to G4, each with a proposed fix, and are not fixed. Then record on the Decisions page the answers you gave on 2026-11-19, and ask for a build prompt: P09 was written for the whole of S4
 	**Branch or PR:** branch `claude/s4a-contract`
 	**State in WORK:** Decision needed
 	[Edit this row in WORK](WORK.md)
