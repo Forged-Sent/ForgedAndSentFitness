@@ -87,7 +87,7 @@ update-by: edit WORK.md then run tooling/knowledge/work_board.py --write
 	**Branch or PR:** branch `claude/s1b-v254-readings`
 	[Edit this row in WORK](WORK.md)
 - [x] **S3 Workout logging**
-	**Note:** The maintainer: confirm the prototype rules listed in the [contract](../features/workout-logging/feature.md), and look at the golden images, which are drawn and **not approved**. The maintainer's six decisions of 2026-11-13 are recorded in the contract and built. The database is at schema version 3, after the journal's version 2, with tested migrations from versions 1 and 2; the contract is FNS-004. Start, two sets, kill, relaunch, finish passed on 2026-11-13 on one Android emulator on the maintainer's workstation, made from the Android 36 system image (Android 16); not on a phone, and not in CI. iOS is built only by CI. No plan setup or editor: every member gets the Forged program, a full gym, rest on Sunday and lifting on Monday, Wednesday and Friday
+	**Note:** The maintainer: confirm the prototype rules listed in the [contract](../features/workout-logging/feature.md), and look at the golden images, which are drawn and **not approved**. The maintainer's six decisions of 2026-11-13 are recorded in the contract and built. The database is at schema version 3, after the journal's version 2, with tested migrations from versions 1 and 2; the contract is FNS-004. Start, two sets, kill, relaunch, finish passed on 2026-11-13 on one Android emulator on the maintainer's workstation, made from the Android 36 system image (Android 16). On 2026-11-20, on that emulator, this build was installed over a build of `main` that held two journal entries and a completed day: the file went from version 2 to version 3 with all of it intact, a workout was started, and everything was still there after a kill and relaunch (the upgrade test under `mobile/integration_test/`). Not on a phone, and not in CI. iOS is built only by CI. No plan setup or editor: every member gets the Forged program, a full gym, rest on Sunday and lifting on Monday, Wednesday and Friday
 	**Branch or PR:** branch `claude/s3-workout-logging`
 	[Edit this row in WORK](WORK.md)
 - [x] **Setup scripts and guides match the six-tab app**
@@ -158,12 +158,6 @@ update-by: edit WORK.md then run tooling/knowledge/work_board.py --write
 	[Edit this row in WORK](WORK.md)
 - [ ] **Approve S3's golden images**
 	**Prompt:** No prompt yet. Owner: the maintainer, beside the sheets in `docs/design/reference/s3-train-workout/`
-	[Edit this row in WORK](WORK.md)
-- [ ] **The prototype's workout data is generated from `seed/`**
-	**Prompt:** No prompt yet. Found in S3, which may not add tooling. Needs a generator under `dev/` and a check that the two agree
-	[Edit this row in WORK](WORK.md)
-- [ ] **Challenge point values in `seed/`**
-	**Prompt:** No prompt yet. Found in S3's L11 comparison and left alone: it is scoring content in a review-protected file. Owner: the maintainer
 	[Edit this row in WORK](WORK.md)
 - [ ] **A workout that is never finished**
 	**Prompt:** No prompt yet. Found in S3. Needs a decision: how long a session may stay open, and what happens to it then

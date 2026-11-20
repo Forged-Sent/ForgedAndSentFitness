@@ -97,7 +97,28 @@ The first starts today's workout through the prayer, types two sets, checks that
 - **The clock.** A workout can be started only on a day that has one, and logging weights needs a lifting day. So both halves start the app with its clock moved forward by whole days to the next Monday, Wednesday or Friday; on those days it is not moved at all. The clock still runs. Run both halves on the same real day, and not across midnight.
 - **A release build cannot be given a clock.** `startApp` passes the clock through `clockForStart`, which throws in release mode; `test/app/start_clock_test.dart` tests that, and that nothing else in the app can set the clock. These two files run in debug mode.
 
-No CI lane has an emulator, so this test too runs only where someone runs it. It last passed on 2026-11-13 on `FS_S1_Restart_API_36` (Android 16, API 36), a Friday, so the clock was not moved.
+No CI lane has an emulator, so this test too runs only where someone runs it. It passed on 2026-11-13 and again on 2026-11-20 on `FS_S1_Restart_API_36` (Android 16, API 36), both Fridays, so the clock was not moved.
+
+## The upgrade test
+
+Three files prove that this build can be installed over the one before it: a database at schema version 2 (the day's boxes and the journal) becomes version 3 (the workout tables) with nothing lost. Part 1 runs from a checkout of the older build, so it is copied there first; it uses only what both builds have.
+
+```sh
+# in a checkout of the older build (main before S3), after copying
+# integration_test/upgrade_support.dart and upgrade_1_on_older_build_test.dart into it
+flutter test integration_test/upgrade_1_on_older_build_test.dart -d <device id> --no-uninstall
+# in this checkout
+flutter test integration_test/upgrade_2_after_install_test.dart -d <device id> --no-uninstall
+flutter test integration_test/upgrade_3_after_relaunch_test.dart -d <device id>
+```
+
+Part 1 writes two journal entries, one under the reading and one from the journal, and completes the day's devotional. Part 2 is this build installed over that one: it expects the box checked and both entries, opens Train, and on a day with a workout starts it through the prayer and types two sets. Part 3 is a new process: the same, and the workout still in progress with its two sets.
+
+- **Start with the app not installed,** and run all three on the same calendar day.
+- **Run it only on an emulator or simulator, or on a device whose app data may be lost.** The last command ends by uninstalling the app.
+- It uses the phone's own clock, because the completed day is today's. On a rest day parts 2 and 3 open Train and start nothing.
+
+It passed on 2026-11-20 on `FS_S1_Restart_API_36` (Android 16, API 36), a Friday. The database file was copied off the emulator before and after: `user_version` 2 with two journal entries and one completed day, then 3 with the same rows and the workout tables and indexes. It has not run on a phone or on iOS, and no CI lane runs it.
 
 ## Where each of P07's acceptance items is tested
 

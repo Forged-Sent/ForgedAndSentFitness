@@ -163,7 +163,7 @@ The app bundles the Forged program and the movement names as copies of `seed/` f
 | Program descriptions | Two lines differ. `seed/` was last changed on 2026-10-25, `index.html` on 2026-10-29 | The newer wording copied into `seed/workout-programs.json` by script |
 | Meta, alternates, standards | Identical | No change |
 
-Not done in this step, and on the work board: the challenge point values, which differ and are scoring content in a review-protected file that S3 does not read; and generating the prototype's embedded copy from `seed/`, which needs a tool and P07 allows none.
+Not done in this step: the challenge point values, which differed and are scoring content in a review-protected file that S3 does not read; and generating the prototype's embedded copy from `seed/`, which needed a tool and P07 allows none. Both were done afterwards, in [#76](https://github.com/Forged-Sent/ForgedAndSentFitness/pull/76) (decision L11): the copy inside `index.html` is now generated from `seed/` and checked in CI.
 
 ## Boundaries and evidence
 
@@ -176,7 +176,7 @@ Not done in this step, and on the work board: the challenge point values, which 
 
 - iOS: built only by CI's simulator job; never run.
 - A physical phone. The emulator test of start, two sets, kill, relaunch, finish passed on 2026-11-13 on one emulator only: `FS_S1_Restart_API_36`, from the installed `system-images;android-36;google_apis_playstore;x86_64` image (Android 16, API 36), on the maintainer's Windows workstation. No CI lane has an emulator, and no other Android version was tried.
-- The migration on a member's phone. It was seen once on that emulator, which still held an S1 build and its version 1 database with three completion events: the S3 build was installed over it, the file read version 2 afterwards, and the three events and both day states were still there. That is one observation, not a test that is repeated. It was made on 2026-11-13, when the workout tables were schema version 2; since the journal (S2) merged first they are version 3, and that upgrade has not been seen on a device.
+- The migration on a member's phone. It was seen once on that emulator, which still held an S1 build and its version 1 database with three completion events: the S3 build was installed over it, the file read version 2 afterwards, and the three events and both day states were still there. That is one observation, not a test that is repeated. It was made on 2026-11-13, when the workout tables were schema version 2; since the journal (S2) merged first they are version 3. That upgrade was run on the same emulator on 2026-11-20 with a test in three parts (`mobile/integration_test/upgrade_*`): a build of `main` wrote two journal entries and completed a day, this build was installed over it without uninstalling, the file read version 3 afterwards with both entries and the completed day, a workout was started, and all of it was still there after a kill and relaunch. Not on a phone.
 - The golden images are **not approved**. They are compared on Windows only.
 - A release build was not made, so the clock guard is proven by its unit test, not by running a release build.
 - The keyboard on a real device: that the box being typed in stays in view above it.
