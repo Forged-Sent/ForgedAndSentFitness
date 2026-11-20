@@ -67,7 +67,7 @@ flutter test integration_test/restart_2_verify_test.dart -d <device id>
 
 The first reads to the end, says Amen and leaves the app installed. The second starts a new process, expects the box to be checked, and uninstalls the app. Run both on the same day: a box checked before midnight is, correctly, not checked the next day. No CI lane has an emulator, so this test runs only where someone runs it. It last passed on 2026-11-12 on an emulator made for this test, `FS_S1_Restart_API_36`, from the installed `system-images;android-36;google_apis_playstore;x86_64` image (Android 16, API 36), and passed there again on 2026-11-19.
 
-It also passes on an iPhone simulator, run the same way with `-d <simulator id>`: both files passed on 2026-11-19 on one iPhone 17 simulator (iOS 27.2). iOS lets a drag pass the end of the reading and spring back, which can leave Amen unlocked below the screen, so `readToTheEnd` in `restart_support.dart` brings Amen onto the screen before the tap. The Android emulator run has not been repeated with that change.
+It also passes on an iPhone simulator, run the same way with `-d <simulator id>`: both files passed on 2026-11-19 on one iPhone 17 simulator (iOS 27.2). iOS lets a drag pass the end of the reading and spring back, which can leave Amen unlocked below the screen, so `readToTheEnd` in `restart_support.dart` brings Amen onto the screen before the tap. The Android emulator run passed again with that change on 2026-11-20, on the S3 build.
 
 The private journal has the same kind of test: the first file writes an entry under the day's reading, the second starts a new process and finds it in the journal with every word.
 

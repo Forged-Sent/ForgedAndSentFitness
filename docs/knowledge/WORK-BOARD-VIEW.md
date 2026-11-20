@@ -83,7 +83,7 @@ update-by: edit WORK.md then run tooling/knowledge/work_board.py --write
 	**Branch or PR:** branch `claude/s0-design-foundation`
 	[Edit this row in WORK](WORK.md)
 - [x] **S1 Today and Devotional**
-	**Note:** None. Two boxes work: the devotional box, and since S3 the Workout box, which opens Train and checks itself when a workout is finished there. The other five are shown as not active yet. Complete, kill, relaunch passed on 2026-11-12 on one Android emulator on the maintainer's workstation, made from the Android 36 system image (Android 16); not on a phone, and not in CI. On iOS, complete, kill, relaunch passed on 2026-11-19 on one iPhone 17 simulator (iOS 27.2) on the maintainer's Mac; not on a physical iPhone, and not in CI. It passed after the helper that reads to the end was changed to bring Amen onto the screen before the tap; the Android run has not been repeated since that change
+	**Note:** None. Two boxes work: the devotional box, and since S3 the Workout box, which opens Train and checks itself when a workout is finished there. The other five are shown as not active yet. Complete, kill, relaunch passed on 2026-11-12 on one Android emulator on the maintainer's workstation, made from the Android 36 system image (Android 16); not on a phone, and not in CI. On iOS, complete, kill, relaunch passed on 2026-11-19 on one iPhone 17 simulator (iOS 27.2) on the maintainer's Mac; not on a physical iPhone, and not in CI. It passed after the helper that reads to the end was changed to bring Amen onto the screen before the tap; the Android run passed again with that change on 2026-11-20, on the S3 build
 	**Branch or PR:** branch `claude/s1-today-devotional`
 	[Edit this row in WORK](WORK.md)
 - [x] **S1b v254 readings**
