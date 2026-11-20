@@ -94,6 +94,14 @@ update-by: edit WORK.md then run tooling/knowledge/work_board.py --write
 	**Note:** None. The page waits for the store's answer, so a failed write is no longer an unhandled error. Tested with a settings store that refuses to save; not run on a phone or an emulator. No table or schema change
 	**Branch or PR:** branch `claude/settings-save-failure`
 	[Edit this row in WORK](WORK.md)
+- [x] **Preview script runs on a Windows workstation**
+	**Note:** None. The script reads `index.html` and writes `dev/preview.html` as UTF-8, whatever the system's own encoding is. A test in `tooling/preview`, which CI runs on Linux, macOS and Windows, keeps it so
+	**Branch or PR:** branch `claude/windows-workstation-checks`
+	[Edit this row in WORK](WORK.md)
+- [x] **Onboarding tests pass on a Windows workstation**
+	**Note:** None. On Windows the tests run the Mac scripts with the Bash that Git for Windows ships, not the WSL launcher a bare `bash` starts. Run from WSL in a Windows checkout, the three launcher tests still fail, because `.command` files are checked out there with Windows line ends; that was so before and is not changed here
+	**Branch or PR:** branch `claude/windows-workstation-checks`
+	[Edit this row in WORK](WORK.md)
 - [x] **One source for program and challenge content**
 	**Note:** None. The maintainer's choices of 2026-11-19: the two 100-point formula lines are dropped from `seed/weekly-challenges.json`; the generated copy still leaves out RPE/RIR, which `seed/workouts.json` keeps; the workout prayer, camp names and banners, challenge modes and routine patterns moved into `seed/`; the PR points, step goals and step bonus stay in the prototype's code until the official rule set is decided. The branch `workout-library-seed` is set aside: it rewrites the same workout files from a base of 2026-10-24, so reviving it means redoing its edits on top of this, not merging it
 	**Branch or PR:** branch `claude/l11-seed-single-source`
@@ -155,12 +163,6 @@ update-by: edit WORK.md then run tooling/knowledge/work_board.py --write
 	[Edit this row in WORK](WORK.md)
 - [ ] **Android release signing**
 	**Prompt:** No prompt yet. Do it before anything is distributed
-	[Edit this row in WORK](WORK.md)
-- [ ] **Preview script runs on a Windows workstation**
-	**Prompt:** No prompt yet. Found in S1b while running the prototype checks. Not blocking: GitHub runs it on Linux, where UTF-8 is the default
-	[Edit this row in WORK](WORK.md)
-- [ ] **Onboarding tests pass on a Windows workstation**
-	**Prompt:** No prompt yet. Not blocking: they pass in WSL and on GitHub
 	[Edit this row in WORK](WORK.md)
 - [ ] **Host wording left over from the generated hosts**
 	**Prompt:** No prompt yet. Not blocking; needs a Mac to check
