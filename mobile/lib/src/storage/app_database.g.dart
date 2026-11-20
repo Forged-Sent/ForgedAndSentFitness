@@ -1224,6 +1224,1035 @@ class AppSettingsCompanion extends UpdateCompanion<AppSettingRow> {
   }
 }
 
+class $JournalEntriesTable extends JournalEntries
+    with TableInfo<$JournalEntriesTable, JournalEntryRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $JournalEntriesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _ownerIdMeta = const VerificationMeta(
+    'ownerId',
+  );
+  @override
+  late final GeneratedColumn<String> ownerId = GeneratedColumn<String>(
+    'owner_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _dayMeta = const VerificationMeta('day');
+  @override
+  late final GeneratedColumn<String> day = GeneratedColumn<String>(
+    'day',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _createdAtUtcMsMeta = const VerificationMeta(
+    'createdAtUtcMs',
+  );
+  @override
+  late final GeneratedColumn<int> createdAtUtcMs = GeneratedColumn<int>(
+    'created_at_utc_ms',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _utcOffsetMinutesMeta = const VerificationMeta(
+    'utcOffsetMinutes',
+  );
+  @override
+  late final GeneratedColumn<int> utcOffsetMinutes = GeneratedColumn<int>(
+    'utc_offset_minutes',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _bodyMeta = const VerificationMeta('body');
+  @override
+  late final GeneratedColumn<String> body = GeneratedColumn<String>(
+    'body',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _bodyFormatMeta = const VerificationMeta(
+    'bodyFormat',
+  );
+  @override
+  late final GeneratedColumn<String> bodyFormat = GeneratedColumn<String>(
+    'body_format',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _sourceMeta = const VerificationMeta('source');
+  @override
+  late final GeneratedColumn<String> source = GeneratedColumn<String>(
+    'source',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _promptMeta = const VerificationMeta('prompt');
+  @override
+  late final GeneratedColumn<String> prompt = GeneratedColumn<String>(
+    'prompt',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _editedAtUtcMsMeta = const VerificationMeta(
+    'editedAtUtcMs',
+  );
+  @override
+  late final GeneratedColumn<int> editedAtUtcMs = GeneratedColumn<int>(
+    'edited_at_utc_ms',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _deletedAtUtcMsMeta = const VerificationMeta(
+    'deletedAtUtcMs',
+  );
+  @override
+  late final GeneratedColumn<int> deletedAtUtcMs = GeneratedColumn<int>(
+    'deleted_at_utc_ms',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _revisionMeta = const VerificationMeta(
+    'revision',
+  );
+  @override
+  late final GeneratedColumn<int> revision = GeneratedColumn<int>(
+    'revision',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    ownerId,
+    day,
+    createdAtUtcMs,
+    utcOffsetMinutes,
+    body,
+    bodyFormat,
+    source,
+    prompt,
+    editedAtUtcMs,
+    deletedAtUtcMs,
+    revision,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'journal_entries';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<JournalEntryRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('owner_id')) {
+      context.handle(
+        _ownerIdMeta,
+        ownerId.isAcceptableOrUnknown(data['owner_id']!, _ownerIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_ownerIdMeta);
+    }
+    if (data.containsKey('day')) {
+      context.handle(
+        _dayMeta,
+        day.isAcceptableOrUnknown(data['day']!, _dayMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_dayMeta);
+    }
+    if (data.containsKey('created_at_utc_ms')) {
+      context.handle(
+        _createdAtUtcMsMeta,
+        createdAtUtcMs.isAcceptableOrUnknown(
+          data['created_at_utc_ms']!,
+          _createdAtUtcMsMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_createdAtUtcMsMeta);
+    }
+    if (data.containsKey('utc_offset_minutes')) {
+      context.handle(
+        _utcOffsetMinutesMeta,
+        utcOffsetMinutes.isAcceptableOrUnknown(
+          data['utc_offset_minutes']!,
+          _utcOffsetMinutesMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_utcOffsetMinutesMeta);
+    }
+    if (data.containsKey('body')) {
+      context.handle(
+        _bodyMeta,
+        body.isAcceptableOrUnknown(data['body']!, _bodyMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_bodyMeta);
+    }
+    if (data.containsKey('body_format')) {
+      context.handle(
+        _bodyFormatMeta,
+        bodyFormat.isAcceptableOrUnknown(data['body_format']!, _bodyFormatMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_bodyFormatMeta);
+    }
+    if (data.containsKey('source')) {
+      context.handle(
+        _sourceMeta,
+        source.isAcceptableOrUnknown(data['source']!, _sourceMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_sourceMeta);
+    }
+    if (data.containsKey('prompt')) {
+      context.handle(
+        _promptMeta,
+        prompt.isAcceptableOrUnknown(data['prompt']!, _promptMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_promptMeta);
+    }
+    if (data.containsKey('edited_at_utc_ms')) {
+      context.handle(
+        _editedAtUtcMsMeta,
+        editedAtUtcMs.isAcceptableOrUnknown(
+          data['edited_at_utc_ms']!,
+          _editedAtUtcMsMeta,
+        ),
+      );
+    }
+    if (data.containsKey('deleted_at_utc_ms')) {
+      context.handle(
+        _deletedAtUtcMsMeta,
+        deletedAtUtcMs.isAcceptableOrUnknown(
+          data['deleted_at_utc_ms']!,
+          _deletedAtUtcMsMeta,
+        ),
+      );
+    }
+    if (data.containsKey('revision')) {
+      context.handle(
+        _revisionMeta,
+        revision.isAcceptableOrUnknown(data['revision']!, _revisionMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_revisionMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  JournalEntryRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return JournalEntryRow(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      ownerId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}owner_id'],
+      )!,
+      day: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}day'],
+      )!,
+      createdAtUtcMs: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}created_at_utc_ms'],
+      )!,
+      utcOffsetMinutes: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}utc_offset_minutes'],
+      )!,
+      body: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}body'],
+      )!,
+      bodyFormat: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}body_format'],
+      )!,
+      source: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}source'],
+      )!,
+      prompt: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}prompt'],
+      )!,
+      revision: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}revision'],
+      )!,
+      editedAtUtcMs: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}edited_at_utc_ms'],
+      ),
+      deletedAtUtcMs: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}deleted_at_utc_ms'],
+      ),
+    );
+  }
+
+  @override
+  $JournalEntriesTable createAlias(String alias) {
+    return $JournalEntriesTable(attachedDatabase, alias);
+  }
+}
+
+class JournalEntriesCompanion extends UpdateCompanion<JournalEntryRow> {
+  final Value<String> id;
+  final Value<String> ownerId;
+  final Value<String> day;
+  final Value<int> createdAtUtcMs;
+  final Value<int> utcOffsetMinutes;
+  final Value<String> body;
+  final Value<String> bodyFormat;
+  final Value<String> source;
+  final Value<String> prompt;
+  final Value<int?> editedAtUtcMs;
+  final Value<int?> deletedAtUtcMs;
+  final Value<int> revision;
+  final Value<int> rowid;
+  const JournalEntriesCompanion({
+    this.id = const Value.absent(),
+    this.ownerId = const Value.absent(),
+    this.day = const Value.absent(),
+    this.createdAtUtcMs = const Value.absent(),
+    this.utcOffsetMinutes = const Value.absent(),
+    this.body = const Value.absent(),
+    this.bodyFormat = const Value.absent(),
+    this.source = const Value.absent(),
+    this.prompt = const Value.absent(),
+    this.editedAtUtcMs = const Value.absent(),
+    this.deletedAtUtcMs = const Value.absent(),
+    this.revision = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  JournalEntriesCompanion.insert({
+    required String id,
+    required String ownerId,
+    required String day,
+    required int createdAtUtcMs,
+    required int utcOffsetMinutes,
+    required String body,
+    required String bodyFormat,
+    required String source,
+    required String prompt,
+    this.editedAtUtcMs = const Value.absent(),
+    this.deletedAtUtcMs = const Value.absent(),
+    required int revision,
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       ownerId = Value(ownerId),
+       day = Value(day),
+       createdAtUtcMs = Value(createdAtUtcMs),
+       utcOffsetMinutes = Value(utcOffsetMinutes),
+       body = Value(body),
+       bodyFormat = Value(bodyFormat),
+       source = Value(source),
+       prompt = Value(prompt),
+       revision = Value(revision);
+  static Insertable<JournalEntryRow> custom({
+    Expression<String>? id,
+    Expression<String>? ownerId,
+    Expression<String>? day,
+    Expression<int>? createdAtUtcMs,
+    Expression<int>? utcOffsetMinutes,
+    Expression<String>? body,
+    Expression<String>? bodyFormat,
+    Expression<String>? source,
+    Expression<String>? prompt,
+    Expression<int>? editedAtUtcMs,
+    Expression<int>? deletedAtUtcMs,
+    Expression<int>? revision,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (ownerId != null) 'owner_id': ownerId,
+      if (day != null) 'day': day,
+      if (createdAtUtcMs != null) 'created_at_utc_ms': createdAtUtcMs,
+      if (utcOffsetMinutes != null) 'utc_offset_minutes': utcOffsetMinutes,
+      if (body != null) 'body': body,
+      if (bodyFormat != null) 'body_format': bodyFormat,
+      if (source != null) 'source': source,
+      if (prompt != null) 'prompt': prompt,
+      if (editedAtUtcMs != null) 'edited_at_utc_ms': editedAtUtcMs,
+      if (deletedAtUtcMs != null) 'deleted_at_utc_ms': deletedAtUtcMs,
+      if (revision != null) 'revision': revision,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  JournalEntriesCompanion copyWith({
+    Value<String>? id,
+    Value<String>? ownerId,
+    Value<String>? day,
+    Value<int>? createdAtUtcMs,
+    Value<int>? utcOffsetMinutes,
+    Value<String>? body,
+    Value<String>? bodyFormat,
+    Value<String>? source,
+    Value<String>? prompt,
+    Value<int?>? editedAtUtcMs,
+    Value<int?>? deletedAtUtcMs,
+    Value<int>? revision,
+    Value<int>? rowid,
+  }) {
+    return JournalEntriesCompanion(
+      id: id ?? this.id,
+      ownerId: ownerId ?? this.ownerId,
+      day: day ?? this.day,
+      createdAtUtcMs: createdAtUtcMs ?? this.createdAtUtcMs,
+      utcOffsetMinutes: utcOffsetMinutes ?? this.utcOffsetMinutes,
+      body: body ?? this.body,
+      bodyFormat: bodyFormat ?? this.bodyFormat,
+      source: source ?? this.source,
+      prompt: prompt ?? this.prompt,
+      editedAtUtcMs: editedAtUtcMs ?? this.editedAtUtcMs,
+      deletedAtUtcMs: deletedAtUtcMs ?? this.deletedAtUtcMs,
+      revision: revision ?? this.revision,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (ownerId.present) {
+      map['owner_id'] = Variable<String>(ownerId.value);
+    }
+    if (day.present) {
+      map['day'] = Variable<String>(day.value);
+    }
+    if (createdAtUtcMs.present) {
+      map['created_at_utc_ms'] = Variable<int>(createdAtUtcMs.value);
+    }
+    if (utcOffsetMinutes.present) {
+      map['utc_offset_minutes'] = Variable<int>(utcOffsetMinutes.value);
+    }
+    if (body.present) {
+      map['body'] = Variable<String>(body.value);
+    }
+    if (bodyFormat.present) {
+      map['body_format'] = Variable<String>(bodyFormat.value);
+    }
+    if (source.present) {
+      map['source'] = Variable<String>(source.value);
+    }
+    if (prompt.present) {
+      map['prompt'] = Variable<String>(prompt.value);
+    }
+    if (editedAtUtcMs.present) {
+      map['edited_at_utc_ms'] = Variable<int>(editedAtUtcMs.value);
+    }
+    if (deletedAtUtcMs.present) {
+      map['deleted_at_utc_ms'] = Variable<int>(deletedAtUtcMs.value);
+    }
+    if (revision.present) {
+      map['revision'] = Variable<int>(revision.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('JournalEntriesCompanion(')
+          ..write('id: $id, ')
+          ..write('ownerId: $ownerId, ')
+          ..write('day: $day, ')
+          ..write('createdAtUtcMs: $createdAtUtcMs, ')
+          ..write('utcOffsetMinutes: $utcOffsetMinutes, ')
+          ..write('body: $body, ')
+          ..write('bodyFormat: $bodyFormat, ')
+          ..write('source: $source, ')
+          ..write('prompt: $prompt, ')
+          ..write('editedAtUtcMs: $editedAtUtcMs, ')
+          ..write('deletedAtUtcMs: $deletedAtUtcMs, ')
+          ..write('revision: $revision, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $JournalChangesTable extends JournalChanges
+    with TableInfo<$JournalChangesTable, JournalChangeRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $JournalChangesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _ownerIdMeta = const VerificationMeta(
+    'ownerId',
+  );
+  @override
+  late final GeneratedColumn<String> ownerId = GeneratedColumn<String>(
+    'owner_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _entryIdMeta = const VerificationMeta(
+    'entryId',
+  );
+  @override
+  late final GeneratedColumn<String> entryId = GeneratedColumn<String>(
+    'entry_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _kindMeta = const VerificationMeta('kind');
+  @override
+  late final GeneratedColumn<String> kind = GeneratedColumn<String>(
+    'kind',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _revisionMeta = const VerificationMeta(
+    'revision',
+  );
+  @override
+  late final GeneratedColumn<int> revision = GeneratedColumn<int>(
+    'revision',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _counterMeta = const VerificationMeta(
+    'counter',
+  );
+  @override
+  late final GeneratedColumn<int> counter = GeneratedColumn<int>(
+    'counter',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways('UNIQUE'),
+  );
+  static const VerificationMeta _atUtcMsMeta = const VerificationMeta(
+    'atUtcMs',
+  );
+  @override
+  late final GeneratedColumn<int> atUtcMs = GeneratedColumn<int>(
+    'at_utc_ms',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _utcOffsetMinutesMeta = const VerificationMeta(
+    'utcOffsetMinutes',
+  );
+  @override
+  late final GeneratedColumn<int> utcOffsetMinutes = GeneratedColumn<int>(
+    'utc_offset_minutes',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    ownerId,
+    entryId,
+    kind,
+    revision,
+    counter,
+    atUtcMs,
+    utcOffsetMinutes,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'journal_changes';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<JournalChangeRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('owner_id')) {
+      context.handle(
+        _ownerIdMeta,
+        ownerId.isAcceptableOrUnknown(data['owner_id']!, _ownerIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_ownerIdMeta);
+    }
+    if (data.containsKey('entry_id')) {
+      context.handle(
+        _entryIdMeta,
+        entryId.isAcceptableOrUnknown(data['entry_id']!, _entryIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_entryIdMeta);
+    }
+    if (data.containsKey('kind')) {
+      context.handle(
+        _kindMeta,
+        kind.isAcceptableOrUnknown(data['kind']!, _kindMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_kindMeta);
+    }
+    if (data.containsKey('revision')) {
+      context.handle(
+        _revisionMeta,
+        revision.isAcceptableOrUnknown(data['revision']!, _revisionMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_revisionMeta);
+    }
+    if (data.containsKey('counter')) {
+      context.handle(
+        _counterMeta,
+        counter.isAcceptableOrUnknown(data['counter']!, _counterMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_counterMeta);
+    }
+    if (data.containsKey('at_utc_ms')) {
+      context.handle(
+        _atUtcMsMeta,
+        atUtcMs.isAcceptableOrUnknown(data['at_utc_ms']!, _atUtcMsMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_atUtcMsMeta);
+    }
+    if (data.containsKey('utc_offset_minutes')) {
+      context.handle(
+        _utcOffsetMinutesMeta,
+        utcOffsetMinutes.isAcceptableOrUnknown(
+          data['utc_offset_minutes']!,
+          _utcOffsetMinutesMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_utcOffsetMinutesMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  JournalChangeRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return JournalChangeRow(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      ownerId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}owner_id'],
+      )!,
+      entryId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}entry_id'],
+      )!,
+      kind: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}kind'],
+      )!,
+      revision: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}revision'],
+      )!,
+      counter: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}counter'],
+      )!,
+      atUtcMs: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}at_utc_ms'],
+      )!,
+      utcOffsetMinutes: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}utc_offset_minutes'],
+      )!,
+    );
+  }
+
+  @override
+  $JournalChangesTable createAlias(String alias) {
+    return $JournalChangesTable(attachedDatabase, alias);
+  }
+}
+
+class JournalChangeRow extends DataClass
+    implements Insertable<JournalChangeRow> {
+  /// Client-generated UUID.
+  final String id;
+  final String ownerId;
+  final String entryId;
+
+  /// `save` or `delete`.
+  final String kind;
+
+  /// The entry's revision once this change was applied.
+  final int revision;
+
+  /// This change's place in this database's order of journal changes.
+  final int counter;
+  final int atUtcMs;
+  final int utcOffsetMinutes;
+  const JournalChangeRow({
+    required this.id,
+    required this.ownerId,
+    required this.entryId,
+    required this.kind,
+    required this.revision,
+    required this.counter,
+    required this.atUtcMs,
+    required this.utcOffsetMinutes,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['owner_id'] = Variable<String>(ownerId);
+    map['entry_id'] = Variable<String>(entryId);
+    map['kind'] = Variable<String>(kind);
+    map['revision'] = Variable<int>(revision);
+    map['counter'] = Variable<int>(counter);
+    map['at_utc_ms'] = Variable<int>(atUtcMs);
+    map['utc_offset_minutes'] = Variable<int>(utcOffsetMinutes);
+    return map;
+  }
+
+  JournalChangesCompanion toCompanion(bool nullToAbsent) {
+    return JournalChangesCompanion(
+      id: Value(id),
+      ownerId: Value(ownerId),
+      entryId: Value(entryId),
+      kind: Value(kind),
+      revision: Value(revision),
+      counter: Value(counter),
+      atUtcMs: Value(atUtcMs),
+      utcOffsetMinutes: Value(utcOffsetMinutes),
+    );
+  }
+
+  factory JournalChangeRow.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return JournalChangeRow(
+      id: serializer.fromJson<String>(json['id']),
+      ownerId: serializer.fromJson<String>(json['ownerId']),
+      entryId: serializer.fromJson<String>(json['entryId']),
+      kind: serializer.fromJson<String>(json['kind']),
+      revision: serializer.fromJson<int>(json['revision']),
+      counter: serializer.fromJson<int>(json['counter']),
+      atUtcMs: serializer.fromJson<int>(json['atUtcMs']),
+      utcOffsetMinutes: serializer.fromJson<int>(json['utcOffsetMinutes']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'ownerId': serializer.toJson<String>(ownerId),
+      'entryId': serializer.toJson<String>(entryId),
+      'kind': serializer.toJson<String>(kind),
+      'revision': serializer.toJson<int>(revision),
+      'counter': serializer.toJson<int>(counter),
+      'atUtcMs': serializer.toJson<int>(atUtcMs),
+      'utcOffsetMinutes': serializer.toJson<int>(utcOffsetMinutes),
+    };
+  }
+
+  JournalChangeRow copyWith({
+    String? id,
+    String? ownerId,
+    String? entryId,
+    String? kind,
+    int? revision,
+    int? counter,
+    int? atUtcMs,
+    int? utcOffsetMinutes,
+  }) => JournalChangeRow(
+    id: id ?? this.id,
+    ownerId: ownerId ?? this.ownerId,
+    entryId: entryId ?? this.entryId,
+    kind: kind ?? this.kind,
+    revision: revision ?? this.revision,
+    counter: counter ?? this.counter,
+    atUtcMs: atUtcMs ?? this.atUtcMs,
+    utcOffsetMinutes: utcOffsetMinutes ?? this.utcOffsetMinutes,
+  );
+  JournalChangeRow copyWithCompanion(JournalChangesCompanion data) {
+    return JournalChangeRow(
+      id: data.id.present ? data.id.value : this.id,
+      ownerId: data.ownerId.present ? data.ownerId.value : this.ownerId,
+      entryId: data.entryId.present ? data.entryId.value : this.entryId,
+      kind: data.kind.present ? data.kind.value : this.kind,
+      revision: data.revision.present ? data.revision.value : this.revision,
+      counter: data.counter.present ? data.counter.value : this.counter,
+      atUtcMs: data.atUtcMs.present ? data.atUtcMs.value : this.atUtcMs,
+      utcOffsetMinutes: data.utcOffsetMinutes.present
+          ? data.utcOffsetMinutes.value
+          : this.utcOffsetMinutes,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('JournalChangeRow(')
+          ..write('id: $id, ')
+          ..write('ownerId: $ownerId, ')
+          ..write('entryId: $entryId, ')
+          ..write('kind: $kind, ')
+          ..write('revision: $revision, ')
+          ..write('counter: $counter, ')
+          ..write('atUtcMs: $atUtcMs, ')
+          ..write('utcOffsetMinutes: $utcOffsetMinutes')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    ownerId,
+    entryId,
+    kind,
+    revision,
+    counter,
+    atUtcMs,
+    utcOffsetMinutes,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is JournalChangeRow &&
+          other.id == this.id &&
+          other.ownerId == this.ownerId &&
+          other.entryId == this.entryId &&
+          other.kind == this.kind &&
+          other.revision == this.revision &&
+          other.counter == this.counter &&
+          other.atUtcMs == this.atUtcMs &&
+          other.utcOffsetMinutes == this.utcOffsetMinutes);
+}
+
+class JournalChangesCompanion extends UpdateCompanion<JournalChangeRow> {
+  final Value<String> id;
+  final Value<String> ownerId;
+  final Value<String> entryId;
+  final Value<String> kind;
+  final Value<int> revision;
+  final Value<int> counter;
+  final Value<int> atUtcMs;
+  final Value<int> utcOffsetMinutes;
+  final Value<int> rowid;
+  const JournalChangesCompanion({
+    this.id = const Value.absent(),
+    this.ownerId = const Value.absent(),
+    this.entryId = const Value.absent(),
+    this.kind = const Value.absent(),
+    this.revision = const Value.absent(),
+    this.counter = const Value.absent(),
+    this.atUtcMs = const Value.absent(),
+    this.utcOffsetMinutes = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  JournalChangesCompanion.insert({
+    required String id,
+    required String ownerId,
+    required String entryId,
+    required String kind,
+    required int revision,
+    required int counter,
+    required int atUtcMs,
+    required int utcOffsetMinutes,
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       ownerId = Value(ownerId),
+       entryId = Value(entryId),
+       kind = Value(kind),
+       revision = Value(revision),
+       counter = Value(counter),
+       atUtcMs = Value(atUtcMs),
+       utcOffsetMinutes = Value(utcOffsetMinutes);
+  static Insertable<JournalChangeRow> custom({
+    Expression<String>? id,
+    Expression<String>? ownerId,
+    Expression<String>? entryId,
+    Expression<String>? kind,
+    Expression<int>? revision,
+    Expression<int>? counter,
+    Expression<int>? atUtcMs,
+    Expression<int>? utcOffsetMinutes,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (ownerId != null) 'owner_id': ownerId,
+      if (entryId != null) 'entry_id': entryId,
+      if (kind != null) 'kind': kind,
+      if (revision != null) 'revision': revision,
+      if (counter != null) 'counter': counter,
+      if (atUtcMs != null) 'at_utc_ms': atUtcMs,
+      if (utcOffsetMinutes != null) 'utc_offset_minutes': utcOffsetMinutes,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  JournalChangesCompanion copyWith({
+    Value<String>? id,
+    Value<String>? ownerId,
+    Value<String>? entryId,
+    Value<String>? kind,
+    Value<int>? revision,
+    Value<int>? counter,
+    Value<int>? atUtcMs,
+    Value<int>? utcOffsetMinutes,
+    Value<int>? rowid,
+  }) {
+    return JournalChangesCompanion(
+      id: id ?? this.id,
+      ownerId: ownerId ?? this.ownerId,
+      entryId: entryId ?? this.entryId,
+      kind: kind ?? this.kind,
+      revision: revision ?? this.revision,
+      counter: counter ?? this.counter,
+      atUtcMs: atUtcMs ?? this.atUtcMs,
+      utcOffsetMinutes: utcOffsetMinutes ?? this.utcOffsetMinutes,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (ownerId.present) {
+      map['owner_id'] = Variable<String>(ownerId.value);
+    }
+    if (entryId.present) {
+      map['entry_id'] = Variable<String>(entryId.value);
+    }
+    if (kind.present) {
+      map['kind'] = Variable<String>(kind.value);
+    }
+    if (revision.present) {
+      map['revision'] = Variable<int>(revision.value);
+    }
+    if (counter.present) {
+      map['counter'] = Variable<int>(counter.value);
+    }
+    if (atUtcMs.present) {
+      map['at_utc_ms'] = Variable<int>(atUtcMs.value);
+    }
+    if (utcOffsetMinutes.present) {
+      map['utc_offset_minutes'] = Variable<int>(utcOffsetMinutes.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('JournalChangesCompanion(')
+          ..write('id: $id, ')
+          ..write('ownerId: $ownerId, ')
+          ..write('entryId: $entryId, ')
+          ..write('kind: $kind, ')
+          ..write('revision: $revision, ')
+          ..write('counter: $counter, ')
+          ..write('atUtcMs: $atUtcMs, ')
+          ..write('utcOffsetMinutes: $utcOffsetMinutes, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -1232,6 +2261,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   );
   late final $DayStatesTable dayStates = $DayStatesTable(this);
   late final $AppSettingsTable appSettings = $AppSettingsTable(this);
+  late final $JournalEntriesTable journalEntries = $JournalEntriesTable(this);
+  late final $JournalChangesTable journalChanges = $JournalChangesTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -1240,6 +2271,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     completionEvents,
     dayStates,
     appSettings,
+    journalEntries,
+    journalChanges,
   ];
 }
 
@@ -1926,6 +2959,638 @@ typedef $$AppSettingsTableProcessedTableManager =
       AppSettingRow,
       PrefetchHooks Function()
     >;
+typedef $$JournalEntriesTableCreateCompanionBuilder =
+    JournalEntriesCompanion Function({
+      required String id,
+      required String ownerId,
+      required String day,
+      required int createdAtUtcMs,
+      required int utcOffsetMinutes,
+      required String body,
+      required String bodyFormat,
+      required String source,
+      required String prompt,
+      Value<int?> editedAtUtcMs,
+      Value<int?> deletedAtUtcMs,
+      required int revision,
+      Value<int> rowid,
+    });
+typedef $$JournalEntriesTableUpdateCompanionBuilder =
+    JournalEntriesCompanion Function({
+      Value<String> id,
+      Value<String> ownerId,
+      Value<String> day,
+      Value<int> createdAtUtcMs,
+      Value<int> utcOffsetMinutes,
+      Value<String> body,
+      Value<String> bodyFormat,
+      Value<String> source,
+      Value<String> prompt,
+      Value<int?> editedAtUtcMs,
+      Value<int?> deletedAtUtcMs,
+      Value<int> revision,
+      Value<int> rowid,
+    });
+
+class $$JournalEntriesTableFilterComposer
+    extends Composer<_$AppDatabase, $JournalEntriesTable> {
+  $$JournalEntriesTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get ownerId => $composableBuilder(
+    column: $table.ownerId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get day => $composableBuilder(
+    column: $table.day,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get createdAtUtcMs => $composableBuilder(
+    column: $table.createdAtUtcMs,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get utcOffsetMinutes => $composableBuilder(
+    column: $table.utcOffsetMinutes,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get body => $composableBuilder(
+    column: $table.body,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get bodyFormat => $composableBuilder(
+    column: $table.bodyFormat,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get source => $composableBuilder(
+    column: $table.source,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get prompt => $composableBuilder(
+    column: $table.prompt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get editedAtUtcMs => $composableBuilder(
+    column: $table.editedAtUtcMs,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get deletedAtUtcMs => $composableBuilder(
+    column: $table.deletedAtUtcMs,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get revision => $composableBuilder(
+    column: $table.revision,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$JournalEntriesTableOrderingComposer
+    extends Composer<_$AppDatabase, $JournalEntriesTable> {
+  $$JournalEntriesTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get ownerId => $composableBuilder(
+    column: $table.ownerId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get day => $composableBuilder(
+    column: $table.day,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get createdAtUtcMs => $composableBuilder(
+    column: $table.createdAtUtcMs,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get utcOffsetMinutes => $composableBuilder(
+    column: $table.utcOffsetMinutes,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get body => $composableBuilder(
+    column: $table.body,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get bodyFormat => $composableBuilder(
+    column: $table.bodyFormat,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get source => $composableBuilder(
+    column: $table.source,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get prompt => $composableBuilder(
+    column: $table.prompt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get editedAtUtcMs => $composableBuilder(
+    column: $table.editedAtUtcMs,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get deletedAtUtcMs => $composableBuilder(
+    column: $table.deletedAtUtcMs,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get revision => $composableBuilder(
+    column: $table.revision,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$JournalEntriesTableAnnotationComposer
+    extends Composer<_$AppDatabase, $JournalEntriesTable> {
+  $$JournalEntriesTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get ownerId =>
+      $composableBuilder(column: $table.ownerId, builder: (column) => column);
+
+  GeneratedColumn<String> get day =>
+      $composableBuilder(column: $table.day, builder: (column) => column);
+
+  GeneratedColumn<int> get createdAtUtcMs => $composableBuilder(
+    column: $table.createdAtUtcMs,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get utcOffsetMinutes => $composableBuilder(
+    column: $table.utcOffsetMinutes,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get body =>
+      $composableBuilder(column: $table.body, builder: (column) => column);
+
+  GeneratedColumn<String> get bodyFormat => $composableBuilder(
+    column: $table.bodyFormat,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get source =>
+      $composableBuilder(column: $table.source, builder: (column) => column);
+
+  GeneratedColumn<String> get prompt =>
+      $composableBuilder(column: $table.prompt, builder: (column) => column);
+
+  GeneratedColumn<int> get editedAtUtcMs => $composableBuilder(
+    column: $table.editedAtUtcMs,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get deletedAtUtcMs => $composableBuilder(
+    column: $table.deletedAtUtcMs,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get revision =>
+      $composableBuilder(column: $table.revision, builder: (column) => column);
+}
+
+class $$JournalEntriesTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $JournalEntriesTable,
+          JournalEntryRow,
+          $$JournalEntriesTableFilterComposer,
+          $$JournalEntriesTableOrderingComposer,
+          $$JournalEntriesTableAnnotationComposer,
+          $$JournalEntriesTableCreateCompanionBuilder,
+          $$JournalEntriesTableUpdateCompanionBuilder,
+          (
+            JournalEntryRow,
+            BaseReferences<
+              _$AppDatabase,
+              $JournalEntriesTable,
+              JournalEntryRow
+            >,
+          ),
+          JournalEntryRow,
+          PrefetchHooks Function()
+        > {
+  $$JournalEntriesTableTableManager(
+    _$AppDatabase db,
+    $JournalEntriesTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$JournalEntriesTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$JournalEntriesTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$JournalEntriesTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String> ownerId = const Value.absent(),
+                Value<String> day = const Value.absent(),
+                Value<int> createdAtUtcMs = const Value.absent(),
+                Value<int> utcOffsetMinutes = const Value.absent(),
+                Value<String> body = const Value.absent(),
+                Value<String> bodyFormat = const Value.absent(),
+                Value<String> source = const Value.absent(),
+                Value<String> prompt = const Value.absent(),
+                Value<int?> editedAtUtcMs = const Value.absent(),
+                Value<int?> deletedAtUtcMs = const Value.absent(),
+                Value<int> revision = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => JournalEntriesCompanion(
+                id: id,
+                ownerId: ownerId,
+                day: day,
+                createdAtUtcMs: createdAtUtcMs,
+                utcOffsetMinutes: utcOffsetMinutes,
+                body: body,
+                bodyFormat: bodyFormat,
+                source: source,
+                prompt: prompt,
+                editedAtUtcMs: editedAtUtcMs,
+                deletedAtUtcMs: deletedAtUtcMs,
+                revision: revision,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required String ownerId,
+                required String day,
+                required int createdAtUtcMs,
+                required int utcOffsetMinutes,
+                required String body,
+                required String bodyFormat,
+                required String source,
+                required String prompt,
+                Value<int?> editedAtUtcMs = const Value.absent(),
+                Value<int?> deletedAtUtcMs = const Value.absent(),
+                required int revision,
+                Value<int> rowid = const Value.absent(),
+              }) => JournalEntriesCompanion.insert(
+                id: id,
+                ownerId: ownerId,
+                day: day,
+                createdAtUtcMs: createdAtUtcMs,
+                utcOffsetMinutes: utcOffsetMinutes,
+                body: body,
+                bodyFormat: bodyFormat,
+                source: source,
+                prompt: prompt,
+                editedAtUtcMs: editedAtUtcMs,
+                deletedAtUtcMs: deletedAtUtcMs,
+                revision: revision,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable<$JournalEntriesTable, JournalEntryRow>(table),
+                  BaseReferences<
+                    _$AppDatabase,
+                    $JournalEntriesTable,
+                    JournalEntryRow
+                  >(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$JournalEntriesTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $JournalEntriesTable,
+      JournalEntryRow,
+      $$JournalEntriesTableFilterComposer,
+      $$JournalEntriesTableOrderingComposer,
+      $$JournalEntriesTableAnnotationComposer,
+      $$JournalEntriesTableCreateCompanionBuilder,
+      $$JournalEntriesTableUpdateCompanionBuilder,
+      (
+        JournalEntryRow,
+        BaseReferences<_$AppDatabase, $JournalEntriesTable, JournalEntryRow>,
+      ),
+      JournalEntryRow,
+      PrefetchHooks Function()
+    >;
+typedef $$JournalChangesTableCreateCompanionBuilder =
+    JournalChangesCompanion Function({
+      required String id,
+      required String ownerId,
+      required String entryId,
+      required String kind,
+      required int revision,
+      required int counter,
+      required int atUtcMs,
+      required int utcOffsetMinutes,
+      Value<int> rowid,
+    });
+typedef $$JournalChangesTableUpdateCompanionBuilder =
+    JournalChangesCompanion Function({
+      Value<String> id,
+      Value<String> ownerId,
+      Value<String> entryId,
+      Value<String> kind,
+      Value<int> revision,
+      Value<int> counter,
+      Value<int> atUtcMs,
+      Value<int> utcOffsetMinutes,
+      Value<int> rowid,
+    });
+
+class $$JournalChangesTableFilterComposer
+    extends Composer<_$AppDatabase, $JournalChangesTable> {
+  $$JournalChangesTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get ownerId => $composableBuilder(
+    column: $table.ownerId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get entryId => $composableBuilder(
+    column: $table.entryId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get kind => $composableBuilder(
+    column: $table.kind,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get revision => $composableBuilder(
+    column: $table.revision,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get counter => $composableBuilder(
+    column: $table.counter,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get atUtcMs => $composableBuilder(
+    column: $table.atUtcMs,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get utcOffsetMinutes => $composableBuilder(
+    column: $table.utcOffsetMinutes,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$JournalChangesTableOrderingComposer
+    extends Composer<_$AppDatabase, $JournalChangesTable> {
+  $$JournalChangesTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get ownerId => $composableBuilder(
+    column: $table.ownerId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get entryId => $composableBuilder(
+    column: $table.entryId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get kind => $composableBuilder(
+    column: $table.kind,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get revision => $composableBuilder(
+    column: $table.revision,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get counter => $composableBuilder(
+    column: $table.counter,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get atUtcMs => $composableBuilder(
+    column: $table.atUtcMs,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get utcOffsetMinutes => $composableBuilder(
+    column: $table.utcOffsetMinutes,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$JournalChangesTableAnnotationComposer
+    extends Composer<_$AppDatabase, $JournalChangesTable> {
+  $$JournalChangesTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get ownerId =>
+      $composableBuilder(column: $table.ownerId, builder: (column) => column);
+
+  GeneratedColumn<String> get entryId =>
+      $composableBuilder(column: $table.entryId, builder: (column) => column);
+
+  GeneratedColumn<String> get kind =>
+      $composableBuilder(column: $table.kind, builder: (column) => column);
+
+  GeneratedColumn<int> get revision =>
+      $composableBuilder(column: $table.revision, builder: (column) => column);
+
+  GeneratedColumn<int> get counter =>
+      $composableBuilder(column: $table.counter, builder: (column) => column);
+
+  GeneratedColumn<int> get atUtcMs =>
+      $composableBuilder(column: $table.atUtcMs, builder: (column) => column);
+
+  GeneratedColumn<int> get utcOffsetMinutes => $composableBuilder(
+    column: $table.utcOffsetMinutes,
+    builder: (column) => column,
+  );
+}
+
+class $$JournalChangesTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $JournalChangesTable,
+          JournalChangeRow,
+          $$JournalChangesTableFilterComposer,
+          $$JournalChangesTableOrderingComposer,
+          $$JournalChangesTableAnnotationComposer,
+          $$JournalChangesTableCreateCompanionBuilder,
+          $$JournalChangesTableUpdateCompanionBuilder,
+          (
+            JournalChangeRow,
+            BaseReferences<
+              _$AppDatabase,
+              $JournalChangesTable,
+              JournalChangeRow
+            >,
+          ),
+          JournalChangeRow,
+          PrefetchHooks Function()
+        > {
+  $$JournalChangesTableTableManager(
+    _$AppDatabase db,
+    $JournalChangesTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$JournalChangesTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$JournalChangesTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$JournalChangesTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String> ownerId = const Value.absent(),
+                Value<String> entryId = const Value.absent(),
+                Value<String> kind = const Value.absent(),
+                Value<int> revision = const Value.absent(),
+                Value<int> counter = const Value.absent(),
+                Value<int> atUtcMs = const Value.absent(),
+                Value<int> utcOffsetMinutes = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => JournalChangesCompanion(
+                id: id,
+                ownerId: ownerId,
+                entryId: entryId,
+                kind: kind,
+                revision: revision,
+                counter: counter,
+                atUtcMs: atUtcMs,
+                utcOffsetMinutes: utcOffsetMinutes,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required String ownerId,
+                required String entryId,
+                required String kind,
+                required int revision,
+                required int counter,
+                required int atUtcMs,
+                required int utcOffsetMinutes,
+                Value<int> rowid = const Value.absent(),
+              }) => JournalChangesCompanion.insert(
+                id: id,
+                ownerId: ownerId,
+                entryId: entryId,
+                kind: kind,
+                revision: revision,
+                counter: counter,
+                atUtcMs: atUtcMs,
+                utcOffsetMinutes: utcOffsetMinutes,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable<$JournalChangesTable, JournalChangeRow>(table),
+                  BaseReferences<
+                    _$AppDatabase,
+                    $JournalChangesTable,
+                    JournalChangeRow
+                  >(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$JournalChangesTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $JournalChangesTable,
+      JournalChangeRow,
+      $$JournalChangesTableFilterComposer,
+      $$JournalChangesTableOrderingComposer,
+      $$JournalChangesTableAnnotationComposer,
+      $$JournalChangesTableCreateCompanionBuilder,
+      $$JournalChangesTableUpdateCompanionBuilder,
+      (
+        JournalChangeRow,
+        BaseReferences<_$AppDatabase, $JournalChangesTable, JournalChangeRow>,
+      ),
+      JournalChangeRow,
+      PrefetchHooks Function()
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -1936,4 +3601,8 @@ class $AppDatabaseManager {
       $$DayStatesTableTableManager(_db, _db.dayStates);
   $$AppSettingsTableTableManager get appSettings =>
       $$AppSettingsTableTableManager(_db, _db.appSettings);
+  $$JournalEntriesTableTableManager get journalEntries =>
+      $$JournalEntriesTableTableManager(_db, _db.journalEntries);
+  $$JournalChangesTableTableManager get journalChanges =>
+      $$JournalChangesTableTableManager(_db, _db.journalChanges);
 }
