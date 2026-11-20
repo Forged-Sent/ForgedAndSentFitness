@@ -83,7 +83,7 @@ flowchart TB
 | [ADR-0005](ADR-0005-flutter-client-stack.md) | Client stack: Riverpod, go_router, Drift | Accepted; partly implemented |
 | [ADR-0006](ADR-0006-group-level-isolation.md) | Group-level isolation | Accepted in Phase 0; planned, nothing built |
 | [ADR-0007](ADR-0007-server-scoring-ledger.md) | Server-authoritative scoring ledger | Accepted in Phase 0; planned, nothing built |
-| [ADR-0008](ADR-0008-membership-document-authorization.md) | Membership documents authorize | Proposed in Phase 0; planned, nothing built |
+| [ADR-0008](ADR-0008-membership-document-authorization.md) | Membership documents authorize | Proposed, and stays so until S4b starts (the maintainer, 2026-11-19); planned, nothing built |
 | [ADR-0009](ADR-0009-faith-participation-privacy.md) | Faith participation and privacy | Accepted in Phase 0; planned, no server part built |
 
 **Carried forward from Phase 0 (planned, not implemented):** ADR-0006 to ADR-0009 are the four decisions that answer Q4 on the [Decisions](../reviews/2026-11-10-prototype-to-flutter/01-DECISIONS.md) page carries forward. They were written on branch `arch/firebase-reconciliation` (commit `0d21d21`, under `docs/adr/`) as ADR-0004, ADR-0005, ADR-0018 and ADR-0012. Their text is unchanged; each record ends with how it stands on `main`. Use the numbers on `main`. Nothing they describe is built: no group, no membership document, no Cloud Function and no ledger.

@@ -1,6 +1,6 @@
 # ADR-0008: Authorization source: membership documents
 
-- Status: **Proposed**, as it was on the Phase 0 branch. Decision Q4 carries it forward; the maintainer has not changed this status line, and an agent may not. **Planned: nothing here is built.**
+- Status: **Proposed**, as it was on the Phase 0 branch. Decision Q4 carries it forward. The maintainer decided on 2026-11-19 that it stays Proposed until build step S4b (groups, teams, scoring, the board) starts. **Planned: nothing here is built.**
 - Date: 2026-10-27. Brought to `main` and renumbered on 2026-11-19.
 - Decision owner: project maintainer (answer Q4 on the [Decisions](../reviews/2026-11-10-prototype-to-flutter/01-DECISIONS.md) page)
 
@@ -33,7 +33,7 @@ Requirements: FS-ACC-001..006. Verification: Rules tests; read-count budget revi
 ## How this stands on `main`
 
 - **Nothing is built.** `firebase/firestore.rules` denies every read and write, apart from one owner-only path the emulator check uses (`developer_smoke`). There is no membership document, and no rules test for one.
-- **Status.** Phase 0 left this record Proposed. The maintainer's Q4 answer names "membership-document authorization" among the four decisions to carry forward. This record reports both facts and leaves the status line for the maintainer.
+- **Status.** Phase 0 left this record Proposed. The maintainer's Q4 answer names "membership-document authorization" among the four decisions to carry forward. On 2026-11-19 he decided that the record stays Proposed until S4b starts: nothing before S4b has a membership document, so nothing before it depends on this record. Whether it becomes Accepted is settled when S4b's contract is written.
 - **The requirement ids are not on `main`.** `FS-ACC-001..006` are defined in `docs/requirements/` on the Phase 0 branch.
 - **The boundary these documents sit inside** is [ADR-0006](ADR-0006-group-level-isolation.md).
 - **`platformAdmin`** is named here and not designed. Who may hold it, and what it allows, is undecided.
