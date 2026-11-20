@@ -64,6 +64,20 @@ Future<void> pumpUntil(
   await tester.pumpAndSettle();
 }
 
+/// Leaves a page by its own "Back" button, at the top of the page.
+///
+/// `tester.pageBack()` looks for a Material or Cupertino back button, and
+/// the app has neither, so it fails here.
+Future<void> goBack(WidgetTester tester) async {
+  final back = find.byWidgetPredicate(
+    (Widget widget) => widget is FsButton && widget.label == '‹ Back',
+  );
+  await tester.ensureVisible(back);
+  await tester.pumpAndSettle();
+  await tester.tap(back);
+  await tester.pumpAndSettle();
+}
+
 Future<void> showDevotionalBox(WidgetTester tester) async {
   await tester.scrollUntilVisible(
     devotionalBox,

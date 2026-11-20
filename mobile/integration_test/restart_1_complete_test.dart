@@ -33,8 +33,7 @@ void main() {
         () => tester.widget<FsButton>(amenButton).label != 'Amen. Undo',
         what: 'the undo to be saved',
       );
-      await tester.pageBack();
-      await tester.pumpAndSettle();
+      await goBack(tester);
       await showDevotionalBox(tester);
     }
     expect(devotionalChecked(tester), isFalse);
