@@ -168,7 +168,9 @@ class TrainViewModel extends AsyncNotifier<TrainView> {
       case PlanDayKind.before:
         message = 'Your plan starts ${heroDateLine(plan.start)}.';
       case PlanDayKind.over:
-        message = 'You finished all ${library.days.length} days.';
+        // The calendar has run past the plan. It says nothing about what
+        // he logged: the words are the maintainer's (2026-11-20).
+        message = 'You have reached the end of this plan.';
     }
 
     return TrainView(

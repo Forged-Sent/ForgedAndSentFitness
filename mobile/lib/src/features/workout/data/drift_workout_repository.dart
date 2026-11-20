@@ -284,7 +284,13 @@ class DriftWorkoutRepository implements WorkoutRepository {
       final set = row.readTable(sets);
       found
           .putIfAbsent(movement, () => <LastSet>[])
-          .add(LastSet(reps: set.reps!, weightLb: set.weightLb));
+          .add(
+            LastSet(
+              position: set.position,
+              reps: set.reps!,
+              weightLb: set.weightLb,
+            ),
+          );
     }
     return <String, LastTime>{
       for (final entry in found.entries)

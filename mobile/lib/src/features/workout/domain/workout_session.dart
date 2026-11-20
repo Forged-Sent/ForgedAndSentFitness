@@ -317,12 +317,28 @@ class LastTime {
 
   final LocalDate day;
 
-  /// The sets with reps entered, in order.
+  /// The sets with reps entered, in the order they were done. A set left
+  /// empty that day is not here, and the sets after it keep their own
+  /// [LastSet.position].
   final List<LastSet> sets;
+
+  /// What was logged that day in the set at [position], or null if that
+  /// set had no reps. No day of the bundled program lists a movement
+  /// twice; if a day ever does, the first one answers.
+  LastSet? at(int position) {
+    for (final set in sets) {
+      if (set.position == position) return set;
+    }
+    return null;
+  }
 }
 
 class LastSet {
-  const LastSet({required this.reps, this.weightLb});
+  const LastSet({required this.position, required this.reps, this.weightLb});
+
+  /// The set's place in its exercise that day, from 0: the same number as
+  /// [SessionSet.position].
+  final int position;
 
   final int reps;
   final double? weightLb;

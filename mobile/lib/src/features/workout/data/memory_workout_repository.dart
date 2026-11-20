@@ -278,7 +278,13 @@ class MemoryWorkoutRepository implements WorkoutRepository {
           if ((set.reps ?? 0) <= 0) continue;
           onThisDay
               .putIfAbsent(exercise.movementId, () => <LastSet>[])
-              .add(LastSet(reps: set.reps!, weightLb: set.weightLb));
+              .add(
+                LastSet(
+                  position: set.position,
+                  reps: set.reps!,
+                  weightLb: set.weightLb,
+                ),
+              );
         }
       }
       for (final entry in onThisDay.entries) {

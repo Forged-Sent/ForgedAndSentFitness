@@ -639,6 +639,47 @@ void workoutRepositoryContract(Future<WorkoutStores> Function() create) {
       expect(forMonday, isEmpty);
     });
 
+    test('keeps each set at the position it was logged in', () async {
+      await workouts.startSession(
+        newSession(
+          'mon',
+          DateTime(2026, 11, 9, 18),
+          exercises: <SessionExercise>[
+            exercise('mon-squat', position: 0, movementId: 'Back Squat'),
+            exercise('mon-row', position: 1, movementId: 'Barbell Row'),
+          ],
+        ),
+      );
+      // The squat: set 1 left empty, sets 2 and 3 logged.
+      await workouts.setReps('mon-squat-s1', 4);
+      await workouts.setWeight('mon-squat-s1', 140);
+      await workouts.setReps('mon-squat-s2', 3);
+      await workouts.setWeight('mon-squat-s2', 145);
+      // The row: only set 1 logged.
+      await workouts.setReps('mon-row-s0', 8);
+
+      final last = await workouts.lastTimes(
+        ownerA,
+        before: nov13,
+        movementIds: <String>['Back Squat', 'Barbell Row'],
+      );
+
+      final squat = last['Back Squat']!;
+      expect(
+        squat.sets.map((s) => (s.position, s.reps, s.weightLb)),
+        <(int, int, double?)>[(1, 4, 140), (2, 3, 145)],
+      );
+      expect(squat.at(0), isNull);
+      expect(squat.at(1)!.reps, 4);
+      expect(squat.at(1)!.weightLb, 140);
+      expect(squat.at(2)!.reps, 3);
+      expect(squat.at(3), isNull);
+
+      final row = last['Barbell Row']!;
+      expect(row.at(0)!.reps, 8);
+      expect(row.at(1), isNull);
+    });
+
     test('leaves out sets with no reps, timed sets and other owners', () async {
       await workouts.startSession(newSession('mon', DateTime(2026, 11, 9, 18)));
       await workouts.setWeight('mon-squat-s0', 135); // a weight, no reps

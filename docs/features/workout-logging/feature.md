@@ -50,7 +50,7 @@ A man opens Train and sees today and this week from the Forged program. He opens
 - Before it is started: the plan's exercises and prescriptions, and the start button, "Pray, then train" (decision 5 above). Only today's session can be started. Another day's page shows its plan and says so.
 - **The prayer (Q11):** the start button shows the workout prayer with **Amen** and **Not now**. Amen starts the session. Not now, and Android back (decision 2 above), close it and start nothing. A tap outside the box does nothing.
 - In progress: one row per set with a box for reps (or seconds) and, where the lift takes one, a box for the weight in pounds. Last time's value for the same set stands under the set's number. A mark fills once the set is logged. An exercise with nothing to count has one "Done?" tick.
-- **Last time (U3):** found by the movement, on the most recent earlier day he logged reps for it. Never by where the exercise stood in the plan.
+- **Last time (U3):** found by the movement, on the most recent earlier day he logged reps for it. Never by where the exercise stood in the plan. Each set keeps the position it was logged in: a set he left empty that day has nothing beside it today, and the sets after it are not moved up.
 - **Rest timer:** per exercise, starting at the rest its prescription writes. Start, Pause, Resume, Reset, and 15 seconds less or more. At zero it reads "GO". It makes no sound.
 - **Clock:** the time since Amen, in a bar that stays at the top.
 - **Finish:** nothing is finished while a set he entered is not stored (see the failure states below). The workout is then checked as the store holds it, not as the page last drew it: a set with reps and no weight, where the lift needs one, must be fixed first; the page outlines it. Sets that will not be counted are listed, and he may finish without them: a set with nothing entered, and a set with a weight and no reps or seconds (decision 6 above). Finishing locks the workout into a summary: when it was finished, pounds moved, sets logged, and each logged set as text. A set entered halfway has a line too, which says it was not counted and what it is missing: "Not counted: 140 lb, no reps". A set left empty has no line. Nothing in a finished workout can be changed, on the screen or in the store.
@@ -147,7 +147,7 @@ The project's rule is that product behavior is not inferred from the prototype. 
 - Volume leaves out body weight, because the app stores none.
 - The summary counts "sets logged" and has no PR count; PRs are a later step.
 - The rest timer makes no sound, and nothing tells him it ended while the phone is locked.
-- Two lines are reworded because the prototype's point at a plan form that S3 does not have: "Rest day. The optional 4th training day is off." and "You finished all 365 days."
+- Two lines are reworded because the prototype's point at a plan form that S3 does not have: "Rest day. The optional 4th training day is off." and, once the calendar has run past the plan, "You have reached the end of this plan." The second is the maintainer's wording of 2026-11-20: the line is shown whether or not he logged anything, so it does not say he finished.
 - Train's row says "In progress · Tap to continue" for a started session, and "Finished · Tap to view" for a finished one.
 - Lines between exercises are solid, not dashed.
 

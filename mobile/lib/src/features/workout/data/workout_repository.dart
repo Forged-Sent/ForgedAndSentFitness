@@ -75,8 +75,9 @@ abstract interface class WorkoutRepository {
 
   /// For each of [movementIds], what the owner logged the last time he did
   /// that movement on a day before [before]. Matched by movement id, never
-  /// by where the exercise stood in the plan. A movement with nothing
-  /// logged has no entry.
+  /// by where the exercise stood in the plan. Each set keeps the position
+  /// it was logged in, so a set left empty leaves a gap and does not move
+  /// the later sets up. A movement with nothing logged has no entry.
   Future<Map<String, LastTime>> lastTimes(
     String ownerId, {
     required LocalDate before,

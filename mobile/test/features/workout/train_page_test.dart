@@ -159,6 +159,23 @@ void main() {
     );
   });
 
+  testWidgets('when the calendar has run past the plan, Train says the plan '
+      'has ended, not that he finished it', (tester) async {
+    // He opens the app once, on the plan's first Monday, and logs nothing.
+    final clock = TestClock(DateTime(2026, 11, 9, 7));
+    await pumpApp(tester, clock: clock);
+    await openTab(tester, 'Train');
+    expect(_status(tester), 'READY TO TRAIN');
+
+    // More than the plan's 365 days later.
+    clock.time = DateTime(2027, 11, 15, 7);
+    await backgroundAndResume(tester);
+
+    expect(find.text('You have reached the end of this plan.'), findsOneWidget);
+    expect(find.textContaining('finished'), findsNothing);
+    expect(trainTodayRow, findsNothing);
+  });
+
   testWidgets('a day\'s row opens its workout, and back returns to Train', (
     tester,
   ) async {

@@ -701,9 +701,7 @@ class _LiveExercise extends StatelessWidget {
               setIndex: i,
               exercise: exercise,
               set: exercise.sets[i],
-              previous: last != null && i < last.sets.length
-                  ? last.sets[i]
-                  : null,
+              previous: last?.at(exercise.sets[i].position),
               needsFixing: needsFixing.contains(exercise.sets[i].id),
               onReps: (double? reps) => track(
                 _repsChange(exercise.sets[i]),

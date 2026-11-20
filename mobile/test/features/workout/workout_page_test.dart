@@ -676,6 +676,44 @@ void main() {
       await showOnWorkoutPage(tester, repsField(1, 0));
       expect(find.byKey(const ValueKey<String>('fs-last-1-0')), findsNothing);
     });
+
+    testWidgets('stand beside the set they were logged in, when an earlier '
+        'set was left empty', (tester) async {
+      final app = await pumpApp(tester, clock: TestClock(liftingEvening));
+      // An earlier workout where only the squat's second set was logged.
+      await tester.runAsync(() async {
+        final workouts = app.store.workouts;
+        await workouts.startSession(
+          newSession(
+            'earlier',
+            DateTime(2026, 11, 4, 18),
+            owner: app.ownerId,
+            exercises: <SessionExercise>[
+              exercise('e-squat', position: 0, movementId: 'Back Squat'),
+            ],
+          ),
+        );
+        await workouts.setReps('e-squat-s1', 4);
+        await workouts.setWeight('e-squat-s1', 140);
+      });
+
+      await openTodaysWorkout(tester);
+      await startWorkout(tester);
+
+      await showOnWorkoutPage(tester, repsField(0, 0));
+      // Set 1 was not logged last time, so nothing stands beside it.
+      expect(find.byKey(const ValueKey<String>('fs-last-0-0')), findsNothing);
+      expect(
+        _text(tester, find.byKey(const ValueKey<String>('fs-last-0-1'))),
+        '140×4',
+      );
+      expect(find.byKey(const ValueKey<String>('fs-last-0-2')), findsNothing);
+      // The line above the sets still names the last set he logged.
+      expect(
+        find.text('140 lb × 4 reps on your last working set'),
+        findsOneWidget,
+      );
+    });
   });
 
   group('the rest timer', () {
