@@ -71,7 +71,17 @@ flutter test integration_test/journal_restart_2_verify_test.dart -d <device id>
 
 It passed on 2026-11-19 on the same emulator, and on the same day on one iPhone 17 simulator (iOS 27.2). It has not run on a phone.
 
-Two things to know before running either pair:
+Changing and deleting an entry have a device test too, in three parts, each a new process: the first writes two entries and changes the words of one, the second finds the change and deletes that entry, the third finds it still gone and the other entry still there.
 
-- **Run them only on an emulator or simulator, or on a device whose app data may be lost.** The second command of each pair ends by uninstalling the app, and with it everything the app holds on that device.
+```sh
+flutter test integration_test/journal_edit_restart_1_change_test.dart -d <device id> --no-uninstall
+flutter test integration_test/journal_edit_restart_2_delete_test.dart -d <device id> --no-uninstall
+flutter test integration_test/journal_edit_restart_3_gone_test.dart -d <device id>
+```
+
+It passed on 2026-11-20 on the same emulator. The database file, copied off the emulator between the parts, held one entry at revision 2 after the change; after the delete it held the same row at revision 3, marked deleted, with no words left in it. It has not run on a phone or on iOS.
+
+Two things to know before running any of them:
+
+- **Run them only on an emulator or simulator, or on a device whose app data may be lost.** The last command of each set ends by uninstalling the app, and with it everything the app holds on that device.
 - **Give a newly started emulator a few minutes first.** The tests wait a fixed, short time for the app to start and for a save to finish. On an emulator that had only just booted they have failed while the app itself was working, and passed a few minutes later with nothing changed.
