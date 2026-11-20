@@ -51,9 +51,13 @@ Q8 asks for device-only storage now, and a design that sync and encryption can b
 |---|---|---|
 | "Write it down" under the reading | `features/journal/presentation/write_it_down.dart` | `devotionalDraftProvider`: text, status (idle, empty, saving, saved, failed), and the entry id and time made at the first save attempt |
 | Journal page, `/walk` (the Walk tab) and `/today/journal` | `journal_page.dart` | `journalEntriesProvider`, a stream from the store. One page, routed twice by `_journalRoute` in `fs_router.dart`; on Walk it has no Back |
-| Entry page, `new` and `entry/:entryId` under either Journal page | `journal_entry_page.dart` | Its own: the box, busy, message, and for a new entry the id and time made at the first save attempt |
+| Entry page, `new` and `entry/:entryId` under either Journal page | `journal_entry_page.dart` | Its own: the box, busy, message, the revision and the words the box was filled with, and for a new entry the id and time made at the first save attempt |
 
 The shared box is `FsTextArea` in the design system. Its length limit and the save's are the same measure, UTF-16 code units, as the prototype's `maxlength` is, so the box never accepts what the save refuses. An edit in the middle of a full box is refused, not made to fit by cutting words from the end. The box asks the keyboard not to learn from what is typed (`enableIMEPersonalizedLearning: false`); Android keyboards honor that, and iOS has no such setting.
+
+**A page that holds him is not left by a tab tap.** While a save or a delete is on its way the entry page refuses Back with a `PopScope`. Tapping the tab he is already on returns that tab to its first page, which would close the page as surely as Back, so `fs_router.dart` asks the page on top of that tab's stack first and does nothing while it refuses. The rule is about the page, not the journal: any page that refuses Back this way is treated the same.
+
+**An entry deleted somewhere else while it is open.** The entry page remembers the words its box was filled with. If the entry disappears from the list while the box holds other words, those are his and unsaved: the page keeps the box, shows the sentence for a refused save and goes on as a new entry. Otherwise it shows that the entry is gone.
 
 **Which question an entry answers.** The draft takes the reflection question on screen when he begins to write and keeps it. If midnight passes and the page moves to the next day's reading before he saves, the box still shows, and the entry still records, the question he was answering. The entry is filed under the date of the save (decision Q9).
 

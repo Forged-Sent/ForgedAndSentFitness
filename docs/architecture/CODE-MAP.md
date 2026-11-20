@@ -292,7 +292,7 @@ flowchart LR
 
 ### mobile/lib/src/app/fs_router.dart
 
-- No classes or named methods matched by the simple inventory parser
+- fn _topPageHoldsHim()
 
 ### mobile/lib/src/app/local_store.dart
 
@@ -558,6 +558,8 @@ flowchart LR
 - class _JournalEntryPageState
 - fn dispose()
 - fn _save()
+- fn _goOnAsNewEntry()
+- fn _hasUnsavedWords()
 - fn _delete()
 - fn build()
 - fn _leave()
