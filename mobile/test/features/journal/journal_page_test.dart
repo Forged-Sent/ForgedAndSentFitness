@@ -900,6 +900,16 @@ void main() {
       expect(find.text(JournalEntryText.gone), findsOneWidget);
       expect(entryBox, findsNothing);
     });
+
+    testWidgets('an entry deleted on the other tab after he had emptied the '
+        'box here is gone too: there is nothing of his to keep', (
+      tester,
+    ) async {
+      await deletedOnTheOtherTab(tester, typed: '   ');
+
+      expect(find.text(JournalEntryText.gone), findsOneWidget);
+      expect(entryBox, findsNothing);
+    });
   });
 
   for (final scale in <double>[1.3, 2.0]) {
