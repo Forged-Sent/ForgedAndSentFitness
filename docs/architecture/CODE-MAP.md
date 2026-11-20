@@ -550,6 +550,7 @@ flowchart LR
 - class JournalEntry
 - fn toString()
 - class JournalChange
+- fn guarded()
 
 ### mobile/lib/src/features/journal/presentation/journal_entry_page.dart
 

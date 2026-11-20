@@ -17,6 +17,11 @@ abstract final class WriteItDownText {
   static const String saving = 'Saving…';
   static const String empty = 'Write something first.';
   static const String saved = 'Saved to your journal. Only you can read it.';
+
+  /// After a save where nothing is kept once the app closes (the web
+  /// preview): it must not say "Saved".
+  static const String savedNotKept =
+      'Added to your journal for now. It is not kept when the app closes.';
   static const String failed =
       'That did not save. Your entry is still here. Try again.';
   static const String retryNote =
@@ -25,9 +30,7 @@ abstract final class WriteItDownText {
 
   /// When the entry this draft was saved as has since been changed or
   /// deleted in his journal.
-  static const String separate =
-      'These words are not saved. The entry they belonged to was changed '
-      'or deleted in your journal. Saving now writes a separate entry.';
+  static const String separate = journalSeparateNotice;
   static const String discard = 'Discard draft and start a different entry';
   static const String discardSure = 'Tap again to discard this draft';
   static const String note =
@@ -106,7 +109,10 @@ class _WriteItDownState extends ConsumerState<WriteItDown> {
         draft.separate ? WriteItDownText.separate : WriteItDownText.failed,
         colors.danger,
       ),
-      DraftStatus.saved => (WriteItDownText.saved, colors.text),
+      DraftStatus.saved => (
+        durable ? WriteItDownText.saved : WriteItDownText.savedNotKept,
+        colors.text,
+      ),
       DraftStatus.idle || DraftStatus.saving => (null, colors.text),
     };
 

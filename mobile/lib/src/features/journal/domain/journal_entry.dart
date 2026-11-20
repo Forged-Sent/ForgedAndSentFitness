@@ -123,19 +123,23 @@ class JournalChange {
     required this.source,
     required this.prompt,
     this.knownChanges,
+    this.baseRevision,
   });
 
   /// Saves [text] as the entry [entryId]: a new entry if there is none with
   /// that id, otherwise a change to it.
   ///
-  /// [knownChanges] is for a writer that may be out of date, such as a
-  /// draft whose earlier save was never answered: the ids of every change
-  /// it has already sent for this entry. The save is then applied only if
-  /// the entry does not exist yet or its latest change is one of those.
-  /// If someone else changed the entry since, nothing is written and the
-  /// store answers [JournalOutcome.changedElsewhere], so the newer words
-  /// are not replaced by older ones. Without it the save is applied
-  /// whatever the entry's history.
+  /// [knownChanges] and [baseRevision] are for a writer that may be out of
+  /// date. [knownChanges] is the id of every change it has already sent
+  /// for this entry, as a draft whose earlier save was never answered
+  /// has. [baseRevision] is the revision of the entry its words were
+  /// filled from, as a page that opened the entry to edit it has. When
+  /// either is given, the save is applied only if the entry does not exist
+  /// yet, or is still at [baseRevision], or its latest change is one of
+  /// [knownChanges]. If someone else changed the entry since, nothing is
+  /// written and the store answers [JournalOutcome.changedElsewhere], so
+  /// the newer words are not replaced by older ones. With neither, the
+  /// save is applied whatever the entry's history.
   ///
   /// [at] is the phone's local time. For a new entry it must be the time of
   /// the first save attempt, kept through every retry, so a retry writes
@@ -152,6 +156,7 @@ class JournalChange {
     required DateTime at,
     String prompt = '',
     Set<String>? knownChanges,
+    int? baseRevision,
   }) {
     final clean = JournalText.clean(text);
     if (clean == null) {
@@ -174,6 +179,7 @@ class JournalChange {
       knownChanges: knownChanges == null
           ? null
           : Set<String>.unmodifiable(knownChanges),
+      baseRevision: baseRevision,
     );
   }
 
@@ -224,6 +230,14 @@ class JournalChange {
   /// delete, and for a save that is applied whatever the entry's history.
   final Set<String>? knownChanges;
 
+  /// For a save from a page that opened the entry to edit it: the revision
+  /// its words were filled from. See [JournalChange.save]. Null otherwise.
+  final int? baseRevision;
+
+  /// True for a save that says what its writer knew of the entry, and so
+  /// is refused if the entry was changed somewhere else since.
+  bool get guarded => knownChanges != null || baseRevision != null;
+
   @override
   String toString() =>
       'JournalChange($id, ${kind.stored}, entry $entryId, '
@@ -235,15 +249,19 @@ enum JournalOutcome {
   /// The change was stored and the entry now reflects it.
   applied,
 
-  /// A change with this id is already stored. Nothing was written.
+  /// This change is already stored, for this owner and this entry, and for
+  /// a save the entry is still in the journal. Nothing was written.
   duplicate,
 
-  /// The entry was deleted earlier (or, for a delete, never existed).
+  /// The entry was deleted earlier (or, for a delete, never existed), also
+  /// when the change is a save that was stored before the delete. The same
+  /// answer is given for an entry or a change that is another owner's.
   /// Nothing was written.
   entryGone,
 
-  /// The save named the changes its writer knew of, and the entry's latest
-  /// change is not one of them: it was changed somewhere else since.
-  /// Nothing was written, so the newer words stand.
+  /// The save said what its writer knew of the entry, and the entry is
+  /// neither at that revision nor last changed by one of those changes: it
+  /// was changed somewhere else since. Nothing was written, so the newer
+  /// words stand.
   changedElsewhere,
 }

@@ -40,10 +40,20 @@ class MemoryJournalRepository implements JournalRepository {
 
   @override
   Future<JournalOutcome> apply(JournalChange change) async {
-    if (_changes.any((stored) => stored.$3.id == change.id)) {
+    final current = _entries[change.entryId];
+    for (final (owner, entry, stored) in _changes) {
+      if (stored.id != change.id) continue;
+      // The same rules as the Drift store: only its own owner and entry
+      // may hear that a change is stored, and a save whose entry he has
+      // deleted since is not "saved".
+      if (owner != change.ownerId || entry != change.entryId) {
+        return JournalOutcome.entryGone;
+      }
+      if (change.kind == JournalChangeKind.save && current == null) {
+        return JournalOutcome.entryGone;
+      }
       return JournalOutcome.duplicate;
     }
-    final current = _entries[change.entryId];
     if (_deleted.contains(change.entryId) ||
         (current != null && current.ownerId != change.ownerId)) {
       return JournalOutcome.entryGone;
@@ -51,10 +61,11 @@ class MemoryJournalRepository implements JournalRepository {
 
     // The same rule as the Drift store: a writer that may be out of date
     // does not replace words that were changed somewhere else since.
-    final known = change.knownChanges;
     if (change.kind == JournalChangeKind.save &&
-        known != null &&
-        current != null) {
+        change.guarded &&
+        current != null &&
+        current.revision != change.baseRevision) {
+      final known = change.knownChanges ?? const <String>{};
       final ofEntry = _changes.where((c) => c.$2 == change.entryId);
       if (ofEntry.isEmpty || !known.contains(ofEntry.last.$3.id)) {
         return JournalOutcome.changedElsewhere;

@@ -23,9 +23,10 @@ abstract interface class JournalRepository {
   /// A save for an id with no entry makes the entry. A save for an existing
   /// entry replaces its text. A delete empties the entry and marks it
   /// deleted. A change whose id is already stored changes nothing, and so
-  /// does any change to an entry that was deleted. A save that names the
-  /// changes its writer knows of ([JournalChange.knownChanges]) changes
-  /// nothing if the entry was changed by any other change since.
+  /// does any change to an entry that was deleted. A save that says what
+  /// its writer knew of the entry ([JournalChange.knownChanges],
+  /// [JournalChange.baseRevision]) changes nothing if the entry was
+  /// changed somewhere else since.
   ///
   /// Throws a [JournalStoreFailure] if the transaction did not commit;
   /// nothing is stored then.

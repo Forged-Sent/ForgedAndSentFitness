@@ -46,6 +46,11 @@ Part of [FNS-003](requirements.md). Proposed, not approved. Commands and their o
 - A draft he empties before any save lets its question go; the next words answer the question on screen then.
 - Another owner sees nothing of an entry's change list.
 - A draft whose entry he has since changed in his journal does not replace that edit: nothing is written, the box says so, and the next save is a separate entry. Tested in both stores and on screen; the on-screen test fails without the rule.
+- A draft whose entry he has since deleted in his journal never says "Saved", also when the very same words are saved again: the box keeps them and the next save is a new entry. Tested in both stores and on screen; the tests fail without the rule.
+- The same entry open on the Walk tab and under Today: the page that saves second does not replace the newer words. It keeps what he typed, says so, and the next save writes a new entry. A page's own save that was stored without its answer does not count as a change from somewhere else. Tested in both stores and on screen; the tests fail without the rule.
+- A change that is already stored is admitted only to its own owner and for its own entry.
+- The web preview does not say "Saved" after a save.
+- The check on what the journal may import knows `cloud_functions` as a Firebase package.
 - The Walk tab shows the same entries as the Journal page under Today; an entry can be written, changed and deleted there, and Walk stays the tab he is on.
 - A journal golden image that is missing fails its test on Windows.
 

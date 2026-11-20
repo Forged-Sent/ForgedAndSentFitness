@@ -61,22 +61,40 @@ class DriftJournalRepository implements JournalRepository {
       final stored = await (_db.select(
         _db.journalChanges,
       )..where((t) => t.id.equals(change.id))).getSingleOrNull();
-      if (stored != null) return JournalOutcome.duplicate;
-
       final current = await _row(change.entryId);
+      if (stored != null) {
+        // Only its own owner and entry may hear that a change is stored.
+        // Anything else gets the answer an unknown change would get for
+        // an entry that is not the asker's.
+        if (stored.ownerId != change.ownerId ||
+            stored.entryId != change.entryId) {
+          return JournalOutcome.entryGone;
+        }
+        // A save that was stored, and whose entry he has deleted since:
+        // those words are not in his journal, so this is not "saved".
+        if (change.kind == JournalChangeKind.save &&
+            (current == null || current.deletedAtUtcMs != null)) {
+          return JournalOutcome.entryGone;
+        }
+        return JournalOutcome.duplicate;
+      }
+
       if (current != null &&
           (current.deletedAtUtcMs != null ||
               current.ownerId != change.ownerId)) {
         return JournalOutcome.entryGone;
       }
 
-      // A writer that may be out of date says which changes it knows of.
-      // If the entry's latest change is not one of them, the entry was
-      // changed somewhere else since, and those words are not replaced.
-      final known = change.knownChanges;
+      // A writer that may be out of date says what it knows of the entry:
+      // the revision its words were filled from, the changes it has sent,
+      // or both. If the entry is not at that revision and its latest
+      // change is not one of those, it was changed somewhere else since,
+      // and those words are not replaced.
       if (change.kind == JournalChangeKind.save &&
-          known != null &&
-          current != null) {
+          change.guarded &&
+          current != null &&
+          current.revision != change.baseRevision) {
+        final known = change.knownChanges ?? const <String>{};
         final latest =
             await (_db.select(_db.journalChanges)
                   ..where((t) => t.entryId.equals(change.entryId))

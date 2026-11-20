@@ -336,6 +336,50 @@ void main() {
       });
     });
 
+    testWidgets('that was stored after all, and he then deleted that entry in '
+        'his journal: saving the same words again does not say "Saved"', (
+      tester,
+    ) async {
+      final journal = TestJournalRepository()..throwAfterStoring = true;
+      final app = await pumpApp(tester, store: testStore(journal: journal));
+      await writeItDown(tester, 'Words he then deleted.');
+      expect(_message(tester), WriteItDownText.failed);
+      journal.throwAfterStoring = false;
+      final entryId = (await app.savedJournal(tester)).single.id;
+
+      // He finds the entry in his journal, on the Walk tab, and deletes it.
+      await systemBack(tester);
+      await openTab(tester, 'Walk');
+      await tester.tap(
+        find.byKey(ValueKey<String>('fs-journal-entry-$entryId')),
+      );
+      await tester.pumpAndSettle();
+      await tapVisible(tester, entryDelete);
+      await tapVisible(tester, entryDelete);
+      expect(await app.savedJournal(tester), isEmpty);
+
+      // Back to the reading. The box still holds the words, and he saves
+      // them again, unchanged: the very same change as the first time.
+      await openTab(tester, 'Today');
+      await openDevotional(tester);
+      expect(_typed(tester), 'Words he then deleted.');
+      await tapVisible(tester, journalSave);
+
+      // They are not in his journal, and the box does not say they are.
+      expect(journal.sent.last.id, journal.sent.first.id);
+      expect(_message(tester), WriteItDownText.separate);
+      expect(find.text(WriteItDownText.saved), findsNothing);
+      expect(_typed(tester), 'Words he then deleted.');
+      expect(await app.savedJournal(tester), isEmpty);
+
+      // Saving again keeps them, as a new entry.
+      await tapVisible(tester, journalSave);
+      expect(_message(tester), WriteItDownText.saved);
+      final entry = (await app.savedJournal(tester)).single;
+      expect(entry.text, 'Words he then deleted.');
+      expect(entry.id, isNot(entryId));
+    });
+
     testWidgets(
       'the draft can be discarded, with a second tap, to start another entry',
       (tester) async {
@@ -700,6 +744,26 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Nothing you write here is saved.'), findsOneWidget);
+  });
+
+  testWidgets('the web preview does not say "Saved" after a save', (
+    tester,
+  ) async {
+    await pumpApp(tester, store: LocalStore.inMemory());
+    await writeItDown(tester, 'Only for as long as the page is open.');
+
+    expect(_message(tester), WriteItDownText.savedNotKept);
+    expect(find.text(WriteItDownText.saved), findsNothing);
+    expect(find.text('Nothing you write here is saved.'), findsOneWidget);
+  });
+
+  test('the words for a draft whose entry was changed or deleted are the '
+      'ones the maintainer chose (2026-11-19)', () {
+    expect(
+      WriteItDownText.separate,
+      'Not saved yet. This entry was changed or deleted in your journal. '
+      'Save again to keep these words as a new entry.',
+    );
   });
 
   for (final scale in <double>[1.3, 2.0]) {

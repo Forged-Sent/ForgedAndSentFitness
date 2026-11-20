@@ -77,9 +77,38 @@ void main() {
 
   group('by its source', () {
     final firebaseImport = RegExp(
-      r'''^\s*(import|export)\s+['"]package:(firebase_|cloud_firestore)''',
+      r'''^\s*(import|export)\s+['"]package:'''
+      r'''(firebase_|cloud_firestore|cloud_functions)''',
       multiLine: true,
     );
+
+    test('the check knows every Firebase package by its import', () {
+      for (final line in <String>[
+        "import 'package:firebase_core/firebase_core.dart';",
+        "import 'package:firebase_auth/firebase_auth.dart';",
+        "import 'package:cloud_firestore/cloud_firestore.dart';",
+        "import 'package:cloud_functions/cloud_functions.dart';",
+        "export 'package:cloud_functions/cloud_functions.dart';",
+        '  import "package:cloud_functions/cloud_functions.dart" as fn;',
+      ]) {
+        expect(
+          firebaseImport.hasMatch('// first line\n$line\n'),
+          isTrue,
+          reason: line,
+        );
+      }
+      for (final line in <String>[
+        "import 'package:drift/drift.dart';",
+        "import 'package:flutter_riverpod/flutter_riverpod.dart';",
+        "// import 'package:cloud_functions/cloud_functions.dart';",
+      ]) {
+        expect(
+          firebaseImport.hasMatch('// first line\n$line\n'),
+          isFalse,
+          reason: line,
+        );
+      }
+    });
 
     test(
       'nothing in the journal feature, or the database, imports Firebase',

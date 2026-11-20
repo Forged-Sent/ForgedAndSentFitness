@@ -11,6 +11,14 @@ import '../domain/journal_entry.dart';
 /// closes (the web preview).
 const String journalNotSavedNotice = 'Nothing you write here is saved.';
 
+/// What the box under the reading and the entry page say when the entry
+/// his words belonged to was changed or deleted in his journal in the
+/// meantime. His words stay in the box, and the next save writes them as
+/// an entry of their own.
+const String journalSeparateNotice =
+    'Not saved yet. This entry was changed or deleted in your journal. '
+    'Save again to keep these words as a new entry.';
+
 /// His entries, newest first, straight from the store.
 ///
 /// Riverpod's automatic retry is off, so a failure shows at once.
@@ -259,8 +267,21 @@ class DevotionalDraftNotifier extends Notifier<DevotionalDraft> {
   }
 }
 
-/// Saves and deletes from the entry page. Each returns true only when the
-/// transaction committed.
+/// What became of a save from the entry page.
+enum EntrySave {
+  /// The transaction committed: his words are the entry.
+  saved,
+
+  /// Nothing was stored. The same save can be tried again.
+  failed,
+
+  /// Nothing was stored, because the entry was changed or deleted
+  /// somewhere else since this page was filled from it. His words are not
+  /// that entry's any more.
+  separate,
+}
+
+/// Saves and deletes from the entry page.
 class JournalActions {
   JournalActions(this._ref);
 
@@ -272,11 +293,18 @@ class JournalActions {
   /// [changeId] names this save. A retry of the same text passes the same
   /// one, so a save that was stored without its answer coming back is not
   /// stored a second time.
-  Future<bool> save({
+  ///
+  /// The page says what it knows of the entry, so that it never replaces
+  /// words it has not shown him: [baseRevision], the revision its box was
+  /// filled from (null for a new entry), and [knownChanges], every change
+  /// the page itself has sent for this entry.
+  Future<EntrySave> save({
     required String changeId,
     required String entryId,
     required String text,
     required DateTime at,
+    required int? baseRevision,
+    required Set<String> knownChanges,
   }) async {
     final store = _ref.read(localStoreProvider);
     try {
@@ -288,14 +316,21 @@ class JournalActions {
           text: text,
           source: JournalSource.pen,
           at: at,
+          baseRevision: baseRevision,
+          knownChanges: knownChanges,
         ),
       );
-      return outcome != JournalOutcome.entryGone;
+      return switch (outcome) {
+        JournalOutcome.applied || JournalOutcome.duplicate => EntrySave.saved,
+        JournalOutcome.entryGone ||
+        JournalOutcome.changedElsewhere => EntrySave.separate,
+      };
     } catch (_) {
-      return false;
+      return EntrySave.failed;
     }
   }
 
+  /// Deletes the entry. True only when the transaction committed.
   Future<bool> delete(String entryId) async {
     final store = _ref.read(localStoreProvider);
     try {

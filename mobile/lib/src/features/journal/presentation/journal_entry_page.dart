@@ -30,6 +30,10 @@ abstract final class JournalEntryText {
   static const String delete = 'Delete this entry';
   static const String deleteSure = 'Tap again to delete this entry';
   static const String gone = 'This entry is no longer in your journal.';
+
+  /// A save was refused because the entry was changed or deleted
+  /// somewhere else after this page was filled from it.
+  static const String separate = journalSeparateNotice;
 }
 
 /// One entry, open to be written or changed.
@@ -58,6 +62,20 @@ class _JournalEntryPageState extends ConsumerState<JournalEntryPage> {
   /// The entry's text has been put in the box. Done once, so what he types
   /// is not replaced when the list is read again.
   bool _filled = false;
+
+  /// The revision of the entry the box was filled from. A save names it,
+  /// so words he was never shown here are not replaced.
+  int? _filledRevision;
+
+  /// The id of every change this page has sent for its entry, stored or
+  /// not: a save of its own that was stored without an answer is not
+  /// "somewhere else".
+  final Set<String> _sent = <String>{};
+
+  /// True once a save was refused because the entry was changed or deleted
+  /// somewhere else. His words stay in the box and are no longer that
+  /// entry's: the page goes on as a new entry.
+  bool _separate = false;
 
   /// For a new entry: its id and time, made at the first save attempt and
   /// kept through every retry, so a retry can never make a second entry.
@@ -102,18 +120,42 @@ class _JournalEntryPageState extends ConsumerState<JournalEntryPage> {
         ? _attempt!
         : (changeId: ref.read(eventIdProvider)(), text: text);
     _attempt = attempt;
-    final saved = await ref
+    // Recorded before the answer comes: a save can be stored and its
+    // answer lost.
+    _sent.add(attempt.changeId);
+    final result = await ref
         .read(journalActionsProvider)
-        .save(changeId: attempt.changeId, entryId: entryId, text: text, at: at);
+        .save(
+          changeId: attempt.changeId,
+          entryId: entryId,
+          text: text,
+          at: at,
+          baseRevision: editing == null ? null : _filledRevision,
+          knownChanges: Set<String>.of(_sent),
+        );
     if (!mounted) return;
-    if (saved) {
-      widget.onDone();
-      return;
+    switch (result) {
+      case EntrySave.saved:
+        widget.onDone();
+      case EntrySave.failed:
+        setState(() {
+          _busy = false;
+          _message = JournalEntryText.failed;
+        });
+      case EntrySave.separate:
+        // Nothing was written over the entry as it now stands. His words
+        // stay here, and the next save gets a new id and is its own entry.
+        setState(() {
+          _busy = false;
+          _separate = true;
+          _newId = null;
+          _newAt = null;
+          _attempt = null;
+          _sent.clear();
+          _deleteArmed = false;
+          _message = JournalEntryText.separate;
+        });
     }
-    setState(() {
-      _busy = false;
-      _message = JournalEntryText.failed;
-    });
   }
 
   Future<void> _delete(JournalEntry entry) async {
@@ -145,7 +187,7 @@ class _JournalEntryPageState extends ConsumerState<JournalEntryPage> {
     final durable = ref.watch(journalDurableProvider);
     final today = ref.watch(todayDateProvider);
     final entries = ref.watch(journalEntriesProvider);
-    final isNew = widget.entryId == null;
+    final isNew = widget.entryId == null || _separate;
 
     JournalEntry? editing;
     if (!isNew) {
@@ -166,6 +208,7 @@ class _JournalEntryPageState extends ConsumerState<JournalEntryPage> {
       }
       if (!_filled) {
         _filled = true;
+        _filledRevision = editing.revision;
         _text.text = editing.text;
       }
     }

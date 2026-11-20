@@ -262,6 +262,77 @@ void main() {
     });
   });
 
+  group('the same entry open on the Walk tab and under Today', () {
+    // Each tab keeps its own pages, so one entry can be open in both.
+    Future<AppHarness> openInBoth(WidgetTester tester) async {
+      final app = await pumpApp(tester);
+      await _seed(
+        tester,
+        app.store,
+        'j1',
+        'As both pages opened it.',
+        at: DateTime(2026, 11, 9, 18),
+      );
+      // Open on the Walk tab, and typed over, but not saved.
+      await openTab(tester, 'Walk');
+      await tester.tap(_row('j1'));
+      await tester.pumpAndSettle();
+      await typeInto(tester, entryBox, 'Typed on the Walk tab.');
+
+      // Open under Today as well, changed there and saved.
+      await openTab(tester, 'Today');
+      await openJournal(tester);
+      await tester.tap(_row('j1'));
+      await tester.pumpAndSettle();
+      expect(_typed(tester), 'As both pages opened it.');
+      await typeInto(tester, entryBox, 'Saved under Today.');
+      await tapVisible(tester, entrySave);
+      expect(
+        (await app.savedJournal(tester)).single.text,
+        'Saved under Today.',
+      );
+
+      // Back on the Walk tab, the page still holds what he typed there.
+      await openTab(tester, 'Walk');
+      expect(_typed(tester), 'Typed on the Walk tab.');
+      return app;
+    }
+
+    testWidgets('a save from the page that is out of date does not replace '
+        'the newer words: it says so and keeps what he typed', (tester) async {
+      final app = await openInBoth(tester);
+
+      await tapVisible(tester, entrySave);
+
+      expect(find.byType(JournalEntryPage), findsOneWidget);
+      expect(_message(tester), JournalEntryText.separate);
+      expect(_typed(tester), 'Typed on the Walk tab.');
+      final entry = (await app.savedJournal(tester)).single;
+      expect(entry.text, 'Saved under Today.');
+      expect(entry.revision, 2);
+      // The page is no longer that entry's: there is nothing here to delete.
+      expect(entryDelete, findsNothing);
+    });
+
+    testWidgets('saving again keeps both: his words become a new entry', (
+      tester,
+    ) async {
+      final app = await openInBoth(tester);
+      await tapVisible(tester, entrySave);
+      expect(_message(tester), JournalEntryText.separate);
+
+      await tapVisible(tester, entrySave);
+
+      expect(find.byType(JournalPage), findsOneWidget);
+      final entries = await app.savedJournal(tester);
+      expect(entries.map((e) => e.text).toSet(), <String>{
+        'Saved under Today.',
+        'Typed on the Walk tab.',
+      });
+      expect(entries.firstWhere((e) => e.id == 'j1').revision, 2);
+    });
+  });
+
   group('editing an entry (P06 acceptance 3)', () {
     testWidgets('opens with his words and saves the change to the same entry', (
       tester,
@@ -340,6 +411,41 @@ void main() {
       final entries = await app.savedJournal(tester);
       expect(entries, hasLength(1));
       expect(entries.single.text, 'A change that fails first.');
+    });
+
+    testWidgets('a save that was stored without its answer is not "somewhere '
+        'else": other words from the same page still change the entry', (
+      tester,
+    ) async {
+      final journal = TestJournalRepository();
+      final store = testStore(journal: journal);
+      await _seed(
+        tester,
+        store,
+        'j1',
+        'As first written.',
+        at: DateTime(2026, 11, 9, 21),
+      );
+      final app = await pumpApp(tester, store: store);
+      await openJournal(tester);
+      await tester.tap(_row('j1'));
+      await tester.pumpAndSettle();
+
+      journal.throwAfterStoring = true;
+      await typeInto(tester, entryBox, 'Stored, answer lost.');
+      await tapVisible(tester, entrySave);
+      expect(_message(tester), JournalEntryText.failed);
+      expect((await app.savedJournal(tester)).single.revision, 2);
+
+      journal.throwAfterStoring = false;
+      await typeInto(tester, entryBox, 'Stored, answer lost. And more.');
+      await tapVisible(tester, entrySave);
+
+      expect(find.byType(JournalPage), findsOneWidget);
+      final entry = (await app.savedJournal(tester)).single;
+      expect(entry.id, 'j1');
+      expect(entry.text, 'Stored, answer lost. And more.');
+      expect(entry.revision, 3);
     });
 
     testWidgets('emptying it is not a save', (tester) async {
