@@ -1,6 +1,6 @@
 ---
 kind: feature-spec
-feature_id: FNS-003
+feature_id: FNS-004
 status: proposed
 risk: medium
 owner: maintainer
@@ -176,7 +176,7 @@ Not done in this step, and on the work board: the challenge point values, which 
 
 - iOS: built only by CI's simulator job; never run.
 - A physical phone. The emulator test of start, two sets, kill, relaunch, finish passed on 2026-11-13 on one emulator only: `FS_S1_Restart_API_36`, from the installed `system-images;android-36;google_apis_playstore;x86_64` image (Android 16, API 36), on the maintainer's Windows workstation. No CI lane has an emulator, and no other Android version was tried.
-- The migration on a member's phone. It was seen once on that emulator, which still held an S1 build and its version 1 database with three completion events: the S3 build was installed over it, the file read version 2 afterwards, and the three events and both day states were still there. That is one observation, not a test that is repeated.
+- The migration on a member's phone. It was seen once on that emulator, which still held an S1 build and its version 1 database with three completion events: the S3 build was installed over it, the file read version 2 afterwards, and the three events and both day states were still there. That is one observation, not a test that is repeated. It was made on 2026-11-13, when the workout tables were schema version 2; since the journal (S2) merged first they are version 3, and that upgrade has not been seen on a device.
 - The golden images are **not approved**. They are compared on Windows only.
 - A release build was not made, so the clock guard is proven by its unit test, not by running a release build.
 - The keyboard on a real device: that the box being typed in stays in view above it.
@@ -184,7 +184,7 @@ Not done in this step, and on the work board: the challenge point values, which 
 
 ## Tasks
 
-- [x] Storage: schema version 2, the migration from version 1 and its tests.
+- [x] Storage: schema version 3 (the journal's tables are version 2), the migrations from versions 1 and 2 and their tests.
 - [x] Rules: the plan schedule, prescription parsing, one session per day, finish once, locked when finished.
 - [x] Content: the Forged program, movement names and the prayer bundled, each checked against its source; L11 applied to the workout library.
 - [x] Screens: Train, the workout page, the prayer, the Workout box on Today.

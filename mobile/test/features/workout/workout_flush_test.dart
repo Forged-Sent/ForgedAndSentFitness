@@ -7,6 +7,7 @@ import 'package:forged_and_sent/src/app/local_store.dart';
 import 'package:forged_and_sent/src/core/clock.dart';
 import 'package:forged_and_sent/src/core/event_id.dart';
 import 'package:forged_and_sent/src/core/local_date.dart';
+import 'package:forged_and_sent/src/features/journal/data/memory_journal_repository.dart';
 import 'package:forged_and_sent/src/features/settings/data/settings_repository.dart';
 import 'package:forged_and_sent/src/features/today/data/memory_day_repository.dart';
 import 'package:forged_and_sent/src/features/workout/data/memory_workout_repository.dart';
@@ -65,6 +66,7 @@ void main() {
             LocalStore(
               ownerId: 'local-test',
               days: days,
+              journal: MemoryJournalRepository(),
               settings: MemorySettingsRepository(),
               workouts: workouts,
               close: () async {},

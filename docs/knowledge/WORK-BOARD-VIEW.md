@@ -8,9 +8,6 @@ update-by: edit WORK.md then run tooling/knowledge/work_board.py --write
 
 ## Next
 
-- [ ] **S2 Private journal**
-	**Next:** Run prompt [P06](../reviews/2026-11-10-prototype-to-flutter/prompts/P06-S2-private-journal.md)
-	[Edit this row in WORK](WORK.md)
 - [ ] **Agents may merge after review**
 	**Next:** Run prompt [P13](../reviews/2026-11-10-prototype-to-flutter/prompts/P13-let-agents-merge-after-review.md)
 	[Edit this row in WORK](WORK.md)
@@ -61,6 +58,10 @@ update-by: edit WORK.md then run tooling/knowledge/work_board.py --write
 	**Note:** Set the Homepage plugin to open HOME: one command, in the [Obsidian setup guide](OBSIDIAN-SETUP.md) under Set up once per vault
 	**Branch or PR:** branch `claude/obsidian-adhd-workspace`
 	[Edit this row in WORK](WORK.md)
+- [x] **S2 Private journal**
+	**Note:** Run it on a phone. Kept on the device only and not encrypted (Q8); the first change to the database schema, with a migration tested against the frozen schema of each version. The phone's own backup includes the database file, journal text with it: the maintainer decided on 2026-11-17 to leave phone backups on. Write, kill, relaunch passed on 2026-11-19 on one Android emulator on the maintainer's workstation (`FS_S1_Restart_API_36`, Android 16), with a test that is in the repository, and once by hand on one iPhone 17 simulator (iOS 27.2); not on a phone, and not in CI. The golden images are drawn and compared on Windows only. Not built: prayer tabs, tags, search, export, sync. Review findings the maintainer deferred to S4a on 2026-11-19, listed in pull request #77: the store is not bound to the owner of the file it opened; two cases that need a change of owner while the app is open; the privacy test looks for an entry's words in outgoing messages and not its question or ids; three gaps in tests (the device test's sentence is the same every run, the interrupted-upgrade test has no row to lose, the refused-write test on the background isolate does not see that isolate's own output); Drift's generated write object prints its fields if formatted
+	**Branch or PR:** branch `claude/s2-private-journal`
+	[Edit this row in WORK](WORK.md)
 - [x] **Lockfile-only pull requests pass the review check**
 	**Note:** None. Unblocks Dependabot [#66](https://github.com/Forged-Sent/ForgedAndSentFitness/pull/66). Without `--dry-run` such a change still gets no PASS and no review record, and `--verify` still fails
 	**Branch or PR:** branch `claude/review-lockfile-dry-run`
@@ -82,7 +83,7 @@ update-by: edit WORK.md then run tooling/knowledge/work_board.py --write
 	**Branch or PR:** branch `claude/s1b-v254-readings`
 	[Edit this row in WORK](WORK.md)
 - [x] **S3 Workout logging**
-	**Note:** The maintainer: confirm the prototype rules listed in the [contract](../features/workout-logging/feature.md), and look at the golden images, which are drawn and **not approved**. The maintainer's six decisions of 2026-11-13 are recorded in the contract and built. The database is at schema version 2, with a tested migration from version 1. Start, two sets, kill, relaunch, finish passed on 2026-11-13 on one Android emulator on the maintainer's workstation, made from the Android 36 system image (Android 16); not on a phone, and not in CI. iOS is built only by CI. No plan setup or editor: every member gets the Forged program, a full gym, rest on Sunday and lifting on Monday, Wednesday and Friday
+	**Note:** The maintainer: confirm the prototype rules listed in the [contract](../features/workout-logging/feature.md), and look at the golden images, which are drawn and **not approved**. The maintainer's six decisions of 2026-11-13 are recorded in the contract and built. The database is at schema version 3, after the journal's version 2, with tested migrations from versions 1 and 2; the contract is FNS-004. Start, two sets, kill, relaunch, finish passed on 2026-11-13 on one Android emulator on the maintainer's workstation, made from the Android 36 system image (Android 16); not on a phone, and not in CI. iOS is built only by CI. No plan setup or editor: every member gets the Forged program, a full gym, rest on Sunday and lifting on Monday, Wednesday and Friday
 	**Branch or PR:** branch `claude/s3-workout-logging`
 	[Edit this row in WORK](WORK.md)
 - [x] **Setup scripts and guides match the six-tab app**
@@ -176,6 +177,12 @@ update-by: edit WORK.md then run tooling/knowledge/work_board.py --write
 	[Edit this row in WORK](WORK.md)
 - [ ] **Local profile adopted at sign-in**
 	**Prompt:** Part of S4: [P08](../reviews/2026-11-10-prototype-to-flutter/prompts/P08-S4-contract-identity-groups-board.md), then [P09](../reviews/2026-11-10-prototype-to-flutter/prompts/P09-S4-implement-identity-groups-board.md)
+	[Edit this row in WORK](WORK.md)
+- [ ] **Unsaved typing survives its entry being deleted on another tab**
+	**Prompt:** No prompt yet. **Required before any pilot** (the maintainer, 2026-11-19). Review finding (Codex, medium) on `mobile/lib/src/features/journal/presentation/journal_entry_page.dart`, from the review of S2's last head; left unfixed at the maintainer's direction
+	[Edit this row in WORK](WORK.md)
+- [ ] **A failing save is never lost by tapping the tab he is on**
+	**Prompt:** No prompt yet. **Required before any pilot** (the maintainer, 2026-11-19). Review finding (Codex on GitHub, P2) on `mobile/lib/src/features/journal/presentation/journal_entry_page.dart` and `mobile/lib/src/app/fs_router.dart`, from the review of S2's last head; read from the code and not yet reproduced; left unfixed at the maintainer's direction
 	[Edit this row in WORK](WORK.md)
 - [ ] **Dashboard lists branches whose GitHub branch was deleted**
 	**Prompt:** No prompt yet. Review finding (Codex, medium) on `tooling/knowledge/live_status.py`. Not blocking

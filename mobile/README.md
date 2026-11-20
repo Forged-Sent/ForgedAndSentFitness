@@ -15,10 +15,10 @@ Preview only requires the generated web host, which stays temporary and git-igno
 
 `android/` and `ios/` are committed. They are Flutter 3.47.8 template output (`--org=com.forgedandsent --project-name=forged_and_sent`; Android `applicationId` `com.forgedandsent.forged_and_sent`, iOS bundle ID `com.forgedandsent.forgedAndSent`, iOS deployment target 15.0), with one reviewed customization: the ADR-0002 Android Network Security Configuration. `android/app/src/main/AndroidManifest.xml` references `@xml/network_security_config`; `android/app/src/main/res/xml/network_security_config.xml` blocks cleartext for every host (`base-config cleartextTrafficPermitted="false"`), so main, profile and release builds block cleartext on all supported API levels (minSdk 24; without it API 24-27 would allow cleartext by default). Debug builds use the same-named overlay `android/app/src/debug/res/xml/network_security_config.xml`, which keeps that base and allows HTTP only to the Android Emulator host `10.0.2.2`. Re-running `flutter create` only adds missing files; it does not rewrite committed ones. Local files (`local.properties`, Gradle wrappers, `Pods/`, `Flutter/ephemeral/`, generated plugin registrants) stay ignored by the hosts' own `.gitignore` files.
 
-What is not done yet: release signing (Android release builds still use the template's debug key), final store identifiers, any `google-services.json` or `GoogleService-Info.plist` (Firebase stays emulator-only, see ADR-0002), a committed iOS `Podfile`, and runs on a physical device; the only emulator run so far is the S1 restart test, below (the network security policy has only been checked in the built debug, profile and release APKs, not exercised on a device or emulator, including API 24-27). Physical devices using `FNS_EMULATOR_HOST=<LAN IP>` are not covered by the debug policy and would need a separate reviewed change. iOS builds need macOS/Xcode.
+What is not done yet: release signing (Android release builds still use the template's debug key), final store identifiers, any `google-services.json` or `GoogleService-Info.plist` (Firebase stays emulator-only, see ADR-0002), a committed iOS `Podfile`, and runs on a physical device; the only emulator runs so far are the two restart tests, below (the network security policy has only been checked in the built debug, profile and release APKs, not exercised on a device or emulator, including API 24-27). Physical devices using `FNS_EMULATOR_HOST=<LAN IP>` are not covered by the debug policy and would need a separate reviewed change. iOS builds need macOS/Xcode.
 
 ## Scope
-The app opens on the six-tab shell from build step S0: the brand bar, the hero header and the tab bar, in dark and light, with bundled fonts. Since build step S1, Today shows the date, the mission line, a progress ring and the day's boxes, and the devotional box opens the day's reading; Amen is saved in the member's own SQLite file on the phone and is still there after a restart. Since build step S3, Train shows this week of the Forged program, and a day's workout can be started through the workout prayer, logged set by set with a rest timer, and finished; the Workout box on Today then checks itself, and a workout in progress survives the app being killed. The other four tabs are placeholders, the other five boxes are shown as not active yet, and nothing is sent anywhere. Colors, type and shared widgets live in `lib/src/design/` and are described in `docs/design/DESIGN-SYSTEM.md`; where the fonts, the hero photograph and the bundled readings came from is in `assets/SOURCES.md`. What the feature promises is in `docs/features/today-devotional/feature.md`.
+The app opens on the six-tab shell from build step S0: the brand bar, the hero header and the tab bar, in dark and light, with bundled fonts. Since build step S1, Today shows the date, the mission line, a progress ring and the day's boxes, and the devotional box opens the day's reading; Amen is saved in the member's own SQLite file on the phone and is still there after a restart. Since build step S2 the reading ends with a "Write it down" box, and the Walk tab is the member's private journal, kept in the same SQLite file. Since build step S3, Train shows this week of the Forged program, and a day's workout can be started through the workout prayer, logged set by set with a rest timer, and finished; the Workout box on Today then checks itself, and a workout in progress survives the app being killed. The other three tabs are placeholders, the other five boxes are shown as not active yet, and nothing is sent anywhere. Colors, type and shared widgets live in `lib/src/design/` and are described in `docs/design/DESIGN-SYSTEM.md`; where the fonts, the hero photograph and the bundled readings came from is in `assets/SOURCES.md`. What the feature promises is in `docs/features/today-devotional/feature.md`.
 
 The developer status page (Today's round profile button, then Build status) is the smoke test. In emulator mode (`FS_ENV=emulator`) the app signs in anonymously to the local practice Firebase and checks Firestore and Storage, and if that check fails the app opens on the status page and says so. It never connects to cloud Firebase, and uses none of the legacy app's private data. Start real development with a vertical slice using fake repository adapters, then add backend integration after a group-access ADR and security tests.
 
@@ -33,7 +33,7 @@ dart run build_runner build
 
 ### Changing a table means a new schema version
 
-The database is at schema version 2. A member's file may be at any earlier version, so every change to a table is a migration, and it is tested. The schema of each version is frozen in `drift_schemas/`. After changing a table:
+The database is at schema version 3. A member's file may be at any earlier version, so every change to a table is a migration, and it is tested. The schema of each version is frozen in `drift_schemas/`. After changing a table:
 
 1. Raise `schemaVersion` in `lib/src/storage/app_database.dart` and add a step to `_upgradeSteps` there.
 2. Regenerate, in this order:
@@ -45,7 +45,7 @@ dart run drift_dev schema steps drift_schemas/ lib/src/storage/app_database.step
 dart run drift_dev schema generate --data-classes --companions drift_schemas/ test/storage/generated_migrations/
 ```
 
-3. Add the new version to `test/storage/migration_test.dart`.
+3. Add the new version to `test/storage/migration_test.dart` and `test/storage/schema_migration_test.dart`.
 
 `lib/src/storage/app_database.steps.dart` and everything under `test/storage/generated_migrations/` are generated and committed. Never edit a frozen schema file of a version that has shipped.
 
@@ -55,7 +55,7 @@ dart run drift_dev schema generate --data-classes --companions drift_schemas/ te
 
 ## The restart tests on an Android emulator
 
-There are two, each in two halves. This section is about the first; the workout's is the next section.
+There are three, each in two halves. This section is about the first and the journal's; the workout's is the next section.
 
 Two files under `integration_test/` prove that a checked devotional box survives the app being killed. A test cannot outlive the app it runs in, so the test is in two halves, run one after the other with the app's process stopped in between. Both start the real app with its real database file.
 
@@ -65,7 +65,21 @@ flutter test integration_test/restart_1_complete_test.dart -d <device id> --no-u
 flutter test integration_test/restart_2_verify_test.dart -d <device id>
 ```
 
-The first reads to the end, says Amen and leaves the app installed. The second starts a new process, expects the box to be checked, and uninstalls the app. Run both on the same day: a box checked before midnight is, correctly, not checked the next day. No CI lane has an emulator, so this test runs only where someone runs it. It last passed on 2026-11-12 on an emulator made for this test, `FS_S1_Restart_API_36`, from the installed `system-images;android-36;google_apis_playstore;x86_64` image (Android 16, API 36).
+The first reads to the end, says Amen and leaves the app installed. The second starts a new process, expects the box to be checked, and uninstalls the app. Run both on the same day: a box checked before midnight is, correctly, not checked the next day. No CI lane has an emulator, so this test runs only where someone runs it. It last passed on 2026-11-12 on an emulator made for this test, `FS_S1_Restart_API_36`, from the installed `system-images;android-36;google_apis_playstore;x86_64` image (Android 16, API 36), and passed there again on 2026-11-19.
+
+The private journal has the same kind of test: the first file writes an entry under the day's reading, the second starts a new process and finds it in the journal with every word.
+
+```sh
+flutter test integration_test/journal_restart_1_write_test.dart -d <device id> --no-uninstall
+flutter test integration_test/journal_restart_2_verify_test.dart -d <device id>
+```
+
+It passed on 2026-11-19 on the same emulator. It has not run on a phone or on iOS.
+
+Two things to know before running either pair:
+
+- **Run them only on an emulator or simulator, or on a device whose app data may be lost.** The second command of each pair ends by uninstalling the app, and with it everything the app holds on that device.
+- **Give a newly started emulator a few minutes first.** The tests wait a fixed, short time for the app to start and for a save to finish. On an emulator that had only just booted they have failed while the app itself was working, and passed a few minutes later with nothing changed.
 
 ## The workout restart test
 

@@ -44,6 +44,7 @@ class TodayPage extends ConsumerWidget {
     required this.onOpenDevotional,
     required this.onOpenSettings,
     required this.onOpenTrain,
+    required this.onNewJournalEntry,
   });
 
   final VoidCallback onOpenDevotional;
@@ -51,6 +52,9 @@ class TodayPage extends ConsumerWidget {
 
   /// Opens the Train tab, where a workout is started and finished.
   final VoidCallback onOpenTrain;
+
+  /// Opens a new private journal entry, from the pen in the header.
+  final VoidCallback onNewJournalEntry;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -78,9 +82,10 @@ class TodayPage extends ConsumerWidget {
               FsHeroActionKind.help,
               label: 'How this page works',
             ),
-            const FsHeroAction(
+            FsHeroAction(
               FsHeroActionKind.journal,
               label: 'New journal entry',
+              onPressed: onNewJournalEntry,
             ),
             const FsHeroAction(FsHeroActionKind.tags, label: 'Tags'),
             FsHeroAction(

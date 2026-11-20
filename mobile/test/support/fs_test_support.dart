@@ -15,6 +15,8 @@ import 'package:forged_and_sent/src/core/local_date.dart';
 import 'package:forged_and_sent/src/design/fs_hero_header.dart';
 import 'package:forged_and_sent/src/features/devotional/data/devotional_library.dart';
 import 'package:forged_and_sent/src/features/devotional/presentation/devotional_page.dart';
+import 'package:forged_and_sent/src/features/journal/data/memory_journal_repository.dart';
+import 'package:forged_and_sent/src/features/journal/domain/journal_entry.dart';
 import 'package:forged_and_sent/src/features/settings/data/settings_repository.dart';
 import 'package:forged_and_sent/src/features/today/data/memory_day_repository.dart';
 import 'package:forged_and_sent/src/features/today/data/today_content.dart';
@@ -103,6 +105,42 @@ class TestDayRepository extends MemoryDayRepository {
     saveAttempts++;
     if (failWrites) throw StateError('The test refused this save.');
     return super.record(event);
+  }
+}
+
+/// The in-memory journal standing in for the phone's database in a widget
+/// test: durable, as the Drift store is, and it can be told to fail.
+class TestJournalRepository extends MemoryJournalRepository {
+  /// When true, every save and delete throws, as a full or broken disk
+  /// would. Nothing is stored.
+  bool failWrites = false;
+
+  /// How many changes the screens have tried to store.
+  int attempts = 0;
+
+  /// Every change the screens sent, in order, stored or not.
+  final List<JournalChange> sent = <JournalChange>[];
+
+  /// When true, a change is stored and then the call throws, as when the
+  /// answer from the database is lost after the transaction committed.
+  bool throwAfterStoring = false;
+
+  /// When set, a change waits here before it is stored, so a test can look
+  /// at the screen while a save is on its way.
+  Completer<void>? gate;
+
+  @override
+  bool get durable => true;
+
+  @override
+  Future<JournalOutcome> apply(JournalChange change) async {
+    attempts++;
+    sent.add(change);
+    if (gate != null) await gate!.future;
+    if (failWrites) throw StateError('The test refused this save.');
+    final outcome = await super.apply(change);
+    if (throwAfterStoring) throw StateError('The answer was lost.');
+    return outcome;
   }
 }
 
@@ -195,12 +233,79 @@ class TestWorkoutRepository extends MemoryWorkoutRepository {
   }
 }
 
+/// The box under the reading that journal text is typed into.
+final Finder journalBox = find.descendant(
+  of: find.byKey(const ValueKey<String>('fs-journal-box')),
+  matching: find.byType(TextField),
+);
+
+/// "Save to my journal", under the reading.
+final Finder journalSave = find.byKey(
+  const ValueKey<String>('fs-journal-save'),
+);
+
+/// The line under that button: saved, failed or "write something first".
+final Finder journalMessage = find.byKey(
+  const ValueKey<String>('fs-journal-message'),
+);
+
+/// The box on the entry page.
+final Finder entryBox = find.descendant(
+  of: find.byKey(const ValueKey<String>('fs-entry-box')),
+  matching: find.byType(TextField),
+);
+
+final Finder entrySave = find.byKey(const ValueKey<String>('fs-entry-save'));
+final Finder entryDelete = find.byKey(
+  const ValueKey<String>('fs-entry-delete'),
+);
+final Finder entryMessage = find.byKey(
+  const ValueKey<String>('fs-entry-message'),
+);
+
+/// Types [text] into [field], scrolling it into view first.
+Future<void> typeInto(WidgetTester tester, Finder field, String text) async {
+  await tester.ensureVisible(field);
+  await tester.pumpAndSettle();
+  await tester.enterText(field, text);
+  await tester.pumpAndSettle();
+}
+
+/// Taps [target], scrolling it into view first.
+Future<void> tapVisible(WidgetTester tester, Finder target) async {
+  await tester.ensureVisible(target);
+  await tester.pumpAndSettle();
+  await tester.tap(target);
+  await tester.pumpAndSettle();
+}
+
+/// Opens the Journal page: Today, Settings, "Open my journal".
+Future<void> openJournal(WidgetTester tester) async {
+  await openSettings(tester);
+  await tapVisible(
+    tester,
+    find.byKey(const ValueKey<String>('fs-settings-journal')),
+  );
+}
+
+/// Writes [text] under today's reading and taps "Save to my journal".
+/// Leaves the reading open.
+Future<void> writeItDown(WidgetTester tester, String text) async {
+  await openDevotional(tester);
+  await typeInto(tester, journalBox, text);
+  await tapVisible(tester, journalSave);
+}
+
 /// A store for a widget test. Its owner is `local-test`.
-LocalStore testStore({TestDayRepository? days}) {
+LocalStore testStore({
+  TestDayRepository? days,
+  TestJournalRepository? journal,
+}) {
   final dayStore = days ?? TestDayRepository();
   return LocalStore(
     ownerId: 'local-test',
     days: dayStore,
+    journal: journal ?? TestJournalRepository(),
     settings: MemorySettingsRepository(),
     workouts: TestWorkoutRepository(dayStore),
     close: () async {},
@@ -222,6 +327,10 @@ class AppHarness {
   /// stream there never finishes, so the read is done in real time.
   Future<DayRecord> savedDay(WidgetTester tester, LocalDate day) async =>
       (await tester.runAsync(() => store.days.watchDay(ownerId, day).first))!;
+
+  /// The journal entries the store holds, newest first, read the same way.
+  Future<List<JournalEntry>> savedJournal(WidgetTester tester) async =>
+      (await tester.runAsync(() => store.journal.watchEntries(ownerId).first))!;
 
   /// The days the store holds a done box for, read the same way.
   Future<Map<LocalDate, Set<String>>> savedDoneDays(

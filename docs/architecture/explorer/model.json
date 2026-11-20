@@ -2,7 +2,7 @@
   "title": "Forged & Sent · Architecture Atlas",
   "product": "Faith-centered workouts, discipleship and group accountability",
   "status": "foundation",
-  "overview": "The Flutter client has its shell, Today, the day's devotional reading, and Train with workout logging for the bundled Forged program. A completed devotional and every change to a workout in progress are saved in the member's own SQLite file on the phone and nothing is sent anywhere. Firebase is connected only to local demo emulators. Sync, group roles, private reflections and production scoring are planned, not implemented.",
+  "overview": "The Flutter client has its shell, Today, the day's devotional reading, a private journal, and Train with workout logging for the bundled Forged program. A completed devotional, his journal entries and every change to a workout in progress are saved in the member's own SQLite file on the phone and nothing is sent anywhere. Firebase is connected only to local demo emulators. Sync, group roles, private reflections and production scoring are planned, not implemented.",
   "source": "docs/architecture/SYSTEM.md",
   "systems": [
     {
@@ -55,12 +55,15 @@
       "x": 635,
       "y": 50,
       "color": "blue",
-      "purpose": "ForgedSentApp sets up MaterialApp and the six-tab shell. Today shows the date, mission line, progress ring and the day's boxes; the devotional box opens the day's reading. Train shows today and this week of the bundled Forged program, and a day's workout page logs sets, runs the rest timer and finishes into a locked summary. FoundationHomeScreen is the developer status page, reached from Settings and shown first when a start-up check fails.",
+      "purpose": "ForgedSentApp sets up MaterialApp and the six-tab shell. Today shows the date, mission line, progress ring and the day's boxes; the devotional box opens the day's reading, which has a Write it down box. The Journal page lists his private entries and an entry page writes, changes and deletes one. Train shows today and this week of the bundled Forged program, and a day's workout page logs sets, runs the rest timer and finishes into a locked summary. FoundationHomeScreen is the developer status page, reached from Settings and shown first when a start-up check fails.",
       "files": [
         "mobile/lib/src/app/forged_sent_app.dart",
         "mobile/lib/src/app/fs_router.dart",
         "mobile/lib/src/features/today/presentation/today_page.dart",
         "mobile/lib/src/features/devotional/presentation/devotional_page.dart",
+        "mobile/lib/src/features/journal/presentation/write_it_down.dart",
+        "mobile/lib/src/features/journal/presentation/journal_page.dart",
+        "mobile/lib/src/features/journal/presentation/journal_entry_page.dart",
         "mobile/lib/src/features/settings/presentation/settings_page.dart",
         "mobile/lib/src/features/workout/presentation/train_page.dart",
         "mobile/lib/src/features/workout/presentation/workout_page.dart"
@@ -72,7 +75,7 @@
       "depends": [
         "today"
       ],
-      "notes": "Two of Today's boxes work: the devotional box and the Workout box, which checks itself when a workout is finished in Train. Four tabs are placeholders: Fuel, Walk, Board and Rally. Plan setup, the other three programs, swaps and the rest of the prototype's workout page are not built."
+      "notes": "Two of Today's boxes work: the devotional box and the Workout box, which checks itself when a workout is finished in Train. Three tabs are placeholders: Fuel, Board and Rally (the Walk tab is the journal). Plan setup, the other three programs, swaps and the rest of the prototype's workout page are not built. The journal has no tags, prayer tabs, search or export."
     },
     {
       "id": "today",
@@ -119,22 +122,25 @@
       "x": 920,
       "y": 345,
       "color": "amber",
-      "purpose": "One SQLite file per owner, through Drift. A completion event and the day state it produces are written in one transaction. Workout plans, sessions, exercises and sets are stored there too, and finishing a session records the day's Workout completion in the same transaction. Before sign-in the owner is a local profile made on first launch. The web preview has no database and keeps the day and the workout in memory.",
+      "purpose": "One SQLite file per owner, through Drift. A completion event and the day state it produces are written in one transaction, and so are a journal change and its entry. Journal text is device-only and not encrypted; it passes through one codec so encryption can be added later. Workout plans, sessions, exercises and sets are stored there too, and finishing a session records the day's Workout completion in the same transaction. Before sign-in the owner is a local profile made on first launch. The web preview has no database and keeps the day, the journal and the workout in memory.",
       "files": [
         "mobile/lib/src/storage/app_database.dart",
         "mobile/lib/src/storage/native_storage.dart",
         "mobile/lib/src/features/today/data/drift_day_repository.dart",
+        "mobile/lib/src/features/journal/data/drift_journal_repository.dart",
+        "mobile/lib/src/features/journal/data/journal_body_codec.dart",
         "mobile/lib/src/features/workout/data/drift_workout_repository.dart",
         "mobile/lib/src/app/local_store.dart",
         "mobile/lib/src/app/open_local_store.dart"
       ],
       "functions": [
         "mobile/lib/src/features/today/data/drift_day_repository.dart::DriftDayRepository",
+        "mobile/lib/src/features/journal/data/drift_journal_repository.dart::DriftJournalRepository",
         "mobile/lib/src/features/workout/data/drift_workout_repository.dart::DriftWorkoutRepository",
         "mobile/lib/src/storage/app_database.dart::AppDatabase"
       ],
       "depends": [],
-      "notes": "Events are stored locally only. There is no outbox and no sync yet. The schema is at version 2, and the migration from version 1 is tested."
+      "notes": "Events are stored locally only. There is no outbox and no sync yet. The schema is at version 3; the migrations from versions 1 and 2 are tested against a file, not on a phone."
     },
     {
       "id": "adapter",
@@ -249,7 +255,7 @@
       "depends": [
         "repos"
       ],
-      "notes": "Three exist, under Implemented: TodayViewModel, TrainViewModel and WorkoutViewModel. Others come with their features."
+      "notes": "TodayViewModel, the journal's draft notifier, TrainViewModel and WorkoutViewModel exist, under Implemented. Others come with their features."
     },
     {
       "id": "repos",
@@ -266,7 +272,7 @@
         "outbox",
         "services"
       ],
-      "notes": "DayRepository, SettingsRepository and WorkoutRepository exist, under Implemented. Repositories for groups and the journal do not."
+      "notes": "DayRepository, JournalRepository, SettingsRepository and WorkoutRepository exist, under Implemented. Repositories for groups do not."
     },
     {
       "id": "outbox",

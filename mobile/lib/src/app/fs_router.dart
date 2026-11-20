@@ -4,6 +4,8 @@ import 'package:go_router/go_router.dart';
 import '../core/local_date.dart';
 import '../design/fs_shell.dart';
 import '../features/devotional/presentation/devotional_page.dart';
+import '../features/journal/presentation/journal_entry_page.dart';
+import '../features/journal/presentation/journal_page.dart';
 import '../features/settings/presentation/settings_page.dart';
 import '../features/today/presentation/today_page.dart';
 import '../features/workout/presentation/train_page.dart';
@@ -18,9 +20,15 @@ import 'tab_pages.dart';
 /// is where the member left it, scroll position included, when he comes back
 /// to it. Android's system back pops the current tab's stack.
 ///
-/// Today has two pages under it: the day's reading and Settings. The
-/// developer's build status page is under Settings. Train has one: a day's
-/// workout, at `/train/workout/2026-11-13`.
+/// Today has three pages under it: the day's reading, the private journal
+/// (with a page for one entry) and Settings. The developer's build status
+/// page is under Settings. Train has one: a day's workout, at
+/// `/train/workout/2026-11-13`.
+///
+/// The Walk tab is the same journal (the maintainer's decision of
+/// 2026-11-17: the journal lives on Walk, as in v254, without the Brothers
+/// and Prayers parts until they exist). It is the same pages over the same
+/// entries, in the Walk tab's own stack.
 ///
 /// If a start-up check failed, the app opens on the status page so the
 /// reason is on screen. It never falls back to a cloud connection.
@@ -69,6 +77,8 @@ GoRouter buildFsRouter({
                     onOpenSettings: () =>
                         context.go(ShellDestinations.settingsPath),
                     onOpenTrain: () => context.go(ShellDestinations.trainPath),
+                    onNewJournalEntry: () =>
+                        context.go(ShellDestinations.journalNewPath),
                   );
                 },
                 routes: <RouteBase>[
@@ -77,8 +87,15 @@ GoRouter buildFsRouter({
                     builder: (BuildContext context, GoRouterState state) {
                       return DevotionalPage(
                         onBack: () => context.go(ShellDestinations.todayPath),
+                        onOpenJournal: () =>
+                            context.go(ShellDestinations.journalPath),
                       );
                     },
+                  ),
+                  _journalRoute(
+                    path: 'journal',
+                    location: ShellDestinations.journalPath,
+                    backTo: ShellDestinations.todayPath,
                   ),
                   GoRoute(
                     path: 'settings',
@@ -87,6 +104,8 @@ GoRouter buildFsRouter({
                         onBack: () => context.go(ShellDestinations.todayPath),
                         onOpenStatus: () =>
                             context.go(ShellDestinations.statusPath),
+                        onOpenJournal: () =>
+                            context.go(ShellDestinations.journalPath),
                       );
                     },
                     routes: <RouteBase>[
@@ -151,15 +170,65 @@ GoRouter buildFsRouter({
             else
               StatefulShellBranch(
                 routes: <RouteBase>[
-                  GoRoute(
-                    path: destination.path,
-                    builder: (BuildContext context, GoRouterState state) {
-                      return TabPlaceholderPage(destination: destination);
-                    },
-                  ),
+                  if (destination.path == ShellDestinations.walkPath)
+                    // A tab's first page has nowhere to go back to.
+                    _journalRoute(
+                      path: ShellDestinations.walkPath,
+                      location: ShellDestinations.walkPath,
+                      backTo: null,
+                    )
+                  else
+                    GoRoute(
+                      path: destination.path,
+                      builder: (BuildContext context, GoRouterState state) {
+                        return TabPlaceholderPage(destination: destination);
+                      },
+                    ),
                 ],
               ),
         ],
+      ),
+    ],
+  );
+}
+
+/// The Journal page at [location], with its two entry pages under it:
+/// `new` and `entry/:entryId`. [path] is this route's own path segment.
+/// Back on the Journal page goes to [backTo]; with none, the page has no
+/// Back, because it is a tab's first page.
+GoRoute _journalRoute({
+  required String path,
+  required String location,
+  required String? backTo,
+}) {
+  return GoRoute(
+    path: path,
+    builder: (BuildContext context, GoRouterState state) {
+      return JournalPage(
+        onBack: backTo == null ? null : () => context.go(backTo),
+        onNewEntry: () => context.go('$location/new'),
+        onOpenEntry: (String entryId) =>
+            context.go('$location/entry/${Uri.encodeComponent(entryId)}'),
+      );
+    },
+    routes: <RouteBase>[
+      GoRoute(
+        path: 'new',
+        builder: (BuildContext context, GoRouterState state) {
+          return JournalEntryPage(onDone: () => context.go(location));
+        },
+      ),
+      GoRoute(
+        path: 'entry/:entryId',
+        builder: (BuildContext context, GoRouterState state) {
+          return JournalEntryPage(
+            // A new page for each entry, so one entry's text is never left
+            // in another's box.
+            key: ValueKey<String>('entry-${state.pathParameters['entryId']}'),
+            entryId: state.pathParameters['entryId'],
+            onDone: () => context.go(location),
+          );
+        },
       ),
     ],
   );

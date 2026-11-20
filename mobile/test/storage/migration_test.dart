@@ -14,6 +14,7 @@ import 'package:forged_and_sent/src/storage/native_storage.dart';
 import '../features/workout/workout_repository_contract.dart';
 import 'generated_migrations/schema.dart';
 import 'generated_migrations/schema_v1.dart' as v1;
+import 'generated_migrations/schema_v2.dart' as v2;
 
 /// Schema migrations, tested against the frozen schema of every version
 /// in `drift_schemas/`.
@@ -85,26 +86,26 @@ void main() {
   }
 
   test(
-    'version 1 migrates to version 2 with exactly the frozen schema',
+    'version 1 migrates to version 3 with exactly the frozen schema',
     () async {
       final connection = await verifier.startAt(1);
       final database = AppDatabase(connection);
       addTearDown(database.close);
 
-      await verifier.migrateAndValidate(database, 2);
+      await verifier.migrateAndValidate(database, 3);
     },
   );
 
-  test('a new install is created at version 2 with the same schema', () async {
+  test('a new install is created at version 3 with the same schema', () async {
     final database = AppDatabase(NativeDatabase.memory());
     addTearDown(database.close);
 
-    await verifier.migrateAndValidate(database, 2);
+    await verifier.migrateAndValidate(database, 3);
 
     final version = await database
         .customSelect('PRAGMA user_version')
         .getSingle();
-    expect(version.read<int>('user_version'), 2);
+    expect(version.read<int>('user_version'), 3);
   });
 
   test(
@@ -117,7 +118,7 @@ void main() {
 
       final database = AppDatabase(schema.newConnection());
       addTearDown(database.close);
-      await verifier.migrateAndValidate(database, 2);
+      await verifier.migrateAndValidate(database, 3);
 
       final events = await (database.select(
         database.completionEvents,
@@ -155,6 +156,64 @@ void main() {
       expect(await database.select(database.workoutSets).get(), isEmpty);
     },
   );
+
+  test('version 2 migrates to version 3 with exactly the frozen schema, and '
+      'the journal and the rows of version 1 are all still there', () async {
+    final schema = await verifier.schemaAt(2);
+    final old = v2.DatabaseAtV2(schema.newConnection());
+    await old.customStatement(
+      'INSERT INTO completion_events VALUES '
+      "('e1', 'local-a', '2026-11-12', 'devotional', 1, 1, 1794483000000, "
+      '-300, NULL)',
+    );
+    await old.customStatement(
+      'INSERT INTO day_states VALUES '
+      "('local-a', '2026-11-12', 'devotional', 1, 'e1', 1)",
+    );
+    await old.customStatement(
+      "INSERT INTO app_settings VALUES ('show_preview_points', 'true')",
+    );
+    await old.customStatement(
+      'INSERT INTO journal_entries (id, owner_id, day, created_at_utc_ms, '
+      'utc_offset_minutes, body, body_format, source, prompt, '
+      'edited_at_utc_ms, deleted_at_utc_ms, revision) VALUES '
+      "('j1', 'local-a', '2026-11-19', 1795089600000, -420, "
+      "'Written before the workout tables.', 'plain', 'pen', '', NULL, NULL, 1)",
+    );
+    await old.customStatement(
+      'INSERT INTO journal_changes (id, owner_id, entry_id, kind, revision, '
+      'counter, at_utc_ms, utc_offset_minutes) VALUES '
+      "('c1', 'local-a', 'j1', 'save', 1, 1, 1795089600000, -420)",
+    );
+    await old.close();
+
+    final database = AppDatabase(schema.newConnection());
+    addTearDown(database.close);
+    await verifier.migrateAndValidate(database, 3);
+
+    final entry = (await database.select(database.journalEntries).get()).single;
+    expect(
+      (entry.id, entry.ownerId, entry.day, entry.body, entry.revision),
+      ('j1', 'local-a', '2026-11-19', 'Written before the workout tables.', 1),
+    );
+    expect(entry.createdAtUtcMs, 1795089600000);
+    final change =
+        (await database.select(database.journalChanges).get()).single;
+    expect((change.id, change.entryId, change.kind), ('c1', 'j1', 'save'));
+    final event =
+        (await database.select(database.completionEvents).get()).single;
+    expect((event.id, event.done), ('e1', true));
+    final state = (await database.select(database.dayStates).get()).single;
+    expect((state.day, state.latestEventId), ('2026-11-12', 'e1'));
+    final setting = (await database.select(database.appSettings).get()).single;
+    expect((setting.key, setting.value), ('show_preview_points', 'true'));
+
+    // The new tables are there and empty.
+    expect(await database.select(database.workoutPlans).get(), isEmpty);
+    expect(await database.select(database.workoutSessions).get(), isEmpty);
+    expect(await database.select(database.workoutExercises).get(), isEmpty);
+    expect(await database.select(database.workoutSets).get(), isEmpty);
+  });
 
   test('a version 1 file on disk opens in this build as the app opens it: '
       'what he checked is still checked, and he can log a workout', () async {

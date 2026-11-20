@@ -68,8 +68,119 @@ class AppSettings extends Table {
   Set<Column<Object>> get primaryKey => {key};
 }
 
+/// What each private journal entry currently says (build step S2).
+///
+/// Decision Q8: journal entries are kept on the device only. The text is
+/// written through a codec, and [bodyFormat] records the form it was
+/// stored in, so entries can be encrypted later without a new table. The
+/// revision and the kept row of a deleted entry are there for a later
+/// sync; neither is built.
+@UseRowClass(JournalEntryRow)
+class JournalEntries extends Table {
+  /// Client-generated UUID, made once when the entry is first saved.
+  TextColumn get id => text()();
+
+  TextColumn get ownerId => text()();
+
+  /// The local day the entry was first saved on, as `YYYY-MM-DD`.
+  TextColumn get day => text()();
+
+  /// When it was first saved: a UTC instant, and the phone's offset from
+  /// UTC at that moment.
+  IntColumn get createdAtUtcMs => integer()();
+  IntColumn get utcOffsetMinutes => integer()();
+
+  /// What he wrote, in the form named by [bodyFormat]. Empty once deleted.
+  TextColumn get body => text()();
+  TextColumn get bodyFormat => text()();
+
+  /// Where it was written: `devotional` or `pen`.
+  TextColumn get source => text()();
+
+  /// The reflection question it answers, if any. Empty once deleted.
+  TextColumn get prompt => text()();
+
+  IntColumn get editedAtUtcMs => integer().nullable()();
+
+  /// Set when he deletes the entry. The row stays, without its words, so
+  /// a later sync can tell other devices it is gone.
+  IntColumn get deletedAtUtcMs => integer().nullable()();
+
+  /// How many times this entry has been written, counting from 1.
+  IntColumn get revision => integer()();
+
+  @override
+  Set<Column<Object>> get primaryKey => {id};
+}
+
+/// A row of [JournalEntries] as read from the database.
+///
+/// Written by hand, not generated, for one reason: a generated row prints
+/// every column, and this one must never print [body] or [prompt].
+class JournalEntryRow {
+  const JournalEntryRow({
+    required this.id,
+    required this.ownerId,
+    required this.day,
+    required this.createdAtUtcMs,
+    required this.utcOffsetMinutes,
+    required this.body,
+    required this.bodyFormat,
+    required this.source,
+    required this.prompt,
+    required this.revision,
+    this.editedAtUtcMs,
+    this.deletedAtUtcMs,
+  });
+
+  final String id;
+  final String ownerId;
+  final String day;
+  final int createdAtUtcMs;
+  final int utcOffsetMinutes;
+  final String body;
+  final String bodyFormat;
+  final String source;
+  final String prompt;
+  final int? editedAtUtcMs;
+  final int? deletedAtUtcMs;
+  final int revision;
+
+  @override
+  String toString() =>
+      'JournalEntryRow($id, $day, $source, $bodyFormat, revision $revision, '
+      '${body.length} stored characters'
+      '${deletedAtUtcMs == null ? '' : ', deleted'})';
+}
+
+/// Every save and delete of a journal entry, in the order it happened
+/// here. Rows are only ever added, and they never hold any text.
+@DataClassName('JournalChangeRow')
+class JournalChanges extends Table {
+  /// Client-generated UUID.
+  TextColumn get id => text()();
+
+  TextColumn get ownerId => text()();
+  TextColumn get entryId => text()();
+
+  /// `save` or `delete`.
+  TextColumn get kind => text()();
+
+  /// The entry's revision once this change was applied.
+  IntColumn get revision => integer()();
+
+  /// This change's place in this database's order of journal changes.
+  IntColumn get counter => integer().unique()();
+
+  IntColumn get atUtcMs => integer()();
+  IntColumn get utcOffsetMinutes => integer()();
+
+  @override
+  Set<Column<Object>> get primaryKey => {id};
+}
+
 /// The member's workout plan: which program he follows and how its days
-/// fall on his week. One row per owner. Added in schema version 2.
+/// fall on his week. One row per owner. Added in schema version 3.
 ///
 /// Weekdays are numbered as `LocalDate.weekday` numbers them: Monday is 1
 /// and Sunday is 7.
@@ -100,7 +211,7 @@ class WorkoutPlans extends Table {
   Set<Column<Object>> get primaryKey => {ownerId};
 }
 
-/// One workout the member started. Added in schema version 2.
+/// One workout the member started. Added in schema version 3.
 ///
 /// A session belongs to the local day it was started on and keeps that day
 /// for good, so it can be finished after midnight. It carries its own copy
@@ -152,7 +263,7 @@ class WorkoutSessions extends Table {
 }
 
 /// One exercise of a session, as the plan prescribed it when the session
-/// was started. Added in schema version 2.
+/// was started. Added in schema version 3.
 @DataClassName('WorkoutExerciseRow')
 @TableIndex(name: 'workout_exercises_session', columns: {#sessionId})
 @TableIndex(name: 'workout_exercises_movement', columns: {#movementId})
@@ -197,7 +308,7 @@ class WorkoutExercises extends Table {
   Set<Column<Object>> get primaryKey => {id};
 }
 
-/// One set of an exercise. Added in schema version 2.
+/// One set of an exercise. Added in schema version 3.
 @DataClassName('WorkoutSetRow')
 @TableIndex(name: 'workout_sets_exercise', columns: {#exerciseId})
 class WorkoutSets extends Table {
@@ -230,16 +341,19 @@ class WorkoutSets extends Table {
 ///
 /// Schema versions:
 /// 1. The day's boxes and settings (build step S1).
-/// 2. Workout plans, sessions, exercises and sets (build step S3).
+/// 2. The journal tables (build step S2).
+/// 3. Workout plans, sessions, exercises and sets (build step S3).
 ///
-/// Each version's schema is frozen in `drift_schemas/`, and
-/// `test/storage/migration_test.dart` proves that a file of every earlier
-/// version opens in this one with its rows intact.
+/// Each version's schema is frozen in `drift_schemas/`, and the tests in
+/// `test/storage/` prove that a file of every earlier version opens in this
+/// one with its rows intact.
 @DriftDatabase(
   tables: [
     CompletionEvents,
     DayStates,
     AppSettings,
+    JournalEntries,
+    JournalChanges,
     WorkoutPlans,
     WorkoutSessions,
     WorkoutExercises,
@@ -250,7 +364,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase(super.executor);
 
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => 3;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -275,6 +389,24 @@ class AppDatabase extends _$AppDatabase {
 /// so a later change to a table cannot change an old step.
 final _upgradeSteps = migrationSteps(
   from1To2: (Migrator m, Schema2 schema) async {
+    // A table that is already there is left alone: the new version number
+    // is recorded after this step returns, so an update that was cut off
+    // in between can leave the tables in place under the old number.
+    // Creating them again would fail on every later launch.
+    if (!await _tableExists(
+      m.database,
+      schema.journalEntries.actualTableName,
+    )) {
+      await m.createTable(schema.journalEntries);
+    }
+    if (!await _tableExists(
+      m.database,
+      schema.journalChanges.actualTableName,
+    )) {
+      await m.createTable(schema.journalChanges);
+    }
+  },
+  from2To3: (Migrator m, Schema3 schema) async {
     await m.createTable(schema.workoutPlans);
     await m.createTable(schema.workoutSessions);
     await m.createTable(schema.workoutExercises);
@@ -284,3 +416,13 @@ final _upgradeSteps = migrationSteps(
     await m.createIndex(schema.workoutSetsExercise);
   },
 );
+
+Future<bool> _tableExists(GeneratedDatabase database, String name) async {
+  final found = await database
+      .customSelect(
+        "SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = ?",
+        variables: <Variable<Object>>[Variable<String>(name)],
+      )
+      .get();
+  return found.isNotEmpty;
+}

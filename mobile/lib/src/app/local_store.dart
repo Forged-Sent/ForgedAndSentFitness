@@ -1,5 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../features/journal/data/journal_repository.dart';
+import '../features/journal/data/memory_journal_repository.dart';
 import '../features/settings/data/settings_repository.dart';
 import '../features/today/data/day_repository.dart';
 import '../features/today/data/memory_day_repository.dart';
@@ -12,6 +14,7 @@ class LocalStore {
   const LocalStore({
     required this.ownerId,
     required this.days,
+    required this.journal,
     required this.settings,
     required this.workouts,
     required this.close,
@@ -24,6 +27,7 @@ class LocalStore {
     return LocalStore(
       ownerId: ownerId,
       days: days,
+      journal: MemoryJournalRepository(),
       settings: MemorySettingsRepository(),
       workouts: MemoryWorkoutRepository(days),
       close: () async {},
@@ -34,6 +38,9 @@ class LocalStore {
   final String ownerId;
 
   final DayRepository days;
+
+  /// His private journal (decision Q8: on this device only).
+  final JournalRepository journal;
   final SettingsRepository settings;
 
   /// The member's workout plan and sessions. Finishing a session checks
