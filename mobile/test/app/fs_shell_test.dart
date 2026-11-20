@@ -8,6 +8,7 @@ import 'package:forged_and_sent/src/design/fs_colors.dart';
 import 'package:forged_and_sent/src/design/fs_hero_header.dart';
 import 'package:forged_and_sent/src/design/fs_shell.dart';
 import 'package:forged_and_sent/src/features/devotional/presentation/devotional_page.dart';
+import 'package:forged_and_sent/src/features/journal/presentation/journal_page.dart';
 import 'package:forged_and_sent/src/features/settings/presentation/settings_page.dart';
 import 'package:forged_and_sent/src/features/today/presentation/today_page.dart';
 
@@ -18,7 +19,8 @@ const List<(String label, String title)> _tabs = <(String, String)>[
   ('Today', 'TODAY’S MISSION'),
   ('Fuel', 'FUEL'),
   ('Train', 'TRAIN'),
-  ('Walk', 'WALK'),
+  // Since build step S2 the Walk tab is his private journal.
+  ('Walk', 'MY JOURNAL'),
   ('Board', 'STANDINGS'),
   ('Rally', 'RALLY'),
 ];
@@ -75,12 +77,19 @@ void main() {
     for (final (label, title) in _tabs.skip(1)) {
       await openTab(tester, label);
       expect(find.text(title), findsWidgets, reason: label);
-      expect(find.text('NOT BUILT YET'), findsOneWidget, reason: label);
-      expect(
-        find.text('$label arrives in a later step.'),
-        findsOneWidget,
-        reason: label,
-      );
+      if (label == 'Walk') {
+        // Not a placeholder: the journal, as a tab's first page.
+        expect(find.byType(JournalPage), findsOneWidget);
+        expect(find.text('NOT BUILT YET'), findsNothing);
+        expect(find.text('‹ BACK'), findsNothing);
+      } else {
+        expect(find.text('NOT BUILT YET'), findsOneWidget, reason: label);
+        expect(
+          find.text('$label arrives in a later step.'),
+          findsOneWidget,
+          reason: label,
+        );
+      }
       expect(_isCurrent(tester, label), isTrue, reason: label);
       expect(_isCurrent(tester, 'Today'), isFalse, reason: label);
       // The brand bar and the tab bar stay put.
@@ -255,16 +264,16 @@ void main() {
       isSemantics(label: 'Today', isButton: true, isSelected: true),
     );
     expect(
-      tester.getSemantics(tab('Walk')),
-      isSemantics(label: 'Walk', isButton: true, isSelected: false),
+      tester.getSemantics(tab('Fuel')),
+      isSemantics(label: 'Fuel', isButton: true, isSelected: false),
     );
-    await openTab(tester, 'Walk');
+    await openTab(tester, 'Fuel');
     expect(
-      tester.getSemantics(tab('Walk')),
-      isSemantics(label: 'Walk', isButton: true, isSelected: true),
+      tester.getSemantics(tab('Fuel')),
+      isSemantics(label: 'Fuel', isButton: true, isSelected: true),
     );
     // The page title is announced as a heading, in its written case.
-    expect(find.bySemanticsLabel('Walk'), findsWidgets);
+    expect(find.bySemanticsLabel('Fuel'), findsWidgets);
     // The round header buttons do nothing yet, so they are not announced.
     expect(find.bySemanticsLabel('New journal entry'), findsNothing);
     expect(find.bySemanticsLabel('Your profile'), findsNothing);
