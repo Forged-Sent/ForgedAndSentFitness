@@ -138,6 +138,9 @@ update-by: edit WORK.md then run tooling/knowledge/work_board.py --write
 - [ ] **Unsaved typing survives its entry being deleted on another tab**
 	**Prompt:** No prompt yet. **Required before any pilot** (the maintainer, 2026-11-19). Review finding (Codex, medium) on `mobile/lib/src/features/journal/presentation/journal_entry_page.dart`, from the review of S2's last head; left unfixed at the maintainer's direction
 	[Edit this row in WORK](WORK.md)
+- [ ] **A failing save is never lost by tapping the tab he is on**
+	**Prompt:** No prompt yet. **Required before any pilot** (the maintainer, 2026-11-19). Review finding (Codex on GitHub, P2) on `mobile/lib/src/features/journal/presentation/journal_entry_page.dart` and `mobile/lib/src/app/fs_router.dart`, from the review of S2's last head; read from the code and not yet reproduced; left unfixed at the maintainer's direction
+	[Edit this row in WORK](WORK.md)
 - [ ] **Dashboard lists branches whose GitHub branch was deleted**
 	**Prompt:** No prompt yet. Review finding (Codex, medium) on `tooling/knowledge/live_status.py`. Not blocking
 	[Edit this row in WORK](WORK.md)
