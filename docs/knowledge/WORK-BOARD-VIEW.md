@@ -8,9 +8,6 @@ update-by: edit WORK.md then run tooling/knowledge/work_board.py --write
 
 ## Next
 
-- [ ] **S2 Private journal**
-	**Next:** Run prompt [P06](../reviews/2026-11-10-prototype-to-flutter/prompts/P06-S2-private-journal.md)
-	[Edit this row in WORK](WORK.md)
 - [ ] **Agents may merge after review**
 	**Next:** Run prompt [P13](../reviews/2026-11-10-prototype-to-flutter/prompts/P13-let-agents-merge-after-review.md)
 	[Edit this row in WORK](WORK.md)
@@ -64,6 +61,10 @@ update-by: edit WORK.md then run tooling/knowledge/work_board.py --write
 - [x] **Obsidian focus workspace**
 	**Note:** Set the Homepage plugin to open HOME: one command, in the [Obsidian setup guide](OBSIDIAN-SETUP.md) under Set up once per vault
 	**Branch or PR:** branch `claude/obsidian-adhd-workspace`
+	[Edit this row in WORK](WORK.md)
+- [x] **S2 Private journal**
+	**Note:** Run it on a phone. Kept on the device only and not encrypted (Q8); the first change to the database schema, with a migration tested against the frozen schema of each version. The phone's own backup includes the database file, journal text with it: the maintainer decided on 2026-11-17 to leave phone backups on. Write, kill, relaunch passed on 2026-11-19 on one Android emulator on the maintainer's workstation (`FS_S1_Restart_API_36`, Android 16), with a test that is in the repository, and once by hand on one iPhone 17 simulator (iOS 27.2); not on a phone, and not in CI. The golden images are drawn and compared on Windows only. Not built: prayer tabs, tags, search, export, sync. Review findings the maintainer deferred to S4a on 2026-11-19, listed in pull request #77: the store is not bound to the owner of the file it opened; two cases that need a change of owner while the app is open; the privacy test looks for an entry's words in outgoing messages and not its question or ids; three gaps in tests (the device test's sentence is the same every run, the interrupted-upgrade test has no row to lose, the refused-write test on the background isolate does not see that isolate's own output); Drift's generated write object prints its fields if formatted
+	**Branch or PR:** branch `claude/s2-private-journal`
 	[Edit this row in WORK](WORK.md)
 - [x] **Lockfile-only pull requests pass the review check**
 	**Note:** None. Unblocks Dependabot [#66](https://github.com/Forged-Sent/ForgedAndSentFitness/pull/66). Without `--dry-run` such a change still gets no PASS and no review record, and `--verify` still fails
@@ -135,11 +136,14 @@ update-by: edit WORK.md then run tooling/knowledge/work_board.py --write
 - [ ] **Recover from a corrupt database file**
 	**Prompt:** No prompt yet. Found in S1 while fixing the start-up check (Codex's review of #65 on GitHub). Needs a decision on what to keep and what to tell him
 	[Edit this row in WORK](WORK.md)
-- [ ] **First schema migration is tested**
-	**Prompt:** No prompt yet. Do it in the pull request that first changes a table
-	[Edit this row in WORK](WORK.md)
 - [ ] **Local profile adopted at sign-in**
 	**Prompt:** Part of S4: [P08](../reviews/2026-11-10-prototype-to-flutter/prompts/P08-S4-contract-identity-groups-board.md), then [P09](../reviews/2026-11-10-prototype-to-flutter/prompts/P09-S4-implement-identity-groups-board.md)
+	[Edit this row in WORK](WORK.md)
+- [ ] **Unsaved typing survives its entry being deleted on another tab**
+	**Prompt:** No prompt yet. **Required before any pilot** (the maintainer, 2026-11-19). Review finding (Codex, medium) on `mobile/lib/src/features/journal/presentation/journal_entry_page.dart`, from the review of S2's last head; left unfixed at the maintainer's direction
+	[Edit this row in WORK](WORK.md)
+- [ ] **A failing save is never lost by tapping the tab he is on**
+	**Prompt:** No prompt yet. **Required before any pilot** (the maintainer, 2026-11-19). Review finding (Codex on GitHub, P2) on `mobile/lib/src/features/journal/presentation/journal_entry_page.dart` and `mobile/lib/src/app/fs_router.dart`, from the review of S2's last head; read from the code and not yet reproduced; left unfixed at the maintainer's direction
 	[Edit this row in WORK](WORK.md)
 - [ ] **Dashboard lists branches whose GitHub branch was deleted**
 	**Prompt:** No prompt yet. Review finding (Codex, medium) on `tooling/knowledge/live_status.py`. Not blocking

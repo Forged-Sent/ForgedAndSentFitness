@@ -1,0 +1,464 @@
+import 'package:flutter_test/flutter_test.dart';
+import 'package:forged_and_sent/src/core/local_date.dart';
+import 'package:forged_and_sent/src/features/journal/data/journal_repository.dart';
+import 'package:forged_and_sent/src/features/journal/domain/journal_entry.dart';
+
+const String owner = 'local-test';
+const LocalDate nov12 = LocalDate(2026, 11, 12);
+
+/// A save of [text] as the entry [entryId], tapped at [at].
+JournalChange saveOf(
+  String changeId,
+  String entryId,
+  String text, {
+  DateTime? at,
+  String ownerId = owner,
+  JournalSource source = JournalSource.devotional,
+  String prompt = 'What possession has too much of your heart?',
+  Set<String>? knownChanges,
+  int? baseRevision,
+}) => JournalChange.save(
+  id: changeId,
+  ownerId: ownerId,
+  entryId: entryId,
+  text: text,
+  source: source,
+  knownChanges: knownChanges,
+  baseRevision: baseRevision,
+  at: at ?? DateTime(2026, 11, 12, 6, 30),
+  prompt: prompt,
+);
+
+JournalChange deleteOf(
+  String changeId,
+  String entryId, {
+  DateTime? at,
+  String ownerId = owner,
+}) => JournalChange.delete(
+  id: changeId,
+  ownerId: ownerId,
+  entryId: entryId,
+  at: at ?? DateTime(2026, 11, 12, 9),
+);
+
+/// The rules every journal store follows. Run against the Drift store and
+/// the in-memory one.
+void journalRepositoryContract(Future<JournalRepository> Function() open) {
+  late JournalRepository journal;
+
+  setUp(() async => journal = await open());
+
+  Future<List<JournalEntry>> entries([String ownerId = owner]) =>
+      journal.watchEntries(ownerId).first;
+
+  test('a new store has no entries', () async {
+    expect(await entries(), isEmpty);
+    expect(await journal.entry(owner, 'j1'), isNull);
+  });
+
+  test('a save makes one entry, as it was written', () async {
+    final at = DateTime(2026, 11, 12, 6, 30);
+    expect(
+      await journal.apply(saveOf('c1', 'j1', '  My truck.  ', at: at)),
+      JournalOutcome.applied,
+    );
+
+    final entry = (await entries()).single;
+    expect(entry.id, 'j1');
+    expect(entry.ownerId, owner);
+    expect(entry.text, 'My truck.');
+    expect(entry.day, nov12);
+    expect(entry.createdAtUtc, at.toUtc());
+    expect(entry.utcOffset, at.timeZoneOffset);
+    expect(entry.source, JournalSource.devotional);
+    expect(entry.prompt, 'What possession has too much of your heart?');
+    expect(entry.editedAtUtc, isNull);
+    expect(entry.revision, 1);
+    expect((await journal.entry(owner, 'j1'))!.text, 'My truck.');
+  });
+
+  test('saving the same entry id again changes that entry; it never makes a '
+      'second (P06: a retry can never create a second entry)', () async {
+    final first = DateTime(2026, 11, 12, 6, 30);
+    final later = DateTime(2026, 11, 13, 21, 5);
+    await journal.apply(saveOf('c1', 'j1', 'My truck.', at: first));
+    expect(
+      await journal.apply(
+        saveOf(
+          'c2',
+          'j1',
+          'My truck, and my time.',
+          at: later,
+          source: JournalSource.pen,
+          prompt: '',
+        ),
+      ),
+      JournalOutcome.applied,
+    );
+
+    final entry = (await entries()).single;
+    expect(entry.text, 'My truck, and my time.');
+    expect(entry.revision, 2);
+    expect(entry.editedAtUtc, later.toUtc());
+    // What it was when first saved does not move.
+    expect(entry.day, nov12);
+    expect(entry.createdAtUtc, first.toUtc());
+    expect(entry.source, JournalSource.devotional);
+    expect(entry.prompt, 'What possession has too much of your heart?');
+  });
+
+  test('the same change sent twice is applied once', () async {
+    final change = saveOf('c1', 'j1', 'My truck.');
+    expect(await journal.apply(change), JournalOutcome.applied);
+    expect(await journal.apply(change), JournalOutcome.duplicate);
+
+    expect((await entries()).single.revision, 1);
+    expect(await journal.changesFor(owner, 'j1'), hasLength(1));
+  });
+
+  test('a delete takes the entry out of the journal', () async {
+    await journal.apply(saveOf('c1', 'j1', 'My truck.'));
+    expect(await journal.apply(deleteOf('c2', 'j1')), JournalOutcome.applied);
+
+    expect(await entries(), isEmpty);
+    expect(await journal.entry(owner, 'j1'), isNull);
+    final changes = await journal.changesFor(owner, 'j1');
+    expect(changes.map((c) => c.kind), <JournalChangeKind>[
+      JournalChangeKind.save,
+      JournalChangeKind.delete,
+    ]);
+    expect(changes.map((c) => c.revision), <int>[1, 2]);
+    expect(changes.last.counter, greaterThan(changes.first.counter));
+  });
+
+  test('a deleted entry cannot be written again or deleted twice', () async {
+    await journal.apply(saveOf('c1', 'j1', 'My truck.'));
+    await journal.apply(deleteOf('c2', 'j1'));
+
+    expect(
+      await journal.apply(saveOf('c3', 'j1', 'Back again.')),
+      JournalOutcome.entryGone,
+    );
+    expect(await journal.apply(deleteOf('c4', 'j1')), JournalOutcome.entryGone);
+    expect(await entries(), isEmpty);
+    expect(await journal.changesFor(owner, 'j1'), hasLength(2));
+  });
+
+  test('deleting an entry that never existed changes nothing', () async {
+    expect(
+      await journal.apply(deleteOf('c1', 'nope')),
+      JournalOutcome.entryGone,
+    );
+    expect(await journal.changesFor(owner, 'nope'), isEmpty);
+  });
+
+  test('entries are listed newest first', () async {
+    await journal.apply(
+      saveOf('c1', 'j1', 'first', at: DateTime(2026, 11, 10, 6)),
+    );
+    await journal.apply(
+      saveOf('c2', 'j2', 'third', at: DateTime(2026, 11, 12, 6)),
+    );
+    await journal.apply(
+      saveOf('c3', 'j3', 'second', at: DateTime(2026, 11, 11, 6)),
+    );
+    // Editing the oldest does not move it up.
+    await journal.apply(
+      saveOf('c4', 'j1', 'first, edited', at: DateTime(2026, 11, 13, 6)),
+    );
+
+    expect((await entries()).map((e) => e.text), <String>[
+      'third',
+      'second',
+      'first, edited',
+    ]);
+  });
+
+  group('a save from a writer that may be out of date', () {
+    // The draft under the reading after a save that was never answered: it
+    // names the changes it has sent, and the store compares.
+    test('does not replace words that were changed somewhere else since: '
+        'nothing is written', () async {
+      await journal.apply(saveOf('c1', 'j1', 'the draft, first'));
+      // He edits the entry in his journal. The draft knows nothing of c2.
+      await journal.apply(saveOf('c2', 'j1', 'edited in the journal'));
+
+      expect(
+        await journal.apply(
+          saveOf('c3', 'j1', 'the draft, again', knownChanges: {'c1'}),
+        ),
+        JournalOutcome.changedElsewhere,
+      );
+
+      final entry = (await entries()).single;
+      expect(entry.text, 'edited in the journal');
+      expect(entry.revision, 2);
+      expect((await journal.changesFor(owner, 'j1')).map((c) => c.id), <String>[
+        'c1',
+        'c2',
+      ]);
+    });
+
+    test('changes the entry when it is as that writer left it', () async {
+      await journal.apply(saveOf('c1', 'j1', 'the draft, first'));
+
+      expect(
+        await journal.apply(
+          saveOf('c3', 'j1', 'the draft, again', knownChanges: {'c1'}),
+        ),
+        JournalOutcome.applied,
+      );
+      // And again, knowing both of its own.
+      expect(
+        await journal.apply(
+          saveOf('c4', 'j1', 'a third time', knownChanges: {'c1', 'c3'}),
+        ),
+        JournalOutcome.applied,
+      );
+
+      final entry = (await entries()).single;
+      expect(entry.text, 'a third time');
+      expect(entry.revision, 3);
+    });
+
+    test(
+      'makes the entry when there is none, whatever it thinks it sent',
+      () async {
+        // Its first save: it has sent nothing.
+        expect(
+          await journal.apply(saveOf('c1', 'j1', 'first', knownChanges: {})),
+          JournalOutcome.applied,
+        );
+        // A save whose earlier attempt was never stored.
+        expect(
+          await journal.apply(
+            saveOf('c3', 'j2', 'second', knownChanges: {'c2-never-stored'}),
+          ),
+          JournalOutcome.applied,
+        );
+        expect((await entries()).map((e) => e.text).toSet(), {
+          'first',
+          'second',
+        });
+      },
+    );
+
+    test('is still a duplicate when the same change is sent again, also '
+        'after the entry was changed elsewhere', () async {
+      await journal.apply(saveOf('c1', 'j1', 'the draft, first'));
+      await journal.apply(saveOf('c2', 'j1', 'edited in the journal'));
+
+      expect(
+        await journal.apply(
+          saveOf('c1', 'j1', 'the draft, first', knownChanges: {}),
+        ),
+        JournalOutcome.duplicate,
+      );
+      expect((await entries()).single.text, 'edited in the journal');
+    });
+
+    test('a save that names nothing is applied whatever the history', () async {
+      await journal.apply(saveOf('c1', 'j1', 'first'));
+      await journal.apply(saveOf('c2', 'j1', 'second'));
+
+      expect(
+        await journal.apply(saveOf('c3', 'j1', 'third')),
+        JournalOutcome.applied,
+      );
+      expect((await entries()).single.text, 'third');
+    });
+
+    test('a deleted entry is still gone, not changed elsewhere', () async {
+      await journal.apply(saveOf('c1', 'j1', 'the draft, first'));
+      await journal.apply(deleteOf('c2', 'j1'));
+
+      expect(
+        await journal.apply(
+          saveOf('c3', 'j1', 'the draft, again', knownChanges: {'c1'}),
+        ),
+        JournalOutcome.entryGone,
+      );
+    });
+  });
+
+  group('a save from a page that opened the entry to change it', () {
+    // The entry page: it names the revision its box was filled from, and
+    // the changes it has itself sent.
+    test('does not replace words that were changed somewhere else after '
+        'the page was filled: nothing is written', () async {
+      await journal.apply(saveOf('c1', 'j1', 'as both pages opened it'));
+      // The other page saves first.
+      expect(
+        await journal.apply(
+          saveOf(
+            'c2',
+            'j1',
+            'saved from the other page',
+            baseRevision: 1,
+            knownChanges: {'c2'},
+          ),
+        ),
+        JournalOutcome.applied,
+      );
+
+      expect(
+        await journal.apply(
+          saveOf(
+            'c3',
+            'j1',
+            'typed over the old words',
+            baseRevision: 1,
+            knownChanges: {'c3'},
+          ),
+        ),
+        JournalOutcome.changedElsewhere,
+      );
+
+      final entry = (await entries()).single;
+      expect(entry.text, 'saved from the other page');
+      expect(entry.revision, 2);
+      expect((await journal.changesFor(owner, 'j1')).map((c) => c.id), <String>[
+        'c1',
+        'c2',
+      ]);
+    });
+
+    test(
+      'is refused on the revision alone, when it names no changes',
+      () async {
+        await journal.apply(saveOf('c1', 'j1', 'first'));
+        await journal.apply(saveOf('c2', 'j1', 'second'));
+
+        expect(
+          await journal.apply(saveOf('c3', 'j1', 'third', baseRevision: 1)),
+          JournalOutcome.changedElsewhere,
+        );
+        expect(
+          await journal.apply(saveOf('c4', 'j1', 'third', baseRevision: 2)),
+          JournalOutcome.applied,
+        );
+        expect((await entries()).single.text, 'third');
+      },
+    );
+
+    test('still changes an entry whose last change was its own save, stored '
+        'without an answer', () async {
+      await journal.apply(saveOf('c1', 'j1', 'as the page opened it'));
+      // The page's first save is stored; the page never hears of it, and
+      // still thinks the entry is at revision 1.
+      await journal.apply(
+        saveOf('c2', 'j1', 'changed', baseRevision: 1, knownChanges: {'c2'}),
+      );
+
+      expect(
+        await journal.apply(
+          saveOf(
+            'c3',
+            'j1',
+            'changed again',
+            baseRevision: 1,
+            knownChanges: {'c2', 'c3'},
+          ),
+        ),
+        JournalOutcome.applied,
+      );
+      final entry = (await entries()).single;
+      expect(entry.text, 'changed again');
+      expect(entry.revision, 3);
+    });
+  });
+
+  group('a change that is already stored', () {
+    test('is not "saved" when it is a save and its entry was deleted since: '
+        'the entry is gone', () async {
+      final first = saveOf('c1', 'j1', 'the draft', knownChanges: {});
+      await journal.apply(first);
+      await journal.apply(deleteOf('c2', 'j1'));
+
+      expect(await journal.apply(first), JournalOutcome.entryGone);
+      // The same without any guard.
+      expect(
+        await journal.apply(saveOf('c1', 'j1', 'the draft')),
+        JournalOutcome.entryGone,
+      );
+      expect(await entries(), isEmpty);
+      expect(await journal.changesFor(owner, 'j1'), hasLength(2));
+    });
+
+    test('is a duplicate when it is the delete itself, sent again', () async {
+      await journal.apply(saveOf('c1', 'j1', 'the draft'));
+      final delete = deleteOf('c2', 'j1');
+      await journal.apply(delete);
+
+      expect(await journal.apply(delete), JournalOutcome.duplicate);
+    });
+
+    test('is not admitted to another owner, or for another entry', () async {
+      await journal.apply(saveOf('c1', 'j1', 'mine'));
+
+      // Another owner sends the id of a change that is stored. He hears
+      // what he would hear for any entry that is not his.
+      expect(
+        await journal.apply(
+          saveOf('c1', 'j1', 'mine', ownerId: 'someone-else'),
+        ),
+        JournalOutcome.entryGone,
+      );
+      expect(
+        await journal.apply(deleteOf('c1', 'j1', ownerId: 'someone-else')),
+        JournalOutcome.entryGone,
+      );
+      // The right owner, the wrong entry.
+      expect(
+        await journal.apply(saveOf('c1', 'j2', 'mine')),
+        JournalOutcome.entryGone,
+      );
+
+      expect((await entries()).single.text, 'mine');
+      expect(await entries('someone-else'), isEmpty);
+      expect(await journal.entry(owner, 'j2'), isNull);
+    });
+  });
+
+  test('one owner cannot read or change another owner\'s entry', () async {
+    await journal.apply(saveOf('c1', 'j1', 'mine'));
+
+    expect(await entries('someone-else'), isEmpty);
+    expect(await journal.entry('someone-else', 'j1'), isNull);
+    // Nor what was done to it, and when.
+    expect(await journal.changesFor('someone-else', 'j1'), isEmpty);
+    expect(await journal.changesFor(owner, 'j1'), hasLength(1));
+    expect(
+      await journal.apply(
+        saveOf('c2', 'j1', 'overwritten', ownerId: 'someone-else'),
+      ),
+      JournalOutcome.entryGone,
+    );
+    expect(
+      await journal.apply(deleteOf('c3', 'j1', ownerId: 'someone-else')),
+      JournalOutcome.entryGone,
+    );
+    expect((await entries()).single.text, 'mine');
+  });
+
+  test('the list is sent again after every change', () async {
+    final seen = <List<String>>[];
+    final listening = journal
+        .watchEntries(owner)
+        .listen((list) => seen.add(list.map((e) => e.text).toList()));
+    addTearDown(listening.cancel);
+    await pumpEventQueue();
+
+    await journal.apply(saveOf('c1', 'j1', 'one'));
+    await pumpEventQueue();
+    await journal.apply(saveOf('c2', 'j1', 'one, edited'));
+    await pumpEventQueue();
+    await journal.apply(deleteOf('c3', 'j1'));
+    await pumpEventQueue();
+
+    expect(seen.first, isEmpty);
+    expect(seen, anyElement(equals(<String>['one'])));
+    expect(seen, anyElement(equals(<String>['one, edited'])));
+    expect(seen.last, isEmpty);
+  });
+}
