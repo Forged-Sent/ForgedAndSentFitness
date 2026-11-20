@@ -67,14 +67,19 @@ class _JournalEntryPageState extends ConsumerState<JournalEntryPage> {
   /// so words he was never shown here are not replaced.
   int? _filledRevision;
 
+  /// The words the box was filled with: what is in the box and is not
+  /// these is his, typed here and not yet saved.
+  String? _filledText;
+
   /// The id of every change this page has sent for its entry, stored or
   /// not: a save of its own that was stored without an answer is not
   /// "somewhere else".
   final Set<String> _sent = <String>{};
 
   /// True once a save was refused because the entry was changed or deleted
-  /// somewhere else. His words stay in the box and are no longer that
-  /// entry's: the page goes on as a new entry.
+  /// somewhere else, or once the entry was deleted somewhere else while he
+  /// had words here that were not saved. His words stay in the box and are
+  /// no longer that entry's: the page goes on as a new entry.
   bool _separate = false;
 
   /// For a new entry: its id and time, made at the first save attempt and
@@ -143,19 +148,31 @@ class _JournalEntryPageState extends ConsumerState<JournalEntryPage> {
           _message = JournalEntryText.failed;
         });
       case EntrySave.separate:
-        // Nothing was written over the entry as it now stands. His words
-        // stay here, and the next save gets a new id and is its own entry.
+        // Nothing was written over the entry as it now stands.
         setState(() {
           _busy = false;
-          _separate = true;
-          _newId = null;
-          _newAt = null;
-          _attempt = null;
-          _sent.clear();
-          _deleteArmed = false;
-          _message = JournalEntryText.separate;
+          _goOnAsNewEntry();
         });
     }
+  }
+
+  /// His words stay in the box and stop being the entry's: the next save
+  /// gets a new id and is its own entry, and the page says why.
+  void _goOnAsNewEntry() {
+    _separate = true;
+    _newId = null;
+    _newAt = null;
+    _attempt = null;
+    _sent.clear();
+    _deleteArmed = false;
+    _message = JournalEntryText.separate;
+  }
+
+  /// True when the box holds words of his that were typed here over an
+  /// entry and are not saved.
+  bool get _hasUnsavedWords {
+    final typed = _text.text.trim();
+    return _filled && typed.isNotEmpty && typed != _filledText;
   }
 
   Future<void> _delete(JournalEntry entry) async {
@@ -187,10 +204,9 @@ class _JournalEntryPageState extends ConsumerState<JournalEntryPage> {
     final durable = ref.watch(journalDurableProvider);
     final today = ref.watch(todayDateProvider);
     final entries = ref.watch(journalEntriesProvider);
-    final isNew = widget.entryId == null || _separate;
 
     JournalEntry? editing;
-    if (!isNew) {
+    if (widget.entryId != null && !_separate) {
       final list = entries.value;
       if (list == null) {
         return _plain(
@@ -202,16 +218,23 @@ class _JournalEntryPageState extends ConsumerState<JournalEntryPage> {
       for (final entry in list) {
         if (entry.id == widget.entryId) editing = entry;
       }
-      // Gone, and not because he just saved or deleted it from this page.
       if (editing == null) {
-        return _busy ? _plain('') : _plain(JournalEntryText.gone);
-      }
-      if (!_filled) {
+        // His own save or delete is on its way; its answer decides.
+        if (_busy) return _plain('');
+        // Gone, and not from this page: deleted somewhere else, or never
+        // here. With nothing of his in the box there is nothing to keep.
+        if (!_hasUnsavedWords) return _plain(JournalEntryText.gone);
+        // Deleted somewhere else while he was changing it here. The box
+        // and what he typed stay; the page goes on as a new entry.
+        _goOnAsNewEntry();
+      } else if (!_filled) {
         _filled = true;
         _filledRevision = editing.revision;
+        _filledText = editing.text;
         _text.text = editing.text;
       }
     }
+    final isNew = widget.entryId == null || _separate;
 
     final when = editing == null
         ? '${shortDate(today)} · ${clockTime(ref.read(clockProvider).now())}'
