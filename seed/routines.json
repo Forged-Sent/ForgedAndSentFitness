@@ -1,0 +1,52 @@
+{
+  "note": "weeks: the routine lengths a man can choose. trainingDays: for each number of training days a week he asks for, the weekdays that train (1 is Monday, 6 is Saturday, 0 is Sunday). No entry includes Sunday, so the entry for 7 is the same six days as the entry for 6.",
+  "weeks": [
+    4,
+    6,
+    8,
+    12
+  ],
+  "trainingDays": {
+    "1": [
+      1
+    ],
+    "2": [
+      1,
+      4
+    ],
+    "3": [
+      1,
+      3,
+      5
+    ],
+    "4": [
+      1,
+      2,
+      4,
+      5
+    ],
+    "5": [
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "6": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+    ],
+    "7": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+    ]
+  }
+}
