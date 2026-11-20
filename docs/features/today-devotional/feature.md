@@ -19,6 +19,8 @@ Build step S1 of the [prototype-to-Flutter review](../../reviews/2026-11-10-prot
 
 The decisions it rests on are the maintainer's, on the [Decisions](../../reviews/2026-11-10-prototype-to-flutter/01-DECISIONS.md) page: Q5 (points), Q6 (streak), Q7 (translations), Q9 (day boundary), Q10 (use before sign-in), and the completion event's key (option A, 2026-11-11, in [the architecture page](../../reviews/2026-11-10-prototype-to-flutter/07-ARCHITECTURE.md), journey J1).
 
+**Approval: awaiting the maintainer.** This contract is `proposed`, and it was still `proposed` when S1 merged ([#65](https://github.com/Forged-Sent/ForgedAndSentFitness/pull/65), 2026-11-12) and when S1b merged ([#67](https://github.com/Forged-Sent/ForgedAndSentFitness/pull/67), 2026-11-13). The step is built and on `main`; what is missing is the maintainer's approval of this page as the record of what S1 does. The status above is left as it is until he approves it himself, in a comment on the pull request that adds this paragraph. Only then is `approved` recorded here, with his name, the date and a link to that comment. An agent may draft a contract and may not mark one approved ([how contracts work](../README.md)).
+
 ## User outcome
 
 A man opens the app and sees today: the date, a mission line, a ring that shows how many of the day's boxes are done, and the boxes. He taps Daily Devotional and gets today's reading. When he has scrolled to the end he can say Amen. That checks the box, and it is still checked after the app is killed and opened again. He can undo it. Nothing leaves his phone.
