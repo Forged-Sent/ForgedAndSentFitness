@@ -44,7 +44,9 @@ INDEX = ROOT / "index.html"
 
 _EFFORT = r"(?:RPE|RIR) \d+(?:\.\d+)?(?:-\d+(?:\.\d+)?)?"
 _EFFORT_ALONE = re.compile(r" \(" + _EFFORT + r"\)")
-_EFFORT_FIRST = re.compile(_EFFORT + r", ")
+# Only straight after the opening bracket of a prescription. A sentence such
+# as "If you reach RPE 7, rest." is not a prescription and keeps its words.
+_EFFORT_FIRST = re.compile(r"(?<=\()" + _EFFORT + r", ")
 _YOUTUBE = re.compile(r"https://www\.youtube\.com/watch\?v=([\w-]{11})")
 
 
@@ -66,6 +68,7 @@ def strip_effort(value: Any) -> Any:
 
     "3 x 5 (RPE 7, rest 2 min)" becomes "3 x 5 (rest 2 min)";
     "3 x 12 (RIR 3). Go straight to A2" becomes "3 x 12. Go straight to A2".
+    Effort that is not inside a prescription's brackets is left as written.
     """
     if isinstance(value, str):
         return _EFFORT_FIRST.sub("", _EFFORT_ALONE.sub("", value))
@@ -82,7 +85,9 @@ def movement_for_prototype(name: str, movement: dict[str, Any]) -> dict[str, Any
     video = movement.get("video")
     if video is None:
         return out
-    match = _YOUTUBE.fullmatch(str(video.get("url", "")))
+    # A string, a list or a number here is a mistake in the seed file. Say
+    # so by name, as for a wrong url, rather than failing on `.get`.
+    match = _YOUTUBE.fullmatch(str(video.get("url", ""))) if isinstance(video, dict) else None
     if not match or not isinstance(video.get("channel"), str):
         raise EmbedError(
             f"seed/movements.json: {name!r} needs a video with a "
@@ -140,12 +145,34 @@ def prayer_literal(lines: Any) -> str:
     return "[\n" + body + "]"
 
 
+def whole_numbers(value: Any, what: str) -> list[int]:
+    """A flat list of whole numbers, or an error that names [what].
+
+    The two routine constants are found again in index.html by their
+    brackets: RT_WEEKS up to its first "]", RT_PATTERN up to its first "}".
+    A list or an object inside one of them would be written and then not
+    found on the next run, so anything but plain numbers is refused here,
+    before a line is written.
+    """
+    if not isinstance(value, list) or not all(type(item) is int and item >= 0 for item in value):
+        raise EmbedError(f"seed/routines.json: {what} must be a list of whole numbers such as [1, 4]")
+    return value
+
+
+def weeks_literal(weeks: Any) -> str:
+    return spaced(whole_numbers(weeks, "weeks"))
+
+
 def pattern_literal(days: Any) -> str:
     # Written as bare JavaScript keys, so only plain decimal numbers: "01"
     # would become the key 1, and other digit characters are not numbers there.
     if not isinstance(days, dict) or not all(re.fullmatch(r"0|[1-9][0-9]*", key) for key in days):
         raise EmbedError("seed/routines.json: trainingDays keys must be whole numbers such as 1 or 12")
-    return "{ " + ", ".join(f"{key}: {spaced(item)}" for key, item in days.items()) + " }"
+    return (
+        "{ "
+        + ", ".join(f"{key}: {spaced(whole_numbers(item, f'trainingDays[{key}]'))}" for key, item in days.items())
+        + " }"
+    )
 
 
 @dataclass(frozen=True)
@@ -227,7 +254,7 @@ EMBEDS: tuple[Embed, ...] = (
         "RT_WEEKS",
         "routines.json",
         re.compile(r"^  var RT_WEEKS = \[[^\]\n]*\](?=, RT_DOWS = )", re.MULTILINE),
-        lambda seed: f"  var RT_WEEKS = {spaced(load_seed('routines.json', seed)['weeks'])}",
+        lambda seed: f"  var RT_WEEKS = {weeks_literal(load_seed('routines.json', seed)['weeks'])}",
     ),
     Embed(
         "RT_PATTERN",

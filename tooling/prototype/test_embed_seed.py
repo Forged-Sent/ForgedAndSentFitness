@@ -47,6 +47,20 @@ class StripEffortTest(unittest.TestCase):
         for text in ("3 x 5 (rest 2 min)", "Keep every set at RPE 7 or below.", "", "RIR"):
             self.assertEqual(embed_seed.strip_effort(text), text)
 
+    def test_effort_in_a_sentence_keeps_its_words(self):
+        # Only effort straight after a prescription's opening bracket goes.
+        for text in (
+            "If you reach RPE 7, rest.",
+            "Stop at RIR 2, then rest 90 sec.",
+            "Work up to RPE 7-8, then hold that weight.",
+            "3 x 5 (rest 2 min). At RPE 9, stop.",
+        ):
+            self.assertEqual(embed_seed.strip_effort(text), text)
+        self.assertEqual(
+            embed_seed.strip_effort("3 x 5 (RPE 7, rest 2 min). At RPE 9, stop."),
+            "3 x 5 (rest 2 min). At RPE 9, stop.",
+        )
+
     def test_every_string_in_a_library_is_stripped_and_nothing_else_changes(self):
         library = {"Forged": [{"day": 1, "sets": [["Squat", "3 x 5 (RPE 7, rest 2 min)"]], "ok": True, "x": None}]}
         self.assertEqual(
@@ -85,6 +99,11 @@ class MovementTest(unittest.TestCase):
             with self.assertRaises(embed_seed.EmbedError):
                 embed_seed.movement_for_prototype("Back Squat", {"video": video})
 
+    def test_a_video_that_is_not_an_object_is_an_error_that_names_the_movement(self):
+        for video in ("https://www.youtube.com/watch?v=irA7MTz96ho", "irA7MTz96ho", ["a"], 7, True):
+            with self.assertRaisesRegex(embed_seed.EmbedError, "'Back Squat' needs a video", msg=repr(video)):
+                embed_seed.movement_for_prototype("Back Squat", {"video": video})
+
 
 class LiteralTest(unittest.TestCase):
     def test_pattern_is_written_with_bare_number_keys(self):
@@ -94,6 +113,16 @@ class LiteralTest(unittest.TestCase):
                 embed_seed.pattern_literal({key: [1]})
         with self.assertRaises(embed_seed.EmbedError):
             embed_seed.pattern_literal([[1]])
+
+    def test_routine_values_must_be_flat_lists_of_whole_numbers(self):
+        # Anything else would be written and then not found on the next run.
+        for wrong in ({"a": 1}, [{"a": 1}], [[1, 2]], ["1"], [1.5], [True], [-1], "1", 1, None):
+            with self.assertRaisesRegex(embed_seed.EmbedError, r"trainingDays\[3\]", msg=repr(wrong)):
+                embed_seed.pattern_literal({"1": [1], "3": wrong})
+            with self.assertRaisesRegex(embed_seed.EmbedError, "weeks", msg=repr(wrong)):
+                embed_seed.weeks_literal(wrong)
+        self.assertEqual(embed_seed.weeks_literal([4, 6, 8, 12]), "[4, 6, 8, 12]")
+        self.assertEqual(embed_seed.pattern_literal({"1": []}), "{ 1: [] }")
 
     def test_prayer_is_one_escaped_line_per_paragraph(self):
         self.assertEqual(
@@ -192,6 +221,24 @@ class RegenerateTest(unittest.TestCase):
         twice = self.html.replace("  var ALT = ", "  var ALT = {};\n  var ALT = ", 1)
         with self.assertRaisesRegex(embed_seed.EmbedError, "ALT"):
             embed_seed.regenerate(twice, self.tmp)
+
+    def test_a_malformed_routine_is_refused_before_anything_is_written(self):
+        self.edit("routines.json", lambda routines: routines["trainingDays"].update({"3": [{"days": [1, 3, 5]}]}))
+        with self.assertRaisesRegex(embed_seed.EmbedError, r"trainingDays\[3\]"):
+            embed_seed.regenerate(self.html, self.tmp)
+        self.edit("routines.json", lambda routines: routines["trainingDays"].update({"3": [1, 3, 5]}))
+        self.edit("routines.json", lambda routines: routines.update(weeks=[[4, 6], 8]))
+        with self.assertRaisesRegex(embed_seed.EmbedError, "weeks"):
+            embed_seed.regenerate(self.html, self.tmp)
+
+    def test_a_video_written_as_a_string_is_a_clear_error_not_a_traceback(self):
+        def as_string(movements):
+            name = next(key for key, item in movements.items() if item.get("video"))
+            movements[name]["video"] = movements[name]["video"]["url"]
+
+        self.edit("movements.json", as_string)
+        with self.assertRaisesRegex(embed_seed.EmbedError, "needs a video"):
+            embed_seed.regenerate(self.html, self.tmp)
 
     def test_a_missing_or_broken_seed_file_is_an_error(self):
         (self.tmp / "camps.json").unlink()
