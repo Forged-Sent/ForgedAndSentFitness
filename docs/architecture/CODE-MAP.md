@@ -37,50 +37,65 @@ flowchart LR
     N26["mobile/lib/src/design/fs_segmented.dart"]
     N27["mobile/lib/src/design/fs_shell.dart"]
     N28["mobile/lib/src/design/fs_tag.dart"]
-    N29["mobile/lib/src/design/fs_theme.dart"]
-    N30["mobile/lib/src/design/fs_tokens.dart"]
-    N31["mobile/lib/src/design/fs_typography.dart"]
-    N32["mobile/lib/src/features/devotional/data/devotional_library.dart"]
-    N33["mobile/lib/src/features/devotional/domain/devotional.dart"]
-    N34["mobile/lib/src/features/devotional/domain/scripture_reference.dart"]
-    N35["mobile/lib/src/features/devotional/presentation/devotional_page.dart"]
-    N36["mobile/lib/src/features/settings/data/settings_repository.dart"]
-    N37["mobile/lib/src/features/settings/presentation/settings_page.dart"]
-    N38["mobile/lib/src/features/today/data/day_repository.dart"]
-    N39["mobile/lib/src/features/today/data/drift_day_repository.dart"]
-    N40["mobile/lib/src/features/today/data/memory_day_repository.dart"]
-    N41["mobile/lib/src/features/today/data/today_content.dart"]
-    N42["mobile/lib/src/features/today/domain/completion_event.dart"]
-    N43["mobile/lib/src/features/today/domain/day_box.dart"]
-    N44["mobile/lib/src/features/today/domain/streak.dart"]
-    N45["mobile/lib/src/features/today/presentation/today_page.dart"]
-    N46["mobile/lib/src/features/today/presentation/today_view_model.dart"]
-    N47["mobile/lib/src/firebase/forged_firebase_runtime.dart"]
-    N48["mobile/lib/src/storage/app_database.dart"]
-    N49["mobile/lib/src/storage/app_database.g.dart"]
-    N50["mobile/lib/src/storage/native_storage.dart"]
+    N29["mobile/lib/src/design/fs_text_area.dart"]
+    N30["mobile/lib/src/design/fs_theme.dart"]
+    N31["mobile/lib/src/design/fs_tokens.dart"]
+    N32["mobile/lib/src/design/fs_typography.dart"]
+    N33["mobile/lib/src/features/devotional/data/devotional_library.dart"]
+    N34["mobile/lib/src/features/devotional/domain/devotional.dart"]
+    N35["mobile/lib/src/features/devotional/domain/scripture_reference.dart"]
+    N36["mobile/lib/src/features/devotional/presentation/devotional_page.dart"]
+    N37["mobile/lib/src/features/journal/data/drift_journal_repository.dart"]
+    N38["mobile/lib/src/features/journal/data/journal_body_codec.dart"]
+    N39["mobile/lib/src/features/journal/data/journal_repository.dart"]
+    N40["mobile/lib/src/features/journal/data/memory_journal_repository.dart"]
+    N41["mobile/lib/src/features/journal/domain/journal_entry.dart"]
+    N42["mobile/lib/src/features/journal/presentation/journal_entry_page.dart"]
+    N43["mobile/lib/src/features/journal/presentation/journal_page.dart"]
+    N44["mobile/lib/src/features/journal/presentation/journal_view_model.dart"]
+    N45["mobile/lib/src/features/journal/presentation/write_it_down.dart"]
+    N46["mobile/lib/src/features/settings/data/settings_repository.dart"]
+    N47["mobile/lib/src/features/settings/presentation/settings_page.dart"]
+    N48["mobile/lib/src/features/today/data/day_repository.dart"]
+    N49["mobile/lib/src/features/today/data/drift_day_repository.dart"]
+    N50["mobile/lib/src/features/today/data/memory_day_repository.dart"]
+    N51["mobile/lib/src/features/today/data/today_content.dart"]
+    N52["mobile/lib/src/features/today/domain/completion_event.dart"]
+    N53["mobile/lib/src/features/today/domain/day_box.dart"]
+    N54["mobile/lib/src/features/today/domain/streak.dart"]
+    N55["mobile/lib/src/features/today/presentation/today_page.dart"]
+    N56["mobile/lib/src/features/today/presentation/today_view_model.dart"]
+    N57["mobile/lib/src/firebase/forged_firebase_runtime.dart"]
+    N58["mobile/lib/src/storage/app_database.dart"]
+    N59["mobile/lib/src/storage/app_database.g.dart"]
+    N60["mobile/lib/src/storage/native_storage.dart"]
     N0 --> N1
     N0 --> N3
     N0 --> N4
-    N0 --> N47
+    N0 --> N57
     N1 --> N2
     N1 --> N9
-    N1 --> N29
+    N1 --> N30
     N2 --> N1
     N2 --> N7
     N2 --> N8
     N2 --> N27
-    N2 --> N35
-    N2 --> N37
-    N2 --> N45
-    N3 --> N36
-    N3 --> N38
+    N2 --> N36
+    N2 --> N42
+    N2 --> N43
+    N2 --> N47
+    N2 --> N55
+    N3 --> N39
     N3 --> N40
+    N3 --> N46
+    N3 --> N48
+    N3 --> N50
     N4 --> N3
     N5 --> N3
-    N5 --> N36
-    N5 --> N39
-    N5 --> N50
+    N5 --> N37
+    N5 --> N46
+    N5 --> N49
+    N5 --> N60
     N6 --> N3
     N7 --> N18
     N7 --> N19
@@ -89,123 +104,174 @@ flowchart LR
     N8 --> N17
     N8 --> N18
     N8 --> N20
-    N8 --> N30
     N8 --> N31
+    N8 --> N32
     N9 --> N12
     N10 --> N12
     N14 --> N17
-    N14 --> N30
     N14 --> N31
+    N14 --> N32
     N15 --> N17
-    N15 --> N30
     N15 --> N31
+    N15 --> N32
     N16 --> N17
-    N16 --> N30
+    N16 --> N31
     N18 --> N13
     N18 --> N17
     N18 --> N19
     N18 --> N20
     N18 --> N28
-    N18 --> N30
     N18 --> N31
+    N18 --> N32
     N20 --> N17
-    N20 --> N31
+    N20 --> N32
     N21 --> N15
     N21 --> N17
     N21 --> N20
-    N21 --> N31
+    N21 --> N32
     N22 --> N17
-    N22 --> N31
+    N22 --> N32
     N24 --> N17
     N24 --> N20
     N24 --> N23
-    N24 --> N31
+    N24 --> N32
     N25 --> N17
-    N25 --> N30
     N25 --> N31
+    N25 --> N32
     N26 --> N15
     N27 --> N17
     N27 --> N19
-    N27 --> N30
     N27 --> N31
+    N27 --> N32
     N28 --> N17
     N28 --> N19
-    N28 --> N31
+    N28 --> N32
     N29 --> N17
     N29 --> N31
-    N32 --> N12
-    N32 --> N33
+    N29 --> N32
+    N30 --> N17
+    N30 --> N32
     N33 --> N12
-    N35 --> N9
-    N35 --> N10
-    N35 --> N12
-    N35 --> N15
-    N35 --> N17
-    N35 --> N18
-    N35 --> N19
-    N35 --> N21
-    N35 --> N23
-    N35 --> N24
-    N35 --> N26
-    N35 --> N28
-    N35 --> N30
-    N35 --> N31
-    N35 --> N33
-    N35 --> N46
-    N36 --> N48
-    N37 --> N15
-    N37 --> N16
-    N37 --> N17
-    N37 --> N18
-    N37 --> N21
-    N37 --> N25
-    N37 --> N30
-    N37 --> N31
-    N37 --> N33
-    N37 --> N46
-    N38 --> N12
-    N38 --> N42
-    N39 --> N12
-    N39 --> N38
-    N39 --> N42
-    N39 --> N48
-    N40 --> N12
-    N40 --> N38
-    N40 --> N42
+    N33 --> N34
+    N34 --> N12
+    N36 --> N9
+    N36 --> N10
+    N36 --> N12
+    N36 --> N15
+    N36 --> N17
+    N36 --> N18
+    N36 --> N19
+    N36 --> N21
+    N36 --> N23
+    N36 --> N24
+    N36 --> N26
+    N36 --> N28
+    N36 --> N31
+    N36 --> N32
+    N36 --> N34
+    N36 --> N45
+    N36 --> N56
+    N37 --> N12
+    N37 --> N38
+    N37 --> N39
+    N37 --> N41
+    N37 --> N58
+    N39 --> N41
+    N40 --> N39
+    N40 --> N41
     N41 --> N12
-    N41 --> N32
-    N41 --> N42
-    N41 --> N43
-    N42 --> N12
-    N43 --> N12
+    N42 --> N9
+    N42 --> N10
+    N42 --> N11
+    N42 --> N15
+    N42 --> N17
+    N42 --> N20
+    N42 --> N21
+    N42 --> N23
+    N42 --> N25
+    N42 --> N29
+    N42 --> N31
+    N42 --> N32
+    N42 --> N41
+    N42 --> N44
+    N43 --> N9
+    N43 --> N15
+    N43 --> N17
+    N43 --> N18
+    N43 --> N20
+    N43 --> N21
+    N43 --> N31
+    N43 --> N32
+    N43 --> N41
+    N43 --> N44
+    N44 --> N3
+    N44 --> N9
+    N44 --> N10
+    N44 --> N11
     N44 --> N12
-    N44 --> N42
-    N45 --> N9
-    N45 --> N10
-    N45 --> N14
+    N44 --> N41
     N45 --> N15
     N45 --> N16
     N45 --> N17
-    N45 --> N18
-    N45 --> N20
-    N45 --> N22
-    N45 --> N25
-    N45 --> N30
-    N45 --> N31
-    N45 --> N43
-    N45 --> N46
-    N46 --> N3
-    N46 --> N9
-    N46 --> N11
-    N46 --> N12
-    N46 --> N32
-    N46 --> N33
-    N46 --> N41
-    N46 --> N42
-    N46 --> N43
-    N46 --> N44
-    N50 --> N11
+    N45 --> N23
+    N45 --> N29
+    N45 --> N32
+    N45 --> N41
+    N45 --> N44
+    N46 --> N58
+    N47 --> N15
+    N47 --> N16
+    N47 --> N17
+    N47 --> N18
+    N47 --> N21
+    N47 --> N25
+    N47 --> N31
+    N47 --> N32
+    N47 --> N34
+    N47 --> N56
+    N48 --> N12
+    N48 --> N52
+    N49 --> N12
+    N49 --> N48
+    N49 --> N52
+    N49 --> N58
+    N50 --> N12
     N50 --> N48
+    N50 --> N52
+    N51 --> N12
+    N51 --> N33
+    N51 --> N52
+    N51 --> N53
+    N52 --> N12
+    N53 --> N12
+    N54 --> N12
+    N54 --> N52
+    N55 --> N9
+    N55 --> N10
+    N55 --> N14
+    N55 --> N15
+    N55 --> N16
+    N55 --> N17
+    N55 --> N18
+    N55 --> N20
+    N55 --> N22
+    N55 --> N25
+    N55 --> N31
+    N55 --> N32
+    N55 --> N53
+    N55 --> N56
+    N56 --> N3
+    N56 --> N9
+    N56 --> N11
+    N56 --> N12
+    N56 --> N33
+    N56 --> N34
+    N56 --> N51
+    N56 --> N52
+    N56 --> N53
+    N56 --> N54
+    N60 --> N11
+    N60 --> N58
 ```
 
 ## Declared classes and functions
@@ -250,6 +316,7 @@ flowchart LR
 ### mobile/lib/src/app/shell_destinations.dart
 
 - class ShellDestination
+- fn journalEntryPath()
 
 ### mobile/lib/src/app/tab_pages.dart
 
@@ -270,6 +337,8 @@ flowchart LR
 - fn weekdayName()
 - fn monthAndDay()
 - fn heroDateLine()
+- fn shortDate()
+- fn clockTime()
 
 ### mobile/lib/src/core/event_id.dart
 
@@ -393,6 +462,13 @@ flowchart LR
 - class FsTag
 - fn build()
 
+### mobile/lib/src/design/fs_text_area.dart
+
+- class FsTextArea
+- fn build()
+- class FsCodeUnitLimit
+- fn fit()
+
 ### mobile/lib/src/design/fs_theme.dart
 
 - No classes or named methods matched by the simple inventory parser
@@ -434,6 +510,87 @@ flowchart LR
 - class _Section
 - class _End
 - class _Plain
+
+### mobile/lib/src/features/journal/data/drift_journal_repository.dart
+
+- class DriftJournalRepository
+- fn durable()
+- fn entry()
+- fn apply()
+- fn _apply()
+- fn _row()
+
+### mobile/lib/src/features/journal/data/journal_body_codec.dart
+
+- fn encode()
+- fn decode()
+- class PlainJournalBodyCodec
+- fn format()
+- class JournalFormatException
+- fn toString()
+
+### mobile/lib/src/features/journal/data/journal_repository.dart
+
+- fn entry()
+- fn apply()
+- class JournalStoreFailure
+- fn toString()
+- class StoredJournalChange
+
+### mobile/lib/src/features/journal/data/memory_journal_repository.dart
+
+- class MemoryJournalRepository
+- fn durable()
+- fn entry()
+- fn apply()
+- fn newestFirst()
+
+### mobile/lib/src/features/journal/domain/journal_entry.dart
+
+- class JournalEntry
+- fn toString()
+- class JournalChange
+- fn guarded()
+
+### mobile/lib/src/features/journal/presentation/journal_entry_page.dart
+
+- class JournalEntryPage
+- class _JournalEntryPageState
+- fn dispose()
+- fn _save()
+- fn _delete()
+- fn build()
+- fn _leave()
+- fn _plain()
+
+### mobile/lib/src/features/journal/presentation/journal_page.dart
+
+- fn journalPreview()
+- class JournalPage
+- fn build()
+- class _EntryRow
+
+### mobile/lib/src/features/journal/presentation/journal_view_model.dart
+
+- fn journalWhen()
+- class DevotionalDraft
+- fn separate()
+- class DevotionalDraftNotifier
+- fn typed()
+- fn save()
+- fn discard()
+- class JournalActions
+- fn delete()
+
+### mobile/lib/src/features/journal/presentation/write_it_down.dart
+
+- class WriteItDown
+- class _WriteItDownState
+- fn initState()
+- fn dispose()
+- fn _onDraft()
+- fn _discard()
+- fn build()
 
 ### mobile/lib/src/features/settings/data/settings_repository.dart
 
@@ -535,8 +692,13 @@ flowchart LR
 - class CompletionEvents
 - class DayStates
 - class AppSettings
+- class JournalEntries
+- class JournalEntryRow
+- fn toString()
+- class JournalChanges
 - class AppDatabase
 - fn schemaVersion()
+- fn _tableExists()
 
 ### mobile/lib/src/storage/app_database.g.dart
 
@@ -550,6 +712,9 @@ flowchart LR
 - class DayStatesCompanion
 - class AppSettingRow
 - class AppSettingsCompanion
+- class JournalEntriesCompanion
+- class JournalChangeRow
+- class JournalChangesCompanion
 - class _
 
 ### mobile/lib/src/storage/native_storage.dart

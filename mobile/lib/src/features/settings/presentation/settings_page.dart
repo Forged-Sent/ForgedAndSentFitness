@@ -24,10 +24,14 @@ class SettingsPage extends ConsumerStatefulWidget {
     super.key,
     required this.onBack,
     required this.onOpenStatus,
+    required this.onOpenJournal,
   });
 
   final VoidCallback onBack;
   final VoidCallback onOpenStatus;
+
+  /// Opens his private journal.
+  final VoidCallback onOpenJournal;
 
   @override
   ConsumerState<SettingsPage> createState() => _SettingsPageState();
@@ -142,6 +146,26 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                       'Preview, not official. These are the prototype’s '
                       'values. The app does not score anything yet.',
                       style: note,
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: FsSpacing.block),
+              FsCard(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    const FsSectionHead(title: 'My journal'),
+                    const SizedBox(height: 6),
+                    Text(
+                      'Private. It is not sent to any server, and it is never scored.',
+                      style: note,
+                    ),
+                    const SizedBox(height: 10),
+                    FsButton.ghost(
+                      key: const ValueKey<String>('fs-settings-journal'),
+                      label: 'Open my journal',
+                      onPressed: widget.onOpenJournal,
                     ),
                   ],
                 ),

@@ -117,7 +117,7 @@ void main() {
     expect(find.text(reading.headline!.toUpperCase()), findsOneWidget);
     expect(tester.widget<Text>(_inJesus).data, reading.inJesus);
     expect(find.text(reading.prayer), findsOneWidget);
-    expect(find.text(reading.reflect), findsOneWidget);
+    expect(find.text(reading.reflect), findsNWidgets(2));
     expect(find.text(reading.act), findsOneWidget);
     // The verse is the bundled one, in the BSB, with its reference.
     expect(_verse(tester), reading.bsbText);

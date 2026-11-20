@@ -56,6 +56,7 @@ class _TestSettings extends MemorySettingsRepository {
 LocalStore _storeWith(_TestSettings settings) => LocalStore(
   ownerId: 'local-test',
   days: TestDayRepository(),
+  journal: TestJournalRepository(),
   settings: settings,
   close: () async {},
 );
