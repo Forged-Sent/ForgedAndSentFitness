@@ -388,40 +388,57 @@ class AppDatabase extends _$AppDatabase {
 /// frozen schema of the version it produces, not against the tables above,
 /// so a later change to a table cannot change an old step.
 final _upgradeSteps = migrationSteps(
+  // In both steps, a table or an index that is already there is left alone.
+  // The new version number is recorded after a step returns, so an update
+  // that was cut off in between leaves what the step made in place under
+  // the old number. Making it again would fail on every later launch.
   from1To2: (Migrator m, Schema2 schema) async {
-    // A table that is already there is left alone: the new version number
-    // is recorded after this step returns, so an update that was cut off
-    // in between can leave the tables in place under the old number.
-    // Creating them again would fail on every later launch.
-    if (!await _tableExists(
-      m.database,
-      schema.journalEntries.actualTableName,
-    )) {
-      await m.createTable(schema.journalEntries);
-    }
-    if (!await _tableExists(
-      m.database,
-      schema.journalChanges.actualTableName,
-    )) {
-      await m.createTable(schema.journalChanges);
+    for (final table in <TableInfo<Table, Object?>>[
+      schema.journalEntries,
+      schema.journalChanges,
+    ]) {
+      if (!await _exists(m.database, 'table', table.actualTableName)) {
+        await m.createTable(table);
+      }
     }
   },
   from2To3: (Migrator m, Schema3 schema) async {
-    await m.createTable(schema.workoutPlans);
-    await m.createTable(schema.workoutSessions);
-    await m.createTable(schema.workoutExercises);
-    await m.createTable(schema.workoutSets);
-    await m.createIndex(schema.workoutExercisesSession);
-    await m.createIndex(schema.workoutExercisesMovement);
-    await m.createIndex(schema.workoutSetsExercise);
+    for (final table in <TableInfo<Table, Object?>>[
+      schema.workoutPlans,
+      schema.workoutSessions,
+      schema.workoutExercises,
+      schema.workoutSets,
+    ]) {
+      if (!await _exists(m.database, 'table', table.actualTableName)) {
+        await m.createTable(table);
+      }
+    }
+    for (final index in <Index>[
+      schema.workoutExercisesSession,
+      schema.workoutExercisesMovement,
+      schema.workoutSetsExercise,
+    ]) {
+      if (!await _exists(m.database, 'index', index.entityName)) {
+        await m.createIndex(index);
+      }
+    }
   },
 );
 
-Future<bool> _tableExists(GeneratedDatabase database, String name) async {
+/// Whether the database file already holds a table or an index of this
+/// [name]. [type] is `table` or `index`.
+Future<bool> _exists(
+  GeneratedDatabase database,
+  String type,
+  String name,
+) async {
   final found = await database
       .customSelect(
-        "SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = ?",
-        variables: <Variable<Object>>[Variable<String>(name)],
+        'SELECT 1 FROM sqlite_master WHERE type = ? AND name = ?',
+        variables: <Variable<Object>>[
+          Variable<String>(type),
+          Variable<String>(name),
+        ],
       )
       .get();
   return found.isNotEmpty;

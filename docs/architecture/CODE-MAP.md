@@ -1058,7 +1058,7 @@ flowchart LR
 - class WorkoutSets
 - class AppDatabase
 - fn schemaVersion()
-- fn _tableExists()
+- fn _exists()
 
 ### mobile/lib/src/storage/app_database.g.dart
 
