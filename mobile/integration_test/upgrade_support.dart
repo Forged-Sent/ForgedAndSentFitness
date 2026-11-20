@@ -22,8 +22,10 @@ import 'journal_restart_support.dart';
 /// ends by uninstalling the app.
 ///
 /// All three parts run on the same calendar day: a box checked before
-/// midnight is, correctly, not checked the next day. Parts 2 and 3 start a
-/// workout only on a day that has one to start.
+/// midnight is, correctly, not checked the next day. That day must have a
+/// workout to start (Monday, Wednesday or Friday on the plan every member
+/// gets): part 2 fails on a day without one, because it could not write to
+/// the new tables.
 
 /// What part 1 writes and parts 2 and 3 look for. Made up for this test.
 const String upgradeEntryUnderReading =

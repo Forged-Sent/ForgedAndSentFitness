@@ -180,6 +180,9 @@ update-by: edit WORK.md then run tooling/knowledge/work_board.py --write
 - [ ] **Pause Deadlift's instructions agree with themselves**
 	**Prompt:** No prompt yet. Review finding (Codex, medium) on `mobile/assets/content/movements.json`, a copy of `seed/movements.json`; S3 did not edit seed content. Owner: the maintainer. The app shows neither text yet
 	[Edit this row in WORK](WORK.md)
+- [ ] **Pause Squat's hold is one length**
+	**Prompt:** No prompt yet. Review finding (Codex, medium) on `mobile/assets/content/movements.json`, a copy of `seed/movements.json`; S3 did not edit seed content. Owner: the maintainer. The app shows the name and not the cue yet
+	[Edit this row in WORK](WORK.md)
 - [ ] **Shuttle Run's distance is one distance**
 	**Prompt:** No prompt yet. Review finding (Codex, medium) on `mobile/assets/content/movements.json`, a copy of `seed/movements.json`; S3 did not edit seed content. Owner: the maintainer. The app does not show how-to text yet
 	[Edit this row in WORK](WORK.md)

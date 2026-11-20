@@ -3,7 +3,7 @@
 **Learning together:** [Project 101](PROJECT-101.md). **Running without AI:** [command recipes](RUN-COMMANDS.md). **Obsidian and boards:** [Obsidian 101](OBSIDIAN-101.md).
 
 ## Baseline
-The Flutter client has its shell, Today, the devotional, Train with workout logging, and native local saving. It remains **in development**, with four placeholder tabs and no cloud sync. [Prototype parity](../knowledge/PROTOTYPE-PARITY.md) is the maintained screen inventory. Root `index.html` is a separate behavioral prototype.
+The Flutter client has its shell, Today, the devotional, a private journal on the Walk tab, Train with workout logging, and native local saving. It remains **in development**, with three placeholder tabs (Fuel, Board and Rally) and no cloud sync. [Prototype parity](../knowledge/PROTOTYPE-PARITY.md) is the maintained screen inventory. Root `index.html` is a separate behavioral prototype.
 
 ## Guided Windows and MacBook setup
 

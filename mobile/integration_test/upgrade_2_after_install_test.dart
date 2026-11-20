@@ -43,10 +43,16 @@ void main() {
 
     // Train: the new tables are there and can be written to.
     await openTodaysWorkout(tester);
-    if (startWorkoutButton.evaluate().isEmpty) {
-      debugPrint('UPGRADE TEST: today has no workout to start; Train opened.');
-      return;
-    }
+    // Without a workout to start, nothing here would be written to the new
+    // tables, and the test would prove less than it says.
+    expect(
+      startWorkoutButton,
+      findsOneWidget,
+      reason:
+          'Today has no workout to start. Run the upgrade test on a day '
+          'with one: Monday, Wednesday or Friday on the plan every member '
+          'gets.',
+    );
     await tester.tap(startWorkoutButton);
     await tester.pumpAndSettle();
     expect(find.byType(WorkoutPrayerDialog), findsOneWidget);

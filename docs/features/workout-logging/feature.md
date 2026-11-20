@@ -59,11 +59,11 @@ A man opens Train and sees today and this week from the Forged program. He opens
 **What is saved, and how**
 
 - **The session is its own record.** When Amen is tapped the session is stored with a copy of what the plan prescribed: for every exercise the movement id, the name shown and the prescription text, and one row per set. From then on it never reads the plan again, so changing the plan cannot change a session (P07 acceptance 4).
-- **Every change is written at once.** Each keystroke in a set's box, each tick and each rest timer button is its own write to the database, in the order they were made. When the app is paused the page waits for the last of them. A change still waiting its turn is written also when he leaves the page first. There is no save button and nothing is kept only in memory (P07 acceptance 1).
+- **Every change is written at once.** Each keystroke in a set's box, each tick and each rest timer button is its own write to the database, in the order they were made. When the app is paused the page waits for the last of them. A change still waiting its turn is written also when he leaves the page first. There is no save button, and nothing is kept only in memory for longer than its turn takes (P07 acceptance 1). One limit, stated plainly: a change that is still waiting its turn at the instant the process is killed outright is not in the file. The device test kills the app only after it has read both sets back from the file, so it proves that what was written survives, not that nothing can be caught in that instant.
 - **Time comes from stored instants.** The clock is the time since the stored start; the rest timer counts down to a stored instant. Both are right after the app was closed and opened again.
 - **The day (Q9, U2):** a session belongs to the local date it was started on and keeps it. It can be logged and finished after midnight, with no time limit, and finishing checks the Workout box of the day it started on (P07 acceptance 3). One session per day.
 - **Finishing is one transaction** with the day's completion event, whose id is made when the session starts. Finishing twice records one completion (P07 acceptance 2). If the box cannot be checked the session is not finished either.
-- **Schema version 2** adds four tables: plans, sessions, exercises, sets. A database file of version 1 opens in this build with every row it had.
+- **Schema version 3** adds four tables: plans, sessions, exercises, sets. Version 2 is the journal's (build step S2). A database file of version 1 or version 2 opens in this build with every row it had.
 - **Owner (Q10):** the local profile, as in S1. Each owner has his own database file.
 
 **Nothing about the body**

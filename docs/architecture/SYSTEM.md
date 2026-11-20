@@ -9,7 +9,7 @@ flowchart LR
     Person[Developer / local browser / emulator] --> Entry[mobile/lib/main.dart]
     Entry --> UI[forged_sent_app.dart: app, themes, status page]
     UI --> Router[fs_router.dart: six-tab shell routes]
-    Router --> Pages[tab_pages.dart: placeholder pages for four tabs]
+    Router --> Pages[tab_pages.dart: placeholder pages for three tabs]
     Router --> Screens[features: Today, the day's reading, the journal, Settings, Train, a day's workout]
     Screens --> VM[Riverpod view models: today, train, workout]
     Screens --> JVM[journal_view_model.dart: draft, entries, save and delete]

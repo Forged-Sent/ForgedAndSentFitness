@@ -35,13 +35,9 @@ void main() {
     await backToToday(tester);
 
     await openTodaysWorkout(tester);
-    if (workoutClock.evaluate().isEmpty) {
-      // Part 2 ran on a day with no workout to start.
-      expect(startWorkoutButton, findsNothing);
-      debugPrint('UPGRADE TEST: no workout was started; Train opened.');
-      return;
-    }
-    // In progress, not offered again, with the two sets as they were typed.
+    // The workout part 2 started is in progress, not offered again, with
+    // the two sets as they were typed.
+    await pumpUntilFound(tester, workoutClock);
     expect(startWorkoutButton, findsNothing);
     await pumpUntilFound(tester, repsField(0, 0));
     for (var set = 0; set < enteredSets.length; set++) {

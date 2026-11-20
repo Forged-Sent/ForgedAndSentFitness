@@ -109,13 +109,37 @@ void main() {
     await host.pump(tester, decimal: false, max: 999);
 
     await tester.enterText(find.byType(FsNumberField), '12');
-    await tester.enterText(find.byType(FsNumberField), '12.5');
+    await tester.enterText(find.byType(FsNumberField), '125');
     expect(_shown(tester), '125');
     // A fourth digit is one keystroke too many: the text stays.
     await tester.enterText(find.byType(FsNumberField), '1254');
     expect(_shown(tester), '125');
 
     expect(host.reported, <double?>[12, 125]);
+  });
+
+  testWidgets('a whole-number box never makes a different number out of '
+      'text that is not one: the text stays and nothing is reported', (
+    tester,
+  ) async {
+    final host = _Host();
+    await host.pump(tester, decimal: false, max: 999);
+
+    // Pasted into an empty box. Dropping the point or the sign would
+    // store 15 for "1.5" and 5 for "-5".
+    for (final notWhole in <String>['1.5', '-5', '1,5', '5 reps']) {
+      await tester.enterText(find.byType(FsNumberField), notWhole);
+      await tester.pump();
+
+      expect(_shown(tester), '', reason: notWhole);
+      expect(host.reported, isEmpty, reason: notWhole);
+    }
+
+    // Typed over a number that is already there.
+    await tester.enterText(find.byType(FsNumberField), '12');
+    await tester.enterText(find.byType(FsNumberField), '12.5');
+    expect(_shown(tester), '12');
+    expect(host.reported, <double?>[12]);
   });
 
   testWidgets('a new value from outside is shown only while he is not '

@@ -4,7 +4,7 @@ A men's fitness and accountability app for the Forged in Faith men's group. The 
 
 **Status: two apps, neither store-ready yet.**
 
-- **The production app** is being rebuilt in Flutter for Android and iOS, in [`mobile/`](mobile/), with Firebase as the backend (local emulators only for now). Today it has the six-tab shell, the Today page, the day's devotional, and Train with workout logging for the Forged program, all saved on the device; the other four tabs are placeholders. What is built and what is next: the [work board](docs/knowledge/WORK.md) and [prototype parity](docs/knowledge/PROTOTYPE-PARITY.md).
+- **The production app** is being rebuilt in Flutter for Android and iOS, in [`mobile/`](mobile/), with Firebase as the backend (local emulators only for now). Today it has the six-tab shell, the Today page, the day's devotional, a private journal on the Walk tab, and Train with workout logging for the Forged program, all saved on the device; the other three tabs (Fuel, Board and Rally) are placeholders. What is built and what is next: the [work board](docs/knowledge/WORK.md) and [prototype parity](docs/knowledge/PROTOTYPE-PARITY.md).
 - **The HTML prototype** (`index.html`) is the visual and behavioral reference. It runs as a [claude.ai Artifact](https://claude.ai) (a private hosted page), not as a plain static site, because its database, user identity and file storage come from the claude.ai runtime (`window.claude`). Most of this README describes the prototype; see "Running it".
 
 **Teaching a new teammate?** Start with the [25-minute project 101](docs/development/PROJECT-101.md), keep the [run commands](docs/development/RUN-COMMANDS.md) beside it, and use the [Obsidian guide](docs/development/OBSIDIAN-101.md) for the board.

@@ -112,11 +112,11 @@ flutter test integration_test/upgrade_2_after_install_test.dart -d <device id> -
 flutter test integration_test/upgrade_3_after_relaunch_test.dart -d <device id>
 ```
 
-Part 1 writes two journal entries, one under the reading and one from the journal, and completes the day's devotional. Part 2 is this build installed over that one: it expects the box checked and both entries, opens Train, and on a day with a workout starts it through the prayer and types two sets. Part 3 is a new process: the same, and the workout still in progress with its two sets.
+Part 1 writes two journal entries, one under the reading and one from the journal, and completes the day's devotional. Part 2 is this build installed over that one: it expects the box checked and both entries, opens Train, starts today's workout through the prayer and types two sets. Part 3 is a new process: the same, and the workout still in progress with its two sets.
 
 - **Start with the app not installed,** and run all three on the same calendar day.
 - **Run it only on an emulator or simulator, or on a device whose app data may be lost.** The last command ends by uninstalling the app.
-- It uses the phone's own clock, because the completed day is today's. On a rest day parts 2 and 3 open Train and start nothing.
+- It uses the phone's own clock, because the completed day is today's. Run it on a day with a workout to start (Monday, Wednesday or Friday on the plan every member gets): part 2 fails on any other day, because it could not write to the new tables.
 
 It passed on 2026-11-20 on `FS_S1_Restart_API_36` (Android 16, API 36), a Friday. The database file was copied off the emulator before and after: `user_version` 2 with two journal entries and one completed day, then 3 with the same rows and the workout tables and indexes. It has not run on a phone or on iOS, and no CI lane runs it.
 

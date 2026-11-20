@@ -59,6 +59,7 @@ class _FsNumberFieldState extends State<FsNumberField> {
   late final FocusNode _focus = FocusNode()..addListener(_onFocus);
 
   static final RegExp _oneDecimal = RegExp(r'^\d{0,4}([.,]\d?)?$');
+  static final RegExp _wholeNumber = RegExp(r'^\d{0,3}$');
 
   @override
   void didUpdateWidget(FsNumberField oldWidget) {
@@ -127,10 +128,15 @@ class _FsNumberFieldState extends State<FsNumberField> {
                   (TextEditingValue before, TextEditingValue after) =>
                       _oneDecimal.hasMatch(after.text) ? after : before,
                 )
-              else ...<TextInputFormatter>[
-                FilteringTextInputFormatter.digitsOnly,
-                LengthLimitingTextInputFormatter(3),
-              ],
+              else
+                // The same rule for a whole number: three digits at most,
+                // and nothing else. Dropping the characters that are not
+                // digits would make "1.5" into 15 and "-5" into 5, and
+                // store a number he never typed.
+                TextInputFormatter.withFunction(
+                  (TextEditingValue before, TextEditingValue after) =>
+                      _wholeNumber.hasMatch(after.text) ? after : before,
+                ),
             ],
             style: FsWorkoutText.fieldValue.copyWith(color: colors.text),
             cursorColor: colors.accent,
