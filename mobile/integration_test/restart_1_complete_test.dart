@@ -27,7 +27,12 @@ void main() {
         scrollable: scrollableOf(DevotionalPage).first,
       );
       await tester.tap(amenButton);
-      await tester.pumpAndSettle();
+      // The undo is stored before the button turns back into Amen.
+      await pumpUntil(
+        tester,
+        () => tester.widget<FsButton>(amenButton).label != 'Amen. Undo',
+        what: 'the undo to be saved',
+      );
       await tester.pageBack();
       await tester.pumpAndSettle();
       await showDevotionalBox(tester);
@@ -41,10 +46,21 @@ void main() {
 
     await readToTheEnd(tester);
     await tester.tap(amenButton);
-    await tester.pumpAndSettle();
+    // Amen saves first and goes back to Today afterwards, so Today is not
+    // there the moment the frames settle.
+    await pumpUntil(
+      tester,
+      () => find.byType(TodayPage).evaluate().isNotEmpty,
+      what: 'Today, after Amen was saved',
+    );
 
     expect(find.byType(TodayPage), findsOneWidget);
     await showDevotionalBox(tester);
+    await pumpUntil(
+      tester,
+      () => devotionalChecked(tester),
+      what: 'the devotional box to be checked',
+    );
     expect(devotionalChecked(tester), isTrue);
     expect(tester.widget<FsBoxRow>(devotionalBox).subtitle, 'Read today');
   });
