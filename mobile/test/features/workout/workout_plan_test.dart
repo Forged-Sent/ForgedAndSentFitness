@@ -100,6 +100,25 @@ void main() {
     });
   });
 
+  group('a list of lifting days that names no weekday', () {
+    // Without the check the search for the next lifting day never ends:
+    // these tests hang instead of failing.
+    test('is refused when it is empty', () {
+      expect(
+        () => WorkoutPlan.startingFor(monday, liftWeekdays: const <int>[]),
+        throwsArgumentError,
+      );
+    });
+
+    test('is refused when every number is outside 1 to 7', () {
+      expect(
+        () =>
+            WorkoutPlan.startingFor(monday, liftWeekdays: const <int>[0, 8, 9]),
+        throwsArgumentError,
+      );
+    });
+  });
+
   group('which plan day a date shows (the prototype\'s planIndex)', () {
     final plan = WorkoutPlan.startingFor(monday);
 

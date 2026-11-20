@@ -79,7 +79,7 @@ update-by: edit WORK.md then run tooling/knowledge/work_board.py --write
 	**Branch or PR:** branch `codex/native-host-acceptance`
 	[Edit this row in WORK](WORK.md)
 - [x] **S0 Design foundation**
-	**Note:** None. Fuel, Walk, Board and Rally are titled placeholders; Train was built in S3. The round header buttons do nothing yet, except Today's profile button, which opens Settings (S1). The shell has run on one Android emulator, in the S1 and S3 restart tests; not on a phone
+	**Note:** None. Fuel, Board and Rally are titled placeholders; Walk is the journal (S2) and Train was built in S3. The round header buttons do nothing yet, except two on Today: the profile button opens Settings (S1), and the pen opens a new journal entry (S2). The shell has run on one Android emulator, in the S1 and S3 restart tests; not on a phone
 	**Branch or PR:** branch `claude/s0-design-foundation`
 	[Edit this row in WORK](WORK.md)
 - [x] **S1 Today and Devotional**

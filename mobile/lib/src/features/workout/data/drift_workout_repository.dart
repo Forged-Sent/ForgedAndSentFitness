@@ -62,27 +62,37 @@ class DriftWorkoutRepository implements WorkoutRepository {
       _watch(() => readSession(ownerId, day));
 
   @override
-  Future<WorkoutSession?> readSession(String ownerId, LocalDate day) async {
-    final row =
-        await (_db.select(_db.workoutSessions)
-              ..where((t) => t.ownerId.equals(ownerId) & t.day.equals(day.iso)))
-            .getSingleOrNull();
-    return row == null ? null : _session(row);
+  Future<WorkoutSession?> readSession(String ownerId, LocalDate day) {
+    // One transaction: the session's row, its exercises and its sets are
+    // three queries, and a finish that ran between them would give back a
+    // session that is not finished with its rest timers already cleared.
+    return _db.transaction(() async {
+      final row =
+          await (_db.select(_db.workoutSessions)..where(
+                (t) => t.ownerId.equals(ownerId) & t.day.equals(day.iso),
+              ))
+              .getSingleOrNull();
+      return row == null ? null : _session(row);
+    });
   }
 
   @override
   Stream<WorkoutSession?> watchOpenSession(String ownerId) {
-    return _watch(() async {
-      final row =
-          await (_db.select(_db.workoutSessions)
-                ..where(
-                  (t) => t.ownerId.equals(ownerId) & t.finishedAtUtcMs.isNull(),
-                )
-                ..orderBy([(t) => OrderingTerm.desc(t.startedAtUtcMs)])
-                ..limit(1))
-              .getSingleOrNull();
-      return row == null ? null : _session(row);
-    });
+    // In one transaction, for the reason [readSession] gives.
+    return _watch(
+      () => _db.transaction(() async {
+        final row =
+            await (_db.select(_db.workoutSessions)
+                  ..where(
+                    (t) =>
+                        t.ownerId.equals(ownerId) & t.finishedAtUtcMs.isNull(),
+                  )
+                  ..orderBy([(t) => OrderingTerm.desc(t.startedAtUtcMs)])
+                  ..limit(1))
+                .getSingleOrNull();
+        return row == null ? null : _session(row);
+      }),
+    );
   }
 
   @override

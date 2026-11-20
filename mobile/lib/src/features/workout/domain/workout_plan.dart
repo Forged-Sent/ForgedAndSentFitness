@@ -40,6 +40,15 @@ class WorkoutPlan {
     bool fourthDay = false,
   }) {
     final lifts = liftWeekdays ?? defaultLiftWeekdays(restWeekday);
+    // Checked before the search below, which would never end on a list
+    // that names no weekday.
+    if (!lifts.any((int weekday) => weekday >= 1 && weekday <= 7)) {
+      throw ArgumentError.value(
+        liftWeekdays,
+        'liftWeekdays',
+        'must name at least one weekday from 1 (Monday) to 7 (Sunday)',
+      );
+    }
     var nextLift = today;
     while (!lifts.contains(nextLift.weekday)) {
       nextLift = nextLift.addDays(1);

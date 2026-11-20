@@ -34,7 +34,7 @@ The maintainer decided these six points for S3 on 2026-11-13, in the session tha
 
 ## User outcome
 
-A man opens Train and sees today and this week from the Forged program. He opens today's session and taps Start. The workout prayer comes first; Amen starts the clock, and "Not now" starts nothing. He logs each set with last time's values beside it, uses the rest timer, and finishes. The workout locks into a summary, and the Workout box on Today checks itself. If the phone kills the app in the middle, everything he typed is there when he opens it again, and the clock is right. Nothing leaves his phone.
+A man opens Train and sees today and this week from the Forged program. He opens today's session and taps Start. The workout prayer comes first; Amen starts the clock, and "Not now" starts nothing. He logs each set with last time's values beside it, uses the rest timer, and finishes. The workout locks into a summary, and the Workout box on Today checks itself. If the phone kills the app in the middle, what he logged is there when he opens it again, and the clock is right; the one limit, a change still on its way to the file at the instant of the kill, is stated under "What is saved, and how". Nothing leaves his phone.
 
 ## Acceptance and failure cases
 
@@ -62,7 +62,7 @@ A man opens Train and sees today and this week from the Forged program. He opens
 - **Every change is written at once.** Each keystroke in a set's box, each tick and each rest timer button is its own write to the database, in the order they were made. When the app is paused the page waits for the last of them. A change still waiting its turn is written also when he leaves the page first. There is no save button, and nothing is kept only in memory for longer than its turn takes (P07 acceptance 1). One limit, stated plainly: a change that is still waiting its turn at the instant the process is killed outright is not in the file. The device test kills the app only after it has read both sets back from the file, so it proves that what was written survives, not that nothing can be caught in that instant.
 - **Time comes from stored instants.** The clock is the time since the stored start; the rest timer counts down to a stored instant. Both are right after the app was closed and opened again.
 - **The day (Q9, U2):** a session belongs to the local date it was started on and keeps it. It can be logged and finished after midnight, with no time limit, and finishing checks the Workout box of the day it started on (P07 acceptance 3). One session per day.
-- **Finishing is one transaction** with the day's completion event, whose id is made when the session starts. Finishing twice records one completion (P07 acceptance 2). If the box cannot be checked the session is not finished either.
+- **Finishing is one transaction** with the day's completion event, whose id is made when the session starts. Finishing twice records one completion (P07 acceptance 2). If the box cannot be checked the session is not finished either. A session is read in one transaction as well, so a read that overlaps a finish gives the session wholly before it or wholly after it.
 - **Schema version 3** adds four tables: plans, sessions, exercises, sets. Version 2 is the journal's (build step S2). A database file of version 1 or version 2 opens in this build with every row it had.
 - **Owner (Q10):** the local profile, as in S1. Each owner has his own database file.
 

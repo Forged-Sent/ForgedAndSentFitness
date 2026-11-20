@@ -12,6 +12,7 @@ import 'package:forged_and_sent/src/features/settings/data/settings_repository.d
 import 'package:forged_and_sent/src/features/today/data/memory_day_repository.dart';
 import 'package:forged_and_sent/src/features/workout/data/memory_workout_repository.dart';
 import 'package:forged_and_sent/src/features/workout/data/workout_library.dart';
+import 'package:forged_and_sent/src/features/workout/domain/workout_plan.dart';
 import 'package:forged_and_sent/src/features/workout/presentation/workout_page.dart';
 import 'package:forged_and_sent/src/features/workout/presentation/workout_view_model.dart';
 
@@ -44,8 +45,54 @@ class _SlowWorkouts extends MemoryWorkoutRepository {
   }
 }
 
+/// A store whose plan cannot be read.
+class _NoPlan extends MemoryWorkoutRepository {
+  _NoPlan(super.days);
+
+  @override
+  Future<WorkoutPlan> ensurePlan(
+    String ownerId,
+    WorkoutPlan Function() create,
+  ) => Future<WorkoutPlan>.error(StateError('The plan cannot be read.'));
+}
+
 void main() {
   setUpAll(loadAppFonts);
+
+  test('start answers "failed" when the plan cannot be read while the '
+      'program is still loading, and leaves no error unheard', () async {
+    final days = MemoryDayRepository();
+    final loading = Completer<WorkoutLibrary>();
+    final container = ProviderContainer(
+      overrides: [
+        localStoreProvider.overrideWithValue(
+          LocalStore(
+            ownerId: 'local-test',
+            days: days,
+            journal: MemoryJournalRepository(),
+            settings: MemorySettingsRepository(),
+            workouts: _NoPlan(days),
+            close: () async {},
+          ),
+        ),
+        clockProvider.overrideWithValue(TestClock(liftingEvening)),
+        eventIdProvider.overrideWithValue(() => 'id'),
+        workoutLibraryProvider.overrideWith((ref) => loading.future),
+      ],
+    );
+    addTearDown(container.dispose);
+    final provider = workoutViewModelProvider(_monday);
+    container.listen(provider, (_, _) {});
+    final model = container.read(provider.notifier);
+
+    final starting = model.start();
+    // The plan has failed by now; the program is still loading.
+    await pumpEventQueue();
+    loading.complete(await loadBundledWorkoutLibrary());
+
+    expect(await starting, StartOutcome.failed);
+    await pumpEventQueue();
+  });
 
   group('every change is on its way to the store at once, and a pause '
       'waits for the last of them', () {

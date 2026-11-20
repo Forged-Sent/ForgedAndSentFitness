@@ -32,6 +32,45 @@ void main() {
     });
   });
 
+  group('DriftWorkoutRepository, a read that overlaps a finish', () {
+    test(
+      'is the session wholly before the finish or wholly after it',
+      () async {
+        final database = AppDatabase(NativeDatabase.memory());
+        addTearDown(database.close);
+        final days = DriftDayRepository(database);
+        final workouts = DriftWorkoutRepository(database, days);
+        final started = DateTime(2026, 11, 12, 18, 10);
+        await workouts.startSession(newSession('s1', started));
+        await workouts.setReps('s1-squat-s0', 5);
+        await workouts.setWeight('s1-squat-s0', 135);
+        await workouts.setRest(
+          's1-squat',
+          baseSeconds: 120,
+          endsAtUtc: DateTime.utc(2026, 11, 13, 1, 30),
+        );
+
+        // Asked for in the same moment: the read first, then the finish,
+        // which clears every rest timer.
+        final reading = workouts.readSession(ownerA, nov12);
+        final finishing = workouts.finishSession(
+          's1',
+          started.add(const Duration(minutes: 40)),
+        );
+        final read = (await reading)!;
+        await finishing;
+
+        final squat = read.exercises.first;
+        if (read.finished) {
+          expect(squat.restEndsAtUtc, isNull);
+        } else {
+          // Not finished, so its rest timer is still as it was set.
+          expect(squat.restEndsAtUtc, DateTime.utc(2026, 11, 13, 1, 30));
+        }
+      },
+    );
+  });
+
   group('DriftWorkoutRepository on a real SQLite file', () {
     test('kill mid-set and relaunch: every entered set is there and the '
         'clock is right (P07 acceptance 1)', () async {
