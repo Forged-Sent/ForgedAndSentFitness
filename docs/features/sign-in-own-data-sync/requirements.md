@@ -52,6 +52,7 @@ The split and the answers marked "2026-11-19" below were given in conversation. 
 | Which unreplaced completion event wins (was B1) | Rule R2: longest chain, then event id | Decided 2026-11-19. The rule is written out in [Architecture](../../reviews/2026-11-10-prototype-to-flutter/07-ARCHITECTURE.md), journey J1 |
 | The account and the phone both have days (was B9) | Keep both. Never ask him about any of them | Decided 2026-11-19 |
 | A signed-out profile that holds something when he signs in | Ask once, "Are these yours?". "No" leaves that data untouched as a signed-out profile; it is never deleted or merged. An empty profile is not asked about | Decided 2026-11-19 |
+| After a "No" | That signed-out profile is never offered again, to any account. It stays signed-out only | Decided 2026-11-20 |
 | What stays on the phone at sign-out (was B10) | His file stays on the phone, locked to his account. There is also a separate "Sign out and erase this phone" | Decided 2026-11-19 |
 | Account deletion (was B14) | It is part of S4a. He is warned, then his file on that phone is erased. An export is offered only if the app already has one; S4a adds none | Decided 2026-11-19 |
 | Per-device sign-out (was B15) | Build "Sign out of this phone" and "Sign out everywhere". Decide per-device sign-out later | Decided 2026-11-19 (the earlier draft's default) |
@@ -65,7 +66,7 @@ Nothing in this section is approved yet. It is what the maintainer is asked to a
 **What a man can see when S4a is done**
 
 1. **Sign in.** He ticks the 18+ terms box and continues with Apple, with Google, or with email and password. He stays signed in on that phone until he signs out. (Proposed: sign-in design.)
-2. **His days come with him, if they are his.** When he signs in on a phone that was used signed out, he is asked once, "Are these yours?". Yes moves those days and that journal into his account's data on the phone. No leaves them where they were, untouched. If nothing was there he is not asked. (Decided: Q10; decided 2026-11-19.) If his account already has days, both sets are kept and he is never asked to choose between them. (Decided 2026-11-19.)
+2. **His days come with him, if they are his.** When he signs in on a phone that was used signed out, he is asked once, "Are these yours?". Yes moves those days and that journal into his account's data on the phone. No leaves them where they were, untouched, and that data is never offered to an account again. If nothing was there he is not asked. (Decided: Q10; decided 2026-11-19.) If his account already has days, both sets are kept and he is never asked to choose between them. (Decided 2026-11-19.)
 3. **His completions are kept on his account, once each.** A box he checks offline is sent when the phone is back online. Sending it twice changes nothing. (Decided: the event id is the only key. Proposed: the outbox in [design](design.md).)
 4. **A second phone shows the same days.** He signs in on another device and his days are there. If two devices changed the same box without seeing each other, rule R2 settles it, the same way on both. (Decided 2026-11-19: R2.)
 5. **Sign out.** His data stays on the phone and can be opened again only by signing in to his account. A second account on the same phone sees none of it. (Decided: build plan S4 "Done when"; decided 2026-11-19: the file is kept.)
@@ -145,11 +146,12 @@ The full rules table, by actor and resource, is in [design](design.md#firestore-
 - A phone signed out by "Sign out everywhere" goes on writing to his account until its token runs out, or refreshes its token to get past the cutoff: the rules refuse it at once, by the time the session began.
 - An event arrives while his account is being deleted and is left behind afterwards.
 
-Four cases are **not** stopped, and are listed so they are not mistaken for solved:
+Five cases are **not** stopped, and are listed so they are not mistaken for solved:
 
 - **A man can check a box he did not do.** Events are self-reported. Nothing in S4a turns them into points.
 - **A signed-in man can fill his own path with well-formed events.** It costs storage and touches nobody else's data. No rate limit is designed here.
 - **A man who answers "Yes" to days and a journal that are not his takes them.** The question prevents an accident, not a theft. He could already read them: a signed-out profile is open to whoever holds the phone (Q10).
+- **An erase cannot reach the phone's own backup.** Android and iOS include the database in the phone's backup. "Sign out and erase" and account deletion remove his file from this installation only.
 - **"Locked to his account" is not encryption.** The app will not open his file without his sign-in. Someone who can read the phone's storage directly, or a backup of it, can read the file. Q8 leaves encryption for later.
 
 ## Failure, offline and migration behavior
@@ -164,15 +166,15 @@ Four cases are **not** stopped, and are listed so they are not mistaken for solv
 | An event arrives before the one it replaces | It is provisional under R2: it does not count until its chain is held. It is not rejected for arriving early | Decided 2026-11-19 |
 | He is offline for days, then syncs old dates | The events are stored whatever their date. Whether a late event earns points is S4b's question | Proposed for S4a; parked for scoring |
 | Sign-in fails or is cancelled | He stays where he was, with the signed-out profile untouched. Nothing is asked or moved until sign-in has succeeded | Proposed |
-| The move after "Yes" is interrupted (app killed) | The signed-out profile is marked for one account before anything moves. On the next start the app finishes that move before it offers any sign-in, so no other account can take the same data | Proposed |
+| The move after "Yes" is interrupted (app killed) | The signed-out profile is marked for one account before anything moves. On the next start the app finishes that move before it offers any sign-in, so no other account can take the same data. Each profile has its own id, used once, so the record of an earlier move is never taken for this one | Proposed |
 | The account already has days and so does the phone | Both sets of events are kept. R2 settles each box. He is not asked about any box | Decided 2026-11-19 |
 | He signs out with events not yet sent | He is told how many, and can go back. If he continues, they stay in his file and are sent at his next sign-in | Proposed; see O3 |
-| He chooses "Sign out and erase this phone" with events not yet sent, or with a journal | He is told what will be lost, in words: unsent days, and his journal, which exists nowhere else. He must confirm | Proposed |
+| He chooses "Sign out and erase this phone" with events not yet sent, or with a journal | He is told what will be lost, in words: unsent days, and his journal, which is on no server. He is told that the phone's own backup may still hold a copy. He must confirm | Proposed |
 | "Sign out and erase this phone" is interrupted (app killed) | The erase is recorded outside his file before anything is touched. On every start the app finishes a recorded erase before it restores a session, opens a file or syncs. It always ends with no file and no session | Proposed |
 | "Sign out everywhere" | His other phones are refused by the rules at once, and show the signed-out state when they next reach the server. Their files stay, locked | Proposed |
 | Account deletion with no network | Refused with a message. Deletion needs the server | Proposed |
 | Account deletion is interrupted | The server finishes it without the phone: the request is recorded before anything is deleted, and a worker carries on from that record. An event that arrives during deletion is refused, not left behind | Proposed |
-| His file on the phone when his account is deleted | On the phone where he deletes: warned, then erased, by the same safe erase, once the server has recorded the deletion. If the server refuses or cannot be reached, nothing is erased | Decided 2026-11-19; the steps are proposed |
+| His file on the phone when his account is deleted | On the phone where he deletes: warned, then erased, by the same safe erase, once the server has recorded the deletion. A definite refusal erases nothing. If the answer is lost the phone asks again; if its sign-in stops working before a definite answer comes, the file is left closed, not erased, and he is told | Decided 2026-11-19; the steps are proposed |
 | His files on his other phones when his account is deleted | Not erased. They stay closed and can no longer be opened. Removing the app removes them | Proposed; see O1 |
 | Accessibility | Every new screen works with a screen reader and with large text. Sign-in buttons meet the providers' own rules for labels | Proposed |
 | Database migration | S4a adds a chain length to each event, an outbox state, and the record of a move. The migration is tested on a real file against the frozen schema of each earlier version, as the journal's migration is | Proposed |
@@ -187,7 +189,7 @@ These are not groups questions, so they stay here. Each has the default this dra
 | **O1** | **His files on his other phones when he deletes his account.** Decided for the phone where he deletes: warned, then erased. Not stated: the others. A file locked to an account that no longer exists can never be opened again | They are not erased. They stay closed, and removing the app removes them. S4a adds no button for it | Erasing a journal on a phone he is not holding, on a signal from the server, is not something to do by default. The cost is a file that sits unreachable on that phone |
 | **O2** | **Do workout logs sync in S4a?** Build step S3 is not on `main` as this is written, so this draft cannot say what it stores | No. S4a syncs completion events only. Workout logs sync in a later step, with their own contract | "His own data on his account" could be read to include them |
 | **O3** | **Two parts of the sign-out answer that were not ruled on.** Unsent events at sign-out, and what the app shows after sign-out | Unsent events: warn him, keep them in his file, send them at his next sign-in. After sign-out: the phone's signed-out profile, which he can use without signing in, as Q10 allows | The maintainer's answer named the kept file and "Sign out and erase", not these two |
-| **O4** | **When he is asked again.** Decided: asked once, and No leaves the data untouched. Not stated: what "once" means when he signs in again later | After a No, that account is asked again only when the signed-out profile holds something made after his answer. Closing the question without answering is No | Asking at every sign-in would nag him about another man's data; never asking again would strand days he added himself while signed out |
+| **O4** | **A "No" cannot be taken back.** Decided: after a No the profile is never offered again. Not stated: what if he tapped No by mistake | The question has two answers and cannot be closed without one. A No is final in S4a: his days stay in the signed-out profile, visible when nobody is signed in, and are never sent | A way to undo a No is a new screen, and nothing asked for one |
 | **O5** | **The terms text.** Which text and version the checkbox shows is parked with S4b (was B16). S4a still has to show something | S4a builds the checkbox and records a version and the server's time. The text is a marked placeholder. S4a runs in the emulator only, so no real man agrees to a placeholder | S4a cannot go to real users until the text is decided |
 
 ## Review history
@@ -198,21 +200,21 @@ Advisory reviews by Codex, all on 2026-11-19. None is an approval.
 |---|---|---|
 | First | Changes required: 5 High, 3 Medium | All eight addressed in the first fix round |
 | Second | Changes required: 2 High, 3 Medium (F1 to F5) | The maintainer answered F1 and the account-deletion question and allowed one more fix round. All five addressed: F1 by the question "Are these yours?"; F2 by an erase that is recorded first and finished on start; F3 by leaving `receivedAt` out of the comparison; F4 by deleting the emulator's smoke documents too; F5 by requiring lowercase UUIDs and comparing ids exactly |
-| Third | Changes required: 4 High, 3 Medium (G1 to G7 below) | **Not fixed.** The maintainer allowed one review after the second fix round and said to stop if a High remained |
+| Third | Changes required: 4 High, 3 Medium (G1 to G7) | The maintainer allowed one last fix round. All seven addressed: G1 by giving every signed-out profile its own id, used once, and recording that id with the move; G2 by the maintainer's rule that a declined profile is never offered again; G3 by keeping the erase record unless the server definitely refuses; G4 by asking again while the token is accepted and otherwise leaving the file closed, with no receipt on the server; G5 by saying what an erase cannot reach; G6 and G7 on the architecture page |
+| Fourth, 2026-11-20 | Changes required: 3 High, 1 Medium, and 2 Medium reported again (H1 to H4 below) | **Not fixed, and no further round.** The maintainer said to run one review, record what it found as open, and stop |
 
 ### Known problems in this draft
 
-From the third review. The contract should not be approved until each is fixed or set aside by the maintainer. "Pick" is Claude's proposal, not a decision.
+From the fourth review. The contract should not be approved until each is fixed or set aside by the maintainer. "Pick" is Claude's proposal, not a decision.
 
 | # | Severity | Problem | Pick |
 |---|---|---|---|
-| G1 | High | **A second move from the signed-out profile can lose data.** The record of a move is kept per profile, and the profile is reused. If the same account says Yes a second time and the app stops before the copy, recovery can take the first move's record for the second and empty rows that were never copied | Give each move its own id, and empty the source only when the account's file holds a record with that id |
-| G2 | High | **After a No, a later Yes can move the declined data too.** The declined data stays in the signed-out profile. If the man who said No signs out, adds a day of his own there and then says Yes, the whole profile moves, the other man's journal with it | Remember, per account, where the profile stood at his No. A later question and a later Yes cover only what was made after that point; the rest stays |
-| G3 | High | **A deletion request whose answer is lost strands his file.** The phone removes its erase record when the server cannot be reached, but the server may already have recorded the deletion | Keep the record unless the server gives a definite refusal |
-| G4 | High | **The phone cannot find out what happened to a deletion.** Once deletion is marked, the rules refuse him his own state document; later the account and the marker are gone. A missing marker can mean "never requested" or "finished" (reported twice, from both halves of the review) | The phone makes a random request id and sends it with the request. The server keeps a small receipt under that id, with no personal data, that the phone can read without a sign-in, for 30 days |
-| G5 | Medium | **"Erase" cannot reach a phone backup.** The phone's own backup can hold the database (the journal contract says so), so an erased journal can come back with a restore | Say in the warning and here that the erase covers this installation, not backups |
-| G6 | Medium | **A test on the architecture page contradicts R2.** "Complete, move the clock back a day, undo" cannot clear the completion, because R2 works per local date. The sentence was on `main` before this change | Move the clock back within the same day for that test, and add a second case across dates |
-| G7 | Medium | **R2's Confirmed and Rejected rows overlap** for a first event with a malformed id | State that the Rejected checks come first |
+| H1 | High | **Account deletion can leave his file on the phone where he asked for it.** This draft keeps no receipt on the server. If the server records the deletion, the answer is lost, and the phone's sign-in has stopped working by the time it asks again, the phone cannot tell, and leaves the file closed instead of erasing it. The review reported this from both halves | The maintainer chooses. Either accept that rare case, or add the receipt: a random id made on the phone, and a small document under it, with nothing personal in it, that can be read without a sign-in for 30 days |
+| H2 | High | **A retry can be refused while the first request is still on its way.** The retry finds no marker and fails the recent-sign-in check; the first request then succeeds. The phone has already dropped its erase record on the refusal | Put a request id made on the phone on every request, record it with the marker, and answer a retry by that id. A refusal is final only for the id it was given to. This needs no read without a sign-in |
+| H3 | High | **After a "No", nothing made on that signed-out profile can ever reach an account**, his own later days included | This is the maintainer's rule of 2026-11-20, kept as written. The review's alternative is to set the declined profile aside and start a fresh signed-out profile; that brings back a second profile to track |
+| H4 | Medium | **Working out states again after a download looks only at the box the new event belongs to.** An event of another box that was waiting for it can be left provisional when it should be rejected | Also work out again every event that names a newly arrived id, whatever box it belongs to |
+
+The review also reported G6 and G7 again. Both fixes are in the text of the architecture page and of the full report (the clock test, and "The Rejected checks come first"), so those two reports are read as mistaken.
 
 ## Evidence and traceability
 

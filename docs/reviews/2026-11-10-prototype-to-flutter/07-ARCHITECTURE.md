@@ -179,7 +179,7 @@ Stress: *double tap* → in the prototype, check then uncheck. *Reload mid-save*
   - *On one device* (all that exists before S4): each event gets the next value of a counter kept in that user's Drift file, assigned in the same transaction. The highest counter is the latest.
   - *Across devices* (from S4): each event also names the event it replaces, the one that set the day state when the tap was made. Which event wins when more than one is left unreplaced is rule R2, under **Which unreplaced event wins** below. An earlier version of this page said only that the Cloud Function picks between two events that replace the same one, by the order it received them and then by event id. That left the day state undefined when the events left over replace different ones, and said nothing about an event that arrives before the one it replaces.
   - The time of the tap, with its UTC offset, is still stored. It places the event in the man's local day (Q9) and is shown to him. It is not used to order events.
-- **Tests that go with the rule.** Complete, move the clock back a day, undo: the item is not done. Two devices with clocks an hour apart complete and undo the same item: the result follows rule R2 below, whatever the stamps say. Replaying any of those events changes nothing. The further tests are listed under the rule.
+- **Tests that go with the rule.** Complete, move the clock back an hour within the same day, undo: the item is not done. Complete, move the clock back a day, tap the box: the tap belongs to the earlier date, and the first date's completion is unchanged. Two devices with clocks an hour apart complete and undo the same item: the result follows rule R2 below, whatever the stamps say. Replaying any of those events changes nothing. The further tests are listed under the rule.
 - **Scoring.** Credit, when it exists, is derived from the final day state per (owner, date, item), never by counting events, so undo and redo cannot earn twice. How credit is computed stays with S4.
 - **Event id form.** A random UUID minted once per tap and kept through retries. A time-ordered UUID would also do; the choice does not change the key design.
 
@@ -205,7 +205,7 @@ The rule:
 - Each event carries a **chain length**: 1 when it replaces nothing, otherwise one more than the chain length of the event it replaces. The device that makes the event writes the number, and it travels with the event.
 - The time of the tap is never used to order events. Replaying an event changes nothing: the event id is the key.
 
-**Three states.** The carried number is checked, never trusted. Every held event is in exactly one of three states. The state depends only on which events are held, never on the order they arrived, so every device and Function holding the same events gives each event the same state.
+**Three states.** The carried number is checked, never trusted. Every held event is in exactly one of three states. The Rejected checks come first: an event that meets any of them is rejected, even if it would otherwise be confirmed. The state depends only on which events are held, never on the order they arrived, so every device and Function holding the same events gives each event the same state.
 
 | State | When | What the event does |
 |---|---|---|
@@ -254,7 +254,7 @@ Tests the rule needs, beyond those above:
 - An event with a forged chain length is rejected, and so is every event that replaces it. Neither day state nor credit changes.
 - An event that arrives first and is shown to be wrong when the event it replaces arrives is rejected then.
 - An event that names itself is rejected. Two events that name each other are both rejected, whichever arrives first, and the day state is the same in both orders. A link to an event of another owner, date or item is rejected.
-- A tie on chain length is broken by event id, and both tied events ask for the same thing. An event whose id is not a lowercase UUID is rejected, so two ids that differ only by case can never tie. Two events that claim the same chain length with different targets cannot both be confirmed.
+- A tie on chain length is broken by event id, and both tied events ask for the same thing. An event whose id is not a lowercase UUID is rejected, so two ids that differ only by case can never tie. A first event that is valid in every other way but has such an id never changes the day state. Two events that claim the same chain length with different targets cannot both be confirmed.
 - A new tap beats everything that counted on the device.
 - The migration is tested with writes to two items interleaved, and gives each row the chain length its links imply, whatever its counter.
 

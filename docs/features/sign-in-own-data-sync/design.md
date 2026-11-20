@@ -41,32 +41,32 @@ All of this section is **proposed**. It follows the [sign-in design](../../desig
 
 ## The signed-out profile and adoption
 
-Decided: Q10 (a man may use the app before signing in, and the local profile is adopted at first sign-in). Decided 2026-11-19: when the account and the phone both have days, keep both and never ask about any of them. Decided 2026-11-19: when a man signs in on a phone whose signed-out profile holds something, he is asked once, "Are these yours?". "No" leaves that data untouched as a signed-out profile; it is never deleted and never merged.
+Decided: Q10 (a man may use the app before signing in, and the local profile is adopted at first sign-in). Decided 2026-11-19: when the account and the phone both have days, keep both and never ask about any of them. Decided 2026-11-19: when a man signs in on a phone whose signed-out profile holds something, he is asked once, "Are these yours?". "No" leaves that data untouched as a signed-out profile; it is never deleted and never merged. Decided 2026-11-20: after a "No", that signed-out profile is never offered again, to any account, and stays signed-out only.
 
 Proposed:
 
-- **One signed-out profile per phone.** It is the local profile S1 already makes: its own database file, shown whenever nobody is signed in. Signing in never destroys it.
+- **One signed-out profile at a time.** It is the local profile S1 already makes: its own database file with its own id, shown whenever nobody is signed in. A profile's id is never used twice.
 - **It is open to whoever holds the phone.** No sign-in protects it. That is Q10, and it is unchanged.
 - **"Holds something"** means it has at least one thing a man entered: a completion event, a journal entry, or a row of any other table of his that is on `main` when this is built. Settings alone do not count.
 
 At a successful sign-in:
 
 1. **The account's file is opened**, or made if this is his first sign-in on this phone.
-2. **If the signed-out profile holds nothing**, he is asked nothing and nothing moves.
-3. **If it holds something, he is asked once: "Are these yours?"** The question says how much there is (so many days, so many journal entries) and shows none of it.
-   - **Yes.** Everything in the signed-out profile moves into his account's file, by the three steps below. The signed-out profile is left empty. His days are put in the outbox. The journal moves on the phone and is not sent (Q8).
-   - **No.** Nothing moves and nothing is deleted. The data stays in the signed-out profile exactly as it was, and is there again when nobody is signed in. While he is signed in, no screen, query or repository reaches it.
-   - Closing the question without answering is No.
-   - He is not asked again about the same data. After a No, the app asks that account again only when the signed-out profile holds something made after his answer (O4).
+2. **If the signed-out profile holds nothing, or is marked signed-out only**, he is asked nothing and nothing moves.
+3. **Otherwise he is asked: "Are these yours?"** The question says how much there is (so many days, so many journal entries) and shows none of it.
+   - **Yes.** Everything in the signed-out profile moves into his account's file, by the three steps below. That profile's file is then removed. The next time nobody is signed in, the app makes a new, empty signed-out profile with a new id, as it does on first launch. His days are put in the outbox. The journal moves on the phone and is not sent (Q8).
+   - **No.** Nothing moves and nothing is deleted. The data stays in the signed-out profile exactly as it was, and is there again when nobody is signed in. While he is signed in, no screen, query or repository reaches it. The profile is marked **signed-out only**: no account is ever asked about it again, whatever is added to it later, and nothing in it is ever moved or sent.
+   - The question has two answers and cannot be closed without one. If the app is killed while it shows, nothing is recorded and it is asked at the next sign-in.
+   - So each signed-out profile is asked about at most once. A Yes removes it. A No closes it for good; a No cannot be taken back in S4a (O4).
 4. **If his account already has events on the server**, they are downloaded (below) and stored beside the phone's own. Rule R2 gives each box its state. He is not asked about any box.
 
 **The move, after Yes.** Two files cannot share one transaction, so the move has three steps, each safe to repeat:
 
 1. Write into the signed-out profile's file that it is being moved to this uid. From now on no other account can take it.
-2. In one transaction on the account's file, copy every row across and record that this profile was moved. Events are inserted if their id is absent and put in the outbox. Event ids do not change, so sending them is idempotent.
-3. Empty the signed-out profile.
+2. In one transaction on the account's file, copy every row across and record the id of the profile that was moved. Events are inserted if their id is absent and put in the outbox. Event ids do not change, so sending them is idempotent.
+3. Remove the signed-out profile's file.
 
-On every start, before any sign-in is offered, the app finishes a move that was interrupted: a profile marked for a uid is copied into that uid's file if the record of the move is missing, and then emptied. Nothing is dropped silently: for each table that is on `main` when this is built, the implementing pull request says how its rows move and tests it, and stops to ask if a table cannot be moved without a choice.
+On every start, before any sign-in is offered, the app finishes a move that was interrupted: a profile marked for a uid is copied into that uid's file if that file holds no record with this profile's id, and then removed. A profile's id is never used twice, so the record of one move can never be taken for another. Nothing is dropped silently: for each table that is on `main` when this is built, the implementing pull request says how its rows move and tests it, and stops to ask if a table cannot be moved without a choice.
 
 - Sign-in that fails or is cancelled asks nothing and moves nothing.
 - The question prevents an accident, not a theft. A man who answers Yes to data that is not his takes it. He could already read it: a signed-out profile is open to whoever holds the phone.
@@ -139,7 +139,7 @@ Proposed:
 - **Locked to his account** means: the file is tied to his uid, and the app opens it only after a successful sign-in as that uid. No screen, query or repository can reach it otherwise. It is not encrypted (Q8 leaves that for later), and the requirements page says so under the cases that are not stopped.
 - **Unsent events at sign-out** stay in his file. He is told how many before he signs out, and they are sent at his next sign-in (O3).
 - **After sign-out** the app shows the phone's signed-out profile, which can be used without signing in (O3, Q10). It is empty, or holds what a "No" left there. Signing in as another account opens that account's file or makes a new one. No query can reach across files.
-- **Sign out and erase this phone.** He is told what will be lost: any unsent or blocked days, and his journal, which exists nowhere else. It works without a network. After he confirms, the erase is done so that it finishes even if the app is killed halfway:
+- **Sign out and erase this phone.** He is told what will be lost: any unsent or blocked days, and his journal, which is on no server. It works without a network. After he confirms, the erase is done so that it finishes even if the app is killed halfway:
   1. Write an **erase record** for his uid in a small file outside his database, and flush it to disk. From this moment the app treats his file as gone.
   2. Stop the sync worker, cancel every listener, close his file, and throw away every provider that held his data.
   3. Sign out of Firebase Authentication.
@@ -147,6 +147,7 @@ Proposed:
   5. Remove the erase record.
 
   **On every start, before anything else**, the app looks for an erase record: before a session is restored, before any account's file is opened, and before sync starts. If there is one, it runs steps 2 to 5 again; each is safe to repeat. So a kill at any point ends the same way: no file, no session, and nothing downloaded into a new file. If the file cannot be deleted, the record stays, his file is never opened, and the app says so and tries again at the next start.
+- **What the erase covers.** It removes his file from this installation of the app. It cannot reach a copy in the phone's own backup: Android and iOS include the database in the phone's backup, and the maintainer decided on 2026-11-17 to leave that on. The warning says so. A backup restored later can bring his file back; it comes back as a kept file, closed, and opened only by signing in to his account.
 - **Erasing the phone does not delete his account.** Days already sent stay on his account and come back if he signs in again. The journal and any unsent days do not.
 - **Sign out everywhere.** A Function, called by the signed-in man, writes the current time to `users/{uid}/account/state` as the cutoff and then revokes his refresh tokens. The rules compare the moment each request's session began with the cutoff, so his other phones are refused at once, not after their tokens run out, and a token refreshed between the two steps does not get through. Both Functions make the same comparison themselves and check that the token is not revoked, because rules do not apply to them. The phone he used signs out as above. Each other phone shows the signed-out state when it next reaches the server; its file stays, locked. It needs a network; "Sign out of this phone" does not.
 
@@ -165,6 +166,7 @@ Proposed: a request the man makes, and a worker that needs no client.
 
 **The request**, a Function called by the signed-in man:
 
+0. **Already recorded?** If the marker for his uid already says that deletion was requested, the Function answers "already recorded" and does nothing else. This answer needs only a token that still proves who he is. It skips the checks in step 1, because by then his refresh tokens are revoked.
 1. **Checks.** He is signed in; his session began after the last "Sign out everywhere"; his token has not been revoked; he signed in within the last few minutes (the sign-in design's "recent sign-in"; proposed: five). Otherwise the app asks him to sign in again first.
 2. **Close the door and record the request.** Write the deletion marker to `users/{uid}/account/state`: that deletion was requested, when, and how far it has got. From this moment the rules refuse every read and write by any phone of his, whatever token it holds. The marker is the durable record of the request; everything after this step works from it.
 
@@ -178,12 +180,15 @@ Proposed: a request the man makes, and a worker that needs no client.
 - Each step is safe to repeat. The sweep picks up any marker whose deletion is not finished and carries on from the step it records.
 - The marker stays in place from step 2 to step 6. That is what stops a phone with a still-valid token from writing an event after the data has been deleted.
 
-**His file on the phone where he deletes** (decided 2026-11-19): he is warned, then his file on that phone is erased. The warning says that his journal is in that file and exists nowhere else. No export is offered: the app has none, and S4a does not add one.
+**His file on the phone where he deletes** (decided 2026-11-19): he is warned, then his file on that phone is erased. The warning says that his journal is in that file and on no server, and that the phone's own backup may still hold a copy. No export is offered: the app has none, and S4a does not add one.
 
 1. An erase record is written for his uid, marked "waiting for the server", before the request is sent.
 2. The request is sent. When the server answers that it has recorded the deletion, the mark is taken off and the erase runs as in "Sign out and erase this phone".
-3. If the server refuses, or cannot be reached, the record is removed and nothing on the phone changes.
-4. On a start that finds a record still marked "waiting for the server", the app asks the server whether his account is being deleted or is gone. Yes: the erase runs. No: the record is removed and nothing is erased. No answer: his file stays closed and the app asks again later.
+3. If the server gives a **definite refusal** (for example, it wants a fresh sign-in), the record is removed and nothing on the phone changes.
+4. **No answer is not a refusal.** If the answer is lost, or the app is killed, the record stays and the phone sends the same request again, then and on each start. The request is safe to repeat: when the deletion is already recorded the server answers "already recorded" for as long as the phone's token is still accepted (up to an hour), and the erase runs.
+5. **If the phone's sign-in stops working before any definite answer has come**, the phone cannot tell whether the deletion was recorded. It does the safe thing: it removes the record, erases nothing, and leaves his file closed, as on his other phones. He is told that his account may have been deleted, and that removing the app removes what is left on this phone.
+
+Nothing about a deletion is kept for the phone to read later, and nothing about it can be read without a sign-in. The price is step 5: in that rare case his file on that phone is left closed, not erased. The other design considered was a receipt on the server, under a random id from the phone, readable without a sign-in; it would close that case and add a document that outlives the account and a read that needs no sign-in.
 
 **His other phones** are not erased. Their files stay closed, and can no longer be opened because the account is gone. Removing the app removes them. S4a adds no other way (O1).
 
@@ -212,7 +217,7 @@ One contract for the whole of S4 was drafted and reviewed on 2026-11-19, and nev
 | How a second device finds new events | A server time on each event and a cursor with an overlap | Listen to the whole collection | The collection grows every day; the cursor reads only what is new |
 | The Firestore SDK's offline cache | Off | On, cleared at sign-out | The outbox is in Drift. With the cache off, nothing of his is on the phone outside his file |
 | How "Sign out everywhere" takes effect | A stored time the rules compare with the token | Revoking tokens only | A token already issued stays valid for up to an hour after revocation |
-| His file at sign-out | Kept, locked (decided 2026-11-19) | Erased | The journal exists nowhere else (Q8) |
+| His file at sign-out | Kept, locked (decided 2026-11-19) | Erased | The journal is on no server (Q8) |
 
 ## Not verified in this design
 

@@ -4,7 +4,7 @@ Tasks for [FNS-005](requirements.md), to be carried out once the maintainer appr
 
 ## Before any code
 
-- [ ] The known problems G1 to G7 on the [requirements page](requirements.md#known-problems-in-this-draft) are fixed or set aside by the maintainer, and the contract is reviewed again.
+- [ ] The known problems H1 to H4 on the [requirements page](requirements.md#known-problems-in-this-draft) are fixed or set aside by the maintainer, and the contract is reviewed again.
 - [ ] The maintainer approves this contract, changing any default under O1 to O5 he does not want. `status` and `approved_by` on the requirements page are changed by him or on his recorded decision, not by an agent.
 - [ ] The maintainer records on the Decisions page the answers this contract marks "Decided 2026-11-19": the split, rule R2, keep both, the question "Are these yours?", the kept file with "Sign out and erase", account deletion in S4a with the erase on that phone.
 - [ ] The maintainer says whether the [sign-in design](../../design/sign-in.md) is approved by him. Until then tasks 2 and 7 are not started.
@@ -28,11 +28,11 @@ Each step is its own small pull request, with its tests. Rules and Functions run
 
 - Sign in with each provider the emulator supports, using mock ID tokens for Apple and Google; the session survives a restart.
 - The agreement is recorded once per version with the server's time; a new version prompts again.
-- A man with days in the signed-out profile signs in and answers Yes: every event is in the outbox with its original id, his days read the same before and after, the journal is in his account's file and has not left the phone, and the signed-out profile is empty.
+- A man with days in the signed-out profile signs in and answers Yes: every event is in the outbox with its original id, his days read the same before and after, the journal is in his account's file and has not left the phone, and the old signed-out profile is gone, replaced by a new, empty one with a new id.
 - A man signs in on a phone whose signed-out profile is empty: he is asked nothing.
 - A man signs in to an account that already has days, answers Yes for the phone's days: both sets are held, each box follows R2, and he is asked about no box.
-- A man signs out, uses the app signed out, signs in again and answers Yes: the days from the signed-out profile are in his account's file once, and the signed-out profile is empty.
-- After a No, signing out and in again with nothing new in the signed-out profile asks nothing. With something new in it, he is asked.
+- A man signs out, uses the app signed out, signs in again and answers Yes: the days from the signed-out profile are in his account's file once.
+- Two moves to the same account, from two signed-out profiles one after the other, with the second killed before its copy commits: on the next start the second profile's rows are copied. Nothing is lost and nothing is copied twice.
 - A box checked in airplane mode is created on the server after reconnect, once.
 - A create whose acknowledgement is lost, then replayed and denied: the server read-back finds the same event and the phone marks it uploaded.
 - A second device signs in and shows the same boxes as the first. Two devices given the same events in different orders show the same boxes.
@@ -97,14 +97,18 @@ Rules, in the emulator. Each must be refused.
 **A shared phone**
 
 - One man uses the phone signed out and writes days and a journal entry. Another signs in and answers No: his account's file has none of it, none of it is sent, and nothing of it can be reached while he is signed in. After he signs out, all of it is there, unchanged.
-- The same, and the question is closed without an answer: as No.
-- The app is killed after the rows are copied and before the signed-out profile is emptied, then a different account signs in: the data is not moved again, and the first account's file holds its rows once.
+- After that No, he signs out, adds a day of his own while signed out, and signs in again: he is asked nothing, and neither the old data nor the new day is moved or sent. The same for any other account that signs in.
+- The question cannot be closed without an answer. The app is killed while it shows: nothing is recorded, and it is asked at the next sign-in.
+- The app is killed after the rows are copied and before the signed-out profile's file is removed, then a different account signs in: the data is not moved again, and the first account's file holds its rows once.
 
 **Sign out and erase, cut short**
 
 - The app is killed after the erase record is written; after the sign-out; and after the file is deleted and before the record is removed. In each case the next start ends with no file of his, no session, no record, and nothing downloaded into a new file.
 - The file cannot be deleted: the record stays, his file is not opened, and he is told.
-- Account deletion: the app is killed after the request is sent. On the next start the server is asked. Deletion recorded: the file is erased. Not recorded: the record is removed and the file is untouched. No answer: the file stays closed.
+- Account deletion, the answer is lost after the server recorded the deletion: the record stays, the phone asks again, is told "already recorded", and the file is erased. The same when the app is killed after the request is sent and started again within the hour.
+- Account deletion, a definite refusal: the record is removed and the file is untouched.
+- Account deletion, no definite answer before the phone's sign-in stops working: the record is removed, nothing is erased, the file is left closed, and he is told.
+- The warnings before "Sign out and erase" and before account deletion say that the phone's own backup may still hold a copy.
 
 **The phone**
 
