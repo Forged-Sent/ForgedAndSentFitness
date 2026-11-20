@@ -67,6 +67,10 @@ update-by: edit WORK.md then run tooling/knowledge/work_board.py --write
 	**Note:** Run it on a phone. Kept on the device only and not encrypted (Q8); the first change to the database schema, with a migration tested against the frozen schema of each version. The phone's own backup includes the database file, journal text with it: the maintainer decided on 2026-11-17 to leave phone backups on. Write, kill, relaunch passed on 2026-11-19 on one Android emulator on the maintainer's workstation (`FS_S1_Restart_API_36`, Android 16), with a test that is in the repository, and once by hand on one iPhone 17 simulator (iOS 27.2); not on a phone, and not in CI. The golden images are drawn and compared on Windows only. Not built: prayer tabs, tags, search, export, sync. Review findings the maintainer deferred to S4a on 2026-11-19, listed in pull request #77: the store is not bound to the owner of the file it opened; two cases that need a change of owner while the app is open; the privacy test looks for an entry's words in outgoing messages and not its question or ids; three gaps in tests (the device test's sentence is the same every run, the interrupted-upgrade test has no row to lose, the refused-write test on the background isolate does not see that isolate's own output); Drift's generated write object prints its fields if formatted
 	**Branch or PR:** branch `claude/s2-private-journal`
 	[Edit this row in WORK](WORK.md)
+- [x] **Journal never loses typing**
+	**Note:** Run it on a phone. Both were review findings on S2 that the maintainer marked required before any pilot (2026-11-19). The second was reproduced first, in a widget test, on Today and on Walk. Tested on screen only, in widget tests on Windows; not on an emulator or a phone
+	**Branch or PR:** branch `claude/journal-never-loses-typing`
+	[Edit this row in WORK](WORK.md)
 - [x] **Say which unreplaced completion event wins**
 	**Note:** Maintainer: you chose R2 on 2026-11-19; write it on the Decisions page, which only you edit
 	**Branch or PR:** branch `claude/s4a-contract`
@@ -94,6 +98,22 @@ update-by: edit WORK.md then run tooling/knowledge/work_board.py --write
 - [x] **Setup scripts and guides match the six-tab app**
 	**Note:** Physical run on a fresh Windows PC and a Mac: the Try it now walkthrough, Mobile Check my setup, and a second setup run in the same window
 	**Branch or PR:** branch `claude/bootstrap-test-readiness`
+	[Edit this row in WORK](WORK.md)
+- [x] **A setting that cannot be saved says so**
+	**Note:** None. The page waits for the store's answer, so a failed write is no longer an unhandled error. Tested with a settings store that refuses to save; not run on a phone or an emulator. No table or schema change
+	**Branch or PR:** branch `claude/settings-save-failure`
+	[Edit this row in WORK](WORK.md)
+- [x] **Preview script runs on a Windows workstation**
+	**Note:** None. The script reads `index.html` and writes `dev/preview.html` as UTF-8, whatever the system's own encoding is. A test in `tooling/preview`, which CI runs on Linux, macOS and Windows, keeps it so
+	**Branch or PR:** branch `claude/windows-workstation-checks`
+	[Edit this row in WORK](WORK.md)
+- [x] **Onboarding tests pass on a Windows workstation**
+	**Note:** None. On Windows the tests run the Mac scripts with the Bash that Git for Windows ships, not the WSL launcher a bare `bash` starts. Run from WSL in a Windows checkout, the three launcher tests still fail, because `.command` files are checked out there with Windows line ends; that was so before and is not changed here
+	**Branch or PR:** branch `claude/windows-workstation-checks`
+	[Edit this row in WORK](WORK.md)
+- [x] **One source for program and challenge content**
+	**Note:** None. The maintainer's choices of 2026-11-19: the two 100-point formula lines are dropped from `seed/weekly-challenges.json`; the generated copy still leaves out RPE/RIR, which `seed/workouts.json` keeps; the workout prayer, camp names and banners, challenge modes and routine patterns moved into `seed/`; the PR points, step goals and step bonus stay in the prototype's code until the official rule set is decided. The branch `workout-library-seed` is set aside: it rewrites the same workout files from a base of 2026-10-24, so reviving it means redoing its edits on top of this, not merging it
+	**Branch or PR:** branch `claude/l11-seed-single-source`
 	[Edit this row in WORK](WORK.md)
 
 
@@ -132,20 +152,11 @@ update-by: edit WORK.md then run tooling/knowledge/work_board.py --write
 - [ ] **Amen's lock follows the reading on screen**
 	**Prompt:** No prompt yet. Review finding (Codex, medium) on `mobile/lib/src/features/devotional/presentation/devotional_page.dart`: tie the lock to the date of the reading on screen, refuse Amen while that differs from today's date, and test it with a new day's data that arrives late. Found in S1's last review round and left unfixed at the maintainer's direction
 	[Edit this row in WORK](WORK.md)
-- [ ] **A setting that cannot be saved says so**
-	**Prompt:** No prompt yet. Review finding (Codex, medium) on `mobile/lib/src/features/settings/presentation/settings_page.dart`: handle the write's result, show a failure line, and test it with a settings store that throws. Found in S1's last review round and left unfixed at the maintainer's direction
-	[Edit this row in WORK](WORK.md)
 - [ ] **Recover from a corrupt database file**
 	**Prompt:** No prompt yet. Found in S1 while fixing the start-up check (Codex's review of #65 on GitHub). Needs a decision on what to keep and what to tell him
 	[Edit this row in WORK](WORK.md)
 - [ ] **Local profile adopted at sign-in**
 	**Prompt:** Part of S4a: the [contract](../features/sign-in-own-data-sync/requirements.md), under Adoption
-	[Edit this row in WORK](WORK.md)
-- [ ] **Unsaved typing survives its entry being deleted on another tab**
-	**Prompt:** No prompt yet. **Required before any pilot** (the maintainer, 2026-11-19). Review finding (Codex, medium) on `mobile/lib/src/features/journal/presentation/journal_entry_page.dart`, from the review of S2's last head; left unfixed at the maintainer's direction
-	[Edit this row in WORK](WORK.md)
-- [ ] **A failing save is never lost by tapping the tab he is on**
-	**Prompt:** No prompt yet. **Required before any pilot** (the maintainer, 2026-11-19). Review finding (Codex on GitHub, P2) on `mobile/lib/src/features/journal/presentation/journal_entry_page.dart` and `mobile/lib/src/app/fs_router.dart`, from the review of S2's last head; read from the code and not yet reproduced; left unfixed at the maintainer's direction
 	[Edit this row in WORK](WORK.md)
 - [ ] **Dashboard lists branches whose GitHub branch was deleted**
 	**Prompt:** No prompt yet. Review finding (Codex, medium) on `tooling/knowledge/live_status.py`. Not blocking
@@ -158,12 +169,6 @@ update-by: edit WORK.md then run tooling/knowledge/work_board.py --write
 	[Edit this row in WORK](WORK.md)
 - [ ] **Android release signing**
 	**Prompt:** No prompt yet. Do it before anything is distributed
-	[Edit this row in WORK](WORK.md)
-- [ ] **Preview script runs on a Windows workstation**
-	**Prompt:** No prompt yet. Found in S1b while running the prototype checks. Not blocking: GitHub runs it on Linux, where UTF-8 is the default
-	[Edit this row in WORK](WORK.md)
-- [ ] **Onboarding tests pass on a Windows workstation**
-	**Prompt:** No prompt yet. Not blocking: they pass in WSL and on GitHub
 	[Edit this row in WORK](WORK.md)
 - [ ] **Host wording left over from the generated hosts**
 	**Prompt:** No prompt yet. Not blocking; needs a Mac to check

@@ -761,6 +761,157 @@ void main() {
     });
   });
 
+  group('what he typed is never lost', () {
+    for (final tabLabel in <String>['Today', 'Walk']) {
+      testWidgets('tapping the $tabLabel tab he is already on, while a save '
+          'is on its way, does not close the entry: a failure still finds '
+          'his words and tells him', (tester) async {
+        final journal = TestJournalRepository()..gate = Completer<void>();
+        final app = await pumpApp(tester, store: testStore(journal: journal));
+        if (tabLabel == 'Today') {
+          await openJournal(tester);
+        } else {
+          await openTab(tester, 'Walk');
+        }
+        await tester.tap(_newEntry);
+        await tester.pumpAndSettle();
+        await typeInto(tester, entryBox, 'Slow to save, then refused.');
+        await tester.ensureVisible(entrySave);
+        await tester.pumpAndSettle();
+        await tester.tap(entrySave);
+        await tester.pump();
+        expect(journal.attempts, 1);
+
+        // The tab he is on. With nothing on its way this returns the tab
+        // to its first page.
+        await tester.tap(tab(tabLabel));
+        await tester.pumpAndSettle();
+        expect(find.byType(JournalEntryPage), findsOneWidget);
+
+        // The save is refused. He is still here, with his words and the line.
+        journal.failWrites = true;
+        journal.gate!.complete();
+        journal.gate = null;
+        await tester.pumpAndSettle();
+        expect(find.byType(JournalEntryPage), findsOneWidget);
+        expect(_message(tester), JournalEntryText.failed);
+        expect(_typed(tester), 'Slow to save, then refused.');
+        expect(await app.savedJournal(tester), isEmpty);
+
+        // Now nothing is on its way, and the tab goes to its first page.
+        await tester.tap(tab(tabLabel));
+        await tester.pumpAndSettle();
+        expect(find.byType(JournalEntryPage), findsNothing);
+      });
+    }
+
+    testWidgets('tapping another tab while a save is on its way is not '
+        'stopped, and the entry page is as he left it when he comes back', (
+      tester,
+    ) async {
+      final journal = TestJournalRepository()..gate = Completer<void>();
+      await pumpApp(tester, store: testStore(journal: journal));
+      await openTab(tester, 'Walk');
+      await tester.tap(_newEntry);
+      await tester.pumpAndSettle();
+      await typeInto(tester, entryBox, 'Slow to save, then refused.');
+      await tester.ensureVisible(entrySave);
+      await tester.pumpAndSettle();
+      await tester.tap(entrySave);
+      await tester.pump();
+
+      await tester.tap(tab('Today'));
+      await tester.pumpAndSettle();
+      expect(find.byType(TodayPage), findsOneWidget);
+      journal.failWrites = true;
+      journal.gate!.complete();
+      journal.gate = null;
+      await tester.pumpAndSettle();
+
+      await openTab(tester, 'Walk');
+      expect(_message(tester), JournalEntryText.failed);
+      expect(_typed(tester), 'Slow to save, then refused.');
+    });
+
+    // Each tab keeps its own pages, so one entry can be open in both.
+    Future<AppHarness> deletedOnTheOtherTab(
+      WidgetTester tester, {
+      required String? typed,
+    }) async {
+      final app = await pumpApp(tester);
+      await _seed(
+        tester,
+        app.store,
+        'j1',
+        'As both pages opened it.',
+        at: DateTime(2026, 11, 9, 18),
+      );
+      await openTab(tester, 'Walk');
+      await tester.tap(_row('j1'));
+      await tester.pumpAndSettle();
+      if (typed != null) await typeInto(tester, entryBox, typed);
+
+      // Open under Today as well, and deleted there.
+      await openTab(tester, 'Today');
+      await openJournal(tester);
+      await tester.tap(_row('j1'));
+      await tester.pumpAndSettle();
+      await tapVisible(tester, entryDelete);
+      await tapVisible(tester, entryDelete);
+      expect(await app.savedJournal(tester), isEmpty);
+
+      await openTab(tester, 'Walk');
+      return app;
+    }
+
+    testWidgets('an entry deleted on the other tab while he was changing it '
+        'here: his words stay in the box and the page says what happened', (
+      tester,
+    ) async {
+      await deletedOnTheOtherTab(tester, typed: 'Typed on the Walk tab.');
+
+      expect(find.byType(JournalEntryPage), findsOneWidget);
+      expect(_typed(tester), 'Typed on the Walk tab.');
+      expect(_message(tester), JournalEntryText.separate);
+      // The page is no longer that entry's: there is nothing here to delete.
+      expect(entryDelete, findsNothing);
+      expect(find.text(JournalEntryText.gone), findsNothing);
+    });
+
+    testWidgets('saving then keeps his words as a new entry', (tester) async {
+      final app = await deletedOnTheOtherTab(
+        tester,
+        typed: 'Typed on the Walk tab.',
+      );
+
+      await tapVisible(tester, entrySave);
+
+      expect(find.byType(JournalPage), findsOneWidget);
+      final entry = (await app.savedJournal(tester)).single;
+      expect(entry.text, 'Typed on the Walk tab.');
+      expect(entry.id, isNot('j1'));
+      expect(entry.revision, 1);
+    });
+
+    testWidgets('an entry deleted on the other tab that he had not changed '
+        'here is simply gone', (tester) async {
+      await deletedOnTheOtherTab(tester, typed: null);
+
+      expect(find.text(JournalEntryText.gone), findsOneWidget);
+      expect(entryBox, findsNothing);
+    });
+
+    testWidgets('an entry deleted on the other tab after he had emptied the '
+        'box here is gone too: there is nothing of his to keep', (
+      tester,
+    ) async {
+      await deletedOnTheOtherTab(tester, typed: '   ');
+
+      expect(find.text(JournalEntryText.gone), findsOneWidget);
+      expect(entryBox, findsNothing);
+    });
+  });
+
   for (final scale in <double>[1.3, 2.0]) {
     testWidgets(
       'nothing overflows at $scale times the text size on a small phone',
