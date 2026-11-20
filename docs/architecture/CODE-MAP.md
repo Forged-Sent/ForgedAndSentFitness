@@ -604,6 +604,8 @@ flowchart LR
 ### mobile/lib/src/features/settings/presentation/settings_page.dart
 
 - class SettingsPage
+- class _SettingsPageState
+- fn _setShowPoints()
 - fn build()
 
 ### mobile/lib/src/features/today/data/day_repository.dart
