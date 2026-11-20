@@ -34,6 +34,7 @@ Requirements: FS-ACC-001..006. Verification: Rules tests; read-count budget revi
 
 - **Nothing is built.** `firebase/firestore.rules` denies every read and write, apart from one owner-only path the emulator check uses (`developer_smoke`). There is no membership document, and no rules test for one.
 - **Status.** Phase 0 left this record Proposed. The maintainer's Q4 answer names "membership-document authorization" among the four decisions to carry forward. On 2026-11-19 he decided that the record stays Proposed until S4b starts: nothing before S4b has a membership document, so nothing before it depends on this record. Whether it becomes Accepted is settled when S4b's contract is written.
+- **"Immediate revocation" is about the server.** Removing a man's membership document stops his next read from the server. It does not remove group data that is already on his phone, for example while the phone is offline. What a removed man's phone may still show is for the groups contract to settle.
 - **The requirement ids are not on `main`.** `FS-ACC-001..006` are defined in `docs/requirements/` on the Phase 0 branch.
 - **The boundary these documents sit inside** is [ADR-0006](ADR-0006-group-level-isolation.md).
 - **`platformAdmin`** is named here and not designed. Who may hold it, and what it allows, is undecided.
