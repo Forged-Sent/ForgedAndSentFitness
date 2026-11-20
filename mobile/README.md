@@ -69,7 +69,7 @@ flutter test integration_test/journal_restart_1_write_test.dart -d <device id> -
 flutter test integration_test/journal_restart_2_verify_test.dart -d <device id>
 ```
 
-It passed on 2026-11-19 on the same emulator. It has not run on a phone or on iOS.
+It passed on 2026-11-19 on the same emulator, and on the same day on one iPhone 17 simulator (iOS 27.2). It has not run on a phone.
 
 Two things to know before running either pair:
 
