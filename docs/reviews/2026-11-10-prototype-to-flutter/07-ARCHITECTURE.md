@@ -1,6 +1,6 @@
 ---
 title: "Architecture"
-updated: 2026-11-11
+updated: 2026-11-19
 status: review, not an approved decision record
 source_ref: main
 source_sha: 94daa63fe1dea96398bcb3f2286baa1906c44ec0
@@ -177,11 +177,86 @@ Stress: *double tap* → in the prototype, check then uncheck. *Reload mid-save*
 - **Events state the target, not a toggle.** Each event says `done: true` or `done: false`. A tap whose target equals the current day state writes nothing, so a double tap on Amen cannot complete and then undo.
 - **Ordering rule for day state.** The latest event wins, and "latest" never comes from the phone's clock: a clock that is wrong, or moved back, would let an older tap outrank a newer one.
   - *On one device* (all that exists before S4): each event gets the next value of a counter kept in that user's Drift file, assigned in the same transaction. The highest counter is the latest.
-  - *Across devices* (from S4): each event also names the event it replaces, the one that set the day state when the tap was made. An event that is named as replaced is superseded. Two events that replace the same one were made without seeing each other; the Cloud Function picks between them by the order it received them, then by event id.
+  - *Across devices* (from S4): each event also names the event it replaces, the one that set the day state when the tap was made. Which event wins when more than one is left unreplaced is rule R2, under **Which unreplaced event wins** below. An earlier version of this page said only that the Cloud Function picks between two events that replace the same one, by the order it received them and then by event id. That left the day state undefined when the events left over replace different ones, and said nothing about an event that arrives before the one it replaces.
   - The time of the tap, with its UTC offset, is still stored. It places the event in the man's local day (Q9) and is shown to him. It is not used to order events.
-- **Tests that go with the rule.** Complete, move the clock back a day, undo: the item is not done. Two devices with clocks an hour apart complete and undo the same item: the result follows the order the server received them, whatever the stamps say. Replaying any of those events changes nothing.
+- **Tests that go with the rule.** Complete, move the clock back a day, undo: the item is not done. Two devices with clocks an hour apart complete and undo the same item: the result follows rule R2 below, whatever the stamps say. Replaying any of those events changes nothing. The further tests are listed under the rule.
 - **Scoring.** Credit, when it exists, is derived from the final day state per (owner, date, item), never by counting events, so undo and redo cannot earn twice. How credit is computed stays with S4.
 - **Event id form.** A random UUID minted once per tap and kept through retries. A time-ordered UUID would also do; the choice does not change the key design.
+
+**Which unreplaced event wins: rule R2, longest chain, then event id** *(the maintainer's choice of 2026-11-19; not built)*
+
+The maintainer chose R2 on 2026-11-19, from three candidates. The choice is not yet on the [Decisions](01-DECISIONS.md) page, which only he edits. Nothing here is implemented: S1 stores `replacesEventId` and a per-device counter, and has no chain length.
+
+The gap this closes. Take four events for one man, one date and one item:
+
+| Event | Made on | Asks for | Replaces | What the device had seen |
+|---|---|---|---|---|
+| A | Phone | done | nothing | No events |
+| B | Phone | not done | A | A |
+| C | Tablet | not done | A | A only |
+| D | Phone | done | B | A and B |
+
+A and B are named as replaced. C and D are not, and they replace different events, so "pick between two events that replace the same one" does not apply. One says not done, the other says done.
+
+The rule:
+
+- It is applied separately to each (owner, date, item).
+- A new tap replaces the event that sets the day state on that device at that moment, as S1 already does (`replacesEventId`).
+- Each event carries a **chain length**: 1 when it replaces nothing, otherwise one more than the chain length of the event it replaces. The device that makes the event writes the number, and it travels with the event.
+- The time of the tap is never used to order events. Replaying an event changes nothing: the event id is the key.
+
+**Three states.** The carried number is checked, never trusted. Every held event is in exactly one of three states. The state depends only on which events are held, never on the order they arrived, so every device and Function holding the same events gives each event the same state.
+
+| State | When | What the event does |
+|---|---|---|
+| **Confirmed** | It replaces nothing, its chain length is 1 and it asks for done. Or: the event it replaces is held and confirmed, its chain length is exactly one more, and it asks for the opposite | Counts for day state and for scoring, and supersedes the event it replaces |
+| **Rejected** | Any one of these. It names itself. It names a held event of another owner, date or item. It is on a loop of links. It replaces nothing, and its chain length is not 1 or it asks for not done. The event it replaces is held, and its own chain length is not exactly one more or it asks for the same thing. The event it replaces is held and rejected | Kept for the record. Counts for nothing and supersedes nothing |
+| **Provisional** | Every other case: the event it replaces is not held yet, or is held and is itself provisional | Counts for nothing and supersedes nothing, for now |
+
+- **A provisional event is waiting, not wrong.** An event is never rejected because an earlier event in its chain has not arrived. Rejection comes only from a check that fails between two held events, or from a rejected event further up the chain.
+- **States are worked out again when an event arrives.** When a missing event arrives, every event whose chain leads back to it is checked again, in order from the arrival outward: each becomes confirmed, rejected, or stays provisional if something further up is still missing.
+- **A missing event can still come.** A device can only replace an event it holds, and it got that event from itself or from the server. So a missing event is either on the server already or still in the outbox of the device that made it, which sends it again. Until it comes, the events that wait for it do not count.
+- **A device's own taps are confirmed on that device at once.** A tap replaces the event that sets the day state there, and only a confirmed event sets it.
+- An honest client cannot make a loop or a wrong chain length, because a tap can only name an event that already existed. The rejected state is there for a faulty or altered client.
+
+**The winner.** An event is **superseded** when a confirmed event names it as replaced. The **unreplaced** events are the confirmed events that are not superseded. The winner is the unreplaced event with the greatest chain length. If several share it, the winner is the one whose event id sorts last, comparing the ids as lowercase text. With no confirmed event the item is not done.
+
+- Among confirmed events, chain length fixes the target: odd is done, even is not done. So a tie on chain length is always between events that ask for the same thing. The event id decides which event is recorded as the winner; it never decides what the man sees.
+- A new tap always wins on the device that made it, and on every device that has seen no more than that device had: its chain length is one more than that of any event that counted there.
+
+The example. "Arrival order" is the order one device, or the server, receives the events.
+
+| Arrival order | What happens | Result once all are held |
+|---|---|---|
+| A, B, C, D | A is 1, B and C are 2, D is 3. Each is confirmed as it arrives. C and D are unreplaced | **D wins: done** |
+| A, B, D, C (the tablet syncs last) | The same states. C arrives last and is shorter than D | **D wins: done** |
+| D, C, A, B (D arrives before B, which it replaces) | D is provisional, because B is not held. C is provisional, because A is not held. Not done so far. A arrives: A and C are confirmed, and C wins, not done. B arrives: B and D are confirmed | **D wins: done** |
+| D, B, A, C (two events arrive before the first one) | D is provisional, because B is not held. B arrives: B is provisional, because A is not held, and D stays provisional. Neither is rejected. Not done so far. A arrives: A, then B, then D are confirmed, and D wins. C arrives and is confirmed at 2 | **D wins: done** |
+| A, B, C only (D not made yet) | B and C are both 2. The id that sorts last is recorded as the winner | **Not done** either way |
+| A, then X, which replaces A, asks for not done and claims chain length 5 | X is rejected: 5 is not one more than 1. A is not superseded. An event that replaces X is rejected too | **A wins: done** |
+
+While an event is provisional, the answer on the way can differ from the final one. Once the same events are held, every device gives the same answer.
+
+**Cost and weakness.** One new column on the event row; the check, with its three states, on the phone and later in the Function; and a migration that fills the column for S1's rows by following the replacement links within each owner, date and item. S1's counter cannot be copied: it counts every event in the database, across all items, so an item's second event can hold counter 3. Within one item on one device, a higher counter does mean a longer chain. Weakness: when two devices tapped without seeing each other, the device with more taps wins, which is not always the later tap.
+
+**Considered and not chosen:**
+
+- **Server arrival order.** The server numbers each event as it receives it, and the highest number wins. The answer would depend on which device syncs last, not on which tap came last: a tablet left offline for a week would override everything newer when it reconnects. Devices could not agree until the server had answered.
+- **Done wins.** An unreplaced "done" beats "not done", with no number at all. An undo could fail to take: with two unreplaced events asking for done, a new undo replaces only one, and the box stays checked.
+
+Tests the rule needs, beyond those above:
+
+- The four events in every arrival order give D, done, once all four are held, and give the table's answers on the way.
+- Two devices given the same events in different orders agree, with no server number and no clock.
+- An event that arrives before the one it replaces is provisional, and does not count or supersede until its whole chain is held.
+- D, B, A: D and B stay provisional, and neither is rejected, until A arrives. Then all three are confirmed, without any of them being sent again.
+- When an event arrives before the one it replaces **and is then confirmed**, the one that arrived late never wins. When the early event is rejected instead, it supersedes nothing, and the late event can win.
+- An event with a forged chain length is rejected, and so is every event that replaces it. Neither day state nor credit changes.
+- An event that arrives first and is shown to be wrong when the event it replaces arrives is rejected then.
+- An event that names itself is rejected. Two events that name each other are both rejected, whichever arrives first, and the day state is the same in both orders. A link to an event of another owner, date or item is rejected.
+- A tie on chain length is broken by event id, and both tied events ask for the same thing. Two events that claim the same chain length with different targets cannot both be confirmed.
+- A new tap beats everything that counted on the device.
+- The migration is tested with writes to two items interleaved, and gives each row the chain length its links imply, whatever its counter.
 
 **J2. Workout (core, most demanding)**
 
