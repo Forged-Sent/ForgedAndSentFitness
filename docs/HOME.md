@@ -5,15 +5,11 @@ Open this page first, in Obsidian, from the `main` checkout. Pick the one action
 <!-- work-focus:start (generated from knowledge/WORK.md; edit that table, then run: python tooling/knowledge/work_board.py --write) -->
 ## Do this next
 
-> **Run prompt [P06](reviews/2026-11-10-prototype-to-flutter/prompts/P06-S2-private-journal.md)**
+> **Run prompt [P13](reviews/2026-11-10-prototype-to-flutter/prompts/P13-let-agents-merge-after-review.md)**
 >
-> Task: S2 Private journal · Lane: Next
+> Task: Agents may merge after review · Lane: Next
 
-## Also ready or in progress
-
-- **Next** · Agents may merge after review: Run prompt [P13](reviews/2026-11-10-prototype-to-flutter/prompts/P13-let-agents-merge-after-review.md)
-
-Board now: Next 2 · In progress 0 · Waiting 4 · Done 12 · Later 23.
+Board now: Next 1 · In progress 0 · Waiting 4 · Done 13 · Later 24.
 <!-- work-focus:end -->
 
 ## Teach or learn the project
