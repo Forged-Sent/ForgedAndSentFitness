@@ -135,6 +135,9 @@ update-by: edit WORK.md then run tooling/knowledge/work_board.py --write
 - [ ] **Local profile adopted at sign-in**
 	**Prompt:** Part of S4: [P08](../reviews/2026-11-10-prototype-to-flutter/prompts/P08-S4-contract-identity-groups-board.md), then [P09](../reviews/2026-11-10-prototype-to-flutter/prompts/P09-S4-implement-identity-groups-board.md)
 	[Edit this row in WORK](WORK.md)
+- [ ] **Unsaved typing survives its entry being deleted on another tab**
+	**Prompt:** No prompt yet. **Required before any pilot** (the maintainer, 2026-11-19). Review finding (Codex, medium) on `mobile/lib/src/features/journal/presentation/journal_entry_page.dart`, from the review of S2's last head; left unfixed at the maintainer's direction
+	[Edit this row in WORK](WORK.md)
 - [ ] **Dashboard lists branches whose GitHub branch was deleted**
 	**Prompt:** No prompt yet. Review finding (Codex, medium) on `tooling/knowledge/live_status.py`. Not blocking
 	[Edit this row in WORK](WORK.md)
