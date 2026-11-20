@@ -8,9 +8,6 @@ update-by: edit WORK.md then run tooling/knowledge/work_board.py --write
 
 ## Next
 
-- [ ] **S2 Private journal**
-	**Next:** Run prompt [P06](../reviews/2026-11-10-prototype-to-flutter/prompts/P06-S2-private-journal.md)
-	[Edit this row in WORK](WORK.md)
 - [ ] **Agents may merge after review**
 	**Next:** Run prompt [P13](../reviews/2026-11-10-prototype-to-flutter/prompts/P13-let-agents-merge-after-review.md)
 	[Edit this row in WORK](WORK.md)
@@ -61,6 +58,14 @@ update-by: edit WORK.md then run tooling/knowledge/work_board.py --write
 	**Note:** Set the Homepage plugin to open HOME: one command, in the [Obsidian setup guide](OBSIDIAN-SETUP.md) under Set up once per vault
 	**Branch or PR:** branch `claude/obsidian-adhd-workspace`
 	[Edit this row in WORK](WORK.md)
+- [x] **S2 Private journal**
+	**Note:** Run it on a phone. Kept on the device only and not encrypted (Q8); the first change to the database schema, with a migration tested against the frozen schema of each version. The phone's own backup includes the database file, journal text with it: the maintainer decided on 2026-11-17 to leave phone backups on. Write, kill, relaunch passed on 2026-11-19 on one Android emulator on the maintainer's workstation (`FS_S1_Restart_API_36`, Android 16), with a test that is in the repository, and once by hand on one iPhone 17 simulator (iOS 27.2); not on a phone, and not in CI. The golden images are drawn and compared on Windows only. Not built: prayer tabs, tags, search, export, sync. Review findings the maintainer deferred to S4a on 2026-11-19, listed in pull request #77: the store is not bound to the owner of the file it opened; two cases that need a change of owner while the app is open; the privacy test looks for an entry's words in outgoing messages and not its question or ids; three gaps in tests (the device test's sentence is the same every run, the interrupted-upgrade test has no row to lose, the refused-write test on the background isolate does not see that isolate's own output); Drift's generated write object prints its fields if formatted
+	**Branch or PR:** branch `claude/s2-private-journal`
+	[Edit this row in WORK](WORK.md)
+- [x] **Journal never loses typing**
+	**Note:** Run it on a phone. Both were review findings on S2 that the maintainer marked required before any pilot (2026-11-19). The second was reproduced first, in a widget test, on Today and on Walk. Tested on screen only, in widget tests on Windows; not on an emulator or a phone
+	**Branch or PR:** branch `claude/journal-never-loses-typing`
+	[Edit this row in WORK](WORK.md)
 - [x] **Lockfile-only pull requests pass the review check**
 	**Note:** None. Unblocks Dependabot [#66](https://github.com/Forged-Sent/ForgedAndSentFitness/pull/66). Without `--dry-run` such a change still gets no PASS and no review record, and `--verify` still fails
 	**Branch or PR:** branch `claude/review-lockfile-dry-run`
@@ -84,6 +89,22 @@ update-by: edit WORK.md then run tooling/knowledge/work_board.py --write
 - [x] **Setup scripts and guides match the six-tab app**
 	**Note:** Physical run on a fresh Windows PC and a Mac: the Try it now walkthrough, Mobile Check my setup, and a second setup run in the same window
 	**Branch or PR:** branch `claude/bootstrap-test-readiness`
+	[Edit this row in WORK](WORK.md)
+- [x] **A setting that cannot be saved says so**
+	**Note:** None. The page waits for the store's answer, so a failed write is no longer an unhandled error. Tested with a settings store that refuses to save; not run on a phone or an emulator. No table or schema change
+	**Branch or PR:** branch `claude/settings-save-failure`
+	[Edit this row in WORK](WORK.md)
+- [x] **Preview script runs on a Windows workstation**
+	**Note:** None. The script reads `index.html` and writes `dev/preview.html` as UTF-8, whatever the system's own encoding is. A test in `tooling/preview`, which CI runs on Linux, macOS and Windows, keeps it so
+	**Branch or PR:** branch `claude/windows-workstation-checks`
+	[Edit this row in WORK](WORK.md)
+- [x] **Onboarding tests pass on a Windows workstation**
+	**Note:** None. On Windows the tests run the Mac scripts with the Bash that Git for Windows ships, not the WSL launcher a bare `bash` starts. Run from WSL in a Windows checkout, the three launcher tests still fail, because `.command` files are checked out there with Windows line ends; that was so before and is not changed here
+	**Branch or PR:** branch `claude/windows-workstation-checks`
+	[Edit this row in WORK](WORK.md)
+- [x] **One source for program and challenge content**
+	**Note:** None. The maintainer's choices of 2026-11-19: the two 100-point formula lines are dropped from `seed/weekly-challenges.json`; the generated copy still leaves out RPE/RIR, which `seed/workouts.json` keeps; the workout prayer, camp names and banners, challenge modes and routine patterns moved into `seed/`; the PR points, step goals and step bonus stay in the prototype's code until the official rule set is decided. The branch `workout-library-seed` is set aside: it rewrites the same workout files from a base of 2026-10-24, so reviving it means redoing its edits on top of this, not merging it
+	**Branch or PR:** branch `claude/l11-seed-single-source`
 	[Edit this row in WORK](WORK.md)
 - [x] **iPhone simulator launcher works with Xcode 27**
 	**Note:** None. Run on 2026-11-18 on the maintainer's Mac (macOS 27.2, Xcode 27.2, iPhone 17 simulator, iOS 27.2) in Preview mode, from an empty `SourcePackages` folder. Not run: practice-Firebase mode on the simulator, an Xcode that still has Simulator.app, a Mac with no window app, and a physical iPhone
@@ -129,14 +150,8 @@ update-by: edit WORK.md then run tooling/knowledge/work_board.py --write
 - [ ] **Amen's lock follows the reading on screen**
 	**Prompt:** No prompt yet. Review finding (Codex, medium) on `mobile/lib/src/features/devotional/presentation/devotional_page.dart`: tie the lock to the date of the reading on screen, refuse Amen while that differs from today's date, and test it with a new day's data that arrives late. Found in S1's last review round and left unfixed at the maintainer's direction
 	[Edit this row in WORK](WORK.md)
-- [ ] **A setting that cannot be saved says so**
-	**Prompt:** No prompt yet. Review finding (Codex, medium) on `mobile/lib/src/features/settings/presentation/settings_page.dart`: handle the write's result, show a failure line, and test it with a settings store that throws. Found in S1's last review round and left unfixed at the maintainer's direction
-	[Edit this row in WORK](WORK.md)
 - [ ] **Recover from a corrupt database file**
 	**Prompt:** No prompt yet. Found in S1 while fixing the start-up check (Codex's review of #65 on GitHub). Needs a decision on what to keep and what to tell him
-	[Edit this row in WORK](WORK.md)
-- [ ] **First schema migration is tested**
-	**Prompt:** No prompt yet. Do it in the pull request that first changes a table
 	[Edit this row in WORK](WORK.md)
 - [ ] **Local profile adopted at sign-in**
 	**Prompt:** Part of S4: [P08](../reviews/2026-11-10-prototype-to-flutter/prompts/P08-S4-contract-identity-groups-board.md), then [P09](../reviews/2026-11-10-prototype-to-flutter/prompts/P09-S4-implement-identity-groups-board.md)
@@ -152,12 +167,6 @@ update-by: edit WORK.md then run tooling/knowledge/work_board.py --write
 	[Edit this row in WORK](WORK.md)
 - [ ] **Android release signing**
 	**Prompt:** No prompt yet. Do it before anything is distributed
-	[Edit this row in WORK](WORK.md)
-- [ ] **Preview script runs on a Windows workstation**
-	**Prompt:** No prompt yet. Found in S1b while running the prototype checks. Not blocking: GitHub runs it on Linux, where UTF-8 is the default
-	[Edit this row in WORK](WORK.md)
-- [ ] **Onboarding tests pass on a Windows workstation**
-	**Prompt:** No prompt yet. Not blocking: they pass in WSL and on GitHub
 	[Edit this row in WORK](WORK.md)
 - [ ] **Host wording left over from the generated hosts**
 	**Prompt:** No prompt yet. Not blocking; needs a Mac to check

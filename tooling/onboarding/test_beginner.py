@@ -5,12 +5,37 @@ No network, cloud accounts, device emulators or paid AI CLIs are required.
 from __future__ import annotations
 
 import json
+import os
 import pathlib
 import subprocess
 import tempfile
 import unittest
 
 ROOT = pathlib.Path(__file__).resolve().parents[2]
+
+
+def find_bash() -> str:
+    """The Bash these tests run the Mac scripts with.
+
+    On Windows a bare `bash` is the WSL launcher in System32, which cannot
+    open `C:\\` paths. Git for Windows ships a Bash that can, and these tests
+    already need Git, so that one is used. Set FS_TEST_BASH to use another.
+    """
+    chosen = os.environ.get("FS_TEST_BASH")
+    if chosen:
+        return chosen
+    if os.name != "nt":
+        return "bash"
+    exec_path = subprocess.run(["git", "--exec-path"], capture_output=True, text=True).stdout.strip()
+    # <Git>/mingw64/libexec/git-core is two folders below <Git>/bin/bash.exe.
+    for folder in pathlib.Path(exec_path).parents:
+        candidate = folder / "bin" / "bash.exe"
+        if candidate.is_file():
+            return str(candidate)
+    return "bash"
+
+
+BASH = find_bash()
 
 
 def read(path: str) -> str:
@@ -136,7 +161,7 @@ class BeginnerContractTests(unittest.TestCase):
         for rel in ("START-MAC.command", "launchers/mac/3 - Start practice Firebase.command",
                     "launchers/mac/4 - Run app with practice Firebase.command"):
             with self.subTest(launcher=rel), tempfile.TemporaryDirectory() as elsewhere:
-                result = subprocess.run(["bash", str(ROOT / rel), "--self-test"], cwd=elsewhere,
+                result = subprocess.run([BASH, str(ROOT / rel), "--self-test"], cwd=elsewhere,
                                         stdin=subprocess.DEVNULL, capture_output=True, text=True,
                                         env={**__import__("os").environ, "CI": "1"})
                 self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
@@ -175,7 +200,7 @@ class BeginnerContractTests(unittest.TestCase):
         home = tmp / "home"
         fake = home / ".local" / "bin"
         fake.mkdir(parents=True)
-        real_git = subprocess.run(["bash", "-c", "command -v git"], capture_output=True, text=True).stdout.strip()
+        real_git = subprocess.run([BASH, "-c", "command -v git"], capture_output=True, text=True).stdout.strip()
         partial = ('d="${!#}"; "$REAL_GIT" "${args[@]}" || exit $?; '
                    'rm -f "$d"/engine/part3.cc "$d"/engine/part4.cc; '
                    'echo "error: unable to create file engine/part3.cc: No space left on device" >&2; exit 128'
@@ -195,7 +220,7 @@ class BeginnerContractTests(unittest.TestCase):
 
     def _ensure_flutter(self, env: dict) -> subprocess.CompletedProcess:
         script = f'. "{ROOT}/tooling/macos/common.sh"; fs_ensure_flutter'
-        return subprocess.run(["bash", "-c", script], env=env, capture_output=True, text=True)
+        return subprocess.run([BASH, "-c", script], env=env, capture_output=True, text=True)
 
     def test_mac_flutter_download_checks_disk_space_first(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -267,12 +292,14 @@ class BeginnerContractTests(unittest.TestCase):
             brew.chmod(0o755)
             script = f'. "{ROOT}/tooling/macos/common.sh"; fs_java21_home'
             base = {"PATH": f"{fake}:/usr/bin:/bin", "HOME": str(tmp), "FS_JAVA_HOME_TOOL": str(tool)}
-            only_old = subprocess.run(["bash", "-c", script], env={**base, "BREW21": ""},
+            only_old = subprocess.run([BASH, "-c", script], env={**base, "BREW21": ""},
                                       capture_output=True, text=True)
             self.assertNotEqual(only_old.returncode, 0, only_old.stdout)
-            with_new = subprocess.run(["bash", "-c", script], env={**base, "BREW21": str(tmp / "brew21")},
+            with_new = subprocess.run([BASH, "-c", script], env={**base, "BREW21": str(tmp / "brew21")},
                                       capture_output=True, text=True)
-            self.assertEqual(with_new.stdout.strip(), str(new))
+            # Compared as paths: the script joins the rest onto Homebrew's folder with
+            # forward slashes, which on Windows is the same folder spelled differently.
+            self.assertEqual(pathlib.Path(with_new.stdout.strip()), new)
 
     def test_wizard_menu_numbers_match_the_launcher_numbers(self):
         mac = read("tooling/macos/first-run.sh")
@@ -294,7 +321,7 @@ class BeginnerContractTests(unittest.TestCase):
                  "1 2 3 4": "codex claude copilot antigravity", "4, 4,9": "antigravity"}
         for answer, expected in cases.items():
             with self.subTest(answer=answer):
-                out = subprocess.run(["bash", "-c", f'. "{ROOT}/tooling/macos/common.sh"; fs_parse_assistants "$1"',
+                out = subprocess.run([BASH, "-c", f'. "{ROOT}/tooling/macos/common.sh"; fs_parse_assistants "$1"',
                                       "_", answer], capture_output=True, text=True, check=True).stdout.strip()
                 self.assertEqual(out, expected)
         for path in ("tooling/windows/setup-profile.ps1", "tooling/windows/setup-developer.ps1"):
@@ -396,7 +423,7 @@ class SetupRegressionTests(unittest.TestCase):
         """Run Mac common.sh helpers (portable Bash) against the temp clone."""
         script = (f'set -euo pipefail; . "{ROOT / "tooling/macos/common.sh"}"; '
                   f'FS_ROOT="{self.repo}"; {body}')
-        return subprocess.run(["bash", "-c", script], input=stdin, text=True,
+        return subprocess.run([BASH, "-c", script], input=stdin, text=True,
                               capture_output=True, env=self.env, check=False)
 
     def test_f1_mac_check_uses_remembered_profile(self):

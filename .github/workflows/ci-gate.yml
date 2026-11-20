@@ -85,6 +85,8 @@ jobs:
           python3 -m unittest discover -s tooling/knowledge -p 'test_*.py' -v
           python3 tooling/knowledge/check.py
           python3 -m unittest discover -s tooling/preview -p 'test_*.py' -v
+          python3 -m unittest discover -s tooling/prototype -p 'test_*.py' -v
+          python3 tooling/prototype/embed_seed.py --check
           python3 -m unittest discover -s tooling/onboarding -p 'test_*.py' -v
           python3 -m unittest discover -s tooling/skills -p 'test_*.py' -v
           python3 tooling/skills/sync.py --check

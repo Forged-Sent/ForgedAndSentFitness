@@ -1,12 +1,12 @@
 ---
 kind: feature-spec
 feature_id: FNS-002
-status: proposed
+status: approved
 risk: medium
 owner: maintainer
 source_ref: claude/s1b-v254-readings
 source_sha: 449b9473cc1ba4259f08fa241f4778482289490d
-approved_by: none
+approved_by: Chad (GitHub Chadillac12), 2026-11-19, https://github.com/Forged-Sent/ForgedAndSentFitness/pull/81#issuecomment-7030512672
 test_plan: completion-event rules against the Drift and in-memory stores, close and reopen on a real SQLite file, streak rule, clock and midnight rollover, bundled content and ESV limit checks, Today and reading widget tests including screen-reader activation, golden images at 390x844 in dark and light, one emulator run of complete, kill, relaunch
 verified_tests: mobile/test/features/today/drift_day_repository_test.dart, mobile/test/features/today/memory_day_repository_test.dart, mobile/test/features/today/streak_test.dart, mobile/test/features/today/today_page_test.dart, mobile/test/features/today/today_golden_test.dart, mobile/test/features/devotional/devotional_page_test.dart, mobile/test/features/devotional/bundled_content_test.dart, mobile/test/design/fs_components_test.dart, mobile/test/features/settings/settings_page_test.dart, mobile/test/features/no_firebase_import_test.dart, mobile/test/core/clock_test.dart, mobile/test/core/local_date_test.dart, mobile/test/storage/sqlite_available_test.dart, mobile/test/storage/corrupt_database_test.dart, mobile/integration_test/restart_1_complete_test.dart, mobile/integration_test/restart_2_verify_test.dart
 implementation_paths: mobile/lib/src/features/today, mobile/lib/src/features/devotional, mobile/lib/src/features/settings, mobile/lib/src/core, mobile/lib/src/storage, mobile/lib/src/app/local_store.dart, mobile/lib/src/app/open_local_store.dart, mobile/assets/content
@@ -15,9 +15,11 @@ verification: see the pull request that adds this page for the commands and thei
 
 # Today and the day's devotional, saved on the device
 
-Build step S1 of the [prototype-to-Flutter review](../../reviews/2026-11-10-prototype-to-flutter/02-BUILD-PLAN.md), built from prompt [P05](../../reviews/2026-11-10-prototype-to-flutter/prompts/P05-S1-today-and-devotional.md). Step S1b, on 2026-11-12, replaced the readings' words with v254's and added the headline, the tags and the "In Jesus" section; see [The readings are v254's](#the-readings-are-v254s-decided-by-the-maintainer-on-2026-11-12). This page is a **proposed** contract drafted by Claude. Only the maintainer can approve it.
+Build step S1 of the [prototype-to-Flutter review](../../reviews/2026-11-10-prototype-to-flutter/02-BUILD-PLAN.md), built from prompt [P05](../../reviews/2026-11-10-prototype-to-flutter/prompts/P05-S1-today-and-devotional.md). Step S1b, on 2026-11-12, replaced the readings' words with v254's and added the headline, the tags and the "In Jesus" section; see [The readings are v254's](#the-readings-are-v254s-decided-by-the-maintainer-on-2026-11-12). This page is a contract drafted by Claude and **approved by the maintainer** on 2026-11-19; the record is below.
 
 The decisions it rests on are the maintainer's, on the [Decisions](../../reviews/2026-11-10-prototype-to-flutter/01-DECISIONS.md) page: Q5 (points), Q6 (streak), Q7 (translations), Q9 (day boundary), Q10 (use before sign-in), and the completion event's key (option A, 2026-11-11, in [the architecture page](../../reviews/2026-11-10-prototype-to-flutter/07-ARCHITECTURE.md), journey J1).
+
+**Approved by the maintainer, Chad (GitHub `Chadillac12`), on 2026-11-19**, in [his comment on pull request #81](https://github.com/Forged-Sent/ForgedAndSentFitness/pull/81#issuecomment-7030512672): "I approve FNS-002". This contract was still `proposed` when S1 merged ([#65](https://github.com/Forged-Sent/ForgedAndSentFitness/pull/65), 2026-11-12) and when S1b merged ([#67](https://github.com/Forged-Sent/ForgedAndSentFitness/pull/67), 2026-11-13); his approval is of this page as the record of what S1 does. An agent may draft a contract and may not mark one approved ([how contracts work](../README.md)); this record was written after his comment existed.
 
 ## User outcome
 
@@ -48,6 +50,7 @@ A man opens the app and sees today: the date, a mission line, a ring that shows 
 **Failure and edge states**
 
 - **A save fails:** he stays on the reading and reads "That did not save. Try again." The box is not shown as checked.
+- **A setting cannot be saved:** the preview points switch stays where the store has it, and a line under it reads "That did not save. Try again." Today goes on showing what is saved. The line goes when a change is saved, and it is announced to a screen reader when it appears.
 - **The day cannot be loaded:** Today says so and offers "Try again". The header still shows the date.
 - **Storage cannot be opened or read at start-up:** the database file is read once before the first screen. If that fails, for example because the file is corrupt, the app opens on the status page and says nothing is saved on this device; Today works and says the same. The file is closed and left as it was.
 - **Nothing can be kept (the web preview):** Today and the reading say "Nothing you check here is saved."
@@ -59,7 +62,6 @@ A man opens the app and sees today: the date, a mission line, a ring that shows 
 - The readings' own text quotes scripture inline; those quotations have not been checked against a published text, inline ESV wording is not counted toward the 499-verse limit, and no ESV notice is shown beside it. The [full list](inline-scripture-in-v254.md). (Owner: the maintainer. Before public release.)
 
 - For a moment after the day changes, the page still shows yesterday's reading while today's loads. Scrolling that to its end in that moment unlocks Amen for today's reading. (Review finding, medium.)
-- If the preview points switch cannot be saved, nothing on screen says so. (Review finding, medium.)
 - A corrupt database file is found at start-up, and the app says nothing is saved, but there is no way to recover from it inside the app.
 
 **What must not change**
