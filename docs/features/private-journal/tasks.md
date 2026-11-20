@@ -1,6 +1,6 @@
 # Private journal: tasks and evidence
 
-Part of [FNS-003](requirements.md). Proposed, not approved. Commands and their output are in the pull request description.
+Part of [FNS-003](requirements.md). Approved by the maintainer on 2026-11-19; the record is on that page. Commands and their output are in the pull request description.
 
 ## Built
 

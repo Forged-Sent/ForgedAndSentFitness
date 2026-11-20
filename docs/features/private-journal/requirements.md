@@ -1,12 +1,12 @@
 ---
 kind: feature-spec
 feature_id: FNS-003
-status: proposed
+status: approved
 risk: high
 owner: maintainer
 source_ref: claude/s2-private-journal
 source_sha: 1c1339b25dad47a5760ea7b7eb4ab12fb260c4c4
-approved_by: none
+approved_by: Chad (GitHub Chadillac12), 2026-11-19, https://github.com/Forged-Sent/ForgedAndSentFitness/pull/77#issuecomment-7030503692
 test_plan: journal store rules against the Drift and in-memory stores, close and reopen on a real SQLite file, a forced save failure and its retry, schema migration from version 1, the box under the reading, the Journal page and the entry page as widget tests, a privacy test that records every platform message and every printed line, golden images at 390x844 in dark and light, one Android emulator run of write, kill, relaunch
 verified_tests: mobile/test/features/journal/journal_entry_test.dart, mobile/test/features/journal/drift_journal_repository_test.dart, mobile/test/features/journal/memory_journal_repository_test.dart, mobile/test/features/journal/write_it_down_test.dart, mobile/test/features/journal/journal_page_test.dart, mobile/test/features/journal/journal_privacy_test.dart, mobile/test/features/journal/journal_golden_test.dart, mobile/test/storage/schema_migration_test.dart, mobile/integration_test/journal_restart_1_write_test.dart, mobile/integration_test/journal_restart_2_verify_test.dart
 implementation_paths: mobile/lib/src/features/journal, mobile/lib/src/storage/app_database.dart, mobile/drift_schemas, mobile/lib/src/design/fs_text_area.dart, mobile/lib/src/app/local_store.dart, mobile/lib/src/app/fs_router.dart
@@ -17,7 +17,7 @@ verification: see the pull request that adds this page for the commands and thei
 
 Build step S2 of the [prototype-to-Flutter review](../../reviews/2026-11-10-prototype-to-flutter/02-BUILD-PLAN.md), built from prompt [P06](../../reviews/2026-11-10-prototype-to-flutter/prompts/P06-S2-private-journal.md). Design: [design.md](design.md). Tasks and evidence: [tasks.md](tasks.md).
 
-This page is a draft written by the agent that built the step. It is **proposed, not approved**: only the maintainer approves it. It is filed as high risk because the journal is private data.
+This page was drafted by the agent that built the step. **Approved by the maintainer, Chad (GitHub `Chadillac12`), on 2026-11-19**, in [his comment on pull request #77](https://github.com/Forged-Sent/ForgedAndSentFitness/pull/77#issuecomment-7030503692): "I approve FNS-003." The items listed below as unknown and blocked on him stay unknown; his approval is of this page as it is written. It is filed as high risk because the journal is private data.
 
 ## Approved user outcome and scope
 

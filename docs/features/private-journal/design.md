@@ -1,6 +1,6 @@
 # Private journal: design
 
-Part of [FNS-003](requirements.md). Proposed, not approved.
+Part of [FNS-003](requirements.md). Approved by the maintainer on 2026-11-19; the record is on that page.
 
 ## Data
 
