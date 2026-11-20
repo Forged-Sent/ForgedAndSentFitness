@@ -1,5 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../features/journal/data/journal_repository.dart';
+import '../features/journal/data/memory_journal_repository.dart';
 import '../features/settings/data/settings_repository.dart';
 import '../features/today/data/day_repository.dart';
 import '../features/today/data/memory_day_repository.dart';
@@ -10,6 +12,7 @@ class LocalStore {
   const LocalStore({
     required this.ownerId,
     required this.days,
+    required this.journal,
     required this.settings,
     required this.close,
   });
@@ -19,6 +22,7 @@ class LocalStore {
   factory LocalStore.inMemory({String ownerId = 'preview'}) => LocalStore(
     ownerId: ownerId,
     days: MemoryDayRepository(),
+    journal: MemoryJournalRepository(),
     settings: MemorySettingsRepository(),
     close: () async {},
   );
@@ -27,6 +31,9 @@ class LocalStore {
   final String ownerId;
 
   final DayRepository days;
+
+  /// His private journal (decision Q8: on this device only).
+  final JournalRepository journal;
   final SettingsRepository settings;
 
   /// Closes the database file. The app never needs to; tests do, to prove
