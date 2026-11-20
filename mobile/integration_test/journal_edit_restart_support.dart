@@ -31,6 +31,12 @@ const String editEntryBefore =
 const String editEntryAfter =
     'Edit test entry, after the change. These words were saved over the first.';
 
+/// A second entry that part 1 writes and nothing changes or deletes. It
+/// must be there in every part: without it, a journal that came back empty
+/// would look the same as an entry that stayed deleted.
+const String editEntryThatStays =
+    'Edit test entry that stays. Nothing changes or deletes these words.';
+
 final Finder newEntryButton = find.byKey(
   const ValueKey<String>('fs-journal-new'),
 );

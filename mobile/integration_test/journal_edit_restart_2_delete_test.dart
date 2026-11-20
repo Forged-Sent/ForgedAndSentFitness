@@ -24,6 +24,7 @@ void main() {
     // Exactly one entry with the changed words, and none with the first.
     expect(rowsWith(editEntryAfter), findsOneWidget);
     expect(rowsWith(editEntryBefore), findsNothing);
+    expect(rowsWith(editEntryThatStays), findsOneWidget);
 
     // Opened, it holds every word of the change, and nothing else.
     await tester.tap(rowsWith(editEntryAfter).first);
@@ -34,5 +35,7 @@ void main() {
     await deleteOpenEntry(tester);
     expect(rowsWith(editEntryAfter), findsNothing);
     expect(rowsWith(editEntryBefore), findsNothing);
+    // Only that entry: the other is untouched.
+    expect(rowsWith(editEntryThatStays), findsOneWidget);
   });
 }

@@ -69,7 +69,7 @@ flutter test integration_test/journal_restart_2_verify_test.dart -d <device id>
 
 It passed on 2026-11-19 on the same emulator. It has not run on a phone or on iOS.
 
-Changing and deleting an entry have a device test too, in three parts, each a new process: the first writes an entry and changes its words, the second finds the change and deletes the entry, the third finds it still gone.
+Changing and deleting an entry have a device test too, in three parts, each a new process: the first writes two entries and changes the words of one, the second finds the change and deletes that entry, the third finds it still gone and the other entry still there.
 
 ```sh
 flutter test integration_test/journal_edit_restart_1_change_test.dart -d <device id> --no-uninstall

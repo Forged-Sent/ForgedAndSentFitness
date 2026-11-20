@@ -10,7 +10,8 @@ import 'restart_support.dart';
 /// after part 2 deleted the entry and the app was killed. See
 /// `journal_edit_restart_support.dart`.
 ///
-/// The entry is still gone, in either of its wordings.
+/// The entry is still gone, in either of its wordings, and the entry that
+/// nothing deleted is still there.
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
@@ -19,6 +20,10 @@ void main() {
     await startApp(tester);
     await openJournalFromToday(tester);
     expect(find.text(journalNotSavedNotice), findsNothing);
+
+    // The journal itself came back: the entry nothing deleted is there.
+    // On an empty journal this fails, so "still gone" cannot mean "all gone".
+    expect(rowsWith(editEntryThatStays), findsOneWidget);
 
     expect(rowsWith(editEntryAfter), findsNothing);
     expect(rowsWith(editEntryBefore), findsNothing);

@@ -24,6 +24,13 @@ void main() {
     // This test's own entries left over from an earlier run are deleted.
     await deleteLeftOver(tester, editEntryBefore);
     await deleteLeftOver(tester, editEntryAfter);
+    await deleteLeftOver(tester, editEntryThatStays);
+
+    // The entry that stays.
+    await tester.tap(newEntryButton);
+    await tester.pumpAndSettle();
+    await saveOpenEntryAs(tester, editEntryThatStays);
+    expect(rowsWith(editEntryThatStays), findsOneWidget);
 
     // A new entry, with the first words.
     await tester.tap(newEntryButton);
@@ -41,5 +48,6 @@ void main() {
     // One entry, with the new words. The first words are nowhere.
     expect(rowsWith(editEntryAfter), findsOneWidget);
     expect(rowsWith(editEntryBefore), findsNothing);
+    expect(rowsWith(editEntryThatStays), findsOneWidget);
   });
 }
