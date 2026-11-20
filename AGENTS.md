@@ -80,6 +80,7 @@ The maintainer reads this project in Obsidian from the `main` checkout. A pull r
 - `python3 tooling/knowledge/check.py` after changing anything under `docs/knowledge/`, `docs/features/` or `docs/HOME.md`.
 - `python3 tooling/knowledge/work_board.py --write` after changing `docs/knowledge/WORK.md`; CI rejects a stale `docs/knowledge/WORK-BOARD-VIEW.md` or dashboard block.
 - `python3 tooling/architecture/generate.py --write` after changing `mobile/lib/**`; CI rejects a stale `docs/architecture/CODE-MAP.md`.
+- `python3 tooling/prototype/embed_seed.py --write` after changing a program or challenge file under `seed/` (decision L11). It regenerates the copy of that content inside `index.html`; CI rejects a copy that differs. Edit `seed/`, never the copy.
 - `python3 tooling/skills/sync.py --check` after changing a skill. `.agents/skills` is canonical; `.claude/skills` must match.
 - Do not claim Android or iOS device behavior until it has been run and recorded.
 

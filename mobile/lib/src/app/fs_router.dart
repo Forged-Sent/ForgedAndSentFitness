@@ -53,11 +53,18 @@ GoRouter buildFsRouter({
               return FsShell(
                 destinations: destinations,
                 currentIndex: navigationShell.currentIndex,
-                // Tapping the tab he is already on returns it to its first page.
-                onSelect: (int index) => navigationShell.goBranch(
-                  index,
-                  initialLocation: index == navigationShell.currentIndex,
-                ),
+                // Tapping the tab he is already on returns it to its first
+                // page, unless the page he is on is holding him there.
+                onSelect: (int index) {
+                  final current = index == navigationShell.currentIndex;
+                  if (current &&
+                      _topPageHoldsHim(
+                        navigationShell.route.branches[index].navigatorKey,
+                      )) {
+                    return;
+                  }
+                  navigationShell.goBranch(index, initialLocation: current);
+                },
                 child: navigationShell,
               );
             },
@@ -143,6 +150,22 @@ GoRouter buildFsRouter({
       ),
     ],
   );
+}
+
+/// True when the page on top of this tab's stack will not let Back leave it:
+/// a `PopScope` there says so, as the journal's entry page does while a save
+/// or a delete is on its way. Returning the tab to its first page would
+/// close that page as surely as Back, so the tab tap waits as Back does. If
+/// it did not, a save that then failed would find no page to keep his words
+/// or to tell him.
+bool _topPageHoldsHim(GlobalKey<NavigatorState> tab) {
+  Route<dynamic>? top;
+  // Reads the top page and removes nothing: the test is true at once.
+  tab.currentState?.popUntil((Route<dynamic> route) {
+    top = route;
+    return true;
+  });
+  return top?.popDisposition == RoutePopDisposition.doNotPop;
 }
 
 /// The Journal page at [location], with its two entry pages under it:
