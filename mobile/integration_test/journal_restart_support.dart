@@ -7,7 +7,8 @@ import 'package:forged_and_sent/src/features/today/presentation/today_page.dart'
 /// Shared by the two halves of the journal's restart test (P06 acceptance 1
 /// on a device: write an entry, kill the app, relaunch, the entry is
 /// there). That an edit and a delete survive a restart is tested on a real
-/// SQLite file, in `test/features/journal/drift_journal_repository_test.dart`.
+/// SQLite file, in `test/features/journal/drift_journal_repository_test.dart`,
+/// and on a device by the three `journal_edit_restart_*` files.
 ///
 /// It follows `restart_support.dart`: two files, run one after the other
 /// with the app's process stopped in between, each starting the real app

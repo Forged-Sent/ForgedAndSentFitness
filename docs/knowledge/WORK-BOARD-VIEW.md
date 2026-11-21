@@ -70,8 +70,12 @@ update-by: edit WORK.md then run tooling/knowledge/work_board.py --write
 	**Note:** None. Unblocks Dependabot [#66](https://github.com/Forged-Sent/ForgedAndSentFitness/pull/66). Without `--dry-run` such a change still gets no PASS and no review record, and `--verify` still fails
 	**Branch or PR:** branch `claude/review-lockfile-dry-run`
 	[Edit this row in WORK](WORK.md)
+- [x] **Host wording left over from the generated hosts**
+	**Note:** None. Checked on 2026-11-19 in a debug simulator build installed on one iPhone 17 simulator (iOS 27.2): the installed app reports the display name "Forged & Sent", and the home screen shows that name under the icon. Nothing ran on a physical iPhone. The Mac setup script's wording was fixed earlier by `claude/bootstrap-test-readiness`
+	**Branch or PR:** branch `claude/ios-restart-check`
+	[Edit this row in WORK](WORK.md)
 - [x] **Native hosts**
-	**Note:** None. iOS is built only by CI's `ios-simulator` job: it has not been built locally, and there is no simulator or physical-device run yet. Release signing is a row under Later
+	**Note:** None. iOS is built by CI's `ios-simulator` job. On 2026-11-19 a debug simulator build was also made on the maintainer's Mac (Xcode 27.2, Flutter 3.47.8), installed on one iPhone 17 simulator (iOS 27.2) and opened on Today. Nothing has run on a physical iPhone. Release signing is a row under Later
 	**Branch or PR:** branch `codex/native-host-acceptance`
 	[Edit this row in WORK](WORK.md)
 - [x] **S0 Design foundation**
@@ -79,7 +83,7 @@ update-by: edit WORK.md then run tooling/knowledge/work_board.py --write
 	**Branch or PR:** branch `claude/s0-design-foundation`
 	[Edit this row in WORK](WORK.md)
 - [x] **S1 Today and Devotional**
-	**Note:** None. Only the devotional box works; the other six are shown as not active yet. Complete, kill, relaunch passed on 2026-11-12 on one Android emulator on the maintainer's workstation, made from the Android 36 system image (Android 16); not on a phone, and not in CI. iOS is built only by CI
+	**Note:** None. Only the devotional box works; the other six are shown as not active yet. Complete, kill, relaunch passed on 2026-11-12 on one Android emulator on the maintainer's workstation, made from the Android 36 system image (Android 16); not on a phone, and not in CI. On iOS, complete, kill, relaunch passed on 2026-11-19 on one iPhone 17 simulator (iOS 27.2) on the maintainer's Mac; not on a physical iPhone, and not in CI. It passed after the helper that reads to the end was changed to bring Amen onto the screen before the tap; the Android run has not been repeated since that change
 	**Branch or PR:** branch `claude/s1-today-devotional`
 	[Edit this row in WORK](WORK.md)
 - [x] **S1b v254 readings**
@@ -167,9 +171,6 @@ update-by: edit WORK.md then run tooling/knowledge/work_board.py --write
 	[Edit this row in WORK](WORK.md)
 - [ ] **Android release signing**
 	**Prompt:** No prompt yet. Do it before anything is distributed
-	[Edit this row in WORK](WORK.md)
-- [ ] **Host wording left over from the generated hosts**
-	**Prompt:** No prompt yet. Not blocking; needs a Mac to check
 	[Edit this row in WORK](WORK.md)
 - [ ] **`flutter-ai-review` on unlabeled tooling pull requests**
 	**Prompt:** No prompt yet. Not blocking: only `ci-gate` is required
