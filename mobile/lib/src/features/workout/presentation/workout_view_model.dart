@@ -156,6 +156,53 @@ class WorkoutView {
   bool get locked => session?.finished ?? false;
 }
 
+/// The changes to workout sessions that are still on their way to the
+/// store: one queue for each session, in the order the changes were made.
+///
+/// A queue belongs to its session and not to the workout page. He can
+/// leave the page and open it again while storage is slow and changes are
+/// still waiting; the page he comes back to is a new one, and what he
+/// changes there must be stored after what he changed before, never ahead
+/// of it. So the new page joins the queue the old one left behind.
+///
+/// A session is named here by its day: a member has at most one session
+/// on a day. Its queue is kept only while a change is waiting.
+class WorkoutWrites {
+  final Map<LocalDate, Future<void>> _waiting = <LocalDate, Future<void>>{};
+
+  /// Queues [write] behind every change already made to the session of
+  /// [day]. True if it was stored. A write that fails does not stop the
+  /// ones after it.
+  Future<bool> add(LocalDate day, Future<void> Function() write) {
+    final result = settled(day)
+        .then((_) => write())
+        .then<bool>((_) => true, onError: (Object _) => false);
+    late final Future<void> last;
+    last = result.then<void>((_) {
+      // Nothing was queued behind this one: the queue is empty again.
+      if (identical(_waiting[day], last)) _waiting.remove(day);
+    });
+    _waiting[day] = last;
+    return result;
+  }
+
+  /// Completes once every change made so far to the session of [day] has
+  /// had its turn, whichever page made it.
+  Future<void> settled(LocalDate day) => _waiting[day] ?? Future<void>.value();
+
+  /// How many sessions have a change waiting. Read by tests only.
+  @visibleForTesting
+  int get waiting => _waiting.length;
+}
+
+/// The one [WorkoutWrites] of the store in use. It outlives every workout
+/// page; see [WorkoutWrites] for why.
+final workoutWritesProvider = Provider<WorkoutWrites>((ref) {
+  // The queues are of the writes to this store.
+  ref.watch(localStoreProvider);
+  return WorkoutWrites();
+});
+
 /// What a tap on Amen in the workout prayer did.
 enum StartOutcome {
   /// The session is started and stored.
@@ -185,9 +232,10 @@ class WorkoutViewModel extends AsyncNotifier<WorkoutView> {
 
   final LocalDate day;
 
-  /// The writes still on their way to the store, one after another in the
-  /// order they were made.
-  Future<void> _pending = Future<void>.value();
+  /// The queue of the changes still on their way to the store. It is the
+  /// session's, not this page's: see [WorkoutWrites]. Set at the start of
+  /// [build], before anything can be asked of this view model.
+  late WorkoutWrites _writes;
 
   /// The last rest timer change made on this page, by exercise id.
   final Map<String, _Rest> _rest = <String, _Rest>{};
@@ -197,6 +245,7 @@ class WorkoutViewModel extends AsyncNotifier<WorkoutView> {
 
   @override
   Future<WorkoutView> build() async {
+    _writes = ref.watch(workoutWritesProvider);
     final today = ref.watch(todayDateProvider);
     final store = ref.watch(localStoreProvider);
     final library = await ref.watch(workoutLibraryProvider.future);
@@ -322,27 +371,23 @@ class WorkoutViewModel extends AsyncNotifier<WorkoutView> {
     return StartOutcome.started;
   }
 
-  /// Queues one write behind the ones before it. True if it was stored.
+  /// Queues one write behind every change already made to this page's
+  /// session, on this page or on an earlier opening of it. True if it was
+  /// stored.
   ///
   /// [write] must not read the ref. It runs when the writes before it are
   /// done, and by then he may have left the page and this view model may
   /// have been disposed; a change made before that must still be stored.
   /// So every caller takes what it needs from the ref first, with
   /// [_workouts], and hands [write] the repository itself.
-  Future<bool> _write(Future<void> Function() write) {
-    final result = _pending
-        .then((_) => write())
-        .then<bool>((_) => true, onError: (Object _) => false);
-    _pending = result.then<void>((_) {});
-    return result;
-  }
+  Future<bool> _write(Future<void> Function() write) => _writes.add(day, write);
 
-  /// Waits until every change made so far is in the store. Called when the
-  /// app is paused, so nothing typed is still on its way when the phone
-  /// stops the app.
+  /// Waits until every change made so far is in the store, also one made
+  /// on an earlier opening of this page. Called when the app is paused, so
+  /// nothing typed is still on its way when the phone stops the app.
   Future<void> flush() {
     flushes++;
-    return _pending;
+    return _writes.settled(day);
   }
 
   /// How often [flush] was asked for. Read by tests only, to prove the
@@ -351,15 +396,15 @@ class WorkoutViewModel extends AsyncNotifier<WorkoutView> {
   int flushes = 0;
 
   /// The session of this page's day as the store holds it now, read once
-  /// every change made so far has had its turn. Throws if it cannot be
-  /// read.
+  /// every change made so far has had its turn, also one made on an
+  /// earlier opening of this page. Throws if it cannot be read.
   ///
   /// The view the page draws from is rebuilt a moment after a write, so it
   /// can be a change behind. What is checked before a workout is locked
   /// must not be.
   Future<WorkoutSession?> storedSession() async {
     final store = ref.read(localStoreProvider);
-    await _pending;
+    await _writes.settled(day);
     return store.workouts.readSession(store.ownerId, day);
   }
 
@@ -478,9 +523,9 @@ class WorkoutViewModel extends AsyncNotifier<WorkoutView> {
   /// day the session was started on, also after midnight. Finishing twice
   /// records one completion. Returns false if it could not be saved.
   ///
-  /// It takes its turn behind every change already made, whether or not
-  /// those were stored: a write that fails does not stop the ones after
-  /// it. So the page asks for this only once every set change he made is
+  /// It takes its turn behind every change already made to the session,
+  /// on this page or on an earlier opening of it, whether or not those
+  /// were stored: a write that fails does not stop the ones after it. So the page asks for this only once every set change he made is
   /// stored, and after checking [storedSession] (`_finish` in
   /// `workout_page.dart`). The page is what knows which boxes he typed in,
   /// and it forgets them when he leaves, as the boxes then show what is

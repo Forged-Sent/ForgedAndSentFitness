@@ -1026,6 +1026,10 @@ flowchart LR
 - fn canStart()
 - fn live()
 - fn locked()
+- class WorkoutWrites
+- fn add()
+- fn settled()
+- fn waiting()
 - class WorkoutViewModel
 - fn build()
 - fn retry()

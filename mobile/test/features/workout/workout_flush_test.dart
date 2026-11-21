@@ -13,6 +13,7 @@ import 'package:forged_and_sent/src/features/today/data/memory_day_repository.da
 import 'package:forged_and_sent/src/features/workout/data/memory_workout_repository.dart';
 import 'package:forged_and_sent/src/features/workout/data/workout_library.dart';
 import 'package:forged_and_sent/src/features/workout/domain/workout_plan.dart';
+import 'package:forged_and_sent/src/features/workout/domain/workout_session.dart';
 import 'package:forged_and_sent/src/features/workout/presentation/workout_page.dart';
 import 'package:forged_and_sent/src/features/workout/presentation/workout_view_model.dart';
 
@@ -252,6 +253,109 @@ void main() {
       expect(session.finished, isTrue);
       expect(session.finishedAtUtc, liftingEvening.toUtc());
       expect(session.exercises.first.sets.first.reps, 5);
+    });
+
+    // He leaves the workout page, so its view model is disposed, and opens
+    // it again: a new view model for the same session.
+    Future<WorkoutViewModel> leaveAndReopen() async {
+      final provider = workoutViewModelProvider(_monday);
+      watching.close();
+      await container.pump();
+      await pumpEventQueue();
+      expect(container.read(provider.exists), isFalse);
+
+      watching = container.listen(provider, (_, _) {});
+      await container.read(provider.future);
+      final reopened = container.read(provider.notifier);
+      expect(identical(reopened, model), isFalse);
+      expect(container.read(provider).value?.session, isNotNull);
+      return reopened;
+    }
+
+    test('a change made after leaving and reopening the page is stored '
+        'after the changes still waiting from before', () async {
+      // A slow disk: the first write is held and the second waits behind
+      // it.
+      workouts.gate = Completer<void>();
+      final before = <Future<bool>>[
+        model.setReps(setId, 5),
+        model.setReps(setId, 6),
+      ];
+
+      final reopened = await leaveAndReopen();
+      final after = reopened.setReps(setId, 7);
+      await pumpEventQueue();
+      expect(workouts.written, isEmpty);
+
+      workouts.gate!.complete();
+      expect(await Future.wait(before), everyElement(isTrue));
+      expect(await after, isTrue);
+
+      expect(workouts.written, <Object?>[5, 6, 7]);
+      expect((await stored()).reps, 7);
+    });
+
+    test('Finish on the reopened page waits for the changes still waiting '
+        'from before, and what is checked first has them', () async {
+      workouts.gate = Completer<void>();
+      final typed = model.setReps(setId, 5);
+
+      final reopened = await leaveAndReopen();
+      WorkoutSession? checked;
+      final checking = reopened.storedSession().then((s) => checked = s);
+      final finishing = reopened.finish();
+      await pumpEventQueue();
+      // Neither has gone ahead of the change that is still waiting.
+      expect(checked, isNull);
+      expect(
+        (await workouts.watchSession('local-test', _monday).first)!.finished,
+        isFalse,
+      );
+
+      workouts.gate!.complete();
+      expect(await typed, isTrue);
+      await checking;
+      expect(await finishing, isTrue);
+
+      expect(checked!.exercises.first.sets.first.reps, 5);
+      final session = (await workouts
+          .watchSession('local-test', _monday)
+          .first)!;
+      expect(session.finished, isTrue);
+      expect(session.exercises.first.sets.first.reps, 5);
+    });
+
+    test('a pause on the reopened page waits for the changes still waiting '
+        'from before', () async {
+      workouts.gate = Completer<void>();
+      final typed = model.setReps(setId, 5);
+
+      final reopened = await leaveAndReopen();
+      var flushed = false;
+      final flush = reopened.flush().then((_) => flushed = true);
+      await pumpEventQueue();
+      expect(flushed, isFalse);
+
+      workouts.gate!.complete();
+      await flush;
+      expect(await typed, isTrue);
+      expect((await stored()).reps, 5);
+    });
+
+    test('a session keeps its queue only while a change is waiting', () async {
+      final writes = container.read(workoutWritesProvider);
+      expect(writes.waiting, 0);
+
+      workouts.gate = Completer<void>();
+      final typed = model.setReps(setId, 5);
+      final again = model.setReps(setId, 6);
+      expect(writes.waiting, 1);
+
+      workouts.gate!.complete();
+      await typed;
+      await again;
+      await pumpEventQueue();
+      expect(writes.waiting, 0);
     });
 
     test('with nothing on its way, flush returns at once', () async {

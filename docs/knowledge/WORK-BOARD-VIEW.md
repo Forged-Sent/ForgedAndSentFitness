@@ -130,6 +130,9 @@ update-by: edit WORK.md then run tooling/knowledge/work_board.py --write
 - [ ] **An optional or extra activity on a rest day**
 	**Prompt:** No prompt yet. Asked for by the maintainer on 2026-11-21, after [#85](https://github.com/Forged-Sent/ForgedAndSentFitness/pull/85). Needs a decision: what it is (the plan's optional fourth day, or any activity he names) and whether it checks a box on Today
 	[Edit this row in WORK](WORK.md)
+- [ ] **The upgrade device test runs on any day of the week**
+	**Prompt:** No prompt yet. Test-only. Decided by the maintainer on 2026-11-21: after [#85](https://github.com/Forged-Sent/ForgedAndSentFitness/pull/85) merges, not before
+	[Edit this row in WORK](WORK.md)
 - [ ] **S4 Sign-in, groups, first board**
 	**Prompt:** [P08](../reviews/2026-11-10-prototype-to-flutter/prompts/P08-S4-contract-identity-groups-board.md), then [P09](../reviews/2026-11-10-prototype-to-flutter/prompts/P09-S4-implement-identity-groups-board.md)
 	[Edit this row in WORK](WORK.md)
