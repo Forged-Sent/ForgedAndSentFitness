@@ -123,7 +123,7 @@ class TrainViewModel extends AsyncNotifier<TrainView> {
     final plan = await ref.watch(workoutPlanProvider.future);
     final doneByDay = await ref.watch(doneByDayProvider.future);
     final todaySession = await ref.watch(sessionForDayProvider(date).future);
-    final open = await ref.watch(openSessionProvider.future);
+    final carriedOver = await ref.watch(earlierOpenSessionProvider.future);
 
     TrainDay dayOf(LocalDate day) {
       final planDay = library.dayFor(plan, day);
@@ -179,7 +179,7 @@ class TrainViewModel extends AsyncNotifier<TrainView> {
       message: message,
       week: <TrainDay>[for (var i = 0; i < 7; i++) dayOf(monday.addDays(i))],
       todaySession: todaySession,
-      carriedOver: open != null && open.day != date ? open : null,
+      carriedOver: carriedOver,
       durable: store.workouts.durable,
     );
   }
@@ -192,7 +192,7 @@ class TrainViewModel extends AsyncNotifier<TrainView> {
     ref.invalidate(workoutPlanProvider);
     ref.invalidate(doneByDayProvider);
     ref.invalidate(sessionForDayProvider(ref.read(todayDateProvider)));
-    ref.invalidate(openSessionProvider);
+    ref.invalidate(earlierOpenSessionProvider);
     ref.invalidateSelf();
     await future.then<void>((_) {}, onError: (Object _) {});
   }

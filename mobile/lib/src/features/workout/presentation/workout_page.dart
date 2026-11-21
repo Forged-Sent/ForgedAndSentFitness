@@ -1310,7 +1310,18 @@ class _SummaryExercise extends StatelessWidget {
         case SetMeasure.tick:
           value = 'Done';
         case SetMeasure.seconds:
-          value = '${set.reps} sec';
+          // A weight typed with a timed set is shown as it is for reps.
+          // With none, the line is the seconds alone.
+          final weight = set.weightLb;
+          if (weight == null || weight <= 0) {
+            value = '${set.reps} sec';
+          } else if (loaded) {
+            value = '${set.reps} sec × ${FsNumberField.format(weight)} lb';
+          } else {
+            value =
+                '${set.reps} sec '
+                '(bodyweight + ${FsNumberField.format(weight)} lb)';
+          }
         case SetMeasure.reps:
           final weight = set.weightLb;
           if (loaded && weight != null) {

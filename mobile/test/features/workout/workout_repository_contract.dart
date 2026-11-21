@@ -559,6 +559,36 @@ void workoutRepositoryContract(Future<WorkoutStores> Function() create) {
       await workouts.finishSession('s1', DateTime(2026, 11, 12, 19, 5));
       expect(await workouts.watchOpenSession(ownerA).first, isNull);
     });
+
+    test(
+      'asked for before a day, is the newest one of an earlier day',
+      () async {
+        await workouts.startSession(
+          newSession('s9', DateTime(2026, 11, 9, 18, 10)),
+        );
+        await workouts.startSession(
+          newSession('s11', DateTime(2026, 11, 11, 18, 10)),
+        );
+        await workouts.startSession(
+          newSession('s13', DateTime(2026, 11, 13, 18, 10)),
+        );
+        await workouts.startSession(
+          newSession('other', DateTime(2026, 11, 10, 18, 10), owner: ownerB),
+        );
+        Future<String?> openBefore(LocalDate day) async =>
+            (await workouts.watchOpenSession(ownerA, before: day).first)?.id;
+
+        // The 13th has its own session open; the one before it is the 11th's.
+        expect(await openBefore(nov13), 's11');
+        expect(await openBefore(nov11), 's9');
+        expect(await openBefore(nov9), isNull);
+        // A day with no session of its own, later than all three.
+        expect(await openBefore(nov13.addDays(3)), 's13');
+
+        await workouts.finishSession('s11', DateTime(2026, 11, 11, 19));
+        expect(await openBefore(nov13), 's9');
+      },
+    );
   });
 
   group('last time (review finding U3)', () {

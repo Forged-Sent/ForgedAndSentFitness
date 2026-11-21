@@ -41,7 +41,11 @@ abstract interface class WorkoutRepository {
   /// The owner's most recently started session that is not finished, or
   /// null. This is how a workout begun before midnight is found again the
   /// next day.
-  Stream<WorkoutSession?> watchOpenSession(String ownerId);
+  ///
+  /// With [before], only sessions of a day earlier than that day count.
+  /// Train asks for the one before today, so that starting today's
+  /// workout does not hide an earlier one that was never finished.
+  Stream<WorkoutSession?> watchOpenSession(String ownerId, {LocalDate? before});
 
   /// Stores [session] with every exercise and set, in one transaction.
   ///

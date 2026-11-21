@@ -92,10 +92,14 @@ class MemoryWorkoutRepository implements WorkoutRepository {
       _inTurn(() async => _find(ownerId, day));
 
   @override
-  Stream<WorkoutSession?> watchOpenSession(String ownerId) => _watch(() {
+  Stream<WorkoutSession?> watchOpenSession(
+    String ownerId, {
+    LocalDate? before,
+  }) => _watch(() {
     WorkoutSession? latest;
     for (final session in _sessions) {
       if (session.ownerId != ownerId || session.finished) continue;
+      if (before != null && session.day.compareTo(before) >= 0) continue;
       if (latest == null || session.startedAtUtc.isAfter(latest.startedAtUtc)) {
         latest = session;
       }

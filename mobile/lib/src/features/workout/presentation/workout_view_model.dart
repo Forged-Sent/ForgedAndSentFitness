@@ -35,10 +35,13 @@ final sessionForDayProvider = StreamProvider.family<WorkoutSession?, LocalDate>(
   },
 );
 
-/// The most recently started session that is not finished.
-final openSessionProvider = StreamProvider<WorkoutSession?>((ref) {
+/// The most recently started session of a day before today that is not
+/// finished. Today's own session is not it: Train shows that one on
+/// today's card, and an earlier one beside it.
+final earlierOpenSessionProvider = StreamProvider<WorkoutSession?>((ref) {
   final store = ref.watch(localStoreProvider);
-  return store.workouts.watchOpenSession(store.ownerId);
+  final today = ref.watch(todayDateProvider);
+  return store.workouts.watchOpenSession(store.ownerId, before: today);
 });
 
 /// One exercise of a day that has no session yet: what the plan asks for.

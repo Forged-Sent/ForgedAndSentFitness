@@ -43,7 +43,7 @@ A man opens Train and sees today and this week from the Forged program. He opens
 - Today's card: the date, where the day stands ("Ready to train", "Workout complete", "Rest day", "Nothing finished yet today"), and the session to open, or one line that says why there is none.
 - "Your week": Monday to Sunday, each with its session or "Rest day" / "Sabbath" / "Plan starts Monday". A day with a session opens its workout page. A finished day shows a check.
 - **A new member (U1, decision 1 above):** he has a session on his next lifting day at the latest, which is never more than two days away. He never waits for "next week".
-- A workout begun on an earlier day and not finished has its own card at the top of Train, with the way back into it.
+- A workout begun on an earlier day and not finished has its own card at the top of Train, with the way back into it. The card stays when today's workout is started too, and when that earlier day is no longer in the week shown; with more than one such workout it is the most recent.
 
 **The workout page**
 
@@ -130,7 +130,7 @@ The project's rule is that product behavior is not inferred from the prototype. 
 | The check before finishing | `workoutFixes`, `openFixes` | Reps with no weight on a loaded lift must be fixed; sets he may finish without are listed, eight at most. What the app does with a weight and no reps is the maintainer's decision 6, and differs from the prototype as listed below |
 | The Workout box | `previewWorkout`, the "auto" box | Checked by finishing; "Checks itself when you finish a workout", then "Finished in Train" |
 | The clock | `wkElapsed`, `fmtElapsed` | The time since the start: "12:34", or "1:02:03" from an hour up; "Workout time", then "Finished in" |
-| The locked summary | `drawLockedSummary`, `volOf` | "Finished at 6:42 PM. Locked."; volume is weight times reps; each logged set as "5 reps × 135 lb", "8 reps (bodyweight)", "25 sec" or "Done" |
+| The locked summary | `drawLockedSummary`, `volOf` | "Finished at 6:42 PM. Locked."; volume is weight times reps; each logged set as "5 reps × 135 lb", "8 reps (bodyweight)", "25 sec" or "Done"; a timed set with a weight typed shows it in the same form, "30 sec × 40 lb" or "25 sec (bodyweight + 10 lb)" |
 | The prayer's box | `openWorkoutPrayer` | "Before you train", "Workout prayer", the six lines, Amen |
 
 **Where the app deliberately differs from the prototype**

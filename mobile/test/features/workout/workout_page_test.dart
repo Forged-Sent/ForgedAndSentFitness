@@ -1370,6 +1370,124 @@ void main() {
     });
   });
 
+  group('the locked summary of a timed set', () {
+    testWidgets('shows the weight he entered with it, in the form a set of '
+        'reps has', (tester) async {
+      final app = await pumpApp(tester, clock: TestClock(liftingEvening));
+      // Today's workout, finished: a loaded carry, a hold with weight
+      // added, and a hold with none.
+      await tester.runAsync(() async {
+        final workouts = app.store.workouts;
+        await workouts.startSession(
+          newSession(
+            'timed',
+            liftingEvening,
+            owner: app.ownerId,
+            exercises: <SessionExercise>[
+              exercise(
+                't-carry',
+                position: 0,
+                movementId: 'Suitcase Carry',
+                prescription: '2 x 30 sec',
+                measure: SetMeasure.seconds,
+                weightMode: WeightMode.required,
+                sets: 2,
+              ),
+              exercise(
+                't-plank',
+                position: 1,
+                movementId: 'Plank',
+                prescription: '2 x 25 sec',
+                measure: SetMeasure.seconds,
+                weightMode: WeightMode.optional,
+                sets: 2,
+              ),
+            ],
+          ),
+        );
+        await workouts.setReps('t-carry-s0', 30);
+        await workouts.setWeight('t-carry-s0', 40);
+        // The second carry: seconds, and no weight typed.
+        await workouts.setReps('t-carry-s1', 28);
+        await workouts.setReps('t-plank-s0', 25);
+        await workouts.setWeight('t-plank-s0', 10);
+        await workouts.setReps('t-plank-s1', 20);
+        await workouts.finishSession(
+          'timed',
+          liftingEvening.add(const Duration(minutes: 30)),
+        );
+      });
+
+      await openTodaysWorkout(tester);
+
+      expect(lockedSummary, findsOneWidget);
+      expect(find.text('30 sec × 40 lb'), findsOneWidget);
+      expect(find.text('25 sec (bodyweight + 10 lb)'), findsOneWidget);
+      // With no weight entered the line is as it was.
+      expect(find.text('28 sec'), findsOneWidget);
+      expect(find.text('20 sec'), findsOneWidget);
+    });
+  });
+
+  group('an earlier day\'s unfinished workout', () {
+    testWidgets('stays on Train after today\'s workout is started, also '
+        'once its day has left the week shown', (tester) async {
+      Future<void> backToTrain() async {
+        await tester.drag(workoutScrollable, const Offset(0, 3000));
+        await tester.pumpAndSettle();
+        await tester.tap(find.text('‹ BACK'));
+        await tester.pumpAndSettle();
+      }
+
+      final carried = find.byKey(
+        const ValueKey<String>('fs-train-carried-over'),
+      );
+
+      // Friday of the plan's first week: started, one set, not finished.
+      final clock = TestClock(DateTime(2026, 11, 13, 18));
+      await pumpApp(tester, clock: clock);
+      await openTodaysWorkout(tester);
+      await startWorkout(tester);
+      await typeNumber(tester, repsField(0, 0), '5');
+      await typeNumber(tester, weightField(0, 0), '135');
+
+      // Monday of the next week: Friday is no longer in the week shown.
+      clock.time = DateTime(2026, 11, 16, 18);
+      await backgroundAndResume(tester);
+      await backToTrain();
+      expect(find.text('MONDAY, NOVEMBER 16'), findsOneWidget);
+      expect(
+        find.byKey(const ValueKey<String>('fs-week-2026-11-13')),
+        findsNothing,
+      );
+      expect(
+        tester.widget<FsChevronRow>(carried).title,
+        'Full Body C: Bench Press',
+      );
+
+      // He starts Monday's workout as well.
+      await tester.ensureVisible(trainTodayRow);
+      await tester.pumpAndSettle();
+      await tester.tap(trainTodayRow);
+      await tester.pumpAndSettle();
+      await startWorkout(tester);
+      await backToTrain();
+
+      // Friday's is still on Train, and still opens Friday's workout.
+      expect(find.text('WORKOUT IN PROGRESS'), findsOneWidget);
+      expect(
+        tester.widget<FsChevronRow>(carried).title,
+        'Full Body C: Bench Press',
+      );
+      await tester.ensureVisible(carried);
+      await tester.pumpAndSettle();
+      await tester.tap(carried);
+      await tester.pumpAndSettle();
+      expect(find.text('FRIDAY, NOVEMBER 13'), findsOneWidget);
+      expect(repsField(0, 0), findsOneWidget);
+    });
+  });
+
   group('a session started at 23:50 can be finished at 00:10 '
       '(P07 acceptance 3, review finding U2)', () {
     testWidgets('it stays open past midnight and checks the box of the day '

@@ -77,7 +77,10 @@ class DriftWorkoutRepository implements WorkoutRepository {
   }
 
   @override
-  Stream<WorkoutSession?> watchOpenSession(String ownerId) {
+  Stream<WorkoutSession?> watchOpenSession(
+    String ownerId, {
+    LocalDate? before,
+  }) {
     // In one transaction, for the reason [readSession] gives.
     return _watch(
       () => _db.transaction(() async {
@@ -85,7 +88,13 @@ class DriftWorkoutRepository implements WorkoutRepository {
             await (_db.select(_db.workoutSessions)
                   ..where(
                     (t) =>
-                        t.ownerId.equals(ownerId) & t.finishedAtUtcMs.isNull(),
+                        t.ownerId.equals(ownerId) &
+                        t.finishedAtUtcMs.isNull() &
+                        // A day is stored as its ISO date, which sorts as
+                        // the calendar does.
+                        (before == null
+                            ? const Constant<bool>(true)
+                            : t.day.isSmallerThanValue(before.iso)),
                   )
                   ..orderBy([(t) => OrderingTerm.desc(t.startedAtUtcMs)])
                   ..limit(1))
