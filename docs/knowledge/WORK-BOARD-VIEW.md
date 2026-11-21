@@ -48,6 +48,10 @@ update-by: edit WORK.md then run tooling/knowledge/work_board.py --write
 	**Note:** None; the answers are on the [Decisions](../reviews/2026-11-10-prototype-to-flutter/01-DECISIONS.md) page
 	**Branch or PR:** branch `chore/review-rules-and-dashboard`
 	[Edit this row in WORK](WORK.md)
+- [x] **Phase 0 decisions on `main`**
+	**Note:** ADR-0008 (membership documents) stays Proposed until S4b starts, as the maintainer decided on 2026-11-19. Maintainer: the Decisions page still says `main` has ADR-0001 to ADR-0005; only the maintainer edits that page. Prompt P13 now names ADR-0010 for its record
+	**Branch or PR:** branch `claude/adr-phase0-carry-forward`
+	[Edit this row in WORK](WORK.md)
 - [x] **CI accepts images and fonts**
 	**Branch or PR:** [#54](https://github.com/Forged-Sent/ForgedAndSentFitness/pull/54)
 	[Edit this row in WORK](WORK.md)

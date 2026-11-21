@@ -72,7 +72,23 @@ flowchart TB
 
 **Accepted client stack (partly implemented):** [ADR-0005](ADR-0005-flutter-client-stack.md) selects Riverpod for presentation state and composition, go_router for navigation, and Drift/native SQLite for the durable local event store. All three are in `mobile/pubspec.yaml` at exact versions. go_router drives the tab shell (step S0). Riverpod holds presentation state, and Drift stores the day's completion events in the member's SQLite file (step S1). The planned diagram does not imply working sync.
 
-**ADR set that is not on `main`:** ADR-0001 to ADR-0019 on branch `arch/firebase-reconciliation` (commit `0d21d21`, under `docs/adr/`) are not on `main`. Their numbers collide with `main`'s ADR-0001 to ADR-0005 in this folder, which are different documents, so a number alone does not say which ADR is meant. The [Decisions](../reviews/2026-11-10-prototype-to-flutter/01-DECISIONS.md) page records which of those decisions the maintainer carries forward.
+**Decision records on `main`:** ADR-0001 to ADR-0009, in this folder. Each number means one decision.
+
+| ADR | Decision | Status |
+|---|---|---|
+| [ADR-0001](ADR-0001-mobile-foundation.md) | Flutter app, Firebase backend, independent developer environments | Accepted direction; implementation pending |
+| [ADR-0002](ADR-0002-emulator-first-firebase.md) | Emulator-first development, least-privilege Firebase | Accepted baseline; implemented |
+| [ADR-0003](ADR-0003-flutter-targets.md) | One Flutter codebase, platforms certified one at a time | Proposed |
+| [ADR-0004](ADR-0004-hosted-ai-review-gate.md) | Hosted AI review gate | Proposed; staged, ruleset disabled |
+| [ADR-0005](ADR-0005-flutter-client-stack.md) | Client stack: Riverpod, go_router, Drift | Accepted; partly implemented |
+| [ADR-0006](ADR-0006-group-level-isolation.md) | Group-level isolation | Accepted in Phase 0; planned, nothing built |
+| [ADR-0007](ADR-0007-server-scoring-ledger.md) | Server-authoritative scoring ledger | Accepted in Phase 0; planned, nothing built |
+| [ADR-0008](ADR-0008-membership-document-authorization.md) | Membership documents authorize | Proposed, and stays so until S4b starts (the maintainer, 2026-11-19); planned, nothing built |
+| [ADR-0009](ADR-0009-faith-participation-privacy.md) | Faith participation and privacy | Accepted in Phase 0; planned, no server part built |
+
+**Carried forward from Phase 0 (planned, not implemented):** ADR-0006 to ADR-0009 are the four decisions that answer Q4 on the [Decisions](../reviews/2026-11-10-prototype-to-flutter/01-DECISIONS.md) page carries forward. They were written on branch `arch/firebase-reconciliation` (commit `0d21d21`, under `docs/adr/`) as ADR-0004, ADR-0005, ADR-0018 and ADR-0012. Their text is unchanged; each record ends with how it stands on `main`. Use the numbers on `main`. Nothing they describe is built: no group, no membership document, no Cloud Function and no ledger.
+
+**Phase 0 records that are not on `main`:** the other fifteen records on that branch (its ADR-0001 to ADR-0003, ADR-0006 to ADR-0011, ADR-0013 to ADR-0017 and ADR-0019) are not carried forward by Q4 and are not decisions of this project as it stands. Their numbers are that branch's own: its ADR-0006, for example, is offline-first storage, not group isolation. When a page cites one, it must say "Phase 0" and the branch.
 
 ## Engineering and review pipeline
 
