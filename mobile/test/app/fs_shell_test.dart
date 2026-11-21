@@ -11,6 +11,7 @@ import 'package:forged_and_sent/src/features/devotional/presentation/devotional_
 import 'package:forged_and_sent/src/features/journal/presentation/journal_page.dart';
 import 'package:forged_and_sent/src/features/settings/presentation/settings_page.dart';
 import 'package:forged_and_sent/src/features/today/presentation/today_page.dart';
+import 'package:forged_and_sent/src/features/workout/presentation/train_page.dart';
 
 import '../support/fs_test_support.dart';
 
@@ -77,7 +78,11 @@ void main() {
     for (final (label, title) in _tabs.skip(1)) {
       await openTab(tester, label);
       expect(find.text(title), findsWidgets, reason: label);
-      if (label == 'Walk') {
+      if (label == 'Train') {
+        // Built in step S3: the week, not a placeholder.
+        expect(find.byType(TrainPage), findsOneWidget);
+        expect(find.text('NOT BUILT YET'), findsNothing);
+      } else if (label == 'Walk') {
         // Not a placeholder: the journal, as a tab's first page.
         expect(find.byType(JournalPage), findsOneWidget);
         expect(find.text('NOT BUILT YET'), findsNothing);

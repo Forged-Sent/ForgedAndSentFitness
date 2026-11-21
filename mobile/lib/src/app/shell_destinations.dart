@@ -90,6 +90,21 @@ abstract final class ShellDestinations {
     actions: _standardActions,
   );
 
+  static const String trainPath = '/train';
+
+  /// The workout page of one local day, under Train. [isoDay] is the day as
+  /// `YYYY-MM-DD`.
+  static String workoutPath(String isoDay) => '$trainPath/workout/$isoDay';
+
+  static const ShellDestination train = ShellDestination(
+    label: 'Train',
+    path: trainPath,
+    icon: FsIcons.train,
+    title: 'Train',
+    kicker: 'Strength is for serving',
+    actions: _standardActions,
+  );
+
   static const List<ShellDestination> all = <ShellDestination>[
     today,
     ShellDestination(
@@ -100,14 +115,7 @@ abstract final class ShellDestinations {
       kicker: 'Stewardship of the body',
       actions: _standardActions,
     ),
-    ShellDestination(
-      label: 'Train',
-      path: '/train',
-      icon: FsIcons.train,
-      title: 'Train',
-      kicker: 'Strength is for serving',
-      actions: _standardActions,
-    ),
+    train,
     ShellDestination(
       label: 'Walk',
       path: walkPath,

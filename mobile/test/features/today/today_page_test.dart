@@ -6,13 +6,14 @@ import 'package:forged_and_sent/src/design/fs_progress_ring.dart';
 import 'package:forged_and_sent/src/features/devotional/presentation/devotional_page.dart';
 import 'package:forged_and_sent/src/features/today/domain/completion_event.dart';
 import 'package:forged_and_sent/src/features/today/presentation/today_page.dart';
+import 'package:forged_and_sent/src/features/workout/domain/workout_plan.dart';
+import 'package:forged_and_sent/src/features/workout/presentation/train_page.dart';
 
 import '../../support/fs_test_support.dart';
 
 const List<String> _inactive = <String>[
   't_motto',
   't_comms',
-  't_workout',
   't_water',
   't_cal',
   't_steps',
@@ -274,6 +275,141 @@ void main() {
       expect(find.text('THURSDAY, NOVEMBER 12'), findsOneWidget);
       expect(find.text('START TODAY. GRACE FOR YESTERDAY.'), findsOneWidget);
       expect(find.text('0 DAYS'), findsOneWidget);
+    });
+  });
+
+  group('on a rest day the Workout box is not a to-do', () {
+    // The default plan from Monday, November 9: lifting on Monday,
+    // Wednesday and Friday, the optional fourth day (Saturday) off, rest
+    // on Sunday.
+    Future<AppHarness> pumpOn(WidgetTester tester, DateTime time) async {
+      final store = testStore();
+      await tester.runAsync(
+        () => store.workouts.ensurePlan(
+          store.ownerId,
+          () => WorkoutPlan.startingFor(const LocalDate(2026, 11, 9)),
+        ),
+      );
+      return pumpApp(tester, store: store, clock: TestClock(time));
+    }
+
+    for (final (name, time) in <(String, DateTime)>[
+      ('the optional day that is off', DateTime(2026, 11, 14, 9)),
+      ('the weekly rest day', DateTime(2026, 11, 15, 9)),
+    ]) {
+      testWidgets('$name: it reads "Rest day", cannot be tapped and is '
+          'not counted', (tester) async {
+        final handle = tester.ensureSemantics();
+        await pumpOn(tester, time);
+
+        // Seven boxes are listed and six are counted: the ring, the tally
+        // and the Body line.
+        expect(_ring(tester).done, 0);
+        expect(_ring(tester).total, 6);
+        expect(find.text('0/6'), findsOneWidget);
+        expect(find.text('0 OF 3'), findsOneWidget);
+        expect(find.text('0 OF 4'), findsNothing);
+        expect(find.byType(FsBoxRow), findsNWidgets(7));
+
+        await showBox(tester, 't_workout');
+        final row = _row(tester, 't_workout');
+        expect(row.title, 'Workout');
+        expect(row.subtitle, 'Rest day');
+        expect(row.checked, isFalse);
+        expect(row.onTap, isNull);
+        expect(row.showChevron, isFalse);
+        expect(
+          tester.getSemantics(box('t_workout')),
+          isSemantics(
+            label: 'Workout. Rest day',
+            hasEnabledState: true,
+            isEnabled: false,
+            hasTapAction: false,
+          ),
+        );
+
+        await tester.tap(box('t_workout'), warnIfMissed: false);
+        await tester.pumpAndSettle();
+        expect(find.byType(TodayPage), findsOneWidget);
+        expect(find.byType(TrainPage), findsNothing);
+        handle.dispose();
+      });
+    }
+
+    testWidgets('with the devotional done, the day counts one of six', (
+      tester,
+    ) async {
+      await pumpOn(tester, DateTime(2026, 11, 14, 9));
+
+      await completeDevotional(tester);
+      await scrollTodayToTop(tester);
+
+      expect(_ring(tester).done, 1);
+      expect(_ring(tester).total, 6);
+      expect(find.text('1/6'), findsOneWidget);
+    });
+
+    testWidgets('no point value stands beside it', (tester) async {
+      final app = await pumpOn(tester, DateTime(2026, 11, 14, 9));
+      await tester.runAsync(
+        () => app.store.settings.setShowPreviewPoints(true),
+      );
+      await tester.pumpAndSettle();
+
+      await showBox(tester, 't_workout');
+      expect(_row(tester, 't_workout').points, isNull);
+      expect(_row(tester, 't_devo').points, '+2 pts');
+    });
+
+    testWidgets('on a lifting day of the same plan it is the box it was', (
+      tester,
+    ) async {
+      await pumpOn(tester, DateTime(2026, 11, 13, 9));
+
+      expect(_ring(tester).total, 7);
+      expect(find.text('0 OF 4'), findsOneWidget);
+      await showBox(tester, 't_workout');
+      final row = _row(tester, 't_workout');
+      expect(row.subtitle, 'Checks itself when you finish a workout');
+      expect(row.onTap, isNotNull);
+    });
+
+    testWidgets('a member with no plan yet has no rest day', (tester) async {
+      // He has not opened Train, so nothing says which days he rests.
+      await pumpApp(tester, clock: TestClock(DateTime(2026, 11, 14, 9)));
+
+      expect(_ring(tester).total, 7);
+      await showBox(tester, 't_workout');
+      expect(
+        _row(tester, 't_workout').subtitle,
+        'Checks itself when you finish a workout',
+      );
+    });
+
+    testWidgets('a Workout box that is checked stays checked and counted', (
+      tester,
+    ) async {
+      // Not reachable through the screens today: a workout is filed under
+      // the day it was started on, and none starts on a rest day.
+      final app = await pumpOn(tester, DateTime(2026, 11, 14, 9));
+      await tester.runAsync(
+        () => app.store.days.record(
+          CompletionEvent.complete(
+            id: 'done-on-a-rest-day',
+            ownerId: app.ownerId,
+            item: DayItems.workout,
+            tappedAt: DateTime(2026, 11, 14, 8),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(_ring(tester).done, 1);
+      expect(_ring(tester).total, 7);
+      await showBox(tester, 't_workout');
+      final row = _row(tester, 't_workout');
+      expect(row.checked, isTrue);
+      expect(row.subtitle, 'Finished in Train');
     });
   });
 

@@ -6,6 +6,8 @@ import '../../../core/event_id.dart';
 import '../../../core/local_date.dart';
 import '../../devotional/data/devotional_library.dart';
 import '../../devotional/domain/devotional.dart';
+import '../../workout/presentation/workout_view_model.dart'
+    show restDayProvider, storedPlanProvider;
 import '../data/today_content.dart';
 import '../domain/completion_event.dart';
 import '../domain/day_box.dart';
@@ -13,10 +15,16 @@ import '../domain/streak.dart';
 
 /// One of the day's boxes together with whether it is checked.
 class BoxView {
-  const BoxView({required this.box, required this.done});
+  const BoxView({required this.box, required this.done, this.rest = false});
 
   final DayBox box;
   final bool done;
+
+  /// True for the Workout box on a rest day of the member's plan. It is
+  /// then not a to-do: it reads "Rest day", cannot be tapped, and is left
+  /// out of every count of the day's boxes. Decided by the maintainer on
+  /// 2026-11-21. Never true for a box that is checked.
+  final bool rest;
 }
 
 /// Everything Today and the devotional reader show for one local day.
@@ -52,14 +60,16 @@ class TodayView {
   /// False where nothing is kept after the app closes (the web preview).
   final bool durable;
 
-  int get total => boxes.length;
+  /// How many boxes the day asks for. The Workout box of a rest day is
+  /// not one of them, so it does not keep the day from being complete.
+  int get total => boxes.where((b) => !b.rest).length;
   int get doneCount => boxes.where((b) => b.done).length;
 
   bool get devotionalDone => record.isDone(DayItems.devotional);
 
   /// Done and total for one group of boxes.
   ({int done, int total}) countsFor(BoxCategory category) {
-    final group = boxes.where((b) => b.box.category == category);
+    final group = boxes.where((b) => b.box.category == category && !b.rest);
     return (done: group.where((b) => b.done).length, total: group.length);
   }
 }
@@ -116,13 +126,20 @@ class TodayViewModel extends AsyncNotifier<TodayView> {
     final record = await ref.watch(dayRecordProvider(date).future);
     final doneByDay = await ref.watch(doneByDayProvider.future);
     final showPoints = await ref.watch(showPreviewPointsProvider.future);
+    final restDay = await ref.watch(restDayProvider.future);
+
+    bool isDone(DayBox box) => box.item != null && record.isDone(box.item!);
 
     return TodayView(
       date: date,
       missionLine: content.missionFor(date),
       boxes: <BoxView>[
         for (final box in content.boxes)
-          BoxView(box: box, done: box.item != null && record.isDone(box.item!)),
+          BoxView(
+            box: box,
+            done: isDone(box),
+            rest: restDay && box.item == DayItems.workout && !isDone(box),
+          ),
       ],
       record: record,
       reading: library.forDate(date),
@@ -142,6 +159,8 @@ class TodayViewModel extends AsyncNotifier<TodayView> {
     ref.invalidate(dayRecordProvider);
     ref.invalidate(doneByDayProvider);
     ref.invalidate(showPreviewPointsProvider);
+    ref.invalidate(storedPlanProvider);
+    ref.invalidate(restDayProvider);
     ref.invalidateSelf();
     await future.then<void>((_) {}, onError: (Object _) {});
   }
