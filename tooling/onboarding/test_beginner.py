@@ -365,7 +365,7 @@ class BeginnerContractTests(unittest.TestCase):
             self.assertIn("fs_warn_synced_folder", text)
         self.assertIn("fs_record ProjectFolder Warning", diag)
         self.assertIn("fs_record XcodeVersion Outdated", diag)
-        out = subprocess.run(["bash", str(ROOT / "tooling/macos/run-ios.sh"), "--self-test"], capture_output=True, text=True)
+        out = subprocess.run([BASH, str(ROOT / "tooling/macos/run-ios.sh"), "--self-test"], capture_output=True, text=True)
         self.assertEqual(out.returncode, 0, out.stdout + out.stderr)
 
     def test_report_lists_items_outside_the_profile_on_one_line(self):
