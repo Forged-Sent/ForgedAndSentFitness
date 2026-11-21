@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../app/local_store.dart';
 import '../../../core/clock.dart';
+import '../../../core/date_text.dart';
 import '../../../core/event_id.dart';
 import '../../../core/local_date.dart';
 import '../data/workout_library.dart';
@@ -35,21 +36,53 @@ final storedPlanProvider = StreamProvider<WorkoutPlan?>((ref) {
   return store.workouts.watchPlan(store.ownerId);
 });
 
-/// Whether the member's plan makes today a rest day ([PlanDay.isRest]).
-/// Today asks, for its Workout box.
+/// "Plan starts Monday, November 16" and the like: the prototype's
+/// `rowLabel`.
+({String title, String detail}) planDayLabel(
+  PlanDay planDay,
+  WorkoutPlan plan,
+) {
+  switch (planDay.kind) {
+    case PlanDayKind.before:
+      return (title: 'Plan starts ${weekdayName(plan.start)}', detail: '');
+    case PlanDayKind.over:
+      return (title: 'Plan complete', detail: '');
+    case PlanDayKind.rest:
+      return (title: 'Sabbath', detail: 'Rest, worship, family');
+    case PlanDayKind.off:
+      return (title: 'Rest day', detail: 'Optional day is off');
+    case PlanDayKind.train:
+      final workout = planDay.workout!;
+      return (
+        title: workout.title,
+        detail: workout.minutes > 0
+            ? '${workout.sessionType} · ${workout.minutes} min'
+            : workout.sessionType,
+      );
+  }
+}
+
+/// What Today's Workout box says on a day the member's plan holds no
+/// workout, or null on a day that has one. Today asks.
 ///
-/// False for a member with no plan yet: nothing says which days he rests.
-/// False, too, if the plan or the program cannot be read. Today must still
+/// "Rest day" on a rest day ([PlanDay.isRest]), as Train's first card says.
+/// Before the plan starts and after it ends, Train's own words for the day:
+/// "Plan starts Monday", "Plan complete".
+///
+/// Null for a member with no plan yet: nothing says which days are his.
+/// Null, too, if the plan or the program cannot be read. Today must still
 /// open then, and Train is where that failure shows.
-final restDayProvider = FutureProvider<bool>((ref) async {
+final dayWithoutWorkoutProvider = FutureProvider<String?>((ref) async {
   final today = ref.watch(todayDateProvider);
   try {
     final plan = await ref.watch(storedPlanProvider.future);
-    if (plan == null) return false;
+    if (plan == null) return null;
     final library = await ref.watch(workoutLibraryProvider.future);
-    return library.dayFor(plan, today).isRest;
+    final planDay = library.dayFor(plan, today);
+    if (planDay.isTrain) return null;
+    return planDay.isRest ? 'Rest day' : planDayLabel(planDay, plan).title;
   } catch (_) {
-    return false;
+    return null;
   }
 });
 

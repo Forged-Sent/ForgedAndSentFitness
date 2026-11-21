@@ -82,32 +82,6 @@ class TrainView {
   final bool durable;
 }
 
-/// "Plan starts Monday, November 16" and the like: the prototype's
-/// `rowLabel`.
-({String title, String detail}) planDayLabel(
-  PlanDay planDay,
-  WorkoutPlan plan,
-) {
-  switch (planDay.kind) {
-    case PlanDayKind.before:
-      return (title: 'Plan starts ${weekdayName(plan.start)}', detail: '');
-    case PlanDayKind.over:
-      return (title: 'Plan complete', detail: '');
-    case PlanDayKind.rest:
-      return (title: 'Sabbath', detail: 'Rest, worship, family');
-    case PlanDayKind.off:
-      return (title: 'Rest day', detail: 'Optional day is off');
-    case PlanDayKind.train:
-      final workout = planDay.workout!;
-      return (
-        title: workout.title,
-        detail: workout.minutes > 0
-            ? '${workout.sessionType} · ${workout.minutes} min'
-            : workout.sessionType,
-      );
-  }
-}
-
 /// Presentation state for the Train tab: loading, an error, or the view.
 final trainViewModelProvider = AsyncNotifierProvider<TrainViewModel, TrainView>(
   TrainViewModel.new,

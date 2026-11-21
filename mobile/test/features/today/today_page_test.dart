@@ -278,7 +278,7 @@ void main() {
     });
   });
 
-  group('on a rest day the Workout box is not a to-do', () {
+  group('on a day with no workout the Workout box is not a to-do', () {
     // The default plan from Monday, November 9: lifting on Monday,
     // Wednesday and Friday, the optional fourth day (Saturday) off, rest
     // on Sunday.
@@ -332,6 +332,66 @@ void main() {
         await tester.pumpAndSettle();
         expect(find.byType(TodayPage), findsOneWidget);
         expect(find.byType(TrainPage), findsNothing);
+        handle.dispose();
+      });
+    }
+
+    // The maintainer, 2026-11-21: the days before the plan starts and after
+    // it ends follow the same rule, in the words Train has for the day.
+    for (final (name, planMadeOn, words) in <(String, LocalDate, String)>[
+      // A plan made on Saturday, November 14 starts on Monday the 16th.
+      (
+        'a day before the plan starts',
+        const LocalDate(2026, 11, 14),
+        'Plan starts Monday',
+      ),
+      // A plan from November 2025: its 365 days ended on November 9, 2026.
+      (
+        'a day after the plan has ended',
+        const LocalDate(2025, 11, 10),
+        'Plan complete',
+      ),
+    ]) {
+      testWidgets('$name: it reads "$words", cannot be tapped and is not '
+          'counted', (tester) async {
+        final handle = tester.ensureSemantics();
+        final store = testStore();
+        await tester.runAsync(
+          () => store.workouts.ensurePlan(
+            store.ownerId,
+            () => WorkoutPlan.startingFor(planMadeOn),
+          ),
+        );
+        await pumpApp(
+          tester,
+          store: store,
+          clock: TestClock(DateTime(2026, 11, 14, 9)),
+        );
+
+        expect(_ring(tester).total, 6);
+        expect(find.text('0/6'), findsOneWidget);
+        expect(find.text('0 OF 3'), findsOneWidget);
+
+        await showBox(tester, 't_workout');
+        final row = _row(tester, 't_workout');
+        expect(row.subtitle, words);
+        expect(row.checked, isFalse);
+        expect(row.onTap, isNull);
+        expect(row.points, isNull);
+        expect(
+          tester.getSemantics(box('t_workout')),
+          isSemantics(
+            label: 'Workout. $words',
+            hasEnabledState: true,
+            isEnabled: false,
+            hasTapAction: false,
+          ),
+        );
+
+        // Train says the same for the day.
+        await scrollTodayToTop(tester);
+        await openTab(tester, 'Train');
+        expect(find.text(words), findsWidgets);
         handle.dispose();
       });
     }

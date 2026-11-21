@@ -385,6 +385,7 @@ flowchart LR
     N73 --> N38
     N74 --> N3
     N74 --> N9
+    N74 --> N10
     N74 --> N11
     N74 --> N12
     N74 --> N65
@@ -836,6 +837,7 @@ flowchart LR
 ### mobile/lib/src/features/today/presentation/today_view_model.dart
 
 - class BoxView
+- fn toDo()
 - class TodayView
 - fn total()
 - fn doneCount()
