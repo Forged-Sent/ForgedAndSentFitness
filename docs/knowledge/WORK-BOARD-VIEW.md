@@ -110,6 +110,10 @@ update-by: edit WORK.md then run tooling/knowledge/work_board.py --write
 	**Note:** None. The maintainer's choices of 2026-11-19: the two 100-point formula lines are dropped from `seed/weekly-challenges.json`; the generated copy still leaves out RPE/RIR, which `seed/workouts.json` keeps; the workout prayer, camp names and banners, challenge modes and routine patterns moved into `seed/`; the PR points, step goals and step bonus stay in the prototype's code until the official rule set is decided. The branch `workout-library-seed` is set aside: it rewrites the same workout files from a base of 2026-10-24, so reviving it means redoing its edits on top of this, not merging it
 	**Branch or PR:** branch `claude/l11-seed-single-source`
 	[Edit this row in WORK](WORK.md)
+- [x] **The reading's labels without slashes; Crossway's current notice**
+	**Note:** The maintainer: look at the ten redrawn golden images (the eight reading images and the two of "Write it down"), which are drawn and **not approved**. Both changes are his decisions of 2026-11-21 after trying the app by hand. The notice was read from Crossway's permissions page that day; the notice stays under the verse. The prototype is unchanged
+	**Branch or PR:** branch `claude/devotional-labels-esv-notice`
+	[Edit this row in WORK](WORK.md)
 
 
 ## Later
@@ -135,8 +139,8 @@ update-by: edit WORK.md then run tooling/knowledge/work_board.py --write
 - [ ] **CI checks the golden images**
 	**Prompt:** No prompt yet. Found in S0. Not blocking
 	[Edit this row in WORK](WORK.md)
-- [ ] **ESV permission confirmed for an app**
-	**Prompt:** No prompt yet. Decision Q7. Owner: the maintainer. Do it before public release
+- [ ] **Scripture licence**
+	**Prompt:** No prompt yet. Owner: the maintainer; his own to-do, in his words of 2026-11-21. Decision Q7. Until he settles it, work goes on as if permission is in place. This row replaces "ESV permission confirmed for an app"
 	[Edit this row in WORK](WORK.md)
 - [ ] **Check the bundled scripture against a published text**
 	**Prompt:** No prompt yet. Asked for by the maintainer in S1b. Do it before public release
