@@ -70,6 +70,10 @@ update-by: edit WORK.md then run tooling/knowledge/work_board.py --write
 	**Note:** None. Unblocks Dependabot [#66](https://github.com/Forged-Sent/ForgedAndSentFitness/pull/66). Without `--dry-run` such a change still gets no PASS and no review record, and `--verify` still fails
 	**Branch or PR:** branch `claude/review-lockfile-dry-run`
 	[Edit this row in WORK](WORK.md)
+- [x] **Push from a worktree runs the local checks**
+	**Note:** None. A branch cut before this merges keeps the older hook until it merges `main`. Not run on Windows
+	**Branch or PR:** branch `claude/pre-push-hook-worktrees`
+	[Edit this row in WORK](WORK.md)
 - [x] **Host wording left over from the generated hosts**
 	**Note:** None. Checked on 2026-11-19 in a debug simulator build installed on one iPhone 17 simulator (iOS 27.2): the installed app reports the display name "Forged & Sent", and the home screen shows that name under the icon. Nothing ran on a physical iPhone. The Mac setup script's wording was fixed earlier by `claude/bootstrap-test-readiness`
 	**Branch or PR:** branch `claude/ios-restart-check`
