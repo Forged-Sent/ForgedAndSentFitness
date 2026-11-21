@@ -249,6 +249,11 @@ class PlanDay {
   final PlannedWorkout? workout;
 
   bool get isTrain => kind == PlanDayKind.train;
+
+  /// A day the plan gives to rest: the weekly rest day, or the optional
+  /// fourth day while that is switched off. Train calls both "Rest day",
+  /// and on such a day Today's Workout box is not a to-do.
+  bool get isRest => kind == PlanDayKind.rest || kind == PlanDayKind.off;
 }
 
 /// What [plan] holds for [date], given the program's list of [days].

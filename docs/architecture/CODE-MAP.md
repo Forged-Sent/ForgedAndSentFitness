@@ -842,6 +842,7 @@ flowchart LR
 - fn devotionalDone()
 - class TodayViewModel
 - fn build()
+- fn isDone()
 - fn retry()
 - fn completeDevotional()
 - fn undoDevotional()
@@ -927,6 +928,7 @@ flowchart LR
 - class PlannedWorkout
 - class PlanDay
 - fn isTrain()
+- fn isRest()
 
 ### mobile/lib/src/features/workout/domain/workout_session.dart
 

@@ -27,6 +27,32 @@ final workoutPlanProvider = StreamProvider<WorkoutPlan>((ref) async* {
   }
 });
 
+/// The member's plan as it is stored, or null if he has none yet. Reading
+/// this never gives him one: [workoutPlanProvider] does that, when Train
+/// or a workout page is opened.
+final storedPlanProvider = StreamProvider<WorkoutPlan?>((ref) {
+  final store = ref.watch(localStoreProvider);
+  return store.workouts.watchPlan(store.ownerId);
+});
+
+/// Whether the member's plan makes today a rest day ([PlanDay.isRest]).
+/// Today asks, for its Workout box.
+///
+/// False for a member with no plan yet: nothing says which days he rests.
+/// False, too, if the plan or the program cannot be read. Today must still
+/// open then, and Train is where that failure shows.
+final restDayProvider = FutureProvider<bool>((ref) async {
+  final today = ref.watch(todayDateProvider);
+  try {
+    final plan = await ref.watch(storedPlanProvider.future);
+    if (plan == null) return false;
+    final library = await ref.watch(workoutLibraryProvider.future);
+    return library.dayFor(plan, today).isRest;
+  } catch (_) {
+    return false;
+  }
+});
+
 /// The session started on one local day, straight from the store.
 final sessionForDayProvider = StreamProvider.family<WorkoutSession?, LocalDate>(
   (ref, day) {

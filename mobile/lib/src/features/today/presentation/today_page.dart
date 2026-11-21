@@ -37,7 +37,8 @@ String streakLine(int days) => days > 0
 /// Today: the date, the mission line, the progress ring and the day's
 /// boxes. Two boxes are live: the devotional, which opens the day's
 /// reading, and the workout, which opens Train and checks itself when a
-/// workout is finished there.
+/// workout is finished there. On a rest day of his plan the workout box
+/// reads "Rest day" and is not a to-do.
 class TodayPage extends ConsumerWidget {
   const TodayPage({
     super.key,
@@ -262,6 +263,18 @@ class _BoxesCard extends StatelessWidget {
         subtitle: 'Not active yet',
         checked: false,
         points: points,
+        onTap: null,
+      );
+    }
+    if (boxView.rest) {
+      // A rest day of his plan: nothing to do, so nothing to tap, no point
+      // value beside it, and the counts above leave it out.
+      return FsBoxRow(
+        key: ValueKey<String>('fs-box-${box.id}'),
+        command: box.command,
+        title: box.title,
+        subtitle: 'Rest day',
+        checked: false,
         onTap: null,
       );
     }

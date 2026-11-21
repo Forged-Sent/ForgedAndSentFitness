@@ -144,8 +144,7 @@ class TrainViewModel extends AsyncNotifier<TrainView> {
     final String status;
     if (today.done) {
       status = 'Workout complete';
-    } else if (today.planDay.kind == PlanDayKind.rest ||
-        today.planDay.kind == PlanDayKind.off) {
+    } else if (today.planDay.isRest) {
       status = 'Rest day';
     } else if (today.planDay.isTrain) {
       status = 'Ready to train';

@@ -83,7 +83,7 @@ update-by: edit WORK.md then run tooling/knowledge/work_board.py --write
 	**Branch or PR:** branch `claude/s0-design-foundation`
 	[Edit this row in WORK](WORK.md)
 - [x] **S1 Today and Devotional**
-	**Note:** None. Two boxes work: the devotional box, and since S3 the Workout box, which opens Train and checks itself when a workout is finished there. The other five are shown as not active yet. Complete, kill, relaunch passed on 2026-11-12 on one Android emulator on the maintainer's workstation, made from the Android 36 system image (Android 16); not on a phone, and not in CI. On iOS, complete, kill, relaunch passed on 2026-11-19 on one iPhone 17 simulator (iOS 27.2) on the maintainer's Mac; not on a physical iPhone, and not in CI. It passed after the helper that reads to the end was changed to bring Amen onto the screen before the tap; the Android run passed again with that change on 2026-11-20, on the S3 build
+	**Note:** None. Two boxes work: the devotional box, and since S3 the Workout box, which opens Train and checks itself when a workout is finished there; on a rest day of his plan it reads "Rest day" and is not counted. The other five are shown as not active yet. Complete, kill, relaunch passed on 2026-11-12 on one Android emulator on the maintainer's workstation, made from the Android 36 system image (Android 16); not on a phone, and not in CI. On iOS, complete, kill, relaunch passed on 2026-11-19 on one iPhone 17 simulator (iOS 27.2) on the maintainer's Mac; not on a physical iPhone, and not in CI. It passed after the helper that reads to the end was changed to bring Amen onto the screen before the tap; the Android run passed again with that change on 2026-11-20, on the S3 build
 	**Branch or PR:** branch `claude/s1-today-devotional`
 	[Edit this row in WORK](WORK.md)
 - [x] **S1b v254 readings**
@@ -118,6 +118,18 @@ update-by: edit WORK.md then run tooling/knowledge/work_board.py --write
 
 ## Later
 
+- [ ] **Add or remove a set during a workout**
+	**Prompt:** No prompt yet. Asked for by the maintainer after his hand test of S3 on 2026-11-21: the first follow-up once [#85](https://github.com/Forged-Sent/ForgedAndSentFitness/pull/85) merges. Needs a decision: what an added row aims for, and whether a row that already holds reps can be removed
+	[Edit this row in WORK](WORK.md)
+- [ ] **Supersets are shown grouped together**
+	**Prompt:** No prompt yet. Asked for by the maintainer on 2026-11-21, after [#85](https://github.com/Forged-Sent/ForgedAndSentFitness/pull/85). `seed/workouts.json` already marks them: a day with a superset carries `"superset": [5, 6]`, the places of its two exercises counted from 0 (209 of the Forged program's 365 days), and the bundled copy keeps the mark. The app reads the prescription text and not the mark yet
+	[Edit this row in WORK](WORK.md)
+- [ ] **Reorder exercises within a workout**
+	**Prompt:** No prompt yet. Asked for by the maintainer on 2026-11-21, after [#85](https://github.com/Forged-Sent/ForgedAndSentFitness/pull/85). Needs a decision: whether the new order holds for that one session only, and whether the two exercises of a superset move as one
+	[Edit this row in WORK](WORK.md)
+- [ ] **An optional or extra activity on a rest day**
+	**Prompt:** No prompt yet. Asked for by the maintainer on 2026-11-21, after [#85](https://github.com/Forged-Sent/ForgedAndSentFitness/pull/85). Needs a decision: what it is (the plan's optional fourth day, or any activity he names) and whether it checks a box on Today
+	[Edit this row in WORK](WORK.md)
 - [ ] **S4 Sign-in, groups, first board**
 	**Prompt:** [P08](../reviews/2026-11-10-prototype-to-flutter/prompts/P08-S4-contract-identity-groups-board.md), then [P09](../reviews/2026-11-10-prototype-to-flutter/prompts/P09-S4-implement-identity-groups-board.md)
 	[Edit this row in WORK](WORK.md)
