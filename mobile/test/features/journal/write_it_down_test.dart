@@ -87,7 +87,7 @@ void main() {
     await openDevotional(tester);
     final reading = loadBundledLibrary().forDate(_nov10)!;
 
-    expect(find.text('// WRITE IT DOWN'), findsOneWidget);
+    expect(find.text('WRITE IT DOWN'), findsOneWidget);
     expect(
       tester
           .widget<Text>(find.byKey(const ValueKey<String>('fs-journal-prompt')))

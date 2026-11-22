@@ -392,8 +392,10 @@ class _DevotionalPageState extends ConsumerState<DevotionalPage> {
   }
 }
 
-/// A labelled part of the reading. The label is drawn as the prototype
-/// draws it, with two slashes in front; a screen reader hears the words.
+/// A labelled part of the reading. The label is drawn in capitals; a
+/// screen reader hears the words. The prototype puts two slashes in front
+/// of each label. The app does not: the maintainer's decision of
+/// 2026-11-21.
 class _Section extends StatelessWidget {
   const _Section({required this.label, required this.child, this.trailing});
 
@@ -409,7 +411,7 @@ class _Section extends StatelessWidget {
     final heading = Semantics(
       header: true,
       child: Text(
-        '// ${label.toUpperCase()}',
+        label.toUpperCase(),
         semanticsLabel: label,
         style: FsText.sectionLabel.copyWith(color: colors.highlight),
       ),

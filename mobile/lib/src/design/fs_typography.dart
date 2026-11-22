@@ -255,7 +255,7 @@ abstract final class FsText {
     height: 1.4,
   );
 
-  /// The label of a section of a reading: "// OPEN IN PRAYER".
+  /// The label of a section of a reading: "OPEN IN PRAYER".
   static const TextStyle sectionLabel = TextStyle(
     fontFamily: FsFonts.display,
     fontWeight: FontWeight.w600,

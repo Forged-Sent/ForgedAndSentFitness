@@ -16,10 +16,13 @@ enum Translation {
   final String label;
 }
 
-/// The credit lines shown with scripture, word for word as the prototype
-/// gives them: the ESV line from Settings › Scripture in `index.html` on
-/// `main`; the BSB line from the same place in v175 (`52ae0d5`), the last
-/// version that quoted the BSB.
+/// The credit lines shown with scripture.
+///
+/// The ESV line is Crossway's own notice, word for word as its permissions
+/// page gave it on 2026-11-21 (https://www.crossway.org/permissions/). The
+/// prototype's Settings › Scripture still carries Crossway's older, shorter
+/// wording. The BSB line is the prototype's, from the same place in v175
+/// (`52ae0d5`), the last version that quoted the BSB.
 abstract final class ScriptureNotices {
   static const String bsb =
       'Scripture quotations are from the Berean Standard Bible (BSB), which '
@@ -28,7 +31,10 @@ abstract final class ScriptureNotices {
   static const String esv =
       'Scripture quotations are from the ESV® Bible (The Holy Bible, English '
       'Standard Version®), © 2001 by Crossway, a publishing ministry of Good '
-      'News Publishers. Used by permission. All rights reserved.';
+      'News Publishers. ESV Text Edition: 2025. The ESV text may not be quoted '
+      'in any publication made available to the public by a Creative Commons '
+      'license. The ESV may not be translated in whole or in part into any '
+      'other language. Used by permission. All rights reserved.';
 
   /// What the ESV tab says for a verse whose ESV text is not bundled.
   static const String esvLimitReached =
