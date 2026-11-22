@@ -91,7 +91,7 @@ update-by: edit WORK.md then run tooling/knowledge/work_board.py --write
 	**Branch or PR:** branch `claude/s1b-v254-readings`
 	[Edit this row in WORK](WORK.md)
 - [x] **S3 Workout logging**
-	**Note:** The maintainer: confirm the prototype rules listed in the [contract](../features/workout-logging/feature.md), and look at the golden images, which are drawn and **not approved**. The maintainer's six decisions of 2026-11-13 are recorded in the contract and built. The database is at schema version 3, after the journal's version 2, with tested migrations from versions 1 and 2; the contract is FNS-004. Start, two sets, kill, relaunch, finish passed on 2026-11-13 on one Android emulator on the maintainer's workstation, made from the Android 36 system image (Android 16). On 2026-11-20, on that emulator, this build was installed over a build of `main` that held two journal entries and a completed day: the file went from version 2 to version 3 with all of it intact, a workout was started, and everything was still there after a kill and relaunch (the upgrade test under `mobile/integration_test/`). Not on a phone, and not in CI. iOS is built only by CI. No plan setup or editor: every member gets the Forged program, a full gym, rest on Sunday and lifting on Monday, Wednesday and Friday
+	**Note:** The maintainer approved the [contract](../features/workout-logging/feature.md), FNS-004, on 2026-11-22, confirmed the rules taken from the prototype as built and approved the golden images. Two things he wants before any pilot are rows under Later: an alert when the rest timer reaches zero, and a field in `seed/` for whether a lift needs a weight. His six decisions of 2026-11-13 are recorded in the contract and built. The database is at schema version 3, after the journal's version 2, with tested migrations from versions 1 and 2; the contract is FNS-004. Start, two sets, kill, relaunch, finish passed on 2026-11-13 on one Android emulator on the maintainer's workstation, made from the Android 36 system image (Android 16). On 2026-11-20, on that emulator, this build was installed over a build of `main` that held two journal entries and a completed day: the file went from version 2 to version 3 with all of it intact, a workout was started, and everything was still there after a kill and relaunch (the upgrade test under `mobile/integration_test/`). Not on a phone, and not in CI. iOS is built only by CI. No plan setup or editor: every member gets the Forged program, a full gym, rest on Sunday and lifting on Monday, Wednesday and Friday
 	**Branch or PR:** branch `claude/s3-workout-logging`
 	[Edit this row in WORK](WORK.md)
 - [x] **Setup scripts and guides match the six-tab app**
@@ -137,6 +137,12 @@ update-by: edit WORK.md then run tooling/knowledge/work_board.py --write
 - [ ] **The upgrade device test runs on any day of the week**
 	**Prompt:** No prompt yet. Test-only. Decided by the maintainer on 2026-11-21: after [#85](https://github.com/Forged-Sent/ForgedAndSentFitness/pull/85) merges, not before
 	[Edit this row in WORK](WORK.md)
+- [ ] **The rest timer alerts at zero, also when the phone is locked**
+	**Prompt:** No prompt yet. **Required before any pilot** (the maintainer, 2026-11-22). Found in S3; this row was "The rest timer is heard". It needs the maintainer's decision first: a notification permission, and most likely a new dependency. The options were written up for him on 2026-11-22. Read `docs/knowledge/FLUTTER-PLATFORMS.md` first
+	[Edit this row in WORK](WORK.md)
+- [ ] **Whether a lift needs a weight comes from `seed/`**
+	**Prompt:** No prompt yet. **Required before any pilot** (the maintainer, 2026-11-22). `seed/` is the one source (decision L11): the field is added there, and the bundled copy and the copy inside `index.html` follow by their scripts. A list of the movements where the name gives a doubtful answer was written up for him on 2026-11-22
+	[Edit this row in WORK](WORK.md)
 - [ ] **S4 Sign-in, groups, first board**
 	**Prompt:** [P08](../reviews/2026-11-10-prototype-to-flutter/prompts/P08-S4-contract-identity-groups-board.md), then [P09](../reviews/2026-11-10-prototype-to-flutter/prompts/P09-S4-implement-identity-groups-board.md)
 	[Edit this row in WORK](WORK.md)
@@ -156,7 +162,7 @@ update-by: edit WORK.md then run tooling/knowledge/work_board.py --write
 	**Prompt:** No prompt yet. Found in S0. Not blocking
 	[Edit this row in WORK](WORK.md)
 - [ ] **Scripture licence**
-	**Prompt:** No prompt yet. Owner: the maintainer; his own to-do, in his words of 2026-11-21. Decision Q7. Until he settles it, work goes on as if permission is in place. This row replaces "ESV permission confirmed for an app"
+	**Prompt:** No prompt yet. Owner: the maintainer; his own to-do, in his words of 2026-11-21. Decision Q7. Until he settles it, work goes on as if permission is in place. This row replaces "ESV permission confirmed for an app", and since 2026-11-22, at his direction, "The workout prayer's scripture echoes"
 	[Edit this row in WORK](WORK.md)
 - [ ] **Check the bundled scripture against a published text**
 	**Prompt:** No prompt yet. Asked for by the maintainer in S1b. Do it before public release
@@ -176,20 +182,11 @@ update-by: edit WORK.md then run tooling/knowledge/work_board.py --write
 - [ ] **Movements have stable ids**
 	**Prompt:** No prompt yet. Found in S3. Do it before any movement is renamed: give each movement an id in `seed/`, store it with new sessions, and map the names already stored
 	[Edit this row in WORK](WORK.md)
-- [ ] **The workout prayer's scripture echoes**
-	**Prompt:** No prompt yet. Found in S3; recorded in the [workout contract](../features/workout-logging/feature.md). Owner: the maintainer. Do it before public release
-	[Edit this row in WORK](WORK.md)
-- [ ] **Approve S3's golden images**
-	**Prompt:** No prompt yet. Owner: the maintainer, beside the sheets in `docs/design/reference/s3-train-workout/`
-	[Edit this row in WORK](WORK.md)
 - [ ] **A workout that is never finished**
 	**Prompt:** No prompt yet. Found in S3. Needs a decision: how long a session may stay open, and what happens to it then
 	[Edit this row in WORK](WORK.md)
 - [ ] **The box he is typing in keeps the keyboard when "That did not save" appears**
 	**Prompt:** No prompt yet. Found in S3 while holding Finish for an unsaved set. Not blocking: give the rows of the page's list keys of their own, and test that the box keeps the keyboard
-	[Edit this row in WORK](WORK.md)
-- [ ] **The rest timer is heard**
-	**Prompt:** No prompt yet. Found in S3. Needs a notification permission, so read `docs/knowledge/FLUTTER-PLATFORMS.md` first
 	[Edit this row in WORK](WORK.md)
 - [ ] **Plan setup and editor**
 	**Prompt:** No prompt yet. Out of scope for S3 (prompt P07)

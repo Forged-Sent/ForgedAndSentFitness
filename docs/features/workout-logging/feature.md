@@ -1,13 +1,13 @@
 ---
 kind: feature-spec
 feature_id: FNS-004
-status: proposed
+status: approved
 risk: medium
 owner: maintainer
 source_ref: claude/s3-workout-logging
-source_sha: 449b9473cc1ba4259f08fa241f4778482289490d
-approved_by: none
-test_plan: plan schedule and prescription rules, workout repository rules against the Drift and in-memory stores, kill and reopen on a real SQLite file, schema migration from version 1, Train and workout page widget tests including the prayer gate and screen-reader labels, Finish held while a set he entered is not stored, the pause flush, the release-build clock guard, golden images at 390x844 in dark and light, one emulator run of start, two sets, kill, relaunch, finish
+source_sha: fa4f0d767b967f2091e77ea3e8613e0ce14c2b84
+approved_by: Chad (GitHub Chadillac12), 2026-11-22, https://github.com/Forged-Sent/ForgedAndSentFitness/pull/85#issuecomment-7077562958
+test_plan: plan schedule and prescription rules, workout repository rules against the Drift and in-memory stores, kill and reopen on a real SQLite file, schema migration from versions 1 and 2 to version 3, Train and workout page widget tests including the prayer gate and screen-reader labels, Finish held while a set he entered is not stored, the pause flush, the release-build clock guard, golden images at 390x844 in dark and light, one emulator run of start, two sets, kill, relaunch, finish
 verified_tests: mobile/test/features/workout/workout_plan_test.dart, mobile/test/features/workout/prescription_test.dart, mobile/test/features/workout/workout_library_test.dart, mobile/test/features/workout/drift_workout_repository_test.dart, mobile/test/features/workout/memory_workout_repository_test.dart, mobile/test/features/workout/train_page_test.dart, mobile/test/features/workout/workout_page_test.dart, mobile/test/features/workout/workout_flush_test.dart, mobile/test/features/workout/workout_golden_test.dart, mobile/test/storage/migration_test.dart, mobile/test/app/start_clock_test.dart, mobile/integration_test/workout_restart_1_start_test.dart, mobile/integration_test/workout_restart_2_finish_test.dart
 implementation_paths: mobile/lib/src/features/workout, mobile/lib/src/storage/app_database.dart, mobile/lib/src/storage/app_database.steps.dart, mobile/drift_schemas, mobile/lib/src/design/fs_dialog.dart, mobile/lib/src/design/fs_number_field.dart, mobile/lib/src/design/fs_chevron_row.dart, mobile/lib/src/design/fs_marks.dart, mobile/lib/src/design/fs_typography_workout.dart, mobile/lib/src/core/time_text.dart, mobile/lib/main.dart, mobile/assets/content
 verification: see the pull request that adds this page for the commands and their output
@@ -15,7 +15,7 @@ verification: see the pull request that adds this page for the commands and thei
 
 # Workout logging, one program
 
-Build step S3 of the [prototype-to-Flutter review](../../reviews/2026-11-10-prototype-to-flutter/02-BUILD-PLAN.md), built from prompt [P07](../../reviews/2026-11-10-prototype-to-flutter/prompts/P07-S3-workout-logging.md). This page is a **proposed** contract drafted by Claude. Only the maintainer can approve it.
+Build step S3 of the [prototype-to-Flutter review](../../reviews/2026-11-10-prototype-to-flutter/02-BUILD-PLAN.md), built from prompt [P07](../../reviews/2026-11-10-prototype-to-flutter/prompts/P07-S3-workout-logging.md). This page was drafted by Claude. **Approved by the maintainer, Chad (GitHub `Chadillac12`), on 2026-11-22**, in [his comment on pull request #85](https://github.com/Forged-Sent/ForgedAndSentFitness/pull/85#issuecomment-7077562958): "I approve FNS-004." The head of the branch at that moment was `681587d`. In his review of the same day he confirmed the rules taken from the prototype as built, approved the golden images, and let the workout prayer stand with no reference; each is recorded in its section below. What is listed below as not verified stays not verified; his approval is of this page as it is written.
 
 It rests on the maintainer's decisions on the [Decisions](../../reviews/2026-11-10-prototype-to-flutter/01-DECISIONS.md) page: Q9 (day boundary), Q10 (use before sign-in), Q11 (the workout prayer), L11 (content source), Q5 (points) and Q6 (streak); and on the design in [the architecture page](../../reviews/2026-11-10-prototype-to-flutter/07-ARCHITECTURE.md), journey J2.
 
@@ -60,7 +60,7 @@ A man opens Train and sees today and this week from the Forged program. He opens
 **What is saved, and how**
 
 - **The session is its own record.** When Amen is tapped the session is stored with a copy of what the plan prescribed: for every exercise the movement id, the name shown and the prescription text, and one row per set. From then on it never reads the plan again, so changing the plan cannot change a session (P07 acceptance 4).
-- **Every change is written at once.** Each keystroke in a set's box, each tick and each rest timer button is its own write to the database, in the order they were made. When the app is paused the page waits for the last of them. A change still waiting its turn is written also when he leaves the page first. The order is kept for the session, not for one opening of the page: if he leaves the page and opens it again while storage is slow and changes are still waiting, what he changes on the reopened page is stored after them, and Finish and the pause wait for them too (`WorkoutWrites` in `workout_view_model.dart`; four tests in `workout_flush_test.dart` that failed before it). There is no save button, and nothing is kept only in memory for longer than its turn takes (P07 acceptance 1). One limit, stated plainly: a change that is still waiting its turn at the instant the process is killed outright is not in the file. The device test kills the app only after it has read both sets back from the file, so it proves that what was written survives, not that nothing can be caught in that instant.
+- **Every change is written at once.** Each keystroke in a set's box, each tick and each rest timer button is its own write to the database, in the order they were made. When the app is paused the page waits for the last of them. A change still waiting its turn is written also when he leaves the page first. The order is kept for the session, not for one opening of the page: if he leaves the page and opens it again while storage is slow and changes are still waiting, what he changes on the reopened page is stored after them, and Finish and the pause wait for them too (`WorkoutWrites` in `workout_view_model.dart`; four tests in `workout_flush_test.dart` that failed before it). One limit of this, accepted by the maintainer on 2026-11-22: the rest timer's last value is remembered by the page that set it, so a "+15" tapped on a reopened page while an earlier timer change is still waiting starts from what the store holds at that moment, and that one tap can be lost. There is no save button, and nothing is kept only in memory for longer than its turn takes (P07 acceptance 1). One limit, stated plainly: a change that is still waiting its turn at the instant the process is killed outright is not in the file. The device test kills the app only after it has read both sets back from the file, so it proves that what was written survives, not that nothing can be caught in that instant.
 - **Time comes from stored instants.** The clock is the time since the stored start; the rest timer counts down to a stored instant. Both are right after the app was closed and opened again.
 - **The day (Q9, U2):** a session belongs to the local date it was started on and keeps it. It can be logged and finished after midnight, with no time limit, and finishing checks the Workout box of the day it started on (P07 acceptance 3). One session per day.
 - **Finishing is one transaction** with the day's completion event, whose id is made when the session starts. Finishing twice records one completion (P07 acceptance 2). If the box cannot be checked the session is not finished either. A session is read in one transaction as well, so a read that overlaps a finish gives the session wholly before it or wholly after it.
@@ -107,11 +107,11 @@ The prayer carries no reference and is not set as a quotation, but it **echoes s
 - its first line alludes to **1 Corinthians 6:19-20**;
 - its second line alludes to **Ephesians 6:11**.
 
-It is not counted among the bundled ESV verses (decision Q7), because it is not marked as a quotation of any translation. Whether it should carry references, and whether its wording follows a translation closely enough to matter for a licence, is on the [work board](../../knowledge/WORK.md).
+It is not counted among the bundled ESV verses (decision Q7), because it is not marked as a quotation of any translation. **The maintainer's review of 2026-11-22:** the prayer shows no reference, as built. Whether its wording follows a translation closely enough to matter for a licence is part of his "Scripture licence" row on the [work board](../../knowledge/WORK.md).
 
 ## Rules taken from the prototype
 
-The project's rule is that product behavior is not inferred from the prototype. Every rule below is the prototype's, read from `index.html` on `main` (identical in v254 unless noted), built as it stands, and **listed here for the maintainer to confirm**. Six points are decided, in the table at the top; the rest of this table is still to confirm.
+The project's rule is that product behavior is not inferred from the prototype. Every rule below is the prototype's, read from `index.html` on `main` (identical in v254 unless noted), built as it stands, and listed here for the maintainer to confirm. Six points were decided on 2026-11-13, in the table at the top. **The maintainer confirmed the rest of this table as built on 2026-11-22**, in his review of pull request #85. Two rules he wants changed before any pilot are rows on the [work board](../../knowledge/WORK.md) and are not built: whether a lift needs a weight is to come from a field in `seed/`, not from the movement's name; and the rest timer is to alert at zero, also when the phone is locked.
 
 | Rule | Prototype function | How it works |
 |---|---|---|
@@ -147,7 +147,7 @@ The project's rule is that product behavior is not inferred from the prototype. 
 - Reps are whole numbers. The prototype accepts one decimal place.
 - Volume leaves out body weight, because the app stores none.
 - The summary counts "sets logged" and has no PR count; PRs are a later step.
-- The rest timer makes no sound, and nothing tells him it ended while the phone is locked.
+- The rest timer makes no sound, and nothing tells him it ended while the phone is locked. An alert at zero is a board row, required before any pilot.
 - Two lines are reworded because the prototype's point at a plan form that S3 does not have: "Rest day. The optional 4th training day is off." and, once the calendar has run past the plan, "You have reached the end of this plan." The second is the maintainer's wording of 2026-11-20: the line is shown whether or not he logged anything, so it does not say he finished.
 - Train's row says "In progress · Tap to continue" for a started session, and "Finished · Tap to view" for a finished one.
 - Lines between exercises are solid, not dashed.
@@ -178,7 +178,7 @@ Not done in this step: the challenge point values, which differed and are scorin
 - iOS: built only by CI's simulator job; never run.
 - A physical phone. The emulator test of start, two sets, kill, relaunch, finish passed on 2026-11-13 on one emulator only: `FS_S1_Restart_API_36`, from the installed `system-images;android-36;google_apis_playstore;x86_64` image (Android 16, API 36), on the maintainer's Windows workstation. No CI lane has an emulator, and no other Android version was tried.
 - The migration on a member's phone. It was seen once on that emulator, which still held an S1 build and its version 1 database with three completion events: the S3 build was installed over it, the file read version 2 afterwards, and the three events and both day states were still there. That is one observation, not a test that is repeated. It was made on 2026-11-13, when the workout tables were schema version 2; since the journal (S2) merged first they are version 3. That upgrade was run on the same emulator on 2026-11-20 with a test in three parts (`mobile/integration_test/upgrade_*`): a build of `main` wrote two journal entries and completed a day, this build was installed over it without uninstalling, the file read version 3 afterwards with both entries and the completed day, a workout was started, and all of it was still there after a kill and relaunch. Not on a phone.
-- The golden images are **not approved**. They are compared on Windows only.
+- The golden images are compared on Windows only. (The maintainer approved them on 2026-11-22.)
 - A release build was not made, so the clock guard is proven by its unit test, not by running a release build.
 - The keyboard on a real device: that the box being typed in stays in view above it.
 - A rest timer across a daylight-saving change, and a phone whose clock is set back during a workout: the clock then shows 0:00 until it catches up.
@@ -191,6 +191,6 @@ Not done in this step: the challenge point values, which differed and are scorin
 - [x] Screens: Train, the workout page, the prayer, the Workout box on Today.
 - [x] Tests for each of P07's five acceptance items.
 - [x] Maintainer: the six points at the top, decided on 2026-11-13.
-- [ ] Maintainer: confirm the rules taken from the prototype.
-- [ ] Maintainer: look at the golden images beside the prototype and approve them.
-- [ ] Maintainer: approve this contract, or say what to change.
+- [x] Maintainer: confirm the rules taken from the prototype. Confirmed as built on 2026-11-22.
+- [x] Maintainer: look at the golden images beside the prototype and approve them. Approved on 2026-11-22.
+- [x] Maintainer: approve this contract, or say what to change. Approved on 2026-11-22: ["I approve FNS-004."](https://github.com/Forged-Sent/ForgedAndSentFitness/pull/85#issuecomment-7077562958)
