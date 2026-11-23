@@ -441,10 +441,16 @@ FinishCheck checkBeforeFinish(WorkoutSession session) {
 ///
 /// A session stores no superset mark. [planned] is what the program holds
 /// today for the plan day the session was started on. It is used only if
-/// the session still has, at the marked places, the movements the program
-/// has there. If the program's content has changed since the session was
+/// the session is still a copy of that day: the same number of exercises,
+/// and at every place the movement and the prescription text the program
+/// has there. If anything in the day has changed since the session was
 /// started, or [planned] is null, no exercise gets a label and the page
 /// draws no group: nothing is drawn rather than the wrong pair.
+///
+/// What this cannot see is a program whose mark alone moved while every
+/// prescription stayed as it was. The bundle's own test rules that out:
+/// there the mark and the prescriptions' words name the same places, so
+/// moving the mark changes a prescription.
 List<String?> supersetLabelsFor(
   WorkoutSession session,
   PlannedWorkout? planned,
@@ -452,11 +458,13 @@ List<String?> supersetLabelsFor(
   final count = session.exercises.length;
   final none = List<String?>.filled(count, null);
   if (planned == null || planned.superset.isEmpty) return none;
-  for (final place in planned.superset) {
-    if (place >= count || place >= planned.exercises.length) return none;
-    final exercise = session.exercises[place];
-    if (exercise.position != place ||
-        exercise.movementId != planned.exercises[place].movementId) {
+  if (planned.exercises.length != count) return none;
+  for (var place = 0; place < count; place++) {
+    final held = session.exercises[place];
+    final now = planned.exercises[place];
+    if (held.position != place ||
+        held.movementId != now.movementId ||
+        held.prescription != now.prescription) {
       return none;
     }
   }

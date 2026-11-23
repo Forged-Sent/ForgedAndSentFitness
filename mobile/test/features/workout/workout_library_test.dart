@@ -14,8 +14,9 @@ import '../../support/fs_test_support.dart';
 /// Parsed JSON of a file, relative to `mobile/`, where the tests run.
 Object? _json(String path) => json.decode(File(path).readAsStringSync());
 
-/// A session started on plan day 1 with [movementIds] in that order.
-WorkoutSession _sessionOf(List<String> movementIds) => WorkoutSession(
+/// A session started on plan day 1 that holds [exercises] in that order,
+/// as a session copies them from the program when it is started.
+WorkoutSession _sessionOf(List<PlannedExercise> exercises) => WorkoutSession(
   id: 's',
   ownerId: 'local-test',
   day: const LocalDate(2026, 11, 9),
@@ -29,13 +30,13 @@ WorkoutSession _sessionOf(List<String> movementIds) => WorkoutSession(
   startUtcOffset: const Duration(hours: -7),
   finishEventId: 's-finish',
   exercises: <SessionExercise>[
-    for (var i = 0; i < movementIds.length; i++)
+    for (var i = 0; i < exercises.length; i++)
       SessionExercise(
         id: 'e$i',
         position: i,
-        movementId: movementIds[i],
-        name: movementIds[i],
-        prescription: '3 x 5',
+        movementId: exercises[i].movementId,
+        name: exercises[i].movementId,
+        prescription: exercises[i].prescription,
         measure: SetMeasure.reps,
         weightMode: WeightMode.required,
         restBaseSeconds: 90,
@@ -101,12 +102,11 @@ void main() {
       expect(supersetLabels(const <int>[], 3), <String?>[null, null, null]);
     });
 
-    test('a session takes its labels from the program\'s day, if it still '
-        'has the same movements at the marked places', () {
+    test('a session takes its labels from the program\'s day, if it is '
+        'still a copy of that day', () {
       final day1 = library.planDayNumbered('Forged', 1)!;
-      final ids = <String>[for (final e in day1.exercises) e.movementId];
 
-      expect(supersetLabelsFor(_sessionOf(ids), day1), <String?>[
+      expect(supersetLabelsFor(_sessionOf(day1.exercises), day1), <String?>[
         null,
         null,
         null,
@@ -117,25 +117,80 @@ void main() {
       ]);
     });
 
-    test('a session whose movements at the marked places differ from the '
-        'program\'s, or that is shorter, gets no label at all', () {
+    test('a session that is no longer a copy of the program\'s day gets no '
+        'label at all: another movement, another prescription, anywhere, '
+        'or another number of exercises', () {
       final day1 = library.planDayNumbered('Forged', 1)!;
-      final ids = <String>[for (final e in day1.exercises) e.movementId];
+      List<PlannedExercise> changed(int place, PlannedExercise to) =>
+          <PlannedExercise>[...day1.exercises]..[place] = to;
+      void expectNone(List<PlannedExercise> held) {
+        final labels = supersetLabelsFor(_sessionOf(held), day1);
+        expect(labels, hasLength(held.length));
+        expect(labels, everyElement(isNull));
+      }
 
-      final swapped = <String>[...ids]..[6] = 'Dips';
-      expect(
-        supersetLabelsFor(_sessionOf(swapped), day1),
-        everyElement(isNull),
+      // Another movement at a marked place.
+      expectNone(
+        changed(
+          6,
+          PlannedExercise(
+            movementId: 'Dips',
+            prescription: day1.exercises[6].prescription,
+          ),
+        ),
       );
-      expect(supersetLabelsFor(_sessionOf(swapped), day1), hasLength(7));
-      expect(
-        supersetLabelsFor(_sessionOf(ids.sublist(0, 6)), day1),
-        everyElement(isNull),
+      // The same movements, but the program now prescribes one of the
+      // marked exercises differently than the session holds it.
+      expectNone(
+        changed(
+          5,
+          PlannedExercise(
+            movementId: day1.exercises[5].movementId,
+            prescription: '3 x 12 (RIR 3, rest 60 sec)',
+          ),
+        ),
       );
+      // A difference outside the superset counts too: the day is not the
+      // day the session was started from.
+      expectNone(
+        changed(
+          0,
+          PlannedExercise(
+            movementId: day1.exercises[0].movementId,
+            prescription: '4 x 5 (RPE 7, rest 2 min)',
+          ),
+        ),
+      );
+      expectNone(day1.exercises.sublist(0, 6));
+      expectNone(<PlannedExercise>[
+        ...day1.exercises,
+        const PlannedExercise(movementId: 'Plank', prescription: '2 x 25 sec'),
+      ]);
       // No such plan day, or another program: nothing to go by.
-      expect(supersetLabelsFor(_sessionOf(ids), null), everyElement(isNull));
+      expect(
+        supersetLabelsFor(_sessionOf(day1.exercises), null),
+        everyElement(isNull),
+      );
       expect(library.planDayNumbered('Forged', 9999), isNull);
       expect(library.planDayNumbered('Built', 1), isNull);
+    });
+
+    test('in the bundle the mark and the prescriptions name the same '
+        'places, so the mark cannot move without the prescriptions', () {
+      // The page draws from the mark. A session keeps the prescriptions.
+      // While the two agree in the bundle, a change of the mark is a
+      // change of a prescription, which a session started before it sees.
+      final words = RegExp(r'^\s*Superset\s+[A-Z]\d+:', caseSensitive: false);
+      for (final day in library.days) {
+        expect(
+          <int>[
+            for (var i = 0; i < day.exercises.length; i++)
+              if (words.hasMatch(day.exercises[i].prescription)) i,
+          ],
+          day.superset,
+          reason: 'plan day ${day.day}',
+        );
+      }
     });
   });
 
