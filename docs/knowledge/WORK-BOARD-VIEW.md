@@ -74,6 +74,10 @@ update-by: edit WORK.md then run tooling/knowledge/work_board.py --write
 	**Note:** None. Unblocks Dependabot [#66](https://github.com/Forged-Sent/ForgedAndSentFitness/pull/66). Without `--dry-run` such a change still gets no PASS and no review record, and `--verify` still fails
 	**Branch or PR:** branch `claude/review-lockfile-dry-run`
 	[Edit this row in WORK](WORK.md)
+- [x] **Push from a worktree runs the local checks**
+	**Note:** None. A branch cut before this merges keeps the older hook until it merges `main`. Not run on Windows
+	**Branch or PR:** branch `claude/pre-push-hook-worktrees`
+	[Edit this row in WORK](WORK.md)
 - [x] **Host wording left over from the generated hosts**
 	**Note:** None. Checked on 2026-11-19 in a debug simulator build installed on one iPhone 17 simulator (iOS 27.2): the installed app reports the display name "Forged & Sent", and the home screen shows that name under the icon. Nothing ran on a physical iPhone. The Mac setup script's wording was fixed earlier by `claude/bootstrap-test-readiness`
 	**Branch or PR:** branch `claude/ios-restart-check`
@@ -121,6 +125,10 @@ update-by: edit WORK.md then run tooling/knowledge/work_board.py --write
 - [x] **The reading's labels without slashes; Crossway's current notice**
 	**Note:** The maintainer: look at the ten redrawn golden images (the eight reading images and the two of "Write it down"), which are drawn and **not approved**. Both changes are his decisions of 2026-11-21 after trying the app by hand. The notice was read from Crossway's permissions page that day; the notice stays under the verse. The prototype is unchanged
 	**Branch or PR:** branch `claude/devotional-labels-esv-notice`
+	[Edit this row in WORK](WORK.md)
+- [x] **iPhone simulator launcher works with Xcode 27**
+	**Note:** None. Run on 2026-11-18 on the maintainer's Mac (macOS 27.2, Xcode 27.2, iPhone 17 simulator, iOS 27.2) in Preview mode, from an empty `SourcePackages` folder. Not run: practice-Firebase mode on the simulator, an Xcode that still has Simulator.app, a Mac with no window app, and a physical iPhone
+	**Branch or PR:** branch `claude/ios-simulator-launcher`
 	[Edit this row in WORK](WORK.md)
 
 
