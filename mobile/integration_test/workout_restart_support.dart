@@ -106,6 +106,14 @@ Finder repsField(int exercise, int set) =>
 Finder weightField(int exercise, int set) =>
     find.byKey(ValueKey<String>('fs-weight-$exercise-$set'));
 
+/// "Add set", under the rows of one exercise.
+Finder addSetButton(int exercise) =>
+    find.byKey(ValueKey<String>('fs-add-set-$exercise'));
+
+/// "Remove", under a row he added while it is empty.
+Finder removeSetButton(int exercise, int set) =>
+    find.byKey(ValueKey<String>('fs-remove-set-$exercise-$set'));
+
 Finder scrollableOf(Type page) =>
     find.descendant(of: find.byType(page), matching: find.byType(Scrollable));
 
@@ -114,6 +122,9 @@ const List<(String reps, String weight)> enteredSets = <(String, String)>[
   ('5', '135'),
   ('4', '137.5'),
 ];
+
+/// What the set he adds holds, in the device test for adding a set.
+const (String reps, String weight) addedSet = ('6', '100');
 
 /// Starts the app as the launcher does, on the next lifting day, and waits
 /// for Today's boxes.
@@ -138,6 +149,15 @@ Future<void> pumpUntilFound(WidgetTester tester, Finder finder) async {
   }
   await tester.pumpAndSettle();
   expect(finder, findsWidgets);
+}
+
+/// Pumps until [finder] finds nothing, for up to ten seconds.
+Future<void> pumpUntilGone(WidgetTester tester, Finder finder) async {
+  for (var i = 0; i < 100 && finder.evaluate().isNotEmpty; i++) {
+    await tester.pump(const Duration(milliseconds: 100));
+  }
+  await tester.pumpAndSettle();
+  expect(finder, findsNothing);
 }
 
 /// Opens the Train tab and waits for today's row.
