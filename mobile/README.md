@@ -111,6 +111,19 @@ The first starts today's workout through the prayer, types two sets, checks that
 
 No CI lane has an emulator, so this test too runs only where someone runs it. It passed on 2026-11-13 and again on 2026-11-20 on `FS_S1_Restart_API_36` (Android 16, API 36), both Fridays, so the clock was not moved.
 
+## The added-set restart test
+
+Two files prove that a set he added during a workout survives the app being killed. They are run like the workout restart test, with the same clock, and start with the app not installed.
+
+```sh
+flutter test integration_test/workout_sets_restart_1_add_test.dart -d <device id> --no-uninstall
+flutter test integration_test/workout_sets_restart_2_verify_test.dart -d <device id>
+```
+
+The first starts today's workout, adds two sets to the first lift, logs the second and removes the first, which is empty, and checks the database file. The second starts a new process, expects the added set in its row with what he logged and no "Remove" on any row that holds something or came from the plan, clears the added row, removes it, and checks the file again. It uninstalls the app.
+
+It passed on 2026-11-22 on `FS_S1_Restart_API_36`, a Sunday, with the clock moved to Monday.
+
 ## The upgrade test
 
 Three files prove that this build can be installed over the one before it: a database at schema version 2 (the day's boxes and the journal) becomes version 3 (the workout tables) with nothing lost. Part 1 runs from a checkout of the older build, so it is copied there first; it uses only what both builds have.

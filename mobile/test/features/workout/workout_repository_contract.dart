@@ -377,6 +377,28 @@ void workoutRepositoryContract(Future<WorkoutStores> Function() create) {
       );
     });
 
+    test('an id a set already has is not used twice: nothing is added, and '
+        'the set that has it keeps what it holds', () async {
+      await workouts.addSet('s1-squat', setId: 'extra-1');
+      await workouts.setReps('extra-1', 5);
+
+      // The same add asked for again, the same id for another exercise,
+      // and the id of a row from the plan.
+      expect(await workouts.addSet('s1-squat', setId: 'extra-1'), isFalse);
+      expect(await workouts.addSet('s1-plank', setId: 'extra-1'), isFalse);
+      expect(await workouts.addSet('s1-squat', setId: 's1-squat-s0'), isFalse);
+
+      final sets = await squatSets();
+      expect(sets, hasLength(4));
+      expect(sets.last.id, 'extra-1');
+      expect(sets.last.reps, 5);
+      expect((await session(nov12))!.exercises.last.sets, hasLength(2));
+      // And it is still removed as one row, once he clears it.
+      await workouts.setReps('extra-1', null);
+      expect(await workouts.removeSet('extra-1'), isTrue);
+      expect(await squatSets(), hasLength(3));
+    });
+
     test('nothing is added to an exercise that is only marked done, or to '
         'one that does not exist', () async {
       await workouts.startSession(

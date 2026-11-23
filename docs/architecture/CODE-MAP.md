@@ -993,6 +993,7 @@ flowchart LR
 - fn _restChange()
 - fn _rowsChange()
 - fn _isSetChange()
+- fn _unsavedIn()
 - class WorkoutPage
 - class _WorkoutPageState
 - fn initState()
@@ -1001,6 +1002,7 @@ flowchart LR
 - fn _mark()
 - fn _track()
 - fn _setChangesStored()
+- fn _removeSet()
 - fn _start()
 - fn _finish()
 - fn _toTop()
@@ -1015,7 +1017,9 @@ flowchart LR
 - class _ExerciseFrame
 - fn _setText()
 - class _LiveExercise
+- fn _offersRemove()
 - fn _targetLine()
+- class _BeingRemoved
 - class _LastTimeLine
 - class _SetRow
 - fn _ramp()

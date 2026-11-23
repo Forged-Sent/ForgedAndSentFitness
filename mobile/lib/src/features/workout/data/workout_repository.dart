@@ -63,8 +63,9 @@ abstract interface class WorkoutRepository {
   /// and the same target as the set before it. True if it was added.
   ///
   /// Nothing is added, and the answer is false, when the exercise already
-  /// has [maxSets] rows, when it is only marked done, or when its session
-  /// is finished or does not exist.
+  /// has [maxSets] rows, when it is only marked done, when its session is
+  /// finished or does not exist, or when a set already has the id [setId]:
+  /// an add asked for twice adds one row.
   Future<bool> addSet(String exerciseId, {required String setId});
 
   /// Removes a set he added during the workout, and moves the rows after

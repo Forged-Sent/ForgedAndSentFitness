@@ -183,6 +183,8 @@ Not done in this step: the challenge point values, which differed and are scorin
 - **No change to the database.** A set he adds is one more row in the session's existing set table; removing one deletes that row and renumbers the rows after it, in one transaction. The schema is still version 3.
 - **Which rows are his.** A session keeps each exercise's prescription as it was when the session was started, and its rows are numbered from 0 with no gaps. The rows the prescription asks for are the plan's; a row after them is one he added (`plannedSetCount` in `prescription.dart`). Nothing new is stored to tell them apart.
 - **The store decides, not the screen.** The store adds nothing past twelve rows and removes a row only if, as it holds it at that moment, the row is one he added, nothing is entered in it and the session is not finished. Both changes take their turn in the session's write queue behind what he typed before. So "Remove" tapped a moment after typing in that row removes nothing: the typing is stored first.
+- **What the store cannot know, the page holds back** (added after the Codex review of this change). From the tap on "Remove" until the row is gone, the row is drawn faded and takes no tap, no keyboard and no screen-reader action: what he typed into it then would go to a set that no longer exists and be lost without a word. And "Remove" is not offered for a row with something he typed that could not be stored, nor is the removal sent if such a failure arrives after the tap: the store would see an empty row and take away the place for it. The row stays for him to type in again.
+- **An id is used once.** Asking twice to add a set with the same id adds one row, in both stores.
 - **If it cannot be stored** the page says "That did not save. Try again." That does not hold Finish up, because nothing he entered is missing.
 
 **Limits, stated plainly**
@@ -191,9 +193,9 @@ Not done in this step: the challenge point values, which differed and are scorin
 - An added set does not change the prescription line shown above the rows ("3 x 5" stays "3 x 5"), the rest timer, or the summary's layout. The summary lists an added set he logged like any other.
 - Nothing marks an added row as added on the screen, other than its "Remove" while it is empty.
 
-**Tests** (each failed before the change): eleven rules run against both stores in `workout_repository_contract.dart`; add, remove, close and reopen on a real SQLite file in `drift_workout_repository_test.dart`; ten widget tests in `workout_page_test.dart`, among them "Remove" tapped while typing is still on its way to the store; `plannedSetCount` in `prescription_test.dart`. Two golden images redrawn and **not approved**: `workout_live_dark.png` and `workout_live_light.png` now show a fourth, added row with its "Remove", and "Add set".
+**Tests** (each failed before the change it belongs to): twelve rules run against both stores in `workout_repository_contract.dart`; add, remove, close and reopen on a real SQLite file in `drift_workout_repository_test.dart`; thirteen widget tests in `workout_page_test.dart`, among them "Remove" tapped while typing is still on its way to the store, typing after the tap, and typing that failed to be stored; `plannedSetCount` in `prescription_test.dart`. On the Android emulator, 2026-11-22: `integration_test/workout_sets_restart_1_add_test.dart` and `_2_verify_test.dart` (add two sets, log one, remove the empty one, kill, relaunch, find them as left, clear and remove), and the workout restart pair again on this build. Two golden images redrawn and **not approved**: `workout_live_dark.png` and `workout_live_light.png` now show a fourth, added row with its "Remove", and "Add set".
 
-**Not verified:** a phone; iOS beyond CI's simulator build; the two new buttons with a screen reader on a device.
+**Not verified:** a phone; iOS beyond CI's simulator build; the two new buttons with a screen reader on a device. One Codex review was run on this change (two High, one Medium), followed by one fix round; the fix round itself has not been reviewed.
 
 ## Boundaries and evidence
 

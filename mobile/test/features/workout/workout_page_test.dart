@@ -661,6 +661,99 @@ void main() {
       expect(_saveFailedNotice, findsNothing);
     });
 
+    testWidgets('from the tap on Remove until the row is gone, the row '
+        'takes no typing', (tester) async {
+      final app = await pumpApp(tester, clock: TestClock(liftingEvening));
+      await openTodaysWorkout(tester);
+      await startWorkout(tester);
+      await _tapOnPage(tester, addSetButton(0));
+      await showOnWorkoutPage(tester, removeSetButton(0, 3));
+      final workouts = app.store.workouts as TestWorkoutRepository;
+
+      // A slow disk holds the removal.
+      workouts.hold();
+      await tester.tap(removeSetButton(0, 3));
+      await tester.pump();
+
+      // He taps the row's boxes meanwhile: neither opens the keyboard, so
+      // nothing can be typed into a row that is about to be gone.
+      for (final box in <Finder>[repsField(0, 3), weightField(0, 3)]) {
+        await showOnWorkoutPage(tester, box);
+        await tester.tap(box, warnIfMissed: false);
+        await tester.pump();
+        expect(tester.testTextInput.hasAnyClients, isFalse);
+      }
+      // And Remove is not offered twice.
+      expect(removeSetButton(0, 3), findsNothing);
+      // A row from the plan still takes typing.
+      await showOnWorkoutPage(tester, repsField(0, 2));
+      await tester.tap(repsField(0, 2));
+      await tester.pump();
+      expect(tester.testTextInput.hasAnyClients, isTrue);
+
+      workouts.release();
+      await tester.pumpAndSettle();
+      expect(repsField(0, 3), findsNothing);
+      expect((await squat(app, tester)).sets, hasLength(3));
+      expect(_saveFailedNotice, findsNothing);
+    });
+
+    testWidgets('a row whose typing could not be stored is not offered for '
+        'removal: it stays for him to try again', (tester) async {
+      final app = await pumpApp(tester, clock: TestClock(liftingEvening));
+      await openTodaysWorkout(tester);
+      await startWorkout(tester);
+      await _tapOnPage(tester, addSetButton(0));
+      final workouts = app.store.workouts as TestWorkoutRepository;
+
+      workouts.failWrites = true;
+      await typeNumber(tester, repsField(0, 3), '5');
+      workouts.failWrites = false;
+
+      // The store holds an empty row, but he typed in it and that is not
+      // stored: removing the row would lose where it goes.
+      expect((await squat(app, tester)).sets.last.isBlank, isTrue);
+      await showOnWorkoutPage(tester, repsField(0, 3));
+      expect(removeSetButton(0, 3), findsNothing);
+
+      // He types it again, and it is stored.
+      await typeNumber(tester, repsField(0, 3), '6');
+      final stored = await squat(app, tester);
+      expect(stored.sets, hasLength(4));
+      expect(stored.sets.last.reps, 6);
+    });
+
+    testWidgets('Remove tapped while what he typed in the row is still on '
+        'its way, and that then fails: the row stays', (tester) async {
+      final app = await pumpApp(tester, clock: TestClock(liftingEvening));
+      await openTodaysWorkout(tester);
+      await startWorkout(tester);
+      await _tapOnPage(tester, addSetButton(0));
+      await showOnWorkoutPage(tester, removeSetButton(0, 3));
+      final workouts = app.store.workouts as TestWorkoutRepository;
+
+      // A slow disk holds the reps he types, and will refuse them; the
+      // removal after it would be stored.
+      workouts.hold();
+      await typeNumber(tester, repsField(0, 3), '5');
+      workouts.failNextWrite = true;
+      await _tapOnPage(tester, removeSetButton(0, 3));
+      workouts.release();
+      await tester.pumpAndSettle();
+
+      expect((await squat(app, tester)).sets, hasLength(4));
+      await tester.drag(workoutScrollable, const Offset(0, 600));
+      await tester.pumpAndSettle();
+      expect(_saveFailedNotice, findsOneWidget);
+
+      // The row is there to type in again, and then the notice goes.
+      await typeNumber(tester, repsField(0, 3), '5');
+      expect((await squat(app, tester)).sets.last.reps, 5);
+      await tester.drag(workoutScrollable, const Offset(0, 600));
+      await tester.pumpAndSettle();
+      expect(_saveFailedNotice, findsNothing);
+    });
+
     testWidgets('removing an empty row moves the rows after it up, with '
         'what they hold', (tester) async {
       final app = await pumpApp(tester, clock: TestClock(liftingEvening));

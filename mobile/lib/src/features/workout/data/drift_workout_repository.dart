@@ -222,6 +222,11 @@ class DriftWorkoutRepository implements WorkoutRepository {
                 ..orderBy([(t) => OrderingTerm.asc(t.position)]))
               .get();
       if (sets.isEmpty || sets.length >= maxSets) return false;
+      // An id is a set's only key: one already in use is not used again.
+      final taken = await (_db.select(
+        _db.workoutSets,
+      )..where((t) => t.id.equals(setId))).getSingleOrNull();
+      if (taken != null) return false;
       await _db
           .into(_db.workoutSets)
           .insert(

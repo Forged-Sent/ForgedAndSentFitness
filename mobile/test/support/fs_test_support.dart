@@ -173,8 +173,15 @@ class TestWorkoutRepository extends MemoryWorkoutRepository {
   @override
   bool get durable => true;
 
+  /// When true, the next change to reach the store throws, and the ones
+  /// after it are stored again.
+  bool failNextWrite = false;
+
   void _refuse() {
-    if (failWrites) throw StateError('The test refused this save.');
+    if (failWrites || failNextWrite) {
+      failNextWrite = false;
+      throw StateError('The test refused this save.');
+    }
   }
 
   @override

@@ -179,6 +179,11 @@ class MemoryWorkoutRepository implements WorkoutRepository {
   @override
   Future<bool> addSet(String exerciseId, {required String setId}) =>
       _inTurn(() async {
+        // An id is a set's only key: one already in use is not used again.
+        final taken = _sessions.any(
+          (s) => s.exercises.any((e) => e.sets.any((set) => set.id == setId)),
+        );
+        if (taken) return false;
         for (var i = 0; i < _sessions.length; i++) {
           final session = _sessions[i];
           // A finished session is locked.
