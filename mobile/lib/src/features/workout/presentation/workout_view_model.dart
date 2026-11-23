@@ -154,7 +154,7 @@ class WorkoutView {
   final bool durable;
 
   /// For each exercise of [session], "A1" or "A2" if it is one of the
-  /// day's superset, else null. For drawing only; see [supersetLabelsFor].
+  /// session's superset, else null: [WorkoutSession.supersetLabels].
   /// Empty when there is no session.
   final List<String?> supersetLabels;
 
@@ -314,15 +314,8 @@ class WorkoutViewModel extends AsyncNotifier<WorkoutView> {
       session: session,
       lastTimes: session == null ? const <String, LastTime>{} : _lastTimes,
       durable: store.workouts.durable,
-      // Read from the program for drawing only. The session itself still
-      // never reads the plan again: nothing here is stored or changes
-      // what it holds.
-      supersetLabels: session == null
-          ? const <String?>[]
-          : supersetLabelsFor(
-              session,
-              library.planDayNumbered(session.program, session.planDay),
-            ),
+      // From the mark the session holds, not from the program.
+      supersetLabels: session?.supersetLabels ?? const <String?>[],
     );
   }
 
@@ -408,6 +401,9 @@ class WorkoutViewModel extends AsyncNotifier<WorkoutView> {
           startedAt: now,
           finishEventId: newId(),
           exercises: exercises,
+          // The day's superset mark goes with the session, like the rest
+          // of what the plan prescribed.
+          superset: workout.superset,
         ),
       );
     } catch (_) {

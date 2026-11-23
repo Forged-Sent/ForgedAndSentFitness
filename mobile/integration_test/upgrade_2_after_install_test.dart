@@ -77,6 +77,10 @@ void main() {
       await typeNumber(tester, weightField(0, set), enteredSets[set].$2);
     }
     expect(find.byType(WorkoutPage), findsOneWidget);
+
+    // Schema version 4: the workout this build started keeps its day's
+    // superset mark in the file, and the group is drawn from it.
+    await expectSupersetOf(tester, (await storedSession(tester, clock))!);
     debugPrint('UPGRADE TEST: a workout was started and two sets were typed.');
   });
 }

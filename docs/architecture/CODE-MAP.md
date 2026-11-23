@@ -336,7 +336,6 @@ flowchart LR
     N68 --> N12
     N69 --> N12
     N69 --> N67
-    N69 --> N68
     N70 --> N7
     N70 --> N10
     N70 --> N12
@@ -1094,6 +1093,7 @@ flowchart LR
 - class WorkoutSets
 - class AppDatabase
 - fn schemaVersion()
+- fn _hasColumn()
 - fn _exists()
 
 ### mobile/lib/src/storage/app_database.g.dart
@@ -1132,6 +1132,7 @@ flowchart LR
 - class Shape6
 - class Shape7
 - class Shape8
+- class Shape9
 
 ### mobile/lib/src/storage/native_storage.dart
 

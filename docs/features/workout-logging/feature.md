@@ -199,20 +199,36 @@ Not done in this step: the challenge point values, which differed and are scorin
 
 ## Proposed addition, written after the approval: supersets drawn as one group
 
-**This section is not part of what the maintainer approved on 2026-11-22.** It was added afterwards, with the change that builds it, at his request of 2026-11-21 and to his rules of 2026-11-22. It is **proposed** until he approves it.
+**This section is not part of what the maintainer approved on 2026-11-22.** It was added afterwards, with the change that builds it, at his request of 2026-11-21 and to his rules of 2026-11-22 and 2026-11-23. It is **proposed** until he approves it.
 
 **What he sees.** On a day with a superset, its two exercises stand in one group on the workout page: a bar down the left, the word "Superset" above them, and "A1" and "A2" before their names. It is so before the workout is started and while it is logged. The finished workout's summary is as it was.
 
-**Display only.**
+**Where the pair comes from**
 
-- **Where the pair comes from.** From the day's `superset` mark in `seed/workouts.json` (for example `[5, 6]`: the sixth and seventh exercises), which the bundled copy keeps. Not from the words "Superset A1" in the prescription. A mark is accepted only if it is two or more neighbouring places inside the day's exercises; anything else is read as no superset. 209 of the Forged program's 365 days carry one, always a pair.
-- **Nothing is stored and no rule changes.** The session, the database, the rest timer rules (the first of the two has no timer, the second has one) and the summary are as before. The prescription line is shown as it is written, with its own "Superset A1:".
-- **A session already started** stores no mark. The page asks the program what it holds today for the plan day the session was started on, and draws the group only if the session is still a copy of that day: the same number of exercises, and at every place the program's movement and prescription text. If anything in the day has changed since, no group is drawn: nothing rather than the wrong pair. This is the one place a started session looks at the program again, and only to draw.
-- **One thing that check cannot see by itself:** a program whose mark alone moved while every prescription stayed word for word. A test on the bundle rules it out: there the mark and the prescriptions' own "Superset A1" and "A2" name the same places on all 365 days, so the mark cannot move without a prescription changing. Storing the mark with the session when it is started would make this certain without that test; it needs a new column, which this change was told not to add.
+- **The program's own mark.** The day's `superset` mark in `seed/workouts.json` (for example `[5, 6]`: the sixth and seventh exercises), which the bundled copy keeps. Not the words "Superset A1" in the prescription. A mark is accepted only if it is two or more neighbouring places inside the day's exercises; anything else is read as no superset. 209 of the Forged program's 365 days carry one, always a pair.
+- **Before the workout is started** the page draws from the plan's day.
+- **A started session keeps its own copy of the mark** (the maintainer's decision of 2026-11-23). When Amen is tapped the mark is stored with the session, like the movements and prescriptions, and from then on the page draws the group from what the session holds. A started session never reads the program again, for this or for anything else.
 
-**Tests** (each failed before the change, except those that expect no group): the mark of every plan day against `seed/workouts.json`, what counts as a mark, the labels, and a session's labels with and without the program's movements, in `workout_library_test.dart`; six widget tests in `workout_page_test.dart` (before the start, during the workout, a screen reader, a day with none, the summary, a session that does not match). After the Codex review of this change: a session differing from the program's day in any movement, prescription or count gets no group (failed before the fix); and the bundle's mark agrees with its prescriptions on every day (a guard: it passed before and after). Golden images, all **not approved**: two new, `workout_superset_dark.png` and `workout_superset_light.png`; four redrawn because the group is in view, `workout_before_` and `workout_prayer_`, dark and light. On the Android emulator, 2026-11-22: `integration_test/workout_superset_test.dart`, which expects the pair by name on the plan day a new plan opens on, and the workout restart pair again on this build.
+**The database: schema version 4**
 
-**Not verified:** a phone; iOS beyond CI's simulator build; the group with a screen reader on a device. The other three programs are not bundled; their marks are the same shape in `seed/` (always a pair), but no test here reads them. One Codex review was run on this change (two Medium, one Low), followed by one fix round; the fix round itself has not been reviewed.
+- One new column on the sessions table, `superset_places`: the places joined by commas (`5,6`), or empty for a session with no superset.
+- **A workout already in the file is left ungrouped.** The update adds the column empty and does not fill it from the plan: a session started before version 4 was started without a mark, and is drawn with no group, also while it is still in progress.
+- The step leaves the column alone if it is already there, so an update cut off before the new version number was recorded finishes on the next launch.
+- The schema of version 4 is frozen in `mobile/drift_schemas/`, beside versions 1 to 3.
+
+**No rule changes.** The rest timer rules (the first of the two has no timer, the second has one) and the summary are as before. The prescription line is shown as it is written, with its own "Superset A1:".
+
+**Tests**
+
+- Both stores (`workout_repository_contract.dart`): a session keeps the mark it was started with, through every later change and when finished; one started without a mark has none. On a real SQLite file: the mark survives closing and reopening.
+- Migrations (`migration_test.dart`, `schema_migration_test.dart`): versions 1, 2 and 3 each migrate to exactly the frozen version 4; a version 3 workout keeps every row and gets an empty column; a version 3 file on disk opens through the app's own start-up call with its workout still his to log, ungrouped, and the next workout keeps its mark; an update to version 4 that was cut off still opens.
+- The mark and the labels (`workout_library_test.dart`): every plan day's mark against `seed/workouts.json`; what counts as a mark; a session's labels come from the mark it holds; a mark that does not fit the session's exercises gives none. A guard: in the bundle the mark and the prescriptions' own words name the same places.
+- The page (`workout_page_test.dart`), seven widget tests: before the start; during the workout, with the mark stored and the rest timer rules as before; a screen reader; a day with none; the summary; a session that holds no mark; a session whose mark is its own.
+- Nine of these failed when the mark was not copied at the start or not stored.
+- Golden images, all **not approved**: two new, `workout_superset_dark.png` and `workout_superset_light.png`; four redrawn because the group is in view, `workout_before_` and `workout_prayer_`, dark and light.
+- On the Android emulator, 2026-11-23: `integration_test/workout_superset_test.dart`; the three-part upgrade test, which now also checks that the workout the new build starts keeps its mark and shows its group, on a file that went from version 2 to version 4; and `integration_test/upgrade_from_s3_after_install_test.dart`, this build installed over the S3 build with a workout in progress: version 3 to version 4, the workout kept, drawn with no group, and finished.
+
+**Not verified:** a phone; iOS beyond CI's simulator build; the group with a screen reader on a device. The other three programs are not bundled; their marks are the same shape in `seed/` (always a pair), but no test here reads them. Two Codex reviews were run on this change, each followed by one fix round; the last fix round has not been reviewed.
 
 ## Boundaries and evidence
 

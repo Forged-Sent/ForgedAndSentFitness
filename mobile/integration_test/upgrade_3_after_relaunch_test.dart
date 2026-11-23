@@ -18,7 +18,7 @@ void main() {
 
   testWidgets('after a kill and relaunch: the journal, the completed day and '
       'the workout in progress are still there', (tester) async {
-    await startAppOnLiftingDay(tester);
+    final clock = await startAppOnLiftingDay(tester);
 
     await showDevotionalBox(tester);
     expect(devotionalChecked(tester), isTrue);
@@ -45,6 +45,9 @@ void main() {
       expect(shownIn(tester, repsField(0, set)), enteredSets[set].$1);
       expect(shownIn(tester, weightField(0, set)), enteredSets[set].$2);
     }
+    // And its superset mark, at the same two exercises, with the group
+    // drawn from it.
+    await expectSupersetOf(tester, (await storedSession(tester, clock))!);
     debugPrint('UPGRADE TEST: the workout in progress kept its two sets.');
   });
 }

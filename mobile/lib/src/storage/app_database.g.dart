@@ -2899,6 +2899,17 @@ class $WorkoutSessionsTable extends WorkoutSessions
     type: DriftSqlType.string,
     requiredDuringInsert: true,
   );
+  static const VerificationMeta _supersetPlacesMeta = const VerificationMeta(
+    'supersetPlaces',
+  );
+  @override
+  late final GeneratedColumn<String> supersetPlaces = GeneratedColumn<String>(
+    'superset_places',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -2915,6 +2926,7 @@ class $WorkoutSessionsTable extends WorkoutSessions
     finishedAtUtcMs,
     finishUtcOffsetMinutes,
     finishEventId,
+    supersetPlaces,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -3051,6 +3063,15 @@ class $WorkoutSessionsTable extends WorkoutSessions
     } else if (isInserting) {
       context.missing(_finishEventIdMeta);
     }
+    if (data.containsKey('superset_places')) {
+      context.handle(
+        _supersetPlacesMeta,
+        supersetPlaces.isAcceptableOrUnknown(
+          data['superset_places']!,
+          _supersetPlacesMeta,
+        ),
+      );
+    }
     return context;
   }
 
@@ -3120,6 +3141,10 @@ class $WorkoutSessionsTable extends WorkoutSessions
         DriftSqlType.string,
         data['${effectivePrefix}finish_event_id'],
       )!,
+      supersetPlaces: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}superset_places'],
+      ),
     );
   }
 
@@ -3160,6 +3185,13 @@ class WorkoutSessionRow extends DataClass
   /// made when the session was started. Finishing twice therefore records
   /// one completion.
   final String finishEventId;
+
+  /// The places of the exercises that are done as one superset, counted
+  /// from 0 and joined by commas, for example `5,6`: the plan's mark for
+  /// the day, copied when the session was started. Null for a session
+  /// with no superset, and for every session started before this column
+  /// existed (schema version 4): those are drawn with no group.
+  final String? supersetPlaces;
   const WorkoutSessionRow({
     required this.id,
     required this.ownerId,
@@ -3175,6 +3207,7 @@ class WorkoutSessionRow extends DataClass
     this.finishedAtUtcMs,
     this.finishUtcOffsetMinutes,
     required this.finishEventId,
+    this.supersetPlaces,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -3197,6 +3230,9 @@ class WorkoutSessionRow extends DataClass
       map['finish_utc_offset_minutes'] = Variable<int>(finishUtcOffsetMinutes);
     }
     map['finish_event_id'] = Variable<String>(finishEventId);
+    if (!nullToAbsent || supersetPlaces != null) {
+      map['superset_places'] = Variable<String>(supersetPlaces);
+    }
     return map;
   }
 
@@ -3220,6 +3256,9 @@ class WorkoutSessionRow extends DataClass
           ? const Value.absent()
           : Value(finishUtcOffsetMinutes),
       finishEventId: Value(finishEventId),
+      supersetPlaces: supersetPlaces == null && nullToAbsent
+          ? const Value.absent()
+          : Value(supersetPlaces),
     );
   }
 
@@ -3247,6 +3286,7 @@ class WorkoutSessionRow extends DataClass
         json['finishUtcOffsetMinutes'],
       ),
       finishEventId: serializer.fromJson<String>(json['finishEventId']),
+      supersetPlaces: serializer.fromJson<String?>(json['supersetPlaces']),
     );
   }
   @override
@@ -3267,6 +3307,7 @@ class WorkoutSessionRow extends DataClass
       'finishedAtUtcMs': serializer.toJson<int?>(finishedAtUtcMs),
       'finishUtcOffsetMinutes': serializer.toJson<int?>(finishUtcOffsetMinutes),
       'finishEventId': serializer.toJson<String>(finishEventId),
+      'supersetPlaces': serializer.toJson<String?>(supersetPlaces),
     };
   }
 
@@ -3285,6 +3326,7 @@ class WorkoutSessionRow extends DataClass
     Value<int?> finishedAtUtcMs = const Value.absent(),
     Value<int?> finishUtcOffsetMinutes = const Value.absent(),
     String? finishEventId,
+    Value<String?> supersetPlaces = const Value.absent(),
   }) => WorkoutSessionRow(
     id: id ?? this.id,
     ownerId: ownerId ?? this.ownerId,
@@ -3304,6 +3346,9 @@ class WorkoutSessionRow extends DataClass
         ? finishUtcOffsetMinutes.value
         : this.finishUtcOffsetMinutes,
     finishEventId: finishEventId ?? this.finishEventId,
+    supersetPlaces: supersetPlaces.present
+        ? supersetPlaces.value
+        : this.supersetPlaces,
   );
   WorkoutSessionRow copyWithCompanion(WorkoutSessionsCompanion data) {
     return WorkoutSessionRow(
@@ -3333,6 +3378,9 @@ class WorkoutSessionRow extends DataClass
       finishEventId: data.finishEventId.present
           ? data.finishEventId.value
           : this.finishEventId,
+      supersetPlaces: data.supersetPlaces.present
+          ? data.supersetPlaces.value
+          : this.supersetPlaces,
     );
   }
 
@@ -3352,7 +3400,8 @@ class WorkoutSessionRow extends DataClass
           ..write('startUtcOffsetMinutes: $startUtcOffsetMinutes, ')
           ..write('finishedAtUtcMs: $finishedAtUtcMs, ')
           ..write('finishUtcOffsetMinutes: $finishUtcOffsetMinutes, ')
-          ..write('finishEventId: $finishEventId')
+          ..write('finishEventId: $finishEventId, ')
+          ..write('supersetPlaces: $supersetPlaces')
           ..write(')'))
         .toString();
   }
@@ -3373,6 +3422,7 @@ class WorkoutSessionRow extends DataClass
     finishedAtUtcMs,
     finishUtcOffsetMinutes,
     finishEventId,
+    supersetPlaces,
   );
   @override
   bool operator ==(Object other) =>
@@ -3391,7 +3441,8 @@ class WorkoutSessionRow extends DataClass
           other.startUtcOffsetMinutes == this.startUtcOffsetMinutes &&
           other.finishedAtUtcMs == this.finishedAtUtcMs &&
           other.finishUtcOffsetMinutes == this.finishUtcOffsetMinutes &&
-          other.finishEventId == this.finishEventId);
+          other.finishEventId == this.finishEventId &&
+          other.supersetPlaces == this.supersetPlaces);
 }
 
 class WorkoutSessionsCompanion extends UpdateCompanion<WorkoutSessionRow> {
@@ -3409,6 +3460,7 @@ class WorkoutSessionsCompanion extends UpdateCompanion<WorkoutSessionRow> {
   final Value<int?> finishedAtUtcMs;
   final Value<int?> finishUtcOffsetMinutes;
   final Value<String> finishEventId;
+  final Value<String?> supersetPlaces;
   final Value<int> rowid;
   const WorkoutSessionsCompanion({
     this.id = const Value.absent(),
@@ -3425,6 +3477,7 @@ class WorkoutSessionsCompanion extends UpdateCompanion<WorkoutSessionRow> {
     this.finishedAtUtcMs = const Value.absent(),
     this.finishUtcOffsetMinutes = const Value.absent(),
     this.finishEventId = const Value.absent(),
+    this.supersetPlaces = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   WorkoutSessionsCompanion.insert({
@@ -3442,6 +3495,7 @@ class WorkoutSessionsCompanion extends UpdateCompanion<WorkoutSessionRow> {
     this.finishedAtUtcMs = const Value.absent(),
     this.finishUtcOffsetMinutes = const Value.absent(),
     required String finishEventId,
+    this.supersetPlaces = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : id = Value(id),
        ownerId = Value(ownerId),
@@ -3470,6 +3524,7 @@ class WorkoutSessionsCompanion extends UpdateCompanion<WorkoutSessionRow> {
     Expression<int>? finishedAtUtcMs,
     Expression<int>? finishUtcOffsetMinutes,
     Expression<String>? finishEventId,
+    Expression<String>? supersetPlaces,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -3489,6 +3544,7 @@ class WorkoutSessionsCompanion extends UpdateCompanion<WorkoutSessionRow> {
       if (finishUtcOffsetMinutes != null)
         'finish_utc_offset_minutes': finishUtcOffsetMinutes,
       if (finishEventId != null) 'finish_event_id': finishEventId,
+      if (supersetPlaces != null) 'superset_places': supersetPlaces,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -3508,6 +3564,7 @@ class WorkoutSessionsCompanion extends UpdateCompanion<WorkoutSessionRow> {
     Value<int?>? finishedAtUtcMs,
     Value<int?>? finishUtcOffsetMinutes,
     Value<String>? finishEventId,
+    Value<String?>? supersetPlaces,
     Value<int>? rowid,
   }) {
     return WorkoutSessionsCompanion(
@@ -3527,6 +3584,7 @@ class WorkoutSessionsCompanion extends UpdateCompanion<WorkoutSessionRow> {
       finishUtcOffsetMinutes:
           finishUtcOffsetMinutes ?? this.finishUtcOffsetMinutes,
       finishEventId: finishEventId ?? this.finishEventId,
+      supersetPlaces: supersetPlaces ?? this.supersetPlaces,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -3580,6 +3638,9 @@ class WorkoutSessionsCompanion extends UpdateCompanion<WorkoutSessionRow> {
     if (finishEventId.present) {
       map['finish_event_id'] = Variable<String>(finishEventId.value);
     }
+    if (supersetPlaces.present) {
+      map['superset_places'] = Variable<String>(supersetPlaces.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -3603,6 +3664,7 @@ class WorkoutSessionsCompanion extends UpdateCompanion<WorkoutSessionRow> {
           ..write('finishedAtUtcMs: $finishedAtUtcMs, ')
           ..write('finishUtcOffsetMinutes: $finishUtcOffsetMinutes, ')
           ..write('finishEventId: $finishEventId, ')
+          ..write('supersetPlaces: $supersetPlaces, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -6419,6 +6481,7 @@ typedef $$WorkoutSessionsTableCreateCompanionBuilder =
       Value<int?> finishedAtUtcMs,
       Value<int?> finishUtcOffsetMinutes,
       required String finishEventId,
+      Value<String?> supersetPlaces,
       Value<int> rowid,
     });
 typedef $$WorkoutSessionsTableUpdateCompanionBuilder =
@@ -6437,6 +6500,7 @@ typedef $$WorkoutSessionsTableUpdateCompanionBuilder =
       Value<int?> finishedAtUtcMs,
       Value<int?> finishUtcOffsetMinutes,
       Value<String> finishEventId,
+      Value<String?> supersetPlaces,
       Value<int> rowid,
     });
 
@@ -6553,6 +6617,11 @@ class $$WorkoutSessionsTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
+  ColumnFilters<String> get supersetPlaces => $composableBuilder(
+    column: $table.supersetPlaces,
+    builder: (column) => ColumnFilters(column),
+  );
+
   Expression<bool> workoutExercisesRefs(
     Expression<bool> Function($$WorkoutExercisesTableFilterComposer f) f,
   ) {
@@ -6657,6 +6726,11 @@ class $$WorkoutSessionsTableOrderingComposer
     column: $table.finishEventId,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<String> get supersetPlaces => $composableBuilder(
+    column: $table.supersetPlaces,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$WorkoutSessionsTableAnnotationComposer
@@ -6719,6 +6793,11 @@ class $$WorkoutSessionsTableAnnotationComposer
 
   GeneratedColumn<String> get finishEventId => $composableBuilder(
     column: $table.finishEventId,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get supersetPlaces => $composableBuilder(
+    column: $table.supersetPlaces,
     builder: (column) => column,
   );
 
@@ -6792,6 +6871,7 @@ class $$WorkoutSessionsTableTableManager
                 Value<int?> finishedAtUtcMs = const Value.absent(),
                 Value<int?> finishUtcOffsetMinutes = const Value.absent(),
                 Value<String> finishEventId = const Value.absent(),
+                Value<String?> supersetPlaces = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => WorkoutSessionsCompanion(
                 id: id,
@@ -6808,6 +6888,7 @@ class $$WorkoutSessionsTableTableManager
                 finishedAtUtcMs: finishedAtUtcMs,
                 finishUtcOffsetMinutes: finishUtcOffsetMinutes,
                 finishEventId: finishEventId,
+                supersetPlaces: supersetPlaces,
                 rowid: rowid,
               ),
           createCompanionCallback:
@@ -6826,6 +6907,7 @@ class $$WorkoutSessionsTableTableManager
                 Value<int?> finishedAtUtcMs = const Value.absent(),
                 Value<int?> finishUtcOffsetMinutes = const Value.absent(),
                 required String finishEventId,
+                Value<String?> supersetPlaces = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => WorkoutSessionsCompanion.insert(
                 id: id,
@@ -6842,6 +6924,7 @@ class $$WorkoutSessionsTableTableManager
                 finishedAtUtcMs: finishedAtUtcMs,
                 finishUtcOffsetMinutes: finishUtcOffsetMinutes,
                 finishEventId: finishEventId,
+                supersetPlaces: supersetPlaces,
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0

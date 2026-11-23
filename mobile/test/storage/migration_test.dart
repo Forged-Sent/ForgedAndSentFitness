@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:drift/drift.dart';
+import 'package:drift/drift.dart' hide isNull;
 import 'package:drift/native.dart';
 import 'package:drift_dev/api/migrations_native.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -15,6 +15,7 @@ import '../features/workout/workout_repository_contract.dart';
 import 'generated_migrations/schema.dart';
 import 'generated_migrations/schema_v1.dart' as v1;
 import 'generated_migrations/schema_v2.dart' as v2;
+import 'generated_migrations/schema_v3.dart' as v3;
 
 /// Schema migrations, tested against the frozen schema of every version
 /// in `drift_schemas/`.
@@ -86,26 +87,26 @@ void main() {
   }
 
   test(
-    'version 1 migrates to version 3 with exactly the frozen schema',
+    'version 1 migrates to version 4 with exactly the frozen schema',
     () async {
       final connection = await verifier.startAt(1);
       final database = AppDatabase(connection);
       addTearDown(database.close);
 
-      await verifier.migrateAndValidate(database, 3);
+      await verifier.migrateAndValidate(database, 4);
     },
   );
 
-  test('a new install is created at version 3 with the same schema', () async {
+  test('a new install is created at version 4 with the same schema', () async {
     final database = AppDatabase(NativeDatabase.memory());
     addTearDown(database.close);
 
-    await verifier.migrateAndValidate(database, 3);
+    await verifier.migrateAndValidate(database, 4);
 
     final version = await database
         .customSelect('PRAGMA user_version')
         .getSingle();
-    expect(version.read<int>('user_version'), 3);
+    expect(version.read<int>('user_version'), 4);
   });
 
   test(
@@ -118,7 +119,7 @@ void main() {
 
       final database = AppDatabase(schema.newConnection());
       addTearDown(database.close);
-      await verifier.migrateAndValidate(database, 3);
+      await verifier.migrateAndValidate(database, 4);
 
       final events = await (database.select(
         database.completionEvents,
@@ -157,7 +158,7 @@ void main() {
     },
   );
 
-  test('version 2 migrates to version 3 with exactly the frozen schema, and '
+  test('version 2 migrates to version 4 with exactly the frozen schema, and '
       'the journal and the rows of version 1 are all still there', () async {
     final schema = await verifier.schemaAt(2);
     final old = v2.DatabaseAtV2(schema.newConnection());
@@ -189,7 +190,7 @@ void main() {
 
     final database = AppDatabase(schema.newConnection());
     addTearDown(database.close);
-    await verifier.migrateAndValidate(database, 3);
+    await verifier.migrateAndValidate(database, 4);
 
     final entry = (await database.select(database.journalEntries).get()).single;
     expect(
@@ -213,6 +214,141 @@ void main() {
     expect(await database.select(database.workoutSessions).get(), isEmpty);
     expect(await database.select(database.workoutExercises).get(), isEmpty);
     expect(await database.select(database.workoutSets).get(), isEmpty);
+  });
+
+  /// What a member who used build step S3 has in his file: one workout in
+  /// progress, with two exercises and a set logged. Written as that build
+  /// wrote it: the sessions table has no superset column yet.
+  Future<void> writeS3Workout(
+    v3.DatabaseAtV3 old, {
+    required String owner,
+  }) async {
+    await old.customStatement(
+      'INSERT INTO workout_sessions (id, owner_id, day, program, plan_day, '
+      'plan_week, title, session_type, minutes, started_at_utc_ms, '
+      'start_utc_offset_minutes, finished_at_utc_ms, '
+      'finish_utc_offset_minutes, finish_event_id) VALUES '
+      "('s1', ?, '2026-11-09', 'Forged', 1, 1, 'Full Body A: Back Squat', "
+      "'Core', 45, 1794272400000, -420, NULL, NULL, 's1-finish')",
+      <Object?>[owner],
+    );
+    await old.customStatement(
+      'INSERT INTO workout_exercises (id, session_id, position, movement_id, '
+      'name, prescription, measure, weight_mode, rest_base_seconds, '
+      'rest_ends_at_utc_ms, rest_paused_seconds) VALUES '
+      "('e0', 's1', 0, 'Cable Curl', 'Cable Curl', "
+      "'Superset A1: 3 x 12 (RIR 3). Go straight to A2', 'reps', 'required', "
+      "90, NULL, NULL), "
+      "('e1', 's1', 1, 'Overhead Triceps Extension', "
+      "'Cable Overhead Triceps Extension', "
+      "'Superset A2: 3 x 12 (RIR 3). Rest 45 to 60 sec, then back to A1', "
+      "'reps', 'required', 60, NULL, NULL)",
+    );
+    await old.customStatement(
+      'INSERT INTO workout_sets (id, exercise_id, position, target, reps, '
+      'weight_lb, ticked) VALUES '
+      "('e0-s0', 'e0', 0, '12', 12, 40.0, 0), ('e0-s1', 'e0', 1, '12', NULL, "
+      "NULL, 0), ('e1-s0', 'e1', 0, '12', NULL, NULL, 0)",
+    );
+  }
+
+  test('version 3 migrates to version 4 with exactly the frozen schema: a '
+      'workout already in the file is as it was, and its new column is '
+      'empty', () async {
+    final schema = await verifier.schemaAt(3);
+    final old = v3.DatabaseAtV3(schema.newConnection());
+    await writeS3Workout(old, owner: 'local-a');
+    await old.close();
+
+    final database = AppDatabase(schema.newConnection());
+    addTearDown(database.close);
+    await verifier.migrateAndValidate(database, 4);
+
+    final session =
+        (await database.select(database.workoutSessions).get()).single;
+    expect(
+      (session.id, session.ownerId, session.day, session.planDay),
+      ('s1', 'local-a', '2026-11-09', 1),
+    );
+    expect(session.title, 'Full Body A: Back Squat');
+    expect(session.startedAtUtcMs, 1794272400000);
+    expect(session.finishedAtUtcMs, isNull);
+    expect(session.finishEventId, 's1-finish');
+    // The row was started without a mark and is not given one.
+    expect(session.supersetPlaces, isNull);
+
+    final exercises = await (database.select(
+      database.workoutExercises,
+    )..orderBy([(t) => OrderingTerm.asc(t.position)])).get();
+    expect(exercises.map((e) => (e.id, e.movementId, e.restBaseSeconds)), [
+      ('e0', 'Cable Curl', 90),
+      ('e1', 'Overhead Triceps Extension', 60),
+    ]);
+    final sets = await (database.select(
+      database.workoutSets,
+    )..orderBy([(t) => OrderingTerm.asc(t.id)])).get();
+    expect(sets.map((s) => (s.id, s.reps, s.weightLb)), [
+      ('e0-s0', 12, 40.0),
+      ('e0-s1', null, null),
+      ('e1-s0', null, null),
+    ]);
+  });
+
+  test('a version 3 file on disk opens in this build as the app opens it: '
+      'the workout he started is still his to log, with no superset group, '
+      'and the next one he starts keeps its mark', () async {
+    final folder = await Directory.systemTemp.createTemp('fs-v4-migrate-');
+    addTearDown(() async {
+      if (await folder.exists()) await folder.delete(recursive: true);
+    });
+    // The file an S3 build left behind: version 3, under his profile id.
+    final owner = await loadOrCreateLocalProfileId(folder);
+    final file = databaseFileFor(folder, owner);
+    final old = v3.DatabaseAtV3(NativeDatabase(file));
+    await writeS3Workout(old, owner: owner);
+    expect(
+      (await old.customSelect('PRAGMA user_version').getSingle()).read<int>(
+        'user_version',
+      ),
+      3,
+    );
+    await old.close();
+
+    // This build starts: the same call `main` makes.
+    final store = await openLocalStoreIn(folder, background: false);
+    addTearDown(store.close);
+    const nov9 = LocalDate(2026, 11, 9);
+
+    final before = (await store.workouts.watchSession(owner, nov9).first)!;
+    expect(before.finished, isFalse);
+    expect(before.exercises.first.sets.first.reps, 12);
+    expect(before.exercises.first.sets.first.weightLb, 40);
+    // Its prescriptions say "Superset", and still it has no mark: the
+    // update does not fill one in.
+    expect(before.superset, isEmpty);
+    expect(before.supersetLabels, <String?>[null, null]);
+
+    // It can still be logged and finished.
+    await store.workouts.setReps('e0-s1', 11);
+    await store.workouts.finishSession('s1', DateTime(2026, 11, 9, 19));
+    final after = (await store.workouts.watchSession(owner, nov9).first)!;
+    expect(after.finished, isTrue);
+    expect(after.exercises.first.sets[1].reps, 11);
+    expect(after.superset, isEmpty);
+
+    // A workout started by this build keeps its mark.
+    await store.workouts.startSession(
+      newSession(
+        's2',
+        DateTime(2026, 11, 12, 18, 10),
+        owner: owner,
+        superset: <int>[0, 1],
+      ),
+    );
+    expect(
+      (await store.workouts.watchSession(owner, nov12).first)!.superset,
+      <int>[0, 1],
+    );
   });
 
   test('a version 1 file on disk opens in this build as the app opens it: '

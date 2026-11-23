@@ -19,19 +19,7 @@ import 'workout_restart_support.dart';
 /// The pair each of those days must show is written out here, by the
 /// names a full gym gives the two movements, and not read from the app:
 /// if the app stopped reading the mark, this test fails, on any day.
-const Map<String, (String a1, String a2)>
-_pairByTitle = <String, (String, String)>{
-  // Plan day 1.
-  'Full Body A: Back Squat': ('Cable Curl', 'Cable Overhead Triceps Extension'),
-  // Plan day 3.
-  'Full Body B: Deadlift': ('Incline Dumbbell Curl', 'Cable Triceps Kickback'),
-  // Plan day 5.
-  'Full Body C: Bench Press': (
-    'Preacher Curl Machine',
-    'Cable Triceps Pushdown',
-  ),
-};
-
+/// The table is `supersetPairByTitle` in `workout_restart_support.dart`.
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
@@ -63,7 +51,7 @@ void main() {
     );
 
     // Which of the three days this is, by the title on the page.
-    final shown = _pairByTitle.entries.where(
+    final shown = supersetPairByTitle.entries.where(
       (entry) => find.text(entry.key.toUpperCase()).evaluate().isNotEmpty,
     );
     expect(
