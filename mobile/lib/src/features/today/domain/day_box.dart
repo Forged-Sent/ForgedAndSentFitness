@@ -39,7 +39,7 @@ class DayBox {
   final int previewPoints;
 
   /// The item this box records under, or null if the box cannot be checked
-  /// yet. In build step S1 only the devotional can.
+  /// yet. The devotional (build step S1) and the workout (S3) can.
   final String? item;
 
   bool get active => item != null;
