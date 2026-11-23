@@ -46,11 +46,12 @@ void main() {
       expect(shownIn(tester, repsField(0, set)), enteredSets[set].$1);
       expect(shownIn(tester, weightField(0, set)), enteredSets[set].$2);
     }
-    // And its superset mark, with the group drawn from it.
-    final session = (await storedSession(tester, const SystemClock()))!;
-    expect(session.superset, hasLength(2));
-    await showOnWorkoutPage(tester, supersetGroup);
-    expect(supersetGroup, findsOneWidget);
+    // And its superset mark, at the same two exercises, with the group
+    // drawn from it.
+    await expectSupersetOf(
+      tester,
+      (await storedSession(tester, const SystemClock()))!,
+    );
     debugPrint('UPGRADE TEST: the workout in progress kept its two sets.');
   });
 }

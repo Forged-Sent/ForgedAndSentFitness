@@ -71,11 +71,10 @@ void main() {
 
     // Schema version 4: the workout this build started keeps its day's
     // superset mark in the file, and the group is drawn from it.
-    final session = (await storedSession(tester, const SystemClock()))!;
-    expect(session.superset, hasLength(2));
-    expect(session.supersetLabels.whereType<String>(), <String>['A1', 'A2']);
-    await showOnWorkoutPage(tester, supersetGroup);
-    expect(supersetGroup, findsOneWidget);
+    await expectSupersetOf(
+      tester,
+      (await storedSession(tester, const SystemClock()))!,
+    );
     debugPrint('UPGRADE TEST: a workout was started and two sets were typed.');
   });
 }

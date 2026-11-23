@@ -111,6 +111,64 @@ final Finder supersetGroup = find.byKey(
   const ValueKey<String>('fs-superset-group'),
 );
 
+/// The superset of each workout a new member's plan can open on (plan day
+/// 1 on a Monday, day 3 on a Wednesday, day 5 on a Friday), by the
+/// workout's title: the names a full gym gives its two movements, first
+/// and second. On each of the three days they are the sixth and seventh
+/// exercises, places 5 and 6. Written out here and not read from the app,
+/// so a test that uses it fails if the app loses or moves the mark.
+const Map<String, (String a1, String a2)>
+supersetPairByTitle = <String, (String, String)>{
+  // Plan day 1.
+  'Full Body A: Back Squat': ('Cable Curl', 'Cable Overhead Triceps Extension'),
+  // Plan day 3.
+  'Full Body B: Deadlift': ('Incline Dumbbell Curl', 'Cable Triceps Kickback'),
+  // Plan day 5.
+  'Full Body C: Bench Press': (
+    'Preacher Curl Machine',
+    'Cable Triceps Pushdown',
+  ),
+};
+
+/// Checks that [session] holds the mark of its day's superset at places 5
+/// and 6, that those two exercises are the expected ones by name, and
+/// that the page draws exactly them as one group.
+Future<void> expectSupersetOf(
+  WidgetTester tester,
+  WorkoutSession session,
+) async {
+  final pair = supersetPairByTitle[session.title];
+  expect(
+    pair,
+    isNotNull,
+    reason:
+        '"${session.title}" is not one of the three workouts a new plan '
+        'opens on. Start with the app not installed.',
+  );
+  final (first, second) = pair!;
+  expect(session.superset, <int>[5, 6]);
+  expect(session.exercises[5].name, first);
+  expect(session.exercises[6].name, second);
+  expect(session.supersetLabels, <String?>[
+    null,
+    null,
+    null,
+    null,
+    null,
+    'A1',
+    'A2',
+  ]);
+
+  await showOnWorkoutPage(tester, supersetGroup);
+  expect(supersetGroup, findsOneWidget);
+  Finder inGroup(Finder what) =>
+      find.descendant(of: supersetGroup, matching: what);
+  expect(inGroup(find.text(first)), findsOneWidget);
+  expect(inGroup(find.text(second)), findsOneWidget);
+  // The exercise before the pair is outside the group.
+  expect(inGroup(find.text(session.exercises[4].name)), findsNothing);
+}
+
 /// "Add set", under the rows of one exercise.
 Finder addSetButton(int exercise) =>
     find.byKey(ValueKey<String>('fs-add-set-$exercise'));
