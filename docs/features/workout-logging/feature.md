@@ -197,6 +197,22 @@ Not done in this step: the challenge point values, which differed and are scorin
 
 **Not verified:** a phone; iOS beyond CI's simulator build; the two new buttons with a screen reader on a device. One Codex review was run on this change (two High, one Medium), followed by one fix round; the fix round itself has not been reviewed.
 
+## Proposed addition, written after the approval: supersets drawn as one group
+
+**This section is not part of what the maintainer approved on 2026-11-22.** It was added afterwards, with the change that builds it, at his request of 2026-11-21 and to his rules of 2026-11-22. It is **proposed** until he approves it.
+
+**What he sees.** On a day with a superset, its two exercises stand in one group on the workout page: a bar down the left, the word "Superset" above them, and "A1" and "A2" before their names. It is so before the workout is started and while it is logged. The finished workout's summary is as it was.
+
+**Display only.**
+
+- **Where the pair comes from.** From the day's `superset` mark in `seed/workouts.json` (for example `[5, 6]`: the sixth and seventh exercises), which the bundled copy keeps. Not from the words "Superset A1" in the prescription. A mark is accepted only if it is two or more neighbouring places inside the day's exercises; anything else is read as no superset. 209 of the Forged program's 365 days carry one, always a pair.
+- **Nothing is stored and no rule changes.** The session, the database, the rest timer rules (the first of the two has no timer, the second has one) and the summary are as before. The prescription line is shown as it is written, with its own "Superset A1:".
+- **A session already started** stores no mark. The page asks the program what it holds today for the plan day the session was started on, and draws the group only if the session still has the program's movements at the marked places. If the program's content has changed since, no group is drawn: nothing rather than the wrong pair. This is the one place a started session looks at the program again, and only to draw.
+
+**Tests** (each failed before the change, except those that expect no group): the mark of every plan day against `seed/workouts.json`, what counts as a mark, the labels, and a session's labels with and without the program's movements, in `workout_library_test.dart`; six widget tests in `workout_page_test.dart` (before the start, during the workout, a screen reader, a day with none, the summary, a session that does not match). Golden images, all **not approved**: two new, `workout_superset_dark.png` and `workout_superset_light.png`; four redrawn because the group is in view, `workout_before_` and `workout_prayer_`, dark and light. On the Android emulator, 2026-11-22: `integration_test/workout_superset_test.dart`, and the workout restart pair again on this build.
+
+**Not verified:** a phone; iOS beyond CI's simulator build; the group with a screen reader on a device. The other three programs are not bundled; their marks are the same shape in `seed/` (always a pair), but no test here reads them.
+
 ## Boundaries and evidence
 
 - **Source:** `mobile/lib/src/features/workout/` (domain, data, presentation); `mobile/lib/src/storage/` (tables, migration steps); `mobile/drift_schemas/` (the frozen schema of each version); five shared widgets and text roles under `mobile/lib/src/design/`; `mobile/assets/content/` (the program, the movement names, the prayer).

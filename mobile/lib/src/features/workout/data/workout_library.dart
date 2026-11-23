@@ -47,6 +47,10 @@ class WorkoutLibrary {
           in (json.decode(workouts) as List<dynamic>)
               .cast<Map<String, dynamic>>())
         PlannedWorkout(
+          superset: readSupersetMark(
+            entry['superset'],
+            (entry['exercises'] as List<dynamic>).length,
+          ),
           day: (entry['day'] as num).toInt(),
           week: (entry['week'] as num).toInt(),
           templateDay: (entry['templateDay'] as num).toInt(),
@@ -112,6 +116,17 @@ class WorkoutLibrary {
   /// What [plan] holds for [date].
   PlanDay dayFor(WorkoutPlan plan, LocalDate date) =>
       planDayFor(plan, days, date);
+
+  /// What [program] holds for its plan day numbered [day], from 1, or null
+  /// if the bundle has no such day. For a session already started, which
+  /// keeps the program and the day's number it was started with.
+  PlannedWorkout? planDayNumbered(String program, int day) {
+    if (program != WorkoutLibrary.program) return null;
+    for (final planned in days) {
+      if (planned.day == day) return planned;
+    }
+    return null;
+  }
 }
 
 final workoutLibraryProvider = FutureProvider<WorkoutLibrary>(

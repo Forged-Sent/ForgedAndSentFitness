@@ -456,26 +456,39 @@ class _WorkoutPageState extends ConsumerState<WorkoutPage> {
                 ),
               const SizedBox(height: 12),
               if (session == null)
-                for (final line in view.planned)
-                  _ExerciseFrame(
-                    name: line.name,
-                    prescription: line.prescription,
-                  )
+                ..._withSupersets(
+                  <Widget>[
+                    for (final line in view.planned)
+                      _ExerciseFrame(
+                        name: line.name,
+                        prescription: line.prescription,
+                        supersetLabel: line.supersetLabel,
+                      ),
+                  ],
+                  <String?>[
+                    for (final line in view.planned) line.supersetLabel,
+                  ],
+                )
               else if (session.finished)
                 _LockedSummary(session: session)
               else ...<Widget>[
-                for (var i = 0; i < session.exercises.length; i++)
-                  _LiveExercise(
-                    index: i,
-                    exercise: session.exercises[i],
-                    lastTime: view.lastTimes[session.exercises[i].movementId],
-                    needsFixing: _needsFixing,
-                    removing: _removing,
-                    unsaved: _unsaved,
-                    onRemove: _removeSet,
-                    model: _model,
-                    track: _track,
-                  ),
+                ..._withSupersets(<Widget>[
+                  for (var i = 0; i < session.exercises.length; i++)
+                    _LiveExercise(
+                      index: i,
+                      exercise: session.exercises[i],
+                      supersetLabel: i < view.supersetLabels.length
+                          ? view.supersetLabels[i]
+                          : null,
+                      lastTime: view.lastTimes[session.exercises[i].movementId],
+                      needsFixing: _needsFixing,
+                      removing: _removing,
+                      unsaved: _unsaved,
+                      onRemove: _removeSet,
+                      model: _model,
+                      track: _track,
+                    ),
+                ], view.supersetLabels),
                 const SizedBox(height: 18),
                 ConstrainedBox(
                   constraints: const BoxConstraints(minHeight: 56),
@@ -623,17 +636,95 @@ class _ClockBar extends StatelessWidget {
   }
 }
 
+/// Puts the exercises that carry a superset label, which stand next to
+/// each other, into one [_SupersetGroup], and leaves the others as they
+/// are. [labels] has one entry for each of [frames], null for an exercise
+/// outside the superset.
+List<Widget> _withSupersets(List<Widget> frames, List<String?> labels) {
+  bool marked(int i) => i < labels.length && labels[i] != null;
+  final out = <Widget>[];
+  var i = 0;
+  while (i < frames.length) {
+    if (!marked(i)) {
+      out.add(frames[i]);
+      i++;
+      continue;
+    }
+    final start = i;
+    while (i < frames.length && marked(i)) {
+      i++;
+    }
+    out.add(_SupersetGroup(children: frames.sublist(start, i)));
+  }
+  return out;
+}
+
+/// The exercises of a superset, drawn as one group: a bar down the left
+/// and the word "Superset" above them. Which exercises these are comes
+/// from the program's own mark for the day, not from the prescription's
+/// words.
+class _SupersetGroup extends StatelessWidget {
+  const _SupersetGroup({required this.children});
+
+  final List<Widget> children;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = FsColors.of(context);
+    return DecoratedBox(
+      key: const ValueKey<String>('fs-superset-group'),
+      decoration: BoxDecoration(
+        border: Border(
+          top: BorderSide(color: colors.hairline),
+          left: BorderSide(color: colors.accent, width: 3),
+        ),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.only(left: 10),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            Padding(
+              padding: const EdgeInsets.only(top: 10, bottom: 8),
+              child: Semantics(
+                header: true,
+                label:
+                    'Superset of ${children.length} exercises, done one '
+                    'after the other',
+                child: ExcludeSemantics(
+                  child: FsLabelCaps(
+                    'Superset',
+                    style: FsWorkoutText.statLabel,
+                    color: colors.accent,
+                  ),
+                ),
+              ),
+            ),
+            ...children,
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 /// An exercise's name and prescription over whatever belongs under them,
 /// with a hairline above. The prototype's `.wx`.
 class _ExerciseFrame extends StatelessWidget {
   const _ExerciseFrame({
     required this.name,
     required this.prescription,
+    this.supersetLabel,
     this.children = const <Widget>[],
   });
 
   final String name;
   final String prescription;
+
+  /// "A1" or "A2" for an exercise of a superset: drawn before the name.
+  final String? supersetLabel;
+
   final List<Widget> children;
 
   @override
@@ -657,12 +748,50 @@ class _ExerciseFrame extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 mainAxisSize: MainAxisSize.min,
                 children: <Widget>[
-                  Text(
-                    name,
-                    style: FsWorkoutText.exerciseName.copyWith(
-                      color: colors.text,
+                  if (supersetLabel == null)
+                    Text(
+                      name,
+                      style: FsWorkoutText.exerciseName.copyWith(
+                        color: colors.text,
+                      ),
+                    )
+                  else
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        DecoratedBox(
+                          decoration: BoxDecoration(
+                            border: Border.all(color: colors.accent),
+                            borderRadius: BorderRadius.circular(FsRadius.base),
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 6,
+                              vertical: 2,
+                            ),
+                            child: Text(
+                              supersetLabel!,
+                              key: ValueKey<String>(
+                                'fs-superset-label-$supersetLabel',
+                              ),
+                              semanticsLabel: 'Superset $supersetLabel',
+                              style: FsWorkoutText.setLabel.copyWith(
+                                color: colors.accent,
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            name,
+                            style: FsWorkoutText.exerciseName.copyWith(
+                              color: colors.text,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
-                  ),
                   const SizedBox(height: 2),
                   Text(
                     prescription,
@@ -698,6 +827,7 @@ class _LiveExercise extends StatelessWidget {
     required this.exercise,
     required this.lastTime,
     required this.needsFixing,
+    this.supersetLabel,
     required this.removing,
     required this.unsaved,
     required this.onRemove,
@@ -709,6 +839,9 @@ class _LiveExercise extends StatelessWidget {
   final int index;
 
   final SessionExercise exercise;
+
+  /// "A1" or "A2" if the exercise is one of the day's superset.
+  final String? supersetLabel;
 
   /// What was logged the last time this movement was done, if ever.
   final LastTime? lastTime;
@@ -747,6 +880,7 @@ class _LiveExercise extends StatelessWidget {
     return _ExerciseFrame(
       name: exercise.name,
       prescription: exercise.prescription,
+      supersetLabel: supersetLabel,
       children: <Widget>[
         if (last != null && last.sets.isNotEmpty) ...<Widget>[
           const SizedBox(height: 6),

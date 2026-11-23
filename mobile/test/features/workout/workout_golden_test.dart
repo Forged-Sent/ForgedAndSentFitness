@@ -117,6 +117,21 @@ void main() {
       );
     }, skip: skip);
 
+    testWidgets('a superset, grouped, $name', (tester) async {
+      await pumpApp(tester, themeMode: themeMode, clock: clock());
+      await openTodaysWorkout(tester);
+      await startWorkout(tester);
+      final group = find.byKey(const ValueKey<String>('fs-superset-group'));
+      await showOnWorkoutPage(tester, group);
+      // The group's top a little under the clock bar.
+      await Scrollable.ensureVisible(tester.element(group), alignment: 0.02);
+      await tester.pumpAndSettle();
+      await expectLater(
+        find.byType(MaterialApp),
+        matchesGoldenFile('goldens/workout_superset_$name.png'),
+      );
+    }, skip: skip);
+
     testWidgets('the finished workout, locked, $name', (tester) async {
       final app = await pumpApp(tester, themeMode: themeMode, clock: clock());
       await openTodaysWorkout(tester);

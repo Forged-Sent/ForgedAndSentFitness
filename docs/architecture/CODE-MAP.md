@@ -336,6 +336,7 @@ flowchart LR
     N68 --> N12
     N69 --> N12
     N69 --> N67
+    N69 --> N68
     N70 --> N7
     N70 --> N10
     N70 --> N12
@@ -1014,6 +1015,8 @@ flowchart LR
 - fn didUpdateWidget()
 - fn _sync()
 - class _ClockBar
+- fn marked()
+- class _SupersetGroup
 - class _ExerciseFrame
 - fn _setText()
 - class _LiveExercise

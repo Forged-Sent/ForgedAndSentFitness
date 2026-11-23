@@ -1,5 +1,6 @@
 import '../../../core/local_date.dart';
 import 'prescription.dart';
+import 'workout_plan.dart';
 
 /// One set of an exercise in a session.
 class SessionSet {
@@ -432,6 +433,34 @@ FinishCheck checkBeforeFinish(WorkoutSession session) {
     }
   }
   return FinishCheck(fixes: fixes, uncounted: uncounted);
+}
+
+/// The superset label of each exercise of [session], for drawing only:
+/// "A1" and "A2" for the two exercises [planned] marks as a superset, null
+/// for the others.
+///
+/// A session stores no superset mark. [planned] is what the program holds
+/// today for the plan day the session was started on. It is used only if
+/// the session still has, at the marked places, the movements the program
+/// has there. If the program's content has changed since the session was
+/// started, or [planned] is null, no exercise gets a label and the page
+/// draws no group: nothing is drawn rather than the wrong pair.
+List<String?> supersetLabelsFor(
+  WorkoutSession session,
+  PlannedWorkout? planned,
+) {
+  final count = session.exercises.length;
+  final none = List<String?>.filled(count, null);
+  if (planned == null || planned.superset.isEmpty) return none;
+  for (final place in planned.superset) {
+    if (place >= count || place >= planned.exercises.length) return none;
+    final exercise = session.exercises[place];
+    if (exercise.position != place ||
+        exercise.movementId != planned.exercises[place].movementId) {
+      return none;
+    }
+  }
+  return supersetLabels(planned.superset, count);
 }
 
 /// What finishing a session did.

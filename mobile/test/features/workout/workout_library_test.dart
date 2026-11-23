@@ -2,16 +2,142 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/services.dart';
+import 'package:forged_and_sent/src/core/local_date.dart';
+import 'package:forged_and_sent/src/features/workout/domain/prescription.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:forged_and_sent/src/features/workout/data/workout_library.dart';
+import 'package:forged_and_sent/src/features/workout/domain/workout_plan.dart';
+import 'package:forged_and_sent/src/features/workout/domain/workout_session.dart';
 
 import '../../support/fs_test_support.dart';
 
 /// Parsed JSON of a file, relative to `mobile/`, where the tests run.
 Object? _json(String path) => json.decode(File(path).readAsStringSync());
 
+/// A session started on plan day 1 with [movementIds] in that order.
+WorkoutSession _sessionOf(List<String> movementIds) => WorkoutSession(
+  id: 's',
+  ownerId: 'local-test',
+  day: const LocalDate(2026, 11, 9),
+  program: 'Forged',
+  planDay: 1,
+  planWeek: 1,
+  title: 'Full Body A: Back Squat',
+  sessionType: 'Core',
+  minutes: 45,
+  startedAtUtc: DateTime.utc(2026, 11, 10, 1),
+  startUtcOffset: const Duration(hours: -7),
+  finishEventId: 's-finish',
+  exercises: <SessionExercise>[
+    for (var i = 0; i < movementIds.length; i++)
+      SessionExercise(
+        id: 'e$i',
+        position: i,
+        movementId: movementIds[i],
+        name: movementIds[i],
+        prescription: '3 x 5',
+        measure: SetMeasure.reps,
+        weightMode: WeightMode.required,
+        restBaseSeconds: 90,
+        sets: const <SessionSet>[],
+      ),
+  ],
+);
+
 void main() {
   final library = loadBundledWorkoutLibrary();
+
+  group('the superset mark (display only)', () {
+    test('each plan day carries the mark seed/workouts.json gives it', () {
+      final seed =
+          (_json('../seed/workouts.json')! as Map<String, dynamic>)['Forged']
+              as List<dynamic>;
+      expect(library.days, hasLength(seed.length));
+      var marked = 0;
+      for (var i = 0; i < seed.length; i++) {
+        final mark = (seed[i] as Map<String, dynamic>)['superset'];
+        expect(
+          library.days[i].superset,
+          mark ?? const <int>[],
+          reason: 'plan day ${library.days[i].day}',
+        );
+        if (mark != null) marked++;
+      }
+      // Day 1's superset is its sixth and seventh exercises.
+      expect(library.days.first.superset, <int>[5, 6]);
+      expect(marked, 209);
+    });
+
+    test('a mark is two or more neighbouring places inside the day\'s '
+        'exercises; anything else is read as no superset', () {
+      expect(readSupersetMark(<dynamic>[5, 6], 7), <int>[5, 6]);
+      expect(readSupersetMark(<dynamic>[0, 1, 2], 3), <int>[0, 1, 2]);
+
+      expect(readSupersetMark(null, 7), isEmpty);
+      expect(readSupersetMark('5,6', 7), isEmpty);
+      expect(readSupersetMark(<dynamic>[], 7), isEmpty);
+      expect(readSupersetMark(<dynamic>[5], 7), isEmpty);
+      // Not neighbours, or not in order.
+      expect(readSupersetMark(<dynamic>[4, 6], 7), isEmpty);
+      expect(readSupersetMark(<dynamic>[6, 5], 7), isEmpty);
+      // Outside the list.
+      expect(readSupersetMark(<dynamic>[6, 7], 7), isEmpty);
+      expect(readSupersetMark(<dynamic>[-1, 0], 7), isEmpty);
+      // Not whole numbers.
+      expect(readSupersetMark(<dynamic>[5.5, 6.5], 7), isEmpty);
+      expect(readSupersetMark(<dynamic>['5', '6'], 7), isEmpty);
+    });
+
+    test('the two exercises are labelled A1 and A2, the others not', () {
+      expect(supersetLabels(const <int>[5, 6], 7), <String?>[
+        null,
+        null,
+        null,
+        null,
+        null,
+        'A1',
+        'A2',
+      ]);
+      expect(supersetLabels(const <int>[], 3), <String?>[null, null, null]);
+    });
+
+    test('a session takes its labels from the program\'s day, if it still '
+        'has the same movements at the marked places', () {
+      final day1 = library.planDayNumbered('Forged', 1)!;
+      final ids = <String>[for (final e in day1.exercises) e.movementId];
+
+      expect(supersetLabelsFor(_sessionOf(ids), day1), <String?>[
+        null,
+        null,
+        null,
+        null,
+        null,
+        'A1',
+        'A2',
+      ]);
+    });
+
+    test('a session whose movements at the marked places differ from the '
+        'program\'s, or that is shorter, gets no label at all', () {
+      final day1 = library.planDayNumbered('Forged', 1)!;
+      final ids = <String>[for (final e in day1.exercises) e.movementId];
+
+      final swapped = <String>[...ids]..[6] = 'Dips';
+      expect(
+        supersetLabelsFor(_sessionOf(swapped), day1),
+        everyElement(isNull),
+      );
+      expect(supersetLabelsFor(_sessionOf(swapped), day1), hasLength(7));
+      expect(
+        supersetLabelsFor(_sessionOf(ids.sublist(0, 6)), day1),
+        everyElement(isNull),
+      );
+      // No such plan day, or another program: nothing to go by.
+      expect(supersetLabelsFor(_sessionOf(ids), null), everyElement(isNull));
+      expect(library.planDayNumbered('Forged', 9999), isNull);
+      expect(library.planDayNumbered('Built', 1), isNull);
+    });
+  });
 
   group('the bundled workout files are the repository\'s own', () {
     test('the program is the Forged list of seed/workouts.json', () {
