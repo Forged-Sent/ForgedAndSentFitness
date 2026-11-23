@@ -1,5 +1,7 @@
 import 'package:drift/drift.dart';
 
+import 'app_database.steps.dart';
+
 part 'app_database.g.dart';
 
 /// Every tap that checks or clears a box, in the order it happened here.
@@ -177,8 +179,174 @@ class JournalChanges extends Table {
   Set<Column<Object>> get primaryKey => {id};
 }
 
+/// The member's workout plan: which program he follows and how its days
+/// fall on his week. One row per owner. Added in schema version 3.
+///
+/// Weekdays are numbered as `LocalDate.weekday` numbers them: Monday is 1
+/// and Sunday is 7.
+@DataClassName('WorkoutPlanRow')
+class WorkoutPlans extends Table {
+  TextColumn get ownerId => text()();
+
+  TextColumn get program => text()();
+
+  /// The equipment setup the movement names are shown for.
+  TextColumn get equipment => text()();
+
+  /// The weekly rest day.
+  IntColumn get restWeekday => integer()();
+
+  /// The three lifting weekdays, in order from the day after the rest day,
+  /// as `1,3,5`.
+  TextColumn get liftWeekdays => text()();
+
+  /// Whether the optional fourth training day is on.
+  BoolColumn get fourthDay => boolean()();
+
+  /// The first day of the plan's first week, as `YYYY-MM-DD`: always the
+  /// day after a rest day.
+  TextColumn get startDay => text()();
+
+  @override
+  Set<Column<Object>> get primaryKey => {ownerId};
+}
+
+/// One workout the member started. Added in schema version 3.
+///
+/// A session belongs to the local day it was started on and keeps that day
+/// for good, so it can be finished after midnight. It carries its own copy
+/// of what the plan said that day; nothing here points back into the plan,
+/// so changing the plan later cannot change a session.
+@DataClassName('WorkoutSessionRow')
+class WorkoutSessions extends Table {
+  /// Client-generated UUID.
+  TextColumn get id => text()();
+
+  TextColumn get ownerId => text()();
+
+  /// The local day the session was started on, as `YYYY-MM-DD`.
+  TextColumn get day => text()();
+
+  TextColumn get program => text()();
+
+  /// The plan's day and week numbers when the session was started. For the
+  /// line above the title only; nothing is looked up by them.
+  IntColumn get planDay => integer()();
+  IntColumn get planWeek => integer()();
+
+  TextColumn get title => text()();
+  TextColumn get sessionType => text()();
+  IntColumn get minutes => integer()();
+
+  /// When Amen was tapped: a UTC instant, and the phone's offset from UTC
+  /// at that moment. The workout clock is worked out from this.
+  IntColumn get startedAtUtcMs => integer()();
+  IntColumn get startUtcOffsetMinutes => integer()();
+
+  /// When the session was finished. Null while it is in progress.
+  IntColumn get finishedAtUtcMs => integer().nullable()();
+  IntColumn get finishUtcOffsetMinutes => integer().nullable()();
+
+  /// The id of the completion event that finishing this session records,
+  /// made when the session was started. Finishing twice therefore records
+  /// one completion.
+  TextColumn get finishEventId => text()();
+
+  @override
+  Set<Column<Object>> get primaryKey => {id};
+
+  /// One session per owner per day.
+  @override
+  List<Set<Column<Object>>> get uniqueKeys => [
+    {ownerId, day},
+  ];
+}
+
+/// One exercise of a session, as the plan prescribed it when the session
+/// was started. Added in schema version 3.
+@DataClassName('WorkoutExerciseRow')
+@TableIndex(name: 'workout_exercises_session', columns: {#sessionId})
+@TableIndex(name: 'workout_exercises_movement', columns: {#movementId})
+class WorkoutExercises extends Table {
+  /// Client-generated UUID.
+  TextColumn get id => text()();
+
+  TextColumn get sessionId => text().references(WorkoutSessions, #id)();
+
+  /// Where the exercise stands on the page. For display order only: "last
+  /// time" is found by [movementId], never by this.
+  IntColumn get position => integer()();
+
+  /// The movement's key in the workout library.
+  TextColumn get movementId => text()();
+
+  /// The name shown for the member's equipment.
+  TextColumn get name => text()();
+
+  /// The prescription text, for example `3 x 5 (RPE 7, rest 2 min)`.
+  TextColumn get prescription => text()();
+
+  /// What a set of this exercise records: `reps`, `seconds`, or `tick` for
+  /// an exercise that is only marked done.
+  TextColumn get measure => text()();
+
+  /// Whether a set needs a weight: `required`, `optional` (a bodyweight
+  /// lift that can be loaded) or `none`.
+  TextColumn get weightMode => text()();
+
+  /// The rest timer's full length in seconds.
+  IntColumn get restBaseSeconds => integer()();
+
+  /// The UTC instant the running rest timer reaches zero. Null when it is
+  /// not running.
+  IntColumn get restEndsAtUtcMs => integer().nullable()();
+
+  /// The seconds left on a paused rest timer. Null when it is not paused.
+  IntColumn get restPausedSeconds => integer().nullable()();
+
+  @override
+  Set<Column<Object>> get primaryKey => {id};
+}
+
+/// One set of an exercise. Added in schema version 3.
+@DataClassName('WorkoutSetRow')
+@TableIndex(name: 'workout_sets_exercise', columns: {#exerciseId})
+class WorkoutSets extends Table {
+  /// Client-generated UUID.
+  TextColumn get id => text()();
+
+  TextColumn get exerciseId => text().references(WorkoutExercises, #id)();
+
+  IntColumn get position => integer()();
+
+  /// What the plan asked for in this set, for example `5` or `25 sec`.
+  TextColumn get target => text()();
+
+  /// Reps done, or seconds for a timed set. Null until entered.
+  IntColumn get reps => integer().nullable()();
+
+  /// The weight on the bar in pounds, or the weight added to a bodyweight
+  /// lift. Never the member's body weight. Null until entered.
+  RealColumn get weightLb => real().nullable()();
+
+  /// For an exercise that is only marked done.
+  BoolColumn get ticked => boolean().withDefault(const Constant(false))();
+
+  @override
+  Set<Column<Object>> get primaryKey => {id};
+}
+
 /// One member's local data. There is one database file per owner id, so one
 /// member's rows cannot appear for another.
+///
+/// Schema versions:
+/// 1. The day's boxes and settings (build step S1).
+/// 2. The journal tables (build step S2).
+/// 3. Workout plans, sessions, exercises and sets (build step S3).
+///
+/// Each version's schema is frozen in `drift_schemas/`, and the tests in
+/// `test/storage/` prove that a file of every earlier version opens in this
+/// one with its rows intact.
 @DriftDatabase(
   tables: [
     CompletionEvents,
@@ -186,43 +354,92 @@ class JournalChanges extends Table {
     AppSettings,
     JournalEntries,
     JournalChanges,
+    WorkoutPlans,
+    WorkoutSessions,
+    WorkoutExercises,
+    WorkoutSets,
   ],
 )
 class AppDatabase extends _$AppDatabase {
   AppDatabase(super.executor);
 
-  /// Version 1: completions, day states and settings (build step S1).
-  /// Version 2: the journal tables (build step S2).
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => 3;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
     onCreate: (Migrator m) => m.createAll(),
-    onUpgrade: (Migrator m, int from, int to) async {
-      if (from < 2) {
-        // Both tables or neither. And a table that is already there is
-        // left alone: SQLite records the new version after this returns,
-        // so an update that was cut off between the two can leave the
-        // tables in place under the old version number. Creating them
-        // again would fail on every later launch.
-        await transaction(() async {
-          if (!await _tableExists(journalEntries.actualTableName)) {
-            await m.createTable(journalEntries);
-          }
-          if (!await _tableExists(journalChanges.actualTableName)) {
-            await m.createTable(journalChanges);
-          }
-        });
-      }
+    onUpgrade: (Migrator m, int from, int to) => m.runMigrationSteps(
+      from: from,
+      to: to,
+      // A step is applied completely or not at all, so a phone that loses
+      // power halfway through is not left with half the new tables.
+      steps: (int version, GeneratedDatabase database) =>
+          database.transaction(() => _upgradeSteps(version, database)),
+    ),
+    beforeOpen: (OpeningDetails details) async {
+      // SQLite checks references between tables only when asked to.
+      await customStatement('PRAGMA foreign_keys = ON');
     },
   );
+}
 
-  Future<bool> _tableExists(String name) async {
-    final found = await customSelect(
-      "SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = ?",
-      variables: <Variable<Object>>[Variable<String>(name)],
-    ).get();
-    return found.isNotEmpty;
-  }
+/// What each schema version adds to the one before it. Written against the
+/// frozen schema of the version it produces, not against the tables above,
+/// so a later change to a table cannot change an old step.
+final _upgradeSteps = migrationSteps(
+  // In both steps, a table or an index that is already there is left alone.
+  // The new version number is recorded after a step returns, so an update
+  // that was cut off in between leaves what the step made in place under
+  // the old number. Making it again would fail on every later launch.
+  from1To2: (Migrator m, Schema2 schema) async {
+    for (final table in <TableInfo<Table, Object?>>[
+      schema.journalEntries,
+      schema.journalChanges,
+    ]) {
+      if (!await _exists(m.database, 'table', table.actualTableName)) {
+        await m.createTable(table);
+      }
+    }
+  },
+  from2To3: (Migrator m, Schema3 schema) async {
+    for (final table in <TableInfo<Table, Object?>>[
+      schema.workoutPlans,
+      schema.workoutSessions,
+      schema.workoutExercises,
+      schema.workoutSets,
+    ]) {
+      if (!await _exists(m.database, 'table', table.actualTableName)) {
+        await m.createTable(table);
+      }
+    }
+    for (final index in <Index>[
+      schema.workoutExercisesSession,
+      schema.workoutExercisesMovement,
+      schema.workoutSetsExercise,
+    ]) {
+      if (!await _exists(m.database, 'index', index.entityName)) {
+        await m.createIndex(index);
+      }
+    }
+  },
+);
+
+/// Whether the database file already holds a table or an index of this
+/// [name]. [type] is `table` or `index`.
+Future<bool> _exists(
+  GeneratedDatabase database,
+  String type,
+  String name,
+) async {
+  final found = await database
+      .customSelect(
+        'SELECT 1 FROM sqlite_master WHERE type = ? AND name = ?',
+        variables: <Variable<Object>>[
+          Variable<String>(type),
+          Variable<String>(name),
+        ],
+      )
+      .get();
+  return found.isNotEmpty;
 }

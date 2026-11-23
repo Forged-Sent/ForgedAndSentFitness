@@ -26,9 +26,21 @@ class FsPageBar extends StatelessWidget {
           semanticLabel: 'Back',
           onPressed: onBack,
         ),
-        const Spacer(),
-        if (trailing != null)
-          FsLabelCaps(trailing!, style: FsText.kicker, color: colors.textMuted),
+        const SizedBox(width: 12),
+        // Takes the room that is left and keeps to the right, so a long
+        // line wraps at large text sizes instead of running off the page.
+        Expanded(
+          child: Align(
+            alignment: Alignment.centerRight,
+            child: trailing == null
+                ? null
+                : FsLabelCaps(
+                    trailing!,
+                    style: FsText.kicker,
+                    color: colors.textMuted,
+                  ),
+          ),
+        ),
       ],
     );
   }
