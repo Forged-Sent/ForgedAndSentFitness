@@ -24,7 +24,11 @@ void main() {
   testWidgets('installed over the older build: the journal and the completed '
       'day are still there, and Train works', (tester) async {
     final clock = await startAppOnLiftingDay(tester);
-    // Part 1 ran on the older build's clock; this is the same day.
+    // The two clocks follow one rule, written twice: here, now, they give
+    // the same day. That says nothing about the day part 1 ran on. What
+    // shows part 1's day is this one is the box below: it is checked only
+    // if the older build completed the devotional on the day this build
+    // now shows.
     expect(
       LocalDate.of(UpgradeLiftingDayClock().now()),
       LocalDate.of(clock.now()),

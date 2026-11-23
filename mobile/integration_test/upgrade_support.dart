@@ -42,8 +42,10 @@ import 'journal_restart_support.dart';
 /// `workout_restart_support.dart`). The older build has no such door, so
 /// part 1 starts it the way that build's `main()` does, with the clock
 /// put in beside the store: [startOlderAppOnLiftingDay], which uses only
-/// what both builds have. The two clocks follow one rule; part 2 checks
-/// that they agree on the day.
+/// what both builds have. The two clocks follow one rule, written twice;
+/// part 2 checks that, started together, they give the same day. That
+/// part 1 really ran on that day is shown by the devotional box: parts 2
+/// and 3 find it checked only on the day the older build completed it.
 ///
 /// All three parts run on the same real day, and not across midnight:
 /// they would not agree on the day they moved to, and a box checked on
