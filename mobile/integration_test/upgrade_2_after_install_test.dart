@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:forged_and_sent/src/core/local_date.dart';
 import 'package:forged_and_sent/src/design/fs_box_row.dart';
 import 'package:forged_and_sent/src/features/today/presentation/today_page.dart';
 import 'package:forged_and_sent/src/features/journal/presentation/journal_view_model.dart';
@@ -22,7 +23,12 @@ void main() {
 
   testWidgets('installed over the older build: the journal and the completed '
       'day are still there, and Train works', (tester) async {
-    await startApp(tester);
+    final clock = await startAppOnLiftingDay(tester);
+    // Part 1 ran on the older build's clock; this is the same day.
+    expect(
+      LocalDate.of(UpgradeLiftingDayClock().now()),
+      LocalDate.of(clock.now()),
+    );
 
     // The completed day.
     await showDevotionalBox(tester);
@@ -49,9 +55,9 @@ void main() {
       startWorkoutButton,
       findsOneWidget,
       reason:
-          'Today has no workout to start. Run the upgrade test on a day '
-          'with one: Monday, Wednesday or Friday on the plan every member '
-          'gets.',
+          'The day the test moved the clock to has no workout to start. '
+          'It should be a Monday, Wednesday or Friday on the plan every '
+          'member gets.',
     );
     await tester.tap(startWorkoutButton);
     await tester.pumpAndSettle();

@@ -18,7 +18,7 @@ void main() {
 
   testWidgets('after a kill and relaunch: the journal, the completed day and '
       'the workout in progress are still there', (tester) async {
-    await startApp(tester);
+    await startAppOnLiftingDay(tester);
 
     await showDevotionalBox(tester);
     expect(devotionalChecked(tester), isTrue);
