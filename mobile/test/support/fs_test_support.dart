@@ -22,6 +22,10 @@ import 'package:forged_and_sent/src/features/today/data/memory_day_repository.da
 import 'package:forged_and_sent/src/features/today/data/today_content.dart';
 import 'package:forged_and_sent/src/features/today/domain/completion_event.dart';
 import 'package:forged_and_sent/src/features/today/presentation/today_page.dart';
+import 'package:forged_and_sent/src/features/workout/data/memory_workout_repository.dart';
+import 'package:forged_and_sent/src/features/workout/data/workout_library.dart';
+import 'package:forged_and_sent/src/features/workout/domain/workout_session.dart';
+import 'package:forged_and_sent/src/features/workout/presentation/workout_page.dart';
 
 /// The size the prototype reference screenshots were taken at.
 const Size phone = Size(390, 844);
@@ -73,6 +77,14 @@ DevotionalLibrary loadBundledLibrary() => DevotionalLibrary.fromJson(
 TodayContent loadBundledTodayContent() => TodayContent.fromJson(
   tasks: _asset(TodayContent.tasksAsset),
   missions: _asset(TodayContent.missionsAsset),
+);
+
+/// The app's bundled workout program, movement names and workout prayer,
+/// read the same way.
+WorkoutLibrary loadBundledWorkoutLibrary() => WorkoutLibrary.fromJson(
+  workouts: _asset(WorkoutLibrary.workoutsAsset),
+  movements: _asset(WorkoutLibrary.movementsAsset),
+  prayer: _asset(WorkoutLibrary.prayerAsset),
 );
 
 /// The in-memory store standing in for the phone's database in a widget
@@ -129,6 +141,95 @@ class TestJournalRepository extends MemoryJournalRepository {
     final outcome = await super.apply(change);
     if (throwAfterStoring) throw StateError('The answer was lost.');
     return outcome;
+  }
+}
+
+/// The in-memory workout store of a widget test. Like [TestDayRepository]
+/// it reports itself as durable, and it can be told to fail.
+class TestWorkoutRepository extends MemoryWorkoutRepository {
+  TestWorkoutRepository(super.days);
+
+  /// When true, every change to a set or a rest timer, and every start,
+  /// throws, as a full or broken disk would.
+  bool failWrites = false;
+
+  /// When true, a day's session cannot be read: the stream the screens
+  /// listen to fails, and so does a single read, as they would on a broken
+  /// database file.
+  bool failSessionReads = false;
+
+  Completer<void>? _held;
+
+  /// From now on a change to a set waits, as it would behind a slow disk,
+  /// until [release] is called.
+  void hold() => _held = Completer<void>();
+
+  /// Lets every waiting change through.
+  void release() {
+    _held?.complete();
+    _held = null;
+  }
+
+  @override
+  bool get durable => true;
+
+  void _refuse() {
+    if (failWrites) throw StateError('The test refused this save.');
+  }
+
+  @override
+  Stream<WorkoutSession?> watchSession(String ownerId, LocalDate day) =>
+      failSessionReads
+      ? Stream<WorkoutSession?>.error(StateError('The test refused this read.'))
+      : super.watchSession(ownerId, day);
+
+  @override
+  Future<WorkoutSession?> readSession(String ownerId, LocalDate day) async {
+    if (failSessionReads) throw StateError('The test refused this read.');
+    return super.readSession(ownerId, day);
+  }
+
+  @override
+  Future<WorkoutSession> startSession(NewSession session) async {
+    _refuse();
+    return super.startSession(session);
+  }
+
+  @override
+  Future<void> setReps(String setId, int? reps) async {
+    await _held?.future;
+    _refuse();
+    return super.setReps(setId, reps);
+  }
+
+  @override
+  Future<void> setWeight(String setId, double? weightLb) async {
+    await _held?.future;
+    _refuse();
+    return super.setWeight(setId, weightLb);
+  }
+
+  @override
+  Future<void> setTicked(String setId, {required bool ticked}) async {
+    await _held?.future;
+    _refuse();
+    return super.setTicked(setId, ticked: ticked);
+  }
+
+  @override
+  Future<void> setRest(
+    String exerciseId, {
+    required int baseSeconds,
+    DateTime? endsAtUtc,
+    int? pausedSeconds,
+  }) async {
+    _refuse();
+    return super.setRest(
+      exerciseId,
+      baseSeconds: baseSeconds,
+      endsAtUtc: endsAtUtc,
+      pausedSeconds: pausedSeconds,
+    );
   }
 }
 
@@ -199,13 +300,17 @@ Future<void> writeItDown(WidgetTester tester, String text) async {
 LocalStore testStore({
   TestDayRepository? days,
   TestJournalRepository? journal,
-}) => LocalStore(
-  ownerId: 'local-test',
-  days: days ?? TestDayRepository(),
-  journal: journal ?? TestJournalRepository(),
-  settings: MemorySettingsRepository(),
-  close: () async {},
-);
+}) {
+  final dayStore = days ?? TestDayRepository();
+  return LocalStore(
+    ownerId: 'local-test',
+    days: dayStore,
+    journal: journal ?? TestJournalRepository(),
+    settings: MemorySettingsRepository(),
+    workouts: TestWorkoutRepository(dayStore),
+    close: () async {},
+  );
+}
 
 /// What a test holds on to after starting the app.
 class AppHarness {
@@ -232,6 +337,39 @@ class AppHarness {
     WidgetTester tester,
   ) async =>
       (await tester.runAsync(() => store.days.watchDoneByDay(ownerId).first))!;
+
+  /// The workout session the store holds for [day], read the same way.
+  /// Null if none was started that day.
+  Future<WorkoutSession?> savedSession(WidgetTester tester, LocalDate day) =>
+      tester.runAsync<WorkoutSession?>(
+        () => store.workouts.watchSession(ownerId, day).first,
+      );
+
+  /// Every completion event the store holds for one box of one day.
+  Future<List<CompletionEvent>> savedEvents(
+    WidgetTester tester,
+    LocalDate day,
+    String item,
+  ) async =>
+      (await tester.runAsync(() => store.days.eventsFor(ownerId, day, item)))!;
+}
+
+/// Stops the app and starts it again on the same store, as the phone does
+/// after it killed the app: nothing the screens held in memory survives,
+/// only what the store kept.
+Future<AppHarness> relaunchApp(
+  WidgetTester tester,
+  AppHarness app, {
+  ThemeMode themeMode = ThemeMode.dark,
+}) async {
+  await tester.pumpWidget(const SizedBox.shrink());
+  await tester.pump();
+  return pumpApp(
+    tester,
+    store: app.store,
+    clock: app.clock,
+    themeMode: themeMode,
+  );
 }
 
 /// Starts the app on a screen of [size] and waits for it to settle.
@@ -272,6 +410,9 @@ Future<AppHarness> pumpApp(
         ),
         todayContentProvider.overrideWith(
           (ref) async => loadBundledTodayContent(),
+        ),
+        workoutLibraryProvider.overrideWith(
+          (ref) async => loadBundledWorkoutLibrary(),
         ),
       ],
       child: ForgedSentApp(
@@ -329,6 +470,93 @@ Future<void> openStatusPage(WidgetTester tester) async {
   await tester.ensureVisible(find.text('BUILD STATUS'));
   await tester.pumpAndSettle();
   await tester.tap(find.text('BUILD STATUS'));
+  await tester.pumpAndSettle();
+}
+
+/// The first Monday of the default plan in most workout tests: a lifting
+/// day, "Full Body A: Back Squat", at six in the evening.
+final DateTime liftingEvening = DateTime(2026, 11, 9, 18);
+
+/// The row on Train that opens today's workout.
+final Finder trainTodayRow = find.byKey(
+  const ValueKey<String>('fs-train-today'),
+);
+
+final Finder startWorkoutButton = find.byKey(
+  const ValueKey<String>('fs-start-workout'),
+);
+final Finder finishWorkoutButton = find.byKey(
+  const ValueKey<String>('fs-finish-workout'),
+);
+final Finder prayerAmenButton = find.byKey(
+  const ValueKey<String>('fs-prayer-amen'),
+);
+final Finder prayerNotNowButton = find.byKey(
+  const ValueKey<String>('fs-prayer-not-now'),
+);
+final Finder workoutClock = find.byKey(
+  const ValueKey<String>('fs-workout-clock'),
+);
+final Finder lockedSummary = find.byKey(
+  const ValueKey<String>('fs-workout-locked'),
+);
+
+/// The reps (or seconds) box of one set, by where its exercise and the set
+/// stand on the page, both from 0.
+Finder repsField(int exercise, int set) =>
+    find.byKey(ValueKey<String>('fs-reps-$exercise-$set'));
+
+/// The weight box of one set.
+Finder weightField(int exercise, int set) =>
+    find.byKey(ValueKey<String>('fs-weight-$exercise-$set'));
+
+/// Opens today's workout page: the Train tab, then today's row.
+Future<void> openTodaysWorkout(WidgetTester tester) async {
+  await openTab(tester, 'Train');
+  await tester.ensureVisible(trainTodayRow);
+  await tester.pumpAndSettle();
+  await tester.tap(trainTodayRow);
+  await tester.pumpAndSettle();
+}
+
+/// The workout page's own scroll view.
+Finder get workoutScrollable => find
+    .descendant(of: find.byType(WorkoutPage), matching: find.byType(Scrollable))
+    .first;
+
+/// Brings a widget of the workout page into view. The page builds only
+/// what is near the screen, so this scrolls down until the widget exists.
+Future<void> showOnWorkoutPage(WidgetTester tester, Finder finder) async {
+  if (finder.evaluate().isEmpty) {
+    // It may be above what is on screen as well as below: start at the top.
+    tester.state<ScrollableState>(workoutScrollable).position.jumpTo(0);
+    await tester.pumpAndSettle();
+  }
+  if (finder.evaluate().isEmpty) {
+    await tester.scrollUntilVisible(finder, 150, scrollable: workoutScrollable);
+  }
+  await tester.ensureVisible(finder);
+  await tester.pumpAndSettle();
+}
+
+/// Taps Start workout and answers the workout prayer with Amen.
+Future<void> startWorkout(WidgetTester tester) async {
+  await tester.ensureVisible(startWorkoutButton);
+  await tester.pumpAndSettle();
+  await tester.tap(startWorkoutButton);
+  await tester.pumpAndSettle();
+  // With large text the prayer is taller than the screen and Amen is
+  // below the fold.
+  await tester.ensureVisible(prayerAmenButton);
+  await tester.pumpAndSettle();
+  await tester.tap(prayerAmenButton);
+  await tester.pumpAndSettle();
+}
+
+/// Types [text] into a number box of the workout page.
+Future<void> typeNumber(WidgetTester tester, Finder field, String text) async {
+  await showOnWorkoutPage(tester, field);
+  await tester.enterText(field, text);
   await tester.pumpAndSettle();
 }
 
