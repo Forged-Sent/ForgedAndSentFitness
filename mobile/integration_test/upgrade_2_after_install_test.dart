@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:forged_and_sent/src/core/clock.dart';
 import 'package:forged_and_sent/src/design/fs_box_row.dart';
 import 'package:forged_and_sent/src/features/today/presentation/today_page.dart';
 import 'package:forged_and_sent/src/features/journal/presentation/journal_view_model.dart';
@@ -67,6 +68,14 @@ void main() {
       await typeNumber(tester, weightField(0, set), enteredSets[set].$2);
     }
     expect(find.byType(WorkoutPage), findsOneWidget);
+
+    // Schema version 4: the workout this build started keeps its day's
+    // superset mark in the file, and the group is drawn from it.
+    final session = (await storedSession(tester, const SystemClock()))!;
+    expect(session.superset, hasLength(2));
+    expect(session.supersetLabels.whereType<String>(), <String>['A1', 'A2']);
+    await showOnWorkoutPage(tester, supersetGroup);
+    expect(supersetGroup, findsOneWidget);
     debugPrint('UPGRADE TEST: a workout was started and two sets were typed.');
   });
 }

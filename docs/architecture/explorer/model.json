@@ -140,7 +140,7 @@
         "mobile/lib/src/storage/app_database.dart::AppDatabase"
       ],
       "depends": [],
-      "notes": "Events are stored locally only. There is no outbox and no sync yet. The schema is at version 3; the migrations from versions 1 and 2 are tested against a file, not on a phone."
+      "notes": "Events are stored locally only. There is no outbox and no sync yet. The schema is at version 4; the migrations from versions 1, 2 and 3 are tested against a file, and from versions 2 and 3 on an emulator, not on a phone."
     },
     {
       "id": "adapter",

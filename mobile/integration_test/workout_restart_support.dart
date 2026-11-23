@@ -106,6 +106,11 @@ Finder repsField(int exercise, int set) =>
 Finder weightField(int exercise, int set) =>
     find.byKey(ValueKey<String>('fs-weight-$exercise-$set'));
 
+/// The two exercises of a superset, drawn as one group.
+final Finder supersetGroup = find.byKey(
+  const ValueKey<String>('fs-superset-group'),
+);
+
 /// "Add set", under the rows of one exercise.
 Finder addSetButton(int exercise) =>
     find.byKey(ValueKey<String>('fs-add-set-$exercise'));

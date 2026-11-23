@@ -132,6 +132,9 @@ class DriftWorkoutRepository implements WorkoutRepository {
               startedAtUtcMs: session.startedAt.toUtc().millisecondsSinceEpoch,
               startUtcOffsetMinutes: session.startedAt.timeZoneOffset.inMinutes,
               finishEventId: session.finishEventId,
+              supersetPlaces: Value<String?>(
+                session.superset.isEmpty ? null : session.superset.join(','),
+              ),
             ),
           );
       await _db.batch((batch) {
@@ -490,6 +493,7 @@ class DriftWorkoutRepository implements WorkoutRepository {
           ? null
           : Duration(minutes: row.finishUtcOffsetMinutes!),
       finishEventId: row.finishEventId,
+      superset: _places(row.supersetPlaces),
       exercises: List<SessionExercise>.unmodifiable(<SessionExercise>[
         for (final exercise in exerciseRows)
           SessionExercise(
@@ -514,6 +518,19 @@ class DriftWorkoutRepository implements WorkoutRepository {
           ),
       ]),
     );
+  }
+
+  /// The stored superset mark, `5,6`, as places. Null, or anything that
+  /// is not whole numbers joined by commas, is no mark.
+  static List<int> _places(String? stored) {
+    if (stored == null || stored.isEmpty) return const <int>[];
+    final places = <int>[];
+    for (final part in stored.split(',')) {
+      final place = int.tryParse(part);
+      if (place == null) return const <int>[];
+      places.add(place);
+    }
+    return List<int>.unmodifiable(places);
   }
 
   static WorkoutPlan _plan(WorkoutPlanRow row) => WorkoutPlan(

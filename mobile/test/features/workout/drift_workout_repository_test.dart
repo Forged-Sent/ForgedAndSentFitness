@@ -144,6 +144,31 @@ void main() {
       expect((await relaunched.workouts.watchPlan(owner).first)!.start, nov9);
     });
 
+    test('start a workout with a superset, close the database, reopen: '
+        'the mark is still with the session', () async {
+      final folder = await temporaryFolder();
+      final first = await openLocalStoreIn(folder, background: false);
+      final owner = first.ownerId;
+      await first.workouts.startSession(
+        newSession(
+          's1',
+          DateTime(2026, 11, 12, 18, 10),
+          owner: owner,
+          superset: <int>[0, 1],
+        ),
+      );
+      await first.close();
+
+      final reopened = await openLocalStoreIn(folder, background: false);
+      addTearDown(reopened.close);
+
+      final session = (await reopened.workouts
+          .watchSession(owner, nov12)
+          .first)!;
+      expect(session.superset, <int>[0, 1]);
+      expect(session.supersetLabels, <String?>['A1', 'A2']);
+    });
+
     test('add two sets, remove one, close the database, reopen: the rows '
         'are as he left them', () async {
       final folder = await temporaryFolder();

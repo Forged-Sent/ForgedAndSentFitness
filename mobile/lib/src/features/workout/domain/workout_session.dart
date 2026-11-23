@@ -1,6 +1,7 @@
 import '../../../core/local_date.dart';
 import 'prescription.dart';
-import 'workout_plan.dart';
+import 'workout_plan.dart' as plan;
+import 'workout_plan.dart' show readSupersetMark;
 
 /// One set of an exercise in a session.
 class SessionSet {
@@ -211,6 +212,7 @@ class WorkoutSession {
     required this.exercises,
     this.finishedAtUtc,
     this.finishUtcOffset,
+    this.superset = const <int>[],
   }) : assert(startedAtUtc.isUtc, 'startedAtUtc must be a UTC DateTime'),
        assert(
          finishedAtUtc == null || finishedAtUtc.isUtc,
@@ -250,6 +252,23 @@ class WorkoutSession {
   final String finishEventId;
 
   final List<SessionExercise> exercises;
+
+  /// The places in [exercises], counted from 0, of the exercises that are
+  /// done as one superset: the plan's mark for the day, copied when the
+  /// session was started and kept with it. Empty for a session with no
+  /// superset, and for one started before the mark was stored.
+  final List<int> superset;
+
+  /// The superset label of each exercise, for drawing: "A1" and "A2" for
+  /// the two the session's own [superset] names, null for the others.
+  ///
+  /// From what the session holds, never from the program: a session is
+  /// its own record. A mark that does not fit the session's exercises is
+  /// read as none, as [readSupersetMark] reads the plan's.
+  List<String?> get supersetLabels => plan.supersetLabels(
+    readSupersetMark(superset, exercises.length),
+    exercises.length,
+  );
 
   bool get finished => finishedAtUtc != null;
 
@@ -313,6 +332,7 @@ class NewSession {
     required this.startedAt,
     required this.finishEventId,
     required this.exercises,
+    this.superset = const <int>[],
   });
 
   final String id;
@@ -330,6 +350,9 @@ class NewSession {
 
   final String finishEventId;
   final List<SessionExercise> exercises;
+
+  /// The plan's superset mark for the day: see [WorkoutSession.superset].
+  final List<int> superset;
 
   LocalDate get day => LocalDate.of(startedAt);
 }
@@ -433,42 +456,6 @@ FinishCheck checkBeforeFinish(WorkoutSession session) {
     }
   }
   return FinishCheck(fixes: fixes, uncounted: uncounted);
-}
-
-/// The superset label of each exercise of [session], for drawing only:
-/// "A1" and "A2" for the two exercises [planned] marks as a superset, null
-/// for the others.
-///
-/// A session stores no superset mark. [planned] is what the program holds
-/// today for the plan day the session was started on. It is used only if
-/// the session is still a copy of that day: the same number of exercises,
-/// and at every place the movement and the prescription text the program
-/// has there. If anything in the day has changed since the session was
-/// started, or [planned] is null, no exercise gets a label and the page
-/// draws no group: nothing is drawn rather than the wrong pair.
-///
-/// What this cannot see is a program whose mark alone moved while every
-/// prescription stayed as it was. The bundle's own test rules that out:
-/// there the mark and the prescriptions' words name the same places, so
-/// moving the mark changes a prescription.
-List<String?> supersetLabelsFor(
-  WorkoutSession session,
-  PlannedWorkout? planned,
-) {
-  final count = session.exercises.length;
-  final none = List<String?>.filled(count, null);
-  if (planned == null || planned.superset.isEmpty) return none;
-  if (planned.exercises.length != count) return none;
-  for (var place = 0; place < count; place++) {
-    final held = session.exercises[place];
-    final now = planned.exercises[place];
-    if (held.position != place ||
-        held.movementId != now.movementId ||
-        held.prescription != now.prescription) {
-      return none;
-    }
-  }
-  return supersetLabels(planned.superset, count);
 }
 
 /// What finishing a session did.
