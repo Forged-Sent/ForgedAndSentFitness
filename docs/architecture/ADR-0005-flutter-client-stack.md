@@ -27,7 +27,7 @@ The package families are approved here. go_router was added at exactly 18.1.4 in
 
 ## Added in build step S2
 
-- **Schema version 2.** Two journal tables, `journal_entries` and `journal_changes`. A test builds a version 1 file with data in it, opens it with this build, and checks that the old rows are intact, the journal works and the file is at version 2.
+- **Schema version 2.** Two journal tables, `journal_entries` and `journal_changes`. A test builds a version 1 file with data in it, opens it with this build, and checks that the old rows are intact, the journal works and the file is at the current version (2 when S2 was built; 3 since S3 added the workout tables).
 - **The same event rule, applied to text.** A save or a delete is a change with a client-generated id, written in one transaction with the entry it produces. The change list holds no text, and a delete empties the entry's row instead of leaving its words in a log.
 - **Frozen schemas.** Each version's schema is kept in `mobile/drift_schemas/`, and a test checks the migration against them with Drift's schema verifier. On one Android emulator, an entry written with this build was still there after the app's process was killed and the app started again.
 - **Not proved:** a real phone or emulator run of the migration itself (the emulator run was a new install); SQLite does not overwrite freed pages by default, so deleted words may remain in the file until the space is reused.

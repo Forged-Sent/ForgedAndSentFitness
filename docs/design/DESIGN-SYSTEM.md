@@ -83,6 +83,23 @@ Implemented in `mobile/lib/src/design/fs_typography.dart` (`FsFonts`, `FsText`).
 
 **Added in S1:** the date above a reading. The prototype asks for bold upright Merriweather, which it does not load, so the browser draws the bundled italic and thickens it. `readingTitle` does the same: Merriweather italic at weight 800, thickened by the text engine. No upright or bold Merriweather file is bundled.
 
+**Added in S3:** the text roles of Train, the workout page and dialogs, in `mobile/lib/src/design/fs_typography_workout.dart` (`FsWorkoutText`), read from v254's stylesheet. Each is one of the `FsText` roles with another size or weight, and none names a letter spacing of its own, so tracking is decided in one file only.
+
+| Role | Starts from | Size and weight |
+|---|---|---|
+| `dialogTitle`, `dialogBody` | `labelCaps`, `body` | 17/700, 14.5 |
+| `prayer`, `prayerAmen` | `body`, `labelCaps` | 15.5, 15.5/700 |
+| `status`, `meta` | `labelCaps` | 14.5, 13 |
+| `pageTitle` (a workout's title on its own page) | `heroTitle` | 26 |
+| `rowTitle`, `weekTitle`, `weekSubtitle`, `rowMark` | `readingSeries`, `body` | 15.5/600, 14/600, 13, 19 |
+| `weekday`, `weekdayNumber` | `stat`, `labelCaps` | 12/500, 16.5 |
+| `exerciseName`, `prescription` | `readingSeries`, `body` | 14.5/600, 14/600 |
+| `setLabel`, `setPrevious`, `fieldValue`, `fieldTag` | `buttonMini`, `bodySmall`, `body` | 12.5, 11/500, 16/500, 12 |
+| `clock`, `restTime`, `statValue` (tabular figures) | `tally` | 26, 19, 19 |
+| `statLabel`, `summaryHead`, `summaryName`, `summaryLabel`, `summaryValue` | `stat`, `sectionLabel`, `readingSeries`, `body` | 11, 13/700, 15, 12, 14/500 |
+
+They are in a file of their own because another branch was changing `fs_typography.dart` at the same time; folding them into `FsText` is on the work board.
+
 All four families are bundled as assets under `mobile/assets/fonts/`. Nothing is fetched at runtime. Every family is under the SIL Open Font License 1.1, and its `OFL.txt` is bundled beside it. Source commits and SHA-256 values: `mobile/assets/SOURCES.md`. Merriweather and IBM Plex Sans are the last static releases, not the current variable ones; Merriweather's current file is over the repository's 2 MB limit for a binary asset.
 
 CSS `text-transform: uppercase` has no Flutter equivalent. Widgets that use a caps style uppercase their own text and give screen readers the text as written.
@@ -116,15 +133,19 @@ In Flutter so far: the app follows the phone's dark or light setting (there is n
 | `FsBoxRow`: checkbox, small caps line, title, sub-line, points, chevron | Today, first orders, habits | Implemented in S1. Points are shown only when they are passed in | `mobile/lib/src/design/fs_box_row.dart` |
 | `FsProgressRing`, `FsMeter` | Today, Fuel | Implemented in S1 | `mobile/lib/src/design/fs_progress_ring.dart`; `FsMeter` is in `fs_section_head.dart` |
 | `FsSegmented` | Board, Settings, Profile, the reading's BSB / ESV tab | Implemented in S1, built from mini buttons | `mobile/lib/src/design/fs_segmented.dart` |
-| `FsDialog`, `FsSheet` | About 40 dialogs | Planned | — |
+| `FsDialog`, shown with `showFsDialog`: a box over a dimmed page, with a small caps line, a title, content and buttons; outlined in the highlight color, or in the danger color for something that must be put right. It scrolls when its content is taller than the screen. A tap outside does nothing; Android back closes it and returns null, so every dialog treats null as its "no" | The workout prayer, the check before finishing; about 40 dialogs in the prototype | Implemented in S3 (the prototype's `.cdlg-box`) | `mobile/lib/src/design/fs_dialog.dart` |
+| `FsSheet` | Bottom sheets | Planned | — |
+| `FsNumberField`: a box for one number, whole or with one decimal place, with a grey word when empty, a screen-reader name, a largest value and a danger outline for a missing number. A keystroke it does not take (a second decimal digit, a letter) leaves the text as it was | Set rows of a workout | Implemented in S3 (the prototype's `numField`) | `mobile/lib/src/design/fs_number_field.dart` |
+| `FsChevronRow`: a title over a line of detail with a "›" or a check at the right, and optionally something at the left. Three looks: a button of its own outlined in the accent color, a plain list row, and a list row raised for today | Train's session row and week list | Implemented in S3 (the prototype's `chevRow`, `.wk-open` and `.wrow`) | `mobile/lib/src/design/fs_chevron_row.dart` |
+| `FsCheckMark`, `FsLockMark`: the prototype's check and padlock, drawn from its paths | The logged mark of a set, a finished day, the "Locked." line | Implemented in S3, in a file of their own; to join `FsIcons` (work board) | `mobile/lib/src/design/fs_marks.dart` |
 | `FsScripture` block | Devotional, workout prayer, footers | Implemented in S1 | `mobile/lib/src/design/fs_scripture.dart` |
-| `FsPageBar`: a small "‹ Back" button and a small caps line | Pages opened from another: the reading, Settings, the Journal page, a journal entry | Implemented in S1 (the prototype's `.pbar`) | `mobile/lib/src/design/fs_page_bar.dart` |
+| `FsPageBar`: a small "‹ Back" button and a small caps line | Pages opened from another: the reading, Settings, the Journal page, a journal entry, a workout | Implemented in S1 (the prototype's `.pbar`). Since S3 a long line at the right wraps instead of running off the page at large text sizes | `mobile/lib/src/design/fs_page_bar.dart` |
 | `FsTextArea`: a box to write several lines in (the prototype's `textarea.field`). Page background fill, hairline outline at the base radius, accent outline when focused, body type, a muted hint, a screen-reader name; grows from its smallest height to its largest and then scrolls; stops at its length limit, counted in UTF-16 code units as the prototype's `maxlength` is, without cutting a character in half (`FsCodeUnitLimit`): typing or pasting at the end keeps what fits, and an edit anywhere else that does not fit is refused, so words already in the box are never dropped; shows no counter; asks the keyboard not to learn from what is typed (Android keyboards honor this, iOS has no such setting) | The "Write it down" box under a reading, the journal entry page | Implemented in S2 | `mobile/lib/src/design/fs_text_area.dart` |
 | `FsEmptyState` (dashed outline) | Rally, journal, boards | Planned. The Journal page's empty state is a line of muted text for now | — |
 
 ## Golden images
 
-`mobile/test/app/goldens/` holds the Walk tab at 390×844, dark and light; since S2 that is the private journal with nothing written, and no image shows a tab that is still a placeholder. `mobile/test/features/journal/goldens/` holds the box under the reading, the journal with three entries, the empty journal and an open entry, each in dark and light. `mobile/test/features/today/goldens/` holds Today as it opens, Today's boxes with the devotional done, the reading as it opens, the end of the reading, a reading with the Sent tag (February 7) and a reading with the Spirit-led tag (January 3), each in dark and light. That is 22 images. Ten are the approved baseline; twelve wait for the maintainer's eye (see S2 below). They are compared on Windows only, because text is drawn slightly differently on each operating system. No CI lane checks them yet.
+`mobile/test/app/goldens/` holds the Walk tab at 390×844, dark and light; since S2 that is the private journal with nothing written, and no image shows a tab that is still a placeholder. `mobile/test/features/journal/goldens/` holds the box under the reading, the journal with three entries, the empty journal and an open entry, each in dark and light. `mobile/test/features/today/goldens/` holds Today as it opens, Today's boxes with the devotional done, the reading as it opens, the end of the reading, a reading with the Sent tag (February 7) and a reading with the Spirit-led tag (January 3), each in dark and light. That is 22 images. Four are the approved baseline (Today as it opens and Today's boxes); eighteen wait for the maintainer's eye (see S2 and 2026-11-21 below). They are compared on Windows only, because text is drawn slightly differently on each operating system. No CI lane checks them yet.
 
 How they were approved:
 
@@ -132,7 +153,10 @@ How they were approved:
 - **S1, 2026-11-12:** the maintainer approved the eight Today and reading images beside the [S1 captures](reference/s1-today/README.md).
 - **S1b, 2026-11-12:** every one of those ten changed, because removing the stray letter spacing (see Type) moves text on every screen, and four images of tagged readings were added. The maintainer approved all 14 as redrawn.
 - **S2, 2026-11-19: twelve images are not approved yet.** Drawn on Windows by an agent, not yet looked at by the maintainer beside the prototype: the eight journal images (new), `reading_end_dark.png` and `reading_end_light.png` (redrawn: the end of the reading now has the "Write it down" box above Amen), and `shell_walk_dark.png` and `shell_walk_light.png` (redrawn: the Walk tab was a placeholder card and is now the journal).
+- **2026-11-21: ten images redrawn and not approved yet.** The section labels of the reading lost the prototype's two slashes, at the maintainer's direction, which redrew the eight reading images under `mobile/test/features/today/goldens/` (`reading_`, `reading_end_`, `reading_sent_` and `reading_spirit_`, dark and light) and `write_it_down_dark.png` and `write_it_down_light.png` under `mobile/test/features/journal/goldens/`. The six reading images that were approved in S1b are therefore drawn again and wait for the maintainer; the other four were already waiting. Nothing else in them changed: the BSB tab is the one open, so the longer ESV notice is not in any image.
 - **After the S1b approval** the mission line on Today was balanced, which redrew `today_dark.png` and `today_light.png` once more. Those two were locked on the maintainer's condition that the line breaks on the same words as in v254's picture; `mobile/test/features/today/today_page_test.dart` checks that.
+
+`mobile/test/features/workout/goldens/` holds twelve images from S3, each in dark and light: Train as it opens, Train's week, the workout before it is started, the workout prayer, logging sets, and the finished workout. **The maintainer approved them on 2026-11-22**, in his review of pull request #85, beside the sheets in `docs/design/reference/s3-train-workout/`. S3 also redrew Today's four images (as it opens, and its boxes), because the Workout box is now live; they were part of the same pull request and the same approval.
 
 ## Rules
 

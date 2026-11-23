@@ -56,7 +56,11 @@ class TodayContent {
               ? 'In love'
               : 'Be strong',
           previewPoints: (task['points'] as num).toInt(),
-          item: kind == 'devo' ? DayItems.devotional : null,
+          item: switch (kind) {
+            'devo' => DayItems.devotional,
+            'workout' => DayItems.workout,
+            _ => null,
+          },
         ),
       );
     }

@@ -41,6 +41,11 @@ flutter:
     - assets/content/esv_verses.json
     - assets/content/tasks.json
     - assets/content/missions.json
+    # The Forged program and the movement names (copies of seed/ files),
+    # and the workout prayer (the WORKOUT_PRAYER list inside index.html).
+    - assets/content/workouts_forged.json
+    - assets/content/movements.json
+    - assets/content/workout_prayer.json
     - assets/fonts/saira_condensed/OFL.txt
     - assets/fonts/saira_stencil_one/OFL.txt
     - assets/fonts/ibm_plex_sans/OFL.txt

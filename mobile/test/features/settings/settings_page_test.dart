@@ -53,13 +53,17 @@ class _TestSettings extends MemorySettingsRepository {
 }
 
 /// A store for a widget test whose settings are [settings].
-LocalStore _storeWith(_TestSettings settings) => LocalStore(
-  ownerId: 'local-test',
-  days: TestDayRepository(),
-  journal: TestJournalRepository(),
-  settings: settings,
-  close: () async {},
-);
+LocalStore _storeWith(_TestSettings settings) {
+  final days = TestDayRepository();
+  return LocalStore(
+    ownerId: 'local-test',
+    days: days,
+    journal: TestJournalRepository(),
+    settings: settings,
+    workouts: TestWorkoutRepository(days),
+    close: () async {},
+  );
+}
 
 /// What the store holds for the switch, read outside the test's fake clock.
 Future<bool> _stored(WidgetTester tester, _TestSettings settings) async =>
