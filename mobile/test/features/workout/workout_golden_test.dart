@@ -95,6 +95,10 @@ void main() {
       await typeNumber(tester, weightField(0, 0), '135');
       await typeNumber(tester, repsField(0, 1), '5');
       await unfocus(tester);
+      // He adds a fourth set and leaves it empty: it can still be removed.
+      await showOnWorkoutPage(tester, addSetButton(0));
+      await tester.tap(addSetButton(0));
+      await tester.pumpAndSettle();
       // Twelve minutes in, half a minute into the squat's two-minute rest.
       app.clock.time = liftingEvening.add(
         const Duration(minutes: 12, seconds: 4),

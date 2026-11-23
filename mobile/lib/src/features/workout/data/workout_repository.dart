@@ -59,6 +59,23 @@ abstract interface class WorkoutRepository {
   Future<void> setWeight(String setId, double? weightLb);
   Future<void> setTicked(String setId, {required bool ticked});
 
+  /// Adds one set to the end of an exercise's rows, with the id [setId]
+  /// and the same target as the set before it. True if it was added.
+  ///
+  /// Nothing is added, and the answer is false, when the exercise already
+  /// has [maxSets] rows, when it is only marked done, or when its session
+  /// is finished or does not exist.
+  Future<bool> addSet(String exerciseId, {required String setId});
+
+  /// Removes a set he added during the workout, and moves the rows after
+  /// it up by one. True if it was removed.
+  ///
+  /// Nothing is removed, and the answer is false, unless all of this is
+  /// so, as the store holds it at that moment: the row is one he added
+  /// (it stands after the rows the plan asked for), nothing is entered in
+  /// it, and its session is not finished.
+  Future<bool> removeSet(String setId);
+
   /// Stores an exercise's rest timer: its full length, and either the
   /// instant it reaches zero (running), the seconds left (paused), or
   /// neither (waiting at its full length).

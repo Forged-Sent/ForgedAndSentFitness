@@ -195,6 +195,85 @@ class DriftWorkoutRepository implements WorkoutRepository {
   Future<void> setTicked(String setId, {required bool ticked}) =>
       _updateSet('ticked', setId, Variable<bool>(ticked));
 
+  /// The exercise with this id if its session is still in progress, or
+  /// null.
+  Future<WorkoutExerciseRow?> _exerciseInOpenSession(String exerciseId) async {
+    final exercises = _db.workoutExercises;
+    final sessions = _db.workoutSessions;
+    final query =
+        _db.select(exercises).join(<Join>[
+          innerJoin(sessions, sessions.id.equalsExp(exercises.sessionId)),
+        ])..where(
+          exercises.id.equals(exerciseId) & sessions.finishedAtUtcMs.isNull(),
+        );
+    return (await query.getSingleOrNull())?.readTable(exercises);
+  }
+
+  @override
+  Future<bool> addSet(String exerciseId, {required String setId}) {
+    return _db.transaction(() async {
+      final exercise = await _exerciseInOpenSession(exerciseId);
+      if (exercise == null || exercise.measure == SetMeasure.tick.name) {
+        return false;
+      }
+      final sets =
+          await (_db.select(_db.workoutSets)
+                ..where((t) => t.exerciseId.equals(exerciseId))
+                ..orderBy([(t) => OrderingTerm.asc(t.position)]))
+              .get();
+      if (sets.isEmpty || sets.length >= maxSets) return false;
+      await _db
+          .into(_db.workoutSets)
+          .insert(
+            WorkoutSetsCompanion.insert(
+              id: setId,
+              exerciseId: exerciseId,
+              position: sets.last.position + 1,
+              target: sets.last.target,
+            ),
+          );
+      return true;
+    });
+  }
+
+  @override
+  Future<bool> removeSet(String setId) {
+    return _db.transaction(() async {
+      final set = await (_db.select(
+        _db.workoutSets,
+      )..where((t) => t.id.equals(setId))).getSingleOrNull();
+      // Anything entered keeps the row: he clears it first.
+      if (set == null ||
+          set.reps != null ||
+          set.weightLb != null ||
+          set.ticked) {
+        return false;
+      }
+      final exercise = await _exerciseInOpenSession(set.exerciseId);
+      if (exercise == null ||
+          exercise.measure == SetMeasure.tick.name ||
+          set.position < plannedSetCount(exercise.prescription)) {
+        return false;
+      }
+      await (_db.delete(
+        _db.workoutSets,
+      )..where((t) => t.id.equals(setId))).go();
+      // The rows after it move up, so the rows stay numbered without a
+      // gap and "last time" lines up with what he sees.
+      await _db.customUpdate(
+        'UPDATE workout_sets SET position = position - 1 '
+        'WHERE exercise_id = ? AND position > ?',
+        variables: <Variable<Object>>[
+          Variable<String>(set.exerciseId),
+          Variable<int>(set.position),
+        ],
+        updates: {_db.workoutSets},
+        updateKind: UpdateKind.update,
+      );
+      return true;
+    });
+  }
+
   @override
   Future<void> setRest(
     String exerciseId, {

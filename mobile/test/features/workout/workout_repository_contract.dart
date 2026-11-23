@@ -318,6 +318,207 @@ void workoutRepositoryContract(Future<WorkoutStores> Function() create) {
     );
   });
 
+  group('adding and removing a set', () {
+    setUp(
+      () => workouts.startSession(
+        newSession('s1', DateTime(2026, 11, 12, 18, 10)),
+      ),
+    );
+
+    Future<List<SessionSet>> squatSets() async =>
+        (await session(nov12))!.exercises.first.sets;
+
+    List<(String, int)> placed(List<SessionSet> sets) => <(String, int)>[
+      for (final set in sets) (set.id, set.position),
+    ];
+
+    test('an added set is one more row at the end, with the target of the '
+        'set before it and nothing entered', () async {
+      expect(await workouts.addSet('s1-squat', setId: 'extra-1'), isTrue);
+
+      final sets = await squatSets();
+      expect(placed(sets), <(String, int)>[
+        ('s1-squat-s0', 0),
+        ('s1-squat-s1', 1),
+        ('s1-squat-s2', 2),
+        ('extra-1', 3),
+      ]);
+      expect(sets.last.target, '5');
+      expect(sets.last.isBlank, isTrue);
+      // The other exercise keeps its two rows.
+      expect((await session(nov12))!.exercises.last.sets, hasLength(2));
+    });
+
+    test('an added set is logged like any other', () async {
+      await workouts.addSet('s1-squat', setId: 'extra-1');
+      await workouts.setReps('extra-1', 5);
+      await workouts.setWeight('extra-1', 150);
+
+      final squat = (await session(nov12))!.exercises.first;
+      expect(squat.sets.last.reps, 5);
+      expect(squat.sets.last.weightLb, 150);
+      expect(squat.isLogged(squat.sets.last), isTrue);
+      expect(squat.isAdded(squat.sets.last), isTrue);
+      expect(squat.isAdded(squat.sets[2]), isFalse);
+    });
+
+    test('the twelfth row is the last: nothing more is added', () async {
+      for (var i = 0; i < maxSets - 3; i++) {
+        expect(await workouts.addSet('s1-squat', setId: 'extra-$i'), isTrue);
+      }
+      expect(await squatSets(), hasLength(maxSets));
+
+      expect(await workouts.addSet('s1-squat', setId: 'one-too-many'), isFalse);
+      final sets = await squatSets();
+      expect(sets, hasLength(maxSets));
+      expect(
+        sets.map((s) => s.position),
+        List<int>.generate(maxSets, (i) => i),
+      );
+    });
+
+    test('nothing is added to an exercise that is only marked done, or to '
+        'one that does not exist', () async {
+      await workouts.startSession(
+        newSession(
+          'rec',
+          DateTime(2026, 11, 13, 7),
+          exercises: <SessionExercise>[
+            exercise(
+              'rec-walk',
+              position: 0,
+              movementId: 'Zone 2 Cardio',
+              prescription: '12 min easy, conversational pace',
+              measure: SetMeasure.tick,
+              weightMode: WeightMode.none,
+              sets: 1,
+            ),
+          ],
+        ),
+      );
+
+      expect(await workouts.addSet('rec-walk', setId: 'extra-1'), isFalse);
+      expect(await workouts.addSet('no-such-exercise', setId: 'x'), isFalse);
+      expect((await session(nov13))!.exercises.single.sets, hasLength(1));
+    });
+
+    test('a set he added can be removed while it is empty, and the rows '
+        'after it move up with what they hold', () async {
+      await workouts.addSet('s1-squat', setId: 'extra-1');
+      await workouts.addSet('s1-squat', setId: 'extra-2');
+      await workouts.setReps('extra-2', 6);
+      await workouts.setWeight('extra-2', 100);
+
+      expect(await workouts.removeSet('extra-1'), isTrue);
+
+      final sets = await squatSets();
+      expect(placed(sets), <(String, int)>[
+        ('s1-squat-s0', 0),
+        ('s1-squat-s1', 1),
+        ('s1-squat-s2', 2),
+        ('extra-2', 3),
+      ]);
+      expect(sets.last.reps, 6);
+      expect(sets.last.weightLb, 100);
+    });
+
+    test('a row from the plan is never removed, empty or not', () async {
+      expect(await workouts.removeSet('s1-squat-s2'), isFalse);
+      expect(await workouts.removeSet('s1-plank-s1'), isFalse);
+      // Not even once rows stand after it.
+      await workouts.addSet('s1-squat', setId: 'extra-1');
+      expect(await workouts.removeSet('s1-squat-s0'), isFalse);
+
+      expect(await squatSets(), hasLength(4));
+      expect((await session(nov12))!.exercises.last.sets, hasLength(2));
+    });
+
+    test('a set he added is not removed while anything is entered in it: he '
+        'clears it first', () async {
+      await workouts.addSet('s1-squat', setId: 'extra-1');
+
+      await workouts.setReps('extra-1', 5);
+      expect(await workouts.removeSet('extra-1'), isFalse);
+      // A zero is something he typed.
+      await workouts.setReps('extra-1', 0);
+      expect(await workouts.removeSet('extra-1'), isFalse);
+      await workouts.setReps('extra-1', null);
+      await workouts.setWeight('extra-1', 45);
+      expect(await workouts.removeSet('extra-1'), isFalse);
+      expect(await squatSets(), hasLength(4));
+
+      await workouts.setWeight('extra-1', null);
+      expect(await workouts.removeSet('extra-1'), isTrue);
+      expect(await squatSets(), hasLength(3));
+    });
+
+    test('a set that does not exist is not removed', () async {
+      expect(await workouts.removeSet('no-such-set'), isFalse);
+      expect(await squatSets(), hasLength(3));
+    });
+
+    test(
+      'in a finished session nothing is added and nothing removed',
+      () async {
+        await workouts.addSet('s1-squat', setId: 'extra-1');
+        await workouts.finishSession('s1', DateTime(2026, 11, 12, 19));
+
+        expect(await workouts.addSet('s1-squat', setId: 'extra-2'), isFalse);
+        expect(await workouts.removeSet('extra-1'), isFalse);
+        expect(await squatSets(), hasLength(4));
+      },
+    );
+
+    test('whoever is watching the session hears of a set added and of a '
+        'set removed', () async {
+      final seen = <int>[];
+      final watching = workouts
+          .watchSession(ownerA, nov12)
+          .listen((s) => seen.add(s!.exercises.first.sets.length));
+      addTearDown(watching.cancel);
+      await pumpEventQueue();
+
+      await workouts.addSet('s1-squat', setId: 'extra-1');
+      await pumpEventQueue();
+      await workouts.removeSet('extra-1');
+      await pumpEventQueue();
+
+      expect(seen.first, 3);
+      expect(seen, contains(4));
+      expect(seen.last, 3);
+    });
+
+    test('"last time" gives an added set at its own place, and at the place '
+        'it moved up to when a row before it was removed', () async {
+      await workouts.addSet('s1-squat', setId: 'extra-1');
+      await workouts.addSet('s1-squat', setId: 'extra-2');
+      await workouts.setReps('s1-squat-s0', 5);
+      await workouts.setWeight('s1-squat-s0', 135);
+      await workouts.setReps('extra-2', 3);
+      await workouts.setWeight('extra-2', 150);
+
+      var last = (await workouts.lastTimes(
+        ownerA,
+        before: nov13,
+        movementIds: <String>['Back Squat'],
+      ))['Back Squat']!;
+      expect(last.at(0)!.weightLb, 135);
+      expect(last.at(3), isNull);
+      expect(last.at(4)!.reps, 3);
+      expect(last.at(4)!.weightLb, 150);
+
+      await workouts.removeSet('extra-1');
+      last = (await workouts.lastTimes(
+        ownerA,
+        before: nov13,
+        movementIds: <String>['Back Squat'],
+      ))['Back Squat']!;
+      expect(last.at(3)!.reps, 3);
+      expect(last.at(3)!.weightLb, 150);
+      expect(last.at(4), isNull);
+    });
+  });
+
   group('finishing', () {
     test('finishes the session and checks the day\'s Workout box', () async {
       await workouts.startSession(

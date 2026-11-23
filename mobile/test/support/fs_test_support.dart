@@ -217,6 +217,20 @@ class TestWorkoutRepository extends MemoryWorkoutRepository {
   }
 
   @override
+  Future<bool> addSet(String exerciseId, {required String setId}) async {
+    await _held?.future;
+    _refuse();
+    return super.addSet(exerciseId, setId: setId);
+  }
+
+  @override
+  Future<bool> removeSet(String setId) async {
+    await _held?.future;
+    _refuse();
+    return super.removeSet(setId);
+  }
+
+  @override
   Future<void> setRest(
     String exerciseId, {
     required int baseSeconds,
@@ -509,6 +523,14 @@ Finder repsField(int exercise, int set) =>
 /// The weight box of one set.
 Finder weightField(int exercise, int set) =>
     find.byKey(ValueKey<String>('fs-weight-$exercise-$set'));
+
+/// "Add set", under the rows of one exercise.
+Finder addSetButton(int exercise) =>
+    find.byKey(ValueKey<String>('fs-add-set-$exercise'));
+
+/// "Remove", under a row he added while it is empty.
+Finder removeSetButton(int exercise, int set) =>
+    find.byKey(ValueKey<String>('fs-remove-set-$exercise-$set'));
 
 /// Opens today's workout page: the Train tab, then today's row.
 Future<void> openTodaysWorkout(WidgetTester tester) async {

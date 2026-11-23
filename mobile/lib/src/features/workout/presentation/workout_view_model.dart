@@ -426,6 +426,29 @@ class WorkoutViewModel extends AsyncNotifier<WorkoutView> {
     return _write(() => workouts.setTicked(setId, ticked: ticked));
   }
 
+  /// Adds one set under [exercise]'s rows, with the same target as its
+  /// last set. True if the store was reached; the store adds nothing to
+  /// an exercise that already has [maxSets] rows.
+  ///
+  /// It takes its turn behind every change already made, like a change to
+  /// a set.
+  Future<bool> addSet(SessionExercise exercise) {
+    final workouts = _workouts;
+    final setId = ref.read(eventIdProvider)();
+    return _write(() => workouts.addSet(exercise.id, setId: setId));
+  }
+
+  /// Removes a set he added, if nothing is entered in it. True if the
+  /// store was reached.
+  ///
+  /// It takes its turn behind every change already made. So if he typed
+  /// in the row a moment before, that is stored first, the store then
+  /// finds the row is not empty, and nothing is removed.
+  Future<bool> removeSet(String setId) {
+    final workouts = _workouts;
+    return _write(() => workouts.removeSet(setId));
+  }
+
   /// Where [exercise]'s rest timer stands as far as this page knows: the
   /// last change made here, or else what the store holds.
   ///

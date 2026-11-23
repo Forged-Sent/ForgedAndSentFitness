@@ -29,6 +29,9 @@ class SessionSet {
 
   /// For an exercise that is only marked done.
   final bool ticked;
+
+  /// True while nothing is entered in the set.
+  bool get isBlank => reps == null && weightLb == null && !ticked;
 }
 
 /// Where an exercise's rest timer stands at one moment.
@@ -99,6 +102,25 @@ class SessionExercise {
 
   /// The first exercise of a superset has no rest timer.
   bool get hasRestTimer => !isSupersetFirst(prescription);
+
+  /// How many of [sets] the plan asked for: the first this many. See
+  /// [plannedSetCount].
+  int get plannedSets => plannedSetCount(prescription);
+
+  /// Whether he can add one more set: an exercise whose sets are counted,
+  /// with fewer than [maxSets] rows. An exercise that is only marked done
+  /// has no sets to add to.
+  bool get canAddSet =>
+      measure != SetMeasure.tick && sets.isNotEmpty && sets.length < maxSets;
+
+  /// True for a row he added during the workout, after the plan's own.
+  bool isAdded(SessionSet set) =>
+      measure != SetMeasure.tick && set.position >= plannedSets;
+
+  /// Whether [set] can be removed: only a row he added, and only while
+  /// nothing is entered in it. A row from the plan is never removed;
+  /// leaving it empty already means it is not counted.
+  bool canRemove(SessionSet set) => isAdded(set) && set.isBlank;
 
   /// Whether [set] counts as logged: a tick, or reps (or seconds) together
   /// with a weight where the lift needs one. The prototype's `paintDone`.

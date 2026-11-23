@@ -866,6 +866,9 @@ flowchart LR
 - fn setReps()
 - fn setWeight()
 - fn setTicked()
+- fn _exerciseInOpenSession()
+- fn addSet()
+- fn removeSet()
 - fn setRest()
 - fn finishSession()
 - fn emit()
@@ -885,6 +888,9 @@ flowchart LR
 - fn setReps()
 - fn setWeight()
 - fn setTicked()
+- fn addSet()
+- fn removeSet()
+- fn _replaceSets()
 - fn setRest()
 - fn finishSession()
 - fn _changeSet()
@@ -907,6 +913,8 @@ flowchart LR
 - fn setReps()
 - fn setWeight()
 - fn setTicked()
+- fn addSet()
+- fn removeSet()
 - fn setRest()
 - fn finishSession()
 
@@ -914,6 +922,7 @@ flowchart LR
 
 - class SetPlan
 - fn count()
+- fn plannedSetCount()
 - fn restSecondsIn()
 - fn isSupersetFirst()
 - fn restBaseFor()
@@ -935,9 +944,14 @@ flowchart LR
 ### mobile/lib/src/features/workout/domain/workout_session.dart
 
 - class SessionSet
+- fn isBlank()
 - class RestState
 - class SessionExercise
 - fn hasRestTimer()
+- fn plannedSets()
+- fn canAddSet()
+- fn isAdded()
+- fn canRemove()
 - fn isLogged()
 - class WorkoutSession
 - fn finished()
@@ -977,6 +991,7 @@ flowchart LR
 - fn _weightChange()
 - fn _tickChange()
 - fn _restChange()
+- fn _rowsChange()
 - fn _isSetChange()
 - class WorkoutPage
 - class _WorkoutPageState
@@ -1040,6 +1055,8 @@ flowchart LR
 - fn setReps()
 - fn setWeight()
 - fn setTicked()
+- fn addSet()
+- fn removeSet()
 - fn startRest()
 - fn pauseRest()
 - fn resetRest()

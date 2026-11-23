@@ -41,6 +41,11 @@ String _weightChange(SessionSet set) => '${_setChange}weight:${set.id}';
 String _tickChange(SessionSet set) => '${_setChange}tick:${set.id}';
 String _restChange(SessionExercise exercise) => 'rest:${exercise.id}';
 
+/// Adding a set to an exercise, or removing one he added. Not a change to
+/// what a set holds: nothing he entered is lost if it fails, so Finish does
+/// not wait for it.
+String _rowsChange(SessionExercise exercise) => 'rows:${exercise.id}';
+
 /// How the name of every change to what a set holds begins: its reps or
 /// seconds, its weight, its tick. These are what a finished workout keeps,
 /// so Finish waits for them; a rest timer's change is not one.
@@ -694,7 +699,7 @@ class _LiveExercise extends StatelessWidget {
             ),
           )
         else ...<Widget>[
-          for (var i = 0; i < exercise.sets.length; i++)
+          for (var i = 0; i < exercise.sets.length; i++) ...<Widget>[
             _SetRow(
               key: ValueKey<String>('fs-set-$index-$i'),
               exerciseIndex: index,
@@ -712,11 +717,48 @@ class _LiveExercise extends StatelessWidget {
                 model.setWeight(exercise.sets[i].id, weight),
               ),
             ),
+            // Only a row he added, and only while nothing is in it. The
+            // store checks the same again when its turn comes.
+            if (exercise.canRemove(exercise.sets[i]))
+              Align(
+                alignment: Alignment.centerRight,
+                child: Padding(
+                  padding: const EdgeInsets.only(top: 4),
+                  child: FsButton.mini(
+                    key: ValueKey<String>('fs-remove-set-$index-$i'),
+                    label: 'Remove',
+                    semanticLabel: 'Remove set ${i + 1}, which is empty',
+                    onPressed: () {
+                      // The rows after it move up: every box goes back
+                      // to showing what is stored.
+                      FocusManager.instance.primaryFocus?.unfocus();
+                      track(
+                        _rowsChange(exercise),
+                        model.removeSet(exercise.sets[i].id),
+                      );
+                    },
+                  ),
+                ),
+              ),
+          ],
           const SizedBox(height: 6),
           Text(
             _targetLine(exercise),
             style: FsText.bodySmall.copyWith(color: colors.textMuted),
           ),
+          if (exercise.canAddSet) ...<Widget>[
+            const SizedBox(height: 8),
+            Align(
+              alignment: Alignment.centerLeft,
+              child: FsButton.mini(
+                key: ValueKey<String>('fs-add-set-$index'),
+                label: 'Add set',
+                semanticLabel: 'Add a set to ${exercise.name}',
+                onPressed: () =>
+                    track(_rowsChange(exercise), model.addSet(exercise)),
+              ),
+            ),
+          ],
         ],
         if (exercise.hasRestTimer)
           _RestBar(index: index, exercise: exercise, model: model, track: track)

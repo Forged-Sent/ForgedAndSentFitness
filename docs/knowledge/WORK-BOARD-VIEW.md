@@ -94,6 +94,10 @@ update-by: edit WORK.md then run tooling/knowledge/work_board.py --write
 	**Note:** The maintainer approved the [contract](../features/workout-logging/feature.md), FNS-004, on 2026-11-22, confirmed the rules taken from the prototype as built and approved the golden images. Two things he wants before any pilot are rows under Later: an alert when the rest timer reaches zero, and a field in `seed/` for whether a lift needs a weight. His six decisions of 2026-11-13 are recorded in the contract and built. The database is at schema version 3, after the journal's version 2, with tested migrations from versions 1 and 2; the contract is FNS-004. Start, two sets, kill, relaunch, finish passed on 2026-11-13 on one Android emulator on the maintainer's workstation, made from the Android 36 system image (Android 16). On 2026-11-20, on that emulator, this build was installed over a build of `main` that held two journal entries and a completed day: the file went from version 2 to version 3 with all of it intact, a workout was started, and everything was still there after a kill and relaunch (the upgrade test under `mobile/integration_test/`). Not on a phone, and not in CI. iOS is built only by CI. No plan setup or editor: every member gets the Forged program, a full gym, rest on Sunday and lifting on Monday, Wednesday and Friday
 	**Branch or PR:** branch `claude/s3-workout-logging`
 	[Edit this row in WORK](WORK.md)
+- [x] **Add or remove a set during a workout**
+	**Note:** The maintainer: approve the addition to the [contract](../features/workout-logging/feature.md), which is marked there as proposed and added after his approval of FNS-004, and look at the two redrawn golden images (logging sets, dark and light), which are **not approved**. Built to his rules of 2026-11-22, on top of S3's branch. No change to the database: an added set is a row in the session's existing set table. Not on a phone
+	**Branch or PR:** branch `claude/s3-add-remove-set`
+	[Edit this row in WORK](WORK.md)
 - [x] **Setup scripts and guides match the six-tab app**
 	**Note:** Physical run on a fresh Windows PC and a Mac: the Try it now walkthrough, Mobile Check my setup, and a second setup run in the same window
 	**Branch or PR:** branch `claude/bootstrap-test-readiness`
@@ -122,9 +126,6 @@ update-by: edit WORK.md then run tooling/knowledge/work_board.py --write
 
 ## Later
 
-- [ ] **Add or remove a set during a workout**
-	**Prompt:** No prompt yet. Asked for by the maintainer after his hand test of S3 on 2026-11-21: the first follow-up once [#85](https://github.com/Forged-Sent/ForgedAndSentFitness/pull/85) merges. Needs a decision: what an added row aims for, and whether a row that already holds reps can be removed
-	[Edit this row in WORK](WORK.md)
 - [ ] **Supersets are shown grouped together**
 	**Prompt:** No prompt yet. Asked for by the maintainer on 2026-11-21, after [#85](https://github.com/Forged-Sent/ForgedAndSentFitness/pull/85). `seed/workouts.json` already marks them: a day with a superset carries `"superset": [5, 6]`, the places of its two exercises counted from 0 (209 of the Forged program's 365 days), and the bundled copy keeps the mark. The app reads the prescription text and not the mark yet
 	[Edit this row in WORK](WORK.md)

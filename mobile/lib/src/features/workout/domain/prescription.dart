@@ -104,6 +104,15 @@ SetPlan? parseSets(String prescription) {
   );
 }
 
+/// How many set rows [prescription] gives an exercise when a session is
+/// started: the sets it asks for, or one row where it describes none.
+///
+/// A session keeps each exercise's prescription as it was when the session
+/// was started, and its rows are numbered from 0 with no gaps. So this
+/// also tells which rows came from the plan: the first this many. A row
+/// after them is one he added during the workout.
+int plannedSetCount(String prescription) => parseSets(prescription)?.count ?? 1;
+
 final RegExp _rest = RegExp(
   r'\brest\s+(\d+(?:\.\d+)?)(?:\s*(?:to|-)\s*(\d+(?:\.\d+)?))?\s*(sec|min)',
   caseSensitive: false,

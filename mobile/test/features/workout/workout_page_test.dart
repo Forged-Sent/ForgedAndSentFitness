@@ -561,6 +561,257 @@ void main() {
     });
   });
 
+  group('adding and removing a set', () {
+    Future<SessionExercise> squat(AppHarness app, WidgetTester tester) async =>
+        (await app.savedSession(tester, _monday))!.exercises.first;
+
+    testWidgets('"Add set" puts one more row under the exercise, with the '
+        'same target, stored at once', (tester) async {
+      final app = await pumpApp(tester, clock: TestClock(liftingEvening));
+      await openTodaysWorkout(tester);
+      await startWorkout(tester);
+      expect(repsField(0, 3), findsNothing);
+
+      await _tapOnPage(tester, addSetButton(0));
+
+      await showOnWorkoutPage(tester, repsField(0, 3));
+      expect(find.text('SET 4'), findsWidgets);
+      var stored = await squat(app, tester);
+      expect(stored.sets, hasLength(4));
+      expect(stored.sets.last.position, 3);
+      expect(stored.sets.last.target, stored.sets[2].target);
+      expect(stored.sets.last.isBlank, isTrue);
+      // Only that exercise gained a row.
+      expect(repsField(1, 3), findsNothing);
+
+      // It is logged like any other set.
+      await typeNumber(tester, repsField(0, 3), '5');
+      await typeNumber(tester, weightField(0, 3), '150');
+      stored = await squat(app, tester);
+      expect(stored.sets.last.reps, 5);
+      expect(stored.sets.last.weightLb, 150);
+      expect(stored.isLogged(stored.sets.last), isTrue);
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('a row he added can be removed while it is empty; a row '
+        'from the plan has no Remove', (tester) async {
+      final app = await pumpApp(tester, clock: TestClock(liftingEvening));
+      await openTodaysWorkout(tester);
+      await startWorkout(tester);
+      await _tapOnPage(tester, addSetButton(0));
+      await showOnWorkoutPage(tester, removeSetButton(0, 3));
+
+      for (var set = 0; set < 3; set++) {
+        expect(removeSetButton(0, set), findsNothing);
+      }
+      expect(
+        find.bySemanticsLabel('Remove set 4, which is empty'),
+        findsOneWidget,
+      );
+
+      await _tapOnPage(tester, removeSetButton(0, 3));
+
+      expect(repsField(0, 3), findsNothing);
+      expect(removeSetButton(0, 3), findsNothing);
+      expect((await squat(app, tester)).sets, hasLength(3));
+    });
+
+    testWidgets('once anything is typed in a row he added, Remove is gone; '
+        'clearing the row brings it back', (tester) async {
+      final app = await pumpApp(tester, clock: TestClock(liftingEvening));
+      await openTodaysWorkout(tester);
+      await startWorkout(tester);
+      await _tapOnPage(tester, addSetButton(0));
+
+      await typeNumber(tester, weightField(0, 3), '45');
+      expect(removeSetButton(0, 3), findsNothing);
+      await typeNumber(tester, weightField(0, 3), '');
+      await typeNumber(tester, repsField(0, 3), '5');
+      expect(removeSetButton(0, 3), findsNothing);
+      expect((await squat(app, tester)).sets, hasLength(4));
+
+      await typeNumber(tester, repsField(0, 3), '');
+      await showOnWorkoutPage(tester, removeSetButton(0, 3));
+      expect(removeSetButton(0, 3), findsOneWidget);
+    });
+
+    testWidgets('Remove tapped while what he just typed in that row is '
+        'still on its way to the store removes nothing', (tester) async {
+      final app = await pumpApp(tester, clock: TestClock(liftingEvening));
+      await openTodaysWorkout(tester);
+      await startWorkout(tester);
+      await _tapOnPage(tester, addSetButton(0));
+      await showOnWorkoutPage(tester, removeSetButton(0, 3));
+      final workouts = app.store.workouts as TestWorkoutRepository;
+
+      // A slow disk holds the reps he types; the page still shows Remove.
+      workouts.hold();
+      await typeNumber(tester, repsField(0, 3), '5');
+      await _tapOnPage(tester, removeSetButton(0, 3));
+      workouts.release();
+      await tester.pumpAndSettle();
+
+      final stored = await squat(app, tester);
+      expect(stored.sets, hasLength(4));
+      expect(stored.sets.last.reps, 5);
+      await showOnWorkoutPage(tester, repsField(0, 3));
+      expect(_typed(tester, repsField(0, 3)), '5');
+      expect(removeSetButton(0, 3), findsNothing);
+      expect(_saveFailedNotice, findsNothing);
+    });
+
+    testWidgets('removing an empty row moves the rows after it up, with '
+        'what they hold', (tester) async {
+      final app = await pumpApp(tester, clock: TestClock(liftingEvening));
+      await openTodaysWorkout(tester);
+      await startWorkout(tester);
+      await _tapOnPage(tester, addSetButton(0));
+      await _tapOnPage(tester, addSetButton(0));
+      await typeNumber(tester, repsField(0, 4), '6');
+      await typeNumber(tester, weightField(0, 4), '100');
+
+      await _tapOnPage(tester, removeSetButton(0, 3));
+
+      expect(repsField(0, 4), findsNothing);
+      await showOnWorkoutPage(tester, repsField(0, 3));
+      expect(_typed(tester, repsField(0, 3)), '6');
+      expect(_typed(tester, weightField(0, 3)), '100');
+      final stored = await squat(app, tester);
+      expect(stored.sets, hasLength(4));
+      expect(stored.sets.last.reps, 6);
+      expect(stored.sets.last.weightLb, 100);
+      expect(stored.sets.map((s) => s.position), <int>[0, 1, 2, 3]);
+    });
+
+    testWidgets('an exercise takes twelve rows and no more', (tester) async {
+      final app = await pumpApp(tester, clock: TestClock(liftingEvening));
+      await openTodaysWorkout(tester);
+      await startWorkout(tester);
+
+      for (var rows = 3; rows < maxSets; rows++) {
+        await _tapOnPage(tester, addSetButton(0));
+      }
+
+      expect((await squat(app, tester)).sets, hasLength(maxSets));
+      await showOnWorkoutPage(tester, repsField(0, maxSets - 1));
+      expect(addSetButton(0), findsNothing);
+      // The next exercise still has its own.
+      await showOnWorkoutPage(tester, addSetButton(1));
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('an exercise that is only marked done has no "Add set"', (
+      tester,
+    ) async {
+      // Tuesday, November 10: a recovery day.
+      await pumpApp(tester);
+      await openTodaysWorkout(tester);
+      await startWorkout(tester);
+
+      await showOnWorkoutPage(
+        tester,
+        find.byKey(const ValueKey<String>('fs-tick-0')),
+      );
+      expect(addSetButton(0), findsNothing);
+      // A timed exercise has one.
+      await showOnWorkoutPage(tester, addSetButton(1));
+      expect(addSetButton(1), findsOneWidget);
+    });
+
+    testWidgets('last time\'s value stands beside an added set too, by its '
+        'place', (tester) async {
+      final app = await pumpApp(tester, clock: TestClock(liftingEvening));
+      await tester.runAsync(() async {
+        final workouts = app.store.workouts;
+        await workouts.startSession(
+          newSession(
+            'earlier',
+            DateTime(2026, 11, 4, 18),
+            owner: app.ownerId,
+            exercises: <SessionExercise>[
+              exercise('e-squat', position: 0, movementId: 'Back Squat'),
+            ],
+          ),
+        );
+        // That day he added a fourth set and logged it.
+        await workouts.addSet('e-squat', setId: 'e-squat-extra');
+        await workouts.setReps('e-squat-s0', 5);
+        await workouts.setWeight('e-squat-s0', 135);
+        await workouts.setReps('e-squat-extra', 3);
+        await workouts.setWeight('e-squat-extra', 150);
+      });
+      await openTodaysWorkout(tester);
+      await startWorkout(tester);
+      await showOnWorkoutPage(tester, repsField(0, 0));
+      expect(
+        _text(tester, find.byKey(const ValueKey<String>('fs-last-0-0'))),
+        '135×5',
+      );
+      expect(find.byKey(const ValueKey<String>('fs-last-0-3')), findsNothing);
+
+      await _tapOnPage(tester, addSetButton(0));
+
+      await showOnWorkoutPage(tester, repsField(0, 3));
+      expect(
+        _text(tester, find.byKey(const ValueKey<String>('fs-last-0-3'))),
+        '150×3',
+      );
+    });
+
+    testWidgets('if a set cannot be added, the page says so, and that does '
+        'not hold Finish up', (tester) async {
+      final app = await pumpApp(tester, clock: TestClock(liftingEvening));
+      await openTodaysWorkout(tester);
+      await startWorkout(tester);
+      final workouts = app.store.workouts as TestWorkoutRepository;
+
+      workouts.failWrites = true;
+      await _tapOnPage(tester, addSetButton(0));
+      workouts.failWrites = false;
+
+      expect(repsField(0, 3), findsNothing);
+      expect((await squat(app, tester)).sets, hasLength(3));
+      await tester.drag(workoutScrollable, const Offset(0, 600));
+      await tester.pumpAndSettle();
+      expect(_saveFailedNotice, findsOneWidget);
+
+      // Nothing he entered is missing from the store, so he can finish.
+      await _finish(tester);
+      expect(lockedSummary, findsOneWidget);
+    });
+
+    testWidgets('a finished workout has no "Add set" and no Remove, and '
+        'lists the added set he logged', (tester) async {
+      final app = await pumpApp(tester, clock: TestClock(liftingEvening));
+      await openTodaysWorkout(tester);
+      await startWorkout(tester);
+      await _tapOnPage(tester, addSetButton(0));
+      await _tapOnPage(tester, addSetButton(0));
+      await typeNumber(tester, repsField(0, 3), '4');
+      await typeNumber(tester, weightField(0, 3), '155');
+
+      await _finish(tester);
+
+      expect(lockedSummary, findsOneWidget);
+      expect(find.text('Add set'), findsNothing);
+      expect(find.text('Remove'), findsNothing);
+      expect(find.text('4 reps × 155 lb'), findsOneWidget);
+      // The empty row he added is still stored: a finished workout is
+      // locked as it stood.
+      final stored = await squat(app, tester);
+      expect(stored.sets, hasLength(5));
+      final workouts = app.store.workouts;
+      final refused = await tester.runAsync(() async {
+        final added = await workouts.addSet(stored.id, setId: 'late');
+        final removed = await workouts.removeSet(stored.sets.last.id);
+        return added || removed;
+      });
+      expect(refused, isFalse);
+      expect((await squat(app, tester)).sets, hasLength(5));
+    });
+  });
+
   group('kill mid-set and relaunch (P07 acceptance 1, on the screen)', () {
     testWidgets('every entered set is there and the clock is right', (
       tester,
