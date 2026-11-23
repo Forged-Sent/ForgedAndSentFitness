@@ -48,6 +48,10 @@ update-by: edit WORK.md then run tooling/knowledge/work_board.py --write
 	**Note:** None; the answers are on the [Decisions](../reviews/2026-11-10-prototype-to-flutter/01-DECISIONS.md) page
 	**Branch or PR:** branch `chore/review-rules-and-dashboard`
 	[Edit this row in WORK](WORK.md)
+- [x] **Phase 0 decisions on `main`**
+	**Note:** ADR-0008 (membership documents) stays Proposed until S4b starts, as the maintainer decided on 2026-11-19. Maintainer: the Decisions page still says `main` has ADR-0001 to ADR-0005; only the maintainer edits that page. Prompt P13 now names ADR-0010 for its record
+	**Branch or PR:** branch `claude/adr-phase0-carry-forward`
+	[Edit this row in WORK](WORK.md)
 - [x] **CI accepts images and fonts**
 	**Branch or PR:** [#54](https://github.com/Forged-Sent/ForgedAndSentFitness/pull/54)
 	[Edit this row in WORK](WORK.md)
@@ -69,6 +73,10 @@ update-by: edit WORK.md then run tooling/knowledge/work_board.py --write
 - [x] **Lockfile-only pull requests pass the review check**
 	**Note:** None. Unblocks Dependabot [#66](https://github.com/Forged-Sent/ForgedAndSentFitness/pull/66). Without `--dry-run` such a change still gets no PASS and no review record, and `--verify` still fails
 	**Branch or PR:** branch `claude/review-lockfile-dry-run`
+	[Edit this row in WORK](WORK.md)
+- [x] **Push from a worktree runs the local checks**
+	**Note:** None. A branch cut before this merges keeps the older hook until it merges `main`. Not run on Windows
+	**Branch or PR:** branch `claude/pre-push-hook-worktrees`
 	[Edit this row in WORK](WORK.md)
 - [x] **Host wording left over from the generated hosts**
 	**Note:** None. Checked on 2026-11-19 in a debug simulator build installed on one iPhone 17 simulator (iOS 27.2): the installed app reports the display name "Forged & Sent", and the home screen shows that name under the icon. Nothing ran on a physical iPhone. The Mac setup script's wording was fixed earlier by `claude/bootstrap-test-readiness`
