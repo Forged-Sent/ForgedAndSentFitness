@@ -126,6 +126,10 @@ update-by: edit WORK.md then run tooling/knowledge/work_board.py --write
 	**Note:** The maintainer: look at the ten redrawn golden images (the eight reading images and the two of "Write it down"), which are drawn and **not approved**. Both changes are his decisions of 2026-11-21 after trying the app by hand. The notice was read from Crossway's permissions page that day; the notice stays under the verse. The prototype is unchanged
 	**Branch or PR:** branch `claude/devotional-labels-esv-notice`
 	[Edit this row in WORK](WORK.md)
+- [x] **iPhone simulator launcher works with Xcode 27**
+	**Note:** None. Run on 2026-11-18 on the maintainer's Mac (macOS 27.2, Xcode 27.2, iPhone 17 simulator, iOS 27.2) in Preview mode, from an empty `SourcePackages` folder. Not run: practice-Firebase mode on the simulator, an Xcode that still has Simulator.app, a Mac with no window app, and a physical iPhone
+	**Branch or PR:** branch `claude/ios-simulator-launcher`
+	[Edit this row in WORK](WORK.md)
 
 
 ## Later
