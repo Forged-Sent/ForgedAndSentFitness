@@ -54,8 +54,7 @@ void main() {
     expect(find.text(journalNotSavedNotice), findsNothing);
     await tester.enterText(box, restartEntryWords);
     await tester.pumpAndSettle();
-    await tester.ensureVisible(journalSaveButton);
-    await tester.pumpAndSettle();
+    await showForTap(tester, journalSaveButton);
     await tester.tap(journalSaveButton);
     for (var i = 0; i < 100 && journalMessage.evaluate().isEmpty; i++) {
       await tester.pump(const Duration(milliseconds: 100));
