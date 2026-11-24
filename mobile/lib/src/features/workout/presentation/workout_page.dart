@@ -101,6 +101,15 @@ class _WorkoutPageState extends ConsumerState<WorkoutPage> {
   /// exists, and be lost without a word.
   final Set<String> _removing = <String>{};
 
+  /// True from the tap on Finish until Finish fails or is given up, or
+  /// the summary takes the place of the set rows. While it is true the
+  /// set boxes and ticks take nothing.
+  ///
+  /// A change made in that time would take its turn behind the finish.
+  /// The store drops a change to a finished workout, and says nothing:
+  /// the page would show it as entered and it would be gone.
+  bool _finishing = false;
+
   final ScrollController _scroll = ScrollController();
 
   /// When the phone puts the app in the background it may stop it at any
@@ -234,7 +243,32 @@ class _WorkoutPageState extends ConsumerState<WorkoutPage> {
 
   Future<void> _finish() async {
     if (_busy) return;
-    setState(() => _busy = true);
+    // The keyboard closes with the boxes: what the box he was in shows
+    // from here on is what is stored.
+    FocusManager.instance.primaryFocus?.unfocus();
+    setState(() {
+      _busy = true;
+      _finishing = true;
+    });
+    try {
+      await _finishNow();
+    } finally {
+      // Whichever way it ended. After a finish that was stored the boxes
+      // stay closed until the page is redrawn with the summary: see
+      // [_boxesClosed].
+      if (mounted) setState(() => _finishing = false);
+    }
+  }
+
+  /// The id of the session a finish was stored for. Its rows stay closed
+  /// until the store's redraw replaces them with the summary.
+  String? _finished;
+
+  /// Whether the set boxes and ticks of [session] take nothing now.
+  bool _boxesClosed(WorkoutSession session) =>
+      _finishing || _finished == session.id;
+
+  Future<void> _finishNow() async {
     // A workout is locked as the store holds it, so two things come first.
     // Every set he entered has to be stored: one the store does not hold
     // would be lost for good. And the check below is made on the session
@@ -297,12 +331,14 @@ class _WorkoutPageState extends ConsumerState<WorkoutPage> {
         return;
       }
     }
+    final finishing = session.id;
     final saved = await _model.finish();
     if (!mounted) return;
     setState(() {
       _busy = false;
       _mark(_finishChange, saved: saved);
       _needsFixing = const <String>{};
+      if (saved) _finished = finishing;
     });
     _toTop();
   }
@@ -473,6 +509,7 @@ class _WorkoutPageState extends ConsumerState<WorkoutPage> {
                     removing: _removing,
                     unsaved: _unsaved,
                     onRemove: _removeSet,
+                    closed: _boxesClosed(session),
                     model: _model,
                     track: _track,
                   ),
@@ -701,6 +738,7 @@ class _LiveExercise extends StatelessWidget {
     required this.removing,
     required this.unsaved,
     required this.onRemove,
+    required this.closed,
     required this.model,
     required this.track,
   });
@@ -723,6 +761,10 @@ class _LiveExercise extends StatelessWidget {
 
   /// Called with a row he tapped Remove on.
   final void Function(SessionExercise exercise, SessionSet set) onRemove;
+
+  /// True while the workout is being finished: the set boxes, the tick,
+  /// "Add set" and "Remove" take nothing.
+  final bool closed;
 
   final WorkoutViewModel model;
 
@@ -763,48 +805,57 @@ class _LiveExercise extends StatelessWidget {
           ),
         ],
         if (exercise.measure == SetMeasure.tick)
-          _TickRow(
-            index: index,
-            exercise: exercise,
-            onChanged: (bool ticked) => track(
-              _tickChange(exercise.sets.first),
-              model.setTicked(exercise.sets.first.id, ticked: ticked),
+          _Closed(
+            closed: closed,
+            child: _TickRow(
+              index: index,
+              exercise: exercise,
+              onChanged: (bool ticked) => track(
+                _tickChange(exercise.sets.first),
+                model.setTicked(exercise.sets.first.id, ticked: ticked),
+              ),
             ),
           )
         else ...<Widget>[
           for (var i = 0; i < exercise.sets.length; i++) ...<Widget>[
-            _BeingRemoved(
-              // A row on its way out is drawn faded, and takes no tap, no
-              // keyboard focus and no screen-reader action.
-              removing: removing.contains(exercise.sets[i].id),
-              child: _SetRow(
-                key: ValueKey<String>('fs-set-$index-$i'),
-                exerciseIndex: index,
-                setIndex: i,
-                exercise: exercise,
-                set: exercise.sets[i],
-                previous: last?.at(exercise.sets[i].position),
-                needsFixing: needsFixing.contains(exercise.sets[i].id),
-                onReps: (double? reps) => track(
-                  _repsChange(exercise.sets[i]),
-                  model.setReps(exercise.sets[i].id, reps?.round()),
-                ),
-                onWeight: (double? weight) => track(
-                  _weightChange(exercise.sets[i]),
-                  model.setWeight(exercise.sets[i].id, weight),
+            _Closed(
+              closed: closed,
+              child: _BeingRemoved(
+                // A row on its way out is drawn faded, and takes no tap, no
+                // keyboard focus and no screen-reader action.
+                removing: removing.contains(exercise.sets[i].id),
+                child: _SetRow(
+                  key: ValueKey<String>('fs-set-$index-$i'),
+                  exerciseIndex: index,
+                  setIndex: i,
+                  exercise: exercise,
+                  set: exercise.sets[i],
+                  previous: last?.at(exercise.sets[i].position),
+                  needsFixing: needsFixing.contains(exercise.sets[i].id),
+                  onReps: (double? reps) => track(
+                    _repsChange(exercise.sets[i]),
+                    model.setReps(exercise.sets[i].id, reps?.round()),
+                  ),
+                  onWeight: (double? weight) => track(
+                    _weightChange(exercise.sets[i]),
+                    model.setWeight(exercise.sets[i].id, weight),
+                  ),
                 ),
               ),
             ),
             if (_offersRemove(exercise.sets[i]))
-              Align(
-                alignment: Alignment.centerRight,
-                child: Padding(
-                  padding: const EdgeInsets.only(top: 4),
-                  child: FsButton.mini(
-                    key: ValueKey<String>('fs-remove-set-$index-$i'),
-                    label: 'Remove',
-                    semanticLabel: 'Remove set ${i + 1}, which is empty',
-                    onPressed: () => onRemove(exercise, exercise.sets[i]),
+              _Closed(
+                closed: closed,
+                child: Align(
+                  alignment: Alignment.centerRight,
+                  child: Padding(
+                    padding: const EdgeInsets.only(top: 4),
+                    child: FsButton.mini(
+                      key: ValueKey<String>('fs-remove-set-$index-$i'),
+                      label: 'Remove',
+                      semanticLabel: 'Remove set ${i + 1}, which is empty',
+                      onPressed: () => onRemove(exercise, exercise.sets[i]),
+                    ),
                   ),
                 ),
               ),
@@ -816,14 +867,17 @@ class _LiveExercise extends StatelessWidget {
           ),
           if (exercise.canAddSet) ...<Widget>[
             const SizedBox(height: 8),
-            Align(
-              alignment: Alignment.centerLeft,
-              child: FsButton.mini(
-                key: ValueKey<String>('fs-add-set-$index'),
-                label: 'Add set',
-                semanticLabel: 'Add a set to ${exercise.name}',
-                onPressed: () =>
-                    track(_rowsChange(exercise), model.addSet(exercise)),
+            _Closed(
+              closed: closed,
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: FsButton.mini(
+                  key: ValueKey<String>('fs-add-set-$index'),
+                  label: 'Add set',
+                  semanticLabel: 'Add a set to ${exercise.name}',
+                  onPressed: () =>
+                      track(_rowsChange(exercise), model.addSet(exercise)),
+                ),
               ),
             ),
           ],
@@ -875,6 +929,25 @@ class _BeingRemoved extends StatelessWidget {
           child: Opacity(opacity: removing ? 0.4 : 1, child: child),
         ),
       ),
+    );
+  }
+}
+
+/// A set row, a tick, "Add set" or "Remove" that takes nothing while
+/// [closed]: no tap, no keyboard, no screen-reader action. It is drawn as
+/// it is; the Finish button, which is what he tapped, shows that the page
+/// is busy.
+class _Closed extends StatelessWidget {
+  const _Closed({required this.closed, required this.child});
+
+  final bool closed;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return ExcludeFocus(
+      excluding: closed,
+      child: IgnorePointer(ignoring: closed, child: child),
     );
   }
 }

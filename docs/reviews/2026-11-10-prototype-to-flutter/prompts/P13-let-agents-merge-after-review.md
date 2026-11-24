@@ -126,14 +126,14 @@ Deliver, on a branch from origin/main in its own worktree:
    thread.
    The script reads what a record says. It cannot prove which tool
    posted it, so print that limit with the result and state it in
-   ADR-0006 with the enforcement note.
+   ADR-0010 with the enforcement note.
    Add to the rule: the agent posts the review record with the review
    summary under it, then runs the script and pastes its output on the
    pull request before merging. Condition 2 stays a judgment the agent
    states in that same comment.
 5. .github/pull_request_template.md: a short "Agent merge" checklist with
    the six conditions.
-6. docs/architecture/ADR-0006-agent-merge-after-review.md, short: the
+6. docs/architecture/ADR-0010-agent-merge-after-review.md, short: the
    decision, the limits, and this sentence in substance: "GitHub enforces
    only ci-gate. The scope, risk and review conditions are checked by the
    agent and by agent_merge_check.py, not by GitHub, until a review

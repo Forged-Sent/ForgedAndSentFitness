@@ -82,6 +82,7 @@ else
   fs_record GitIdentity Missing 'Not a Git clone.' 'Clone the repo with Git and rerun.'
   fs_record Hooks Missing 'Not a Git clone.' 'Clone the repo with Git and rerun.'
 fi
+if fs_in_synced_folder "$FS_ROOT"; then fs_record ProjectFolder Warning "$FS_SYNCED_FOLDER_WHY" "$FS_SYNCED_FOLDER_FIX"; else fs_record ProjectFolder Ready '' ''; fi
 fs_probe Gitleaks gitleaks 'Run Mac Contributor setup to install Gitleaks.'
 if { fs_has python3.12 && python3.12 -c 'import sys;sys.exit(0 if sys.version_info >= (3,11) else 1)' >/dev/null 2>&1; } ||
    { fs_has python3 && python3 -c 'import sys;sys.exit(0 if sys.version_info >= (3,11) else 1)' >/dev/null 2>&1; }; then
@@ -110,7 +111,11 @@ if fs_has firebase && [ "$(firebase --version 2>/dev/null || true)" = "$FS_FIREB
 fs_probe CodexCLI codex 'Optional: choose Codex as your AI assistant and sign in separately.'
 fs_probe ClaudeCLI claude 'Optional: choose Claude as your AI assistant and sign in separately.'
 fs_probe AntigravityCLI agy 'Optional: pick Antigravity (4) during setup, then sign in by running agy.'
-if [ -d /Applications/Xcode.app ]; then fs_record Xcode Ready '' ''; else fs_record Xcode Missing 'Xcode is not installed (only needed for iPhone testing).' 'START-MAC.command > 8 > 5.'; fi
+if [ -d /Applications/Xcode.app ]; then
+  fs_record Xcode Ready '' ''
+  # Its own id so an old Xcode prints WHY/FIX instead of joining the "nothing to fix" line.
+  if fs_xcode_version_ok; then fs_record XcodeVersion Ready '' ''; else fs_record XcodeVersion Outdated 'Xcode is older than 26.2, which the Firebase iOS SDK needs (only for iPhone testing).' 'Update Xcode in the App Store, then START-MAC.command > 8 > 5.'; fi
+else fs_record Xcode Missing 'Xcode is not installed (only needed for iPhone testing).' 'START-MAC.command > 8 > 5.'; fi
 if [ -d '/Applications/Android Studio.app' ]; then fs_record AndroidStudio Ready '' ''; else fs_record AndroidStudio Missing 'Android Studio not installed.' 'Install Android Studio manually for Mobile workflows.'; fi
 fs_probe Maestro maestro 'Optional: install Maestro when you are ready for native device tests.'
 fs_probe Java java 'Java is optional for Preview; Contributor uses JDK 21.'

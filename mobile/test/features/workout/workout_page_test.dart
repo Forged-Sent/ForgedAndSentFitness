@@ -1490,6 +1490,184 @@ void main() {
       expect(await app.savedDoneDays(tester), isEmpty);
     });
 
+    testWidgets('from the tap on Finish until the summary shows, the set '
+        'boxes take no typing', (tester) async {
+      final app = await pumpApp(tester, clock: TestClock(liftingEvening));
+      await openTodaysWorkout(tester);
+      await startWorkout(tester);
+      await typeNumber(tester, repsField(0, 0), '5');
+      await typeNumber(tester, weightField(0, 0), '135');
+      await tester.drag(workoutScrollable, const Offset(0, 600));
+      await tester.pumpAndSettle();
+      final workouts = app.store.workouts as TestWorkoutRepository;
+
+      // A slow disk holds the finish.
+      workouts.hold();
+      await _tapOnPage(tester, finishWorkoutButton);
+      await tester.tap(find.byKey(const ValueKey<String>('fs-finish-anyway')));
+      await tester.pump();
+      expect(lockedSummary, findsNothing);
+
+      // He taps boxes meanwhile: none opens the keyboard. What he typed
+      // now would go behind the finish, into a workout that is locked by
+      // then, and be dropped without a word.
+      for (final box in <Finder>[
+        repsField(0, 0),
+        repsField(0, 1),
+        weightField(0, 1),
+      ]) {
+        await showOnWorkoutPage(tester, box);
+        await tester.tap(box, warnIfMissed: false);
+        await tester.pump();
+        expect(tester.testTextInput.hasAnyClients, isFalse);
+      }
+
+      workouts.release();
+      await tester.pumpAndSettle();
+      expect(lockedSummary, findsOneWidget);
+      final squat = (await app.savedSession(tester, _monday))!.exercises.first;
+      expect((squat.sets[0].reps, squat.sets[0].weightLb), (5, 135.0));
+      expect(squat.sets[1].reps, isNull);
+      expect(squat.sets[1].weightLb, isNull);
+      expect(_saveFailedNotice, findsNothing);
+    });
+
+    testWidgets('if Finish then fails, the boxes open again', (tester) async {
+      final app = await pumpApp(tester, clock: TestClock(liftingEvening));
+      await openTodaysWorkout(tester);
+      await startWorkout(tester);
+      await typeNumber(tester, repsField(0, 0), '5');
+      await typeNumber(tester, weightField(0, 0), '135');
+      final workouts = app.store.workouts as TestWorkoutRepository;
+      (app.store.days as TestDayRepository).failWrites = true;
+
+      workouts.hold();
+      await _tapOnPage(tester, finishWorkoutButton);
+      await tester.tap(find.byKey(const ValueKey<String>('fs-finish-anyway')));
+      await tester.pump();
+      await showOnWorkoutPage(tester, repsField(0, 1));
+      await tester.tap(repsField(0, 1), warnIfMissed: false);
+      await tester.pump();
+      expect(tester.testTextInput.hasAnyClients, isFalse);
+
+      workouts.release();
+      await tester.pumpAndSettle();
+      (app.store.days as TestDayRepository).failWrites = false;
+      expect(lockedSummary, findsNothing);
+      expect((await app.savedSession(tester, _monday))!.finished, isFalse);
+
+      // The workout is still his to log.
+      await typeNumber(tester, repsField(0, 1), '4');
+      expect(tester.testTextInput.hasAnyClients, isTrue);
+      expect(
+        (await app.savedSession(tester, _monday))!.exercises.first.sets[1].reps,
+        4,
+      );
+    });
+
+    testWidgets('a tick tapped while Finish is being saved is not taken: if '
+        'Finish then fails, the exercise is as he left it', (tester) async {
+      // Tuesday, November 10: a recovery day, whose first exercise is
+      // only marked done.
+      const tuesday = LocalDate(2026, 11, 10);
+      final app = await pumpApp(tester);
+      await openTodaysWorkout(tester);
+      await startWorkout(tester);
+      final workouts = app.store.workouts as TestWorkoutRepository;
+      (app.store.days as TestDayRepository).failWrites = true;
+      final tick = find.byKey(const ValueKey<String>('fs-tick-0'));
+
+      workouts.hold();
+      await _tapOnPage(tester, finishWorkoutButton);
+      await tester.tap(find.byKey(const ValueKey<String>('fs-finish-anyway')));
+      await tester.pump();
+      await showOnWorkoutPage(tester, tick);
+      await tester.tap(tick, warnIfMissed: false);
+      await tester.pump();
+
+      workouts.release();
+      await tester.pumpAndSettle();
+      (app.store.days as TestDayRepository).failWrites = false;
+
+      // The finish failed, so a tick queued behind it would have been
+      // stored. It was never taken.
+      final stored = (await app.savedSession(tester, tuesday))!;
+      expect(stored.finished, isFalse);
+      expect(stored.exercises.first.sets.single.ticked, isFalse);
+      // And the tick works again.
+      await _tapOnPage(tester, tick);
+      expect(
+        (await app.savedSession(
+          tester,
+          tuesday,
+        ))!.exercises.first.sets.single.ticked,
+        isTrue,
+      );
+    });
+
+    testWidgets('"Add set" and Remove tapped while Finish is being saved are '
+        'not taken: if Finish then fails, the rows are as he left them', (
+      tester,
+    ) async {
+      final app = await pumpApp(tester, clock: TestClock(liftingEvening));
+      await openTodaysWorkout(tester);
+      await startWorkout(tester);
+      // A fourth row on the first exercise, empty, so it shows Remove.
+      await _tapOnPage(tester, addSetButton(0));
+      final workouts = app.store.workouts as TestWorkoutRepository;
+      (app.store.days as TestDayRepository).failWrites = true;
+
+      workouts.hold();
+      await _tapOnPage(tester, finishWorkoutButton);
+      await tester.tap(find.byKey(const ValueKey<String>('fs-finish-anyway')));
+      await tester.pump();
+      for (final button in <Finder>[removeSetButton(0, 3), addSetButton(1)]) {
+        await showOnWorkoutPage(tester, button);
+        await tester.tap(button, warnIfMissed: false);
+        await tester.pump();
+      }
+
+      workouts.release();
+      await tester.pumpAndSettle();
+      (app.store.days as TestDayRepository).failWrites = false;
+
+      // The finish failed, so a row change queued behind it would have
+      // been stored. Neither was taken.
+      final stored = (await app.savedSession(tester, _monday))!;
+      expect(stored.finished, isFalse);
+      expect(stored.exercises[0].sets, hasLength(4));
+      expect(stored.exercises[1].sets, hasLength(3));
+      // And both work again.
+      await _tapOnPage(tester, removeSetButton(0, 3));
+      await _tapOnPage(tester, addSetButton(1));
+      final after = (await app.savedSession(tester, _monday))!;
+      expect(after.exercises[0].sets, hasLength(3));
+      expect(after.exercises[1].sets, hasLength(4));
+    });
+
+    testWidgets('"Go back" in the finish check, and a set that has to be '
+        'fixed first, open the boxes again', (tester) async {
+      await pumpApp(tester, clock: TestClock(liftingEvening));
+      await openTodaysWorkout(tester);
+      await startWorkout(tester);
+
+      // Sets are blank: he is asked, and goes back.
+      await _tapOnPage(tester, finishWorkoutButton);
+      await tester.tap(find.byKey(const ValueKey<String>('fs-finish-back')));
+      await tester.pumpAndSettle();
+      await typeNumber(tester, repsField(0, 0), '5');
+      expect(tester.testTextInput.hasAnyClients, isTrue);
+      FocusManager.instance.primaryFocus?.unfocus();
+      await tester.pumpAndSettle();
+
+      // Reps with no weight: it has to be fixed, and can be.
+      await _tapOnPage(tester, finishWorkoutButton);
+      expect(find.byType(FsDialog), findsOneWidget);
+      await systemBack(tester);
+      await typeNumber(tester, weightField(0, 0), '135');
+      expect(tester.testTextInput.hasAnyClients, isTrue);
+    });
+
     testWidgets('if finishing cannot be saved, the workout stays open and '
         'the page says so', (tester) async {
       final app = await pumpApp(tester, clock: TestClock(liftingEvening));
