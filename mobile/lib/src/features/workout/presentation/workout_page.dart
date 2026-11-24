@@ -85,6 +85,15 @@ class _WorkoutPageState extends ConsumerState<WorkoutPage> {
   /// The sets the finish check pointed at, outlined until they are fixed.
   Set<String> _needsFixing = const <String>{};
 
+  /// True from the tap on Finish until Finish fails or is given up, or
+  /// the summary takes the place of the set rows. While it is true the
+  /// set boxes and ticks take nothing.
+  ///
+  /// A change made in that time would take its turn behind the finish.
+  /// The store drops a change to a finished workout, and says nothing:
+  /// the page would show it as entered and it would be gone.
+  bool _finishing = false;
+
   final ScrollController _scroll = ScrollController();
 
   /// When the phone puts the app in the background it may stop it at any
@@ -181,7 +190,32 @@ class _WorkoutPageState extends ConsumerState<WorkoutPage> {
 
   Future<void> _finish() async {
     if (_busy) return;
-    setState(() => _busy = true);
+    // The keyboard closes with the boxes: what the box he was in shows
+    // from here on is what is stored.
+    FocusManager.instance.primaryFocus?.unfocus();
+    setState(() {
+      _busy = true;
+      _finishing = true;
+    });
+    try {
+      await _finishNow();
+    } finally {
+      // Whichever way it ended. After a finish that was stored the boxes
+      // stay closed until the page is redrawn with the summary: see
+      // [_boxesClosed].
+      if (mounted) setState(() => _finishing = false);
+    }
+  }
+
+  /// The id of the session a finish was stored for. Its rows stay closed
+  /// until the store's redraw replaces them with the summary.
+  String? _finished;
+
+  /// Whether the set boxes and ticks of [session] take nothing now.
+  bool _boxesClosed(WorkoutSession session) =>
+      _finishing || _finished == session.id;
+
+  Future<void> _finishNow() async {
     // A workout is locked as the store holds it, so two things come first.
     // Every set he entered has to be stored: one the store does not hold
     // would be lost for good. And the check below is made on the session
@@ -244,12 +278,14 @@ class _WorkoutPageState extends ConsumerState<WorkoutPage> {
         return;
       }
     }
+    final finishing = session.id;
     final saved = await _model.finish();
     if (!mounted) return;
     setState(() {
       _busy = false;
       _mark(_finishChange, saved: saved);
       _needsFixing = const <String>{};
+      if (saved) _finished = finishing;
     });
     _toTop();
   }
@@ -417,6 +453,7 @@ class _WorkoutPageState extends ConsumerState<WorkoutPage> {
                     exercise: session.exercises[i],
                     lastTime: view.lastTimes[session.exercises[i].movementId],
                     needsFixing: _needsFixing,
+                    closed: _boxesClosed(session),
                     model: _model,
                     track: _track,
                   ),
@@ -642,6 +679,7 @@ class _LiveExercise extends StatelessWidget {
     required this.exercise,
     required this.lastTime,
     required this.needsFixing,
+    required this.closed,
     required this.model,
     required this.track,
   });
@@ -655,6 +693,11 @@ class _LiveExercise extends StatelessWidget {
   final LastTime? lastTime;
 
   final Set<String> needsFixing;
+
+  /// True while the workout is being finished: the set boxes and the
+  /// tick take nothing.
+  final bool closed;
+
   final WorkoutViewModel model;
 
   /// Follows one write, named by what it changes.
@@ -685,31 +728,37 @@ class _LiveExercise extends StatelessWidget {
           ),
         ],
         if (exercise.measure == SetMeasure.tick)
-          _TickRow(
-            index: index,
-            exercise: exercise,
-            onChanged: (bool ticked) => track(
-              _tickChange(exercise.sets.first),
-              model.setTicked(exercise.sets.first.id, ticked: ticked),
+          _Closed(
+            closed: closed,
+            child: _TickRow(
+              index: index,
+              exercise: exercise,
+              onChanged: (bool ticked) => track(
+                _tickChange(exercise.sets.first),
+                model.setTicked(exercise.sets.first.id, ticked: ticked),
+              ),
             ),
           )
         else ...<Widget>[
           for (var i = 0; i < exercise.sets.length; i++)
-            _SetRow(
-              key: ValueKey<String>('fs-set-$index-$i'),
-              exerciseIndex: index,
-              setIndex: i,
-              exercise: exercise,
-              set: exercise.sets[i],
-              previous: last?.at(exercise.sets[i].position),
-              needsFixing: needsFixing.contains(exercise.sets[i].id),
-              onReps: (double? reps) => track(
-                _repsChange(exercise.sets[i]),
-                model.setReps(exercise.sets[i].id, reps?.round()),
-              ),
-              onWeight: (double? weight) => track(
-                _weightChange(exercise.sets[i]),
-                model.setWeight(exercise.sets[i].id, weight),
+            _Closed(
+              closed: closed,
+              child: _SetRow(
+                key: ValueKey<String>('fs-set-$index-$i'),
+                exerciseIndex: index,
+                setIndex: i,
+                exercise: exercise,
+                set: exercise.sets[i],
+                previous: last?.at(exercise.sets[i].position),
+                needsFixing: needsFixing.contains(exercise.sets[i].id),
+                onReps: (double? reps) => track(
+                  _repsChange(exercise.sets[i]),
+                  model.setReps(exercise.sets[i].id, reps?.round()),
+                ),
+                onWeight: (double? weight) => track(
+                  _weightChange(exercise.sets[i]),
+                  model.setWeight(exercise.sets[i].id, weight),
+                ),
               ),
             ),
           const SizedBox(height: 6),
@@ -742,6 +791,24 @@ class _LiveExercise extends StatelessWidget {
     return exercise.measure == SetMeasure.seconds
         ? 'Target: ${targets.first} per set'
         : 'Target: ${targets.first} reps per set';
+  }
+}
+
+/// A set row or a tick that takes nothing while [closed]: no tap, no
+/// keyboard, no screen-reader action. It is drawn as it is; the Finish
+/// button, which is what he tapped, shows that the page is busy.
+class _Closed extends StatelessWidget {
+  const _Closed({required this.closed, required this.child});
+
+  final bool closed;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return ExcludeFocus(
+      excluding: closed,
+      child: IgnorePointer(ignoring: closed, child: child),
+    );
   }
 }
 
