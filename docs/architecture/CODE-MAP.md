@@ -757,6 +757,9 @@ flowchart LR
 - class _WriteItDownState
 - fn initState()
 - fn dispose()
+- fn didChangeMetrics()
+- fn _keepSaveInView()
+- fn _showSave()
 - fn _onDraft()
 - fn _discard()
 - fn build()
