@@ -229,7 +229,50 @@ fs_xcode_version_ok(){
   [ -n "$fs_major" ] || return 1
   [ "$fs_major" -gt 26 ] || { [ "$fs_major" -eq 26 ] && [ "${fs_minor:-0}" -ge 2 ]; }
 }
+FS_XCODE_TOO_OLD='Xcode 26.2 or newer is needed (Firebase iOS SDK). Update Xcode in the App Store, then run step 1 again.'
+# Xcode refuses to code-sign an app built inside a folder that iCloud (or another
+# file provider) syncs: "resource fork, Finder information, or similar detritus not
+# allowed". Returns 0 when the folder, or a folder above it, is synced.
+fs_in_synced_folder(){
+  local fs_dir
+  fs_dir="$(cd "${1:-$FS_ROOT}" 2>/dev/null && pwd -P)" || return 1
+  case "$fs_dir/" in */Library/Mobile\ Documents/*|*/Library/CloudStorage/*) return 0;; esac
+  [ -x /usr/bin/xattr ] || return 1
+  while [ -n "$fs_dir" ] && [ "$fs_dir" != / ]; do
+    if /usr/bin/xattr -p com.apple.file-provider-domain-id "$fs_dir" >/dev/null 2>&1; then return 0; fi
+    fs_dir="${fs_dir%/*}"
+  done
+  return 1
+}
+FS_SYNCED_FOLDER_WHY='This project folder is inside a folder that iCloud (or another cloud service) syncs, such as Desktop or Documents. iPhone builds fail there with "resource fork, Finder information, or similar detritus not allowed".'
+FS_SYNCED_FOLDER_FIX='Close the editors, move the whole project folder to a folder that is not synced, for example ~/Developer, and run this again from there.'
+fs_warn_synced_folder(){
+  if fs_in_synced_folder "$FS_ROOT"; then fs_warn "$FS_SYNCED_FOLDER_WHY $FS_SYNCED_FOLDER_FIX"; fi
+}
+# Xcode 26 and older ship Simulator.app. Xcode 27 replaced it with DeviceHub.app.
+# Prints the app that shows the simulator window, or nothing when neither exists.
+# $1 is the Xcode developer folder (.../Xcode.app/Contents/Developer).
+fs_simulator_window_app(){
+  local fs_dev="$1" fs_app
+  for fs_app in "$fs_dev/Applications/Simulator.app" "${fs_dev%/Developer}/Applications/DeviceHub.app"; do
+    if [ -d "$fs_app" ]; then printf '%s\n' "$fs_app"; return 0; fi
+  done
+  return 1
+}
+# Never fails: the simulator runs without a window, and Flutter can still install to it.
+fs_open_simulator_window(){
+  local fs_dev fs_app
+  fs_dev="$(xcode-select -p 2>/dev/null || true)"
+  [ -n "$fs_dev" ] || fs_dev="$FS_XCODE_APP/Contents/Developer"
+  if fs_app="$(fs_simulator_window_app "$fs_dev")" && open "$fs_app" 2>/dev/null; then
+    fs_ok "Opened $(basename "$fs_app" .app) to show the simulator."
+  else
+    fs_warn 'No simulator window app found in Xcode (looked for Simulator.app and DeviceHub.app). The simulator keeps running without a window; open it from Xcode > Window > Devices and Simulators.'
+  fi
+  return 0
+}
 fs_setup_ios(){
+  fs_warn_synced_folder
   if [ ! -d "$FS_XCODE_APP" ]; then
     fs_require_space 40 'Xcode and the iOS simulator' || return 1
     fs_warn 'Xcode is not installed. Opening its App Store page: click Get / Install and sign in with your Apple ID.'
@@ -249,7 +292,7 @@ fs_setup_ios(){
     fs_info 'Installing Xcode first-launch components (macOS asks for your Mac password).'
     sudo xcodebuild -runFirstLaunch || return 1
   fi
-  fs_xcode_version_ok || { fs_fail 'Xcode 26.2 or newer is needed (Firebase iOS SDK). Update Xcode in the App Store, then run step 1 again.'; return 1; }
+  fs_xcode_version_ok || { fs_fail "$FS_XCODE_TOO_OLD"; return 1; }
   fs_ok "$(xcodebuild -version | head -n 1) is ready."
   if ! xcrun simctl list runtimes 2>/dev/null | grep -q '^iOS'; then
     fs_require_space 10 'the iOS simulator' || return 1
@@ -260,7 +303,7 @@ fs_setup_ios(){
   fs_brew_formula cocoapods pod || return 1
   fs_info 'Checking the committed iOS host against this Flutter version (adds only missing files, like the CI build).'
   ( cd "$FS_ROOT/mobile" && "$FS_FLUTTER" create --platforms=ios --project-name=forged_and_sent --org=com.forgedandsent . >/dev/null ) || return 1
-  open -a Simulator 2>/dev/null || true
+  fs_open_simulator_window
   fs_ok 'iPhone testing is set up. Run launchers/mac/more/Run app on iPhone simulator.command.'
 }
 

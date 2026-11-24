@@ -29,5 +29,14 @@ else
   exit 1
 fi
 cd mobile
-"$fs_flutter" analyze
-"$fs_flutter" test
+# When a push starts in a linked worktree, git hands this hook GIT_DIR and its
+# relatives. Flutter finds its own version by running git inside the SDK
+# folder; with those variables inherited it asks this repository instead,
+# reports version 0.0.0-unknown and cannot resolve packages, so every push
+# fails. Clear them for Flutter only. "git rev-parse --local-env-vars" is
+# git's own list of the variables that tie a command to one repository.
+(
+  unset $(git rev-parse --local-env-vars)
+  "$fs_flutter" analyze
+  "$fs_flutter" test
+)
