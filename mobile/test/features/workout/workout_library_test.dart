@@ -153,8 +153,14 @@ void main() {
         'places', () {
       // The page draws from the mark; the rest timer's rule reads the
       // prescription's words. In the bundle the two must not disagree.
-      final words = RegExp(r'^\s*Superset\s+[A-Z]\d+:', caseSensitive: false);
+      final words = RegExp(r'^\s*Superset\s+([A-Z]\d+):', caseSensitive: false);
       for (final day in library.days) {
+        // And the same label at each place: "A1" where the words say
+        // A1, "A2" where they say A2.
+        expect(supersetLabels(day.superset, day.exercises.length), <String?>[
+          for (final exercise in day.exercises)
+            words.firstMatch(exercise.prescription)?.group(1)?.toUpperCase(),
+        ], reason: 'plan day ${day.day}');
         expect(
           <int>[
             for (var i = 0; i < day.exercises.length; i++)
