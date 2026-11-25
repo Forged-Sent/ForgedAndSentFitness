@@ -818,7 +818,11 @@ class _LiveExercise extends StatelessWidget {
           )
         else ...<Widget>[
           for (var i = 0; i < exercise.sets.length; i++) ...<Widget>[
+            // Keyed by the set, as the Remove under it is: a row then
+            // keeps its boxes, and the keyboard he has open in one,
+            // when a Remove above it comes or goes.
             _Closed(
+              key: ValueKey<String>('fs-set-row-${exercise.sets[i].id}'),
               closed: closed,
               child: _BeingRemoved(
                 // A row on its way out is drawn faded, and takes no tap, no
@@ -845,6 +849,7 @@ class _LiveExercise extends StatelessWidget {
             ),
             if (_offersRemove(exercise.sets[i]))
               _Closed(
+                key: ValueKey<String>('fs-set-remove-${exercise.sets[i].id}'),
                 closed: closed,
                 child: Align(
                   alignment: Alignment.centerRight,
@@ -938,7 +943,7 @@ class _BeingRemoved extends StatelessWidget {
 /// it is; the Finish button, which is what he tapped, shows that the page
 /// is busy.
 class _Closed extends StatelessWidget {
-  const _Closed({required this.closed, required this.child});
+  const _Closed({super.key, required this.closed, required this.child});
 
   final bool closed;
   final Widget child;
