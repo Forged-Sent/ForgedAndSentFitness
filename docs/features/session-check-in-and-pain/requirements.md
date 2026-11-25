@@ -58,6 +58,10 @@ verification: none
 9. **Target and order.** As in FNS-007: prototype first, then Flutter, proposed and not decided.
 10. **The Flutter workout contract.** [FNS-004](../workout-logging/feature.md) says "The app stores and asks for nothing about his body". This feature changes that and needs FNS-004 amended in the pull request that builds it.
 
+## Prototype build of 2026-11-24 (v256)
+
+At the maintainer's direction the HTML prototype carries this feature as v256, before this page is approved. Pilot defaults used there, none of them approved numbers: two of three poor signals (rough sleep, more soreness than usual, low drive) or a two-session drop in reps trigger the suggestion; it runs for three sessions; the lighter session cuts sets by the table 3 to 2, 4 to 3, 5 to 3, 6 to 4 and asks for three or more reps left; "a little" pain is treated as pain. Check-in answers and Stop · Pain taps are kept in the browser's storage on that device only. Ending a workout through Stop · Pain counts as any finished workout does (item under Scoring is still open). The dialog has a close button that records nothing.
+
 ## Failure, offline and migration behavior
 
 - **Everything is local**, so it works the same with no network.

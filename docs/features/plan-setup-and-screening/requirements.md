@@ -62,6 +62,10 @@ verification: none
 11. **Where the prototype keeps these answers.** Not checked. They must stay on the device before this is built there.
 12. **Phone backups, sign-out and export** for these answers: the journal's answers ([FNS-003](../private-journal/requirements.md)) are not assumed to carry over.
 
+## Prototype build of 2026-11-24 (v256)
+
+At the maintainer's direction the HTML prototype carries this feature as v256, before this page is approved. His answers that day, which settle items 1, 3, 4 and 5 above for the prototype: the health check is the four questions in his prompt (no added question, no time limit on "recent surgery"); Foundation is level modifiers for four weeks (one fewer set, effort 5 to 7, low impact); Foundation is mandatory for a beginner and a choice for others; heavy singles are blocked for beginners only. In the prototype the health-check result is kept in the browser's storage on that device only; body areas stay with his private settings, as before. Added there and not in the mockup: a "Cables and machines" item in the inventory. Not answered: items 2 (now moot), 6 to 12.
+
 ## Failure, offline and migration behavior
 
 - **Everything is local**, so it works the same with no network.
