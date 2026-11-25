@@ -757,6 +757,9 @@ flowchart LR
 - class _WriteItDownState
 - fn initState()
 - fn dispose()
+- fn didChangeMetrics()
+- fn _keepSaveInView()
+- fn _showSave()
 - fn _onDraft()
 - fn _discard()
 - fn build()
@@ -988,6 +991,8 @@ flowchart LR
 - fn _setChangesStored()
 - fn _start()
 - fn _finish()
+- fn _boxesClosed()
+- fn _finishNow()
 - fn _toTop()
 - fn build()
 - fn _meta()
@@ -1001,6 +1006,7 @@ flowchart LR
 - fn _setText()
 - class _LiveExercise
 - fn _targetLine()
+- class _Closed
 - class _LastTimeLine
 - class _SetRow
 - fn _ramp()

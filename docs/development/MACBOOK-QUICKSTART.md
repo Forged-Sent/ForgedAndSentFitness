@@ -46,6 +46,17 @@ Run `launchers/mac/5 - Check my setup.command` for installed-tool diagnostics, a
 
 You can run `flutter analyze` and `flutter test` from `mobile` after PATH is enabled (or use the full SDK path). Android on a Mac needs manual Android Studio setup. iPhone simulator testing is the optional step 1 question (or `START-MAC.command` > 8 > 5); Xcode comes from the App Store with your own Apple ID.
 
+## iPhone simulator problems
+
+`launchers/mac/more/Run app on iPhone simulator.command` boots the newest iPhone simulator, builds the app and opens it on **Today**. It uses practice Firebase when all three emulators are running and Preview mode otherwise. Three things have broken it on a real Mac; the launcher and **Check my setup** now handle or report each one.
+
+| What you see | Why | What to do |
+|---|---|---|
+| `resource fork, Finder information, or similar detritus not allowed` during the Xcode build | The project folder is inside a folder that iCloud (or another cloud service) syncs, usually Desktop or Documents. Xcode cannot code-sign files there | Close your editors, move the whole project folder to a folder that is not synced, for example `~/Developer`, and run the launcher from there. Setup, the launcher and **Check my setup** (`ProjectFolder`) warn when the folder is synced |
+| `Unable to find application named 'Simulator'` | Xcode 27 has no Simulator.app. Its simulator window is **DeviceHub** (`/Applications/Xcode.app/Contents/Applications/DeviceHub.app`) | Nothing: the launcher opens Simulator.app when Xcode has it and DeviceHub otherwise. With neither, it says so and keeps going; the simulator runs without a window and you can open it from Xcode > Window > Devices and Simulators |
+| `Failed to copy plugin cloud_firestore` with `rsync: [Receiver] mkdir ... SourcePackages ... failed` | Homebrew's `rsync` is ahead of Apple's `/usr/bin/rsync` on PATH and does not create the missing `mobile/build/ios/SourcePackages` folder | Nothing when you use the launcher: it creates the folder first. For a manual `flutter pub get` or `flutter run`, run `mkdir -p mobile/build/ios/SourcePackages` from the project folder first, also after `flutter clean` |
+| `Xcode 26.2 or newer is needed (Firebase iOS SDK)` | The Firebase iOS SDK does not build with an older Xcode | Update Xcode in the App Store, then `START-MAC.command` > 8 > 5. **Check my setup** reports this as `XcodeVersion` |
+
 If macOS says a launcher "cannot be opened", right-click it and choose **Open**, then **Open** again; or use System Settings > Privacy & Security > Open Anyway for just that file; or run it from Terminal, for example `bash "launchers/mac/1 - Set up this computer.command"`. Never globally disable Gatekeeper or remove quarantine.
 
 More detail: [Firebase emulators](FIREBASE-EMULATOR.md), [Architecture Atlas](../architecture/explorer/README.md), [optional AI review](AI-REVIEW-WORKFLOW.md).
