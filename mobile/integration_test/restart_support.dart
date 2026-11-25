@@ -44,6 +44,40 @@ Future<void> startApp(WidgetTester tester) async {
   expect(find.byType(FsBoxRow), findsWidgets);
 }
 
+/// Waits, for up to ten seconds, until [reached] is true, and fails saying
+/// [what] was waited for if it never is.
+///
+/// For whatever follows a tap that saves. The app writes to its database
+/// first and acts on the answer afterwards: Amen goes back to Today only
+/// once the completion is stored, and a box changes only when the stored
+/// day is read again. `pumpAndSettle` waits for frames, not for the
+/// database, so on its own it can return before either has happened.
+Future<void> pumpUntil(
+  WidgetTester tester,
+  bool Function() reached, {
+  required String what,
+}) async {
+  for (var i = 0; i < 100 && !reached(); i++) {
+    await tester.pump(const Duration(milliseconds: 100));
+  }
+  if (!reached()) fail('Waited ten seconds for $what.');
+  await tester.pumpAndSettle();
+}
+
+/// Leaves a page by its own "Back" button, at the top of the page.
+///
+/// `tester.pageBack()` looks for a Material or Cupertino back button, and
+/// the app has neither, so it fails here.
+Future<void> goBack(WidgetTester tester) async {
+  final back = find.byWidgetPredicate(
+    (Widget widget) => widget is FsButton && widget.label == '‹ Back',
+  );
+  await tester.ensureVisible(back);
+  await tester.pumpAndSettle();
+  await tester.tap(back);
+  await tester.pumpAndSettle();
+}
+
 Future<void> showDevotionalBox(WidgetTester tester) async {
   await tester.scrollUntilVisible(
     devotionalBox,
