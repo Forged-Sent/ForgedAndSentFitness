@@ -108,11 +108,9 @@
     });
     sh.appendChild(f2);
     function setBuf(v) { KP.buf[key] = v; KP.fresh = false; kpPush(cur); }
-    function bump(d) { var n = Math.max(0, Math.round(((parseFloat(KP.buf[key]) || 0) + d) * 10) / 10); setBuf(String(n)); }
     var qk = el("div", "kp-q"), qs = [];
     if (prev && (kind === "w" ? prev.w : prev.r)) qs.push(["Same as last", function () { setBuf(kind === "w" ? prev.w : prev.r); }]);
-    (kind === "w" ? [-5, 5, 10] : kind === "s" ? [-5, 5] : [-1, 1]).forEach(function (d) { qs.push([(d < 0 ? "−" : "+") + Math.abs(d), function () { bump(d); }]); });
-    qs.forEach(function (q) { var b = el("button", "kp-qb", q[0]); b.type = "button"; b.addEventListener("click", q[1]); qk.appendChild(b); }); sh.appendChild(qk);
+    qs.forEach(function (q) { var b = el("button", "kp-qb", q[0]); b.type = "button"; b.addEventListener("click", q[1]); qk.appendChild(b); }); if (qs.length) sh.appendChild(qk);
     var pad = el("div", "kp-pad");
     ["1", "2", "3", "4", "5", "6", "7", "8", "9", ".", "0", "⌫"].forEach(function (k) {
       var b = el("button", "kp-k" + (k === "." || k === "⌫" ? " d" : ""), k); b.type = "button"; b.setAttribute("aria-label", k === "⌫" ? "Delete" : k === "." ? "Decimal point" : k);
