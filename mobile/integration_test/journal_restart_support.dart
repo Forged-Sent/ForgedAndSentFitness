@@ -35,6 +35,32 @@ const String restartEntryWords =
 final Finder journalSaveButton = find.byKey(
   const ValueKey<String>('fs-journal-save'),
 );
+
+/// Brings [button] to the middle of the page and waits, for up to five
+/// seconds, until a tap in its middle would land on it.
+///
+/// For a button under a box that was just typed in. On a device the
+/// keyboard comes up a moment after the text is entered, and the page
+/// gets shorter while it does: a button that was in view can be under the
+/// tab bar an instant later, and a tap then misses it. The app brings
+/// "Save to my journal" back onto the page; this waits until it has.
+Future<void> showForTap(WidgetTester tester, Finder button) async {
+  bool tappable() {
+    final box = tester.renderObject<RenderBox>(button);
+    final center = box.localToGlobal(box.size.center(Offset.zero));
+    return tester.hitTestOnBinding(center).path.any((e) => e.target == box);
+  }
+
+  await Scrollable.ensureVisible(tester.element(button), alignment: 0.5);
+  await tester.pumpAndSettle();
+  for (var i = 0; i < 50; i++) {
+    await tester.pump(const Duration(milliseconds: 100));
+    if (tappable()) break;
+  }
+  await tester.pumpAndSettle();
+  expect(tappable(), isTrue, reason: 'The button is not where a tap lands.');
+}
+
 final Finder journalMessage = find.byKey(
   const ValueKey<String>('fs-journal-message'),
 );

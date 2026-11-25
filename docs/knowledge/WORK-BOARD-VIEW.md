@@ -48,6 +48,10 @@ update-by: edit WORK.md then run tooling/knowledge/work_board.py --write
 	**Note:** None; the answers are on the [Decisions](../reviews/2026-11-10-prototype-to-flutter/01-DECISIONS.md) page
 	**Branch or PR:** branch `chore/review-rules-and-dashboard`
 	[Edit this row in WORK](WORK.md)
+- [x] **Phase 0 decisions on `main`**
+	**Note:** ADR-0008 (membership documents) stays Proposed until S4b starts, as the maintainer decided on 2026-11-19. Maintainer: the Decisions page still says `main` has ADR-0001 to ADR-0005; only the maintainer edits that page. Prompt P13 now names ADR-0010 for its record
+	**Branch or PR:** branch `claude/adr-phase0-carry-forward`
+	[Edit this row in WORK](WORK.md)
 - [x] **CI accepts images and fonts**
 	**Branch or PR:** [#54](https://github.com/Forged-Sent/ForgedAndSentFitness/pull/54)
 	[Edit this row in WORK](WORK.md)
@@ -62,6 +66,10 @@ update-by: edit WORK.md then run tooling/knowledge/work_board.py --write
 	**Note:** Run it on a phone. Kept on the device only and not encrypted (Q8); the first change to the database schema, with a migration tested against the frozen schema of each version. The phone's own backup includes the database file, journal text with it: the maintainer decided on 2026-11-17 to leave phone backups on. Write, kill, relaunch passed on 2026-11-19 on one Android emulator on the maintainer's workstation (`FS_S1_Restart_API_36`, Android 16), with a test that is in the repository, and once by hand on one iPhone 17 simulator (iOS 27.2); not on a phone, and not in CI. The golden images are drawn and compared on Windows only. Not built: prayer tabs, tags, search, export, sync. Review findings the maintainer deferred to S4a on 2026-11-19, listed in pull request #77: the store is not bound to the owner of the file it opened; two cases that need a change of owner while the app is open; the privacy test looks for an entry's words in outgoing messages and not its question or ids; three gaps in tests (the device test's sentence is the same every run, the interrupted-upgrade test has no row to lose, the refused-write test on the background isolate does not see that isolate's own output); Drift's generated write object prints its fields if formatted
 	**Branch or PR:** branch `claude/s2-private-journal`
 	[Edit this row in WORK](WORK.md)
+- [x] **"Save to my journal" stays in view while he writes**
+	**Note:** None for the maintainer beyond his review. Found on 2026-11-22 when a taller keyboard made the journal restart test miss its tap; reproduced and fixed at his direction of 2026-11-23, with tests that failed first. The journal restart test's tap waits until the button is where a tap lands. No change to what is stored
+	**Branch or PR:** branch `claude/journal-save-in-view`
+	[Edit this row in WORK](WORK.md)
 - [x] **Journal never loses typing**
 	**Note:** Run it on a phone. Both were review findings on S2 that the maintainer marked required before any pilot (2026-11-19). The second was reproduced first, in a widget test, on Today and on Walk. Tested on screen only, in widget tests on Windows; not on an emulator or a phone
 	**Branch or PR:** branch `claude/journal-never-loses-typing`
@@ -69,6 +77,10 @@ update-by: edit WORK.md then run tooling/knowledge/work_board.py --write
 - [x] **Lockfile-only pull requests pass the review check**
 	**Note:** None. Unblocks Dependabot [#66](https://github.com/Forged-Sent/ForgedAndSentFitness/pull/66). Without `--dry-run` such a change still gets no PASS and no review record, and `--verify` still fails
 	**Branch or PR:** branch `claude/review-lockfile-dry-run`
+	[Edit this row in WORK](WORK.md)
+- [x] **Push from a worktree runs the local checks**
+	**Note:** None. A branch cut before this merges keeps the older hook until it merges `main`. Not run on Windows
+	**Branch or PR:** branch `claude/pre-push-hook-worktrees`
 	[Edit this row in WORK](WORK.md)
 - [x] **Host wording left over from the generated hosts**
 	**Note:** None. Checked on 2026-11-19 in a debug simulator build installed on one iPhone 17 simulator (iOS 27.2): the installed app reports the display name "Forged & Sent", and the home screen shows that name under the icon. Nothing ran on a physical iPhone. The Mac setup script's wording was fixed earlier by `claude/bootstrap-test-readiness`
@@ -94,8 +106,12 @@ update-by: edit WORK.md then run tooling/knowledge/work_board.py --write
 	**Note:** The maintainer approved the [contract](../features/workout-logging/feature.md), FNS-004, on 2026-11-22, confirmed the rules taken from the prototype as built and approved the golden images. Two things he wants before any pilot are rows under Later: an alert when the rest timer reaches zero, and a field in `seed/` for whether a lift needs a weight. His six decisions of 2026-11-13 are recorded in the contract and built. The database is at schema version 3, after the journal's version 2, with tested migrations from versions 1 and 2; the contract is FNS-004. Start, two sets, kill, relaunch, finish passed on 2026-11-13 on one Android emulator on the maintainer's workstation, made from the Android 36 system image (Android 16). On 2026-11-20, on that emulator, this build was installed over a build of `main` that held two journal entries and a completed day: the file went from version 2 to version 3 with all of it intact, a workout was started, and everything was still there after a kill and relaunch (the upgrade test under `mobile/integration_test/`). Not on a phone, and not in CI. iOS is built only by CI. No plan setup or editor: every member gets the Forged program, a full gym, rest on Sunday and lifting on Monday, Wednesday and Friday
 	**Branch or PR:** branch `claude/s3-workout-logging`
 	[Edit this row in WORK](WORK.md)
+- [x] **Finish closes the set boxes**
+	**Note:** None for the maintainer beyond his review. The finding of the hosted review of [#85](https://github.com/Forged-Sent/ForgedAndSentFitness/pull/85) that was open when #85 merged; fixed at his direction of 2026-11-23, with tests that failed first. No change to what is stored
+	**Branch or PR:** branch `claude/finish-closes-set-boxes`
+	[Edit this row in WORK](WORK.md)
 - [x] **Add or remove a set during a workout**
-	**Note:** The maintainer: approve the addition to the [contract](../features/workout-logging/feature.md), which is marked there as proposed and added after his approval of FNS-004, and look at the two redrawn golden images (logging sets, dark and light), which are **not approved**. Built to his rules of 2026-11-22, on top of S3's branch. No change to the database: an added set is a row in the session's existing set table. Not on a phone
+	**Note:** The maintainer: approve the addition to the [contract](../features/workout-logging/feature.md), which is marked there as proposed and added after his approval of FNS-004, and look at the two redrawn golden images (logging sets, dark and light), which are **not approved**. Built to his rules of 2026-11-22. While a workout is being finished, "Add set" and "Remove" take nothing, as the set boxes do. No change to the database: an added set is a row in the session's existing set table. Not on a phone
 	**Branch or PR:** branch `claude/s3-add-remove-set`
 	[Edit this row in WORK](WORK.md)
 - [x] **Supersets are shown grouped together**
@@ -129,6 +145,10 @@ update-by: edit WORK.md then run tooling/knowledge/work_board.py --write
 - [x] **The reading's labels without slashes; Crossway's current notice**
 	**Note:** The maintainer: look at the ten redrawn golden images (the eight reading images and the two of "Write it down"), which are drawn and **not approved**. Both changes are his decisions of 2026-11-21 after trying the app by hand. The notice was read from Crossway's permissions page that day; the notice stays under the verse. The prototype is unchanged
 	**Branch or PR:** branch `claude/devotional-labels-esv-notice`
+	[Edit this row in WORK](WORK.md)
+- [x] **iPhone simulator launcher works with Xcode 27**
+	**Note:** None. Run on 2026-11-18 on the maintainer's Mac (macOS 27.2, Xcode 27.2, iPhone 17 simulator, iOS 27.2) in Preview mode, from an empty `SourcePackages` folder. Not run: practice-Firebase mode on the simulator, an Xcode that still has Simulator.app, a Mac with no window app, and a physical iPhone
+	**Branch or PR:** branch `claude/ios-simulator-launcher`
 	[Edit this row in WORK](WORK.md)
 
 

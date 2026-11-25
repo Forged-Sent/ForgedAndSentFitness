@@ -336,7 +336,7 @@
       "depends": [
         "scoring"
       ],
-      "notes": "No real membership or private production model exists yet."
+      "notes": "No real membership or private production model exists yet. Planned decisions: ADR-0006 (group-level isolation), ADR-0008 (membership documents authorize, Proposed), ADR-0009 (faith participation and privacy)."
     },
     {
       "id": "scoring",
@@ -350,7 +350,7 @@
       "purpose": "Trusted functions compute auditable group points and challenges from validated events. Clients cannot award authoritative points.",
       "files": [],
       "depends": [],
-      "notes": "No server scoring functions exist yet."
+      "notes": "No server scoring functions exist yet. Planned decision: ADR-0007 (server-authoritative, append-only scoring ledger)."
     },
     {
       "id": "change",

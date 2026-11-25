@@ -209,6 +209,15 @@ class TestWorkoutRepository extends MemoryWorkoutRepository {
     return super.setReps(setId, reps);
   }
 
+  /// Finishing waits behind a slow disk too. It is not refused by
+  /// [failWrites]: a finish fails when the day's box cannot be checked,
+  /// which the day store decides.
+  @override
+  Future<FinishOutcome> finishSession(String sessionId, DateTime now) async {
+    await _held?.future;
+    return super.finishSession(sessionId, now);
+  }
+
   @override
   Future<void> setWeight(String setId, double? weightLb) async {
     await _held?.future;
