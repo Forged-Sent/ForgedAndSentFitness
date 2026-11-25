@@ -13,7 +13,7 @@ rep('/* First-time setup */', '''/* v257: set timer, timed rounds, keypad */
 #wkp-body .sup-round .setrow[data-timed]:not(.one) { grid-template-columns: 96px minmax(0, 1fr) minmax(0, 1fr) 26px 78px; }
 .st-go { min-height: 40px; min-width: 0; padding: 0 8px; font-size: 12px; border-color: var(--accent); color: var(--accent); white-space: nowrap; display: inline-flex; align-items: center; justify-content: center; gap: 5px; }
 .st-ic { width: 17px; height: 17px; flex: none; }
-#wkp-body .setrow .field { min-height: 38px !important; height: 38px; padding: 4px 8px !important; font-size: 15px; }
+#wkp-body .setrow .field { min-height: 38px !important; height: 38px; padding: 4px 8px !important; font-size: 16px; } /* 16px: a smaller box font makes iPhones zoom the page on focus */
 #wkp-body .setrow .st-go { min-height: 38px; }
 #wkp-body .setrow.rnd .setck-btn { min-height: 40px; min-width: 40px; }
 #wkp-body .setrow:not(.one) { margin-top: 6px; }
