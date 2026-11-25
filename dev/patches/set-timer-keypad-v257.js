@@ -3,6 +3,9 @@
   // "2 rounds: 30 sec hold or 6 slow reps per side"
   function stRounds(rx) { var m = /^\s*(\d+)\s*rounds?:\s*(\d+)\s*sec hold(?:\s+or\s+([^.(]+))?/i.exec(String(rx || "")); if (!m || +m[1] < 1 || +m[1] > 6 || +m[2] < 5) return null; return { n: +m[1], secs: +m[2], sides: /per side|each side/i.test(rx), alt: (m[3] || "").trim() }; }
   function stRest(idx) { var t = wk && wk.timers && wk.timers[idx]; if (t && !t.running && t.timeEl && document.contains(t.timeEl)) { t.done = false; t.left = t.base; timerStart(t); } }
+  // Start button mark: a stopwatch with a play arrow, drawn in the button's own colour.
+  var ST_ICON = '<svg class="st-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M9.5 2.5h5M12 2.5v3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="14" r="8" fill="none" stroke="currentColor" stroke-width="2"/><path d="M10.2 10.4v7.2l6-3.6z" fill="currentColor"/></svg>';
+  function stGoBtn(label) { var b = el("button", "mini st-go"); b.type = "button"; b.innerHTML = ST_ICON; b.appendChild(el("span", null, "Start")); b.setAttribute("aria-label", label); return b; }
   var ST = null;
   function stQuiet() { if (!ST) return; (ST.tn.tones || []).forEach(function (o) { try { o.stop(); } catch (e) {} }); ST.tn.tones = []; try { if (beepEl) beepEl.pause(); } catch (e) {} }
   function stClose(keepSound) { if (!ST) return; clearInterval(ST.iv); if (!keepSound) stQuiet(); try { if (ST.lock && ST.lock.release) ST.lock.release(); } catch (e) {} var n = $("stov"); if (n) n.remove(); ST = null; }
@@ -52,7 +55,7 @@
       var row = el("div", "setrow rnd" + (s.d ? " ok" : "")); row.appendChild(el("span", "sn", "Round " + n));
       row.appendChild(el("span", "rnd-t", s.d && s.t ? "Held " + s.t + " sec" + (rd.sides ? " each side" : "") : rd.secs + " sec" + (rd.sides ? " each side" : "")));
       if (o.can && !s.d) {
-        var go = el("button", "mini st-go", "▶ Start"); go.type = "button"; go.setAttribute("aria-label", "Start the timer for round " + n + " of " + o.name);
+        var go = stGoBtn("Start the timer for round " + n + " of " + o.name);
         go.addEventListener("click", function () { saveWkNow(); openSetTimer({ title: o.name, label: "Round " + n, secs: rd.secs, sides: rd.sides, onDone: function (held) { s.d = true; s.t = held; saveWkNow(); drawWorkoutPage(true); } }); });
         row.appendChild(go);
       } else row.appendChild(el("span"));
@@ -64,7 +67,7 @@
   }
   /* Keypad: opens when a set's reps or weight box is tapped. The boxes stay real fields, so a hardware keyboard still types into them. */
   var KP = null;
-  function kpClose() { if (!KP) return; var n = $("kp"); if (n) n.remove(); document.body.classList.remove("kp-on"); KP = null; }
+  function kpClose() { if (!KP) return; var n = $("kp"); if (n) n.remove(); document.body.classList.remove("kp-on"); var sc = $("scroll"); if (sc) sc.style.paddingBottom = ""; KP = null; }
   function kpKind(inp) { return inp.classList.contains("sw") ? "w" : /sec/i.test(inp.placeholder || "") ? "s" : "r"; }
   function kpPush(inp) { KP.self = true; inp.value = String(KP.buf[kpKind(inp) === "w" ? "w" : "r"]).replace(/\.$/, ""); inp.dispatchEvent(new Event("input", { bubbles: true })); KP.self = false; kpPaint(); }
   function kpOpen(inp) {
@@ -77,7 +80,16 @@
     // Keep the typing focus in the box on a mouse click. Touches are left alone: cancelling a touch also cancels the tap.
     sh.addEventListener("mousedown", function (ev) { ev.preventDefault(); });
     document.body.appendChild(sh); document.body.classList.add("kp-on"); kpPaint();
-    setTimeout(function () { try { row.scrollIntoView({ block: "center", behavior: "smooth" }); } catch (e) {} }, 30);
+    kpReveal();
+  }
+  // Keeps the set being entered in view, just above the keypad.
+  function kpReveal() {
+    setTimeout(function () {
+      var sh = $("kp"), sc = $("scroll"); if (!sh || !sc || !KP || !document.contains(KP.row)) return;
+      sc.style.paddingBottom = (sh.offsetHeight + 24) + "px";
+      var top = sh.getBoundingClientRect().top, rr = KP.row.getBoundingClientRect(), sr = sc.getBoundingClientRect(), d = rr.bottom - (top - 14);
+      if (d > 0) sc.scrollTop += d; else if (rr.top < sr.top + 96) sc.scrollTop -= (sr.top + 96 - rr.top);
+    }, 40);
   }
   function kpPrev() { var p = KP.row.querySelector(".sn-prev"), m = p ? /(?:\+?([\d.]+)×)?(\d+(?:\.\d+)?)\s*$/.exec(p.textContent.trim()) : null; return m ? { w: m[1] || "", r: m[2] } : null; }
   function kpPaint() {
