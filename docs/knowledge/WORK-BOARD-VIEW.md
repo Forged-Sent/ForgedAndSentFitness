@@ -48,6 +48,10 @@ update-by: edit WORK.md then run tooling/knowledge/work_board.py --write
 	**Note:** None; the answers are on the [Decisions](../reviews/2026-11-10-prototype-to-flutter/01-DECISIONS.md) page
 	**Branch or PR:** branch `chore/review-rules-and-dashboard`
 	[Edit this row in WORK](WORK.md)
+- [x] **Phase 0 decisions on `main`**
+	**Note:** ADR-0008 (membership documents) stays Proposed until S4b starts, as the maintainer decided on 2026-11-19. Maintainer: the Decisions page still says `main` has ADR-0001 to ADR-0005; only the maintainer edits that page. Prompt P13 now names ADR-0010 for its record
+	**Branch or PR:** branch `claude/adr-phase0-carry-forward`
+	[Edit this row in WORK](WORK.md)
 - [x] **CI accepts images and fonts**
 	**Branch or PR:** [#54](https://github.com/Forged-Sent/ForgedAndSentFitness/pull/54)
 	[Edit this row in WORK](WORK.md)
@@ -62,6 +66,10 @@ update-by: edit WORK.md then run tooling/knowledge/work_board.py --write
 	**Note:** Run it on a phone. Kept on the device only and not encrypted (Q8); the first change to the database schema, with a migration tested against the frozen schema of each version. The phone's own backup includes the database file, journal text with it: the maintainer decided on 2026-11-17 to leave phone backups on. Write, kill, relaunch passed on 2026-11-19 on one Android emulator on the maintainer's workstation (`FS_S1_Restart_API_36`, Android 16), with a test that is in the repository, and once by hand on one iPhone 17 simulator (iOS 27.2); not on a phone, and not in CI. The golden images are drawn and compared on Windows only. Not built: prayer tabs, tags, search, export, sync. Review findings the maintainer deferred to S4a on 2026-11-19, listed in pull request #77: the store is not bound to the owner of the file it opened; two cases that need a change of owner while the app is open; the privacy test looks for an entry's words in outgoing messages and not its question or ids; three gaps in tests (the device test's sentence is the same every run, the interrupted-upgrade test has no row to lose, the refused-write test on the background isolate does not see that isolate's own output); Drift's generated write object prints its fields if formatted
 	**Branch or PR:** branch `claude/s2-private-journal`
 	[Edit this row in WORK](WORK.md)
+- [x] **"Save to my journal" stays in view while he writes**
+	**Note:** None for the maintainer beyond his review. Found on 2026-11-22 when a taller keyboard made the journal restart test miss its tap; reproduced and fixed at his direction of 2026-11-23, with tests that failed first. The journal restart test's tap waits until the button is where a tap lands. No change to what is stored
+	**Branch or PR:** branch `claude/journal-save-in-view`
+	[Edit this row in WORK](WORK.md)
 - [x] **Journal never loses typing**
 	**Note:** Run it on a phone. Both were review findings on S2 that the maintainer marked required before any pilot (2026-11-19). The second was reproduced first, in a widget test, on Today and on Walk. Tested on screen only, in widget tests on Windows; not on an emulator or a phone
 	**Branch or PR:** branch `claude/journal-never-loses-typing`
@@ -69,6 +77,10 @@ update-by: edit WORK.md then run tooling/knowledge/work_board.py --write
 - [x] **Lockfile-only pull requests pass the review check**
 	**Note:** None. Unblocks Dependabot [#66](https://github.com/Forged-Sent/ForgedAndSentFitness/pull/66). Without `--dry-run` such a change still gets no PASS and no review record, and `--verify` still fails
 	**Branch or PR:** branch `claude/review-lockfile-dry-run`
+	[Edit this row in WORK](WORK.md)
+- [x] **Push from a worktree runs the local checks**
+	**Note:** None. A branch cut before this merges keeps the older hook until it merges `main`. Not run on Windows
+	**Branch or PR:** branch `claude/pre-push-hook-worktrees`
 	[Edit this row in WORK](WORK.md)
 - [x] **Host wording left over from the generated hosts**
 	**Note:** None. Checked on 2026-11-19 in a debug simulator build installed on one iPhone 17 simulator (iOS 27.2): the installed app reports the display name "Forged & Sent", and the home screen shows that name under the icon. Nothing ran on a physical iPhone. The Mac setup script's wording was fixed earlier by `claude/bootstrap-test-readiness`
@@ -79,16 +91,24 @@ update-by: edit WORK.md then run tooling/knowledge/work_board.py --write
 	**Branch or PR:** branch `codex/native-host-acceptance`
 	[Edit this row in WORK](WORK.md)
 - [x] **S0 Design foundation**
-	**Note:** None. Fuel, Train, Walk, Board and Rally are titled placeholders; the round header buttons do nothing yet. Not run on a phone or an emulator
+	**Note:** None. Fuel, Board and Rally are titled placeholders; Walk is the journal (S2) and Train was built in S3. The round header buttons do nothing yet, except two on Today: the profile button opens Settings (S1), and the pen opens a new journal entry (S2). The shell has run on one Android emulator, in the S1 and S3 restart tests; not on a phone
 	**Branch or PR:** branch `claude/s0-design-foundation`
 	[Edit this row in WORK](WORK.md)
 - [x] **S1 Today and Devotional**
-	**Note:** None. Only the devotional box works; the other six are shown as not active yet. Complete, kill, relaunch passed on 2026-11-12 on one Android emulator on the maintainer's workstation, made from the Android 36 system image (Android 16); not on a phone, and not in CI. On iOS, complete, kill, relaunch passed on 2026-11-19 on one iPhone 17 simulator (iOS 27.2) on the maintainer's Mac; not on a physical iPhone, and not in CI. It passed after the helper that reads to the end was changed to bring Amen onto the screen before the tap; the Android run has not been repeated since that change
+	**Note:** None. Two boxes work: the devotional box, and since S3 the Workout box, which opens Train and checks itself when a workout is finished there; on a day his plan holds no workout it says so ("Rest day", "Plan starts Monday", "Plan complete") and is not counted. The other five are shown as not active yet. Complete, kill, relaunch passed on 2026-11-12 on one Android emulator on the maintainer's workstation, made from the Android 36 system image (Android 16); not on a phone, and not in CI. On iOS, complete, kill, relaunch passed on 2026-11-19 on one iPhone 17 simulator (iOS 27.2) on the maintainer's Mac; not on a physical iPhone, and not in CI. It passed after the helper that reads to the end was changed to bring Amen onto the screen before the tap; the Android run passed again with that change on 2026-11-20, on the S3 build
 	**Branch or PR:** branch `claude/s1-today-devotional`
 	[Edit this row in WORK](WORK.md)
 - [x] **S1b v254 readings**
 	**Note:** None. All 366 dates; the verse references and all scripture text are unchanged; the Sent and Spirit-led tags are shown as words only. Body text and scripture lost a stray letter spacing, so body text breaks where the prototype's does, on every screen; Today's mission line is balanced as the prototype's is; all 14 golden images were redrawn. Not run on a phone or an emulator: nothing that is saved changed
 	**Branch or PR:** branch `claude/s1b-v254-readings`
+	[Edit this row in WORK](WORK.md)
+- [x] **S3 Workout logging**
+	**Note:** The maintainer approved the [contract](../features/workout-logging/feature.md), FNS-004, on 2026-11-22, confirmed the rules taken from the prototype as built and approved the golden images. Two things he wants before any pilot are rows under Later: an alert when the rest timer reaches zero, and a field in `seed/` for whether a lift needs a weight. His six decisions of 2026-11-13 are recorded in the contract and built. The database is at schema version 3, after the journal's version 2, with tested migrations from versions 1 and 2; the contract is FNS-004. Start, two sets, kill, relaunch, finish passed on 2026-11-13 on one Android emulator on the maintainer's workstation, made from the Android 36 system image (Android 16). On 2026-11-20, on that emulator, this build was installed over a build of `main` that held two journal entries and a completed day: the file went from version 2 to version 3 with all of it intact, a workout was started, and everything was still there after a kill and relaunch (the upgrade test under `mobile/integration_test/`). Not on a phone, and not in CI. iOS is built only by CI. No plan setup or editor: every member gets the Forged program, a full gym, rest on Sunday and lifting on Monday, Wednesday and Friday
+	**Branch or PR:** branch `claude/s3-workout-logging`
+	[Edit this row in WORK](WORK.md)
+- [x] **Finish closes the set boxes**
+	**Note:** None for the maintainer beyond his review. The finding of the hosted review of [#85](https://github.com/Forged-Sent/ForgedAndSentFitness/pull/85) that was open when #85 merged; fixed at his direction of 2026-11-23, with tests that failed first. No change to what is stored
+	**Branch or PR:** branch `claude/finish-closes-set-boxes`
 	[Edit this row in WORK](WORK.md)
 - [x] **Setup scripts and guides match the six-tab app**
 	**Note:** Physical run on a fresh Windows PC and a Mac: the Try it now walkthrough, Mobile Check my setup, and a second setup run in the same window
@@ -110,12 +130,38 @@ update-by: edit WORK.md then run tooling/knowledge/work_board.py --write
 	**Note:** None. The maintainer's choices of 2026-11-19: the two 100-point formula lines are dropped from `seed/weekly-challenges.json`; the generated copy still leaves out RPE/RIR, which `seed/workouts.json` keeps; the workout prayer, camp names and banners, challenge modes and routine patterns moved into `seed/`; the PR points, step goals and step bonus stay in the prototype's code until the official rule set is decided. The branch `workout-library-seed` is set aside: it rewrites the same workout files from a base of 2026-10-24, so reviving it means redoing its edits on top of this, not merging it
 	**Branch or PR:** branch `claude/l11-seed-single-source`
 	[Edit this row in WORK](WORK.md)
+- [x] **The reading's labels without slashes; Crossway's current notice**
+	**Note:** The maintainer: look at the ten redrawn golden images (the eight reading images and the two of "Write it down"), which are drawn and **not approved**. Both changes are his decisions of 2026-11-21 after trying the app by hand. The notice was read from Crossway's permissions page that day; the notice stays under the verse. The prototype is unchanged
+	**Branch or PR:** branch `claude/devotional-labels-esv-notice`
+	[Edit this row in WORK](WORK.md)
+- [x] **iPhone simulator launcher works with Xcode 27**
+	**Note:** None. Run on 2026-11-18 on the maintainer's Mac (macOS 27.2, Xcode 27.2, iPhone 17 simulator, iOS 27.2) in Preview mode, from an empty `SourcePackages` folder. Not run: practice-Firebase mode on the simulator, an Xcode that still has Simulator.app, a Mac with no window app, and a physical iPhone
+	**Branch or PR:** branch `claude/ios-simulator-launcher`
+	[Edit this row in WORK](WORK.md)
 
 
 ## Later
 
-- [ ] **S3 Workout logging**
-	**Prompt:** [P07](../reviews/2026-11-10-prototype-to-flutter/prompts/P07-S3-workout-logging.md)
+- [ ] **Add or remove a set during a workout**
+	**Prompt:** No prompt yet. Asked for by the maintainer after his hand test of S3 on 2026-11-21: the first follow-up once [#85](https://github.com/Forged-Sent/ForgedAndSentFitness/pull/85) merges. Needs a decision: what an added row aims for, and whether a row that already holds reps can be removed
+	[Edit this row in WORK](WORK.md)
+- [ ] **Supersets are shown grouped together**
+	**Prompt:** No prompt yet. Asked for by the maintainer on 2026-11-21, after [#85](https://github.com/Forged-Sent/ForgedAndSentFitness/pull/85). `seed/workouts.json` already marks them: a day with a superset carries `"superset": [5, 6]`, the places of its two exercises counted from 0 (209 of the Forged program's 365 days), and the bundled copy keeps the mark. The app reads the prescription text and not the mark yet
+	[Edit this row in WORK](WORK.md)
+- [ ] **Reorder exercises within a workout**
+	**Prompt:** No prompt yet. Asked for by the maintainer on 2026-11-21, after [#85](https://github.com/Forged-Sent/ForgedAndSentFitness/pull/85). Needs a decision: whether the new order holds for that one session only, and whether the two exercises of a superset move as one
+	[Edit this row in WORK](WORK.md)
+- [ ] **An optional or extra activity on a rest day**
+	**Prompt:** No prompt yet. Asked for by the maintainer on 2026-11-21, after [#85](https://github.com/Forged-Sent/ForgedAndSentFitness/pull/85). Needs a decision: what it is (the plan's optional fourth day, or any activity he names) and whether it checks a box on Today
+	[Edit this row in WORK](WORK.md)
+- [ ] **The upgrade device test runs on any day of the week**
+	**Prompt:** No prompt yet. Test-only. Decided by the maintainer on 2026-11-21: after [#85](https://github.com/Forged-Sent/ForgedAndSentFitness/pull/85) merges, not before
+	[Edit this row in WORK](WORK.md)
+- [ ] **The rest timer alerts at zero, also when the phone is locked**
+	**Prompt:** No prompt yet. **Required before any pilot** (the maintainer, 2026-11-22). Found in S3; this row was "The rest timer is heard". It needs the maintainer's decision first: a notification permission, and most likely a new dependency. The options were written up for him on 2026-11-22. Read `docs/knowledge/FLUTTER-PLATFORMS.md` first
+	[Edit this row in WORK](WORK.md)
+- [ ] **Whether a lift needs a weight comes from `seed/`**
+	**Prompt:** No prompt yet. **Required before any pilot** (the maintainer, 2026-11-22). `seed/` is the one source (decision L11): the field is added there, and the bundled copy and the copy inside `index.html` follow by their scripts. A list of the movements where the name gives a doubtful answer was written up for him on 2026-11-22
 	[Edit this row in WORK](WORK.md)
 - [ ] **S4 Sign-in, groups, first board**
 	**Prompt:** [P08](../reviews/2026-11-10-prototype-to-flutter/prompts/P08-S4-contract-identity-groups-board.md), then [P09](../reviews/2026-11-10-prototype-to-flutter/prompts/P09-S4-implement-identity-groups-board.md)
@@ -135,8 +181,8 @@ update-by: edit WORK.md then run tooling/knowledge/work_board.py --write
 - [ ] **CI checks the golden images**
 	**Prompt:** No prompt yet. Found in S0. Not blocking
 	[Edit this row in WORK](WORK.md)
-- [ ] **ESV permission confirmed for an app**
-	**Prompt:** No prompt yet. Decision Q7. Owner: the maintainer. Do it before public release
+- [ ] **Scripture licence**
+	**Prompt:** No prompt yet. Owner: the maintainer; his own to-do, in his words of 2026-11-21. Decision Q7. Until he settles it, work goes on as if permission is in place. This row replaces "ESV permission confirmed for an app", and since 2026-11-22, at his direction, "The workout prayer's scripture echoes"
 	[Edit this row in WORK](WORK.md)
 - [ ] **Check the bundled scripture against a published text**
 	**Prompt:** No prompt yet. Asked for by the maintainer in S1b. Do it before public release
@@ -152,6 +198,36 @@ update-by: edit WORK.md then run tooling/knowledge/work_board.py --write
 	[Edit this row in WORK](WORK.md)
 - [ ] **Recover from a corrupt database file**
 	**Prompt:** No prompt yet. Found in S1 while fixing the start-up check (Codex's review of #65 on GitHub). Needs a decision on what to keep and what to tell him
+	[Edit this row in WORK](WORK.md)
+- [ ] **Movements have stable ids**
+	**Prompt:** No prompt yet. Found in S3. Do it before any movement is renamed: give each movement an id in `seed/`, store it with new sessions, and map the names already stored
+	[Edit this row in WORK](WORK.md)
+- [ ] **A workout that is never finished**
+	**Prompt:** No prompt yet. Found in S3. Needs a decision: how long a session may stay open, and what happens to it then
+	[Edit this row in WORK](WORK.md)
+- [ ] **The box he is typing in keeps the keyboard when "That did not save" appears**
+	**Prompt:** No prompt yet. Found in S3 while holding Finish for an unsaved set. Not blocking: give the rows of the page's list keys of their own, and test that the box keeps the keyboard
+	[Edit this row in WORK](WORK.md)
+- [ ] **Plan setup and editor**
+	**Prompt:** No prompt yet. Out of scope for S3 (prompt P07)
+	[Edit this row in WORK](WORK.md)
+- [ ] **Medicine Ball Slam's instructions agree with themselves**
+	**Prompt:** No prompt yet. Review finding (Codex, medium) on `mobile/assets/content/movements.json`, which is a copy of `seed/movements.json`; S3 did not edit seed content. Owner: the maintainer. The app does not show how-to text yet
+	[Edit this row in WORK](WORK.md)
+- [ ] **"Dumbbells Only" names need only dumbbells**
+	**Prompt:** No prompt yet. Review finding (Codex, medium) on `mobile/assets/content/movements.json`, a copy of `seed/movements.json`; S3 did not edit seed content. Owner: the maintainer. Not reachable in the app yet: every member has the Full Gym setup until there is a plan editor
+	[Edit this row in WORK](WORK.md)
+- [ ] **Pause Deadlift's instructions agree with themselves**
+	**Prompt:** No prompt yet. Review finding (Codex, medium) on `mobile/assets/content/movements.json`, a copy of `seed/movements.json`; S3 did not edit seed content. Owner: the maintainer. The app shows neither text yet
+	[Edit this row in WORK](WORK.md)
+- [ ] **Pause Squat's hold is one length**
+	**Prompt:** No prompt yet. Review finding (Codex, medium) on `mobile/assets/content/movements.json`, a copy of `seed/movements.json`; S3 did not edit seed content. Owner: the maintainer. The app shows the name and not the cue yet
+	[Edit this row in WORK](WORK.md)
+- [ ] **Shuttle Run's distance is one distance**
+	**Prompt:** No prompt yet. Review finding (Codex, medium) on `mobile/assets/content/movements.json`, a copy of `seed/movements.json`; S3 did not edit seed content. Owner: the maintainer. The app does not show how-to text yet
+	[Edit this row in WORK](WORK.md)
+- [ ] **Workout text styles and marks join the shared sets**
+	**Prompt:** No prompt yet. Found in S3. Not blocking; do it after that branch has merged
 	[Edit this row in WORK](WORK.md)
 - [ ] **Local profile adopted at sign-in**
 	**Prompt:** Part of S4: [P08](../reviews/2026-11-10-prototype-to-flutter/prompts/P08-S4-contract-identity-groups-board.md), then [P09](../reviews/2026-11-10-prototype-to-flutter/prompts/P09-S4-implement-identity-groups-board.md)

@@ -66,4 +66,14 @@ Text the app shows that is not the member's own data. Nothing is fetched at runt
 
 **Scripture inside the readings' own text.** Some headlines, prayers, "In Jesus" paragraphs and actions quote scripture themselves. That text is v254's, copied unchanged with the rest. The places found are listed in `docs/features/today-devotional/inline-scripture-in-v254.md`; checking them is on the work board.
 
+Added in build step S3, each written by a script and never by hand:
+
+| File (under `content/`) | Source | Kept in step by |
+|---|---|---|
+| `workouts_forged.json` | The `Forged` list of `seed/workouts.json`: 365 plan days, one per line. The other three programs are not bundled | `test/features/workout/workout_library_test.dart` fails if the copy says anything else |
+| `movements.json` | A copy of `seed/movements.json`: 218 movements. The app reads only each movement's name per equipment setup; the video links and how-to text are carried along unread | The same test |
+| `workout_prayer.json` | The six lines of the `WORKOUT_PRAYER` list inside `index.html` (identical on `main` and in `versions/app-v254.html` at `3ff4a6f`). They exist nowhere else in the repository | The same test reads the list out of `index.html` and compares |
+
+**The workout prayer and scripture.** The prayer has no reference and is not set as a quotation, but it echoes scripture closely: its fourth line follows 1 Corinthians 16:13-14 nearly word for word, its first alludes to 1 Corinthians 6:19-20 and its second to Ephesians 6:11. It is not counted among the ESV verses below. Whether it should carry references is the maintainer's, and is on the work board.
+
 **ESV text (decision Q7).** ESV text may be bundled for at most 499 distinct verses until there is a licence. The same test counts them on every run and fails above 499: today 437, across 368 references. It also checks Crossway's other two conditions: no more than half of any one book (the largest share today is Philippians, 15.4%) and under a quarter of all bundled text (16.2% today; 22.8% before S1b, when the readings' own text was shorter). The count is of `esv_verses.json` only: ESV wording inside a reading's own text is not counted. The ESV notice is shown wherever ESV text is. Confirming with Crossway that this permission covers an app is the maintainer's, before public release.

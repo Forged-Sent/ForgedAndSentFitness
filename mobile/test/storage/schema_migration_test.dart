@@ -45,26 +45,26 @@ void main() {
 
     setUpAll(() => verifier = SchemaVerifier(GeneratedHelper()));
 
-    test('version 1 migrates to exactly the frozen version 2', () async {
+    test('version 1 migrates to exactly the frozen version 3', () async {
       final connection = await verifier.startAt(1);
       final database = AppDatabase(connection);
       addTearDown(database.close);
 
-      await verifier.migrateAndValidate(database, 2);
+      await verifier.migrateAndValidate(database, 3);
     });
 
     test(
-      'a new install is created at version 2 with the same schema',
+      'a new install is created at version 3 with the same schema',
       () async {
         final database = AppDatabase(NativeDatabase.memory());
         addTearDown(database.close);
 
-        await verifier.migrateAndValidate(database, 2);
+        await verifier.migrateAndValidate(database, 3);
 
         final version = await database
             .customSelect('PRAGMA user_version')
             .getSingle();
-        expect(version.read<int>('user_version'), 2);
+        expect(version.read<int>('user_version'), 3);
       },
     );
 
@@ -111,7 +111,7 @@ void main() {
 
       final database = AppDatabase(schema.newConnection());
       addTearDown(database.close);
-      await verifier.migrateAndValidate(database, 2);
+      await verifier.migrateAndValidate(database, 3);
 
       final event =
           (await database.select(database.completionEvents).get()).single;
@@ -132,7 +132,7 @@ void main() {
     });
   });
 
-  test('a build from before the journal cannot open a version 2 file, and '
+  test('a build from before the journal cannot open a newer file, and '
       'leaves it as it was', () async {
     final folder = await Directory.systemTemp.createTemp('fs-s2-older-');
     addTearDown(() async {
@@ -162,7 +162,7 @@ void main() {
     // Read before this build touches the file again: the older build did
     // not lower the version it could not handle.
     final afterOlder = sqlite3.open(databaseFileFor(folder, ownerId).path);
-    expect(afterOlder.select('PRAGMA user_version').single.values.single, 2);
+    expect(afterOlder.select('PRAGMA user_version').single.values.single, 3);
     afterOlder.close();
 
     // This build opens the file again and finds everything.
@@ -228,7 +228,55 @@ void main() {
 
     final check = sqlite3.open(file.path);
     addTearDown(check.close);
-    expect(check.select('PRAGMA user_version').single.values.single, 2);
+    expect(check.select('PRAGMA user_version').single.values.single, 3);
+  });
+
+  test('an update to version 3 that was cut off before the new version '
+      'number was recorded still opens, and keeps what he wrote', () async {
+    final folder = await Directory.systemTemp.createTemp('fs-s3-cutoff-');
+    addTearDown(() async {
+      if (await folder.exists()) await folder.delete(recursive: true);
+    });
+    final first = await openLocalStoreIn(folder, background: false);
+    final ownerId = first.ownerId;
+    await first.journal.apply(
+      JournalChange.save(
+        id: 'c1',
+        ownerId: ownerId,
+        entryId: 'j1',
+        text: 'Written before the update was cut off.',
+        source: JournalSource.pen,
+        at: DateTime(2026, 11, 19, 7),
+      ),
+    );
+    await first.close();
+
+    // Every workout table and index is in the file, and the version number
+    // still says 2: the step's transaction was committed and the phone died
+    // before the new number was written.
+    final file = databaseFileFor(folder, ownerId);
+    final cut = sqlite3.open(file.path);
+    final workoutParts = cut.select(
+      "SELECT name FROM sqlite_master WHERE name LIKE 'workout_%' "
+      "AND type IN ('table', 'index') AND name NOT LIKE 'sqlite_%'",
+    );
+    expect(workoutParts, hasLength(7));
+    cut.execute('PRAGMA user_version = 2');
+    cut.close();
+
+    // Twice: the first open finishes the update, the second finds it done.
+    for (var launch = 0; launch < 2; launch++) {
+      final store = await openLocalStoreIn(folder, background: false);
+      expect(
+        (await store.journal.watchEntries(ownerId).first).single.text,
+        'Written before the update was cut off.',
+      );
+      await store.close();
+    }
+
+    final check = sqlite3.open(file.path);
+    addTearDown(check.close);
+    expect(check.select('PRAGMA user_version').single.values.single, 3);
   });
 
   test(
@@ -295,7 +343,7 @@ void main() {
 
       final check = sqlite3.open(file.path);
       addTearDown(check.close);
-      expect(check.select('PRAGMA user_version').single.values.single, 2);
+      expect(check.select('PRAGMA user_version').single.values.single, 3);
     },
   );
 }

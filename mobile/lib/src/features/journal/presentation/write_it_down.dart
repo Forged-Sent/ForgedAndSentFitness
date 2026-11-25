@@ -60,8 +60,14 @@ class WriteItDown extends ConsumerStatefulWidget {
   ConsumerState<WriteItDown> createState() => _WriteItDownState();
 }
 
-class _WriteItDownState extends ConsumerState<WriteItDown> {
+class _WriteItDownState extends ConsumerState<WriteItDown>
+    with WidgetsBindingObserver {
   late final TextEditingController _text;
+  final FocusNode _focus = FocusNode();
+
+  /// Where the box and the Save button are on the page.
+  final GlobalKey _boxPlace = GlobalKey();
+  final GlobalKey _savePlace = GlobalKey();
 
   /// True after the first tap on Discard; the second tap discards.
   bool _discardArmed = false;
@@ -70,13 +76,75 @@ class _WriteItDownState extends ConsumerState<WriteItDown> {
   void initState() {
     super.initState();
     _text = TextEditingController(text: ref.read(devotionalDraftProvider).text);
+    _focus.addListener(_keepSaveInView);
+    WidgetsBinding.instance.addObserver(this);
   }
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    _focus
+      ..removeListener(_keepSaveInView)
+      ..dispose();
     _text.dispose();
     super.dispose();
   }
+
+  /// The keyboard came up, changed height or went away.
+  @override
+  void didChangeMetrics() => _keepSaveInView();
+
+  /// While he is writing in the box, keeps "Save to my journal" on the
+  /// page under it.
+  ///
+  /// A text field brings only the line being typed into view. With the
+  /// keyboard open the page is short, and that leaves the button under
+  /// the box out of sight below the page's foot, as if there were no way
+  /// to save.
+  ///
+  /// It runs one frame after the page has its new size: the text field
+  /// brings its own line into view in the first, and this must come
+  /// after that, not be undone by it.
+  void _keepSaveInView() {
+    if (!_focus.hasFocus) return;
+    final binding = WidgetsBinding.instance;
+    binding.addPostFrameCallback((_) {
+      binding.addPostFrameCallback((_) => _showSave());
+      binding.scheduleFrame();
+    });
+    binding.scheduleFrame();
+  }
+
+  void _showSave() {
+    if (!mounted || !_focus.hasFocus) return;
+    final box = _boxPlace.currentContext?.findRenderObject();
+    final save = _savePlace.currentContext?.findRenderObject();
+    final page = Scrollable.maybeOf(context)?.position;
+    if (box is! RenderBox || save is! RenderBox || page == null) return;
+
+    // Only if the box and the button fit on the page together. When what
+    // he has written is too long for that, the line he is typing wins:
+    // bringing the button up would push it off the top.
+    final top = box.localToGlobal(Offset.zero).dy;
+    final bottom = save.localToGlobal(Offset(0, save.size.height)).dy;
+    if (bottom - top + _saveMargin > page.viewportDimension) return;
+
+    // The least scroll that puts the button, with a little air under it,
+    // on the page: nothing moves if it is there already.
+    save.showOnScreen(
+      rect: Rect.fromLTWH(
+        0,
+        0,
+        save.size.width,
+        save.size.height + _saveMargin,
+      ),
+      duration: const Duration(milliseconds: 150),
+      curve: Curves.easeOut,
+    );
+  }
+
+  /// The space kept between the Save button and the foot of the page.
+  static const double _saveMargin = 8;
 
   void _onDraft(DevotionalDraft? previous, DevotionalDraft next) {
     // A save or a discard emptied the draft: empty the box with it.
@@ -131,26 +199,37 @@ class _WriteItDownState extends ConsumerState<WriteItDown> {
             ),
           ),
           const SizedBox(height: 10),
-          FsTextArea(
-            key: const ValueKey<String>('fs-journal-box'),
-            controller: _text,
-            semanticLabel: 'Your journal entry',
-            hint: WriteItDownText.hint,
-            maxLength: JournalText.maxLength,
-            enabled: !saving,
-            onChanged: (String text) => ref
-                .read(devotionalDraftProvider.notifier)
-                .typed(text, prompt: widget.prompt),
+          KeyedSubtree(
+            key: _boxPlace,
+            child: FsTextArea(
+              key: const ValueKey<String>('fs-journal-box'),
+              controller: _text,
+              focusNode: _focus,
+              semanticLabel: 'Your journal entry',
+              hint: WriteItDownText.hint,
+              maxLength: JournalText.maxLength,
+              enabled: !saving,
+              onChanged: (String text) {
+                ref
+                    .read(devotionalDraftProvider.notifier)
+                    .typed(text, prompt: widget.prompt);
+                // The box grows as he writes, and the button moves down.
+                _keepSaveInView();
+              },
+            ),
           ),
           const SizedBox(height: 10),
-          FsButton(
-            key: const ValueKey<String>('fs-journal-save'),
-            label: saving ? WriteItDownText.saving : WriteItDownText.save,
-            onPressed: saving
-                ? null
-                : () => ref
-                      .read(devotionalDraftProvider.notifier)
-                      .save(prompt: widget.prompt),
+          KeyedSubtree(
+            key: _savePlace,
+            child: FsButton(
+              key: const ValueKey<String>('fs-journal-save'),
+              label: saving ? WriteItDownText.saving : WriteItDownText.save,
+              onPressed: saving
+                  ? null
+                  : () => ref
+                        .read(devotionalDraftProvider.notifier)
+                        .save(prompt: widget.prompt),
+            ),
           ),
           if (!durable) ...<Widget>[
             const SizedBox(height: 8),
