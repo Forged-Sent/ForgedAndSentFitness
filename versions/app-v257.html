@@ -5634,7 +5634,8 @@ header.hero .me-btn { border-color:#e87328; }
     var r = row.querySelector(".sr"), w = row.querySelector(".sw");
     KP = { row: row, r: r, w: w, cur: inp, fresh: true, buf: { r: r ? r.value : "", w: w ? w.value : "" }, self: false };
     var sh = el("div", "kp"); sh.id = "kp"; sh.setAttribute("role", "group"); sh.setAttribute("aria-label", "Keypad");
-    ["pointerdown", "mousedown", "touchstart"].forEach(function (t) { sh.addEventListener(t, function (ev) { if (ev.cancelable) ev.preventDefault(); }, { passive: false }); });
+    // Keep the typing focus in the box on a mouse click. Touches are left alone: cancelling a touch also cancels the tap.
+    sh.addEventListener("mousedown", function (ev) { ev.preventDefault(); });
     document.body.appendChild(sh); document.body.classList.add("kp-on"); kpPaint();
     setTimeout(function () { try { row.scrollIntoView({ block: "center", behavior: "smooth" }); } catch (e) {} }, 30);
   }
