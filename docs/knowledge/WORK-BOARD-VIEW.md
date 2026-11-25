@@ -19,6 +19,16 @@ update-by: edit WORK.md then run tooling/knowledge/work_board.py --write
 
 ## Waiting
 
+- [ ] **Review response 1: plan setup and health screening (contract)**
+	**Waiting on:** Waits on the maintainer: approve or change [FNS-007](../features/plan-setup-and-screening/requirements.md) and answer its twelve BLOCKED items (health screen, Foundation, heavy singles, target). Resumes when he does. Mockup shown to him on 2026-11-24; nothing is built
+	**Branch or PR:** branch `claude/review-contracts-setup-and-check-in`
+	**State in WORK:** Decision needed
+	[Edit this row in WORK](WORK.md)
+- [ ] **Review response 2: check-in and pain flow (contract)**
+	**Waiting on:** Waits on the maintainer: approve or change [FNS-008](../features/session-check-in-and-pain/requirements.md) and answer its ten BLOCKED items. Built after FNS-007. Resumes when he does; nothing is built
+	**Branch or PR:** branch `claude/review-contracts-setup-and-check-in`
+	**State in WORK:** Decision needed
+	[Edit this row in WORK](WORK.md)
 - [ ] **Hosted AI review gate (PR #48, [handoff](handoffs/flutter-ai-review-gate.md))**
 	**Waiting on:** It guards an app with almost no code yet. `ci-gate` stays required
 	**Unblocks when:** S4 adds sign-in, rules or scoring
