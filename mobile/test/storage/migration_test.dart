@@ -330,9 +330,10 @@ void main() {
 
     // It can still be logged and finished.
     await store.workouts.setReps('e0-s1', 11);
-    await store.workouts.finishSession('s1', DateTime(2026, 11, 9, 19));
+    await store.workouts.finishSession('s1', DateTime.utc(2026, 11, 10, 2));
     final after = (await store.workouts.watchSession(owner, nov9).first)!;
     expect(after.finished, isTrue);
+    expect(after.finishedAtUtc!.isAfter(after.startedAtUtc), isTrue);
     expect(after.exercises.first.sets[1].reps, 11);
     expect(after.superset, isEmpty);
 

@@ -8,8 +8,10 @@ import 'workout_restart_support.dart';
 
 /// Device test for the superset group: on a real device, the two exercises
 /// the program marks as a superset are drawn in one group, labelled A1 and
-/// A2, before the workout is started and during it. One file: nothing here
-/// has to survive a restart, because the group is drawn and never stored.
+/// A2, before the workout is started and during it. One file, one process:
+/// it checks what is drawn and that a set can be logged. That the session
+/// keeps its mark through an update and a restart is checked by the
+/// upgrade test's parts 2 and 3.
 ///
 ///     flutter test integration_test/workout_superset_test.dart -d <device>
 ///
@@ -78,6 +80,13 @@ void main() {
         tester.getTopLeft(find.text(first)).dy,
         lessThan(tester.getTopLeft(find.text(second)).dy),
       );
+      // And each label stands by its own exercise: A1 by the first,
+      // A2 by the second.
+      double apart(Finder label, String name) =>
+          (tester.getCenter(label).dy - tester.getCenter(find.text(name)).dy)
+              .abs();
+      expect(apart(a1, first), lessThan(apart(a1, second)));
+      expect(apart(a2, second), lessThan(apart(a2, first)));
     }
 
     // Before it is started.
