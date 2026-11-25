@@ -40,6 +40,7 @@ rep('/* First-time setup */', '''/* v257: set timer, timed rounds, keypad */
 .kp-k { min-height: 38px; border: 0; border-radius: var(--radius, 4px); background: var(--surface-2); color: var(--ink); font-family: var(--f-label); font-weight: 700; font-size: 20px; } .kp-k.d { background: transparent; border: 1px solid var(--line); color: var(--muted); } .kp-k:disabled { opacity: .3; }
 .kp-go { width: 100%; min-height: 42px; }
 body.kp-on #scroll { padding-bottom: 340px; }
+#wkp-body .rest .mini { width: clamp(48px, 14vw, 58px); padding: 0; text-align: center; } /* all four rest buttons the same size */
 /* First-time setup */''')
 rep('  function numField(cls, label, ph, val, max, onVal) {', add + '  function numField(cls, label, ph, val, max, onVal) {')
 rep('''      var ex = el("div", "wx" + (e[2] ? " wx-add" : "")), ps = parseSets(e[1]);''', '''      var ex = el("div", "wx" + (e[2] ? " wx-add" : "")), ps = parseSets(e[1]), rd = ps ? null : stRounds(e[1]);''')
