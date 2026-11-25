@@ -661,6 +661,40 @@ void main() {
       expect(_saveFailedNotice, findsNothing);
     });
 
+    testWidgets('a row he is typing in keeps the keyboard when the row '
+        'above it loses its Remove', (tester) async {
+      final app = await pumpApp(tester, clock: TestClock(liftingEvening));
+      await openTodaysWorkout(tester);
+      await startWorkout(tester);
+      // Two rows he added, both empty, each with its Remove.
+      await _tapOnPage(tester, addSetButton(0));
+      await _tapOnPage(tester, addSetButton(0));
+      final workouts = app.store.workouts as TestWorkoutRepository;
+
+      // A slow disk holds what he types in the first of them, so it still
+      // shows Remove. He goes on to the second.
+      workouts.hold();
+      await typeNumber(tester, repsField(0, 3), '5');
+      await showOnWorkoutPage(tester, repsField(0, 4));
+      await tester.tap(repsField(0, 4));
+      await tester.pump();
+      expect(tester.testTextInput.hasAnyClients, isTrue);
+      expect(removeSetButton(0, 3), findsOneWidget);
+
+      // The first row's reps are stored and its Remove goes. The row he is
+      // in now is the same row: the keyboard stays, and he types on.
+      workouts.release();
+      await tester.pumpAndSettle();
+      expect(removeSetButton(0, 3), findsNothing);
+      expect(tester.testTextInput.hasAnyClients, isTrue);
+      tester.testTextInput.enterText('4');
+      await tester.pumpAndSettle();
+      final stored = await squat(app, tester);
+      expect(stored.sets[3].reps, 5);
+      expect(stored.sets[4].reps, 4);
+      expect(_saveFailedNotice, findsNothing);
+    });
+
     testWidgets('from the tap on Remove until the row is gone, the row '
         'takes no typing', (tester) async {
       final app = await pumpApp(tester, clock: TestClock(liftingEvening));
