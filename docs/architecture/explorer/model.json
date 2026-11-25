@@ -2,7 +2,7 @@
   "title": "Forged & Sent · Architecture Atlas",
   "product": "Faith-centered workouts, discipleship and group accountability",
   "status": "foundation",
-  "overview": "The Flutter client has its shell, Today, the day's devotional reading and a private journal. A completed devotional and his journal entries are saved in the member's own SQLite file on the phone and nothing is sent anywhere. Firebase is connected only to local demo emulators. Workouts, sync, group roles, private reflections and production scoring are planned, not implemented.",
+  "overview": "The Flutter client has its shell, Today, the day's devotional reading, a private journal, and Train with workout logging for the bundled Forged program. A completed devotional, his journal entries and every change to a workout in progress are saved in the member's own SQLite file on the phone and nothing is sent anywhere. Firebase is connected only to local demo emulators. Sync, group roles, private reflections and production scoring are planned, not implemented.",
   "source": "docs/architecture/SYSTEM.md",
   "systems": [
     {
@@ -55,7 +55,7 @@
       "x": 635,
       "y": 50,
       "color": "blue",
-      "purpose": "ForgedSentApp sets up MaterialApp and the six-tab shell. Today shows the date, mission line, progress ring and the day's boxes; the devotional box opens the day's reading, which has a Write it down box. The Journal page lists his private entries and an entry page writes, changes and deletes one. FoundationHomeScreen is the developer status page, reached from Settings and shown first when a start-up check fails.",
+      "purpose": "ForgedSentApp sets up MaterialApp and the six-tab shell. Today shows the date, mission line, progress ring and the day's boxes; the devotional box opens the day's reading, which has a Write it down box. The Journal page lists his private entries and an entry page writes, changes and deletes one. Train shows today and this week of the bundled Forged program, and a day's workout page logs sets, runs the rest timer and finishes into a locked summary. FoundationHomeScreen is the developer status page, reached from Settings and shown first when a start-up check fails.",
       "files": [
         "mobile/lib/src/app/forged_sent_app.dart",
         "mobile/lib/src/app/fs_router.dart",
@@ -64,7 +64,9 @@
         "mobile/lib/src/features/journal/presentation/write_it_down.dart",
         "mobile/lib/src/features/journal/presentation/journal_page.dart",
         "mobile/lib/src/features/journal/presentation/journal_entry_page.dart",
-        "mobile/lib/src/features/settings/presentation/settings_page.dart"
+        "mobile/lib/src/features/settings/presentation/settings_page.dart",
+        "mobile/lib/src/features/workout/presentation/train_page.dart",
+        "mobile/lib/src/features/workout/presentation/workout_page.dart"
       ],
       "functions": [
         "mobile/lib/src/app/forged_sent_app.dart::ForgedSentApp",
@@ -73,34 +75,43 @@
       "depends": [
         "today"
       ],
-      "notes": "Only the devotional box works. Four tabs are placeholders (the Walk tab is the journal), and there is no workout feature yet. The journal has no tags, prayer tabs, search or export."
+      "notes": "Two of Today's boxes work: the devotional box and the Workout box, which checks itself when a workout is finished in Train. Three tabs are placeholders: Fuel, Board and Rally (the Walk tab is the journal). Plan setup, the other three programs, swaps and the rest of the prototype's workout page are not built. The journal has no tags, prayer tabs, search or export."
     },
     {
       "id": "today",
-      "label": "Today view model and rules",
-      "short": "State, events, streak",
+      "label": "View models and rules",
+      "short": "Today, Train, a day's workout",
       "stage": "current",
       "layer": 3,
       "x": 920,
       "y": 50,
       "color": "blue",
-      "purpose": "A Riverpod view model combines the day's record, the streak, the bundled readings and one setting. A completion is an event with a client-generated id; an undo is a second event filed under the completion's day. One injected clock supplies the time, and days are a LocalDate.",
+      "purpose": "A Riverpod view model combines the day's record, the streak, the bundled readings and one setting. A completion is an event with a client-generated id; an undo is a second event filed under the completion's day. One injected clock supplies the time, and days are a LocalDate. TrainViewModel places the Forged program on the member's week. WorkoutViewModel starts a session with a copy of what the plan prescribes and writes every change to a set or a rest timer to the store at once, in the order it was made; finishing records the day's Workout completion with the event id made when the session started.",
       "files": [
         "mobile/lib/src/features/today/presentation/today_view_model.dart",
         "mobile/lib/src/features/today/domain/completion_event.dart",
         "mobile/lib/src/features/today/domain/streak.dart",
         "mobile/lib/src/features/today/data/day_repository.dart",
         "mobile/lib/src/features/devotional/data/devotional_library.dart",
+        "mobile/lib/src/features/workout/presentation/train_view_model.dart",
+        "mobile/lib/src/features/workout/presentation/workout_view_model.dart",
+        "mobile/lib/src/features/workout/domain/workout_plan.dart",
+        "mobile/lib/src/features/workout/domain/prescription.dart",
+        "mobile/lib/src/features/workout/domain/workout_session.dart",
+        "mobile/lib/src/features/workout/data/workout_repository.dart",
+        "mobile/lib/src/features/workout/data/workout_library.dart",
         "mobile/lib/src/core/clock.dart",
         "mobile/lib/src/core/local_date.dart"
       ],
       "functions": [
-        "mobile/lib/src/features/today/presentation/today_view_model.dart::TodayViewModel"
+        "mobile/lib/src/features/today/presentation/today_view_model.dart::TodayViewModel",
+        "mobile/lib/src/features/workout/presentation/train_view_model.dart::TrainViewModel",
+        "mobile/lib/src/features/workout/presentation/workout_view_model.dart::WorkoutViewModel"
       ],
       "depends": [
         "localstore"
       ],
-      "notes": "No score is computed and nothing is sent. Point values are hidden unless the preview switch is on."
+      "notes": "No score is computed and nothing is sent. Point values are hidden unless the preview switch is on. A workout stores nothing about the member's body."
     },
     {
       "id": "localstore",
@@ -111,23 +122,25 @@
       "x": 920,
       "y": 345,
       "color": "amber",
-      "purpose": "One SQLite file per owner, through Drift. A completion event and the day state it produces are written in one transaction, and so are a journal change and its entry. Journal text is device-only and not encrypted; it passes through one codec so encryption can be added later. Before sign-in the owner is a local profile made on first launch. The web preview has no database and keeps the day in memory.",
+      "purpose": "One SQLite file per owner, through Drift. A completion event and the day state it produces are written in one transaction, and so are a journal change and its entry. Journal text is device-only and not encrypted; it passes through one codec so encryption can be added later. Workout plans, sessions, exercises and sets are stored there too, and finishing a session records the day's Workout completion in the same transaction. Before sign-in the owner is a local profile made on first launch. The web preview has no database and keeps the day, the journal and the workout in memory.",
       "files": [
         "mobile/lib/src/storage/app_database.dart",
         "mobile/lib/src/storage/native_storage.dart",
         "mobile/lib/src/features/today/data/drift_day_repository.dart",
         "mobile/lib/src/features/journal/data/drift_journal_repository.dart",
         "mobile/lib/src/features/journal/data/journal_body_codec.dart",
+        "mobile/lib/src/features/workout/data/drift_workout_repository.dart",
         "mobile/lib/src/app/local_store.dart",
         "mobile/lib/src/app/open_local_store.dart"
       ],
       "functions": [
         "mobile/lib/src/features/today/data/drift_day_repository.dart::DriftDayRepository",
         "mobile/lib/src/features/journal/data/drift_journal_repository.dart::DriftJournalRepository",
+        "mobile/lib/src/features/workout/data/drift_workout_repository.dart::DriftWorkoutRepository",
         "mobile/lib/src/storage/app_database.dart::AppDatabase"
       ],
       "depends": [],
-      "notes": "Events are stored locally only. There is no outbox and no sync yet. The schema is at version 2; the migration from version 1 is tested against a file, not on a phone."
+      "notes": "Events are stored locally only. There is no outbox and no sync yet. The schema is at version 3; the migrations from versions 1 and 2 are tested against a file, not on a phone."
     },
     {
       "id": "adapter",
@@ -242,7 +255,7 @@
       "depends": [
         "repos"
       ],
-      "notes": "TodayViewModel and the journal's draft notifier exist, under Implemented. Others come with their features."
+      "notes": "TodayViewModel, the journal's draft notifier, TrainViewModel and WorkoutViewModel exist, under Implemented. Others come with their features."
     },
     {
       "id": "repos",
@@ -259,7 +272,7 @@
         "outbox",
         "services"
       ],
-      "notes": "DayRepository, JournalRepository and SettingsRepository exist, under Implemented. Repositories for workouts and groups do not."
+      "notes": "DayRepository, JournalRepository, SettingsRepository and WorkoutRepository exist, under Implemented. Repositories for groups do not."
     },
     {
       "id": "outbox",
@@ -275,7 +288,7 @@
       "depends": [
         "sync"
       ],
-      "notes": "The local event store exists for devotional completions, under Implemented. The outbox that sends events does not. Firebase cache alone must not be treated as a durable event log."
+      "notes": "The local event store exists for devotional and workout completions, under Implemented, and a workout in progress is stored as it is logged. The outbox that sends events does not. Firebase cache alone must not be treated as a durable event log."
     },
     {
       "id": "sync",
@@ -323,7 +336,7 @@
       "depends": [
         "scoring"
       ],
-      "notes": "No real membership or private production model exists yet."
+      "notes": "No real membership or private production model exists yet. Planned decisions: ADR-0006 (group-level isolation), ADR-0008 (membership documents authorize, Proposed), ADR-0009 (faith participation and privacy)."
     },
     {
       "id": "scoring",
@@ -337,7 +350,7 @@
       "purpose": "Trusted functions compute auditable group points and challenges from validated events. Clients cannot award authoritative points.",
       "files": [],
       "depends": [],
-      "notes": "No server scoring functions exist yet."
+      "notes": "No server scoring functions exist yet. Planned decision: ADR-0007 (server-authoritative, append-only scoring ledger)."
     },
     {
       "id": "change",
@@ -448,7 +461,10 @@
     "tooling/architecture/generate.py::inventory": "Produces the Markdown Flutter code map from actual Dart imports and named declarations.",
     "tooling/skills/sync.py::validate": "Detects and can repair drift between canonical Codex and mirrored Claude skill files.",
     "mobile/lib/src/features/today/presentation/today_view_model.dart::TodayViewModel": "Builds Today's view from the day's record, the streak and the bundled content, and records Amen and Undo as completion events.",
-    "mobile/lib/src/features/today/data/drift_day_repository.dart::DriftDayRepository": "Stores a completion event and the day state it produces in one transaction; a replayed event id changes nothing."
+    "mobile/lib/src/features/today/data/drift_day_repository.dart::DriftDayRepository": "Stores a completion event and the day state it produces in one transaction; a replayed event id changes nothing.",
+    "mobile/lib/src/features/workout/presentation/train_view_model.dart::TrainViewModel": "Builds Train's view: today and this week of the Forged program on the member's plan, and a workout begun on an earlier day and not finished.",
+    "mobile/lib/src/features/workout/presentation/workout_view_model.dart::WorkoutViewModel": "Builds one day's workout page from the stored session, starts a session after the workout prayer, and writes each set and rest timer change to the store in the order it was made.",
+    "mobile/lib/src/features/workout/data/drift_workout_repository.dart::DriftWorkoutRepository": "Stores the plan and each session with its exercises and sets; finishing sets the finish time and records the day's Workout completion in one transaction."
   },
   "guide": {
     "windows": [

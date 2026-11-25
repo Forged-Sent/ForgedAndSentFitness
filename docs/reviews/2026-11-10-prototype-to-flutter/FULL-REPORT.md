@@ -349,7 +349,7 @@ Other measurable conventions: tap targets mostly 44–52 px; body text mostly 12
 
 - None in the stack. Pubspec, ADR-0005 and the local branch agree.
 - `mobile/pubspec.yaml` declares Dart `>=3.9.0`, while the committed lockfile requires `>=3.13.0`. Tighten the constraint so a contributor on an older SDK gets a clear error instead of a churned lockfile (Verified).
-- **Decision records are split.** `main` has ADR-0001…0005. The unmerged `arch/firebase-reconciliation` branch has a different ADR-0001…0019 covering group isolation, the scoring ledger, the devotional-workout engine, competition, proof media and faith-participation privacy. The numbers collide (`main` ADR-0005 is the client stack; the branch's ADR-0005 is the scoring ledger). The product decisions approved on 2026-10-27 exist only there and in the Claude Project.
+- **Decision records are split.** *As found at the reviewed commit:* `main` had ADR-0001…0005. The unmerged `arch/firebase-reconciliation` branch had a different ADR-0001…0019 covering group isolation, the scoring ledger, the devotional-workout engine, competition, proof media and faith-participation privacy. The numbers collided (`main` ADR-0005 is the client stack; the branch's ADR-0005 is the scoring ledger). The product decisions approved on 2026-10-27 existed only there and in the Claude Project. *Since 2026-11-19:* the four decisions that answer Q4 carries forward are on `main` as [ADR-0006 to ADR-0009](../../architecture/SYSTEM.md), so on `main` each number means one decision. The branch keeps its own numbers, and its other fifteen records are still only there.
 
 ### 5.2 Diagram
 

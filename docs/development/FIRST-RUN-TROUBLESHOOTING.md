@@ -27,7 +27,7 @@ The wizard keeps the primary choices short:
 | 7 | Open VS Code and the [first contribution guide](FIRST-CONTRIBUTION.md) |
 | 8 | Advanced: Android, GitHub sign-in, Git identity, project MCP locations |
 
-The Flutter app is early: it opens on Today with the day's devotional; the other tabs are placeholders. Most of the HTML prototype is not migrated yet ([parity](../knowledge/PROTOTYPE-PARITY.md)).
+The Flutter app is early: it opens on Today with the day's devotional, the Walk tab is a private journal, and Train logs a workout; the other three tabs (Fuel, Board and Rally) are placeholders. Most of the HTML prototype is not migrated yet ([parity](../knowledge/PROTOTYPE-PARITY.md)).
 
 ## AI and MCP tools
 
@@ -68,6 +68,8 @@ The wizard offers to **copy the AI prompt to the clipboard**, but it does **not 
 | Context7 unavailable | Internet, service or API quota | Check network and provider status |
 | VS Code MCP missing | Wrong workspace, restricted trust or extension support | Open the cloned repository folder, review trust, run MCP: List Servers |
 | AI extension missing | Your chosen assistant was not installed or authorized | Rerun Contributor setup and select that assistant, or install its official VS Code extension |
+| Mac: iPhone build says "resource fork, Finder information, or similar detritus not allowed" | The project folder is in an iCloud-synced folder such as Desktop or Documents | Move the project folder to one that is not synced, for example `~/Developer`. See [MacBook quickstart](MACBOOK-QUICKSTART.md#iphone-simulator-problems) |
+| Mac: "Unable to find application named 'Simulator'", an `rsync` error about `SourcePackages`, or "Xcode 26.2 or newer is needed" | Xcode 27 replaced Simulator.app with DeviceHub; Homebrew's `rsync` needs the folder to exist; the Firebase iOS SDK needs Xcode 26.2+ | Use `launchers/mac/more/Run app on iPhone simulator.command`, which handles the first two; update Xcode for the third. See [MacBook quickstart](MACBOOK-QUICKSTART.md#iphone-simulator-problems) |
 | Company laptop blocks setup | Organization installation restrictions | Ask IT; never bypass enterprise policies |
 
 ## What should you ask AI?

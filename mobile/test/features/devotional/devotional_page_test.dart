@@ -111,8 +111,11 @@ void main() {
       'REFLECT',
       'ACT',
     ]) {
-      expect(find.text('// $label'), findsOneWidget, reason: label);
+      expect(find.text(label), findsOneWidget, reason: label);
     }
+    // The prototype's two slashes in front of a label are not drawn (the
+    // maintainer, 2026-11-21).
+    expect(find.textContaining('//'), findsNothing);
     // v254's headline and "In Jesus" paragraph, word for word.
     expect(find.text(reading.headline!.toUpperCase()), findsOneWidget);
     expect(tester.widget<Text>(_inJesus).data, reading.inJesus);
@@ -537,7 +540,7 @@ void main() {
         tester.getRect(find.text(sent.headline!.toUpperCase())),
         tester.getRect(_sentTag),
         tester.getRect(find.text(sent.monthTag)),
-        tester.getRect(find.text('// OPEN IN PRAYER')),
+        tester.getRect(find.text('OPEN IN PRAYER')),
       ];
       for (var i = 1; i < lines.length; i++) {
         expect(
@@ -577,17 +580,17 @@ void main() {
           'REFLECT',
           'ACT',
         ])
-          tester.getRect(find.text('// $label')).top,
+          tester.getRect(find.text(label)).top,
       ];
       expect(tops, orderedEquals(<double>[...tops]..sort()));
 
-      final label = tester.getRect(find.text('// IN JESUS'));
+      final label = tester.getRect(find.text('IN JESUS'));
       final text = tester.getRect(_inJesus);
       // Under everything that belongs to the verse, the notice included.
       expect(label.top, greaterThan(tester.getRect(_notice).bottom));
       expect(text.top, greaterThanOrEqualTo(label.bottom));
       expect(
-        tester.getRect(find.text('// REFLECT')).top,
+        tester.getRect(find.text('REFLECT')).top,
         greaterThan(text.bottom),
       );
       expect(tester.widget<Text>(_inJesus).data, reading.inJesus);
@@ -626,7 +629,7 @@ void main() {
         sent.reflect,
       ]);
       expect(
-        tester.getSemantics(find.text('// IN JESUS')),
+        tester.getSemantics(find.text('IN JESUS')),
         isSemantics(label: 'In Jesus', isHeader: true),
       );
       handle.dispose();
@@ -740,11 +743,11 @@ void main() {
 
         expect(find.text(sent.headline!.toUpperCase()), findsNothing);
         expect(find.byType(FsTag), findsNothing);
-        expect(find.text('// IN JESUS'), findsNothing);
+        expect(find.text('IN JESUS'), findsNothing);
         expect(_inJesus, findsNothing);
         // The rest of the reading is there, and Amen works as it did.
         expect(find.text('February 7'), findsOneWidget);
-        expect(find.text('// REFLECT'), findsOneWidget);
+        expect(find.text('REFLECT'), findsOneWidget);
         expect(_verse(tester), sent.bsbText);
         await scrollReaderToEnd(tester);
         expect(_amen(tester).onPressed, isNotNull);
@@ -818,6 +821,18 @@ void main() {
       // The Crossway notice is shown where the ESV text is.
       expect(tester.widget<Text>(_notice).data, ScriptureNotices.esv);
       expect(find.textContaining('Crossway'), findsOneWidget);
+      // Crossway's notice, word for word as its permissions page gave it
+      // on 2026-11-21.
+      expect(
+        tester.widget<Text>(_notice).data,
+        'Scripture quotations are from the ESV® Bible (The Holy Bible, '
+        'English Standard Version®), © 2001 by Crossway, a publishing '
+        'ministry of Good News Publishers. ESV Text Edition: 2025. The ESV '
+        'text may not be quoted in any publication made available to the '
+        'public by a Creative Commons license. The ESV may not be '
+        'translated in whole or in part into any other language. Used by '
+        'permission. All rights reserved.',
+      );
       expect(
         tester.widget<FsButton>(find.widgetWithText(FsButton, 'ESV')).selected,
         isTrue,
