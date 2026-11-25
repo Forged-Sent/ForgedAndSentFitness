@@ -67,5 +67,8 @@ rep('''      var ae = document.activeElement, t = ev.target; if (!ae || !/^(INPU
       if (t && t.closest && t.closest("button, a, summary, [role=button]")''', '''      var ae = document.activeElement, t = ev.target; if (!ae || !/^(INPUT|TEXTAREA|SELECT)$/.test(ae.tagName)) return;
       if (t && t.closest && (t.closest("#kp") || t.closest("[class^=kp-], .kp-go"))) return;
       if (t && t.closest && t.closest("button, a, summary, [role=button]")''')
+# Stop . Pain button removed from the lifts at the maintainer's direction of 2026-11-24. The check before a workout still asks about pain.
+i = src.index('      if (live && !editing && isToday && !off && wk.loaded && !skipped) {\n        var spb = el("button", "mini sp-btn"'); j = src.index('      ex.appendChild(top);', i)
+src = src[:i] + src[j:]
 open(S + 'v257/app-v257.html', 'w', encoding='utf-8').write(src)
 print('ok', len(src))

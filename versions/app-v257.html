@@ -6562,10 +6562,6 @@ header.hero .me-btn { border-color:#e87328; }
         swb.addEventListener("click", function () { saveWkNow(); openSwap(idx, origG); }); top.appendChild(swb);
       }
       var skipped = !!(rec.skip && rec.skip[idx]);
-      if (live && !editing && isToday && !off && wk.loaded && !skipped) {
-        var spb = el("button", "mini sp-btn", "Stop \u00B7 Pain"); spb.type = "button"; spb.setAttribute("aria-label", "Stop " + shownName + " because of pain");
-        spb.addEventListener("click", function () { saveWkNow(); openStopPain(idx, shownName, key, function () { if (endNow) endNow(); }); }); top.appendChild(spb);
-      }
       ex.appendChild(top);
       if (swp0) ex.appendChild(el("span", "sw-note", "Swapped from " + moveName(origG, p.equip) + (swp0.why ? " \u00B7 " + swp0.why : "")));
       if (swp0 && (swp0.automatic || /^Suggested for /.test(swp0.why || ""))) ex.appendChild(el("p", "note", "Suggested alternative, not a safety guarantee. Stop if painful; review with a clinician."));
