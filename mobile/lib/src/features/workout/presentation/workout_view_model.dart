@@ -203,6 +203,19 @@ final workoutWritesProvider = Provider<WorkoutWrites>((ref) {
   return WorkoutWrites();
 });
 
+/// What asking the store to remove a set did.
+enum SetRemoval {
+  /// The row is gone from the store.
+  removed,
+
+  /// The store was reached and kept the row: it was not one he added, or
+  /// something is entered in it, or the workout is finished.
+  kept,
+
+  /// The store could not be reached. The row is still there.
+  failed,
+}
+
 /// What a tap on Amen in the workout prayer did.
 enum StartOutcome {
   /// The session is started and stored.
@@ -424,6 +437,36 @@ class WorkoutViewModel extends AsyncNotifier<WorkoutView> {
   Future<bool> setTicked(String setId, {required bool ticked}) {
     final workouts = _workouts;
     return _write(() => workouts.setTicked(setId, ticked: ticked));
+  }
+
+  /// Adds one set under [exercise]'s rows, with the same target as its
+  /// last set. True if the store was reached; the store adds nothing to
+  /// an exercise that already has [maxSets] rows.
+  ///
+  /// It takes its turn behind every change already made, like a change to
+  /// a set.
+  Future<bool> addSet(SessionExercise exercise) {
+    final workouts = _workouts;
+    final setId = ref.read(eventIdProvider)();
+    return _write(() => workouts.addSet(exercise.id, setId: setId));
+  }
+
+  /// Removes a set he added, if nothing is entered in it, and says what
+  /// became of it.
+  ///
+  /// It takes its turn behind every change already made. So if he typed
+  /// in the row a moment before, that is stored first, the store then
+  /// finds the row is not empty, and nothing is removed. What the store
+  /// cannot know is a change to the row that failed to be stored: the
+  /// page knows that, and does not ask for the removal then.
+  Future<SetRemoval> removeSet(String setId) async {
+    final workouts = _workouts;
+    var removed = false;
+    final reached = await _write(() async {
+      removed = await workouts.removeSet(setId);
+    });
+    if (!reached) return SetRemoval.failed;
+    return removed ? SetRemoval.removed : SetRemoval.kept;
   }
 
   /// Where [exercise]'s rest timer stands as far as this page knows: the

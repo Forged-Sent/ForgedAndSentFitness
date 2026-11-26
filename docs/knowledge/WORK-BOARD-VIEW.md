@@ -119,6 +119,10 @@ update-by: edit WORK.md then run tooling/knowledge/work_board.py --write
 	**Note:** None for the maintainer beyond his review. The finding of the hosted review of [#85](https://github.com/Forged-Sent/ForgedAndSentFitness/pull/85) that was open when #85 merged; fixed at his direction of 2026-11-23, with tests that failed first. No change to what is stored
 	**Branch or PR:** branch `claude/finish-closes-set-boxes`
 	[Edit this row in WORK](WORK.md)
+- [x] **Add or remove a set during a workout**
+	**Note:** The maintainer: approve the addition to the [contract](../features/workout-logging/feature.md), which is marked there as proposed and added after his approval of FNS-004, and look at the two redrawn golden images (logging sets, dark and light), which are **not approved**. Built to his rules of 2026-11-22. While a workout is being finished, "Add set" and "Remove" take nothing, as the set boxes do. No change to the database: an added set is a row in the session's existing set table. Not on a phone
+	**Branch or PR:** branch `claude/s3-add-remove-set`
+	[Edit this row in WORK](WORK.md)
 - [x] **Setup scripts and guides match the six-tab app**
 	**Note:** Physical run on a fresh Windows PC and a Mac: the Try it now walkthrough, Mobile Check my setup, and a second setup run in the same window
 	**Branch or PR:** branch `claude/bootstrap-test-readiness`
@@ -151,9 +155,6 @@ update-by: edit WORK.md then run tooling/knowledge/work_board.py --write
 
 ## Later
 
-- [ ] **Add or remove a set during a workout**
-	**Prompt:** No prompt yet. Asked for by the maintainer after his hand test of S3 on 2026-11-21: the first follow-up once [#85](https://github.com/Forged-Sent/ForgedAndSentFitness/pull/85) merges. Needs a decision: what an added row aims for, and whether a row that already holds reps can be removed
-	[Edit this row in WORK](WORK.md)
 - [ ] **Supersets are shown grouped together**
 	**Prompt:** No prompt yet. Asked for by the maintainer on 2026-11-21, after [#85](https://github.com/Forged-Sent/ForgedAndSentFitness/pull/85). `seed/workouts.json` already marks them: a day with a superset carries `"superset": [5, 6]`, the places of its two exercises counted from 0 (209 of the Forged program's 365 days), and the bundled copy keeps the mark. The app reads the prescription text and not the mark yet
 	[Edit this row in WORK](WORK.md)

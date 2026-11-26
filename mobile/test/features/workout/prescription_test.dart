@@ -53,6 +53,18 @@ WorkoutSession _session(List<SessionExercise> exercises) => WorkoutSession(
 );
 
 void main() {
+  test('the rows a prescription gives an exercise: its sets, or one row '
+      'where it describes none', () {
+    expect(plannedSetCount('3 x 5 (RPE 7, rest 2 min)'), 3);
+    expect(plannedSetCount('2 x 25 sec'), 2);
+    expect(plannedSetCount('1 x 5, 1 x 3, 1 x 1 (heaviest set last)'), 3);
+    expect(
+      plannedSetCount('Superset A1: 3 x 12 (RIR 3). Go straight to A2'),
+      3,
+    );
+    expect(plannedSetCount('12 min easy, conversational pace'), 1);
+  });
+
   group(
     'reading the sets out of a prescription (the prototype\'s parseSets)',
     () {
