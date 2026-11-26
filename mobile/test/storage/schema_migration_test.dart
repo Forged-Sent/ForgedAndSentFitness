@@ -11,6 +11,7 @@ import 'package:forged_and_sent/src/storage/app_database.dart';
 import 'package:forged_and_sent/src/storage/native_storage.dart';
 import 'package:sqlite3/sqlite3.dart';
 
+import '../features/workout/workout_repository_contract.dart';
 import 'generated_migrations/schema.dart';
 import 'generated_migrations/schema_v1.dart' as v1;
 
@@ -45,26 +46,26 @@ void main() {
 
     setUpAll(() => verifier = SchemaVerifier(GeneratedHelper()));
 
-    test('version 1 migrates to exactly the frozen version 3', () async {
+    test('version 1 migrates to exactly the frozen version 4', () async {
       final connection = await verifier.startAt(1);
       final database = AppDatabase(connection);
       addTearDown(database.close);
 
-      await verifier.migrateAndValidate(database, 3);
+      await verifier.migrateAndValidate(database, 4);
     });
 
     test(
-      'a new install is created at version 3 with the same schema',
+      'a new install is created at version 4 with the same schema',
       () async {
         final database = AppDatabase(NativeDatabase.memory());
         addTearDown(database.close);
 
-        await verifier.migrateAndValidate(database, 3);
+        await verifier.migrateAndValidate(database, 4);
 
         final version = await database
             .customSelect('PRAGMA user_version')
             .getSingle();
-        expect(version.read<int>('user_version'), 3);
+        expect(version.read<int>('user_version'), 4);
       },
     );
 
@@ -111,7 +112,7 @@ void main() {
 
       final database = AppDatabase(schema.newConnection());
       addTearDown(database.close);
-      await verifier.migrateAndValidate(database, 3);
+      await verifier.migrateAndValidate(database, 4);
 
       final event =
           (await database.select(database.completionEvents).get()).single;
@@ -162,7 +163,7 @@ void main() {
     // Read before this build touches the file again: the older build did
     // not lower the version it could not handle.
     final afterOlder = sqlite3.open(databaseFileFor(folder, ownerId).path);
-    expect(afterOlder.select('PRAGMA user_version').single.values.single, 3);
+    expect(afterOlder.select('PRAGMA user_version').single.values.single, 4);
     afterOlder.close();
 
     // This build opens the file again and finds everything.
@@ -228,7 +229,7 @@ void main() {
 
     final check = sqlite3.open(file.path);
     addTearDown(check.close);
-    expect(check.select('PRAGMA user_version').single.values.single, 3);
+    expect(check.select('PRAGMA user_version').single.values.single, 4);
   });
 
   test('an update to version 3 that was cut off before the new version '
@@ -276,7 +277,58 @@ void main() {
 
     final check = sqlite3.open(file.path);
     addTearDown(check.close);
-    expect(check.select('PRAGMA user_version').single.values.single, 3);
+    expect(check.select('PRAGMA user_version').single.values.single, 4);
+  });
+
+  test('an update to version 4 that was cut off before the new version '
+      'number was recorded still opens, and keeps the workout and its '
+      'mark', () async {
+    final folder = await Directory.systemTemp.createTemp('fs-v4-cutoff-');
+    addTearDown(() async {
+      if (await folder.exists()) await folder.delete(recursive: true);
+    });
+    final first = await openLocalStoreIn(folder, background: false);
+    final ownerId = first.ownerId;
+    await first.workouts.startSession(
+      newSession(
+        's1',
+        DateTime(2026, 11, 12, 18, 10),
+        owner: ownerId,
+        superset: <int>[0, 1],
+      ),
+    );
+    await first.close();
+
+    // The new column is in the file, and the version number still says 3:
+    // the step's transaction was committed and the phone died before the
+    // new number was written. Adding the column again would fail on every
+    // later launch.
+    final file = databaseFileFor(folder, ownerId);
+    final cut = sqlite3.open(file.path);
+    expect(
+      cut.select(
+        "SELECT name FROM pragma_table_info('workout_sessions') "
+        "WHERE name = 'superset_places'",
+      ),
+      hasLength(1),
+    );
+    cut.execute('PRAGMA user_version = 3');
+    cut.close();
+
+    // Twice: the first open finishes the update, the second finds it done.
+    for (var launch = 0; launch < 2; launch++) {
+      final store = await openLocalStoreIn(folder, background: false);
+      final session = (await store.workouts
+          .watchSession(ownerId, const LocalDate(2026, 11, 12))
+          .first)!;
+      expect(session.id, 's1');
+      expect(session.superset, <int>[0, 1]);
+      await store.close();
+    }
+
+    final check = sqlite3.open(file.path);
+    addTearDown(check.close);
+    expect(check.select('PRAGMA user_version').single.values.single, 4);
   });
 
   test(
@@ -343,7 +395,7 @@ void main() {
 
       final check = sqlite3.open(file.path);
       addTearDown(check.close);
-      expect(check.select('PRAGMA user_version').single.values.single, 3);
+      expect(check.select('PRAGMA user_version').single.values.single, 4);
     },
   );
 }

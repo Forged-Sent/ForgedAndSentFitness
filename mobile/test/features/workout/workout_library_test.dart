@@ -2,16 +2,176 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/services.dart';
+import 'package:forged_and_sent/src/core/local_date.dart';
+import 'package:forged_and_sent/src/features/workout/domain/prescription.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:forged_and_sent/src/features/workout/data/workout_library.dart';
+import 'package:forged_and_sent/src/features/workout/domain/workout_plan.dart';
+import 'package:forged_and_sent/src/features/workout/domain/workout_session.dart';
 
 import '../../support/fs_test_support.dart';
 
 /// Parsed JSON of a file, relative to `mobile/`, where the tests run.
 Object? _json(String path) => json.decode(File(path).readAsStringSync());
 
+/// A session started on plan day 1 that holds [exercises] in that order
+/// and the mark [superset], as a session copies both from the program
+/// when it is started.
+WorkoutSession _sessionOf(
+  List<PlannedExercise> exercises, {
+  List<int> superset = const <int>[],
+}) => WorkoutSession(
+  id: 's',
+  ownerId: 'local-test',
+  day: const LocalDate(2026, 11, 9),
+  program: 'Forged',
+  planDay: 1,
+  planWeek: 1,
+  title: 'Full Body A: Back Squat',
+  sessionType: 'Core',
+  minutes: 45,
+  startedAtUtc: DateTime.utc(2026, 11, 10, 1),
+  startUtcOffset: const Duration(hours: -7),
+  finishEventId: 's-finish',
+  superset: superset,
+  exercises: <SessionExercise>[
+    for (var i = 0; i < exercises.length; i++)
+      SessionExercise(
+        id: 'e$i',
+        position: i,
+        movementId: exercises[i].movementId,
+        name: exercises[i].movementId,
+        prescription: exercises[i].prescription,
+        measure: SetMeasure.reps,
+        weightMode: WeightMode.required,
+        restBaseSeconds: 90,
+        sets: const <SessionSet>[],
+      ),
+  ],
+);
+
 void main() {
   final library = loadBundledWorkoutLibrary();
+
+  group('the superset mark (display only)', () {
+    test('each plan day carries the mark seed/workouts.json gives it', () {
+      final seed =
+          (_json('../seed/workouts.json')! as Map<String, dynamic>)['Forged']
+              as List<dynamic>;
+      expect(library.days, hasLength(seed.length));
+      var marked = 0;
+      for (var i = 0; i < seed.length; i++) {
+        final mark = (seed[i] as Map<String, dynamic>)['superset'];
+        expect(
+          library.days[i].superset,
+          mark ?? const <int>[],
+          reason: 'plan day ${library.days[i].day}',
+        );
+        if (mark != null) marked++;
+      }
+      // Day 1's superset is its sixth and seventh exercises.
+      expect(library.days.first.superset, <int>[5, 6]);
+      expect(marked, 209);
+    });
+
+    test('a mark is two or more neighbouring places inside the day\'s '
+        'exercises; anything else is read as no superset', () {
+      expect(readSupersetMark(<dynamic>[5, 6], 7), <int>[5, 6]);
+      expect(readSupersetMark(<dynamic>[0, 1, 2], 3), <int>[0, 1, 2]);
+
+      expect(readSupersetMark(null, 7), isEmpty);
+      expect(readSupersetMark('5,6', 7), isEmpty);
+      expect(readSupersetMark(<dynamic>[], 7), isEmpty);
+      expect(readSupersetMark(<dynamic>[5], 7), isEmpty);
+      // Not neighbours, or not in order.
+      expect(readSupersetMark(<dynamic>[4, 6], 7), isEmpty);
+      expect(readSupersetMark(<dynamic>[6, 5], 7), isEmpty);
+      // Outside the list.
+      expect(readSupersetMark(<dynamic>[6, 7], 7), isEmpty);
+      expect(readSupersetMark(<dynamic>[-1, 0], 7), isEmpty);
+      // Not whole numbers.
+      expect(readSupersetMark(<dynamic>[5.5, 6.5], 7), isEmpty);
+      expect(readSupersetMark(<dynamic>['5', '6'], 7), isEmpty);
+    });
+
+    test('the two exercises are labelled A1 and A2, the others not', () {
+      expect(supersetLabels(const <int>[5, 6], 7), <String?>[
+        null,
+        null,
+        null,
+        null,
+        null,
+        'A1',
+        'A2',
+      ]);
+      expect(supersetLabels(const <int>[], 3), <String?>[null, null, null]);
+    });
+
+    test('a session\'s labels come from the mark it holds', () {
+      final day1 = library.days.first;
+
+      expect(
+        _sessionOf(day1.exercises, superset: day1.superset).supersetLabels,
+        <String?>[null, null, null, null, null, 'A1', 'A2'],
+      );
+      // A session with no mark has no label, whatever the program says
+      // for its day: this is every session started before the mark was
+      // stored.
+      final plain = _sessionOf(day1.exercises).supersetLabels;
+      expect(plain, hasLength(7));
+      expect(plain, everyElement(isNull));
+    });
+
+    test('a mark that does not fit the session\'s exercises gives no '
+        'label at all', () {
+      final day1 = library.days.first;
+      for (final mark in <List<int>>[
+        <int>[6, 7],
+        <int>[5],
+        <int>[4, 6],
+        <int>[6, 5],
+        <int>[-1, 0],
+      ]) {
+        expect(
+          _sessionOf(day1.exercises, superset: mark).supersetLabels,
+          everyElement(isNull),
+          reason: '$mark',
+        );
+      }
+      // The session's own list decides, not the program's: a session with
+      // fewer exercises than the mark reaches has no label.
+      expect(
+        _sessionOf(
+          day1.exercises.sublist(0, 6),
+          superset: <int>[5, 6],
+        ).supersetLabels,
+        everyElement(isNull),
+      );
+    });
+
+    test('in the bundle the mark and the prescriptions name the same '
+        'places', () {
+      // The page draws from the mark; the rest timer's rule reads the
+      // prescription's words. In the bundle the two must not disagree.
+      final words = RegExp(r'^\s*Superset\s+([A-Z]\d+):', caseSensitive: false);
+      for (final day in library.days) {
+        // And the same label at each place: "A1" where the words say
+        // A1, "A2" where they say A2.
+        expect(supersetLabels(day.superset, day.exercises.length), <String?>[
+          for (final exercise in day.exercises)
+            words.firstMatch(exercise.prescription)?.group(1)?.toUpperCase(),
+        ], reason: 'plan day ${day.day}');
+        expect(
+          <int>[
+            for (var i = 0; i < day.exercises.length; i++)
+              if (words.hasMatch(day.exercises[i].prescription)) i,
+          ],
+          day.superset,
+          reason: 'plan day ${day.day}',
+        );
+      }
+    });
+  });
 
   group('the bundled workout files are the repository\'s own', () {
     test('the program is the Forged list of seed/workouts.json', () {

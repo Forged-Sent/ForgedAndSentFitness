@@ -33,7 +33,7 @@ dart run build_runner build
 
 ### Changing a table means a new schema version
 
-The database is at schema version 3. A member's file may be at any earlier version, so every change to a table is a migration, and it is tested. The schema of each version is frozen in `drift_schemas/`. After changing a table:
+The database is at schema version 4. A member's file may be at any earlier version, so every change to a table is a migration, and it is tested. The schema of each version is frozen in `drift_schemas/`. After changing a table:
 
 1. Raise `schemaVersion` in `lib/src/storage/app_database.dart` and add a step to `_upgradeSteps` there.
 2. Regenerate, in this order:
@@ -126,7 +126,7 @@ It passed on 2026-11-22 on `FS_S1_Restart_API_36`, a Sunday, with the clock move
 
 ## The upgrade test
 
-Three files prove that this build can be installed over the one before it: a database at schema version 2 (the day's boxes and the journal) becomes version 3 (the workout tables) with nothing lost. Part 1 runs from a checkout of the older build, so it is copied there first; it uses only what both builds have.
+Three files prove that this build can be installed over the one before it: a database at schema version 2 (the day's boxes and the journal) becomes this build's version, 4 (the workout tables, and the superset mark a session keeps), with nothing lost. Part 1 runs from a checkout of the older build, so it is copied there first; it uses only what both builds have.
 
 ```sh
 # in a checkout of the older build (main before S3), after copying
@@ -137,13 +137,26 @@ flutter test integration_test/upgrade_2_after_install_test.dart -d <device id> -
 flutter test integration_test/upgrade_3_after_relaunch_test.dart -d <device id>
 ```
 
-Part 1 writes two journal entries, one under the reading and one from the journal, and completes the day's devotional. Part 2 is this build installed over that one: it expects the box checked and both entries, opens Train, starts today's workout through the prayer and types two sets. Part 3 is a new process: the same, and the workout still in progress with its two sets.
+Part 1 writes two journal entries, one under the reading and one from the journal, and completes the day's devotional. Part 2 is this build installed over that one: it expects the box checked and both entries, opens Train, starts today's workout through the prayer and types two sets. Part 3 is a new process: the same, and the workout still in progress with its two sets. Parts 2 and 3 also check that the workout this build started keeps its day's superset mark in the file and shows its two exercises as one group.
 
 - **Start with the app not installed,** and run all three on the same calendar day.
 - **Run it only on an emulator or simulator, or on a device whose app data may be lost.** The last command ends by uninstalling the app.
 - It uses the phone's own clock, because the completed day is today's. Run it on a day with a workout to start (Monday, Wednesday or Friday on the plan every member gets): part 2 fails on any other day, because it could not write to the new tables.
 
 It passed on 2026-11-20 on `FS_S1_Restart_API_36` (Android 16, API 36), a Friday. The database file was copied off the emulator before and after: `user_version` 2 with two journal entries and one completed day, then 3 with the same rows and the workout tables and indexes. It has not run on a phone or on iOS, and no CI lane runs it.
+
+## The upgrade from the S3 build
+
+One more file proves the step from schema version 3 to version 4 on a device: this build installed over the build before a session kept its superset mark, with a workout in progress.
+
+```sh
+# in a checkout of the S3 build (main at pull request #85)
+flutter test integration_test/workout_restart_1_start_test.dart -d <device id> --no-uninstall
+# in this checkout
+flutter test integration_test/upgrade_from_s3_after_install_test.dart -d <device id>
+```
+
+The first is the workout restart test's first half as the S3 build has it: it starts today's workout and logs two sets. The second starts this build on the same file: the workout is still there with its two sets, its sixth and seventh exercises are not drawn as a group (the update gives a session no mark it was not started with), and it can be logged and finished. Both move their clock to the next lifting day. Start with the app not installed; it ends by uninstalling the app.
 
 ## Where each of P07's acceptance items is tested
 

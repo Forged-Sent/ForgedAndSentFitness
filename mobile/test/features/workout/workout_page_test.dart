@@ -939,6 +939,187 @@ void main() {
     });
   });
 
+  group('a superset is drawn as one group', () {
+    final group = find.byKey(const ValueKey<String>('fs-superset-group'));
+    Finder inGroup(Finder what) => find.descendant(of: group, matching: what);
+    final a1 = find.byKey(const ValueKey<String>('fs-superset-label-A1'));
+    final a2 = find.byKey(const ValueKey<String>('fs-superset-label-A2'));
+
+    testWidgets('before the workout is started: the two exercises stand in '
+        'one group, labelled A1 and A2', (tester) async {
+      await pumpApp(tester, clock: TestClock(liftingEvening));
+      await openTodaysWorkout(tester);
+
+      await showOnWorkoutPage(tester, group);
+      expect(group, findsOneWidget);
+      expect(inGroup(find.text('SUPERSET')), findsOneWidget);
+      // Monday, November 9: the curl and the triceps extension.
+      expect(inGroup(find.text('Cable Curl')), findsOneWidget);
+      expect(
+        inGroup(find.text('Cable Overhead Triceps Extension')),
+        findsOneWidget,
+      );
+      expect(inGroup(a1), findsOneWidget);
+      expect(inGroup(a2), findsOneWidget);
+      expect(_text(tester, a1), 'A1');
+      expect(_text(tester, a2), 'A2');
+      // A1 stands above A2, and no other exercise is in the group or
+      // carries a label.
+      expect(tester.getTopLeft(a1).dy, lessThan(tester.getTopLeft(a2).dy));
+      expect(inGroup(find.text('Cable Face Pull')), findsNothing);
+      expect(a1, findsOneWidget);
+      expect(a2, findsOneWidget);
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('during the workout: the same group, with its set rows, '
+        'and the rest timer rules as before', (tester) async {
+      final app = await pumpApp(tester, clock: TestClock(liftingEvening));
+      await openTodaysWorkout(tester);
+      await startWorkout(tester);
+
+      await showOnWorkoutPage(tester, group);
+      expect(group, findsOneWidget);
+      expect(inGroup(find.text('Cable Curl')), findsOneWidget);
+      expect(
+        inGroup(find.text('Cable Overhead Triceps Extension')),
+        findsOneWidget,
+      );
+      await showOnWorkoutPage(tester, repsField(5, 0));
+      expect(inGroup(repsField(5, 0)), findsOneWidget);
+      await showOnWorkoutPage(tester, repsField(6, 0));
+      expect(inGroup(repsField(6, 0)), findsOneWidget);
+      expect(inGroup(repsField(4, 0)), findsNothing);
+      // The first half still has no timer and the second still has one.
+      expect(_rest('go', 5), findsNothing);
+      await showOnWorkoutPage(tester, _rest('go', 6));
+      expect(inGroup(_rest('go', 6)), findsOneWidget);
+
+      // The mark was copied into the session when it was started, and is
+      // what the group is drawn from.
+      final session = (await app.savedSession(tester, _monday))!;
+      expect(session.exercises, hasLength(7));
+      expect(session.exercises[5].name, 'Cable Curl');
+      expect(session.superset, <int>[5, 6]);
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('a screen reader hears the group and each label', (
+      tester,
+    ) async {
+      await pumpApp(tester, clock: TestClock(liftingEvening));
+      await openTodaysWorkout(tester);
+      await showOnWorkoutPage(tester, group);
+
+      expect(
+        find.bySemanticsLabel(
+          'Superset of 2 exercises, done one after the other',
+        ),
+        findsOneWidget,
+      );
+      await showOnWorkoutPage(tester, a1);
+      expect(tester.getSemantics(a1).label, contains('Superset A1'));
+      await showOnWorkoutPage(tester, a2);
+      expect(tester.getSemantics(a2).label, contains('Superset A2'));
+    });
+
+    testWidgets('a day with no superset has no group', (tester) async {
+      // Tuesday, November 10: a recovery day.
+      await pumpApp(tester);
+      await openTodaysWorkout(tester);
+      expect(find.byType(WorkoutPage), findsOneWidget);
+      expect(group, findsNothing);
+
+      await startWorkout(tester);
+      await tester.drag(workoutScrollable, const Offset(0, -2000));
+      await tester.pumpAndSettle();
+      expect(group, findsNothing);
+      expect(find.text('SUPERSET'), findsNothing);
+    });
+
+    testWidgets('the finished workout\'s summary is as it was: no group', (
+      tester,
+    ) async {
+      await pumpApp(tester, clock: TestClock(liftingEvening));
+      await openTodaysWorkout(tester);
+      await startWorkout(tester);
+      await typeNumber(tester, repsField(0, 0), '5');
+      await typeNumber(tester, weightField(0, 0), '135');
+
+      await _finish(tester);
+
+      expect(lockedSummary, findsOneWidget);
+      await tester.drag(workoutScrollable, const Offset(0, -3000));
+      await tester.pumpAndSettle();
+      expect(group, findsNothing);
+      expect(a1, findsNothing);
+    });
+
+    testWidgets('a session that holds no mark is drawn with no group, '
+        'though the program marks a superset for its day', (tester) async {
+      final app = await pumpApp(tester, clock: TestClock(liftingEvening));
+      // Today's workout as a build before the mark was stored started it:
+      // the program's own seven exercises for plan day 1, and no mark.
+      final day1 = library.days.first;
+      expect(day1.superset, <int>[5, 6]);
+      await tester.runAsync(
+        () => app.store.workouts.startSession(
+          newSession(
+            'before',
+            liftingEvening,
+            owner: app.ownerId,
+            exercises: <SessionExercise>[
+              for (var i = 0; i < day1.exercises.length; i++)
+                exercise(
+                  'b$i',
+                  position: i,
+                  movementId: day1.exercises[i].movementId,
+                  prescription: day1.exercises[i].prescription,
+                ),
+            ],
+          ),
+        ),
+      );
+      await openTodaysWorkout(tester);
+
+      await showOnWorkoutPage(tester, repsField(6, 0));
+      expect(group, findsNothing);
+      expect(a1, findsNothing);
+      // The session is not given a mark from the plan either.
+      expect((await app.savedSession(tester, _monday))!.superset, isEmpty);
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('a session keeps its group if the mark it holds is not the '
+        'one the program gives its day', (tester) async {
+      final app = await pumpApp(tester, clock: TestClock(liftingEvening));
+      // A session that holds a mark of its own, at its first two
+      // exercises: it is drawn from that, and the program is not asked.
+      await tester.runAsync(
+        () => app.store.workouts.startSession(
+          newSession(
+            'own',
+            liftingEvening,
+            owner: app.ownerId,
+            superset: <int>[0, 1],
+            exercises: <SessionExercise>[
+              exercise('o0', position: 0, movementId: 'Barbell Curl'),
+              exercise('o1', position: 1, movementId: 'Skull Crusher'),
+              exercise('o2', position: 2, movementId: 'Back Squat'),
+            ],
+          ),
+        ),
+      );
+      await openTodaysWorkout(tester);
+
+      await showOnWorkoutPage(tester, group);
+      expect(inGroup(find.text('Barbell Curl')), findsOneWidget);
+      expect(inGroup(find.text('Skull Crusher')), findsOneWidget);
+      expect(inGroup(find.text('Back Squat')), findsNothing);
+      expect(tester.takeException(), isNull);
+    });
+  });
+
   group('kill mid-set and relaunch (P07 acceptance 1, on the screen)', () {
     testWidgets('every entered set is there and the clock is right', (
       tester,

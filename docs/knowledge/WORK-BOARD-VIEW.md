@@ -114,6 +114,10 @@ update-by: edit WORK.md then run tooling/knowledge/work_board.py --write
 	**Note:** The maintainer: approve the addition to the [contract](../features/workout-logging/feature.md), which is marked there as proposed and added after his approval of FNS-004, and look at the two redrawn golden images (logging sets, dark and light), which are **not approved**. Built to his rules of 2026-11-22. While a workout is being finished, "Add set" and "Remove" take nothing, as the set boxes do. No change to the database: an added set is a row in the session's existing set table. Not on a phone
 	**Branch or PR:** branch `claude/s3-add-remove-set`
 	[Edit this row in WORK](WORK.md)
+- [x] **Supersets are shown grouped together**
+	**Note:** The maintainer: approve the addition to the [contract](../features/workout-logging/feature.md), marked there as proposed and added after his approval of FNS-004, and look at six golden images, which are **not approved**: two new ones of the group, and four redrawn because the group is in view (the workout before it is started, and the prayer over it). The pair comes from the day's `superset` mark in `seed/workouts.json`, not from the prescription's words. By his decision of 2026-11-23 the mark is copied into the session when it starts: one new column, **database schema version 4**, with tested migrations from versions 1, 2 and 3. A workout started before this build is left ungrouped. The rest timer rules and the summary are unchanged. Built on top of the add-a-set branch. Not on a phone
+	**Branch or PR:** branch `claude/s3-supersets-grouped`
+	[Edit this row in WORK](WORK.md)
 - [x] **Setup scripts and guides match the six-tab app**
 	**Note:** Physical run on a fresh Windows PC and a Mac: the Try it now walkthrough, Mobile Check my setup, and a second setup run in the same window
 	**Branch or PR:** branch `claude/bootstrap-test-readiness`
@@ -146,9 +150,6 @@ update-by: edit WORK.md then run tooling/knowledge/work_board.py --write
 
 ## Later
 
-- [ ] **Supersets are shown grouped together**
-	**Prompt:** No prompt yet. Asked for by the maintainer on 2026-11-21, after [#85](https://github.com/Forged-Sent/ForgedAndSentFitness/pull/85). `seed/workouts.json` already marks them: a day with a superset carries `"superset": [5, 6]`, the places of its two exercises counted from 0 (209 of the Forged program's 365 days), and the bundled copy keeps the mark. The app reads the prescription text and not the mark yet
-	[Edit this row in WORK](WORK.md)
 - [ ] **Reorder exercises within a workout**
 	**Prompt:** No prompt yet. Asked for by the maintainer on 2026-11-21, after [#85](https://github.com/Forged-Sent/ForgedAndSentFitness/pull/85). Needs a decision: whether the new order holds for that one session only, and whether the two exercises of a superset move as one
 	[Edit this row in WORK](WORK.md)

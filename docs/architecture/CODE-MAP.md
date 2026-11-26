@@ -1019,6 +1019,8 @@ flowchart LR
 - fn didUpdateWidget()
 - fn _sync()
 - class _ClockBar
+- fn marked()
+- class _SupersetGroup
 - class _ExerciseFrame
 - fn _setText()
 - class _LiveExercise
@@ -1097,6 +1099,7 @@ flowchart LR
 - class WorkoutSets
 - class AppDatabase
 - fn schemaVersion()
+- fn _hasColumn()
 - fn _exists()
 
 ### mobile/lib/src/storage/app_database.g.dart
@@ -1135,6 +1138,7 @@ flowchart LR
 - class Shape6
 - class Shape7
 - class Shape8
+- class Shape9
 
 ### mobile/lib/src/storage/native_storage.dart
 

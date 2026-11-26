@@ -51,6 +51,7 @@ NewSession newSession(
   DateTime at, {
   String owner = ownerA,
   List<SessionExercise>? exercises,
+  List<int> superset = const <int>[],
 }) => NewSession(
   id: id,
   ownerId: owner,
@@ -62,6 +63,7 @@ NewSession newSession(
   minutes: 45,
   startedAt: at,
   finishEventId: '$id-finish',
+  superset: superset,
   exercises:
       exercises ??
       <SessionExercise>[
@@ -179,6 +181,53 @@ void workoutRepositoryContract(Future<WorkoutStores> Function() create) {
         's1-squat-s2',
       ]);
       expect(stored.exercises.first.sets.every((s) => s.reps == null), isTrue);
+    });
+
+    test('a session keeps the superset mark it was started with, and one '
+        'started without a mark has none', () async {
+      await workouts.startSession(
+        newSession(
+          'marked',
+          DateTime(2026, 11, 12, 18, 10),
+          superset: <int>[0, 1],
+        ),
+      );
+      await workouts.startSession(
+        newSession('plain', DateTime(2026, 11, 13, 18, 10)),
+      );
+
+      final marked = (await session(nov12))!;
+      expect(marked.superset, <int>[0, 1]);
+      expect(marked.supersetLabels, <String?>['A1', 'A2']);
+      expect((await workouts.readSession(ownerA, nov12))!.superset, <int>[
+        0,
+        1,
+      ]);
+      final plain = (await session(nov13))!;
+      expect(plain.superset, isEmpty);
+      expect(plain.supersetLabels, <String?>[null, null]);
+    });
+
+    test('the mark stays with the session through every later change, and '
+        'when it is finished', () async {
+      await workouts.startSession(
+        newSession(
+          'marked',
+          DateTime(2026, 11, 12, 18, 10),
+          superset: <int>[0, 1],
+        ),
+      );
+
+      await workouts.setReps('marked-squat-s0', 5);
+      await workouts.setWeight('marked-squat-s0', 135);
+      await workouts.addSet('marked-squat', setId: 'extra');
+      await workouts.setRest('marked-squat', baseSeconds: 105);
+      expect((await session(nov12))!.superset, <int>[0, 1]);
+
+      await workouts.finishSession('marked', DateTime(2026, 11, 12, 19));
+      final finished = (await session(nov12))!;
+      expect(finished.finished, isTrue);
+      expect(finished.superset, <int>[0, 1]);
     });
 
     test('a second start on the same day starts nothing new', () async {

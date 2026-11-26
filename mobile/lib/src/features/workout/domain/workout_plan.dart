@@ -201,6 +201,7 @@ class PlannedWorkout {
     required this.title,
     required this.minutes,
     required this.exercises,
+    this.superset = const <int>[],
   });
 
   /// The plan day, from 1.
@@ -219,7 +220,41 @@ class PlannedWorkout {
   final String title;
   final int minutes;
   final List<PlannedExercise> exercises;
+
+  /// The places in [exercises], counted from 0, of the exercises that are
+  /// done as one superset: the day's `superset` mark in
+  /// `seed/workouts.json`, as [readSupersetMark] accepts it. Empty on a
+  /// day with no superset.
+  final List<int> superset;
 }
+
+/// One plan day's superset mark as the app accepts it: [mark] itself if it
+/// is a list of two or more whole numbers that stand next to each other,
+/// in order, inside a list of [exerciseCount] exercises. Anything else is
+/// read as no superset: a mark the page cannot draw as one group is left
+/// out, not drawn wrong.
+List<int> readSupersetMark(Object? mark, int exerciseCount) {
+  if (mark is! List<dynamic> || mark.length < 2) return const <int>[];
+  final places = <int>[];
+  for (final entry in mark) {
+    if (entry is! int) return const <int>[];
+    places.add(entry);
+  }
+  if (places.first < 0 || places.last >= exerciseCount) return const <int>[];
+  for (var i = 1; i < places.length; i++) {
+    if (places[i] != places[i - 1] + 1) return const <int>[];
+  }
+  return List<int>.unmodifiable(places);
+}
+
+/// The label of each of [count] exercises on a day whose superset stands
+/// at the places [superset]: "A1" for its first exercise, "A2" for its
+/// second, and null for an exercise outside it. A day has one superset at
+/// most, so its letter is always A.
+List<String?> supersetLabels(List<int> superset, int count) => <String?>[
+  for (var i = 0; i < count; i++)
+    superset.contains(i) ? 'A${superset.indexOf(i) + 1}' : null,
+];
 
 /// What the plan holds for one date. The prototype's `workoutFor`.
 enum PlanDayKind {

@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:forged_and_sent/src/core/clock.dart';
 import 'package:forged_and_sent/src/design/fs_box_row.dart';
 import 'package:forged_and_sent/src/features/today/presentation/today_page.dart';
 import 'package:integration_test/integration_test.dart';
@@ -45,6 +46,12 @@ void main() {
       expect(shownIn(tester, repsField(0, set)), enteredSets[set].$1);
       expect(shownIn(tester, weightField(0, set)), enteredSets[set].$2);
     }
+    // And its superset mark, at the same two exercises, with the group
+    // drawn from it.
+    await expectSupersetOf(
+      tester,
+      (await storedSession(tester, const SystemClock()))!,
+    );
     debugPrint('UPGRADE TEST: the workout in progress kept its two sets.');
   });
 }
