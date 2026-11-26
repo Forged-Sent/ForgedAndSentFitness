@@ -167,6 +167,38 @@ The app bundles the Forged program and the movement names as copies of `seed/` f
 
 Not done in this step: the challenge point values, which differed and are scoring content in a review-protected file that S3 does not read; and generating the prototype's embedded copy from `seed/`, which needed a tool and P07 allows none. Both were done afterwards, in [#76](https://github.com/Forged-Sent/ForgedAndSentFitness/pull/76) (decision L11): the copy inside `index.html` is now generated from `seed/` and checked in CI.
 
+## Proposed addition, written after the approval: add or remove a set
+
+**This section is not part of what the maintainer approved on 2026-11-22.** It was added afterwards, with the change that builds it, at his request of 2026-11-21 and to his rules of 2026-11-22. It is **proposed** until he approves it; the rest of this page stands as approved.
+
+**What he can do**
+
+- **Add a set.** Under the rows of an exercise whose sets are counted there is "Add set". A tap adds one row at the end with the same target as the set before it. An exercise takes twelve rows at most, the limit a prescription already has; at twelve the button is gone. An exercise that is only marked done ("Done?") has no button.
+- **Remove a set he added, while it is empty.** A row he added shows "Remove" under it for as long as nothing is entered in it. Once anything is typed in the row, reps or a weight, also a zero, the button is gone: he clears the row first. The rows after a removed row move up by one.
+- **A row from the plan is never removed.** Leaving it empty already means it is not counted.
+- **Nothing changes in a finished workout.** The summary has no buttons, and the store refuses both changes for a finished session. An empty row he added and left is kept as it stood, and is not counted.
+- **"Last time" still lines up by position.** An added set is found the next time beside the set in the same place, once he adds a row there.
+
+**How it is built**
+
+- **No change to the database.** A set he adds is one more row in the session's existing set table; removing one deletes that row and renumbers the rows after it, in one transaction. The schema is still version 3.
+- **Which rows are his.** A session keeps each exercise's prescription as it was when the session was started, and its rows are numbered from 0 with no gaps. The rows the prescription asks for are the plan's; a row after them is one he added (`plannedSetCount` in `prescription.dart`). Nothing new is stored to tell them apart.
+- **The store decides, not the screen.** The store adds nothing past twelve rows and removes a row only if, as it holds it at that moment, the row is one he added, nothing is entered in it and the session is not finished. Both changes take their turn in the session's write queue behind what he typed before. So "Remove" tapped a moment after typing in that row removes nothing: the typing is stored first.
+- **What the store cannot know, the page holds back** (added after the Codex review of this change). From the tap on "Remove" until the row is gone, the row is drawn faded and takes no tap, no keyboard and no screen-reader action: what he typed into it then would go to a set that no longer exists and be lost without a word. And "Remove" is not offered for a row with something he typed that could not be stored, nor is the removal sent if such a failure arrives after the tap: the store would see an empty row and take away the place for it. The row stays for him to type in again.
+- **An id in use is not added twice.** Asking twice to add a set with the same id adds one row, in both stores. The id of a row that was removed is not remembered: the app makes a new id for every tap on "Add set" and never sends one again, so nothing asks for a removed row back. Remembering removed ids would need something new stored, and is not built.
+- **While the workout is being finished, neither button takes a tap** (added when this change was brought up to `main`, which by then closed the set boxes from the tap on Finish). "Add set" and "Remove" are closed with the boxes, until Finish fails or is given up, or the summary takes their place. A row change made in that time would take its turn behind the finish; if the finish then failed, it would be stored though he was told nothing.
+- **If it cannot be stored** the page says "That did not save. Try again." That does not hold Finish up, because nothing he entered is missing.
+
+**Limits, stated plainly**
+
+- Which rows are the plan's is read from the stored prescription text each time. If the way a prescription is read ever changes, a workout still in progress from before could be read differently. A finished workout is not affected: nothing in it can be added or removed.
+- An added set does not change the prescription line shown above the rows ("3 x 5" stays "3 x 5"), the rest timer, or the summary's layout. The summary lists an added set he logged like any other.
+- Nothing marks an added row as added on the screen, other than its "Remove" while it is empty.
+
+**Tests** (each failed before the change it belongs to): twelve rules run against both stores in `workout_repository_contract.dart`; add, remove, close and reopen on a real SQLite file in `drift_workout_repository_test.dart`; fifteen widget tests in `workout_page_test.dart`, among them "Remove" tapped while typing is still on its way to the store, typing after the tap, typing that failed to be stored, both buttons tapped while Finish is being saved, and a row that keeps the keyboard when the Remove above it goes; `plannedSetCount` in `prescription_test.dart`. On the Android emulator, 2026-11-22: `integration_test/workout_sets_restart_1_add_test.dart` and `_2_verify_test.dart` (add two sets, log one, remove the empty one, kill, relaunch, find them as left, clear and remove), and the workout restart pair again on this build. Two golden images redrawn and **not approved**: `workout_live_dark.png` and `workout_live_light.png` now show a fourth, added row with its "Remove", and "Add set".
+
+**Not verified:** a phone; iOS beyond CI's simulator build; the two new buttons with a screen reader on a device. One Codex review was run on this change (two High, one Medium), followed by one fix round; the fix round itself has not been reviewed.
+
 ## Boundaries and evidence
 
 - **Source:** `mobile/lib/src/features/workout/` (domain, data, presentation); `mobile/lib/src/storage/` (tables, migration steps); `mobile/drift_schemas/` (the frozen schema of each version); five shared widgets and text roles under `mobile/lib/src/design/`; `mobile/assets/content/` (the program, the movement names, the prayer).

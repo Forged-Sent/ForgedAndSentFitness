@@ -144,6 +144,43 @@ void main() {
       expect((await relaunched.workouts.watchPlan(owner).first)!.start, nov9);
     });
 
+    test('add two sets, remove one, close the database, reopen: the rows '
+        'are as he left them', () async {
+      final folder = await temporaryFolder();
+      final first = await openLocalStoreIn(folder, background: false);
+      final owner = first.ownerId;
+      await first.workouts.startSession(
+        newSession('s1', DateTime(2026, 11, 12, 18, 10), owner: owner),
+      );
+      await first.workouts.addSet('s1-squat', setId: 'extra-1');
+      await first.workouts.addSet('s1-squat', setId: 'extra-2');
+      await first.workouts.setReps('extra-2', 6);
+      await first.workouts.setWeight('extra-2', 100);
+      await first.workouts.removeSet('extra-1');
+      await first.close();
+
+      final reopened = await openLocalStoreIn(folder, background: false);
+      addTearDown(reopened.close);
+
+      final squat = (await reopened.workouts.watchSession(owner, nov12).first)!
+          .exercises
+          .first;
+      expect(
+        squat.sets.map((s) => (s.id, s.position, s.reps, s.weightLb)),
+        <(String, int, int?, double?)>[
+          ('s1-squat-s0', 0, null, null),
+          ('s1-squat-s1', 1, null, null),
+          ('s1-squat-s2', 2, null, null),
+          ('extra-2', 3, 6, 100),
+        ],
+      );
+      // The reopened store still knows which row he added.
+      expect(await reopened.workouts.removeSet('s1-squat-s2'), isFalse);
+      await reopened.workouts.setReps('extra-2', null);
+      await reopened.workouts.setWeight('extra-2', null);
+      expect(await reopened.workouts.removeSet('extra-2'), isTrue);
+    });
+
     test('finish, close the database, reopen: finished, and the Workout '
         'box is checked', () async {
       final folder = await temporaryFolder();
