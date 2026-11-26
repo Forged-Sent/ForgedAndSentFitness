@@ -177,6 +177,86 @@ class MemoryWorkoutRepository implements WorkoutRepository {
   );
 
   @override
+  Future<bool> addSet(String exerciseId, {required String setId}) =>
+      _inTurn(() async {
+        // An id is a set's only key: one already in use is not used again.
+        final taken = _sessions.any(
+          (s) => s.exercises.any((e) => e.sets.any((set) => set.id == setId)),
+        );
+        if (taken) return false;
+        for (var i = 0; i < _sessions.length; i++) {
+          final session = _sessions[i];
+          // A finished session is locked.
+          if (session.finished) continue;
+          final found = session.exercises.where((e) => e.id == exerciseId);
+          if (found.isEmpty) continue;
+          final exercise = found.first;
+          if (!exercise.canAddSet) return false;
+          final last = exercise.sets.last;
+          _replaceSets(i, exerciseId, <SessionSet>[
+            ...exercise.sets,
+            SessionSet(
+              id: setId,
+              position: last.position + 1,
+              target: last.target,
+            ),
+          ]);
+          return true;
+        }
+        return false;
+      });
+
+  @override
+  Future<bool> removeSet(String setId) => _inTurn(() async {
+    for (var i = 0; i < _sessions.length; i++) {
+      final session = _sessions[i];
+      // A finished session is locked.
+      if (session.finished) continue;
+      for (final exercise in session.exercises) {
+        final found = exercise.sets.where((s) => s.id == setId);
+        if (found.isEmpty) continue;
+        final set = found.first;
+        if (!exercise.canRemove(set)) return false;
+        _replaceSets(i, exercise.id, <SessionSet>[
+          for (final other in exercise.sets)
+            if (other.id != setId)
+              // The rows after it move up.
+              other.position > set.position
+                  ? SessionSet(
+                      id: other.id,
+                      position: other.position - 1,
+                      target: other.target,
+                      reps: other.reps,
+                      weightLb: other.weightLb,
+                      ticked: other.ticked,
+                    )
+                  : other,
+        ]);
+        return true;
+      }
+    }
+    return false;
+  });
+
+  /// Gives one exercise of the session at [index] the rows [sets].
+  void _replaceSets(int index, String exerciseId, List<SessionSet> sets) {
+    final session = _sessions[index];
+    _sessions[index] = _withExercises(session, <SessionExercise>[
+      for (final exercise in session.exercises)
+        exercise.id == exerciseId
+            ? _copyExercise(
+                exercise,
+                restBaseSeconds: exercise.restBaseSeconds,
+                restEndsAtUtc: exercise.restEndsAtUtc,
+                restPausedSeconds: exercise.restPausedSeconds,
+                sets: sets,
+              )
+            : exercise,
+    ]);
+    _changes.add(null);
+  }
+
+  @override
   Future<void> setRest(
     String exerciseId, {
     required int baseSeconds,

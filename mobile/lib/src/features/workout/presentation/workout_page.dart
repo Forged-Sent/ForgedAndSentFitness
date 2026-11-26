@@ -41,11 +41,21 @@ String _weightChange(SessionSet set) => '${_setChange}weight:${set.id}';
 String _tickChange(SessionSet set) => '${_setChange}tick:${set.id}';
 String _restChange(SessionExercise exercise) => 'rest:${exercise.id}';
 
+/// Adding a set to an exercise, or removing one he added. Not a change to
+/// what a set holds: nothing he entered is lost if it fails, so Finish does
+/// not wait for it.
+String _rowsChange(SessionExercise exercise) => 'rows:${exercise.id}';
+
 /// How the name of every change to what a set holds begins: its reps or
 /// seconds, its weight, its tick. These are what a finished workout keeps,
 /// so Finish waits for them; a rest timer's change is not one.
 const String _setChange = 'set:';
 bool _isSetChange(String change) => change.startsWith(_setChange);
+
+/// True if something he entered in [set] is among [unsaved]: it could not
+/// be stored and has not been stored since.
+bool _unsavedIn(Set<String> unsaved, SessionSet set) =>
+    unsaved.contains(_repsChange(set)) || unsaved.contains(_weightChange(set));
 
 /// The largest numbers a set accepts: the prototype's limits.
 const double _maxReps = 999;
@@ -84,6 +94,12 @@ class _WorkoutPageState extends ConsumerState<WorkoutPage> {
 
   /// The sets the finish check pointed at, outlined until they are fixed.
   Set<String> _needsFixing = const <String>{};
+
+  /// The rows he has tapped Remove on, by set id, from the tap until the
+  /// row is gone or the answer is that it stays. Such a row takes no
+  /// typing: what he typed into it would go to a set that no longer
+  /// exists, and be lost without a word.
+  final Set<String> _removing = <String>{};
 
   /// True from the tap on Finish until Finish fails or is given up, or
   /// the summary takes the place of the set rows. While it is true the
@@ -154,6 +170,43 @@ class _WorkoutPageState extends ConsumerState<WorkoutPage> {
       await answered;
     } while (!identical(answered, _answered));
     return !_unsaved.any(_isSetChange);
+  }
+
+  /// Removes a row he added. See [_removing].
+  Future<void> _removeSet(SessionExercise exercise, SessionSet set) async {
+    if (_removing.contains(set.id)) return;
+    // Every box goes back to showing what is stored: the rows after this
+    // one move up.
+    FocusManager.instance.primaryFocus?.unfocus();
+    setState(() => _removing.add(set.id));
+
+    // What he typed in the row a moment ago may still be on its way to the
+    // store, and may yet fail. The store would then hold an empty row and
+    // remove it, and with it the place for what he typed. So the answers
+    // come first.
+    Future<void> answered;
+    do {
+      answered = _answered;
+      await answered;
+    } while (!identical(answered, _answered));
+    if (!mounted) return;
+    if (_unsavedIn(_unsaved, set)) {
+      setState(() => _removing.remove(set.id));
+      return;
+    }
+
+    final removal = _model.removeSet(set.id);
+    _track(
+      _rowsChange(exercise),
+      removal.then((SetRemoval outcome) => outcome != SetRemoval.failed),
+    );
+    final outcome = await removal;
+    if (!mounted) return;
+    // A removed row leaves the page when the page is next redrawn from
+    // the store; until then it stays as it is, taking no typing.
+    if (outcome != SetRemoval.removed) {
+      setState(() => _removing.remove(set.id));
+    }
   }
 
   Future<void> _start() async {
@@ -453,6 +506,9 @@ class _WorkoutPageState extends ConsumerState<WorkoutPage> {
                     exercise: session.exercises[i],
                     lastTime: view.lastTimes[session.exercises[i].movementId],
                     needsFixing: _needsFixing,
+                    removing: _removing,
+                    unsaved: _unsaved,
+                    onRemove: _removeSet,
                     closed: _boxesClosed(session),
                     model: _model,
                     track: _track,
@@ -679,6 +735,9 @@ class _LiveExercise extends StatelessWidget {
     required this.exercise,
     required this.lastTime,
     required this.needsFixing,
+    required this.removing,
+    required this.unsaved,
+    required this.onRemove,
     required this.closed,
     required this.model,
     required this.track,
@@ -694,14 +753,32 @@ class _LiveExercise extends StatelessWidget {
 
   final Set<String> needsFixing;
 
-  /// True while the workout is being finished: the set boxes and the
-  /// tick take nothing.
+  /// The rows being removed, by set id: they take no typing.
+  final Set<String> removing;
+
+  /// The changes that could not be stored, as the page names them.
+  final Set<String> unsaved;
+
+  /// Called with a row he tapped Remove on.
+  final void Function(SessionExercise exercise, SessionSet set) onRemove;
+
+  /// True while the workout is being finished: the set boxes, the tick,
+  /// "Add set" and "Remove" take nothing.
   final bool closed;
 
   final WorkoutViewModel model;
 
   /// Follows one write, named by what it changes.
   final void Function(String change, Future<bool> write) track;
+
+  /// Whether Remove is offered for [set]: a row he added, with nothing
+  /// entered in it as the store holds it, nothing he typed in it still
+  /// unsaved, and not being removed already. The store checks the first
+  /// two again when its turn comes.
+  bool _offersRemove(SessionSet set) =>
+      exercise.canRemove(set) &&
+      !removing.contains(set.id) &&
+      !_unsavedIn(unsaved, set);
 
   @override
   Widget build(BuildContext context) {
@@ -740,32 +817,75 @@ class _LiveExercise extends StatelessWidget {
             ),
           )
         else ...<Widget>[
-          for (var i = 0; i < exercise.sets.length; i++)
+          for (var i = 0; i < exercise.sets.length; i++) ...<Widget>[
+            // Keyed by the set, as the Remove under it is: a row then
+            // keeps its boxes, and the keyboard he has open in one,
+            // when a Remove above it comes or goes.
             _Closed(
+              key: ValueKey<String>('fs-set-row-${exercise.sets[i].id}'),
               closed: closed,
-              child: _SetRow(
-                key: ValueKey<String>('fs-set-$index-$i'),
-                exerciseIndex: index,
-                setIndex: i,
-                exercise: exercise,
-                set: exercise.sets[i],
-                previous: last?.at(exercise.sets[i].position),
-                needsFixing: needsFixing.contains(exercise.sets[i].id),
-                onReps: (double? reps) => track(
-                  _repsChange(exercise.sets[i]),
-                  model.setReps(exercise.sets[i].id, reps?.round()),
-                ),
-                onWeight: (double? weight) => track(
-                  _weightChange(exercise.sets[i]),
-                  model.setWeight(exercise.sets[i].id, weight),
+              child: _BeingRemoved(
+                // A row on its way out is drawn faded, and takes no tap, no
+                // keyboard focus and no screen-reader action.
+                removing: removing.contains(exercise.sets[i].id),
+                child: _SetRow(
+                  key: ValueKey<String>('fs-set-$index-$i'),
+                  exerciseIndex: index,
+                  setIndex: i,
+                  exercise: exercise,
+                  set: exercise.sets[i],
+                  previous: last?.at(exercise.sets[i].position),
+                  needsFixing: needsFixing.contains(exercise.sets[i].id),
+                  onReps: (double? reps) => track(
+                    _repsChange(exercise.sets[i]),
+                    model.setReps(exercise.sets[i].id, reps?.round()),
+                  ),
+                  onWeight: (double? weight) => track(
+                    _weightChange(exercise.sets[i]),
+                    model.setWeight(exercise.sets[i].id, weight),
+                  ),
                 ),
               ),
             ),
+            if (_offersRemove(exercise.sets[i]))
+              _Closed(
+                key: ValueKey<String>('fs-set-remove-${exercise.sets[i].id}'),
+                closed: closed,
+                child: Align(
+                  alignment: Alignment.centerRight,
+                  child: Padding(
+                    padding: const EdgeInsets.only(top: 4),
+                    child: FsButton.mini(
+                      key: ValueKey<String>('fs-remove-set-$index-$i'),
+                      label: 'Remove',
+                      semanticLabel: 'Remove set ${i + 1}, which is empty',
+                      onPressed: () => onRemove(exercise, exercise.sets[i]),
+                    ),
+                  ),
+                ),
+              ),
+          ],
           const SizedBox(height: 6),
           Text(
             _targetLine(exercise),
             style: FsText.bodySmall.copyWith(color: colors.textMuted),
           ),
+          if (exercise.canAddSet) ...<Widget>[
+            const SizedBox(height: 8),
+            _Closed(
+              closed: closed,
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: FsButton.mini(
+                  key: ValueKey<String>('fs-add-set-$index'),
+                  label: 'Add set',
+                  semanticLabel: 'Add a set to ${exercise.name}',
+                  onPressed: () =>
+                      track(_rowsChange(exercise), model.addSet(exercise)),
+                ),
+              ),
+            ),
+          ],
         ],
         if (exercise.hasRestTimer)
           _RestBar(index: index, exercise: exercise, model: model, track: track)
@@ -794,11 +914,36 @@ class _LiveExercise extends StatelessWidget {
   }
 }
 
-/// A set row or a tick that takes nothing while [closed]: no tap, no
-/// keyboard, no screen-reader action. It is drawn as it is; the Finish
-/// button, which is what he tapped, shows that the page is busy.
+/// A set row from the tap on its Remove until it is gone: faded, and
+/// closed to taps, to the keyboard and to a screen reader. With
+/// [removing] false it is the row as it is.
+class _BeingRemoved extends StatelessWidget {
+  const _BeingRemoved({required this.removing, required this.child});
+
+  final bool removing;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return ExcludeFocus(
+      excluding: removing,
+      child: IgnorePointer(
+        ignoring: removing,
+        child: ExcludeSemantics(
+          excluding: removing,
+          child: Opacity(opacity: removing ? 0.4 : 1, child: child),
+        ),
+      ),
+    );
+  }
+}
+
+/// A set row, a tick, "Add set" or "Remove" that takes nothing while
+/// [closed]: no tap, no keyboard, no screen-reader action. It is drawn as
+/// it is; the Finish button, which is what he tapped, shows that the page
+/// is busy.
 class _Closed extends StatelessWidget {
-  const _Closed({required this.closed, required this.child});
+  const _Closed({super.key, required this.closed, required this.child});
 
   final bool closed;
   final Widget child;
