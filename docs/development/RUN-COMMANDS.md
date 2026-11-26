@@ -158,6 +158,115 @@ bash 'launchers/mac/more/Run app on iPhone simulator.command'
 
 **Expect:** the launcher boots a simulator and reports preview or emulator mode. It chooses emulator mode only if the three local Firebase ports are reachable. `q` stops Flutter. An iOS simulator build in CI is not proof this interactive journey ran on an iPhone.
 
+## Everyday simulator commands
+
+For the maintainer's Mac. Every command in this section was run there on 2026-11-25 and seen to work: Xcode 27.2, Flutter 3.47.8, one iPhone 17 simulator on iOS 27.2, `main` at `49104c9`. Anything that was not run, or that failed, is said so.
+
+### Once per Terminal window: pick the simulator
+
+```bash
+SIM=$(xcrun simctl list devices available | grep -m1 'iPhone 17 (' | grep -oE '[0-9A-F-]{36}')
+echo $SIM
+```
+
+**Expect:** one long id, such as `5F8C7907-4CAF-46AF-9288-79226AFA4E35`. Every command below uses `$SIM`. For another model, change `iPhone 17 (`; `xcrun simctl list devices available` shows what is installed.
+
+### Start, stop and restart the simulator
+
+```bash
+xcrun simctl boot $SIM                    # start
+xcrun simctl bootstatus $SIM -b           # wait until it has finished starting
+open /Applications/Xcode.app/Contents/Applications/DeviceHub.app   # show its window
+xcrun simctl list devices booted          # which simulators are running
+xcrun simctl shutdown $SIM                # stop
+xcrun simctl shutdown $SIM && xcrun simctl boot $SIM && xcrun simctl bootstatus $SIM -b   # restart
+```
+
+- The simulator runs without its window. Flutter can install to it and the tests pass either way.
+- Xcode 27 has no `Simulator.app`: `open -a Simulator` answers "Unable to find application named 'Simulator'". The window is `DeviceHub.app`.
+- `bootstatus` ended with "Data Migration Failed" on every start that day, and still finished without an error. The simulator was running each time and every test below passed afterwards. The cause was not looked into.
+- Stopping the simulator keeps the app and what it has saved. Removing the app (below) is what clears it.
+
+### Run the app
+
+From the repository folder, the launcher of section D does everything, including starting the simulator:
+
+```bash
+bash 'launchers/mac/more/Run app on iPhone simulator.command'
+```
+
+Or by hand, from `mobile/`, with the simulator started:
+
+```bash
+flutter pub get
+flutter run -d $SIM
+```
+
+**Expect:** "Launching lib/main.dart on iPhone 17 in debug mode", then the app on Today. In that Terminal, `r` reloads after a code change, `R` restarts the app, `q` quits it. This is **debug** mode, in preview: nothing is sent anywhere.
+
+**Profile mode does not run on a simulator.** `flutter run -d $SIM --profile` stops at once with "Profile mode is not supported by iPhone 17". Profile and release builds need a real iPhone: `flutter run -d <iPhone id> --profile`, NOT VERIFIED, because no iPhone has been connected to this Mac.
+
+To remove the app and everything it has saved on the simulator:
+
+```bash
+xcrun simctl uninstall $SIM com.forgedandsent.forgedAndSent
+```
+
+### Host tests (no simulator needed)
+
+From `mobile/`:
+
+```bash
+flutter pub get
+flutter analyze
+flutter test
+```
+
+**Expect:** "No issues found!", then "All tests passed!" (634 passed and 34 skipped that day, in about a minute).
+
+### Device tests on the simulator
+
+Each test is two or three files, run in order, one process each; why is in [mobile/README.md](../../mobile/README.md). From `mobile/`, with the simulator started. Start each set with the app removed, and run a whole set on the same day:
+
+```bash
+xcrun simctl uninstall $SIM com.forgedandsent.forgedAndSent
+```
+
+Devotional (S1): Amen survives a kill and relaunch.
+
+```bash
+flutter test integration_test/restart_1_complete_test.dart -d $SIM --no-uninstall
+flutter test integration_test/restart_2_verify_test.dart -d $SIM
+```
+
+Journal: an entry survives.
+
+```bash
+flutter test integration_test/journal_restart_1_write_test.dart -d $SIM --no-uninstall
+flutter test integration_test/journal_restart_2_verify_test.dart -d $SIM
+```
+
+Workout: a workout in progress survives and can be finished.
+
+```bash
+flutter test integration_test/workout_restart_1_start_test.dart -d $SIM --no-uninstall
+flutter test integration_test/workout_restart_2_finish_test.dart -d $SIM
+```
+
+Journal, changing and deleting an entry (three files):
+
+```bash
+flutter test integration_test/journal_edit_restart_1_change_test.dart -d $SIM --no-uninstall
+flutter test integration_test/journal_edit_restart_2_delete_test.dart -d $SIM --no-uninstall
+flutter test integration_test/journal_edit_restart_3_gone_test.dart -d $SIM
+```
+
+**Expect:** each file ends with "All tests passed!". The first file of a set takes a few minutes the first time, while Xcode builds the app; after that each file takes one to two minutes. The last file of each set removes the app from the simulator.
+
+- **The upgrade test** (`upgrade_1`, `upgrade_2`, `upgrade_3`) was not run on the simulator that day. NOT VERIFIED on iOS. Its steps are in [mobile/README.md](../../mobile/README.md).
+- **"Failed to copy plugin cloud_firestore ... rsync ... No such file or directory"** before any build starts: the folder `mobile/build/ios/SourcePackages` is missing, and the `rsync` from Homebrew will not create it. `mkdir -p build/ios/SourcePackages` from `mobile/`, then run the command again. Seen that day after `mobile/build` was deleted; the launcher makes the folder itself.
+- **Disk space.** The first iPhone build in a checkout or worktree puts about 2 GB into its `mobile/build`. That morning the Mac ran out of space during a build ("No space left on device"), and every test failed before it started. `df -h /System/Volumes/Data` shows what is free. `mobile/build` in a worktree that is no longer used can be deleted; the next build makes it again.
+
 ## E. Check a change
 
 **Flutter changes, from `mobile/`, Windows with `$fsFlutter` selected:**
