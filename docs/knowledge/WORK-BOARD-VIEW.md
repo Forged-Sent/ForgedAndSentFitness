@@ -19,6 +19,11 @@ update-by: edit WORK.md then run tooling/knowledge/work_board.py --write
 
 ## Waiting
 
+- [ ] **S4a Sign-in and his own data on his account**
+	**Waiting on:** Maintainer: read the [S4a contract](../features/sign-in-own-data-sync/requirements.md) and approve it or change it. It is proposed and nothing is built. Its sign-in parts stay proposed until you say the [sign-in design](../design/sign-in.md) is approved by you. It takes five defaults, O1 to O5. Your answers of 2026-11-19 and 2026-11-20 are in it: the question "Are these yours?" at sign-in, and the erase on the phone when he deletes his account. Its fourth review still asks for changes: three High findings and one Medium are listed on the requirements page as H1 to H4, each with a proposed fix, and are not fixed. H1 (keep a deletion receipt on the server, or accept a rare case where his file is left on the phone) and H3 (your rule that a declined signed-out profile is never offered again) are yours to decide. The pull request stays a draft until S4a starts. Then record on the Decisions page the answers you gave on 2026-11-19, and ask for a build prompt: P09 was written for the whole of S4
+	**Branch or PR:** branch `claude/s4a-contract`
+	**State in WORK:** Decision needed
+	[Edit this row in WORK](WORK.md)
 - [ ] **Hosted AI review gate (PR #48, [handoff](handoffs/flutter-ai-review-gate.md))**
 	**Waiting on:** It guards an app with almost no code yet. `ci-gate` stays required
 	**Unblocks when:** S4 adds sign-in, rules or scoring
@@ -73,6 +78,10 @@ update-by: edit WORK.md then run tooling/knowledge/work_board.py --write
 - [x] **Journal never loses typing**
 	**Note:** Run it on a phone. Both were review findings on S2 that the maintainer marked required before any pilot (2026-11-19). The second was reproduced first, in a widget test, on Today and on Walk. Tested on screen only, in widget tests on Windows; not on an emulator or a phone
 	**Branch or PR:** branch `claude/journal-never-loses-typing`
+	[Edit this row in WORK](WORK.md)
+- [x] **Say which unreplaced completion event wins**
+	**Note:** Maintainer: you chose R2 on 2026-11-19; write it on the Decisions page, which only you edit
+	**Branch or PR:** branch `claude/s4a-contract`
 	[Edit this row in WORK](WORK.md)
 - [x] **Lockfile-only pull requests pass the review check**
 	**Note:** None. Unblocks Dependabot [#66](https://github.com/Forged-Sent/ForgedAndSentFitness/pull/66). Without `--dry-run` such a change still gets no PASS and no review record, and `--verify` still fails
@@ -170,11 +179,8 @@ update-by: edit WORK.md then run tooling/knowledge/work_board.py --write
 - [ ] **Whether a lift needs a weight comes from `seed/`**
 	**Prompt:** No prompt yet. **Required before any pilot** (the maintainer, 2026-11-22). `seed/` is the one source (decision L11): the field is added there, and the bundled copy and the copy inside `index.html` follow by their scripts. A list of the movements where the name gives a doubtful answer was written up for him on 2026-11-22
 	[Edit this row in WORK](WORK.md)
-- [ ] **S4 Sign-in, groups, first board**
-	**Prompt:** [P08](../reviews/2026-11-10-prototype-to-flutter/prompts/P08-S4-contract-identity-groups-board.md), then [P09](../reviews/2026-11-10-prototype-to-flutter/prompts/P09-S4-implement-identity-groups-board.md)
-	[Edit this row in WORK](WORK.md)
-- [ ] **Say which unreplaced completion event wins**
-	**Prompt:** No prompt yet. Review finding (Codex, medium) on [07-ARCHITECTURE](../reviews/2026-11-10-prototype-to-flutter/07-ARCHITECTURE.md), section 5.8, and the full report. Do it before P08 runs
+- [ ] **S4b Groups, teams, scoring, first board**
+	**Prompt:** Starts after S4a is merged. The [stub](../features/groups-teams-board/requirements.md) holds the parked questions and the constraints; they are not asked before then. Prompts [P08](../reviews/2026-11-10-prototype-to-flutter/prompts/P08-S4-contract-identity-groups-board.md) and [P09](../reviews/2026-11-10-prototype-to-flutter/prompts/P09-S4-implement-identity-groups-board.md) were written for one S4 and are not rewritten yet
 	[Edit this row in WORK](WORK.md)
 - [ ] **Hero photograph's origin and licence**
 	**Prompt:** No prompt yet. Found in S0. **High now**, not only before distribution. Owner: the maintainer
@@ -237,7 +243,7 @@ update-by: edit WORK.md then run tooling/knowledge/work_board.py --write
 	**Prompt:** No prompt yet. Found in S3. Not blocking; do it after that branch has merged
 	[Edit this row in WORK](WORK.md)
 - [ ] **Local profile adopted at sign-in**
-	**Prompt:** Part of S4: [P08](../reviews/2026-11-10-prototype-to-flutter/prompts/P08-S4-contract-identity-groups-board.md), then [P09](../reviews/2026-11-10-prototype-to-flutter/prompts/P09-S4-implement-identity-groups-board.md)
+	**Prompt:** Part of S4a: the [contract](../features/sign-in-own-data-sync/requirements.md), under Adoption
 	[Edit this row in WORK](WORK.md)
 - [ ] **Dashboard lists branches whose GitHub branch was deleted**
 	**Prompt:** No prompt yet. Review finding (Codex, medium) on `tooling/knowledge/live_status.py`. Not blocking
