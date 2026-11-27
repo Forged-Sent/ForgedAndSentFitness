@@ -252,6 +252,13 @@ class WorkoutSessions extends Table {
   /// one completion.
   TextColumn get finishEventId => text()();
 
+  /// The places of the exercises that are done as one superset, counted
+  /// from 0 and joined by commas, for example `5,6`: the plan's mark for
+  /// the day, copied when the session was started. Null for a session
+  /// with no superset, and for every session started before this column
+  /// existed (schema version 4): those are drawn with no group.
+  TextColumn get supersetPlaces => text().nullable()();
+
   @override
   Set<Column<Object>> get primaryKey => {id};
 
@@ -343,6 +350,8 @@ class WorkoutSets extends Table {
 /// 1. The day's boxes and settings (build step S1).
 /// 2. The journal tables (build step S2).
 /// 3. Workout plans, sessions, exercises and sets (build step S3).
+/// 4. A session keeps its day's superset mark: one new column on the
+///    sessions table. Sessions already there keep it empty.
 ///
 /// Each version's schema is frozen in `drift_schemas/`, and the tests in
 /// `test/storage/` prove that a file of every earlier version opens in this
@@ -364,7 +373,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase(super.executor);
 
   @override
-  int get schemaVersion => 3;
+  int get schemaVersion => 4;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -388,7 +397,8 @@ class AppDatabase extends _$AppDatabase {
 /// frozen schema of the version it produces, not against the tables above,
 /// so a later change to a table cannot change an old step.
 final _upgradeSteps = migrationSteps(
-  // In both steps, a table or an index that is already there is left alone.
+  // In every step, a table, an index or a column that is already there is
+  // left alone.
   // The new version number is recorded after a step returns, so an update
   // that was cut off in between leaves what the step made in place under
   // the old number. Making it again would fail on every later launch.
@@ -423,7 +433,38 @@ final _upgradeSteps = migrationSteps(
       }
     }
   },
+  // The sessions already in the file get the new column empty: they were
+  // started without a mark and are not given one from the plan.
+  from3To4: (Migrator m, Schema4 schema) async {
+    final sessions = schema.workoutSessions;
+    if (!await _hasColumn(
+      m.database,
+      sessions.actualTableName,
+      sessions.supersetPlaces.name,
+    )) {
+      await m.addColumn(sessions, sessions.supersetPlaces);
+    }
+  },
 );
+
+/// Whether [table] in the database file already has a column of this
+/// [name].
+Future<bool> _hasColumn(
+  GeneratedDatabase database,
+  String table,
+  String name,
+) async {
+  final found = await database
+      .customSelect(
+        'SELECT 1 FROM pragma_table_info(?) WHERE name = ?',
+        variables: <Variable<Object>>[
+          Variable<String>(table),
+          Variable<String>(name),
+        ],
+      )
+      .get();
+  return found.isNotEmpty;
+}
 
 /// Whether the database file already holds a table or an index of this
 /// [name]. [type] is `table` or `index`.

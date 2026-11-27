@@ -124,6 +124,7 @@ class MemoryWorkoutRepository implements WorkoutRepository {
       startedAtUtc: session.startedAt.toUtc(),
       startUtcOffset: session.startedAt.timeZoneOffset,
       finishEventId: session.finishEventId,
+      superset: List<int>.unmodifiable(session.superset),
       exercises: List<SessionExercise>.unmodifiable(session.exercises),
     );
     _sessions.add(started);
@@ -324,6 +325,7 @@ class MemoryWorkoutRepository implements WorkoutRepository {
           finishedAtUtc: now.toUtc(),
           finishUtcOffset: now.timeZoneOffset,
           finishEventId: session.finishEventId,
+          superset: List<int>.unmodifiable(session.superset),
           exercises: List<SessionExercise>.unmodifiable(<SessionExercise>[
             // A rest timer left running stops with the workout.
             for (final exercise in session.exercises)
@@ -433,6 +435,7 @@ class MemoryWorkoutRepository implements WorkoutRepository {
     finishedAtUtc: session.finishedAtUtc,
     finishUtcOffset: session.finishUtcOffset,
     finishEventId: session.finishEventId,
+    superset: List<int>.unmodifiable(session.superset),
     exercises: List<SessionExercise>.unmodifiable(exercises),
   );
 

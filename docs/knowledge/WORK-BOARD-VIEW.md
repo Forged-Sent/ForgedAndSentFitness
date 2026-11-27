@@ -123,6 +123,14 @@ update-by: edit WORK.md then run tooling/knowledge/work_board.py --write
 	**Note:** The maintainer: approve the addition to the [contract](../features/workout-logging/feature.md), which is marked there as proposed and added after his approval of FNS-004, and look at the two redrawn golden images (logging sets, dark and light), which are **not approved**. Built to his rules of 2026-11-22. While a workout is being finished, "Add set" and "Remove" take nothing, as the set boxes do. No change to the database: an added set is a row in the session's existing set table. Not on a phone
 	**Branch or PR:** branch `claude/s3-add-remove-set`
 	[Edit this row in WORK](WORK.md)
+- [x] **Supersets are shown grouped together**
+	**Note:** The maintainer: approve the addition to the [contract](../features/workout-logging/feature.md), marked there as proposed and added after his approval of FNS-004, and look at six golden images, which are **not approved**: two new ones of the group, and four redrawn because the group is in view (the workout before it is started, and the prayer over it). The pair comes from the day's `superset` mark in `seed/workouts.json`, not from the prescription's words. By his decision of 2026-11-23 the mark is copied into the session when it starts: one new column, **database schema version 4**, with tested migrations from versions 1, 2 and 3. A workout started before this build is left ungrouped. The rest timer rules and the summary are unchanged. Built on top of the add-a-set branch. Not on a phone
+	**Branch or PR:** branch `claude/s3-supersets-grouped`
+	[Edit this row in WORK](WORK.md)
+- [x] **The upgrade device test runs on any day of the week**
+	**Note:** None for the maintainer beyond his review. Test code and documents only: nothing under `mobile/lib/` changed. On 2026-11-22, a Sunday, the test as it was failed in part 2 (no workout to start), and the changed test passed on the emulator without its date being touched. The older build has no way to be given a clock, so part 1 starts it as its `main()` does with the clock put in beside the store. His decision of 2026-11-21
+	**Branch or PR:** branch `claude/upgrade-test-any-day`
+	[Edit this row in WORK](WORK.md)
 - [x] **Setup scripts and guides match the six-tab app**
 	**Note:** Physical run on a fresh Windows PC and a Mac: the Try it now walkthrough, Mobile Check my setup, and a second setup run in the same window
 	**Branch or PR:** branch `claude/bootstrap-test-readiness`
@@ -155,17 +163,11 @@ update-by: edit WORK.md then run tooling/knowledge/work_board.py --write
 
 ## Later
 
-- [ ] **Supersets are shown grouped together**
-	**Prompt:** No prompt yet. Asked for by the maintainer on 2026-11-21, after [#85](https://github.com/Forged-Sent/ForgedAndSentFitness/pull/85). `seed/workouts.json` already marks them: a day with a superset carries `"superset": [5, 6]`, the places of its two exercises counted from 0 (209 of the Forged program's 365 days), and the bundled copy keeps the mark. The app reads the prescription text and not the mark yet
-	[Edit this row in WORK](WORK.md)
 - [ ] **Reorder exercises within a workout**
 	**Prompt:** No prompt yet. Asked for by the maintainer on 2026-11-21, after [#85](https://github.com/Forged-Sent/ForgedAndSentFitness/pull/85). Needs a decision: whether the new order holds for that one session only, and whether the two exercises of a superset move as one
 	[Edit this row in WORK](WORK.md)
 - [ ] **An optional or extra activity on a rest day**
 	**Prompt:** No prompt yet. Asked for by the maintainer on 2026-11-21, after [#85](https://github.com/Forged-Sent/ForgedAndSentFitness/pull/85). Needs a decision: what it is (the plan's optional fourth day, or any activity he names) and whether it checks a box on Today
-	[Edit this row in WORK](WORK.md)
-- [ ] **The upgrade device test runs on any day of the week**
-	**Prompt:** No prompt yet. Test-only. Decided by the maintainer on 2026-11-21: after [#85](https://github.com/Forged-Sent/ForgedAndSentFitness/pull/85) merges, not before
 	[Edit this row in WORK](WORK.md)
 - [ ] **The rest timer alerts at zero, also when the phone is locked**
 	**Prompt:** No prompt yet. **Required before any pilot** (the maintainer, 2026-11-22). Found in S3; this row was "The rest timer is heard". It needs the maintainer's decision first: a notification permission, and most likely a new dependency. The options were written up for him on 2026-11-22. Read `docs/knowledge/FLUTTER-PLATFORMS.md` first

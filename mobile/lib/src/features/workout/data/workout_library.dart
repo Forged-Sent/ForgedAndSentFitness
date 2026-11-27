@@ -47,6 +47,10 @@ class WorkoutLibrary {
           in (json.decode(workouts) as List<dynamic>)
               .cast<Map<String, dynamic>>())
         PlannedWorkout(
+          superset: readSupersetMark(
+            entry['superset'],
+            (entry['exercises'] as List<dynamic>).length,
+          ),
           day: (entry['day'] as num).toInt(),
           week: (entry['week'] as num).toInt(),
           templateDay: (entry['templateDay'] as num).toInt(),

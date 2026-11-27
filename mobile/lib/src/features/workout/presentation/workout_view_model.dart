@@ -105,10 +105,17 @@ final earlierOpenSessionProvider = StreamProvider<WorkoutSession?>((ref) {
 
 /// One exercise of a day that has no session yet: what the plan asks for.
 class PlannedLine {
-  const PlannedLine({required this.name, required this.prescription});
+  const PlannedLine({
+    required this.name,
+    required this.prescription,
+    this.supersetLabel,
+  });
 
   final String name;
   final String prescription;
+
+  /// "A1" or "A2" for an exercise of the day's superset, else null.
+  final String? supersetLabel;
 }
 
 /// Everything the workout page shows for one local day.
@@ -121,6 +128,7 @@ class WorkoutView {
     required this.session,
     required this.lastTimes,
     required this.durable,
+    this.supersetLabels = const <String?>[],
   });
 
   /// The day the page is for.
@@ -144,6 +152,11 @@ class WorkoutView {
 
   /// False where nothing is kept after the app closes (the web preview).
   final bool durable;
+
+  /// For each exercise of [session], "A1" or "A2" if it is one of the
+  /// session's superset, else null: [WorkoutSession.supersetLabels].
+  /// Empty when there is no session.
+  final List<String?> supersetLabels;
 
   /// A session can be started only on the day itself. The prototype's
   /// rule: the Start button shows for today only.
@@ -266,6 +279,12 @@ class WorkoutViewModel extends AsyncNotifier<WorkoutView> {
     final session = await ref.watch(sessionForDayProvider(day).future);
 
     final planDay = library.dayFor(plan, day);
+    final plannedLabels = planDay.isTrain
+        ? supersetLabels(
+            planDay.workout!.superset,
+            planDay.workout!.exercises.length,
+          )
+        : const <String?>[];
     if (session != null && session.id != _lastTimesSession) {
       // Looked up once per session, by movement id.
       _lastTimes = await store.workouts.lastTimes(
@@ -282,15 +301,21 @@ class WorkoutViewModel extends AsyncNotifier<WorkoutView> {
       planDay: planDay,
       planned: <PlannedLine>[
         if (planDay.isTrain)
-          for (final exercise in planDay.workout!.exercises)
+          for (var i = 0; i < planDay.workout!.exercises.length; i++)
             PlannedLine(
-              name: library.nameFor(exercise.movementId, plan.equipment),
-              prescription: exercise.prescription,
+              name: library.nameFor(
+                planDay.workout!.exercises[i].movementId,
+                plan.equipment,
+              ),
+              prescription: planDay.workout!.exercises[i].prescription,
+              supersetLabel: plannedLabels[i],
             ),
       ],
       session: session,
       lastTimes: session == null ? const <String, LastTime>{} : _lastTimes,
       durable: store.workouts.durable,
+      // From the mark the session holds, not from the program.
+      supersetLabels: session?.supersetLabels ?? const <String?>[],
     );
   }
 
@@ -376,6 +401,9 @@ class WorkoutViewModel extends AsyncNotifier<WorkoutView> {
           startedAt: now,
           finishEventId: newId(),
           exercises: exercises,
+          // The day's superset mark goes with the session, like the rest
+          // of what the plan prescribed.
+          superset: workout.superset,
         ),
       );
     } catch (_) {
