@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:forged_and_sent/src/core/clock.dart';
+import 'package:forged_and_sent/src/core/local_date.dart';
 import 'package:forged_and_sent/src/design/fs_box_row.dart';
 import 'package:forged_and_sent/src/features/today/presentation/today_page.dart';
 import 'package:forged_and_sent/src/features/journal/presentation/journal_view_model.dart';
@@ -23,7 +23,16 @@ void main() {
 
   testWidgets('installed over the older build: the journal and the completed '
       'day are still there, and Train works', (tester) async {
-    await startApp(tester);
+    final clock = await startAppOnLiftingDay(tester);
+    // The two clocks follow one rule, written twice: here, now, they give
+    // the same day. That says nothing about the day part 1 ran on. What
+    // shows part 1's day is this one is the box below: it is checked only
+    // if the older build completed the devotional on the day this build
+    // now shows.
+    expect(
+      LocalDate.of(UpgradeLiftingDayClock().now()),
+      LocalDate.of(clock.now()),
+    );
 
     // The completed day.
     await showDevotionalBox(tester);
@@ -50,9 +59,9 @@ void main() {
       startWorkoutButton,
       findsOneWidget,
       reason:
-          'Today has no workout to start. Run the upgrade test on a day '
-          'with one: Monday, Wednesday or Friday on the plan every member '
-          'gets.',
+          'The day the test moved the clock to has no workout to start. '
+          'It should be a Monday, Wednesday or Friday on the plan every '
+          'member gets.',
     );
     await tester.tap(startWorkoutButton);
     await tester.pumpAndSettle();
@@ -71,10 +80,7 @@ void main() {
 
     // Schema version 4: the workout this build started keeps its day's
     // superset mark in the file, and the group is drawn from it.
-    await expectSupersetOf(
-      tester,
-      (await storedSession(tester, const SystemClock()))!,
-    );
+    await expectSupersetOf(tester, (await storedSession(tester, clock))!);
     debugPrint('UPGRADE TEST: a workout was started and two sets were typed.');
   });
 }

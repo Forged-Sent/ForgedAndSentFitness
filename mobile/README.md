@@ -139,11 +139,11 @@ flutter test integration_test/upgrade_3_after_relaunch_test.dart -d <device id>
 
 Part 1 writes two journal entries, one under the reading and one from the journal, and completes the day's devotional. Part 2 is this build installed over that one: it expects the box checked and both entries, opens Train, starts today's workout through the prayer and types two sets. Part 3 is a new process: the same, and the workout still in progress with its two sets. Parts 2 and 3 also check that the workout this build started keeps its day's superset mark in the file and shows its two exercises as one group.
 
-- **Start with the app not installed,** and run all three on the same calendar day.
+- **Start with the app not installed,** and run all three on the same real day, not across midnight.
 - **Run it only on an emulator or simulator, or on a device whose app data may be lost.** The last command ends by uninstalling the app.
-- It uses the phone's own clock, because the completed day is today's. Run it on a day with a workout to start (Monday, Wednesday or Friday on the plan every member gets): part 2 fails on any other day, because it could not write to the new tables.
+- **It runs on any day of the week, with the device's date left alone.** Part 2 starts a workout, which needs a lifting day, so all three parts start the app with its clock moved forward by whole days to the next Monday, Wednesday or Friday, as the workout restart test does; on those days it is not moved. Parts 2 and 3 use the app's own `startApp(testClock:)`. The older build has no such door, so part 1 starts it the way its `main()` does, with the clock put in beside the store (`startOlderAppOnLiftingDay` in `upgrade_support.dart`).
 
-It passed on 2026-11-20 on `FS_S1_Restart_API_36` (Android 16, API 36), a Friday. The database file was copied off the emulator before and after: `user_version` 2 with two journal entries and one completed day, then 3 with the same rows and the workout tables and indexes. It has not run on a phone or on iOS, and no CI lane runs it.
+It passed on 2026-11-20 on `FS_S1_Restart_API_36` (Android 16, API 36), a Friday. The database file was copied off the emulator before and after: `user_version` 2 with two journal entries and one completed day, then 3 with the same rows and the workout tables and indexes. It has not run on a phone or on iOS, and no CI lane runs it. Until 2026-11-22 it used the phone's own clock and failed on a day with no workout; on that day, a Sunday, it failed so once more and then passed with its own clock moved to Monday, the emulator's date untouched.
 
 ## The upgrade from the S3 build
 

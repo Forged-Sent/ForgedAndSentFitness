@@ -1,6 +1,5 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:forged_and_sent/src/core/clock.dart';
 import 'package:forged_and_sent/src/design/fs_box_row.dart';
 import 'package:forged_and_sent/src/features/today/presentation/today_page.dart';
 import 'package:integration_test/integration_test.dart';
@@ -19,7 +18,7 @@ void main() {
 
   testWidgets('after a kill and relaunch: the journal, the completed day and '
       'the workout in progress are still there', (tester) async {
-    await startApp(tester);
+    final clock = await startAppOnLiftingDay(tester);
 
     await showDevotionalBox(tester);
     expect(devotionalChecked(tester), isTrue);
@@ -48,10 +47,7 @@ void main() {
     }
     // And its superset mark, at the same two exercises, with the group
     // drawn from it.
-    await expectSupersetOf(
-      tester,
-      (await storedSession(tester, const SystemClock()))!,
-    );
+    await expectSupersetOf(tester, (await storedSession(tester, clock))!);
     debugPrint('UPGRADE TEST: the workout in progress kept its two sets.');
   });
 }
