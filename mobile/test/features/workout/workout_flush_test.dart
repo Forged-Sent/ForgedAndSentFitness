@@ -57,8 +57,107 @@ class _NoPlan extends MemoryWorkoutRepository {
   ) => Future<WorkoutPlan>.error(StateError('The plan cannot be read.'));
 }
 
+/// A store whose plan can be read until the test says it is lost. The
+/// sessions it holds can still be read after that.
+class _PlanLost extends MemoryWorkoutRepository {
+  _PlanLost(super.days);
+
+  bool lost = false;
+
+  @override
+  Stream<WorkoutPlan?> watchPlan(String ownerId) => lost
+      ? Stream<WorkoutPlan?>.error(StateError('The plan cannot be read.'))
+      : super.watchPlan(ownerId);
+
+  @override
+  Future<WorkoutPlan> ensurePlan(
+    String ownerId,
+    WorkoutPlan Function() create,
+  ) => lost
+      ? Future<WorkoutPlan>.error(StateError('The plan cannot be read.'))
+      : super.ensurePlan(ownerId, create);
+}
+
 void main() {
   setUpAll(loadAppFonts);
+
+  test('a started workout opens and takes a set when neither the plan nor '
+      'the program can be read: it is drawn from the session alone', () async {
+    final days = MemoryDayRepository();
+    final workouts = _PlanLost(days);
+    final store = LocalStore(
+      ownerId: 'local-test',
+      days: days,
+      journal: MemoryJournalRepository(),
+      settings: MemorySettingsRepository(),
+      workouts: workouts,
+      close: () async {},
+    );
+    var issued = 0;
+    ProviderContainer open({required bool programReadable}) {
+      final container = ProviderContainer(
+        overrides: [
+          localStoreProvider.overrideWithValue(store),
+          clockProvider.overrideWithValue(TestClock(liftingEvening)),
+          eventIdProvider.overrideWithValue(() => 'id${++issued}'),
+          workoutLibraryProvider.overrideWith(
+            (ref) async => programReadable
+                ? loadBundledWorkoutLibrary()
+                : throw StateError('The program cannot be read.'),
+          ),
+        ],
+      );
+      addTearDown(container.dispose);
+      return container;
+    }
+
+    final provider = workoutViewModelProvider(_monday);
+
+    // He starts Monday's workout while everything can be read.
+    final first = open(programReadable: true);
+    first.listen(provider, (_, _) {});
+    final before = await first.read(provider.future);
+    expect(before.session, isNull);
+    expect(before.planDay, isNotNull);
+    expect(before.planned, hasLength(7));
+    expect(before.canStart, isTrue);
+    expect(await first.read(provider.notifier).start(), StartOutcome.started);
+
+    // The app is opened again. Now the plan and the program both fail.
+    workouts.lost = true;
+    final second = open(programReadable: false);
+    second.listen(provider, (_, _) {});
+    final view = await second.read(provider.future);
+
+    // The workout is there, whole, from what the session holds.
+    final session = view.session!;
+    expect(session.exercises, hasLength(7));
+    expect(session.superset, <int>[5, 6]);
+    expect(view.supersetLabels, <String?>[
+      null,
+      null,
+      null,
+      null,
+      null,
+      'A1',
+      'A2',
+    ]);
+    expect(view.live, isTrue);
+    expect(view.canStart, isFalse);
+    // Nothing of the plan was asked for.
+    expect(view.planDay, isNull);
+    expect(view.planned, isEmpty);
+
+    // And it can be logged: the set reaches the store and the page's view.
+    final setId = session.exercises.first.sets.first.id;
+    final model = second.read(provider.notifier);
+    expect(await model.setReps(setId, 5), isTrue);
+    final stored = (await model.storedSession())!;
+    expect(stored.exercises.first.sets.first.reps, 5);
+    await pumpEventQueue();
+    final redrawn = await second.read(provider.future);
+    expect(redrawn.session!.exercises.first.sets.first.reps, 5);
+  });
 
   test('start answers "failed" when the plan cannot be read while the '
       'program is still loading, and leaves no error unheard', () async {

@@ -136,11 +136,13 @@ class WorkoutView {
 
   final LocalDate today;
 
-  /// What the plan holds for [day].
-  final PlanDay planDay;
+  /// What the plan holds for [day]. Null once a session is started on
+  /// [day]: the page is then drawn from the session alone, and neither the
+  /// plan nor the program is read.
+  final PlanDay? planDay;
 
   /// The plan's exercises for [day], named for the member's equipment.
-  /// Shown until a session is started.
+  /// Shown until a session is started, and empty after that.
   final List<PlannedLine> planned;
 
   /// The session started on [day], or null.
@@ -160,7 +162,8 @@ class WorkoutView {
 
   /// A session can be started only on the day itself. The prototype's
   /// rule: the Start button shows for today only.
-  bool get canStart => session == null && planDay.isTrain && day == today;
+  bool get canStart =>
+      session == null && (planDay?.isTrain ?? false) && day == today;
 
   /// A started session can be logged and finished on any later day too
   /// (review finding U2).
@@ -274,10 +277,35 @@ class WorkoutViewModel extends AsyncNotifier<WorkoutView> {
     _writes = ref.watch(workoutWritesProvider);
     final today = ref.watch(todayDateProvider);
     final store = ref.watch(localStoreProvider);
+    // The stored session comes first. A started workout holds its own copy
+    // of what the plan prescribed, so it is drawn from that copy alone and
+    // opens even when the plan or the program cannot be read.
+    final session = await ref.watch(sessionForDayProvider(day).future);
+    if (session != null) {
+      if (session.id != _lastTimesSession) {
+        // Looked up once per session, by movement id.
+        _lastTimes = await store.workouts.lastTimes(
+          store.ownerId,
+          before: session.day,
+          movementIds: session.exercises.map((e) => e.movementId),
+        );
+        _lastTimesSession = session.id;
+      }
+      return WorkoutView(
+        day: day,
+        today: today,
+        planDay: null,
+        planned: const <PlannedLine>[],
+        session: session,
+        lastTimes: _lastTimes,
+        durable: store.workouts.durable,
+        // From the mark the session holds, not from the program.
+        supersetLabels: session.supersetLabels,
+      );
+    }
+
     final library = await ref.watch(workoutLibraryProvider.future);
     final plan = await ref.watch(workoutPlanProvider.future);
-    final session = await ref.watch(sessionForDayProvider(day).future);
-
     final planDay = library.dayFor(plan, day);
     final plannedLabels = planDay.isTrain
         ? supersetLabels(
@@ -285,15 +313,6 @@ class WorkoutViewModel extends AsyncNotifier<WorkoutView> {
             planDay.workout!.exercises.length,
           )
         : const <String?>[];
-    if (session != null && session.id != _lastTimesSession) {
-      // Looked up once per session, by movement id.
-      _lastTimes = await store.workouts.lastTimes(
-        store.ownerId,
-        before: session.day,
-        movementIds: session.exercises.map((e) => e.movementId),
-      );
-      _lastTimesSession = session.id;
-    }
 
     return WorkoutView(
       day: day,
@@ -311,11 +330,9 @@ class WorkoutViewModel extends AsyncNotifier<WorkoutView> {
               supersetLabel: plannedLabels[i],
             ),
       ],
-      session: session,
-      lastTimes: session == null ? const <String, LastTime>{} : _lastTimes,
+      session: null,
+      lastTimes: const <String, LastTime>{},
       durable: store.workouts.durable,
-      // From the mark the session holds, not from the program.
-      supersetLabels: session?.supersetLabels ?? const <String?>[],
     );
   }
 
