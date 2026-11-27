@@ -9,7 +9,7 @@ Open this page first, in Obsidian, from the `main` checkout. Pick the one action
 >
 > Task: Agents may merge after review · Lane: Next
 
-Board now: Next 1 · In progress 0 · Waiting 4 · Done 28 · Later 32.
+Board now: Next 1 · In progress 0 · Waiting 5 · Done 29 · Later 31.
 <!-- work-focus:end -->
 
 ## Teach or learn the project
