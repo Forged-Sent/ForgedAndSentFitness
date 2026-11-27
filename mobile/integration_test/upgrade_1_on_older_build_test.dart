@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:forged_and_sent/src/core/local_date.dart';
 import 'package:forged_and_sent/src/design/fs_box_row.dart';
 import 'package:forged_and_sent/src/features/devotional/presentation/devotional_page.dart';
 import 'package:forged_and_sent/src/features/journal/presentation/journal_entry_page.dart';
@@ -23,7 +24,10 @@ void main() {
   testWidgets('the older build: two journal entries and a completed day', (
     tester,
   ) async {
-    await startApp(tester);
+    final clock = await startOlderAppOnLiftingDay(tester);
+    debugPrint(
+      'UPGRADE TEST: the older build ran on ${LocalDate.of(clock.now()).iso}.',
+    );
 
     // A new install: none of this test's entries, and the box not checked.
     await openJournalFromToday(tester);
@@ -46,7 +50,13 @@ void main() {
     await tester.pumpAndSettle();
     await tester.enterText(box, upgradeEntryUnderReading);
     await tester.pumpAndSettle();
-    await tester.ensureVisible(journalSaveButton);
+    // The keyboard is open and the page is short. Save goes to the middle
+    // of what is left of it: at the foot it can lie under the tab bar,
+    // where a tap does not reach it.
+    await Scrollable.ensureVisible(
+      tester.element(journalSaveButton),
+      alignment: 0.5,
+    );
     await tester.pumpAndSettle();
     await tester.tap(journalSaveButton);
     for (var i = 0; i < 100 && journalMessage.evaluate().isEmpty; i++) {
