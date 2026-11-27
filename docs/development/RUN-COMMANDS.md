@@ -158,6 +158,64 @@ bash 'launchers/mac/more/Run app on iPhone simulator.command'
 
 **Expect:** the launcher boots a simulator and reports preview or emulator mode. It chooses emulator mode only if the three local Firebase ports are reachable. `q` stops Flutter. An iOS simulator build in CI is not proof this interactive journey ran on an iPhone.
 
+## Device testing on the two workstations: where it stands and what is open
+
+For the maintainer, and for an AI session on either machine: read this before the two sections that follow. Written on 2026-11-26 with `main` at `cf5f744`. It is a summary. Where it and a source disagree, the source is right: [mobile/README.md](../../mobile/README.md) for what each device test proves and when it passed, the [work board](../knowledge/WORK.md) for what is planned, and the [platforms page](../knowledge/FLUTTER-PLATFORMS.md) for what is claimed for each platform.
+
+| | Mac | Windows |
+|---|---|---|
+| The device | One iPhone 17 simulator, iOS 27.2, with Xcode 27.2 | One Android emulator, `FS_S1_Restart_API_36`, Android 16 (API 36) |
+| The commands | "Everyday simulator commands", run on 2026-11-25 at `49104c9` | "Everyday Android emulator commands", from 2026-11-26 |
+| Host tests | 634 passed, 34 skipped (2026-11-25, `49104c9`) | 732 passed, none skipped (2026-11-26, `cf5f744`) |
+| Device tests that have passed there | The devotional (S1), journal, workout, and journal change-and-delete sets, on 2026-11-25 | Those four, the added-set pair and the upgrade test (dates in `mobile/README.md`); the superset test and the upgrade from the S3 build, on 2026-11-23 (the [workout contract](../features/workout-logging/feature.md)) |
+| Device tests with no run recorded there | The added-set pair, the superset test, the upgrade test, the upgrade from the S3 build | None |
+| The app by hand | A debug build only: a simulator does not run a profile build | A profile build, installed with `adb` |
+| Another day's date | Not tried. NOT VERIFIED | The emulator's clock moved with `cmd alarm set-time` |
+| A real phone | None has been connected. Nothing has run on an iPhone | Nothing has run on an Android phone |
+| CI | The `ios-simulator` job builds the app and runs no device test | The `flutter` job builds a debug APK; no lane has an emulator |
+
+### What holds on both machines
+
+- **No device test needs the device's date moved.** The workout, added-set and upgrade tests start the app with its own clock moved to the next lifting day (the upgrade test since #95). Moving a device's date is only for looking at the app by hand.
+- **A set of device tests starts with the app removed, runs within one real day, and ends by removing the app,** with everything it has saved.
+- **So one user of a device at a time.** Before the maintainer tries the app by hand on a device, a session running device tests there has to be told, and told again when he is finished. On 2026-11-26 the Windows session with the test queue held every device test until then.
+- **A pass on one machine says nothing about the other.** Record a run with its date, device and commit, in `mobile/README.md` when it is a device test.
+
+### On the Windows workstation, for an AI session
+
+These are the maintainer's instructions of 2026-11-12, kept until now only in a session's notes:
+
+- Use `FS_S1_Restart_API_36`. Ask before using `Pixel_9` or `Pixel_9_Pro_XL`: another tool may be using one, and a device test installs and removes the app there.
+- Tell him before starting an emulator, and name it.
+- `Medium_Phone_API_35` could not start on 2026-11-12: its system image was not installed. Not checked again.
+
+Helper scripts for this emulator (a start that waits for Android, one device test with a time limit and a log, sample workouts entered through the app's own screens) are in the folder `fs-overnight` under his user folder on that workstation. They are **not in this repository**, so this page gives the plain commands.
+
+### Open on the Mac
+
+1. `mobile/README.md` and the S3 row of the work board do not yet record the simulator runs of 2026-11-25: the README says the journal change-and-delete test "has not run on a phone or on iOS" and names only the Android emulator for the workout restart test, and the board says "iOS is built only by CI". The runs are listed in pull request #101.
+2. The added-set pair, the superset test, the upgrade test and the upgrade from the S3 build have no run recorded on the simulator.
+3. Whether the simulator's date can be moved, to look at a lifting day on a rest day, has not been tried.
+4. A profile or release build on a real iPhone: NOT VERIFIED, because none has been connected.
+5. Why `bootstatus` ends with "Data Migration Failed" has not been looked into.
+
+### Open on Windows
+
+1. Three PowerShell lines in the section below were not run in that spelling: the two that start the emulator, and `set-time` with the number worked out in PowerShell.
+2. Whether the emulator must be started afresh after its date is put back is NOT VERIFIED.
+3. No command in this repository fills the app with sample workouts. On 2026-11-26 they came from a helper script outside it.
+4. Nothing has run on an Android phone.
+
+### Planned, on the work board
+
+None of the open items above is a board row; the maintainer decides which become one. These rows are on the board under Later, each with no prompt yet:
+
+- **The restart test runs in CI:** a required check that runs complete, kill, relaunch on an Android emulator.
+- **CI checks the golden images:** today they are compared on Windows only.
+- **Android release signing,** before anything is distributed.
+
+Several finished rows also name "Run it on a phone" as their next action.
+
 ## Everyday simulator commands
 
 For the maintainer's Mac. Every command in this section was run there on 2026-11-25 and seen to work: Xcode 27.2, Flutter 3.47.8, one iPhone 17 simulator on iOS 27.2, `main` at `49104c9`. Anything that was not run, or that failed, is said so.
@@ -340,6 +398,8 @@ Is the app installed, and remove it with everything it has saved:
 
 On the plan every member gets, Train offers a workout to start only on a Monday, Wednesday or Friday. That evening was a Thursday, so the emulator's clock was moved 24 hours ahead, and Train showed "Friday, November 27" and "Ready to train". **[reported]** The app reads the emulator's clock; nothing in the app was changed.
 
+This is for looking at the app by hand. No device test needs it: each one that needs a lifting day moves the app's own clock.
+
 Move it ahead by one day, with the app closed (the only order tried):
 
 ```powershell
@@ -382,14 +442,57 @@ A set of device tests installs its own build and ends by removing the app, and w
 
 ### Device tests on the emulator
 
-The commands, what each test proves and when each last passed on this emulator are in [mobile/README.md](../../mobile/README.md). They are run from `mobile/` with `& $fsFlutter test ... -d emulator-5554`. None was run for this page. Before a set:
+What each test proves and when each last passed on this emulator are in [mobile/README.md](../../mobile/README.md). Before a set, from any folder:
 
 ```powershell
 & $adb -s emulator-5554 shell pm list packages | Select-String forged   # expect nothing: start with the app removed
+& $adb -s emulator-5554 uninstall $APP                                  # if it is there
 & $adb -s emulator-5554 shell df -h /data                               # free space; 2.5 GB that evening
 ```
 
-Both **[run]**.
+The first and third are **[run]**; the second is **[reported]**.
+
+Each test is two or three files, run in order, one process each, from `mobile/`. Run a whole set on the same day.
+
+Devotional (S1): Amen survives a kill and relaunch.
+
+```powershell
+& $fsFlutter test integration_test/restart_1_complete_test.dart -d emulator-5554 --no-uninstall
+& $fsFlutter test integration_test/restart_2_verify_test.dart -d emulator-5554
+```
+
+Journal: an entry survives.
+
+```powershell
+& $fsFlutter test integration_test/journal_restart_1_write_test.dart -d emulator-5554 --no-uninstall
+& $fsFlutter test integration_test/journal_restart_2_verify_test.dart -d emulator-5554
+```
+
+Workout: a workout in progress survives and can be finished.
+
+```powershell
+& $fsFlutter test integration_test/workout_restart_1_start_test.dart -d emulator-5554 --no-uninstall
+& $fsFlutter test integration_test/workout_restart_2_finish_test.dart -d emulator-5554
+```
+
+Added set: a set he added during a workout survives.
+
+```powershell
+& $fsFlutter test integration_test/workout_sets_restart_1_add_test.dart -d emulator-5554 --no-uninstall
+& $fsFlutter test integration_test/workout_sets_restart_2_verify_test.dart -d emulator-5554
+```
+
+Journal, changing and deleting an entry (three files):
+
+```powershell
+& $fsFlutter test integration_test/journal_edit_restart_1_change_test.dart -d emulator-5554 --no-uninstall
+& $fsFlutter test integration_test/journal_edit_restart_2_delete_test.dart -d emulator-5554 --no-uninstall
+& $fsFlutter test integration_test/journal_edit_restart_3_gone_test.dart -d emulator-5554
+```
+
+- **None of these was run for this page.** They are the commands of `mobile/README.md`, where each set has passed on this emulator, with `& $fsFlutter` and the device id put in. The last file of each set removes the app.
+- **The upgrade test and the upgrade from the S3 build** need a checkout of an older build as well; their steps are in `mobile/README.md`. The superset test is one file, `integration_test/workout_superset_test.dart`; it is named in the [workout contract](../features/workout-logging/feature.md) and not in `mobile/README.md`.
+- **Give a newly started emulator a few minutes first.** `mobile/README.md` records these tests failing on an emulator that had only just started, and passing a few minutes later with nothing changed.
 
 ## E. Check a change
 
