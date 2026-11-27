@@ -158,6 +158,64 @@ bash 'launchers/mac/more/Run app on iPhone simulator.command'
 
 **Expect:** the launcher boots a simulator and reports preview or emulator mode. It chooses emulator mode only if the three local Firebase ports are reachable. `q` stops Flutter. An iOS simulator build in CI is not proof this interactive journey ran on an iPhone.
 
+## Device testing on the two workstations: where it stands and what is open
+
+For the maintainer, and for an AI session on either machine: read this before the two sections that follow. Written on 2026-11-26 with `main` at `cf5f744`. It is a summary. Where it and a source disagree, the source is right: [mobile/README.md](../../mobile/README.md) for what each device test proves and when it passed, the [work board](../knowledge/WORK.md) for what is planned, and the [platforms page](../knowledge/FLUTTER-PLATFORMS.md) for what is claimed for each platform.
+
+| | Mac | Windows |
+|---|---|---|
+| The device | One iPhone 17 simulator, iOS 27.2, with Xcode 27.2 | One Android emulator, `FS_S1_Restart_API_36`, Android 16 (API 36) |
+| The commands | "Everyday simulator commands", run on 2026-11-25 at `49104c9` | "Everyday Android emulator commands", from 2026-11-26 |
+| Host tests | 634 passed, 34 skipped (2026-11-25, `49104c9`) | 732 passed, none skipped (2026-11-26, `cf5f744`) |
+| Device tests that have passed there | The devotional (S1), journal, workout, and journal change-and-delete sets, on 2026-11-25 | Those four, the added-set pair and the upgrade test (dates in `mobile/README.md`); the superset test and the upgrade from the S3 build, on 2026-11-23 (the [workout contract](../features/workout-logging/feature.md)) |
+| Device tests with no run recorded there | The added-set pair, the superset test, the upgrade test, the upgrade from the S3 build | None |
+| The app by hand | A debug build only: a simulator does not run a profile build | A profile build, installed with `adb` |
+| Another day's date | Not tried. NOT VERIFIED | The emulator's clock moved with `cmd alarm set-time` |
+| A real phone | None has been connected. Nothing has run on an iPhone | Nothing has run on an Android phone |
+| CI | The `ios-simulator` job builds the app and runs no device test | The `flutter` job builds a debug APK; no lane has an emulator |
+
+### What holds on both machines
+
+- **No device test needs the device's date moved.** The workout, added-set and upgrade tests start the app with its own clock moved to the next lifting day (the upgrade test since #95). Moving a device's date is only for looking at the app by hand.
+- **A set of device tests starts with the app removed, runs within one real day, and ends by removing the app,** with everything it has saved.
+- **So one user of a device at a time.** Before the maintainer tries the app by hand on a device, a session running device tests there has to be told, and told again when he is finished. On 2026-11-26 the Windows session with the test queue held every device test until then.
+- **A pass on one machine says nothing about the other.** Record a run with its date, device and commit, in `mobile/README.md` when it is a device test.
+
+### On the Windows workstation, for an AI session
+
+These are the maintainer's instructions of 2026-11-12, kept until now only in a session's notes:
+
+- Use `FS_S1_Restart_API_36`. Ask before using `Pixel_9` or `Pixel_9_Pro_XL`: another tool may be using one, and a device test installs and removes the app there.
+- Tell him before starting an emulator, and name it.
+- `Medium_Phone_API_35` could not start on 2026-11-12: its system image was not installed. Not checked again.
+
+Helper scripts for this emulator (a start that waits for Android, one device test with a time limit and a log, sample workouts entered through the app's own screens) are in the folder `fs-overnight` under his user folder on that workstation. They are **not in this repository**, so this page gives the plain commands.
+
+### Open on the Mac
+
+1. `mobile/README.md` and the S3 row of the work board do not yet record the simulator runs of 2026-11-25: the README says the journal change-and-delete test "has not run on a phone or on iOS" and names only the Android emulator for the workout restart test, and the board says "iOS is built only by CI". The runs are listed in pull request #101.
+2. The added-set pair, the superset test, the upgrade test and the upgrade from the S3 build have no run recorded on the simulator.
+3. Whether the simulator's date can be moved, to look at a lifting day on a rest day, has not been tried.
+4. A profile or release build on a real iPhone: NOT VERIFIED, because none has been connected.
+5. Why `bootstatus` ends with "Data Migration Failed" has not been looked into.
+
+### Open on Windows
+
+1. Three PowerShell lines in the section below were not run in that spelling: the two that start the emulator, and `set-time` with the number worked out in PowerShell.
+2. Whether the emulator must be started afresh after its date is put back is NOT VERIFIED.
+3. No command in this repository fills the app with sample workouts. On 2026-11-26 they came from a helper script outside it.
+4. Nothing has run on an Android phone.
+
+### Planned, on the work board
+
+None of the open items above is a board row; the maintainer decides which become one. These rows are on the board under Later, each with no prompt yet:
+
+- **The restart test runs in CI:** a required check that runs complete, kill, relaunch on an Android emulator.
+- **CI checks the golden images:** today they are compared on Windows only.
+- **Android release signing,** before anything is distributed.
+
+Several finished rows also name "Run it on a phone" as their next action.
+
 ## Everyday simulator commands
 
 For the maintainer's Mac. Every command in this section was run there on 2026-11-25 and seen to work: Xcode 27.2, Flutter 3.47.8, one iPhone 17 simulator on iOS 27.2, `main` at `49104c9`. Anything that was not run, or that failed, is said so.
@@ -266,6 +324,175 @@ flutter test integration_test/journal_edit_restart_3_gone_test.dart -d $SIM
 - **The upgrade test** (`upgrade_1`, `upgrade_2`, `upgrade_3`) was not run on the simulator that day. NOT VERIFIED on iOS. Its steps are in [mobile/README.md](../../mobile/README.md).
 - **"Failed to copy plugin cloud_firestore ... rsync ... No such file or directory"** before any build starts: the folder `mobile/build/ios/SourcePackages` is missing, and the `rsync` from Homebrew will not create it. `mkdir -p build/ios/SourcePackages` from `mobile/`, then run the command again. Seen that day after `mobile/build` was deleted; the launcher makes the folder itself.
 - **Disk space.** The first iPhone build in a checkout or worktree puts about 2 GB into its `mobile/build`. That morning the Mac ran out of space during a build ("No space left on device"), and every test failed before it started. `df -h /System/Volumes/Data` shows what is free. `mobile/build` in a worktree that is no longer used can be deleted; the next build makes it again.
+
+## Everyday Android emulator commands
+
+For the maintainer's Windows workstation, in PowerShell 7. On the evening of 2026-11-26 the emulator `FS_S1_Restart_API_36` (Android 16, API 36; emulator 36.2.12, Flutter 3.47.8) was prepared for him to try the app by hand on a lifting day, and afterwards put back for the device tests. Two AI sessions did that, and this page was written by the second. Each command below is marked:
+
+- **[run]**: run by the session that wrote this page, and seen to work.
+- **[reported]**: run that evening by the other session. It is taken from that session's report and was not run again for this page.
+
+Some were run from PowerShell and some from Git Bash or a helper script; what follows `adb` is the same in both. Where the PowerShell spelling itself matters and was not run, that is said. Anything else is said to be NOT VERIFIED.
+
+### Once per PowerShell window: the tools
+
+```powershell
+$fsFlutter = Join-Path $env:USERPROFILE 'develop\flutter\bin\flutter.bat'
+$sdk = Join-Path $env:LOCALAPPDATA 'Android\Sdk'
+$adb = Join-Path $sdk 'platform-tools\adb.exe'
+$emu = Join-Path $sdk 'emulator\emulator.exe'
+$AVD = 'FS_S1_Restart_API_36'
+$APP = 'com.forgedandsent.forged_and_sent'
+& $emu -list-avds
+```
+
+**Expect:** four names, one of them `FS_S1_Restart_API_36`. **[run]** That is the Android emulator the device tests in [mobile/README.md](../../mobile/README.md) were run on. Once started it is the device `emulator-5554`.
+
+- `emulator` is not on this workstation's PATH, so the full path is needed. `adb` is on PATH, from `C:\adb\platform-tools`; it and the copy in the Android SDK are both version 36.0.0.
+- Give every `adb` command `-s emulator-5554`. That evening `adb devices` also listed a second device, connected over Wi-Fi, so each command has to say which one it means.
+
+### Start, stop and restart the emulator
+
+```powershell
+Start-Process $emu -ArgumentList '-avd', $AVD, '-no-snapshot', '-no-boot-anim', '-gpu', 'host' -WindowStyle Minimized   # start, with its window
+& $adb devices                                              # expect: emulator-5554   device
+& $adb -s emulator-5554 shell getprop sys.boot_completed    # 1 when Android has finished starting
+& $adb -s emulator-5554 shell sync                          # before stopping: write what the app saved to the emulator's disk
+& $adb -s emulator-5554 emu kill                            # stop
+```
+
+- **The start, with its window: [reported].** It opened on the first try and had started in 33 seconds; the window's title is "Android Emulator - FS_S1_Restart_API_36:5554". `-WindowStyle Minimized` minimizes only the console window that comes with it. The spelling of this line is from that session's notes.
+- **The start without a window: [run]**, from Git Bash by a helper script: the same options with `-no-window` added. Android had started in 40 seconds. That is how the emulator was left for the device tests. The PowerShell spelling, `'-no-window'` added to the list above, was not run.
+- **The other four lines: [run].**
+- `-no-snapshot` starts the emulator as a phone that was switched off, not from where it was last left. Every start that evening was of this kind.
+- Stopping the emulator keeps the app and what it has saved. **[reported]** The app's four finished workouts and one unfinished were there after a stop and a start. **[run]** After a second stop and start the app was still installed; its workouts were not looked at again. Removing the app (below) is what clears it.
+- Fifteen seconds after a start, `adb -s emulator-5554 shell date` gave the same time as the workstation. **[run]**
+- To restart: stop, wait until `adb devices` no longer lists `emulator-5554`, then start.
+
+### Run the app
+
+For work on the code, with hot reload, use section B with `emulator-5554` as the device id. That is a debug build.
+
+To try the app by hand, install a **profile** build. It has no hot reload. The debug build felt slow on this emulator when he tried it on 2026-11-21; a profile build is the one to judge the app's speed by. From `mobile/`:
+
+```powershell
+& $fsFlutter pub get
+& $fsFlutter build apk --profile --target-platform android-x64
+& $adb -s emulator-5554 install -r build\app\outputs\flutter-apk\app-profile.apk
+& $adb -s emulator-5554 shell monkey -p $APP -c android.intent.category.LAUNCHER 1   # open the app
+```
+
+- **The first two lines: [run]**, in a checkout of `main` at `cf5f744`. The build took a minute and a half and ended with "Built build\app\outputs\flutter-apk\app-profile.apk (36.7MB)". That file was not installed.
+- **The last two lines: [reported]**, with a build of `main` at `50ddfc0`.
+- `install -r` installs over the app that is there and keeps what it has saved. That evening the profile build went over a debug build that held sample workouts, and the workouts were still there.
+- The emulator is an `x64` device; `--target-platform android-x64` builds only for it.
+
+Is the app installed, and remove it with everything it has saved:
+
+```powershell
+& $adb -s emulator-5554 shell pm list packages | Select-String forged   # [run]
+& $adb -s emulator-5554 uninstall $APP                                  # [reported]
+```
+
+### See another day: move the emulator's date
+
+On the plan every member gets, Train offers a workout to start only on a Monday, Wednesday or Friday. That evening was a Thursday, so the emulator's clock was moved 24 hours ahead, and Train showed "Friday, November 27" and "Ready to train". **[reported]** The app reads the emulator's clock; nothing in the app was changed.
+
+This is for looking at the app by hand. No device test needs it: each one that needs a lifting day moves the app's own clock.
+
+Move it ahead by one day, with the app closed (the only order tried):
+
+```powershell
+& $adb -s emulator-5554 shell settings put global auto_time 0
+$ms = [DateTimeOffset]::Now.AddDays(1).ToUnixTimeMilliseconds()
+& $adb -s emulator-5554 shell cmd alarm set-time $ms
+& $adb -s emulator-5554 shell date
+```
+
+- **The two `adb` lines that change something: [reported]**, with the number worked out in Git Bash. The `$ms` line was run on the workstation and gives this time tomorrow; passing it to `set-time` from PowerShell is NOT VERIFIED.
+- `$ms` is the new time in milliseconds since 1970. Work it out on the workstation, as here. Worked out inside the emulator's own shell, the multiplication overflowed and the clock read January 1970 for a few seconds. **[reported]**
+- For another day, change `AddDays(1)`.
+- `adb shell date <new date>` does not work on this emulator: "Operation not permitted". **[reported]**
+- With `auto_time` at 0 the emulator keeps the date it was given, and the clock still runs: more than four hours later it was one day ahead of the workstation, to within a second. **[run]**
+
+Put it back **[run]**:
+
+```powershell
+& $adb -s emulator-5554 shell settings put global auto_time 1
+& $adb -s emulator-5554 shell date
+```
+
+**Expect:** the workstation's date and time. Eight seconds after the first line it matched to the second.
+
+Before any device test, start the emulator afresh **[run]**:
+
+```powershell
+& $adb -s emulator-5554 shell sync
+& $adb forward --remove-all
+& $adb -s emulator-5554 emu kill
+```
+
+Then start it as above. After the start the date still matched and `auto_time` was still 1. The reason for the fresh start is an earlier session's note, not in this repository: on 2026-11-21, after the date had been put back, the test runner could not connect to the emulator until this was done. No device test was run for this page, so whether it is still needed is NOT VERIFIED.
+
+Do not move the date between the files of one device test: each set must run within one day by the emulator's clock.
+
+### While he is using the emulator
+
+A set of device tests installs its own build and ends by removing the app, and with it what he was looking at. If an AI session is running device tests, tell it before the emulator is prepared for use by hand, and again when he is finished. That evening the session with the test queue held every device test until it was told.
+
+### Device tests on the emulator
+
+What each test proves and when each last passed on this emulator are in [mobile/README.md](../../mobile/README.md). Before a set, from any folder:
+
+```powershell
+& $adb -s emulator-5554 shell pm list packages | Select-String forged   # expect nothing: start with the app removed
+& $adb -s emulator-5554 uninstall $APP                                  # if it is there
+& $adb -s emulator-5554 shell df -h /data                               # free space; 2.5 GB that evening
+```
+
+The first and third are **[run]**; the second is **[reported]**.
+
+Each test is two or three files, run in order, one process each, from `mobile/`. Run a whole set on the same day.
+
+Devotional (S1): Amen survives a kill and relaunch.
+
+```powershell
+& $fsFlutter test integration_test/restart_1_complete_test.dart -d emulator-5554 --no-uninstall
+& $fsFlutter test integration_test/restart_2_verify_test.dart -d emulator-5554
+```
+
+Journal: an entry survives.
+
+```powershell
+& $fsFlutter test integration_test/journal_restart_1_write_test.dart -d emulator-5554 --no-uninstall
+& $fsFlutter test integration_test/journal_restart_2_verify_test.dart -d emulator-5554
+```
+
+Workout: a workout in progress survives and can be finished.
+
+```powershell
+& $fsFlutter test integration_test/workout_restart_1_start_test.dart -d emulator-5554 --no-uninstall
+& $fsFlutter test integration_test/workout_restart_2_finish_test.dart -d emulator-5554
+```
+
+Added set: a set he added during a workout survives.
+
+```powershell
+& $fsFlutter test integration_test/workout_sets_restart_1_add_test.dart -d emulator-5554 --no-uninstall
+& $fsFlutter test integration_test/workout_sets_restart_2_verify_test.dart -d emulator-5554
+```
+
+Journal, changing and deleting an entry (three files):
+
+```powershell
+& $fsFlutter test integration_test/journal_edit_restart_1_change_test.dart -d emulator-5554 --no-uninstall
+& $fsFlutter test integration_test/journal_edit_restart_2_delete_test.dart -d emulator-5554 --no-uninstall
+& $fsFlutter test integration_test/journal_edit_restart_3_gone_test.dart -d emulator-5554
+```
+
+- **None of these was run for this page.** They are the commands of `mobile/README.md`, where each set has passed on this emulator, with `& $fsFlutter` and the device id put in. The last file of each set removes the app.
+- **The upgrade test and the upgrade from the S3 build** need a checkout of an older build as well; their steps are in `mobile/README.md`. The superset test is one file, `integration_test/workout_superset_test.dart`; it is named in the [workout contract](../features/workout-logging/feature.md) and not in `mobile/README.md`.
+- **Give a newly started emulator a few minutes first.** `mobile/README.md` records these tests failing on an emulator that had only just started, and passing a few minutes later with nothing changed.
 
 ## E. Check a change
 
