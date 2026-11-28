@@ -131,6 +131,10 @@ update-by: edit WORK.md then run tooling/knowledge/work_board.py --write
 	**Note:** None for the maintainer beyond his review. Test code and documents only: nothing under `mobile/lib/` changed. On 2026-11-22, a Sunday, the test as it was failed in part 2 (no workout to start), and the changed test passed on the emulator without its date being touched. The older build has no way to be given a clock, so part 1 starts it as its `main()` does with the clock put in beside the store. His decision of 2026-11-21
 	**Branch or PR:** branch `claude/upgrade-test-any-day`
 	[Edit this row in WORK](WORK.md)
+- [x] **A started workout opens without the program**
+	**Note:** None. The workout page reads the stored session first, and asks for the plan and the program only on a day with no session. It answers the one Medium finding of the Codex review of [#94](https://github.com/Forged-Sent/ForgedAndSentFitness/pull/94), and its two Low findings in the page's tests, by the maintainer's decision of 2026-11-26. No schema change. Not on a phone
+	**Branch or PR:** branch `claude/started-workout-without-program`
+	[Edit this row in WORK](WORK.md)
 - [x] **Setup scripts and guides match the six-tab app**
 	**Note:** Physical run on a fresh Windows PC and a Mac: the Try it now walkthrough, Mobile Check my setup, and a second setup run in the same window
 	**Branch or PR:** branch `claude/bootstrap-test-readiness`

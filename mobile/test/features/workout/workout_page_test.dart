@@ -43,6 +43,39 @@ Future<void> _finish(WidgetTester tester) async {
   }
 }
 
+/// The note that stands where the rest timer would, under the first
+/// exercise of a superset.
+final Finder _supersetNote = find.text(
+  'Superset: go straight to the next exercise, no rest.',
+);
+
+/// Walks the workout page from its top to its foot, a third of a screen at
+/// a time, and expects none of [finders] to find anything at any stop.
+Future<void> _expectNowhereOnPage(
+  WidgetTester tester,
+  List<Finder> finders,
+) async {
+  final position = tester.state<ScrollableState>(workoutScrollable).position;
+  position.jumpTo(0);
+  await tester.pumpAndSettle();
+  while (true) {
+    for (final finder in finders) {
+      expect(
+        finder,
+        findsNothing,
+        reason: 'at ${position.pixels} of ${position.maxScrollExtent}',
+      );
+    }
+    if (position.pixels >= position.maxScrollExtent) break;
+    final next = position.pixels + 280;
+    position.jumpTo(
+      next < position.maxScrollExtent ? next : position.maxScrollExtent,
+    );
+    await tester.pumpAndSettle();
+  }
+  expect(position.pixels, position.maxScrollExtent);
+}
+
 /// The line that says a change did not save.
 final Finder _saveFailedNotice = find.byKey(
   const ValueKey<String>('fs-workout-save-failed'),
@@ -987,11 +1020,20 @@ void main() {
       );
       await showOnWorkoutPage(tester, repsField(5, 0));
       expect(inGroup(repsField(5, 0)), findsOneWidget);
+      // The first half still has no timer. Looked for while A1's own card
+      // is built, anywhere in it, on screen or not.
+      expect(
+        find.byKey(const ValueKey<String>('fs-rest-go-5'), skipOffstage: false),
+        findsNothing,
+      );
+      // Its note stands where a timer would.
+      await showOnWorkoutPage(tester, _supersetNote);
+      expect(inGroup(_supersetNote), findsOneWidget);
+      expect(inGroup(repsField(5, 0)), findsOneWidget);
       await showOnWorkoutPage(tester, repsField(6, 0));
       expect(inGroup(repsField(6, 0)), findsOneWidget);
       expect(inGroup(repsField(4, 0)), findsNothing);
-      // The first half still has no timer and the second still has one.
-      expect(_rest('go', 5), findsNothing);
+      // The second half still has one.
       await showOnWorkoutPage(tester, _rest('go', 6));
       expect(inGroup(_rest('go', 6)), findsOneWidget);
 
@@ -1028,13 +1070,20 @@ void main() {
       await pumpApp(tester);
       await openTodaysWorkout(tester);
       expect(find.byType(WorkoutPage), findsOneWidget);
-      expect(group, findsNothing);
+      // Before it is started, from the top of the page to its foot.
+      await _expectNowhereOnPage(tester, <Finder>[
+        group,
+        find.text('SUPERSET'),
+      ]);
 
       await startWorkout(tester);
-      await tester.drag(workoutScrollable, const Offset(0, -2000));
-      await tester.pumpAndSettle();
-      expect(group, findsNothing);
-      expect(find.text('SUPERSET'), findsNothing);
+      // And while it is logged, every exercise down to Finish.
+      await _expectNowhereOnPage(tester, <Finder>[
+        group,
+        find.text('SUPERSET'),
+      ]);
+      await showOnWorkoutPage(tester, finishWorkoutButton);
+      expect(finishWorkoutButton, findsOneWidget);
     });
 
     testWidgets('the finished workout\'s summary is as it was: no group', (

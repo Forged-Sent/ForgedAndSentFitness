@@ -394,13 +394,14 @@ class _WorkoutPageState extends ConsumerState<WorkoutPage> {
     }
 
     final session = view.session;
-    final workout = view.planDay.workout;
+    final planDay = view.planDay;
+    final workout = planDay?.workout;
     final String? meta;
     final String title;
     if (session != null) {
       meta = _meta(session.planWeek, session.planDay, session.minutes);
       title = session.title;
-    } else if (view.planDay.isTrain && workout != null) {
+    } else if (planDay != null && planDay.isTrain && workout != null) {
       meta = _meta(workout.week, workout.day, workout.minutes);
       title = workout.title;
     } else {
@@ -477,7 +478,7 @@ class _WorkoutPageState extends ConsumerState<WorkoutPage> {
                     onPressed: _busy ? null : _start,
                   ),
                 ),
-              ] else if (session == null && view.planDay.isTrain)
+              ] else if (session == null && (planDay?.isTrain ?? false))
                 _Notice(
                   view.day.compareTo(view.today) < 0
                       ? 'No workout was logged on this day.'
